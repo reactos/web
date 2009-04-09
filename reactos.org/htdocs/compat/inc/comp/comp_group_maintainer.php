@@ -82,7 +82,7 @@
 		// Edit application group data:
 		if ($RSDB_TEMP_pmod == "ok" && $RSDB_SET_group != "" && $RSDB_TEMP_appgroup != "" && $RSDB_TEMP_description != "" && $RSDB_TEMP_category != "" && $RSDB_TEMP_vendor != "" && usrfunc_IsModerator($RSDB_intern_user_id)) {
 			// Update group entry:
-      $stmt=CDBConnection::getInstance->prepare("UPDATE rsdb_groups SET grpentr_name = :new_name', grpentr_category = :new_category, grpentr_vendor = :new_vendor, grpentr_description = :new_description WHERE grpentr_id = :group_id");
+      $stmt=CDBConnection::getInstance()->prepare("UPDATE rsdb_groups SET grpentr_name = :new_name, grpentr_category = :new_category, grpentr_vendor = :new_vendor, grpentr_description = :new_description WHERE grpentr_id = :group_id");
       $stmt->bindParam('new_name',$RSDB_TEMP_appgroup,PDO::PARAM_STR);
       $stmt->bindParam('new_category',$RSDB_TEMP_category,PDO::PARAM_STR);
       $stmt->bindParam('new_vendor',$RSDB_TEMP_vendor,PDO::PARAM_STR);
@@ -106,7 +106,7 @@
 
 		// Special request:
 		if ($RSDB_TEMP_pmod == "ok" && $RSDB_TEMP_txtreq1 != "" && $RSDB_TEMP_txtreq2 != "" && usrfunc_IsModerator($RSDB_intern_user_id)) {
-			$stmt=CDBConnection::getInstance()->prepare("INSERT INTO rsdb_logs ( log_id, log_date, log_usrid, log_usrip, log_level, log_action, log_title, log_description, log_category, log_badusr, log_referrer, log_browseragent, log_read, log_taskdone_usr) VALUES ('', NOW(), :user_id, :ip, 'low', 'request', :title, :description, 'user_moderator', '0', :referrer, :user_agent, ';', '0');";
+			$stmt=CDBConnection::getInstance()->prepare("INSERT INTO rsdb_logs ( log_id, log_date, log_usrid, log_usrip, log_level, log_action, log_title, log_description, log_category, log_badusr, log_referrer, log_browseragent, log_read, log_taskdone_usr) VALUES ('', NOW(), :user_id, :ip, 'low', 'request', :title, :description, 'user_moderator', '0', :referrer, :user_agent, ';', '0')");
       $stmt->bindParam('user_id',$RSDB_intern_user_id,PDO::PARAM_STR);
       $stmt->bindParam('ip',$RSDB_ipaddr,PDO::PARAM_STR);
       $stmt->bindParam('title',$RSDB_TEMP_txtreq1,PDO::PARAM_STR);
@@ -132,7 +132,7 @@
 		}
 		if ($result_maintainer_group['grpentr_checked'] == "1" || $result_maintainer_group['grpentr_checked'] == "no") {
 			if ($RSDB_TEMP_pmod == "ok" && $RSDB_TEMP_verified == "done" && usrfunc_IsModerator($RSDB_intern_user_id)) {
-				$stmt=CDBConnection::getInstance->prepare("UPDATE rsdb_groups SET grpentr_checked = :checked WHERE grpentr_id = :group_id");
+				$stmt=CDBConnection::getInstance()->prepare("UPDATE rsdb_groups SET grpentr_checked = :checked WHERE grpentr_id = :group_id");
         $stmt->bindParam('checked',$temp_verified,PDO::PARAM_STR);
         $stmt->bindParam('group_id',$RSDB_SET_group,PDO::PARAM_STR);
 				$stmt->execute();

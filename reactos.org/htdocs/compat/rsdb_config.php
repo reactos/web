@@ -70,17 +70,16 @@
 		
 		// View
 		$RSDB_intern_link_db_view = $RSDB_intern_index_php."?page=".htmlspecialchars(@$_GET['page']);
-		$RSDB_intern_link_db_view2 = $RSDB_intern_index_php."?page=".htmlspecialchars(@$_GET['page'])."&amp;cat=".htmlspecialchars(@$_GET['cat'])."&amp;cat2=".htmlspecialchars(@$_GET['cat2'])."&amp;letter=".$RSDB_SET_letter."&amp;group=".$RSDB_SET_group."&amp;item=".htmlspecialchars(@$_GET['item'])."&amp;vendor=".htmlspecialchars(@$_GET['vendor'])."";
+		$RSDB_intern_link_db_view2 = $RSDB_intern_index_php."?page=".htmlspecialchars(@$_GET['page'])."&amp;cat=".htmlspecialchars(@$_GET['cat'])."&amp;letter=".$RSDB_SET_letter."&amp;group=".$RSDB_SET_group."&amp;item=".htmlspecialchars(@$_GET['item'])."&amp;vendor=".htmlspecialchars(@$_GET['vendor'])."";
 		
 		// Category	
-		$RSDB_intern_link_category_all = $RSDB_intern_link_db_sec.htmlspecialchars(@$_GET['page'])."&amp;cat=".htmlspecialchars(@$_GET['cat'])."&amp;cat2=".htmlspecialchars(@$_GET['cat2']);
+		$RSDB_intern_link_category_all = $RSDB_intern_link_db_sec.htmlspecialchars(@$_GET['page'])."&amp;cat=".htmlspecialchars(@$_GET['cat']);
 		
-		$RSDB_intern_link_category_cat = $RSDB_intern_link_db_sec.htmlspecialchars(@$_GET['page'])."&amp;cat2=".htmlspecialchars(@$_GET['cat2'])."&amp;cat=";
-		$RSDB_intern_link_category_cat2 = $RSDB_intern_link_db_sec.htmlspecialchars(@$_GET['page'])."&amp;cat=".htmlspecialchars(@$_GET['cat'])."&amp;cat2=";
+		$RSDB_intern_link_category_cat = $RSDB_intern_link_db_sec.htmlspecialchars(@$_GET['page'])."&amp;cat=";
 		
 		
-			$RSDB_intern_link_category_EX = $RSDB_intern_link_db_sec."category&amp;cat2=".htmlspecialchars(@$_GET['cat2'])."&amp;cat=";
-			$RSDB_intern_link_cat_EX = $RSDB_intern_link_db_sec."category&amp;cat2=".htmlspecialchars(@$_GET['cat2'])."&amp;cat=";
+			$RSDB_intern_link_category_EX = $RSDB_intern_link_db_sec."category&amp;cat=";
+			$RSDB_intern_link_cat_EX = $RSDB_intern_link_db_sec."category&amp;cat=";
 			$RSDB_intern_link_cat2_EX = $RSDB_intern_link_db_sec."category&amp;cat=";
 		
 		
@@ -151,10 +150,10 @@
 
 
 		// Language
-		$RSDB_intern_link_language = $RSDB_intern_index_php."?page=".htmlspecialchars(@$_GET['page'])."&amp;sec=".htmlspecialchars(@$_GET['page'])."&amp;cat=".htmlspecialchars(@$_GET['cat'])."&amp;cat2=".htmlspecialchars(@$_GET['cat2'])."&amp;letter=".$RSDB_SET_letter."&amp;group=".$RSDB_SET_group."&amp;item=".htmlspecialchars(@$_GET['item'])."&amp;order=".$RSDB_SET_order."&amp;filter=".$RSDB_SET_filter."&amp;vendor=".htmlspecialchars(@$_GET['vendor'])."&amp;lang=";
+		$RSDB_intern_link_language = $RSDB_intern_index_php."?page=".htmlspecialchars(@$_GET['page'])."&amp;sec=".htmlspecialchars(@$_GET['page'])."&amp;cat=".htmlspecialchars(@$_GET['cat'])."&amp;letter=".$RSDB_SET_letter."&amp;group=".$RSDB_SET_group."&amp;item=".htmlspecialchars(@$_GET['item'])."&amp;order=".$RSDB_SET_order."&amp;filter=".$RSDB_SET_filter."&amp;vendor=".htmlspecialchars(@$_GET['vendor'])."&amp;lang=";
 
 		// Export
-		$RSDB_intern_link_export = $RSDB_intern_index_php."?page=dat&sec=".htmlspecialchars(@$_GET['page'])."&cat=".htmlspecialchars(@$_GET['cat'])."&cat2=".htmlspecialchars(@$_GET['cat2'])."&letter=".$RSDB_SET_letter."&group=".$RSDB_SET_group."&item=".htmlspecialchars(@$_GET['item'])."&order=".$RSDB_SET_order."&filter=".$RSDB_SET_filter."&vendor=".htmlspecialchars(@$_GET['vendor'])."&lang=".$rpm_lang."&export=";
+		$RSDB_intern_link_export = $RSDB_intern_index_php."?page=dat&sec=".htmlspecialchars(@$_GET['page'])."&cat=".htmlspecialchars(@$_GET['cat'])."&letter=".$RSDB_SET_letter."&group=".$RSDB_SET_group."&item=".htmlspecialchars(@$_GET['item'])."&order=".$RSDB_SET_order."&filter=".$RSDB_SET_filter."&vendor=".htmlspecialchars(@$_GET['vendor'])."&lang=".$rpm_lang."&export=";
 		$RSDB_intern_link_export2 = $RSDB_intern_index_php."?page=dat&export=";
 
 		

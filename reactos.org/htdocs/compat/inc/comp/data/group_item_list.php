@@ -62,7 +62,7 @@
 	$RSDB_intern_TEMP_version_saved_a = "";
   $stmt=CDBConnection::getInstance()->prepare("SELECT * FROM rsdb_item_comp WHERE comp_groupid = :group_id ORDER BY comp_osversion DESC");
   $stmt->bindParam('group_id',$RSDB_SET_group,PDO::PARAM_STR);
-  $stmt->bindParam();
+  $stmt->execute();
 	while($result_sortby_a = $stmt->fetch(PDO::FETCH_ASSOC)) {
 		if ($result_sortby_a[$RSDB_intern_sortby_headline_field] != $RSDB_intern_TEMP_version_saved_a) {
 		

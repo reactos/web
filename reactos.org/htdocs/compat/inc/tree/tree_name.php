@@ -43,7 +43,12 @@
 
 	//echo "<h1>Browse by Name</h1>";
 
-	include("inc/tree/tree_historybar.php");	
+  if (isset($_GET['item'])) {
+    new Breadcrumb(Breadcrumb::MODE_INITIAL, $_GET['item'], Breadcrumb::PARAM_VERSION);
+  }
+  elseif (isset($_GET['group'])) {
+    new Breadcrumb(Breadcrumb::MODE_INITIAL, $RSDB_SET_group, Breadcrumb::PARAM_ENTRY);
+  }
 	
 	if (isset($_GET['item']) && $_GET['item'] != "") {
 		include("inc/tree/tree_item.php");

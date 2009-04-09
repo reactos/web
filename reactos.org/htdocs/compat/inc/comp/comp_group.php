@@ -239,10 +239,10 @@
 	
 
 	
-  $stmt=CDBConnection::getInstance()->prepare("SELECT COUNT(comp_id) FROM rsdb_item_comp WHERE comp_groupid = :group_id AND comp_visible = '1'");
+  $stmt=CDBConnection::getInstance()->prepare("SELECT COUNT(*) FROM rsdb_item_comp WHERE comp_groupid = :group_id AND comp_visible = '1'");
   $stmt->bindParam('group_id',$RSDB_SET_group,PDO::PARAM_STR);
   $stmt->execute();
-	$result_item_entry_records = $stmt->fetch(PDO::FETCH_ASSOC);
+	$result_item_entry_records = $stmt->fetch(PDO::FETCH_NUM);
 	
 	if ($result_item_entry_records[0] == 0) {
 	
@@ -274,10 +274,10 @@
 		<div id="versions" style="display: block">	
 		<?php
 		// Count the comp entries
-		$stmt=CDBConnection::getInstance()->prepare("SELECT COUNT(comp_id) FROM rsdb_item_comp WHERE comp_groupid = :group_id");
+		$stmt=CDBConnection::getInstance()->prepare("SELECT COUNT(*) FROM rsdb_item_comp WHERE comp_groupid = :group_id");
     $stmt->bindParam('group_id',$result_page["grpentr_id"],PDO::PARAM_STR);
     $stmt->execute();
-		$result_count_comp = $stmt->fetch(PDO::FETCH_ASSOC);
+		$result_count_comp = $stmt->fetch(PDO::FETCH_NUM);
 		
 		if ($result_count_comp[0]) {
 	
@@ -379,7 +379,7 @@
         $stmt=CDBConnection::getInstance()->prepare("SELECT COUNT(*) FROM rsdb_item_comp_testresults WHERE test_comp_id = :comp_id AND test_visible = '1'");
         $stmt->bindParam('comp_id',$result_version_newest['comp_id'],PDO::PARAM_STR);
         $stmt->execute();
-					$result_count_testentries = $stmt->fetch(PDO::FETCH_ASSOC);
+					$result_count_testentries = $stmt->fetch(PDO::FETCH_NUM);
 					
 					echo '<b><li><a href="'. $RSDB_intern_link_item.$result_version_newest['comp_id'] .'&amp;item2=tests">Compatibility Tests</b>';
 					
@@ -391,10 +391,10 @@
 					}
 ?>
 <?php
-          $stmt=CDBConnection::getInstance()->prepare("SELECT COUNT(fmsg_id) FROM rsdb_item_comp_forum WHERE fmsg_comp_id = :comp_id AND fmsg_visible = '1' ;");
+          $stmt=CDBConnection::getInstance()->prepare("SELECT COUNT(*) FROM rsdb_item_comp_forum WHERE fmsg_comp_id = :comp_id AND fmsg_visible = '1' ;");
           $stmt->bindParam('comp_id',$result_version_newest['comp_id'],PDO::PARAM_STR);
           $stmt->execute();
-					$result_count_forumentries = $stmt->fetch(PDO::FETCH_ASSOC);
+					$result_count_forumentries = $stmt->fetch(PDO::FETCH_NUM);
 					
 					if ($result_count_forumentries[0] > 0) {
 						echo "<b>";
@@ -410,10 +410,10 @@
 					}
 ?>
 <?php
-          $stmt=CDBConnection::getInstance()->prepare("SELECT COUNT(media_id) FROM rsdb_object_media WHERE media_groupid = :group_id AND media_visible = '1'");
+          $stmt=CDBConnection::getInstance()->prepare("SELECT COUNT(*) FROM rsdb_object_media WHERE media_groupid = :group_id AND media_visible = '1'");
           $stmt->bindParam('group_id',$result_version_newest['comp_media'],PDO::PARAM_STR);
           $stmt->execute();
-					$result_count_screenshots = $stmt->fetch();
+					$result_count_screenshots = $stmt->fetch(PDO::FETCH_NUM);
 					
 					if ($result_count_screenshots[0] > 0) {
 						echo "<b>";
@@ -432,9 +432,9 @@
 			</ul>
 		<br />
         <?php 
-      $stmt=CDBConnection::getInstance()->prepare("SELECT COUNT(bundle_id) FROM rsdb_group_bundles WHERE bundle_groupid = :group_id");
+      $stmt=CDBConnection::getInstance()->prepare("SELECT COUNT(*) FROM rsdb_group_bundles WHERE bundle_groupid = :group_id");
       $stmt->bindParam('group_id',$result_page["grpentr_id"],PDO::PARAM_STR);
-			$result_count_bundle = $stmt->fetch();
+			$result_count_bundle = $stmt->fetch(PDO::FETCH_NUM);
 
 			if (isset($_GET['group2']) && $_GET['group2'] != "" && $_GET['group2'] != "overview" || $result_count_bundle[0] != 0) {
 				$temp_pic = mt_rand(1,$result_count_screenshots[0]);

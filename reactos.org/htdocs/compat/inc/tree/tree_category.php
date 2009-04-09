@@ -42,7 +42,17 @@
 	
 	//echo "<h1>Browse by Category</h1>";
 	
-	include("inc/tree/tree_historybar.php");	
+
+  // create breadcrumb
+  if (isset($_GET['item'])) {
+    new Breadcrumb(Breadcrumb::MODE_TREE, $_GET['item'], Breadcrumb::PARAM_VERSION);
+  }
+  elseif ($RSDB_SET_group) {
+    new Breadcrumb(Breadcrumb::MODE_TREE, $RSDB_SET_group, Breadcrumb::PARAM_ENTRY);
+  }
+  elseif (isset($_GET['cat'])) {
+    new Breadcrumb(Breadcrumb::MODE_TREE, $_GET['cat'], Breadcrumb::PARAM_CATEGORY);
+  }
 
 	if (isset($_GET['item']) && $_GET['item'] != "") {
 		include("inc/tree/tree_item.php");
@@ -57,15 +67,7 @@
 			}
 		}
 		else {
-			switch (@$_GET['cat2']) {
-				case "flat": // Flat Style
-				default:
-					include("inc/tree/tree_category_flat.php");
-					break;
-				case "tree": // Tree Style
 					include("inc/tree/tree_category_tree.php");
-					break;
-			}
 			include("inc/tree/tree_category_grouplist_1.php");
 		}
 	}
