@@ -132,6 +132,7 @@ require_once("lib/Compat_Autoloader.class.php");
 	switch (@$_GET['page']) {
 
     // Frontpage
+    case '':
     case 'home': 
       new Home();
       break;
@@ -146,20 +147,20 @@ require_once("lib/Compat_Autoloader.class.php");
       new Conditions();
       break;
 
-        // Browse Database
-        case "category":
-          include("inc/tree/tree_category.php");
-          break;
+    // Browse by category
+    case 'category':
+      new HTML_Category();
+      break;
 
-        // Name
-        case "name": 
-          include("inc/tree/tree_name.php");
-          break;
+    // Browse by name
+    case 'name': 
+      new HTML_Name();
+      break;
 
-        // Vendor/Company
-        case "vendor": 
-          include("inc/tree/tree_vendor.php");
-          break;
+    // browse by Vendor/Company
+    case 'vendor': 
+      new HTML_Vendor();
+      break;
 
     // Rank
     case 'rank': 

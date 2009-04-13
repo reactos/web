@@ -50,9 +50,6 @@ if (!empty($_GET['cat'])) {
 if ($result_count_cat[0]) {
 
 
-		$RSDB_TEMP_sortby = "cat_name";
-
-
 	
 
     $stmt=CDBConnection::getInstance()->prepare("SELECT * FROM rsdb_categories WHERE cat_visible = '1' AND cat_path = :cat_path AND cat_comp = '1' ORDER BY cat_name ASC");
@@ -63,8 +60,6 @@ if ($result_count_cat[0]) {
 			$cellcolor1="#E2E2E2";
 			$cellcolor2="#EEEEEE";
 			$cellcolorcounter="0";
-			
-			include('inc/tree/tree_category_tree_count_grouplist.php');
 			
 		while($result_treeview = $stmt->fetch(PDO::FETCH_ASSOC)) { // TreeView
 			echo "<option value=\"". $result_treeview['cat_id']. "\"";

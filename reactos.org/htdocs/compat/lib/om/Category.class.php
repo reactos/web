@@ -35,9 +35,8 @@ class Category
    */
   public static 	function showTree($RSDB_TEMP_cat_path, $RSDB_TEMP_cat_id, $RSDB_TEMP_cat_level, $RSDB_TEMP_cat_level_newmain, $option) {
 		global $RSDB_intern_link_category_cat;
-		global $RSDB_TEMP_sortby;
 
-		$stmt=CDBConnection::getInstance()->prepare("SELECT * FROM rsdb_categories WHERE cat_path = :cat_path AND cat_visible = '1' AND cat_comp = '1' ORDER BY ".$RSDB_TEMP_sortby." ASC");
+		$stmt=CDBConnection::getInstance()->prepare("SELECT * FROM rsdb_categories WHERE cat_path = :cat_path AND cat_visible = '1' AND cat_comp = '1' ORDER BY cat_name ASC");
     $stmt->bindParam('cat_path',$RSDB_TEMP_cat_id,PDO::PARAM_STR);
     $stmt->execute();
 					
@@ -175,7 +174,7 @@ class Category
 		
 		echo "<font size='2' face='Arial, Helvetica, sans-serif'>".$result_create_tree_entry['cat_description']."</font>";
 		
-		echo "</font></div></td><td width='10%' valign='top' bgcolor='".$cellcolor."'><font size='2'>".count_tree_grouplist($result_create_tree_entry['cat_id'])."</font></td></tr>";
+		echo "</font></div></td><td width='10%' valign='top' bgcolor='".$cellcolor."'><font size='2'>".Count::entriesInGroup($result_create_tree_entry['cat_id'])."</font></td></tr>";
 		
 	} // end of member function showLeafAsOption
 

@@ -142,7 +142,7 @@ class Breadcrumb
     echo '
       <li style="float: left;"><a href="'.$RSDB_intern_link_category_cat.'0">Root</a></li>';
 
-    if ($category_id === false) {
+    if (isset($category_id) && $category_id === false) {
       echo '<li>&rarr; Unknown Category</li>';
       return;
     }
@@ -216,7 +216,7 @@ class Breadcrumb
 
   private static function initial( $param, $param_type )
   {
-    global $RSDB_intern_link_name_letter_EX;
+    global $RSDB_intern_link_db_sec;
 
     // get entry by version
     if ($param > 0 && $param_type === self::PARAM_VERSION) {
@@ -253,13 +253,13 @@ class Breadcrumb
     // number
     if ($letter > 0) {
       echo '
-        <li style="float: left;"><a href="'.$RSDB_intern_link_name_letter_EX.strtolower($letter).'">#</a></li>';
+        <li style="float: left;"><a href="'.$RSDB_intern_link_db_sec.'name&amp;letter='.strtolower($letter).'">#</a></li>';
     }
 
     // letter
     elseif ($letter != '') {
       echo '
-        <li style="float: left;"><a href="'.$RSDB_intern_link_name_letter_EX.strtolower($letter).'">'.$letter.'</a></li>';
+        <li style="float: left;"><a href="'.$RSDB_intern_link_db_sec.'name&amp;letter='.strtolower($letter).'">'.$letter.'</a></li>';
     }
 
     // Unknown letter

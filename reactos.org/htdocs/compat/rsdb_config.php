@@ -78,21 +78,10 @@
 		$RSDB_intern_link_category_cat = $RSDB_intern_link_db_sec.htmlspecialchars(@$_GET['page'])."&amp;cat=";
 		
 		
-			$RSDB_intern_link_category_EX = $RSDB_intern_link_db_sec."category&amp;cat=";
-			$RSDB_intern_link_cat_EX = $RSDB_intern_link_db_sec."category&amp;cat=";
-			$RSDB_intern_link_cat2_EX = $RSDB_intern_link_db_sec."category&amp;cat=";
-		
-		
 		// Name
 		$RSDB_intern_link_name_letter = $RSDB_intern_link_db_sec.htmlspecialchars(@$_GET['page'])."&amp;letter=";
 		$RSDB_intern_link_name_letter2 = $RSDB_intern_link_db_sec.htmlspecialchars(@$_GET['page'])."&amp;letter=".$RSDB_SET_letter;
 		$RSDB_intern_link_name_curpos = $RSDB_intern_link_db_sec.htmlspecialchars(@$_GET['page'])."&amp;letter=".$RSDB_SET_letter."&amp;curpos=";
-
-			$RSDB_intern_link_name_letter_EX = $RSDB_intern_link_db_sec."name&amp;letter=";
-			$RSDB_intern_link_name_group_EX = $RSDB_intern_link_db_sec."name&amp;group=";
-			$RSDB_intern_link_name_item_EX = $RSDB_intern_link_db_sec."name&amp;item=";
-			$RSDB_intern_link_name_EX = $RSDB_intern_link_db_sec."name&amp;letter=";
-
 
 		// Group
 		$RSDB_intern_link_group = $RSDB_intern_link_db_sec.htmlspecialchars(@$_GET['page'])."&amp;group=";
@@ -122,10 +111,6 @@
 		$RSDB_intern_link_vendor2_group = $RSDB_intern_link_db_sec."name&amp;group=";
 		$RSDB_intern_link_vendor_sec = $RSDB_intern_link_db_sec."vendor&amp;vendor=";
 		$RSDB_intern_link_vendor_sec_comp = $RSDB_intern_index_php."?page=vendor&amp;vendor=";
-
-			$RSDB_intern_link_vendor_letter_EX = $RSDB_intern_link_db_sec."vendor&amp;letter=";
-			$RSDB_intern_link_vendor_id_EX = $RSDB_intern_link_db_sec."vendor&amp;vendor=";
-			$RSDB_intern_link_vendor_EX = $RSDB_intern_link_db_sec."vendor&amp;letter=";
 
 		// Rank
 		$RSDB_intern_link_rank = $RSDB_intern_link_db_sec."rank";

@@ -18,22 +18,16 @@
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
     */
 
-/*
- *	ReactOS Support Database System - RSDB
- *	
- *	(c) by Klemens Friedl <frik85>
- *	
- *	2005 - 2006 
- */
 
+class HTML_Name extends HTML
+{
 
-	// To prevent hacking activity:
-	if ( !defined('RSDB') )
-	{
-		die(" ");
-	}
-
- 
+  protected function body ()
+  {
+    global $RSDB_SET_letter;
+    global $RSDB_intern_link_name_curpos;
+    global $RSDB_intern_items_per_page;
+    global $RSDB_intern_link_vendor_sec;
 
 if ($RSDB_SET_letter == "all") {
 	$RSDB_SET_letter = "%";
@@ -105,10 +99,10 @@ if ($result_count_cat[0]) {
 								 ?>" > <div align="left"><font face="Arial, Helvetica, sans-serif">&nbsp;<a href="<?php echo $RSDB_intern_link_group.$result_page['grpentr_id']; ?>"><b><?php echo $result_page['grpentr_name']; ?></b></a></font></div></td>
     <td valign="top" bgcolor="<?php echo $farbe; ?>"> <div align="left"><font size="2" face="Arial, Helvetica, sans-serif">&nbsp;<?php
 		
-      $stmt=CDBConnection::getInstance()->prepare("SELECT * FROM rsdb_item_vendor WHERE vendor_id = :vendor_id");
-      $stmt->bindParam('vendor_id',$result_page['grpentr_vendor'],PDO::PARAM_STR);
-      $stmt->execute();
-			$result_entry_vendor = $stmt->fetch(PDO::FETCH_ASSOC);
+      $stmt_vendor=CDBConnection::getInstance()->prepare("SELECT * FROM rsdb_item_vendor WHERE vendor_id = :vendor_id");
+      $stmt_vendor->bindParam('vendor_id',$result_page['grpentr_vendor'],PDO::PARAM_STR);
+      $stmt_vendor->execute();
+			$result_entry_vendor = $stmt_vendor->fetch(PDO::FETCH_ASSOC);
 			echo '<a href="'.$RSDB_intern_link_vendor_sec.$result_entry_vendor['vendor_id'].'">'.$result_entry_vendor['vendor_name'].'</a>';
 
 		  ?></font><font face="Arial, Helvetica, sans-serif"></font> 
@@ -136,10 +130,10 @@ if ($result_count_cat[0]) {
 			$counter_forumentries = 0;
 			$counter_screenshots = 0;
 
-      $stmt=CDBConnection::getInstance()->prepare("SELECT * FROM rsdb_item_comp WHERE comp_groupid = :group_id AND comp_visible = '1' ORDER BY comp_groupid DESC");
-      $stmt->bindParam('group_id',$result_page['grpentr_id'],PDO::PARAM_STR);
-      $stmt->execute();
-			while($result_group_sum_items = $stmt->fetch(PDO::FETCH_ASSOC)) { 
+      $stmt_comp=CDBConnection::getInstance()->prepare("SELECT * FROM rsdb_item_comp WHERE comp_groupid = :group_id AND comp_visible = '1' ORDER BY comp_groupid DESC");
+      $stmt_comp->bindParam('group_id',$result_page['grpentr_id'],PDO::PARAM_STR);
+      $stmt_comp->execute();
+			while($result_group_sum_items = $stmt_comp->fetch(PDO::FETCH_ASSOC)) { 
 				$counter_items++;
 				if ($counter_awards_best < $result_group_sum_items['comp_award']) {
 					$counter_awards_best = $result_group_sum_items['comp_award'];
@@ -155,21 +149,21 @@ if ($result_count_cat[0]) {
         $stmt_sub=CDBConnection::getInstance()->prepare("SELECT COUNT(*) FROM rsdb_item_comp_testresults WHERE test_visible = '1' AND test_comp_id = :comp_id");
         $stmt_sub->bindParam('comp_id',$result_group_sum_items['comp_id'],PDO::PARAM_STR);
         $stmt_sub->execute();
-				$result_count_testentries = $stmt->fetch(PDO::FETCH_NUM);
+				$result_count_testentries = $stmt_sub->fetch(PDO::FETCH_NUM);
 				$counter_testentries += $result_count_testentries[0];
 				
 				// Forum entries:
-        $stmt=CDBCOnnection::getInstance()->prepare("SELECT COUNT(*) FROM rsdb_item_comp_forum WHERE fmsg_visible = '1' AND fmsg_comp_id = :comp_id");
-        $stmt->bindParam('comp_id',$result_group_sum_items['comp_id'],PDO::PARAM_STR);
-        $stmt->execute();
-				$result_count_forumentries = $stmt->fetch(PDO::FETCH_NUM);
+        $stmt_sub=CDBCOnnection::getInstance()->prepare("SELECT COUNT(*) FROM rsdb_item_comp_forum WHERE fmsg_visible = '1' AND fmsg_comp_id = :comp_id");
+        $stmt_sub->bindParam('comp_id',$result_group_sum_items['comp_id'],PDO::PARAM_STR);
+        $stmt_sub->execute();
+				$result_count_forumentries = $stmt_sub->fetch(PDO::FETCH_NUM);
 				$counter_forumentries += $result_count_forumentries[0];
 
 				// Screenshots:
-        $stmt=CDBConnection::getInstance()->prepare("SELECT COUNT(*) FROM rsdb_object_media WHERE media_visible = '1' AND media_groupid = :group_id");
-        $stmt->bindParam('group_id',$result_group_sum_items['comp_media'],PDO::PARAM_STR);
-        $stmt->execute();
-				$result_count_screenshots = $stmt->fetch(PDO::FETCH_NUM);
+        $stmt_sub=CDBConnection::getInstance()->prepare("SELECT COUNT(*) FROM rsdb_object_media WHERE media_visible = '1' AND media_groupid = :group_id");
+        $stmt_sub->bindParam('group_id',$result_group_sum_items['comp_media'],PDO::PARAM_STR);
+        $stmt_sub->execute();
+				$result_count_screenshots = $stmt_sub->fetch(PDO::FETCH_NUM);
 				$counter_screenshots += $result_count_screenshots[0];
 			}
 	?>
@@ -183,10 +177,10 @@ if ($result_count_cat[0]) {
 			
 			$counter_items = 0;
 
-      $stmt=CDBConnection::getInstance()->prepare("SELECT * FROM rsdb_item_comp WHERE comp_groupid = :group_id AND comp_visible = '1' ORDER BY comp_groupid DESC");
-      $stmt->bindParam('group_id',$result_page['grpentr_id'],PDO::PARAM_STR);
-      $stmt->execute();
-			while($result_group_sum_items = $stmt->fetch(PDO::FETCH_ASSOC)) { 
+      $stmt_item=CDBConnection::getInstance()->prepare("SELECT * FROM rsdb_item_comp WHERE comp_groupid = :group_id AND comp_visible = '1' ORDER BY comp_groupid DESC");
+      $stmt_item->bindParam('group_id',$result_page['grpentr_id'],PDO::PARAM_STR);
+      $stmt_item->execute();
+			while($result_group_sum_items = $stmt_item->fetch(PDO::FETCH_ASSOC)) { 
 				$counter_items++;
         $stmt_test=CDBConnection::getInstance()->prepare("SELECT SUM(test_result_install) AS install_sum, SUM(test_result_function) AS function_sum, COUNT(*) AS user_sum FROM rsdb_item_comp_testresults WHERE test_visible = '1' AND test_comp_id = :comp_id ORDER BY test_comp_id ASC");
         $stmt_test->bindParam('comp_id',$result_group_sum_items['comp_id'],PDO::PARAM_STR);
@@ -249,6 +243,8 @@ if ($result_count_cat[0]) {
 	
 ?></b></p>
 <?php
+}
+  } // end of member function body
 }
 ?>
 

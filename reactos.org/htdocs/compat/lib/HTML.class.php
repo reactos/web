@@ -193,13 +193,13 @@ abstract class HTML
             <div class="navTitle">Compatibility</div>
             <ol>
               <li><a href="'.$RSDB_intern_link_db_sec.'home">Overview</a></li>
-              <li><a href="'.$RSDB_intern_link_category_EX.'0">Browse Database</a></li>';
+              <li><a href="'.$RSDB_intern_link_db_sec.'category&amp;cat=0">Browse Database</a></li>';
 
     if (isset($_GET['page']) && ($_GET['page'] == 'category' || $_GET['page'] == 'name' || $_GET['page'] == 'vendor' || $_GET['page'] == 'rank')) {
       echo '
-        <li><a href="'.$RSDB_intern_link_category_EX.'0">&nbsp;- By Category</a></li>
-        <li><a href="'.$RSDB_intern_link_name_letter_EX.'all">&nbsp;- By Name</a></li>
-        <li><a href="'.$RSDB_intern_link_vendor_letter_EX.'all">&nbsp;- By Vendor</a></li>
+        <li><a href="'.$RSDB_intern_link_db_sec.'category&amp;cat=0">&nbsp;- By Category</a></li>
+        <li><a href="'.$RSDB_intern_link_db_sec.'name&amp;letter=all">&nbsp;- By Name</a></li>
+        <li><a href="'.$RSDB_intern_link_db_sec.'vendor&amp;letter=all">&nbsp;- By Vendor</a></li>
         <li><a href="'.$RSDB_intern_link_db_sec.'rank">&nbsp;- By Rank</a></li>';
     }
 

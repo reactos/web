@@ -18,24 +18,12 @@
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
     */
 
-/*
- *	ReactOS Support Database System - RSDB
- *	
- *	(c) by Klemens Friedl <frik85>
- *	
- *	2005 - 2006 
- */
-
-
-	// To prevent hacking activity:
-	if ( !defined('RSDB') )
-	{
-		die(" ");
-	}
+class Count
+{
 
  
 
-	function count_tree_grouplist ($RSDB_TEMP_cat_id_grouplista) {
+	public static function entriesInGroup ($RSDB_TEMP_cat_id_grouplista) {
 	
 			global $RSDB_intern_link_category_cat;
 			global $RSDB_TEMP_cat_id_grouplist;
@@ -44,12 +32,12 @@
 	
 			
 		$RSDB_TEMP_counter_group=0;
-		count_group_and_category($RSDB_TEMP_cat_id_grouplista);
+		self::count_group_and_category($RSDB_TEMP_cat_id_grouplista);
 	
-		return count_group_and_category_equal();
+		return self::count_group_and_category_equal();
 	}
 
-	function count_group_and_category($RSDB_TEMP_cat_id_group) {
+	private function count_group_and_category($RSDB_TEMP_cat_id_group) {
 	
 		global $RSDB_TEMP_counter_group;
 
@@ -57,14 +45,13 @@
     $stmt->bindParam('category',$RSDB_TEMP_cat_id_group,PDO::PARAM_STR);
     $stmt->execute();
 		$result_count_group_and_category = $stmt->fetch(PDO::FETCH_NUM);
-//		echo "->".$result_count_group_and_category[0]."<-";
 		
 		if ($result_count_group_and_category[0]) {
 			$RSDB_TEMP_counter_group = $RSDB_TEMP_counter_group + $result_count_group_and_category[0];
 		}
 	}
 
-	function count_group_and_category_equal() {
+	private function count_group_and_category_equal() {
 		global $RSDB_TEMP_counter_group;
 		global $RSDB_TEMP_counter_group_sum;
 		$RSDB_TEMP_counter_group_sum = 0;
@@ -73,5 +60,6 @@
 		return $RSDB_TEMP_counter_group_sum;
 	}
 
-		
+}
+
 ?>
