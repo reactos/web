@@ -153,7 +153,7 @@ class HTML_User_Login extends HTML_User
 
       // At this point, we've passed all checks and we have a valid login check if there's an existing session, if so, end that session
       if (0 != Login::in( Login::OPTIONAL, '')) {
-        $stmt=&DBConnection::getInstance()->prepare("DELETE FROM user_sessions WHERE usersession_user_id =:user_id");
+        $stmt=&DBConnection::getInstance()->prepare("DELETE FROM ".ROSCMST_SESSIONS." WHERE user_id =:user_id");
         $stmt->bindParam('user_id',$_COOKIE[$config->cookieUserKey()],PDO::PARAM_INT);
         $stmt->execute();
       }

@@ -186,7 +186,7 @@ class Subsystem_Bugzilla extends SubsystemExternal
     }
 
     // Finally, insert a row in the mapping table
-    $stmt=&DBConnection::getInstance()->prepare("INSERT INTO ".ROSCMST_SUBSYS." (user_id, subsys, subsy_user_id) VALUES(:user_id, 'bugzilla', LAST_INSERT_ID())");
+    $stmt=&DBConnection::getInstance()->prepare("INSERT INTO ".ROSCMST_SUBSYS." (user_id, subsys, subsys_user_id) VALUES(:user_id, 'bugzilla', LAST_INSERT_ID())");
     $stmt->bindParam('user_id',$user_id,PDO::PARAM_INT);
     return $stmt->execute();
   } // end of member function addUser
