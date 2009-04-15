@@ -235,16 +235,8 @@ class Subsystem_Bugzilla extends SubsystemExternal
       if (false === self::updateUserPrivate($user_id, $user['name'], $user['email'],$user['register'], $bz_user_id)){
         return false;
       }
-
-      // Insert a row in the mapping table
-      $stmt=&DBConnection::getInstance()->prepare("INSERT INTO ".ROSCMST_SUBSYS." (user_id, subsys, subsys_user_id) VALUES(:roscms_user, 'bugzilla', :bugzilla_user)");
-      $stmt->bindParam('roscms_user',$user_id,PDO::PARAM_INT);
-      $stmt->bindParam('bugzilla_user',$bz_user_id,PDO::PARAM_INT);
-      $stmt->execute() or die('DB error (subsys_bugzilla #9)');
-
-      return true;
     }
-    return false;
+    return true;
   } // end of member function addMapping
 
 

@@ -120,7 +120,7 @@ class Subsystem_Wiki extends SubsystemExternal
     $stmt=&DBConnection::getInstance()->prepare("SELECT COUNT(*) FROM ".$this->user_table." WHERE (LOWER(user_name) = LOWER(:user_name) OR  LOWER(user_email) = LOWER(:user_email)) AND user_id <> :user_id");
     $stmt->bindParam('user_name',$wiki_user_name,PDO::PARAM_STR);
     $stmt->bindParam('user_email',$user_email,PDO::PARAM_STR);
-    $stmt->bindParam('user_id',$user_id,PDO::PARAM_INT);
+    $stmt->bindParam('user_id',$subsys_user,PDO::PARAM_INT);
     $stmt->execute() or die('DB error (subsys_wiki #7)');
 
     // stop if one of both already exists
@@ -214,13 +214,8 @@ class Subsystem_Wiki extends SubsystemExternal
       if (false === self::updateUserPrivate($user_id, $user['name'], $user['email'], $user['fullname'], $wiki_user_id)) {
         return false;
       }
-
-      // Insert a row in the mapping table
-      $stmt=&DBConnection::getInstance()->prepare("INSERT INTO ".ROSCMST_SUBSYS." (user_id, subsys, subsys_user_id) VALUES(:roscms_user, 'wiki', :wiki_user)");
-      $stmt->bindParam('roscms_user',$user_id,PDO::PARAM_INT);
-      $stmt->bindParam('wiki_user',$wiki_user_id,PDO::PARAM_INT);
-      return $stmt->execute();
     }
+    return true;
   } // end of member function addUser
 
 
