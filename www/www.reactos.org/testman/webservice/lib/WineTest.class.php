@@ -84,15 +84,19 @@
 			}
 			
 			// Add the information into the DB
-			$stmt = $dbh->prepare("INSERT INTO " . DB_TESTMAN . ".winetest_results (test_id, suite_id, log, count, todo, failures, skipped) VALUES (:testid, :suiteid, :log, :count, :todo, :failures, :skipped)");
+			$stmt = $dbh->prepare("INSERT INTO " . DB_TESTMAN . ".winetest_results (test_id, suite_id, count, todo, failures, skipped) VALUES (:testid, :suiteid, :count, :todo, :failures, :skipped)");
 			$stmt->bindValue(":testid", (int)$test_id);
 			$stmt->bindValue(":suiteid", (int)$suite_id);
-			$stmt->bindParam(":log", $log);
 			$stmt->bindParam(":count", $count);
 			$stmt->bindParam(":todo", $todo);
 			$stmt->bindParam(":failures", $failures);
 			$stmt->bindParam(":skipped", $skipped);
 			$stmt->execute() or die("Submit(): SQL failed #2");
+			
+			$stmt = $dbh->prepare("INSERT INTO " . DB_TESTMAN . ".winetest_logs (id, log) VALUES (:id, :log)");
+			$stmt->bindValue(":id", (int)$dbh->lastInsertId());
+			$stmt->bindParam(":log", $log);
+			$stmt->execute() or die("Submit(): SQL failed #3");
 			
 			return "OK";
 		}

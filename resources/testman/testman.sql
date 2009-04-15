@@ -5,11 +5,16 @@ CREATE TABLE `permitted_users` (
   PRIMARY KEY  (`user_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1 COLLATE=latin1_general_ci;
 
+CREATE TABLE `winetest_logs` (
+  `id` int(10) unsigned NOT NULL auto_increment,
+  `log` longtext collate latin1_general_ci NOT NULL,
+  PRIMARY KEY  (`id`)
+) ENGINE=MyISAM  DEFAULT CHARSET=latin1 COLLATE=latin1_general_ci;
+
 CREATE TABLE `winetest_results` (
   `id` int(10) unsigned NOT NULL auto_increment,
   `test_id` int(10) unsigned NOT NULL,
   `suite_id` int(10) unsigned NOT NULL,
-  `log` longtext collate latin1_general_ci NOT NULL,
   `count` int(10) NOT NULL COMMENT 'Number of all executed tests',
   `todo` int(10) unsigned NOT NULL COMMENT 'Tests marked as TODO',
   `failures` int(10) unsigned NOT NULL COMMENT 'Number of failed tests',

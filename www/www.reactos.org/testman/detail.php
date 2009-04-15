@@ -52,8 +52,9 @@
 	
 	// Get information about this result
 	$stmt = $dbh->prepare(
-		"SELECT e.log, e.count, e.todo, e.failures, e.skipped, s.module, s.test, UNIX_TIMESTAMP(r.timestamp) timestamp, r.revision, r.platform, a.name, r.comment " .
+		"SELECT l.log, e.count, e.todo, e.failures, e.skipped, s.module, s.test, UNIX_TIMESTAMP(r.timestamp) timestamp, r.revision, r.platform, a.name, r.comment " .
 		"FROM " . DB_TESTMAN . ".winetest_results e " .
+		"JOIN " . DB_TESTMAN . ".winetest_logs l ON e.id = l.id " .
 		"JOIN " . DB_TESTMAN . ".winetest_suites s ON e.suite_id = s.id " .
 		"JOIN " . DB_TESTMAN . ".winetest_runs r ON e.test_id = r.id " .
 		"JOIN " . DB_ROSCMS . ".roscms_accounts a ON r.user_id = a.id " .
@@ -91,7 +92,7 @@
 	</tr>
 	<tr class="odd" onmouseover="Row_OnMouseOver(this)" onmouseout="Row_OnMouseOut(this)">
 		<td class="info"><?php echo $testman_langres["log"]; ?>:</td>
-		<td><pre><?php echo $row["log"]; ?></pre></td>
+		<td><pre><?php echo htmlspecialchars($row["log"]); ?></pre></td>
 	</tr>
 </table><br />
 
