@@ -18,22 +18,13 @@
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
     */
 
-/*
- *	ReactOS Support Database System - RSDB
- *	
- *	(c) by Klemens Friedl <frik85>
- *	
- *	2005 - 2006 
- */
 
 
-	// To prevent hacking activity:
-	if ( !defined('RSDB') )
-	{
-		die(" ");
-	}
+class HTML_VendorInfo extends HTML
+{
 
-
+  protected function body ()
+  {
 
   $stmt=CDBConnection::getInstance()->prepare("SELECT * FROM rsdb_item_vendor WHERE vendor_id = :vendor_id AND vendor_visible = '1' ORDER BY vendor_name ASC");
   $stmt->bindParam('vendor_id',@$_GET['vendor'],PDO::PARAM_STR);
@@ -725,4 +716,6 @@ p.tabLink_u         { color: black; font-size : 10pt; padding : 0 8px 1px 2px; m
 	</script>
 <?php
 	}
+  } // end of member function body
+}
 ?>	

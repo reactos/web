@@ -162,20 +162,80 @@ require_once("lib/Compat_Autoloader.class.php");
       new HTML_Vendor();
       break;
 
+    // Vendor information
+    case 'vendor_info': 
+      new HTML_VendorInfo();
+      break;
+
     // Rank
     case 'rank': 
       new Rank();
       break;
 
-        // Search
-        case "search":
-          if ($RSDB_SET_group != "") {
-            include("inc/tree/tree_name.php");
-          }
-          else {
-            include("inc/comp/comp_search.php");
+    // Rank
+    case 'group': 
+      new HTML_Group();
+      break;
+
+    // show specific version
+    case 'item':
+      switch (@$_GET['item2']) {
+
+        // Details
+        case 'details':
+        default:
+          new Item_Details();
+          break;
+
+        // Screenshots
+        case 'screens':
+          switch (@$_GET['addbox']) {
+						case "add":
+						case "submit":
+							include('inc/comp/comp_item_screenshot_submit.php');
+              break;
+            case '':
+            default:
+              new Item_Screenshots();
+              break;
           }
           break;
+
+        // Test Reports
+        case 'tests':
+					switch (@$_GET['addbox']) {
+            case '':
+            default:
+              new Item_Tests();
+              break;
+						case "add":
+						case "submit":
+							include('inc/comp/comp_item_tests_submit.php');
+              break;
+          }
+          break;
+
+        // Comments
+        case 'forum':
+          new Item_Comments();
+          break;
+
+        // Known Bugs
+        case 'bugs':
+          new Item_Bugs();
+          break;
+
+        // Tips & Tricks
+        case 'tips':
+          new Item_Tips();
+          break;
+      }
+      break;
+
+    // Search
+    case 'search':
+      new HTML_Search();
+      break;
 
         // Category
         case "submit": 

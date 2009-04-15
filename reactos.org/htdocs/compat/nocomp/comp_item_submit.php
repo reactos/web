@@ -267,7 +267,48 @@ else {
 						?>>Select a category</option>
                         <?php 
 							$RSDB_intern_selected = $RSDB_TEMP_cboCategory;
-							include("inc/comp/sub/tree_category_combobox.php");
+							$stmt=CDBConnection::getInstance()->prepare("SELECT COUNT(*) FROM rsdb_categories WHERE cat_visible = '1' AND cat_path = '0' AND cat_comp = '1'");
+$stmt->execute();
+$result_count_cat = $stmt->fetchOnce(PDO::FETCH_ASSOC);
+
+// Update the ViewCounter:
+if (!empty($_GET['cat'])) {
+  $stmt=CDBConnection::getInstance()->prepare("UPDATE rsdb_categories SET cat_viewcounter = (cat_viewcounter + 1) WHERE cat_id = :cat_id");
+  $stmt->bindParam('cat_id',@$_GET['cat'],PDO::PARAM_STR);
+  $stmt->execute();
+}
+
+if ($result_count_cat[0]) {
+
+
+	
+
+    $stmt=CDBConnection::getInstance()->prepare("SELECT * FROM rsdb_categories WHERE cat_visible = '1' AND cat_path = :cat_path AND cat_comp = '1' ORDER BY cat_name ASC");
+    $stmt->bindParam('cat_path',@$_GET['cat'],PDO::PARAM_STR);
+    $stmt->execute();
+		
+		
+			$cellcolor1="#E2E2E2";
+			$cellcolor2="#EEEEEE";
+			$cellcolorcounter="0";
+			
+		while($result_treeview = $stmt->fetch(PDO::FETCH_ASSOC)) { // TreeView
+			echo "<option value=\"". $result_treeview['cat_id']. "\"";
+			if ($RSDB_intern_selected != "" && $RSDB_intern_selected == $result_treeview['cat_id']) {
+				echo " selected "; 
+			}		
+			echo ">+ ". $result_treeview['cat_name'] ."</option>\n\n";
+	
+			$RSDB_TEMP_cat_path = $result_treeview['cat_path'];
+			$RSDB_TEMP_cat_id = $result_treeview['cat_id'];
+			$RSDB_TEMP_cat_level=0;
+			
+			$RSDB_TEMP_cat_current_id_guess=$RSDB_TEMP_cat_id;
+	
+			Category::showTree($RSDB_TEMP_cat_path, $RSDB_TEMP_cat_id, $RSDB_TEMP_cat_level, $RSDB_TEMP_cat_level, true);
+	
+		}	// end while
+}
 						?>
                     </select>
 				</font></font></p>
@@ -298,7 +339,21 @@ else {
 						?>>Select a vendor</option>
 						<?php
 							$RSDB_intern_selected = $RSDB_TEMP_cboVendor;
-							include("inc/comp/sub/tree_vendor_combobox.php");
+							
+  $stmt=CDBConnection::getInstance()->prepare("SELECT * FROM rsdb_item_vendor ORDER BY `vendor_name` ASC");
+  $stmt->execute();
+
+	$zaehler="0";
+	
+	
+	
+	while($result_page = $stmt->fetch(PDO::FETCH_ASSOC)) { // Pages
+		echo "<option value=\"". $result_page['vendor_id'] ."\"";
+		if ($RSDB_intern_selected != "" && $RSDB_intern_selected == $result_page['vendor_id']) {
+			echo " selected "; 
+		}		
+		echo ">". $result_page['vendor_name']."</option>"; 
+	}	// end while
 						?>
 					</select>
 					</font><font face="Verdana, Arial, Helvetica, sans-serif"> <font size="2"> &nbsp;</font></font><font face="Verdana, Arial, Helvetica, sans-serif"><font size="1">[<a href="javascript://" onclick="ChangeVendor()">search for vendor</a>]</font></font><font size="2" face="Verdana, Arial, Helvetica, sans-serif">                    </font></p>

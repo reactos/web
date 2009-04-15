@@ -88,7 +88,7 @@
 		elseif ($RSDB_intern_TEMP_item_word == "1") {
 			$RSDB_SET_letter = $RSDB_intern_TEMP_itemsearch;
 		}
-		include("inc/tree/tree_name_flat.php"); 
+		new Name();
 	}
 
 ?>
