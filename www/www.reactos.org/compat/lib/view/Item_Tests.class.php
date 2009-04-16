@@ -18,20 +18,12 @@
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
     */
 
-/*
- *	ReactOS Support Database System - RSDB
- *	
- *	(c) by Klemens Friedl <frik85>
- *	
- *	2005 - 2006 
- */
 
+class Item_Tips extends HTML_Item
+{
 
-	// To prevent hacking activity:
-	if ( !defined('RSDB') )
-	{
-		die(" ");
-	}
+  protected function body()
+  {
 
 
   $stmt=CDBConnection::getInstance()->prepare("SELECT * FROM rsdb_item_comp WHERE comp_visible = '1' AND comp_id = :comp_id ORDER BY comp_name ASC");
@@ -43,11 +35,35 @@
 if ($result_page['comp_id']) {
 
 	echo "<h2>".$result_page['comp_name'] ." [". "ReactOS ".@show_osversion($result_page['comp_osversion']) ."]</h2>"; 
-	
-	include("inc/comp/comp_item_menubar.php");
-
-	echo test_bar();
 ?>
+<br />
+	<form action="<?php echo $RSDB_intern_link_item_item2_forum_bar; ?>" method="post" name="forum_bar">
+	
+	<table border="0" align="center" cellpadding="0" cellspacing="0" class="forumbar" width="500">
+	  <tr>
+	    <td><div align="center">	<nobr>
+	
+	Threshold: 
+		<select name="threshold" size="1">
+			<option value="1" <?php if ($RSDB_SET_threshold == "1") { echo 'selected="selected"'; } ?>>1 star (<?php echo Star::thresholdTests(0, 1, true, "testresults", "test"); ?>)</option>
+			<option value="2" <?php if ($RSDB_SET_threshold == "2") { echo 'selected="selected"'; } ?>>2 stars (<?php echo Star::thresholdTests(0, 2, true, "testresults", "test"); ?>)</option>
+			<option value="3" <?php if ($RSDB_SET_threshold == "3") { echo 'selected="selected"'; } ?>>3 stars (<?php echo Star::thresholdTests(0, 3, true, "testresults", "test"); ?>)</option>
+			<option value="4" <?php if ($RSDB_SET_threshold == "4") { echo 'selected="selected"'; } ?>>4 stars (<?php echo Star::thresholdTests(0, 4, true, "testresults", "test"); ?>)</option>
+			<option value="5" <?php if ($RSDB_SET_threshold == "5") { echo 'selected="selected"'; } ?>>5 stars (<?php echo Star::thresholdTests(0, 5, true, "testresults", "test"); ?>)</option>
+		</select>
+	 | </nobr><nobr>
+	 <select name="order" size="1">
+	<option value="new" <?php if ($RSDB_SET_order == "new") { echo 'selected="selected"'; } ?>>Newest First</option>
+	<option value="old" <?php if ($RSDB_SET_order == "old") { echo 'selected="selected"'; } ?>>Oldest First</option>
+	</select> 
+	 | </nobr><nobr>Save: 
+	 <input name="testsave" value="1" type="checkbox"> | </nobr><nobr>
+	   <input value="Change" class="button" type="submit"> 
+	</nobr></div></td>
+	</tr>
+	</table>
+	
+	</form>
 <p align="center">The following reports are owned by whoever posted them. We are not responsible for them in any way. </p>
 <p align="center"><a href="<?php echo $RSDB_intern_link_submit_comp_test; ?>add"><strong>Submit  Compatibility Test Report</strong></a></p>
 
@@ -199,5 +215,7 @@ if ($result_page['comp_id']) {
 			echo "<p><i>This test report is beneath your threshold!</i></p>";
 		}
 	}
+}
+  } // end of member function body
 }
 ?>

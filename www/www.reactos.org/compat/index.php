@@ -123,149 +123,160 @@ require_once("lib/Compat_Autoloader.class.php");
 	require_once('rsdb_config.php');
 
 	// Tools
-	require_once("inc/tools/forum_bar.php");
-	require_once("inc/tools/test_bar.php");
-	require_once("inc/tools/osversion.php");
-	require_once("inc/tools/user_functions.php");
-	require_once("inc/tools/plugins.php");
+	require_once("notools/forum_bar.php");
+	require_once("notools/osversion.php");
+	require_once("notools/plugins.php");
 
-	switch (@$_GET['page']) {
+switch (@$_GET['page']) {
 
-    // Frontpage
-    case '':
-    case 'home': 
-      new Home();
-      break;
+  // Frontpage
+  case '':
+  case 'home': 
+    new Home();
+    break;
 
-    // RSDB About Page
-    case 'about': 
-      new About();
-      break;
+  // RSDB About Page
+  case 'about': 
+    new About();
+    break;
 
-    // RSDB Submit Conditions Page
-    case 'conditions': 
-      new Conditions();
-      break;
+  // RSDB Submit Conditions Page
+  case 'conditions': 
+    new Conditions();
+    break;
 
-    // Browse by category
-    case 'category':
-      new HTML_Category();
-      break;
+  // Browse by category
+  case 'category':
+    new HTML_Category();
+    break;
 
-    // Browse by name
-    case 'name': 
-      new HTML_Name();
-      break;
+  // Browse by name
+  case 'name': 
+    new HTML_Name();
+    break;
 
-    // browse by Vendor/Company
-    case 'vendor': 
-      new HTML_Vendor();
-      break;
+  // browse by Vendor/Company
+  case 'vendor': 
+    new HTML_Vendor();
+    break;
 
-    // Vendor information
-    case 'vendor_info': 
-      new HTML_VendorInfo();
-      break;
+  // Vendor information
+  case 'vendor_info': 
+    new HTML_VendorInfo();
+    break;
 
-    // Rank
-    case 'rank': 
-      new Rank();
-      break;
+  // Rank
+  case 'rank': 
+    new Rank();
+    break;
 
-    // Rank
-    case 'group': 
-      new HTML_Group();
-      break;
+  // Rank
+  case 'group': 
+    new HTML_Group();
+    break;
 
-    // show specific version
-    case 'item':
-      switch (@$_GET['item2']) {
+  // show specific version
+  case 'item':
+    switch (@$_GET['addbox']) {
+      case 'add':
+      case 'submit':
+        switch (@$_GET['item2']) {
+
+          // Screenshots
+          case 'screens':
+            new Submit_Screenshot();
+            break;
+
+          // Test Reports
+          case 'tests':
+            new Submit_Test();
+            break;
+        } // end switch item2
+        break;
+
+      // no addbox crap
+      case '':
+      default:
+        switch (@$_GET['item2']) {
 
         // Details
         case 'details':
-        default:
-          new Item_Details();
-          break;
+          default:
+            new Item_Details();
+            break;
 
-        // Screenshots
-        case 'screens':
-          switch (@$_GET['addbox']) {
-						case "add":
-						case "submit":
-							include('inc/comp/comp_item_screenshot_submit.php');
-              break;
-            case '':
-            default:
-              new Item_Screenshots();
-              break;
-          }
-          break;
+          // Screenshots
+          case 'screens':
+            new Item_Screenshots();
+            break;
 
-        // Test Reports
-        case 'tests':
-					switch (@$_GET['addbox']) {
-            case '':
-            default:
-              new Item_Tests();
-              break;
-						case "add":
-						case "submit":
-							include('inc/comp/comp_item_tests_submit.php');
-              break;
-          }
-          break;
+          // Test Reports
+          case 'tests':
+            new Item_Tests();
+            break;
 
-        // Comments
-        case 'forum':
-          new Item_Comments();
-          break;
+          // Comments
+          case 'forum':
+            new Item_Comments();
+            break;
 
-        // Known Bugs
-        case 'bugs':
-          new Item_Bugs();
-          break;
+          // Known Bugs
+          case 'bugs':
+            new Item_Bugs();
+            break;
 
-        // Tips & Tricks
-        case 'tips':
-          new Item_Tips();
-          break;
-      }
-      break;
+          // Tips & Tricks
+          case 'tips':
+            new Item_Tips();
+            break;
+        } // end switch item2
+        break;
+    } // end switch addbox
+    break;
 
-    // Search
-    case 'search':
-      new HTML_Search();
-      break;
+  // Search
+  case 'search':
+    new HTML_Search();
+    break;
 
-        // Category
-        case "submit": 
-          include("inc/comp/comp_item_submit.php");
-          break;
+  // Category
+  case 'submit': 
+    new Submit_Item();
+    break;
 
-    // Help
-    case 'help':
-      new Help();
-      break;
+  // Help
+  case 'help':
+    new Help();
+    break;
 
-    default:
-      echo '404';
-			break;
-		case "dat": // export data
-			switch (@$_GET['export']) {
-				case "grpitemlst": /* Compatibility versions list for one item */
-					include("inc/comp/data/group_item_list.php");
-					break;
-				case "grplst": /* AppGroup - Search results */
-					include("inc/comp/data/group_list.php");
-					break;
-				case "vdrlst": /* Vendor - Search results */
-					include("inc/comp/data/vendor_list.php");
-					break;
-				case "compitemsubmit": /* Search results for the compatibility item submit page */
-					include("inc/comp/data/comp_app_submit_list.php");
-					break;
-			}
-			break;
+  default:
+    echo '404';
+    break;
 
-	}
+  // export data
+  case 'dat': 
+    switch (@$_GET['export']) {
+
+      // Compatibility versions list for one item
+      case 'grpitemlst': 
+        new List_Item();
+        break;
+
+      // AppGroup - Search results
+      case 'grplst': 
+        new List_Group();
+        break;
+
+      // Vendor - Search results
+      case 'vdrlst': 
+        new List_Vendor();
+        break;
+
+      // Search results for the compatibility item submit page
+      case 'compitemsubmit': 
+        new List_AppSubmit();
+        break;
+    } // end switch export
+    break;
+} // end switch page
 ?>

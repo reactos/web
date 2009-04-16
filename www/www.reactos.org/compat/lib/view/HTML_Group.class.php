@@ -277,7 +277,7 @@ class HTML_Group extends HTML
 		<a name="ver"></a>
 		<h3>All Versions</h3>
 		<?php
-				include("inc/comp/data/group_item_list.php");
+				new List_item();
 		?>
 		<div id="group_version_list"></div>
 		<br />

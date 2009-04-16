@@ -18,20 +18,12 @@
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
     */
 
-/*
- *	ReactOS Support Database System - RSDB
- *	
- *	(c) by Klemens Friedl <frik85>
- *	
- *	2005 - 2006 
- */
 
+class Item_Tips extends HTML_Item
+{
 
-	// To prevent hacking activity:
-	if ( !defined('RSDB') )
-	{
-		die(" ");
-	}
+  protected function body()
+  {
 
 
   $stmt=CDBConnection::getInstance()->prepare("SELECT * FROM rsdb_item_comp WHERE comp_visible = '1' AND comp_id = :comp_id ORDER BY comp_name ASC");
@@ -42,8 +34,6 @@
 	
 	
 	echo "<h2>".$result_page['comp_name'] ." [". "ReactOS ".show_osversion($result_page['comp_osversion']) ."]</h2>"; 
-	
-	include("inc/comp/comp_item_menubar.php");
 	
 ?>
  <p>Bugzilla integration is still on the TODO list ... </p>
@@ -66,3 +56,8 @@
               <td align="center"><font size="2"><a href="<?php echo $RSDB_intern_index_php."?page=".htmlspecialchars(@$_GET['page']); ?>&amp;bug=1284" class="Stil3">View</a></font></td>
   </tr>
 </table>
+<?php
+
+  } // end of member function body
+}
+?>
