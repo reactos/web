@@ -224,7 +224,7 @@
 				echo '<tr>';
 				printf('<td colspan="3" title="%s" class="totaltests">%s <span class="diff">%s</span></td>', $testman_langres["totaltests"], GetTotalTestsString($result_row["count"]), GetDifference($result_row, $prev_result_row, "count"));
 				echo '</tr><tr>';
-				printf('<td title="%s" class="%s_failedtests">%d <span class="diff">%s</span></td>', $testman_langres["failedtests"], ($result_row["failures"] > 0 ? 'real' : 'zero'), $result_row["failures"], GetDifference($result_row, $prev_result_row, "failures"));
+				printf('<td title="%s" class="%s_failedtests">%d <span class="diff">%s</span></td>', $testman_langres["failedtests"], (($result_row["failures"] > 0 || $result_row["count"] == -1) ? 'real' : 'zero'), $result_row["failures"], GetDifference($result_row, $prev_result_row, "failures"));
 				printf('<td title="%s" class="todotests">%d <span class="diff">%s</span></td>', $testman_langres["todotests"], $result_row["todo"], GetDifference($result_row, $prev_result_row, "todo"));
 				printf('<td title="%s" class="skippedtests">%d <span class="diff">%s</span></td>', $testman_langres["skippedtests"], $result_row["skipped"], GetDifference($result_row, $prev_result_row, "skipped"));
 				echo '</tr></table>';
