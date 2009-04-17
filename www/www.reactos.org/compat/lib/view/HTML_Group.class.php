@@ -24,8 +24,13 @@ class HTML_Group extends HTML
 
   protected function body()
   {
+    global $RSDB_intern_user_id;
+    global $RSDB_SET_group;
+    global $RSDB_intern_link_vendor_sec;
+    global $RSDB_intern_link_item;
 
 
+    new Breadcrumb(Breadcrumb::MODE_TREE, $_GET['group'], Breadcrumb::PARAM_ENTRY);
 	
     $stmt=CDBConnection::getInstance()->prepare("SELECT * FROM rsdb_groups WHERE grpentr_visible = '1' AND grpentr_id = :group_id AND grpentr_comp = '1' ORDER BY grpentr_name ASC") ;
     $stmt->bindParam('group_id',$RSDB_SET_group,PDO::PARAM_STR);
@@ -290,7 +295,7 @@ class HTML_Group extends HTML
 			<td width="40%" valign="top">
 	
 			<?php
-				if (isset($_GET['group2']) && ($_GET['group2'] == '' || $_GET['group2'] == 'overview')) {
+				if (!isset($_GET['group2']) || ($_GET['group2'] == '' || $_GET['group2'] == 'overview')) {
           $stmt=CDBConnection::getInstance()->prepare("SELECT * FROM rsdb_item_comp WHERE comp_groupid = :group_id  AND comp_visible = '1' ORDER BY comp_award DESC, comp_appversion DESC, comp_osversion DESC LIMIT 1");
 				}
 				else {
@@ -300,7 +305,7 @@ class HTML_Group extends HTML
 				}
         $stmt->bindParam('group_id',$RSDB_SET_group,PDO::PARAM_STR);
 				$stmt->execute();
-				$result_version_newest = $stmt->fetch(PDO::FETCH_ASSOC);;
+				$result_version_newest = $stmt->fetchOnce(PDO::FETCH_ASSOC);
 				
 				echo "<h3 align=\"center\"><font size=\"2\">".$result_entry_vendor['vendor_name']."</font> ".$result_version_newest['comp_name']."</h3>";
 			?>
@@ -761,7 +766,7 @@ class HTML_Group extends HTML
 <?php
 		} // end if {$result_page['grpentr_type'] == "default"}
 	}
-	if (usrfunc_IsModerator($RSDB_intern_user_id)) {
+	if (CUser::isModerator($RSDB_intern_user_id)) {
 	
     $stmt=CDBConnection::getInstance()->prepare("SELECT * FROM rsdb_groups WHERE grpentr_visible = '1' AND grpentr_id = :group_id AND grpentr_comp = '1'") ;
     $stmt->bindParam('group_id',$RSDB_SET_group,PDO::PARAM_STR);
@@ -807,7 +812,7 @@ class HTML_Group extends HTML
 
 
 		// Edit application group data:
-		if ($RSDB_TEMP_pmod == "ok" && $RSDB_SET_group != "" && $RSDB_TEMP_appgroup != "" && $RSDB_TEMP_description != "" && $RSDB_TEMP_category != "" && $RSDB_TEMP_vendor != "" && usrfunc_IsModerator($RSDB_intern_user_id)) {
+		if ($RSDB_TEMP_pmod == "ok" && $RSDB_SET_group != "" && $RSDB_TEMP_appgroup != "" && $RSDB_TEMP_description != "" && $RSDB_TEMP_category != "" && $RSDB_TEMP_vendor != "" && CUser::isModerator($RSDB_intern_user_id)) {
 			// Update group entry:
       $stmt=CDBConnection::getInstance()->prepare("UPDATE rsdb_groups SET grpentr_name = :new_name, grpentr_category = :new_category, grpentr_vendor = :new_vendor, grpentr_description = :new_description WHERE grpentr_id = :group_id");
       $stmt->bindParam('new_name',$RSDB_TEMP_appgroup,PDO::PARAM_STR);
@@ -832,7 +837,7 @@ class HTML_Group extends HTML
 		}
 
 		// Special request:
-		if ($RSDB_TEMP_pmod == "ok" && $RSDB_TEMP_txtreq1 != "" && $RSDB_TEMP_txtreq2 != "" && usrfunc_IsModerator($RSDB_intern_user_id)) {
+		if ($RSDB_TEMP_pmod == "ok" && $RSDB_TEMP_txtreq1 != "" && $RSDB_TEMP_txtreq2 != "" && CUser::isModerator($RSDB_intern_user_id)) {
 			$stmt=CDBConnection::getInstance()->prepare("INSERT INTO rsdb_logs ( log_id, log_date, log_usrid, log_usrip, log_level, log_action, log_title, log_description, log_category, log_badusr, log_referrer, log_browseragent, log_read, log_taskdone_usr) VALUES ('', NOW(), :user_id, :ip, 'low', 'request', :title, :description, 'user_moderator', '0', :referrer, :user_agent, ';', '0')");
       $stmt->bindParam('user_id',$RSDB_intern_user_id,PDO::PARAM_STR);
       $stmt->bindParam('ip',$RSDB_ipaddr,PDO::PARAM_STR);
@@ -843,7 +848,7 @@ class HTML_Group extends HTML
       $stmt->execute();
 		}
 		// Report spam:
-		if ($RSDB_TEMP_pmod == "ok" && $RSDB_TEMP_txtspam != "" && usrfunc_IsModerator($RSDB_intern_user_id)) {
+		if ($RSDB_TEMP_pmod == "ok" && $RSDB_TEMP_txtspam != "" && CUser::isModerator($RSDB_intern_user_id)) {
       $stmt=CDBConnection::getInstance()->prepare("UPDATE rsdb_groups SET grpentr_visible = '3' WHERE grpentr_id = :group_id");
       $stmt->bindParam('group_id',$RSDB_SET_group,PDO::PARAM_STR);
       $stmt->execute();
@@ -858,7 +863,7 @@ class HTML_Group extends HTML
 			$temp_verified = "yes";
 		}
 		if ($result_maintainer_group['grpentr_checked'] == "1" || $result_maintainer_group['grpentr_checked'] == "no") {
-			if ($RSDB_TEMP_pmod == "ok" && $RSDB_TEMP_verified == "done" && usrfunc_IsModerator($RSDB_intern_user_id)) {
+			if ($RSDB_TEMP_pmod == "ok" && $RSDB_TEMP_verified == "done" && CUser::isModerator($RSDB_intern_user_id)) {
 				$stmt=CDBConnection::getInstance()->prepare("UPDATE rsdb_groups SET grpentr_checked = :checked WHERE grpentr_id = :group_id");
         $stmt->bindParam('checked',$temp_verified,PDO::PARAM_STR);
         $stmt->bindParam('group_id',$RSDB_SET_group,PDO::PARAM_STR);
@@ -1170,14 +1175,14 @@ if ($result_count_cat[0]) {
 <br />
 
 <?php
-	if (usrfunc_IsAdmin($RSDB_intern_user_id)) {
+	if (CUser::isAdmin($RSDB_intern_user_id)) {
 	
 		$RSDB_TEMP_padmin = "";
 		$RSDB_TEMP_done = "";
 		if (array_key_exists("padmin", $_POST)) $RSDB_TEMP_padmin=htmlspecialchars($_POST["padmin"]);
 		if (array_key_exists("done", $_POST)) $RSDB_TEMP_done=htmlspecialchars($_POST["done"]);
 		
-		if ($RSDB_TEMP_padmin == "ok" && $RSDB_TEMP_done != "" && usrfunc_IsAdmin($RSDB_intern_user_id)) {
+		if ($RSDB_TEMP_padmin == "ok" && $RSDB_TEMP_done != "" && CUser::isAdmin($RSDB_intern_user_id)) {
       $stmt=CDBConnection::getInstance()->prepare("UPDATE rsdb_logs SET log_taskdone_usr = :user_id WHERE log_id = :log_id");
       $stmt->bindParam('user_id',$RSDB_intern_user_id,PDO::PARAM_STR);
       $stmt->bindParam('log_id',$RSDB_TEMP_done,PDO::PARAM_STR);

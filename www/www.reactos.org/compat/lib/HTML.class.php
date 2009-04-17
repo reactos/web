@@ -120,24 +120,6 @@ abstract class HTML
     }
 
     echo '
-      <script>
-      <!--'."
-        function clk(url,ct,sg)
-        {
-          if(document.images) {
-            var u='';
-
-            if (url) {
-              u='&url='+escape(url).replace(/\+/g,'%2B');
-            }
-
-            new Image().src='url.php?t='+escape(ct)+'&u='+u+'&a=".base64_encode($RSDB_intern_user_id)."'+'&i=".base64_encode($_SERVER['REMOTE_ADDR'])."'+'&s'+sg;
-
-          }
-          return true;
-        }
-      ".'-->
-      </script>
     </head>
     <body>
       <div id="top">
@@ -163,17 +145,6 @@ abstract class HTML
     include('rsdb_setting.php');
     include('rsdb_config.php');
 
-    global $roscms_intern_account_level;
-    global $roscms_intern_login_check;
-    global $roscms_intern_login_check_username;
-    global $roscms_intern_account_group;
-    global $roscms_intern_usrgrp_sadmin;
-    global $roscms_intern_usrgrp_admin;
-    global $roscms_intern_usrgrp_dev;
-    global $roscms_intern_usrgrp_team;
-    global $roscms_intern_usrgrp_trans;
-    global $roscms_intern_usrgrp_user;
-    global $RSDB_langres;
     global $RSDB_intern_link_db_sec;
 
     echo '
@@ -190,53 +161,35 @@ abstract class HTML
             </ol>
             <br />
 
+            <div class="navTitle">Browse Database</div>
+            <ol>
+              <li><a href="'.$RSDB_intern_link_db_sec.'name&amp;letter=all">By Name</a></li>
+              <li><a href="'.$RSDB_intern_link_db_sec.'category&amp;cat=0">By Category</a></li>
+              <li><a href="'.$RSDB_intern_link_db_sec.'vendor&amp;letter=all">By Vendor</a></li>
+              <li><a href="'.$RSDB_intern_link_db_sec.'rank">By Rank</a></li>
+            </ol>
+            <br />
+
             <div class="navTitle">Compatibility</div>
             <ol>
               <li><a href="'.$RSDB_intern_link_db_sec.'home">Overview</a></li>
-              <li><a href="'.$RSDB_intern_link_db_sec.'category&amp;cat=0">Browse Database</a></li>';
+              <li><a href="'.$RSDB_intern_link_db_sec.'submit">Submit Application</a></li>
+              <li><a href="'.$RSDB_intern_link_db_sec.'help">Help &amp; FAQ</a></li>
+            </ol>
+            <br />
 
-    if (isset($_GET['page']) && ($_GET['page'] == 'category' || $_GET['page'] == 'name' || $_GET['page'] == 'vendor' || $_GET['page'] == 'rank')) {
-      echo '
-        <li><a href="'.$RSDB_intern_link_db_sec.'category&amp;cat=0">&nbsp;- By Category</a></li>
-        <li><a href="'.$RSDB_intern_link_db_sec.'name&amp;letter=all">&nbsp;- By Name</a></li>
-        <li><a href="'.$RSDB_intern_link_db_sec.'vendor&amp;letter=all">&nbsp;- By Vendor</a></li>
-        <li><a href="'.$RSDB_intern_link_db_sec.'rank">&nbsp;- By Rank</a></li>';
-    }
+            <div class="navTitle"><label for="searchbar" accesskey="s">Search</label></div>
+            <ol>
+              <li>
+                <input name="searchbar" type="text" id="searchbar" tabindex="0" size="17" maxlength="50" style="font-family: Verdana; font-size: x-small; font-style: normal;" />
+                <button>&gt;</button>
+              </li>
+            </ol>
+            <br />
 
-    echo '
-        <li id="noscriptsearchbar" style="display: block"><a href="'.$RSDB_intern_link_db_sec.'search">Search</a></li>
-        <li><a href="'.$RSDB_intern_link_db_sec.'submit">Submit Application</a></li>
-        <li><a href="'.$RSDB_intern_link_db_sec.'help">Help &amp; FAQ</a></li>
-      </ol>
-      <br />
-
-      <div class="navTitle">Search</div>
-      <ol>
-        <li>
-          <div id="ajaxsearchbar" align="center" style="display: none">
-          <div align="center">
-            <label for="searchbar" accesskey="s"></label>
-            <input name="searchbar" type="text" id="searchbar" tabindex="0" onkeyup="'."loadItemList(this.value,'bar','comp','ajaxloadbar','sresultbar');".'" size="17" maxlength="50" style="font-family: Verdana; font-size: x-small; font-style: normal;" />
-          </div>
-          <div id="sresultbar" style="display: none" align="left"></div>
-          <div style="text-align: center;">
-            <img id="ajaxloadbar" src="images/ajax_loading.gif" style="display: none" />
-          </div>
-        </li>
-      </ol>
-      <br />
-
-      <script type="text/javascript">
-      <!--'."
-        document.getElementById('ajaxsearchbar').style.display = 'block';
-        document.getElementById('noscriptsearchbar').style.display = 'none';
-      ".'-->
-      </script>
-
-      <div class="navTitle">Language</div>   
-      <ol>
-        <li> 
-          <div align="center">';
+            <div class="navTitle">Language</div>   
+            <ol>
+              <li>';
 
     // get selected language
     if (empty($_GET['lang']) && isset($_COOKIE['roscms_usrset_lang'])) {
@@ -294,10 +247,10 @@ abstract class HTML
           </table>
 
 
-          <hr size="1" />
+          <hr />
           <address style="text-align:center">
-            <a href="http://www.reactos.org" onmousedown="'."return clk(this.href,'res','');".'">ReactOS</a> is a registered trademark or a trademark of <a href="http://www.reactos.org/?page=foundation">ReactOS Foundation</a> in the United States and other countries.<br />
-            Copyright  &copy; Klemens Friedl 2005-'.date('Y').', All rights reserved.
+            <a href="http://www.reactos.org">ReactOS</a> is a registered trademark or a trademark of <a href="http://www.reactos.org/?page=foundation">ReactOS Foundation</a> in the United States and other countries.<br />
+            Copyright  &copy; Klemens Friedl 2005-2009, All rights reserved.
           </address>
 
         </body>

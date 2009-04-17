@@ -265,6 +265,7 @@ p.tabLink_u         { color: black; font-size : 10pt; padding : 0 8px 1px 2px; m
           </table></td>
         </tr>
 </table>
-<?
+<?php
   } // end of member function header
 }
+?>

@@ -101,10 +101,10 @@ if ($result_page['comp_id']) {
             <tr>
               <td width="80" rowspan="2" align="center" valign="middle"><div align="left"><strong><?php 
 			  
-				if (usrfunc_IsAdmin($result_testreports['test_user_id'])) {
+				if (CUser::isAdmin($result_testreports['test_user_id'])) {
 					echo '<font size="3" face="Arial, Helvetica, sans-serif" color="#5984C3">&nbsp;Admin';
 				}
-				else if (usrfunc_IsModerator($result_testreports['test_user_id'])) {
+				else if (CUser::isModerator($result_testreports['test_user_id'])) {
 					echo '<font size="2" face="Arial, Helvetica, sans-serif" color="#5984C3">&nbsp;Maintainer';
 				}
 				else {

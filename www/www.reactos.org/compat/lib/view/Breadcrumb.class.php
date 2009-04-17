@@ -122,12 +122,12 @@ class Breadcrumb
 
     // check if entry exists and is visible
     elseif ($param > 0 && $param_type === self::PARAM_ENTRY) {
-      $stmt=CDBConnection::getInstance()->prepare("SELECT grpentr_id, grpentr_category, grpentr_name FROM rsdb_groups WHERE grpentr_visible = '1' AND grpentr_id = :group_id") ;
+      $stmt=CDBConnection::getInstance()->prepare("SELECT grpentr_category, grpentr_name FROM rsdb_groups WHERE grpentr_visible = '1' AND grpentr_id = :group_id") ;
       $stmt->bindParam('group_id',$param,PDO::PARAM_INT);
       $stmt->execute();
-      $category_id = $stmt->fetchOnce(PDO::FETCH_ASSOC);
+      $category_id = $stmt->fetchColumn();
 
-      if ($group === false) {
+      if ($category_id === false) {
         echo 'Unknown Group';
         return;
       }

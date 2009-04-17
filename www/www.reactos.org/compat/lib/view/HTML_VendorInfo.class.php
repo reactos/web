@@ -310,7 +310,7 @@ p.tabLink_u         { color: black; font-size : 10pt; padding : 0 8px 1px 2px; m
 <p>&nbsp;</p>
 <?php
 
-	if (usrfunc_IsModerator($RSDB_intern_user_id)) {
+	if (CUser::isModerator($RSDB_intern_user_id)) {
 	
     $stmt=CDBConnection::getInstance()->prepapare("SELECT * FROM rsdb_item_vendor WHERE vendor_visible = '1' AND vendor_id = :vendor_id LIMIT 1");
     $stmt->bindParam('vendor_id',@$_GET['vendor'],PDO::PARAM_STR);
@@ -347,7 +347,7 @@ p.tabLink_u         { color: black; font-size : 10pt; padding : 0 8px 1px 2px; m
 
 
 		// Edit application group data:
-		if ($RSDB_TEMP_pmod == "ok" && isset($_GET['vendor']) && $_GET['vendor'] != '' && $RSDB_TEMP_vendname != "" && $RSDB_TEMP_txturl != "" && usrfunc_IsModerator($RSDB_intern_user_id)) {
+		if ($RSDB_TEMP_pmod == "ok" && isset($_GET['vendor']) && $_GET['vendor'] != '' && $RSDB_TEMP_vendname != "" && $RSDB_TEMP_txturl != "" && CUser::isModerator($RSDB_intern_user_id)) {
 			// Update group entry:
       $stmt=CDBConnection::getInstance()->prepare("UPDATE rsdb_item_vendor SET vendor_name = :name, vendor_fullname = :fullname, vendor_url = :url, vendor_email = :email, vendor_infotext = :info WHERE vendor_id = :vendor_id LIMIT 1");
       $stmt->bindParam('name',$RSDB_TEMP_vendname,PDO::PARAM_STR);
@@ -367,7 +367,7 @@ p.tabLink_u         { color: black; font-size : 10pt; padding : 0 8px 1px 2px; m
 		}
 
 		// Special request:
-		if ($RSDB_TEMP_pmod == "ok" && $RSDB_TEMP_txtreq1 != "" && $RSDB_TEMP_txtreq2 != "" && usrfunc_IsModerator($RSDB_intern_user_id)) {
+		if ($RSDB_TEMP_pmod == "ok" && $RSDB_TEMP_txtreq1 != "" && $RSDB_TEMP_txtreq2 != "" && CUser::isModerator($RSDB_intern_user_id)) {
       $stmt=CDBConnection::getInstance()->prepare("INSERT INTO rsdb_logs (log_id, log_date, log_usrid, log_usrip, log_level, log_action, log_title, log_description, log_category, log_badusr, log_referrer, log_browseragent, log_read, log_taskdone_usr) VALUES ('', NOW(), :user_id, :ip, 'low', 'request', :title, :description, 'user_moderator', '0', :referrer, :user_agent, ';', '0')");
       $stmt->bindParam('user_id',$RSDB_intern_user_id,PDO::PARAM_STR);
       $stmt->bindParam('ip',$RSDB_ipaddr,PDO::PARAM_STR);
@@ -378,7 +378,7 @@ p.tabLink_u         { color: black; font-size : 10pt; padding : 0 8px 1px 2px; m
       $stmt->execute();
 		}
 		// Report spam:
-		if ($RSDB_TEMP_pmod == "ok" && $RSDB_TEMP_txtspam != "" && usrfunc_IsModerator($RSDB_intern_user_id)) {
+		if ($RSDB_TEMP_pmod == "ok" && $RSDB_TEMP_txtspam != "" && CUser::isModerator($RSDB_intern_user_id)) {
       $stmt=CDBConnection::getInstance()->prepare("UPDATE rsdb_item_vendor SET vendor_visible = '3' WHERE vendor_id = :vendor_id LIMIT 1");
       $stmt->bindParam('vendor_id',@$_GET['vendor'],PDO::PARAM_STR);
       $stmt->execute();
@@ -392,7 +392,7 @@ p.tabLink_u         { color: black; font-size : 10pt; padding : 0 8px 1px 2px; m
 			$temp_verified = "yes";
 		}
 		if ($result_maintainer_vendor['vendor_checked'] == "1" || $result_maintainer_vendor['vendor_checked'] == "no") {
-			if ($RSDB_TEMP_pmod == "ok" && $RSDB_TEMP_verified == "done" && usrfunc_IsModerator($RSDB_intern_user_id)) {
+			if ($RSDB_TEMP_pmod == "ok" && $RSDB_TEMP_verified == "done" && CUser::isModerator($RSDB_intern_user_id)) {
         $stmt=CDBConnection::getInstance()->prepare("UPDATE rsdb_item_vendor SET vendor_checked = :checked WHERE vendor_id = :vendor_id LIMIT 1");
         $stmt->bindParam('checked',$temp_verified,PDO::PARAM_STR);
         $stmt->bindParam('vendor_id',@$_GET['vendor'],PDO::PARAM_STR);
@@ -627,14 +627,14 @@ p.tabLink_u         { color: black; font-size : 10pt; padding : 0 8px 1px 2px; m
 <br />
 
 <?php
-	if (usrfunc_IsAdmin($RSDB_intern_user_id)) {
+	if (CUser::isAdmin($RSDB_intern_user_id)) {
 	
 		$RSDB_TEMP_padmin = "";
 		$RSDB_TEMP_done = "";
 		if (array_key_exists("padmin", $_POST)) $RSDB_TEMP_padmin=htmlspecialchars($_POST["padmin"]);
 		if (array_key_exists("done", $_POST)) $RSDB_TEMP_done=htmlspecialchars($_POST["done"]);
 		
-		if ($RSDB_TEMP_padmin == "ok" && $RSDB_TEMP_done != "" && usrfunc_IsAdmin($RSDB_intern_user_id)) {
+		if ($RSDB_TEMP_padmin == "ok" && $RSDB_TEMP_done != "" && CUser::isAdmin($RSDB_intern_user_id)) {
       $stmt=CDBConnection::getInstance()->prepare("UPDATE rsdb_logs SET log_taskdone_usr = :user_id WHERE log_id = :log_id");
       $stmt->bindParam('user_id',$RSDB_intern_user_id,PDO::PARAM_STR);
       $stmt->bindParam('log_id',$RSDB_TEMP_done,PDO::PARAM_STR);

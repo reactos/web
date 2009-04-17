@@ -18,21 +18,11 @@
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
     */
 
-/*
- *	ReactOS Support Database System - RSDB
- *	
- *	(c) by Klemens Friedl <frik85>
- *	
- *	2005 - 2006 
- */
+class List_Item
+{
 
-
-	// To prevent hacking activity:
-	if ( !defined('RSDB') )
-	{
-		die(" ");
-	}
-
+  public function __construct()
+  {
 ?>
 	<base href="<?php echo $RSDB_intern_path_server.$RSDB_intern_path; ?>" />
     <table width="100%" border="0" >
@@ -241,3 +231,7 @@
         </td>
       </tr>
     </table>
+<?php
+  }
+}
+?>

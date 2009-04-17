@@ -18,44 +18,40 @@
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
     */
 
-/*
- *	ReactOS Support Database System - RSDB
- *	
- *	(c) by Klemens Friedl <frik85>
- *	
- *	2005 - 2006 
- */
+class CUser
+{
 
 
-	// To prevent hacking activity:
-	if ( !defined('RSDB') )
-	{
-		die(" ");
-	}
 
-
-	$roscms_connected = 1;
-	
-	function usrfunc_GetUsername($RSDB_TEMP_getusrid) { // Get the user name from the RosCMS user table
+  // Get the user name from the RosCMS user table
+  public static function getName($user_id) { 
 
     require_once(ROSCMS_PATH.'lib/RosCMS_Autoloader.class.php');
-    $RSDB_USER_name = Subsystem::getUserName($RSDB_TEMP_getusrid);
-    if ($RSDB_USER_name !== false) {
-      return $RSDB_USER_name;
+    $name = Subsystem::getUserName($user_id);
+    if ($name !== false) {
+      return $name;
     }
     return '';
-	}
-	
-	function usrfunc_IsAdmin($RSDB_TEMP_getusrid) { // Check if the user is an developer, admin or super admin
+  } // end of member function getName
+
+
+
+  // Check if the user is an developer, admin or super admin
+  public static function isAdmin($user_id) { 
 
     //@IMPLEMENT Usergroup check
     return false;
-	}
+  } // end of member function isAdmin
 
-	function usrfunc_IsModerator($RSDB_TEMP_getusrid) { // Check if the user is an RSDB Moderator
+
+
+  public static function isModerator($user_id) { // Check if the user is an RSDB Moderator
 
     //@IMPLEMENT Usergroup check
-		return false;
-	}
-	
+    return false;
+  } // end of member function isModerator
+
+
+
+} // end of class CUser
 ?>

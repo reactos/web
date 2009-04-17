@@ -44,6 +44,9 @@ class Compat_Autoloader
     elseif (file_exists(CDB_PATH.'lib/om/'.$class.'.class.php')) {
       require_once(CDB_PATH.'lib/om/'.$class.'.class.php');
     }
+    elseif (file_exists(CDB_PATH.'lib/get/'.$class.'.class.php')) {
+      require_once(CDB_PATH.'lib/get/'.$class.'.class.php');
+    }
     elseif (file_exists(CDB_PATH.'lib/view/'.$class.'.class.php')) {
       require_once(CDB_PATH.'lib/view/'.$class.'.class.php');
     }

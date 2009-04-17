@@ -24,6 +24,8 @@ class HTML_Category extends HTML
   protected function body ()
   {
     global $RSDB_intern_link_db_sec;
+    global $RSDB_intern_link_group;
+    global $RSDB_intern_link_vendor_id_EX;
 
     // show breadcrumb
     if (isset($_GET['cat'])) {

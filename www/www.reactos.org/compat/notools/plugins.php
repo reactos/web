@@ -37,7 +37,7 @@
 
 	// Exif reader v 1.2
     // By Richard James Kendall 
-		require_once("inc/tools/plugins/exif.php");
+		require_once("notools/plugins/exif.php");
 	
 		function read_exif($RSDB_TEMP_filename, $spacechar) { 
 			global $exif_data;

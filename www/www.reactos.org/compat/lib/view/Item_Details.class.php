@@ -19,11 +19,14 @@
     */
 
 
-class Item_Tips extends HTML_Item
+class Item_Details extends HTML_Item
 {
 
   protected function body()
   {
+    global $RSDB_intern_link_item;
+    global $RSDB_intern_link_vendor_sec;
+    global $RSDB_intern_user_id;
 
 
   $stmt=CDBConnection::getInstance()->prepare("SELECT * FROM rsdb_item_comp WHERE comp_visible = '1' AND comp_id = :comp_id ORDER BY comp_name ASC");
@@ -194,7 +197,7 @@ if ($result_page['comp_id']) {
     </table>
 <?php
 
-	if (usrfunc_IsModerator($RSDB_intern_user_id)) {
+	if (CUser::isModerator($RSDB_intern_user_id)) {
     $stmt=CDBConnection::getInstance()->prepare("SELECT * FROM rsdb_item_comp WHERE comp_visible = '1' AND comp_id = :comp_id LIMIT 1");
     $stmt->bindParam('comp_id',@$_GET['item'],PDO::PARAM_STR);
     $stmt->execute();
@@ -239,7 +242,7 @@ if ($result_page['comp_id']) {
 
 
 		// Edit application group data:
-		if ($RSDB_TEMP_pmod == "ok" && @$_GET['item'] != "" && $RSDB_TEMP_appn != "" && $RSDB_TEMP_apppr != "" && $RSDB_TEMP_appit != "" && $RSDB_TEMP_version != "" && usrfunc_IsModerator($RSDB_intern_user_id)) {
+		if ($RSDB_TEMP_pmod == "ok" && @$_GET['item'] != "" && $RSDB_TEMP_appn != "" && $RSDB_TEMP_apppr != "" && $RSDB_TEMP_appit != "" && $RSDB_TEMP_version != "" && CUser::isModerator($RSDB_intern_user_id)) {
 
       $stmt=CDBConnection::getInstance()->prepare("SELECT * FROM rsdb_groups WHERE grpentr_visible = '1' AND grpentr_id = :group_id AND grpentr_comp = '1' LIMIT 1");
       $stmt->bindParam('group_id',$RSDB_TEMP_appn,PDO::PARAM_STR);
@@ -266,7 +269,7 @@ if ($result_page['comp_id']) {
 		}
 
 		// Special request:
-		if ($RSDB_TEMP_pmod == "ok" && $RSDB_TEMP_txtreq1 != "" && $RSDB_TEMP_txtreq2 != "" && usrfunc_IsModerator($RSDB_intern_user_id)) {
+		if ($RSDB_TEMP_pmod == "ok" && $RSDB_TEMP_txtreq1 != "" && $RSDB_TEMP_txtreq2 != "" && CUser::isModerator($RSDB_intern_user_id)) {
       $stmt=CDBConnection::getInstance()->prepare("INSERT INTO rsdb_logs ( log_id , log_date , log_usrid , log_usrip , log_level , log_action , log_title , log_description , log_category , log_badusr , log_referrer , log_browseragent , log_read , log_taskdone_usr ) VALUES ('', NOW( ) , :user_id, :ip, 'low', 'request', :title, :description, 'user_moderator', '0', :referrer, :user_agend, ';', '0')");
       $stmt->bindParam('user_id',$RSDB_intern_user_id,PDO::PARAM_STR);
       $stmt->bindParam('ip',$RSDB_ipaddr,PDO::PARAM_STR);
@@ -277,7 +280,7 @@ if ($result_page['comp_id']) {
       $stmt->execute();
 		}
 		// Report spam:
-		if ($RSDB_TEMP_pmod == "ok" && $RSDB_TEMP_txtspam != "" && usrfunc_IsModerator($RSDB_intern_user_id)) {
+		if ($RSDB_TEMP_pmod == "ok" && $RSDB_TEMP_txtspam != "" && CUser::isModerator($RSDB_intern_user_id)) {
 			$stmt=CDBConnection::getInstance()->prepare("UPDATE rsdb_item_comp SET comp_visible = '3' WHERE comp_id = :comp_id");
       $stmt->bindParam('comp_id',@$_GET['item'],PDO::PARAM_STR);
       $stmt->execute();
@@ -292,7 +295,7 @@ if ($result_page['comp_id']) {
 			$temp_verified = "yes";
 		}
 		if ($result_maintainer_item['comp_checked'] == "1" || $result_maintainer_item['comp_checked'] == "no") {
-			if ($RSDB_TEMP_pmod == "ok" && $RSDB_TEMP_verified == "done" && usrfunc_IsModerator($RSDB_intern_user_id)) {
+			if ($RSDB_TEMP_pmod == "ok" && $RSDB_TEMP_verified == "done" && CUser::isModerator($RSDB_intern_user_id)) {
 				echo "!";
         $stmt=CDBConnection::getInstance()->prepare("UPDATE rsdb_item_comp SET comp_checked = :checked WHERE comp_id = :comp_id ");
         $stmt->bindParam('checked',$temp_verified,PDO::PARAM_STR);
@@ -529,7 +532,7 @@ if ($result_page['comp_id']) {
 <br />
 
 <?php
-	if (usrfunc_IsAdmin($RSDB_intern_user_id)) {
+	if (CUser::isAdmin($RSDB_intern_user_id)) {
 	
 		$RSDB_TEMP_padmin = "";
 		$RSDB_TEMP_done = "";
@@ -539,13 +542,13 @@ if ($result_page['comp_id']) {
 		if (array_key_exists("medal", $_POST)) $RSDB_TEMP_medal=htmlspecialchars($_POST["medal"]);
 
 		
-		if ($RSDB_TEMP_padmin == "ok" && $RSDB_TEMP_done != "" && usrfunc_IsAdmin($RSDB_intern_user_id)) {
+		if ($RSDB_TEMP_padmin == "ok" && $RSDB_TEMP_done != "" && CUser::isAdmin($RSDB_intern_user_id)) {
       $stmt=CDBConnection::getInstance()->prepare("UPDATE rsdb_logs SET log_taskdone_usr = :user_id WHERE log_id = :log_id");
       $stmt->bindParam('user_id',$RSDB_intern_user_id,PDO::PARAM_STR);
       $stmt->bindParam('log_id',$RSDB_TEMP_done,PDO::PARAM_STR);
       $stmt->execute();
 		}
-		if ($RSDB_TEMP_padmin == "ok" && $RSDB_TEMP_medal != "" && isset($_GET['item']) && $_GET['item'] != "" && usrfunc_IsAdmin($RSDB_intern_user_id)) {
+		if ($RSDB_TEMP_padmin == "ok" && $RSDB_TEMP_medal != "" && isset($_GET['item']) && $_GET['item'] != "" && CUser::isAdmin($RSDB_intern_user_id)) {
       $stmt=CDBConnection::getInstance()->prepare("UPDATE rsdb_item_comp SET comp_award = :award WHERE comp_id = :comp_id");
       $stmt->bindParam('award',$RSDB_TEMP_medal,PDO::PARAM_STR);
       $stmt->bindParam('comp_id',$_GET['item'],PDO::PARAM_STR);
