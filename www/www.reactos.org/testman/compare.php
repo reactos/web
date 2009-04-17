@@ -17,22 +17,22 @@
 	GetLanguage();
 	require_once("lang/$lang.inc.php");
 	
-
-	function GetValueForResult($result)
-	{
-		// If a test crashed, return a numeric value of 0, so that the comparison is accurate
-		if($result == -1)
-			return 0;
-		
-		return $result;
-	}
 	
 	function GetDifference(&$current_result_row, &$prev_result_row, $subject)
 	{
-		if(!$prev_result_row["id"] || $current_result_row[$subject] == $prev_result_row[$subject])
+		// Return &nbsp; ("" is not possible because of IE...) if
+		//  - we have nothing to compare
+		//  - both values are identical
+		//  - a crash occured in one of the results
+		if(!$prev_result_row["id"] ||
+		   $current_result_row[$subject] == $prev_result_row[$subject] ||
+		   $current_result_row[$subject] == -1 ||
+		   $prev_result_row[$subject] == -1)
+		{
 			return "&nbsp;";
+		}
 		
-		$diff = GetValueForResult($current_result_row[$subject]) - GetValueForResult($prev_result_row[$subject]);
+		$diff = $current_result_row[$subject] - $prev_result_row[$subject];
 		
 		if($diff > 0)
 			return "(+$diff)";
@@ -104,9 +104,6 @@
 	<div class="real_failedtests" style="border: solid 1px black; border-left: none; width: 7px;"></div>
 	<div class="desc"><?php echo $testman_langres["failedtests"]; ?></div>
 	
-	<div class="box todotests"></div>
-	<div class="desc"><?php echo $testman_langres["todotests"]; ?></div>
-	
 	<div class="box skippedtests"></div>
 	<div class="desc"><?php echo $testman_langres["skippedtests"]; ?></div>
 	
@@ -142,7 +139,7 @@
 	for($i = 0; $i < count($id_array); $i++)
 	{
 		$result_stmt[$i] = $dbh->prepare(
-			"SELECT e.id, e.count, e.todo, e.failures, e.skipped " .
+			"SELECT e.id, e.count, e.failures, e.skipped " .
 			"FROM " . DB_TESTMAN . ".winetest_suites s " .
 			"LEFT JOIN " . DB_TESTMAN . ".winetest_results e ON e.suite_id = s.id AND e.test_id = :testid " .
 			"WHERE s.id IN (" . $suite_idlist . ")" .
@@ -198,7 +195,6 @@
 		$prev_result_row = null;
 		$temp_totaltests = -2;
 		$temp_failedtests = -2;
-		$temp_todotests = -2;
 		$temp_skippedtests = -2;
 		
 		for($i = 0; $i < count($result_stmt); $i++)
@@ -215,19 +211,13 @@
 			// Check whether there are any changes within the test results of several runs
 			CheckIfChanged($changed, $temp_totaltests, $result_row["count"]);
 			CheckIfChanged($changed, $temp_failedtests, $result_row["failures"]);
-			CheckIfChanged($changed, $temp_todotests, $result_row["todo"]);
 			CheckIfChanged($changed, $temp_skippedtests, $result_row["skipped"]);
 			
 			if($result_row["id"])
 			{
-				echo '<table class="celltable">';
-				echo '<tr>';
-				printf('<td colspan="3" title="%s" class="totaltests">%s <span class="diff">%s</span></td>', $testman_langres["totaltests"], GetTotalTestsString($result_row["count"]), GetDifference($result_row, $prev_result_row, "count"));
-				echo '</tr><tr>';
-				printf('<td title="%s" class="%s_failedtests">%d <span class="diff">%s</span></td>', $testman_langres["failedtests"], (($result_row["failures"] > 0 || $result_row["count"] == -1) ? 'real' : 'zero'), $result_row["failures"], GetDifference($result_row, $prev_result_row, "failures"));
-				printf('<td title="%s" class="todotests">%d <span class="diff">%s</span></td>', $testman_langres["todotests"], $result_row["todo"], GetDifference($result_row, $prev_result_row, "todo"));
-				printf('<td title="%s" class="skippedtests">%d <span class="diff">%s</span></td>', $testman_langres["skippedtests"], $result_row["skipped"], GetDifference($result_row, $prev_result_row, "skipped"));
-				echo '</tr></table>';
+				printf('<div title="%s" class="box totaltests">%s <span class="diff">%s</span></div>', $testman_langres["totaltests"], GetTotalTestsString($result_row["count"]), GetDifference($result_row, $prev_result_row, "count"));
+				printf('<div title="%s" class="box %s_failedtests">%d <span class="diff">%s</span></div>', $testman_langres["failedtests"], (($result_row["failures"] > 0 || $result_row["count"] == -1) ? 'real' : 'zero'), $result_row["failures"], GetDifference($result_row, $prev_result_row, "failures"));
+				printf('<div title="%s" class="box skippedtests">%d <span class="diff">%s</span></div>', $testman_langres["skippedtests"], $result_row["skipped"], GetDifference($result_row, $prev_result_row, "skipped"));
 			}
 			else
 			{

@@ -76,12 +76,12 @@ function AddDifferenceForColumn(th)
 		// Remove all difference data in this case as there is no previous element
 		for(var i = 0; i < trs.length; i++)
 		{
-			var tds = trs[i].childNodes[Index].getElementsByTagName("td");
+			var divs = trs[i].childNodes[Index].getElementsByTagName("div");
 			
-			for(var j = 0; j < tds.length; j++)
+			for(var j = 0; j < divs.length; j++)
 			{
 				// \u00A0 = &nbsp;
-				tds[j].getElementsByTagName("span")[0].firstChild.data = "\u00A0";
+				divs[j].getElementsByTagName("span")[0].firstChild.data = "\u00A0";
 			}
 		}
 		
@@ -91,28 +91,35 @@ function AddDifferenceForColumn(th)
 	// No, then add the difference data accordingly
 	for(var i = 0; i < trs.length; i++)
 	{
-		// We can only add difference data if the current table and the previous one contain tables with result data
-		if(trs[i].childNodes[Index].firstChild.nodeName != "TABLE" || trs[i].childNodes[Index - 1].firstChild.nodeName != "TABLE")
+		// We can only add difference data if the current table and the previous one contain result data
+		if(trs[i].childNodes[Index].firstChild.nodeName != "DIV" || trs[i].childNodes[Index - 1].firstChild.nodeName != "DIV")
 			continue;
 		
-		var tds = trs[i].childNodes[Index].getElementsByTagName("td");
+		var divs = trs[i].childNodes[Index].childNodes;
 		
-		for(var j = 0; j < tds.length; j++)
+		for(var j = 0; j < divs.length; j++)
 		{
-			var CurrentValue = GetValueForResult(tds[j]);
-			var PreviousValue = GetValueForResult(trs[i].childNodes[Index - 1].getElementsByTagName("td")[j]);
+			var CurrentValue = divs[j].firstChild.data;
+			var PreviousValue = trs[i].childNodes[Index - 1].childNodes[j].firstChild.data;
 			
-			// Calculate the difference
-			var Diff = CurrentValue - PreviousValue;
-			
-			if(Diff > 0)
-				var DiffString = String("(+" + Diff + ")");
-			else if(Diff < 0)
-				var DiffString = String("(" + Diff + ")");
-			else
+			if(CurrentValue == PreviousValue || CurrentValue == -1 || PreviousValue == -1)
+			{
 				var DiffString = "\u00A0";
+			}
+			else
+			{
+				// Calculate the difference
+				var Diff = CurrentValue - PreviousValue;
+				
+				if(Diff > 0)
+					var DiffString = String("(+" + Diff + ")");
+				else if(Diff < 0)
+					var DiffString = String("(" + Diff + ")");
+				else
+					var DiffString = "\u00A0";
+			}
 			
-			tds[j].getElementsByTagName("span")[0].firstChild.data = DiffString;
+			divs[j].getElementsByTagName("span")[0].firstChild.data = DiffString;
 		}
 	}
 }
@@ -188,7 +195,6 @@ function Document_OnMouseMove(event)
 			TempBlock.appendChild(DragColumn.childNodes[i].cloneNode(true));
 		
 		TempBlock.id = "TempBlock";
-		TempBlock.style.position = "absolute";
 		TempBlock.style.top = GetAbsoluteOffsetTop(DragColumn) + "px";
 		
 		document.body.insertBefore(TempBlock, document.getElementById("comparetable"));

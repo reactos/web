@@ -78,17 +78,15 @@
 				// We found no summary line, so the test probably crashed
 				// Indicate this by setting count to -1 and set the rest to zero.
 				$count = -1;
-				$todo = 0;
 				$failures = 0;
 				$skipped = 0;
 			}
 			
 			// Add the information into the DB
-			$stmt = $dbh->prepare("INSERT INTO " . DB_TESTMAN . ".winetest_results (test_id, suite_id, count, todo, failures, skipped) VALUES (:testid, :suiteid, :count, :todo, :failures, :skipped)");
+			$stmt = $dbh->prepare("INSERT INTO " . DB_TESTMAN . ".winetest_results (test_id, suite_id, count, failures, skipped) VALUES (:testid, :suiteid, :count, :failures, :skipped)");
 			$stmt->bindValue(":testid", (int)$test_id);
 			$stmt->bindValue(":suiteid", (int)$suite_id);
 			$stmt->bindParam(":count", $count);
-			$stmt->bindParam(":todo", $todo);
 			$stmt->bindParam(":failures", $failures);
 			$stmt->bindParam(":skipped", $skipped);
 			$stmt->execute() or die("Submit(): SQL failed #2");

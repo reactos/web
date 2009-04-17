@@ -16,7 +16,6 @@ CREATE TABLE `winetest_results` (
   `test_id` int(10) unsigned NOT NULL,
   `suite_id` int(10) unsigned NOT NULL,
   `count` int(10) NOT NULL COMMENT 'Number of all executed tests',
-  `todo` int(10) unsigned NOT NULL COMMENT 'Tests marked as TODO',
   `failures` int(10) unsigned NOT NULL COMMENT 'Number of failed tests',
   `skipped` int(10) unsigned NOT NULL COMMENT 'Number of skipped tests',
   PRIMARY KEY  (`id`),

@@ -45,10 +45,6 @@
 	background-color: #FF6666 !important;
 }
 
-.todotests {
-	background-color: #9999FF !important;
-}
-
 .skippedtests {
 	background-color: #CCCCCC !important;
 }
@@ -65,6 +61,8 @@
 	background: #5984C3;
 	color: white;
 	font-weight: bold;
+	position: absolute;
+	width: 325px;
 }
 
 #comparetable {
@@ -82,7 +80,7 @@
 	width: 200px;
 }
 
-#comparetable td {
+#comparetable td, #comparetable td div.box {
 	border-right: solid 1px #BBBBBB;
 	border-bottom: solid 1px #BBBBBB;
 	padding: 3px;
@@ -92,14 +90,16 @@
 	cursor: pointer;
 }
 
-.celltable {
-	width: 215px;
-}
-
-.celltable td {
+#comparetable td div {
 	text-align: center;
 }
 
-.celltable td.totaltests {
+#comparetable td div.box {
+	float: left;
+	width: 95px;
+}
+
+#comparetable td div.totaltests {
 	font-weight: bold;
+	width: 120px;
 }

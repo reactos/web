@@ -44,7 +44,6 @@
 		"legend" => "Legende",
 		"totaltests" => "Alle Tests",
 		"failedtests" => "Fehlgeschlagene Tests",
-		"todotests" => "Als TODO markierte Tests",
 		"skippedtests" => "Übersprungene Tests",
 		"difference" => "Unterschied zum vorherigen Ergebnis",
 		
