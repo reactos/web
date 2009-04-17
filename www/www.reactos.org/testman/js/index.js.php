@@ -14,7 +14,7 @@ var inputbox_startrev;
 var inputbox_endrev;
 var PageCount;
 var ResultCount;
-var SelectedResults = new Array();
+var SelectedResults = new Object();
 var SelectedResultCount = 0;
 
 var REQUESTTYPE_FULLLOAD = 1;
@@ -422,28 +422,38 @@ function LastPage_OnClick()
 	PageSwitch(info[0], info[1]);
 }
 
+function NumericComparison(a, b)
+{
+	return a - b;
+}
+
 function CompareButton_OnClick()
 {
-	var first = true;
 	var parameters = "ids=";
+	var IDArray = new Array();
 	
+	// Sort the selected IDs
 	for(id in SelectedResults)
+		IDArray.push(parseInt(id));
+	
+	if(!IDArray.length)
 	{
-		if(first)
+		alert("<?php echo addslashes($testman_langres["noselection"]); ?>");
+		return;
+	}
+	
+	IDArray.sort(NumericComparison);
+	
+	for(i = 0; i < IDArray.length; i++)
+	{
+		if(!i)
 		{
-			parameters += id;
+			parameters += IDArray[i];
 			first = false;
 			continue;
 		}
 		
-		parameters += "," + id;
-	}
-	
-	// If first is still true, no results were selected at all
-	if(first)
-	{
-		alert("<?php echo addslashes($testman_langres["noselection"]); ?>");
-		return;
+		parameters += "," + IDArray[i];
 	}
 	
 	window.open("compare.php?" + parameters);
