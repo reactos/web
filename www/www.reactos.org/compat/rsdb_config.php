@@ -35,7 +35,6 @@
 
 		global $RSDB_SET_letter;
 		global $RSDB_SET_group;
-		global $RSDB_langres;
 		global $RSDB_vote;
 		global $RSDB_vote2;
 		

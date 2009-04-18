@@ -26,17 +26,16 @@ class About extends HTML
 
   protected function body( )
   {
-    global $RSDB_langres;
     global $RSDB_intern_index_php;
 
     echo '
-      <h1><a href="'.$RSDB_intern_index_php.'?page=about">ReactOS Compatability Database</a> &gt; '.$RSDB_langres['TEXT_about_rsdb'].'</h1> 
-      <h2>'.$RSDB_langres['TEXT_about_rsdb'].'</h2> 
-      <p>'.$RSDB_langres['CONTENT_about_rsdb'].'</p>
-      <p>'.$RSDB_langres['CONTENT_about_webteam'].'</p>
+      <h1><a href="'.$RSDB_intern_index_php.'?page=about">ReactOS Compatability Database</a> &gt; About the ReactOS Support Database</h1> 
+      <h2>About the ReactOS Support Database</h2> 
+      <p>The ReactOS Support Database  (application and driver compatibility, application packages, developer network and media files) is a free service of the ReactOS Foundation.</p>
+      <p>The ReactOS Support Database is maintained by the ReactOS Web-Team.</p>
       <p>&nbsp;</p>
-      <h3>'.$RSDB_langres['TEXT_credits'].'</h3>
-      <p><strong>Klemens Friedl:</strong> '.$RSDB_langres['CONTENT_about_credits_frik85'].'</p>';
+      <h3>Credits</h3>
+      <p><strong>Klemens Friedl:</strong> The ReactOS Support Database has been written from scratch by Klemens Friedl (frik85).</p>';
   } // end of member function body
 
 

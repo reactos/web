@@ -27,13 +27,12 @@ class Rank extends HTML
   protected function body( )
   {
     global $RSDB_intern_link_db_sec;
-    global $RSDB_langres;
     global $RSDB_intern_link_name_letter;
     global $RSDB_intern_index_php;
     global $RSDB_intern_link_rank_rank2;
 
     echo '
-      <h1><a href="'.$RSDB_intern_link_db_sec.'home">'.$RSDB_langres['TEXT_compdb_short'].'</a> &gt; <a href="'.$RSDB_intern_link_name_letter.'all">Browse Database</a> &gt; By Rank</h1>
+      <h1><a href="'.$RSDB_intern_link_db_sec.'home">Compatibility</a> &gt; <a href="'.$RSDB_intern_link_name_letter.'all">Browse Database</a> &gt; By Rank</h1>
       <style type="text/css">
       <!--'."
       /* tab colors */

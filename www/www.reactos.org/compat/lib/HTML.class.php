@@ -83,14 +83,13 @@ abstract class HTML
    */
   protected function header( )
   {
-    global $RSDB_langres;
     global $RSDB_intern_path_server;
     global $RSDB_intern_path;
     global $RSDB_intern_user_id;
 
     echo '
       <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-      <html lang="'.$RSDB_langres['lang_code'].'">
+      <html lang="EN">
         <head>
           <title>ReactOS '.$this->title.'</title>
           <base href="'.$RSDB_intern_path_server.$RSDB_intern_path.'" />
@@ -100,7 +99,7 @@ abstract class HTML
           <meta name="Keywords" content="ReactOS, Compatibility, application, driver, RSDB, support, database, DB, test, report, rating, Ros32, Ros64, Win32, Win64, W32, W64, Wine, vendor, release, version" />
           <meta name="Copyright" content="ReactOS Foundation" />
           <meta name="Generator" content="CompatDB" />
-          <meta name="Content-language" content="'.$RSDB_langres['lang_code'].'" />
+          <meta name="Content-language" content="EN" />
           <meta name="Robots" content="index,follow" />
           <link rel="SHORTCUT ICON" href="../favicon.ico" />';
 
@@ -124,11 +123,11 @@ abstract class HTML
     <body>
       <div id="top">
         <div id="topMenu"> 
-          <a href="'.$RSDB_intern_path_server.'?page=index">'.$RSDB_langres['Home'].'</a> |
-          <a href="'.$RSDB_intern_path_server.'?page=about">'.$RSDB_langres['Info'].'</a> |
-          <a href="'.$RSDB_intern_path_server.'?page=community">'.$RSDB_langres['Community'].'</a> |
-          <a href="'.$RSDB_intern_path_server.'?page=dev">'.$RSDB_langres['Dev'].'</a> |
-          <a href="'.$RSDB_intern_path_server.'roscms/?page=user">'.$RSDB_langres['myReactOS'].'</a>
+          <a href="'.$RSDB_intern_path_server.'?page=index">Home</a> |
+          <a href="'.$RSDB_intern_path_server.'?page=about">Info</a> |
+          <a href="'.$RSDB_intern_path_server.'?page=community">Community</a> |
+          <a href="'.$RSDB_intern_path_server.'?page=dev">Development</a> |
+          <a href="'.$RSDB_intern_path_server.'roscms/?page=user">myReactOS</a>
         </div>
       </div>';
   } // end of member function header
@@ -151,13 +150,13 @@ abstract class HTML
       <table style="border: none; width:100%;" cellpadding="0" cellspacing="0">
         <tr style="vertical-align:top;"> 
           <td style="width:147px" id="leftNav">
-            <div class="navTitle">'.$RSDB_langres['Navigation'].'</div>
+            <div class="navTitle">Navigation</div>
             <ol>
-              <li><a href="'.$RSDB_intern_path_server.'?page=index">'.$RSDB_langres['Home'].'</a></li>
-              <li><a href="'.$RSDB_intern_path_server.'?page=about">'.$RSDB_langres['Info'].'</a></li>
-              <li><a href="'.$RSDB_intern_path_server.'?page=community">'.$RSDB_langres['Community'].'</a></li>
-              <li><a href="'.$RSDB_intern_path_server.'?page=dev">'.$RSDB_langres['Dev'].'</a></li>
-              <li><a href="'.$RSDB_intern_path_server.'roscms/?page=user">'.$RSDB_langres['myReactOS'].'</a></li>
+              <li><a href="'.$RSDB_intern_path_server.'?page=index">Home</a></li>
+              <li><a href="'.$RSDB_intern_path_server.'?page=about">Info</a></li>
+              <li><a href="'.$RSDB_intern_path_server.'?page=community">Community</a></li>
+              <li><a href="'.$RSDB_intern_path_server.'?page=dev">Development</a></li>
+              <li><a href="'.$RSDB_intern_path_server.'roscms/?page=user">myReactOS</a></li>
             </ol>
             <br />
 

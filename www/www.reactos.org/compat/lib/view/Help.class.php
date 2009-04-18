@@ -27,11 +27,10 @@ class Help extends HTML
   protected function body( )
   {
     global $RSDB_intern_link_db_sec;
-    global $RSDB_langres;
     global $RSDB_intern_index_php;
 
     echo '
-      <h1><a href="'.$RSDB_intern_link_db_sec.'home">'.$RSDB_langres['TEXT_compdb_short'].'</a> &gt; Help &amp; FAQ</h1> 
+      <h1><a href="'.$RSDB_intern_link_db_sec.'home">Compatibility</a> &gt; Help &amp; FAQ</h1> 
 
       <p><strong>Content</strong></p>
       <ul>
