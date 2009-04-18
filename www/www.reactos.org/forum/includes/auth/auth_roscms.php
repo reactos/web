@@ -67,7 +67,7 @@ function validate_session_roscms(&$user)
 	global $config;
 
 	// Check if our current RosCMS login is (still) valid, check the session expiration time and perform session cleanups.
-	$valid_login = (Subsystem_PHPBB::in(Login::REQUIRED, $config['script_path']) != 0);
+	$valid_login = (Subsystem_PHPBB::in(Login::OPTIONAL, $config['script_path']) != 0);
 	
 	// If we have a valid login, but the phpBB user ID is still ANONYMOUS, the user was logged in to RosCMS, but not yet to phpBB.
 	// So do that now.
@@ -83,9 +83,9 @@ function autologin_roscms()
 	global $db, $config;
 	
 	// Get the User ID of the logged in user (if any), check the session expiration time and perform session cleanups.
-	$userid = (int)Subsystem_PHPBB::in(Login::REQUIRED, $config['script_path']);
+	$userid = (int)Subsystem_PHPBB::in(Login::OPTIONAL, $config['script_path']);
 	
-	if($userid)
+	if($userid > 0)
 	{
 		// Return the phpBB user row if a user is logged in.
 		$sql = "SELECT * FROM " . USERS_TABLE . " WHERE user_id = $userid";
