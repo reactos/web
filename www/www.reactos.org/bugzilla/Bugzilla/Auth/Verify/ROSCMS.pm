@@ -62,12 +62,11 @@ sub check_credentials {
 		$md5_password = md5_hex($password);
 	}
 	
-	my $query = "SELECT u.user_roscms_password " .
-			"FROM $roscms_db_name.users u, " .
-			"   $roscms_db_name.subsys_mappings m " .
-			"WHERE u.user_id = m.map_roscms_userid " .
-			"   AND m.map_subsys_name = 'bugzilla' " .
-			"   AND m.map_subsys_userid = ?";
+	my $query = "SELECT u.password " .
+			"FROM $roscms_db_name.roscms_accounts u " .
+			"JOIN $roscms_db_name.roscms_rel_accounts_subsys m ON u.id=m.user_id " .
+			"WHERE m.subsys = 'bugzilla' " .
+			"   AND m.subsys_user_id = ?";
 	(my $valid_md5_password) = $dbh->selectrow_array($query, undef, $user_id);
 	
 	return { failure => AUTH_LOGINFAILED }

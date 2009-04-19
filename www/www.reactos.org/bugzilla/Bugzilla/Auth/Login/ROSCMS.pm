@@ -80,29 +80,28 @@ sub get_login_info {
 		}
 		my $browser_agent_clean = $ENV{'HTTP_USER_AGENT'};
 		trick_taint($browser_agent_clean);
-		my $query = "SELECT m.map_subsys_userid, m.map_roscms_userid " .
-				"  FROM $roscms_db_name.user_sessions s, " .
-				"       $roscms_db_name.users u, " .
-				"       $roscms_db_name.subsys_mappings m " .
-				" WHERE s.usersession_id = ? " .
-				"   AND (s.usersession_expires IS NULL OR " .
-				"        NOW() <= s.usersession_expires) " .
-				"   AND u.user_id = s.usersession_user_id " .
-				"   AND (u.user_setting_ipaddress = 'false' OR " .
-				"        s.usersession_ipaddress = ?) " .
-				"   AND (u.user_setting_browseragent = 'false' OR " .
-				"        s.usersession_browseragent = ?) " .
-				"   AND m.map_roscms_userid = s.usersession_user_id " .
-				"   AND m.map_subsys_name = 'bugzilla'";
+		my $query = "SELECT m.subsys_user_id, m.user_id " .
+				"  FROM $roscms_db_name.roscms_accounts_sessions s " .
+                                "  JOIN $roscms_db_name.roscms_accounts u ON s.user_id = u.id " .
+				"  JOIN $roscms_db_name.roscms_rel_accounts_subsys m ON m.user_id=u.id " .
+				" WHERE s.id = ? " .
+				"   AND (s.expires IS NULL OR " .
+				"        NOW() <= s.expires) " .
+				"   AND (s.ip = 'false' OR " .
+				"        s.ip = ?) " .
+				"   AND (s.browseragent = 'false' OR " .
+				"        s.browseragent = ?) " .
+				"   AND m.subsys = 'bugzilla'";
+
 		my @params = ($session_id_clean, $remote_addr_clean, $browser_agent_clean);
 		($user_id, $roscms_user_id) = $dbh->selectrow_array($query, undef, @params);
 		
 		if ($user_id) {
 			# Update time of last session use
-			$query = "UPDATE $roscms_db_name.user_sessions " .
-					"   SET usersession_expires = DATE_ADD(NOW(), INTERVAL 30 MINUTE) " .
-					" WHERE usersession_id = ? " .
-					"   AND usersession_expires IS NOT NULL";
+			$query = "UPDATE $roscms_db_name.roscms_accounts_sessions " .
+					"   SET expires = DATE_ADD(NOW(), INTERVAL 30 MINUTE) " .
+					" WHERE id = ? " .
+					"   AND expires IS NOT NULL";
 			@params = ($session_id_clean);
 			$dbh->do($query, undef, @params);
 			
@@ -110,7 +109,7 @@ sub get_login_info {
 			# We don't check the password explicitly here as we only deal with the session cookie.
 			# To show the Verify module that it should trust us, we pass the MD5 password hash to it. This should be secure as long as we're the only one who knows this MD5 hash.
 			my $username = user_id_to_login($user_id);
-			(my $md5_password) = $dbh->selectrow_array("SELECT user_roscms_password FROM $roscms_db_name.users WHERE user_id = ?", undef, $roscms_user_id);
+			(my $md5_password) = $dbh->selectrow_array("SELECT password FROM $roscms_db_name.roscms_accounts WHERE id = ?", undef, $roscms_user_id);
 			
 			# We need to set a parameter for the Auth::Persist::ROSCMS module
 			$cgi->param('ROSCMS_login', 1);
