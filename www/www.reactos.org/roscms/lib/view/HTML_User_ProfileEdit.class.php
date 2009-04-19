@@ -73,7 +73,7 @@ class HTML_User_ProfileEdit extends HTML_User
             <div class="corner_TR"></div>
           </div>');
 
-    $stmt=&DBConnection::getInstance()->prepare("SELECT id, name, fullname, email, activation, homepage, country_id, lang_id, timezone_id, occupation, match_session, match_browseragent, match_ip, match_session_expire FROM ".ROSCMST_USERS." WHERE id = :user_id LIMIT 1");
+    $stmt=&DBConnection::getInstance()->prepare("SELECT id, name, fullname, email, activation, homepage, country_id, lang_id, timezone_id, occupation, match_session, match_browseragent, match_ip FROM ".ROSCMST_USERS." WHERE id = :user_id LIMIT 1");
     $stmt->bindParam('user_id',ThisUser::getInstance()->id(),PDO::PARAM_INT);
     $stmt->execute();
     $profile = $stmt->fetchOnce();
@@ -145,7 +145,7 @@ class HTML_User_ProfileEdit extends HTML_User
       }
 
       // update account data
-      $stmt=&DBConnection::getInstance()->prepare("UPDATE ".ROSCMST_USERS." SET modified = NOW( ) , fullname = :fullname, homepage = :website, lang_id = :language, country_id = :country, timezone_id = :timezone, occupation = :occupation, match_session = :setting_multisession, match_browseragent = :setting_browser, match_ip = :setting_ip, match_session_expire = :setting_timeout WHERE id = :user_id LIMIT 1");
+      $stmt=&DBConnection::getInstance()->prepare("UPDATE ".ROSCMST_USERS." SET modified = NOW( ) , fullname = :fullname, homepage = :website, lang_id = :language, country_id = :country, timezone_id = :timezone, occupation = :occupation, match_session = :setting_multisession, match_browseragent = :setting_browser, match_ip = :setting_ip WHERE id = :user_id LIMIT 1");
       $stmt->bindParam('fullname',htmlspecialchars($_POST['userfullname']),PDO::PARAM_STR);
       $stmt->bindParam('website',$_POST['userwebsite'],PDO::PARAM_STR);
       $stmt->bindParam('language',$_POST['language'],PDO::PARAM_INT);
@@ -155,7 +155,6 @@ class HTML_User_ProfileEdit extends HTML_User
       $stmt->bindValue('setting_multisession',isset($_POST['loginoption1']),PDO::PARAM_BOOL);
       $stmt->bindValue('setting_browser',isset($_POST['loginoption2']),PDO::PARAM_BOOL);
       $stmt->bindValue('setting_ip',isset($_POST['loginoption3']),PDO::PARAM_BOOL);
-      $stmt->bindValue('setting_timeout',isset($_POST['loginoption4']),PDO::PARAM_BOOL);
       $stmt->bindParam('user_id',$profile['id'],PDO::PARAM_INT);
       $stmt->execute();
 
@@ -338,9 +337,6 @@ class HTML_User_ProfileEdit extends HTML_User
           <br />
           <input name="loginoption3" style="width:auto;" type="checkbox" id="loginoption3" value="true"'.((isset($_POST['loginoption3']) || (empty($_POST['registerpost']) && $profile['match_ip'] == true)) ? ' checked="checked"' : '').' tabindex="13" /> 
           <label style="display:inline;" for="loginoption3">IP Address Check</label>
-          <br />
-          <input name="loginoption4" style="width:auto;" type="checkbox" id="loginoption4" value="true"'.((isset($_POST['loginoption4']) || (empty($_POST['registerpost']) && $profile['match_session_expire'] == true)) ? ' checked="checked"' : '').' tabindex="14" /> 
-          <label style="display:inline;" for="loginoption4">Log me on automatically</label>
         </fieldset>
 
         <div class="field">

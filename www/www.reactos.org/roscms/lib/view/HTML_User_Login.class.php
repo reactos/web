@@ -112,7 +112,7 @@ class HTML_User_Login extends HTML_User
       }
 
       // get user data
-      $stmt=&DBConnection::getInstance()->prepare("SELECT id, password, logins, disabled, match_session, match_session_expire FROM ".ROSCMST_USERS." WHERE name = :user_name LIMIT 1");
+      $stmt=&DBConnection::getInstance()->prepare("SELECT id, password, logins, disabled, match_session FROM ".ROSCMST_USERS." WHERE name = :user_name LIMIT 1");
       $stmt->bindParam('user_name',$user_name,PDO::PARAM_STR);
       $stmt->execute() or die('DB error (user login #1)!');
       $user = $stmt->fetchOnce(); 
@@ -170,12 +170,12 @@ class HTML_User_Login extends HTML_User
       }
 
       // expire = NULL
-      if (isset($_POST['loginoption2']) && $_POST['loginoption2'] == 'notimeout' && $user['match_session_expire'] == true) {
-        $stmt=&DBConnection::getInstance()->prepare("INSERT INTO ".ROSCMST_SESSIONS." (id, user_id, expires, browseragent, ipaddress) VALUES (:session_id, :user_id, NULL, :useragent, :ip)");
+      if (isset($_POST['loginoption2']) && $_POST['loginoption2'] == 'notimeout') {
+        $stmt=&DBConnection::getInstance()->prepare("INSERT INTO ".ROSCMST_SESSIONS." (id, user_id, expires, browseragent, ip) VALUES (:session_id, :user_id, NULL, :useragent, :ip)");
         $cookie_time = 0x7fffffff; // 31.12.1969
       }
 
-      // expire = 'DATE_ADD(NOW(), INTERVAL 60 MINUTE)';
+      // expire = 'DATE_ADD(NOW(), INTERVAL 30 MINUTE)';
       else {
         $stmt=&DBConnection::getInstance()->prepare("INSERT INTO ".ROSCMST_SESSIONS." (id, user_id, expires, browseragent, ip) VALUES (:session_id, :user_id, DATE_ADD(NOW(), INTERVAL 30 MINUTE), :useragent, :ip)");
         $cookie_time = time() + 30 * 60;

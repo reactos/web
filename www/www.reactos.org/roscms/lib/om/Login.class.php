@@ -83,7 +83,7 @@ class Login
         $stmt=&DBConnection::getInstance()->prepare("SELECT s.user_id, s.expires FROM ".ROSCMST_SESSIONS." s JOIN ".ROSCMST_USERS." u ON u.id = s.user_id WHERE s.id = :session_id AND (u.match_ip IS FALSE OR s.ip=:ip ) AND (u.match_browseragent IS FALSE OR s.browseragent = :agent) AND u.disabled IS FALSE LIMIT 1");
       }
       else{
-        $stmt=&DBConnection::getInstance()->prepare("SELECT m.subsys_user_id AS user_id, s.expires FROM ".ROSCMST_SESSIONS." s JOIN ".ROSCMST_USERS." u ON u.id = s.user_id JOIN ".ROSCMST_SUBSYS." m ON m.user_id = s.user_id WHERE s.id = :session_id AND (u.match_ip IS FALSE OR s.ip = :ip) AND (u.match_browseragent IS FALSE OR s.browseragent = :agent) AND m.subsys = :subsys AND u.disabled IS FALSE LIMIT 1");
+        $stmt=&DBConnection::getInstance()->prepare("SELECT s.user_id, s.expires FROM ".ROSCMST_SESSIONS." s JOIN ".ROSCMST_USERS." u ON u.id = s.user_id JOIN ".ROSCMST_SUBSYS." m ON m.user_id = s.user_id WHERE s.id = :session_id AND (u.match_ip IS FALSE OR s.ip = :ip) AND (u.match_browseragent IS FALSE OR s.browseragent = :agent) AND m.subsys = :subsys AND u.disabled IS FALSE LIMIT 1");
         $stmt->bindParam('subsys',$subsys,PDO::PARAM_STR);
       }
       $stmt->bindParam('session_id',$session_id,PDO::PARAM_INT);
@@ -203,7 +203,7 @@ class Login
     }
 
     // register granted access rights
-    $stmt=&DBConnection::getInstance()->prepare(" SELECT a.name_short FROM ".ROSCMST_AREA." a JOIN ".ROSCMST_AREA_ACCESS." r ON r.area_id = a.id JOIN ".ROSCMST_MEMBERSHIPS." m ON m.group_id = r.group_id WHERE m.user_id =:user_id");
+    $stmt=&DBConnection::getInstance()->prepare("SELECT a.name_short FROM ".ROSCMST_AREA." a JOIN ".ROSCMST_AREA_ACCESS." r ON r.area_id = a.id JOIN ".ROSCMST_MEMBERSHIPS." m ON m.group_id = r.group_id WHERE m.user_id =:user_id");
     $stmt->bindparam('user_id',$user['id'],PDO::PARAM_INT);
     $stmt->execute();
 
