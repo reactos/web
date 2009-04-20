@@ -35,7 +35,7 @@ class HTML_Category extends HTML
       new Breadcrumb(Breadcrumb::MODE_TREE, 0, Breadcrumb::PARAM_CATEGORY);
     }
 
-$stmt=CDBConnection::getInstance()->prepare("SELECT COUNT(*) FROM rsdb_categories WHERE cat_visible = '1' AND cat_path = :path AND cat_comp = '1'");
+$stmt=CDBConnection::getInstance()->prepare("SELECT COUNT(*) FROM ".CDBT_CATEGORIES." WHERE visible IS TRUE AND parent = :path");
 $stmt->bindParam('path',@$_GET['cat'],PDO::PARAM_STR);
 $stmt->execute();
 $result_count_cat = $stmt->fetch(PDO::FETCH_NUM);
@@ -58,7 +58,7 @@ if ($result_count_cat[0]) {
 	  <?php
 	
 
-    $stmt=CDBConnection::getInstance()->prepare("SELECT * FROM rsdb_categories WHERE cat_visible = '1' AND cat_path = :path AND cat_comp = '1' ORDER BY cat_name ASC");
+    $stmt=CDBConnection::getInstance()->prepare("SELECT * FROM ".CDBT_CATEGORIES." WHERE visible IS TRUE AND parent = :path ORDER BY name ASC");
     $stmt->bindParam('path',@$_GET['cat'],PDO::PARAM_STR);
     $stmt->execute();
 		
@@ -78,27 +78,26 @@ if ($result_count_cat[0]) {
       <div align="left"><font size="2" face="Arial, Helvetica, sans-serif">
         <?php
 	  
-//		echo "<img src='media/icons/categories/".$result_treeview['cat_icon']."' width='16' height='16'>";
+//		echo "<img src='media/icons/categories/".$result_treeview['icon']."' width='16' height='16'>";
 		
-		echo "&nbsp;<b><a href='".$RSDB_intern_link_db_sec.'category&amp;cat='.$result_treeview['cat_id']."&amp;cat2=".htmlspecialchars(@$_GET['cat2'])."'>".$result_treeview['cat_name']."</a></b>";
-//		$RSDB_TEMP_cat_icon = $result_treeview['cat_icon'];
-		$RSDB_TEMP_cat_path = $result_treeview['cat_path'];
-		$RSDB_TEMP_cat_id = $result_treeview['cat_id'];
-		//$RSDB_TEMP_cat_level = $result_treeview['cat_level'];
+		echo "&nbsp;<b><a href='".$RSDB_intern_link_db_sec.'category&amp;cat='.$result_treeview['id']."&amp;cat2=".htmlspecialchars(@$_GET['cat2'])."'>".$result_treeview['name']."</a></b>";
+//		$RSDB_TEMP_cat_icon = $result_treeview['icon'];
+		$RSDB_TEMP_cat_path = $result_treeview['parent'];
+		$RSDB_TEMP_cat_id = $result_treeview['id'];
 		$RSDB_TEMP_cat_level=0;
 		
 		$RSDB_TEMP_cat_current_id_guess=$RSDB_TEMP_cat_id;
 		
 		for ($guesslevel=1; ; $guesslevel++) {
 //				echo $guesslevel."#";
-				$stmt_cat=CDBConnection::getInstance()->prepare("SELECT * FROM rsdb_categories WHERE cat_id = :cat_id AND cat_visible = '1' AND cat_comp = '1'");
+				$stmt_cat=CDBConnection::getInstance()->prepare("SELECT * FROM ".CDBT_CATEGORIES." WHERE id = :cat_id AND visible IS TRUE");
         $stmt_cat->bindParam('cat_id',$RSDB_TEMP_cat_current_id_guess,PDO::PARAM_STR);
         $stmt_cat->execute();
 				$result_category_tree_guesslevel=$stmt_cat->fetch(PDO::FETCH_ASSOC);
-//					echo $result_category_tree_guesslevel['cat_name'];
-				$RSDB_TEMP_cat_current_id_guess = $result_category_tree_guesslevel['cat_path'];
+//					echo $result_category_tree_guesslevel['name'];
+				$RSDB_TEMP_cat_current_id_guess = $result_category_tree_guesslevel['parent'];
 				
-				if (!$result_category_tree_guesslevel['cat_name']) {
+				if (!$result_category_tree_guesslevel['name']) {
 					//echo "ENDE:".($guesslevel-1);
 					$RSDB_intern_catlevel = ($guesslevel-1);
 					break;
@@ -110,13 +109,13 @@ if ($result_count_cat[0]) {
         </font></div></td>
 		
     <td width="45%" valign="top" bgcolor="<?php echo $cellcolor; ?>"> 
-      <div align="left"><font face="Arial, Helvetica, sans-serif"><font size="2" face="Arial, Helvetica, sans-serif"><?php echo $result_treeview['cat_description']; ?></font><font size="2"></font> 
+      <div align="left"><font face="Arial, Helvetica, sans-serif"><font size="2" face="Arial, Helvetica, sans-serif"><?php echo $result_treeview['description']; ?></font><font size="2"></font> 
         </font></div></td>
 		
     <td width="10%" valign="top" bgcolor="<?php echo $cellcolor; ?>"><font size="2">
       <?php
 
-		echo Count::entriesInGroup($result_treeview['cat_id']);
+		echo Count::entriesInGroup($result_treeview['id']);
 	
 	?>
       </font></td>
@@ -255,14 +254,14 @@ if ($result_count_groups[0]) {
 				$counter_testentries += $result_count_testentries[0];
 				
 				// Forum entries:
-        $stmt_count=CDBConnection::getInstance()->prepare("SELECT COUNT(*) FROM rsdb_item_comp_forum WHERE fmsg_visible = '1' AND fmsg_comp_id = :comp_id");
+        $stmt_count=CDBConnection::getInstance()->prepare("SELECT COUNT(*) FROM ".CDBT_COMMENTS." WHERE visible IS TRUE AND entry_id = :comp_id");
         $stmt_count->bindParam('comp_id',$result_group_sum_items['comp_id'],PDO::PARAM_STR);
         $stmt_count->execute();
 				$result_count_forumentries = $stmt_count->fetch(PDO::FETCH_NUM);
 				$counter_forumentries += $result_count_forumentries[0];
 
 				// Screenshots:
-        $stmt_count=CDBConnection::getInstance()->prepare("SELECT COUNT(*) FROM rsdb_object_media WHERE media_visible = '1' AND media_groupid = :group_id");
+        $stmt_count=CDBConnection::getInstance()->prepare("SELECT COUNT(*) FROM ".CDBT_ATTACHMENTS." WHERE visible IS TRUE AND entry_id = :group_id");
         $stmt_count->bindParam('group_id',$result_group_sum_items['comp_media'],PDO::PARAM_STR);
         $stmt_count->execute();
 				$result_count_screenshots = $stmt_count->fetch(PDO::FETCH_NUM);

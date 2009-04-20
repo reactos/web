@@ -267,23 +267,16 @@ else {
 						?>>Select a category</option>
                         <?php 
 							$RSDB_intern_selected = $RSDB_TEMP_cboCategory;
-							$stmt=CDBConnection::getInstance()->prepare("SELECT COUNT(*) FROM rsdb_categories WHERE cat_visible = '1' AND cat_path = '0' AND cat_comp = '1'");
+							$stmt=CDBConnection::getInstance()->prepare("SELECT COUNT(*) FROM ".CDBT_CATEGORIES." WHERE visible IS TRUE AND parent IS NULL");
 $stmt->execute();
 $result_count_cat = $stmt->fetchOnce(PDO::FETCH_ASSOC);
-
-// Update the ViewCounter:
-if (!empty($_GET['cat'])) {
-  $stmt=CDBConnection::getInstance()->prepare("UPDATE rsdb_categories SET cat_viewcounter = (cat_viewcounter + 1) WHERE cat_id = :cat_id");
-  $stmt->bindParam('cat_id',@$_GET['cat'],PDO::PARAM_STR);
-  $stmt->execute();
-}
 
 if ($result_count_cat[0]) {
 
 
 	
 
-    $stmt=CDBConnection::getInstance()->prepare("SELECT * FROM rsdb_categories WHERE cat_visible = '1' AND cat_path = :cat_path AND cat_comp = '1' ORDER BY cat_name ASC");
+    $stmt=CDBConnection::getInstance()->prepare("SELECT * FROM ".CDBT_CATEGORIES." WHERE visible IS TRUE AND parent = :cat_path ORDER BY name ASC");
     $stmt->bindParam('cat_path',@$_GET['cat'],PDO::PARAM_STR);
     $stmt->execute();
 		
@@ -293,14 +286,14 @@ if ($result_count_cat[0]) {
 			$cellcolorcounter="0";
 			
 		while($result_treeview = $stmt->fetch(PDO::FETCH_ASSOC)) { // TreeView
-			echo "<option value=\"". $result_treeview['cat_id']. "\"";
-			if ($RSDB_intern_selected != "" && $RSDB_intern_selected == $result_treeview['cat_id']) {
+			echo "<option value=\"". $result_treeview['id']. "\"";
+			if ($RSDB_intern_selected != "" && $RSDB_intern_selected == $result_treeview['id']) {
 				echo " selected "; 
 			}		
-			echo ">+ ". $result_treeview['cat_name'] ."</option>\n\n";
+			echo ">+ ". $result_treeview['name'] ."</option>\n\n";
 	
-			$RSDB_TEMP_cat_path = $result_treeview['cat_path'];
-			$RSDB_TEMP_cat_id = $result_treeview['cat_id'];
+			$RSDB_TEMP_cat_path = $result_treeview['path'];
+			$RSDB_TEMP_cat_id = $result_treeview['id'];
 			$RSDB_TEMP_cat_level=0;
 			
 			$RSDB_TEMP_cat_current_id_guess=$RSDB_TEMP_cat_id;
@@ -604,9 +597,6 @@ if ($result_count_cat[0]) {
 			
 			$result_page1 = $stmt->fetch();
 			
-			// Stats update:
-      $stmt=CDBConnection::getInstance()->prepare("UPDATE rsdb_stats SET stat_s_grp = (stat_s_grp + 1) WHERE stat_date = '". date("Y-m-d") ."' LIMIT 1");
-      $stmt->execute();
 			
 ?>
 <table width="100%" border="0">

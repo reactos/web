@@ -202,7 +202,7 @@ abstract class HTML
     $lang = CLanguage::validate($lang);
 
     // get name of currently used language
-    $stmt=CDBConnection::getInstance()->prepare("SELECT lang_name FROM rsdb_languages WHERE lang_id = :lang_id");
+    $stmt=CDBConnection::getInstance()->prepare("SELECT name FROM ".CDBT_LANGUAGES." WHERE short = :lang_id");
     $stmt->bindParam('lang_id',$lang,PDO::PARAM_STR);
     $stmt->execute();
     $language_name = $stmt->fetchColumn();
@@ -213,12 +213,12 @@ abstract class HTML
           <option value="#">'.$language_name.'</option>
         </optgroup>
         <optgroup label="most popular">';
-    $stmt=CDBConnection::getInstance()->prepare("SELECT lang_id, lang_name FROM rsdb_languages WHERE lang_id != :lang_id");
+    $stmt=CDBConnection::getInstance()->prepare("SELECT short, name FROM ".CDBT_LANGUAGES." WHERE short != :lang_id");
     $stmt->bindParam('lang_id',$lang,PDO::PARAM_STR);
     $stmt->execute();
     while ($language=$stmt->fetch(PDO::FETCH_ASSOC)) {
       echo '
-        <option value="'.$RSDB_intern_link_language.$language['lang_id'].'">'.$language['lang_name'].'</option>';
+        <option value="'.$RSDB_intern_link_language.$language['short'].'">'.$language['name'].'</option>';
     }
 
     echo '

@@ -675,20 +675,20 @@ class Rank extends HTML
     $cellcolor2='#EEEEEE';
     $cellcolorcounter=0;
 
-    $stmt=CDBConnection::getInstance()->prepare("SELECT * FROM rsdb_object_media WHERE media_visible = '1' ORDER BY media_id DESC LIMIT 5");
+    $stmt=CDBConnection::getInstance()->prepare("SELECT * FROM ".CDBT_ATTACHMENTS." WHERE visible IS TRUE ORDER BY creation DESC LIMIT 5");
     $stmt->execute();
     while ($entry = $stmt->fetch(PDO::FETCH_ASSOC)) {
       ++$cellcolorcounter;
 
       $stmt=CDBConnection::getInstance()->prepare("SELECT * FROM rsdb_item_comp WHERE comp_media = :group_id LIMIT 1");
-      $stmt->bindParam('group_id',$entry['media_groupid'],PDO::PARAM_STR);
+      $stmt->bindParam('group_id',$entry['entry_id'],PDO::PARAM_STR);
       $stmt->execute();
       $comp = $stmt->fetchOnce(PDO::FETCH_ASSOC);
 
       echo '
         <tr bgcolor="'.($cellcolorcounter%2 ? $cellcolor1 : $cellcolor2).'">
-          <td style="text-align:center:font-size:1;">'.$entry['media_date'].'</td>
-          <td style="font-size:2;">&nbsp;<strong><a href="'.$RSDB_intern_link_item_comp.$comp['comp_id'].'&amp;item2=screens&amp;entry='. urlencode($entry['media_id']).'">'.htmlentities($entry['media_description']).'</a></strong></td>
+          <td style="text-align:center:font-size:1;">'.$entry['creation'].'</td>
+          <td style="font-size:2;">&nbsp;<strong><a href="'.$RSDB_intern_link_item_comp.$comp['comp_id'].'&amp;item2=screens&amp;entry='. urlencode($entry['id']).'">'.htmlentities($entry['description']).'</a></strong></td>
           <td style="font-size:2;">&nbsp;<a href="'.$RSDB_intern_link_item_comp.$comp['comp_id'].'&amp;item2=screens">'.$comp['comp_name'].'</a></td>
         </tr>';
     } // end while
@@ -795,14 +795,14 @@ class Rank extends HTML
           $counter_testentries += $result_count_testentries[0];
 
           // Forum entries:
-          $stmt_count=CDBConnection::getInstance()->prepare("SELECT COUNT(*) FROM rsdb_item_comp_forum WHERE fmsg_visible = '1' AND fmsg_comp_id = :comp_id");
+          $stmt_count=CDBConnection::getInstance()->prepare("SELECT COUNT(*) FROM ".CDBT_COMMENTS." WHERE visible IS TRUE AND entry_id = :comp_id");
           $stmt_count->bindParam('comp_id',$result_page['comp_id'],PDO::PARAM_STR);
           $stmt_count->execute();
           $result_count_forumentries = $stmt_count->fetch(PDO::FETCH_NUM);
           $counter_forumentries += $result_count_forumentries[0];
     
           // Screenshots:
-          $stmt_count=CDBConnection::getInstance()->prepare("SELECT COUNT(*) FROM rsdb_object_media WHERE media_visible = '1' AND media_groupid = :group_id");
+          $stmt_count=CDBConnection::getInstance()->prepare("SELECT COUNT(*) FROM ".CDBT_ATTACHMENTS." WHERE visible IS TRUE AND entry_id = :group_id");
           $stmt_count->bindParam('group_id',$result_page['comp_media'],PDO::PARAM_STR);
           $stmt_count->execute();
           $result_count_screenshots = $stmt_count->fetch(PDO::FETCH_NUM);
@@ -931,7 +931,7 @@ class Rank extends HTML
 
     echo '<p>Under construction ...</p>';
 
-    $stmt=CDBConnection::getInstance()->prepare("SELECT COUNT(*) FROM rsdb_object_media WHERE (( media_useful_vote_value / media_useful_vote_user) > 2 OR  media_useful_vote_user < 5)");
+    $stmt=CDBConnection::getInstance()->prepare("SELECT COUNT(*) FROM ".CDBT_ATTACHMENTS."");
     $stmt->execute();
     $categories = $stmt->fetchColumn();
 
@@ -955,7 +955,7 @@ class Rank extends HTML
 
       $roscms_TEMP_counter = 0;
 
-      $stmt=CDBConnection::getInstance()->prepare("SELECT * FROM rsdb_object_media WHERE (( media_useful_vote_value / media_useful_vote_user) > 2 OR  media_useful_vote_user < 5) ORDER BY media_order ASC LIMIT ".intval($RSDB_intern_items_per_page)." OFFSET ".intval(@$_GET['curpos'])."");
+      $stmt=CDBConnection::getInstance()->prepare("SELECT * FROM ".CDBT_ATTACHMENTS." LIMIT ".intval($RSDB_intern_items_per_page)." OFFSET ".intval(@$_GET['curpos'])."");
       $stmt->execute();
       while($result_screenshots= $stmt->fetch(PDO::FETCH_ASSOC)) {
         $roscms_TEMP_counter++;
@@ -966,22 +966,8 @@ class Rank extends HTML
           <td width="33%" valign="top">
           <p align="center">
             <br />
-            <a href="'.$RSDB_intern_link_item_item2.'screens&amp;entry='.$result_screenshots['media_id'].'">
-              <img src="media/files/'.$result_screenshots['media_filetype'].'/'.urlencode($result_screenshots['media_thumbnail']).'" width="250" height="188" border="0" alt="Description: '.htmlentities($result_screenshots['media_description']).'\nUser: '.usrfunc_GetUsername($result_screenshots['media_user_id']).'\nDate: '.$result_screenshots['media_date'].'\n\n'.htmlentities($result_screenshots['media_exif']).'"></a><br /><i>'.htmlentities($result_screenshots['media_description']).'</i><br /><br /><font size="1">';
-
-        $RSDB_TEMP_voting_history = strchr($result_screenshots['media_useful_vote_user_history'],("|".$RSDB_intern_user_id."="));
-        if ($RSDB_TEMP_voting_history == false) {
-          echo "Rate this screenshot: ";
-          if ($result_screenshots['media_useful_vote_user'] > $RSDB_setting_stars_threshold) {
-            echo Star::drawVoteable($result_screenshots['media_useful_vote_value'], $result_screenshots['media_useful_vote_user'], 5, "", ($RSDB_intern_link_item_item2_vote.$result_screenshots['media_id']."&amp;vote2="));
-          }
-          else {
-            echo Star::drawVoteable(0, 0, 5, "", ($RSDB_intern_link_item_item2_vote.$result_screenshots['media_id'].'&amp;vote2='));
-          }
-        }
-        else {
-          echo 'Rating: '.Star::drawNormal($result_screenshots['media_useful_vote_value'], $result_screenshots['media_useful_vote_user'], 5, '');
-        }
+            <a href="'.$RSDB_intern_link_item_item2.'screens&amp;entry='.$result_screenshots['id'].'">
+              <img src="media/files/'.$result_screenshots['type'].'/'.urlencode($result_screenshots['file']).'" width="250" height="188" border="0" alt="Description: '.htmlentities($result_screenshots['description']).'\nUser: '.usrfunc_GetUsername($result_screenshots['user_id']).'\nDate: '.$result_screenshots['creation'].'"></a><br /><i>'.htmlentities($result_screenshots['description']).'</i><br /><br /><font size="1">';
 
         echo '
               </font>

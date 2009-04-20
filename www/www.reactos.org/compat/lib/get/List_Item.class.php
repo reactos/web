@@ -173,14 +173,14 @@ class List_Item
 				$counter_testentries += $result_count_testentries[0];
 				
 				// Forum entries:
-        $stmt_count=CDBConnection::getInstance()->prepare("SELECT COUNT(*) FROM rsdb_item_comp_forum WHERE fmsg_visible = '1' AND fmsg_comp_id = :comp_id");
+        $stmt_count=CDBConnection::getInstance()->prepare("SELECT COUNT(*) FROM ".CDBT_COMMENTS." WHERE visible IS TRUE AND entry_id = :comp_id");
         $stmt_count->bindParam('comp_id',$result_sortby_b['comp_id'],PDO::PARAM_STR);
         $stmt_count->execute();
 				$result_count_forumentries = $stmt_count->fetchOnce(PDO::FETCH_NUM);
 				$counter_forumentries += $result_count_forumentries[0];
 
 				// Screenshots:
-        $stmt_count=CDBConnection::getInstance()->prepare("SELECT COUNT(*) FROM rsdb_object_media WHERE media_visible = '1' AND media_groupid = :group_id");
+        $stmt_count=CDBConnection::getInstance()->prepare("SELECT COUNT(*) FROM ".CDBT_ATTACHMENTS." WHERE visible IS TRUE AND entry_id = :group_id");
         $stmt_count->bindParam('group_id',$result_sortby_b['comp_media'],PDO::PARAM_STR);
         $stmt_count->execute();
 				$result_count_screenshots = $stmt_count->fetchOnce(PDO::FETCH_ASSOC);;

@@ -186,10 +186,6 @@ class Star
 			Message::show("<b>Your rating/vote has been casted!</b>");
 			echo "<br />";
 			
-			// Stats update:
-      $stmt=CDBConnection::getInstance()->prepare("UPDATE rsdb_stats SET stat_s_icvotes = (stat_s_icvotes + 1), stat_s_votes = (stat_s_votes + 1) WHERE stat_date = :date");
-      $stmt->bindValue('date',date('Y-m-d'),PDO::PARAM_STR);
-      $stmt->execute();
 		}
 		else {
 			Message::show("<b>You have already rated/voted this entry!</b>");

@@ -39,7 +39,7 @@
 
 // Voting - update DB
 if (isset($_GET['vote']) && $_GET['vote'] != '' && isset($_GET['vote2']) && $_GET['vote2'] != '') {
-	Star::addVote($_GET['vote'], $_GET['vote2'], "rsdb_item_comp_forum", "fmsg");
+	Star::addVote($_GET['vote'], $_GET['vote2'], CDBT_COMMENTS, "fmsg");
 }
 if ($RSDB_SET_order == "new") {
 	$RSDB_TEMP_order = "DESC";
@@ -70,10 +70,10 @@ elseif ($RSDB_SET_fstyle == "threaded") {
 }
 elseif ($RSDB_SET_fstyle == "fthreads") {
 	if ($RSDB_SET_msg == "") {
-    $stmt=CDBConnection::getInstance()->prepare("SELECT * FROM rsdb_item_comp_forum WHERE fmsg_visible = '1' AND fmsg_parent = '0' ORDER BY fmsg_date " . $RSDB_TEMP_order . " LIMIT 1");
+    $stmt=CDBConnection::getInstance()->prepare("SELECT * FROM ".CDBT_COMMENTS." WHERE visible IS TRUE AND parent IS NULL ORDER BY creation " . $RSDB_TEMP_order . " LIMIT 1");
     $stmt->execute();
 		$result_fmsg_newest = $stmt->fetchOnce(PDO::FETCH_ASSOC);
-		$RSDB_TEMP_msg_highlight = $result_fmsg_newest['fmsg_id'];
+		$RSDB_TEMP_msg_highlight = $result_fmsg_newest['id'];
 	}
 	else {
 		$RSDB_TEMP_msg_highlight = $RSDB_SET_msg;
@@ -111,84 +111,41 @@ function create_forum_flat() {
 	global $RSDB_intern_link_submit_forum_post;
 	global $RSDB_setting_stars_threshold;
 
-  $stmt=CDBConnection::getInstance()->prepare("SELECT * FROM rsdb_item_comp_forum WHERE fmsg_visible = '1' AND fmsg_comp_id` = :item_id ORDER BY fmsg_date " . $RSDB_TEMP_order . "");
+  $stmt=CDBConnection::getInstance()->prepare("SELECT * FROM ".CDBT_COMMENTS." WHERE visible IS TRUE AND entry_id` = :item_id ORDER BY creation " . $RSDB_TEMP_order . "");
   $stmt->bindParam('item_id',@$_GET['item'],PDO::PARAM_STR);
   $stmt->execute();
 					
 	while($result_fmsgreports = $stmt->fetch(PDO::FETCH_ASSOC)) {
-		$number = $result_fmsgreports['fmsg_useful_vote_value'];
-		$user = $result_fmsgreports['fmsg_useful_vote_user'];
+		$number = 0;//$result_fmsgreports['fmsg_useful_vote_value'];
+		$user = 0;//$result_fmsgreports['fmsg_useful_vote_user'];
 		$result_stars = @($number / $user);
 		$result_round_stars = round($result_stars, 0);
-		
-		if ($result_round_stars >= $RSDB_SET_threshold || $result_round_stars == 0) {
 ?>
 	<table width="100%"  border="0" cellpadding="3" cellspacing="1">
       <tr>
         <td bgcolor="#E2E2E2"><table width="100%"  border="0" cellpadding="0" cellspacing="0" bordercolor="#5984C3">
             <tr>
-              <td valign="top"><p><strong><font size="3"><?php echo htmlentities($result_fmsgreports['fmsg_subject'], ENT_QUOTES); ?></font></strong></p></td>
+              <td valign="top"><p><strong><font size="3"><?php echo htmlentities($result_fmsgreports['title'], ENT_QUOTES); ?></font></strong></p></td>
               <td width="270"><div align="left"><font size="1">
-              <?php
-			  
-			  	$RSDB_TEMP_voting_history = strchr($result_fmsgreports['fmsg_useful_vote_user_history'],("|".$RSDB_intern_user_id."="));
-				if ($RSDB_TEMP_voting_history == false) {
-					echo "Rate this message: ";
-					if ($result_fmsgreports['fmsg_useful_vote_value'] > $RSDB_setting_stars_threshold) {
-						echo Star::drawVoteable($result_fmsgreports['fmsg_useful_vote_value'], $result_fmsgreports['fmsg_useful_vote_user'], 5, "", ($RSDB_intern_link_item_item2_vote.$result_fmsgreports['fmsg_id']."&amp;vote2="));
-					}
-					else {
-						echo Star::drawVoteable(0, 0, 5, "", ($RSDB_intern_link_item_item2_vote.$result_fmsgreports['fmsg_id']."&amp;vote2="));
-					}
-				}
-				else {
-					echo "Rating: ";
-					echo Star::drawNormal($result_fmsgreports['fmsg_useful_vote_value'], $result_fmsgreports['fmsg_useful_vote_user'], 5, "");
-				}
-			    ?>
+
               </font></div></td>
             </tr>
             <tr>
-              <td valign="top"><font size="2"><?php echo usrfunc_GetUsername($result_fmsgreports['fmsg_user_id'])." on ".$result_fmsgreports['fmsg_date']; ?></font></td>
+              <td valign="top"><font size="2"><?php echo usrfunc_GetUsername($result_fmsgreports['user_id'])." on ".$result_fmsgreports['creation']; ?></font></td>
               <td><div align="left"><font size="1">
-                  <?php 
-		
-			if ($result_fmsgreports['fmsg_useful_vote_value']) {
-				if ($result_fmsgreports['fmsg_useful_vote_user'] == "1") {
-					echo "Only one user has already voted, please vote!";
-				}
-				elseif ($result_fmsgreports['fmsg_useful_vote_user'] > "1" && $result_fmsgreports['fmsg_useful_vote_user'] <= "5") {
-					echo $result_fmsgreports['fmsg_useful_vote_user']." users have already voted, please vote!";
-				}
-				else {
-					echo round(($result_fmsgreports['fmsg_useful_vote_value'] / 5), 0)." of ".$result_fmsgreports['fmsg_useful_vote_user'];
-					echo " registered user found this fmsg useful.";
-				}
-			}
-			else {
-				echo "No one voted this fmsg, please vote!";
-			}
-				
-		?>
               </font></div></td>
             </tr>
           </table></td>
       </tr>
       <tr>
-        <td colspan="2" bgcolor="#EEEEEE"><font size="2"><?php echo wordwrap(nl2br(htmlentities($result_fmsgreports['fmsg_body'], ENT_QUOTES))); ?></font></td>
+        <td colspan="2" bgcolor="#EEEEEE"><font size="2"><?php echo wordwrap(nl2br(htmlentities($result_fmsgreports['content'], ENT_QUOTES))); ?></font></td>
       </tr>
       <tr>
-        <td colspan="2" bgcolor="#E2E2E2"><font size="2"><a href="<?php echo $RSDB_intern_link_submit_forum_post.$result_fmsgreports['fmsg_id']; ?>">Reply</a> | <a href="<?php echo $RSDB_intern_link_submit_forum_post."0"; ?>">New Thread</a></font></td>
+        <td colspan="2" bgcolor="#E2E2E2"><font size="2"><a href="<?php echo $RSDB_intern_link_submit_forum_post.$result_fmsgreports['id']; ?>">Reply</a> | <a href="<?php echo $RSDB_intern_link_submit_forum_post."0"; ?>">New Thread</a></font></td>
       </tr>
 </table>
 <br />
 <?php
-		}
-		else {
-			echo "<p><i>This message is beneath your threshold</i> - ";
-			echo Star::drawSmall($result_fmsgreports['fmsg_useful_vote_value'], $result_fmsgreports['fmsg_useful_vote_user'], 5, "") ."</p>";
-		}
-	}
 }
 
 	
@@ -206,14 +163,14 @@ function create_forum_nested($RSDB_TEMP_msgid) {
 		$RSDB_TEMP_order  = "ASC";
 	}
 
-  $stmt=CDBConnection::getInstance()->prepare("SELECT * FROM rsdb_item_comp_forum WHERE fmsg_visible = '1' AND fmsg_comp_id = :item_id AND fmsg_parent = :parent ORDER BY fmsg_date ".$RSDB_TEMP_order."");
+  $stmt=CDBConnection::getInstance()->prepare("SELECT * FROM ".CDBT_COMMENTS." WHERE visible IS TRUE AND entry_id = :item_id AND parent = :parent ORDER BY creation ".$RSDB_TEMP_order."");
   $stmt->bindParam('item_id',@$_GET['item'],PDO::PARAM_STR);
   $stmt->bindParam('parent',$RSDB_TEMP_msgid,PDO::PARAM_STR);
   $stmt->execute();
 
 	while($result_fmsgreports = $stmt->fetch(PDO::FETCH_ASSOC)) {
-		$number = $result_fmsgreports['fmsg_useful_vote_value'];
-		$user = $result_fmsgreports['fmsg_useful_vote_user'];
+		$number = 0;//$result_fmsgreports['fmsg_useful_vote_value'];
+		$user = 0;//$result_fmsgreports['fmsg_useful_vote_user'];
 		$result_stars = @($number / $user);
 		$result_round_stars = round($result_stars, 0);
 		
@@ -223,19 +180,19 @@ function create_forum_nested($RSDB_TEMP_msgid) {
   <tr>
     <td width="<?php 
 			
-		$RSDB_TEMP_cat_current_id_guess = $result_fmsgreports['fmsg_id'];
+		$RSDB_TEMP_cat_current_id_guess = $result_fmsgreports['id'];
 		$RSDB_intern_catlevel = "0";
 		
 		// count the levels -> current reply level
 		for ($guesslevel=1; ; $guesslevel++) {
 //				echo $guesslevel."#";
-        $stmt_msg=CDBConnection::getInstance()->prepare("SELECT * FROM rsdb_item_comp_forum WHERE fmsg_id = :msg_id AND fmsg_visible = '1'");
+        $stmt_msg=CDBConnection::getInstance()->prepare("SELECT * FROM ".CDBT_COMMENTS." WHERE id = :msg_id AND visible IS TRUE");
         $stmt_msg->bindParam('msg_id',$RSDB_TEMP_cat_current_id_guess,PDO::PARAM_STR);
         $stmt_msg->execute();
 				$result_category_tree_guesslevel=$stmt_msg->fetchOnce(PDO::FETCH_ASSOC);
-				$RSDB_TEMP_cat_current_id_guess = $result_category_tree_guesslevel['fmsg_parent'];
+				$RSDB_TEMP_cat_current_id_guess = $result_category_tree_guesslevel['parent'];
 				
-				if (!$result_category_tree_guesslevel['fmsg_id']) {
+				if (!$result_category_tree_guesslevel['id']) {
 //					echo "ENDE:".($guesslevel-1);
 					$RSDB_intern_catlevel = ($guesslevel-1);
 					break;
@@ -251,58 +208,22 @@ function create_forum_nested($RSDB_TEMP_msgid) {
       <tr>
         <td bgcolor="#E2E2E2"><table width="100%"  border="0" cellpadding="0" cellspacing="0" bordercolor="#5984C3">
             <tr>
-              <td valign="top"><p><strong><font size="3"><?php echo htmlentities($result_fmsgreports['fmsg_subject'], ENT_QUOTES); ?></font></strong></p></td>
+              <td valign="top"><p><strong><font size="3"><?php echo htmlentities($result_fmsgreports['title'], ENT_QUOTES); ?></font></strong></p></td>
               <td width="270"><div align="left"><font size="1">
-                  <?php
-			  
-			  	$RSDB_TEMP_voting_history = strchr($result_fmsgreports['fmsg_useful_vote_user_history'],("|".$RSDB_intern_user_id."="));
-				if ($RSDB_TEMP_voting_history == false) {
-					echo "Rate this message: ";
-					if ($result_fmsgreports['fmsg_useful_vote_value'] > $RSDB_setting_stars_threshold) {
-						echo Star::drawVoteable($result_fmsgreports['fmsg_useful_vote_value'], $result_fmsgreports['fmsg_useful_vote_user'], 5, "", ($RSDB_intern_link_item_item2_vote.$result_fmsgreports['fmsg_id']."&amp;vote2="));
-					}
-					else {
-						echo Star::drawVoteable(0, 0, 5, "", ($RSDB_intern_link_item_item2_vote.$result_fmsgreports['fmsg_id']."&amp;vote2="));
-					}
-				}
-				else {
-					echo "Rating: ";
-					echo Star::drawNormal($result_fmsgreports['fmsg_useful_vote_value'], $result_fmsgreports['fmsg_useful_vote_user'], 5, "");
-				}
-			    ?>
               </font></div></td>
             </tr>
             <tr>
-              <td valign="top"><font size="2"><?php echo usrfunc_GetUsername($result_fmsgreports['fmsg_user_id'])." on ".$result_fmsgreports['fmsg_date']; ?></font></td>
+              <td valign="top"><font size="2"><?php echo usrfunc_GetUsername($result_fmsgreports['user_id'])." on ".$result_fmsgreports['creation']; ?></font></td>
               <td><div align="left"><font size="1">
-                  <?php 
-		
-			if ($result_fmsgreports['fmsg_useful_vote_value']) {
-				if ($result_fmsgreports['fmsg_useful_vote_user'] == "1") {
-					echo "Only one user has already voted, please vote!";
-				}
-				elseif ($result_fmsgreports['fmsg_useful_vote_user'] > "1" && $result_fmsgreports['fmsg_useful_vote_user'] <= "5") {
-					echo $result_fmsgreports['fmsg_useful_vote_user']." users have already voted, please vote!";
-				}
-				else {
-					echo round(($result_fmsgreports['fmsg_useful_vote_value'] / 5), 0)." of ".$result_fmsgreports['fmsg_useful_vote_user'];
-					echo " registered user found this Message useful.";
-				}
-			}
-			else {
-				echo "No one voted this Message, please vote!";
-			}
-				
-		?>
               </font></div></td>
             </tr>
         </table></td>
       </tr>
       <tr>
-        <td colspan="7" bgcolor="#EEEEEE"><font size="2"><?php echo wordwrap(nl2br(htmlentities($result_fmsgreports['fmsg_body'], ENT_QUOTES))); ?></font></td>
+        <td colspan="7" bgcolor="#EEEEEE"><font size="2"><?php echo wordwrap(nl2br(htmlentities($result_fmsgreports['content'], ENT_QUOTES))); ?></font></td>
       </tr>
       <tr>
-        <td colspan="7" bgcolor="#E2E2E2"><font size="2"><a href="<?php echo $RSDB_intern_link_submit_forum_post.$result_fmsgreports['fmsg_id']; ?>">Reply</a> | <a href="<?php echo $RSDB_intern_link_submit_forum_post."0"; ?>">New Thread</a></font></td>
+        <td colspan="7" bgcolor="#E2E2E2"><font size="2"><a href="<?php echo $RSDB_intern_link_submit_forum_post.$result_fmsgreports['id']; ?>">Reply</a> | <a href="<?php echo $RSDB_intern_link_submit_forum_post."0"; ?>">New Thread</a></font></td>
       </tr>
     </table></td>
   </tr>
@@ -323,7 +244,6 @@ function create_forum_nested($RSDB_TEMP_msgid) {
 	?>"></td>
     <td><font size="2"><?php 
 		echo "<i>This message is beneath your threshold</i> - "; // : <strike>".$result_fmsgreports['fmsg_subject']."</i>, Anonymous on ".$result_fmsgreports['fmsg_date']."</strike> - ";
-		echo Star::drawSmall($result_fmsgreports['fmsg_useful_vote_value'], $result_fmsgreports['fmsg_useful_vote_user'], 5, "") ."";
 
 	?></font></td>
   </tr>
@@ -334,18 +254,18 @@ function create_forum_nested($RSDB_TEMP_msgid) {
 
 		echo "<br />";
 
-    $stmt=CDBConnection::getInstance()->prepare("SELECT COUNT(*) FROM rsdb_item_comp_forum WHERE fmsg_visible = '1' AND fmsg_comp_id = :item_id AND fmsg_parent = :parent");
-    $stmt->bindParam('parent',$result_fmsgreports['fmsg_id'],PDO::PARAM_STR);
+    $stmt=CDBConnection::getInstance()->prepare("SELECT COUNT(*) FROM ".CDBT_COMMENTS." WHERE visible IS TRUE AND entry_id = :item_id AND parent = :parent");
+    $stmt->bindParam('parent',$result_fmsgreports['id'],PDO::PARAM_STR);
     $stmt->bindParam('item_id',@$_GET['item'],PDO::PARAM_STR);
 		$result_count_msgs = $stmt->fetchOnce(PDO::FETCH_NUM);
 	
 		if ($result_count_msgs[0] != "0" && $result_count_msgs[0] != "") {
 			if ($RSDB_SET_fstyle == "nested" || $RSDB_SET_fstyle == "bboard") {			
-				create_forum_nested($result_fmsgreports['fmsg_id']);
+				create_forum_nested($result_fmsgreports['id']);
 			}
 			elseif ($RSDB_SET_fstyle == "threaded") {		
 				echo "<ul>";
-				create_forum_threaded($result_fmsgreports['fmsg_id']);
+				create_forum_threaded($result_fmsgreports['id']);
 				echo "</ul>";
 				echo "<br />\n";
 			}
@@ -364,39 +284,38 @@ function create_forum_threaded($RSDB_TEMP_msgid) {
 	global $RSDB_intern_link_submit_forum_post;
 	global $RSDB_setting_stars_threshold;
 
-  $stmt=CDBConnection::getInstance()->prepare("SELECT * FROM rsdb_item_comp_forum WHERE fmsg_visible = '1' AND fmsg_comp_id = :item_id AND fmsg_parent = :parent ORDER BY fmsg_date ".$RSDB_TEMP_order."");
+  $stmt=CDBConnection::getInstance()->prepare("SELECT * FROM ".CDBT_COMMENTS." WHERE visible IS TRUE AND entry_id = :item_id AND parent = :parent ORDER BY creation ".$RSDB_TEMP_order."");
   $stmt->bindParam('item_id',@$_GET['item'],PDO::PARAM_STR);
   $stmt->bindParam('parent',$RSDB_TEMP_msgid,PDO::PARAM_STR);
   $stmt->execute();
 
 	while($result_fmsgreports = $stmt->fetch(PDO::FETCH_ASSOC)) {
-		$number = $result_fmsgreports['fmsg_useful_vote_value'];
-		$user = $result_fmsgreports['fmsg_useful_vote_user'];
+		$number = 0;//$result_fmsgreports['fmsg_useful_vote_value'];
+		$user = 0;//$result_fmsgreports['fmsg_useful_vote_user'];
 		$result_stars = @($number / $user);
 		$result_round_stars = round($result_stars, 0);
 		
 		if ($result_round_stars >= $RSDB_SET_threshold || $result_round_stars == 0) {
-			if ($RSDB_TEMP_msg_highlight == $result_fmsgreports['fmsg_id']) {
-				echo '<li><b><i><a href="'.$RSDB_intern_link_item_item2_forum_msg.$result_fmsgreports['fmsg_id'].'">'.htmlentities($result_fmsgreports['fmsg_subject'], ENT_QUOTES).'</a></i></b>, '. usrfunc_GetUsername($result_fmsgreports['fmsg_user_id']) .' on '.$result_fmsgreports['fmsg_date'].' - ';
+			if ($RSDB_TEMP_msg_highlight == $result_fmsgreports['id']) {
+				echo '<li><b><i><a href="'.$RSDB_intern_link_item_item2_forum_msg.$result_fmsgreports['id'].'">'.htmlentities($result_fmsgreports['title'], ENT_QUOTES).'</a></i></b>, '. usrfunc_GetUsername($result_fmsgreports['user_id']) .' on '.$result_fmsgreports['creation'].' - ';
 			}
 			else {
-				echo '<li><i><a href="'.$RSDB_intern_link_item_item2_forum_msg.$result_fmsgreports['fmsg_id'].'">'.htmlentities($result_fmsgreports['fmsg_subject'], ENT_QUOTES).'</a></i>, '. usrfunc_GetUsername($result_fmsgreports['fmsg_user_id']) .' on '.$result_fmsgreports['fmsg_date'].' - ';
+				echo '<li><i><a href="'.$RSDB_intern_link_item_item2_forum_msg.$result_fmsgreports['id'].'">'.htmlentities($result_fmsgreports['title'], ENT_QUOTES).'</a></i>, '. usrfunc_GetUsername($result_fmsgreports['user_id']) .' on '.$result_fmsgreports['creation'].' - ';
 			}
 		}
 		else {
 			echo "<li><i>This message is beneath your threshold - "; //: <strike>".$result_fmsgreports['fmsg_subject']."</i>, Anonymous on ".$result_fmsgreports['fmsg_date']."</strike> - ";
 		}
-		echo Star::drawSmall($result_fmsgreports['fmsg_useful_vote_value'], $result_fmsgreports['fmsg_useful_vote_user'], 5, "") ."</li>";
 
-    $stmt=CDBConnection::getInstance()->prepare("SELECT COUNT(*) FROM rsdb_item_comp_forum WHERE fmsg_visible = '1' AND fmsg_comp_id = :item_id AND fmsg_parent = :parent");
+    $stmt=CDBConnection::getInstance()->prepare("SELECT COUNT(*) FROM ".CDBT_COMMENTS." WHERE visible IS TRUE AND entry_id = :item_id AND parent = :parent");
     $stmt->bindParam('item_id',@$_GET['item'],PDO::PARAM_STR);
-    $stmt->bindParam('parent',$result_fmsgreports['fmsg_id'],PDO::PARAM_STR);
+    $stmt->bindParam('parent',$result_fmsgreports['id'],PDO::PARAM_STR);
     $stmt->execute();
 		$result_count_msgs = $stmt->fetchOnce(PDO::FETCH_NUM);
 	
 		if ($result_count_msgs[0] != "0" && $result_count_msgs[0] != "") {
 			echo "<ul>";
-			create_forum_threaded($result_fmsgreports['fmsg_id']);
+			create_forum_threaded($result_fmsgreports['id']);
 			echo "</ul>\n";
 		}
 
@@ -415,7 +334,7 @@ function create_forum_bboard($RSDB_TEMP_msgid) {
 	global $RSDB_intern_link_submit_forum_post;
 	global $RSDB_setting_stars_threshold;
 
-  $stmt=CDBConnection::getInstance()->prepare("SELECT * FROM rsdb_item_comp_forum WHERE fmsg_visible = '1' AND fmsg_comp_id` = :item_id AND fmsg_parent = :parent ORDER BY fmsg_date " . $RSDB_TEMP_order . "");
+  $stmt=CDBConnection::getInstance()->prepare("SELECT * FROM ".CDBT_COMMENTS." WHERE visible IS TRUE AND entry_id = :item_id AND parent = :parent ORDER BY creation " . $RSDB_TEMP_order . "");
   $stmt->bindParam('item_id',@$_GET['item'],PDO::PARAM_STR);
   $stmt->bindParam('parent',$RSDB_TEMP_msgid,PDO::PARAM_STR);
   $stmt->execute();
@@ -430,8 +349,8 @@ function create_forum_bboard($RSDB_TEMP_msgid) {
 		  </tr>
 <?php
 	while($result_fmsgreports = $stmt->fetch(PDO::FETCH_ASSOC)) {
-		$number = $result_fmsgreports['fmsg_useful_vote_value'];
-		$user = $result_fmsgreports['fmsg_useful_vote_user'];
+		$number = 0;//$result_fmsgreports['fmsg_useful_vote_value'];
+		$user = 0;//$result_fmsgreports['fmsg_useful_vote_user'];
 		$result_stars = @($number / $user);
 		$result_round_stars = round($result_stars, 0);
 
@@ -442,7 +361,7 @@ function create_forum_bboard($RSDB_TEMP_msgid) {
 			
 			if ($result_round_stars >= $RSDB_SET_threshold || $result_round_stars == 0) {
 
-			?><a href="<?php echo $RSDB_intern_link_item_item2_forum_msg.$result_fmsgreports['fmsg_id']; ?>"><?php echo htmlentities($result_fmsgreports['fmsg_subject'], ENT_QUOTES); ?></a><?php
+			?><a href="<?php echo $RSDB_intern_link_item_item2_forum_msg.$result_fmsgreports['id']; ?>"><?php echo htmlentities($result_fmsgreports['title'], ENT_QUOTES); ?></a><?php
 			
 			}
 			else {
@@ -453,25 +372,25 @@ function create_forum_bboard($RSDB_TEMP_msgid) {
 			<td bgcolor="#E2E2E2"><div align="center"><font size="2"><?php 
 
 				$RSDB_TEMP_counter_replies = 0;
-				echo calc_replies($result_fmsgreports['fmsg_id']);
+				echo calc_replies($result_fmsgreports['id']);
 				
 			?></font></div></td>
-			<td bgcolor="#EEEEEE"><div align="center"><font size="2"><?php echo usrfunc_GetUsername($result_fmsgreports['fmsg_user_id']); ?></font></div></td>
-			<td bgcolor="#E2E2E2"><div align="left"><font size="2">&nbsp;<?php echo Star::drawSmall($result_fmsgreports['fmsg_useful_vote_value'], $result_fmsgreports['fmsg_useful_vote_user'], 5, ""); ?></font></div></td>
+			<td bgcolor="#EEEEEE"><div align="center"><font size="2"><?php echo usrfunc_GetUsername($result_fmsgreports['user_id']); ?></font></div></td>
+			<td bgcolor="#E2E2E2"><div align="left"><font size="2">&nbsp;</font></div></td>
 			<td bgcolor="#EEEEEE"><div align="center"><font size="2"><?php 
 
 				$RSDB_TEMP_counter_lastreply = 0;
-				$RSDB_TEMP_lastpost = query_lastreply($result_fmsgreports['fmsg_id']);
+				$RSDB_TEMP_lastpost = query_lastreply($result_fmsgreports['id']);
 				//echo $RSDB_TEMP_lastpost;
-        $stmt_comp=CDBConnection::getInstance()->prepare("SELECT * FROM rsdb_item_comp_forum WHERE fmsg_visible = '1' AND fmsg_id = :msg_id");
+        $stmt_comp=CDBConnection::getInstance()->prepare("SELECT * FROM ".CDBT_COMMENTS." WHERE visible IS TRUE AND id = :msg_id");
         $stmt_comp->bindParam('msg_id',$RSDB_TEMP_lastpost,PDO::PARAM_STR);
         $stmt_comp->execute();
 				$result_fmsglastpost = $stmt_comp->fetchOnce(PDO::FETCH_ASSOC);
-				if ($result_fmsglastpost['fmsg_date'] != "") {
-					echo $result_fmsglastpost['fmsg_date']."<br />".$result_fmsglastpost['fmsg_user_id'];
+				if ($result_fmsglastpost['creation'] != "") {
+					echo $result_fmsglastpost['creation']."<br />".$result_fmsglastpost['user_id'];
 				}
 				else {
-					echo $result_fmsgreports['fmsg_date']."<br />".$result_fmsgreports['fmsg_user_id'];
+					echo $result_fmsgreports['creation']."<br />".$result_fmsgreports['user_id'];
 				}
 			?>&nbsp;</font></div></td>
 		  </tr>
@@ -498,13 +417,13 @@ function show_msg($RSDB_TEMP_msgid) {
 	global $RSDB_intern_link_submit_forum_post;
 	global $RSDB_setting_stars_threshold;
 
-  $stmt=CDBConnection::getInstance()->prepare("SELECT * FROM rsdb_item_comp_forum WHERE fmsg_visible = '1' AND fmsg_id = :msg_id");
+  $stmt=CDBConnection::getInstance()->prepare("SELECT * FROM ".CDBT_COMMENTS." WHERE visible IS TRUE AND id = :msg_id");
   $stmt->bindParam('msg_id',$RSDB_TEMP_msgid,PDO::PARAM_STR);
   $stmt->execute();
 
 	$result_fmsgreports = $stmt->fetchOnce(PDO::FETCH_ASSOC);
-		$number = $result_fmsgreports['fmsg_useful_vote_value'];
-		$user = $result_fmsgreports['fmsg_useful_vote_user'];
+		$number = 0;//$result_fmsgreports['fmsg_useful_vote_value'];
+		$user = 0;//$result_fmsgreports['fmsg_useful_vote_user'];
 		$result_stars = @($number / $user);
 		$result_round_stars = round($result_stars, 0);
 
@@ -515,58 +434,22 @@ function show_msg($RSDB_TEMP_msgid) {
       <tr>
         <td bgcolor="#E2E2E2"><table width="100%"  border="0" cellpadding="0" cellspacing="0" bordercolor="#5984C3">
             <tr>
-              <td valign="top"><p><strong><font size="3"><?php echo htmlentities($result_fmsgreports['fmsg_subject'], ENT_QUOTES); ?></font></strong></p></td>
+              <td valign="top"><p><strong><font size="3"><?php echo htmlentities($result_fmsgreports['title'], ENT_QUOTES); ?></font></strong></p></td>
               <td width="270"><div align="left"><font size="1">
-              <?php
-			  
-			  	$RSDB_TEMP_voting_history = strchr($result_fmsgreports['fmsg_useful_vote_user_history'],("|".$RSDB_intern_user_id."="));
-				if ($RSDB_TEMP_voting_history == false) {
-					echo "Rate this message: ";
-					if ($result_fmsgreports['fmsg_useful_vote_value'] > $RSDB_setting_stars_threshold) {
-						echo Star::drawVoteable($result_fmsgreports['fmsg_useful_vote_value'], $result_fmsgreports['fmsg_useful_vote_user'], 5, "", ($RSDB_intern_link_item_item2_vote.$result_fmsgreports['fmsg_id']."&amp;vote2="));
-					}
-					else {
-						echo Star::drawVoteable(0, 0, 5, "", ($RSDB_intern_link_item_item2_vote.$result_fmsgreports['fmsg_id']."&amp;vote2="));
-					}
-				}
-				else {
-					echo "Rating: ";
-					echo Star::drawNormal($result_fmsgreports['fmsg_useful_vote_value'], $result_fmsgreports['fmsg_useful_vote_user'], 5, "");
-				}
-			    ?>
               </font></div></td>
             </tr>
             <tr>
-              <td valign="top"><font size="2"><?php echo usrfunc_GetUsername($result_fmsgreports['fmsg_user_id'])." on ".$result_fmsgreports['fmsg_date']; ?></font></td>
+              <td valign="top"><font size="2"><?php echo usrfunc_GetUsername($result_fmsgreports['user_id'])." on ".$result_fmsgreports['creation']; ?></font></td>
               <td><div align="left"><font size="1">
-                  <?php 
-		
-			if ($result_fmsgreports['fmsg_useful_vote_value']) {
-				if ($result_fmsgreports['fmsg_useful_vote_user'] == "1") {
-					echo "Only one user has already voted, please vote!";
-				}
-				elseif ($result_fmsgreports['fmsg_useful_vote_user'] > "1" && $result_fmsgreports['fmsg_useful_vote_user'] <= "5") {
-					echo $result_fmsgreports['fmsg_useful_vote_user']." users have already voted, please vote!";
-				}
-				else {
-					echo round(($result_fmsgreports['fmsg_useful_vote_value'] / 5), 0)." of ".$result_fmsgreports['fmsg_useful_vote_user'];
-					echo " registered user found this fmsg useful.";
-				}
-			}
-			else {
-				echo "No one voted this fmsg, please vote!";
-			}
-				
-		?>
               </font></div></td>
             </tr>
           </table></td>
       </tr>
       <tr>
-        <td colspan="2" bgcolor="#EEEEEE"><font size="2"><?php echo wordwrap(nl2br(htmlentities($result_fmsgreports['fmsg_body'], ENT_QUOTES))); ?></font></td>
+        <td colspan="2" bgcolor="#EEEEEE"><font size="2"><?php echo wordwrap(nl2br(htmlentities($result_fmsgreports['content'], ENT_QUOTES))); ?></font></td>
       </tr>
       <tr>
-        <td colspan="2" bgcolor="#E2E2E2"><font size="2"><a href="<?php echo $RSDB_intern_link_submit_forum_post.$result_fmsgreports['fmsg_id']; ?>">Reply</a> | <a href="<?php echo $RSDB_intern_link_submit_forum_post."0"; ?>">New Thread</a></font></td>
+        <td colspan="2" bgcolor="#E2E2E2"><font size="2"><a href="<?php echo $RSDB_intern_link_submit_forum_post.$result_fmsgreports['id']; ?>">Reply</a> | <a href="<?php echo $RSDB_intern_link_submit_forum_post."0"; ?>">New Thread</a></font></td>
       </tr>
 </table>
 <?php
@@ -581,7 +464,7 @@ function calc_replies($RSDB_TEMP_msgid) {
 	global $RSDB_TEMP_order;
 	global $RSDB_setting_stars_threshold;
 
-  $stmt=CDBConnection::getInstance()->prepare("SELECT COUNT(*) FROM rsdb_item_comp_forum WHERE fmsg_visible = '1' AND fmsg_comp_id = :item_id AND fmsg_parent = :parent");
+  $stmt=CDBConnection::getInstance()->prepare("SELECT COUNT(*) FROM ".CDBT_COMMENTS." WHERE visible IS TRUE AND entry_id = :item_id AND parent = :parent");
   $stmt->bindParam('item_id',@$_GET['item'],PDO::PARAM_STR);
   $stmt->bindParam('parent',$RSDB_TEMP_msgid,PDO::PARAM_STR);
   $stmt->execute();
@@ -591,13 +474,12 @@ function calc_replies($RSDB_TEMP_msgid) {
 	if ($result_count_msgs[0] != "0" && $result_count_msgs[0] != "") {
 		$RSDB_TEMP_counter_replies++;
 		
-    $stmt=CDBConnection::getInstance()->prepare("SELECT * FROM rsdb_item_comp_forum WHERE fmsg_visible = '1' AND fmsg_comp_id = :item_id AND fmsg_parent = :parent
-						ORDER BY `fmsg_date` " . $RSDB_TEMP_order . "");
+    $stmt=CDBConnection::getInstance()->prepare("SELECT * FROM ".CDBT_COMMENTS." WHERE visible IS TRUE AND entry_id = :item_id AND parent = :parent ORDER BY creation " . $RSDB_TEMP_order . "");
     $stmt->bindParam('item_id',@$_GET['item'],PDO::PARAM_STR);
     $stmt->bindParam('parent',$RSDB_TEMP_msgid,PDO::PARAM_STR);
     $stmt->execute();
 		while($result_fmsgreports = $stmt->fetch(PDO::FETCH_ASSOC)) {
-			calc_replies($result_fmsgreports['fmsg_id']);
+			calc_replies($result_fmsgreports['id']);
 		}
 	}
 	return $RSDB_TEMP_counter_replies;
@@ -608,23 +490,23 @@ function query_lastreply($RSDB_TEMP_msgid) {
 	global $RSDB_TEMP_order;
 	global $RSDB_setting_stars_threshold;
 
-  $stmt=CDBConnection::getInstance()->prepare("SELECT * FROM rsdb_item_comp_forum WHERE fmsg_visible = '1' AND fmsg_comp_id = :item_id AND fmsg_parent = :parent ORDER BY fmsg_date DESC") ;
+  $stmt=CDBConnection::getInstance()->prepare("SELECT * FROM ".CDBT_COMMENTS." WHERE visible IS TRUE AND entry_id = :item_id AND parent = :parent ORDER BY creation DESC") ;
   $stmt->bindParam('item_id',@$_GET['item'],PDO::PARAM_STR);
   $stmt->bindParam('parent',$RSDB_TEMP_msgid,PDO::PARAM_STR);
   $stmt->execute();
 	while($result_fmsgreports = $stmt->fetch(PDO::FETCH_ASSOC)) {
-    $stmt_count=CDBConnection::getInstance()->prepare("SELECT COUNT(*) FROM rsdb_item_comp_forum WHERE fmsg_visible = '1' AND fmsg_comp_id = :item_id AND fmsg_parent = :parent");
+    $stmt_count=CDBConnection::getInstance()->prepare("SELECT COUNT(*) FROM ".CDBT_COMMENTS." WHERE visible IS TRUE AND entry_id = :item_id AND parent = :parent");
   $stmt->bindParam('item_id',@$_GET['item'],PDO::PARAM_STR);
-  $stmt->bindParam('parent',$result_fmsgreports['fmsg_id'],PDO::PARAM_STR);
+  $stmt->bindParam('parent',$result_fmsgreports['id'],PDO::PARAM_STR);
   $stmt->execute();
 		$result_count_msgs = $stmt->fetchOnce(PDO::FETCH_NUM);
 			
-		if ($RSDB_TEMP_counter_lastreply < $result_fmsgreports['fmsg_id']) {
-			$RSDB_TEMP_counter_lastreply = $result_fmsgreports['fmsg_id'];
+		if ($RSDB_TEMP_counter_lastreply < $result_fmsgreports['id']) {
+			$RSDB_TEMP_counter_lastreply = $result_fmsgreports['id'];
 		}
 			
 		if ($result_count_msgs[0] != "0" && $result_count_msgs[0] != "") {
-			query_lastreply($result_fmsgreports['fmsg_id']);
+			query_lastreply($result_fmsgreports['id']);
 		}
 	}
 	return $RSDB_TEMP_counter_lastreply;

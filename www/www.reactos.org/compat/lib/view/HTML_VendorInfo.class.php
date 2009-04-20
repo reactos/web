@@ -246,14 +246,14 @@ p.tabLink_u         { color: black; font-size : 10pt; padding : 0 8px 1px 2px; m
 				$counter_testentries += $result_count_testentries[0];
 				
 				// Forum entries:
-        $stmt_count=CDBConnection::getInstance()->prepare("SELECT COUNT(*) FROM rsdb_item_comp_forum WHERE fmsg_visible = '1' AND fmsg_comp_id = :comp_id");
+        $stmt_count=CDBConnection::getInstance()->prepare("SELECT COUNT(*) FROM ".CDBT_COMMENTS." WHERE visible IS TRUE AND entry_id = :comp_id");
         $stmt_count->bindParam('comp_id',$result_group_sum_items['comp_id'],PDO::PARAM_STR);
         $stmt_count->execute();
 				$result_count_forumentries = $stmt_count->fetchOnce(PDO::FETCH_NUM);
 				$counter_forumentries += $result_count_forumentries[0];
 
 				// Screenshots:
-        $stmt_count=CDBConnection::getInstance()->prepare("SELECT COUNT(*) FROM rsdb_object_media WHERE media_visible = '1' AND media_groupid = :group_id");
+        $stmt_count=CDBConnection::getInstance()->prepare("SELECT COUNT(*) FROM ".CDBT_ATTACHMENTS." WHERE visible IS TRUE AND entry_id = :group_id");
         $stmt_count->bindParam('group_id',$result_group_sum_items['comp_media'],PDO::PARAM_STR);
         $stmt_count->execute();
 				$result_count_screenshots = $stmt_count->fetchOnce(PDO::FETCH_NUM);
@@ -368,14 +368,8 @@ p.tabLink_u         { color: black; font-size : 10pt; padding : 0 8px 1px 2px; m
 
 		// Special request:
 		if ($RSDB_TEMP_pmod == "ok" && $RSDB_TEMP_txtreq1 != "" && $RSDB_TEMP_txtreq2 != "" && CUser::isModerator($RSDB_intern_user_id)) {
-      $stmt=CDBConnection::getInstance()->prepare("INSERT INTO rsdb_logs (log_id, log_date, log_usrid, log_usrip, log_level, log_action, log_title, log_description, log_category, log_badusr, log_referrer, log_browseragent, log_read, log_taskdone_usr) VALUES ('', NOW(), :user_id, :ip, 'low', 'request', :title, :description, 'user_moderator', '0', :referrer, :user_agent, ';', '0')");
-      $stmt->bindParam('user_id',$RSDB_intern_user_id,PDO::PARAM_STR);
-      $stmt->bindParam('ip',$RSDB_ipaddr,PDO::PARAM_STR);
-      $stmt->bindParam('title',$RSDB_TEMP_txtreq1,PDO::PARAM_STR);
-      $stmt->bindParam('description',$RSDB_TEMP_txtreq2,PDO::PARAM_STR);
-      $stmt->bindParam('referrer',$RSDB_referrer,PDO::PARAM_STR);
-      $stmt->bindParam('user_agent',$RSDB_usragent,PDO::PARAM_STR);
-      $stmt->execute();
+      CLog::add(null, null, null, $RSDB_TEMP_txtreq1, $RSDB_TEMP_txtreq2,'');
+
 		}
 		// Report spam:
 		if ($RSDB_TEMP_pmod == "ok" && $RSDB_TEMP_txtspam != "" && CUser::isModerator($RSDB_intern_user_id)) {
@@ -633,13 +627,7 @@ p.tabLink_u         { color: black; font-size : 10pt; padding : 0 8px 1px 2px; m
 		$RSDB_TEMP_done = "";
 		if (array_key_exists("padmin", $_POST)) $RSDB_TEMP_padmin=htmlspecialchars($_POST["padmin"]);
 		if (array_key_exists("done", $_POST)) $RSDB_TEMP_done=htmlspecialchars($_POST["done"]);
-		
-		if ($RSDB_TEMP_padmin == "ok" && $RSDB_TEMP_done != "" && CUser::isAdmin($RSDB_intern_user_id)) {
-      $stmt=CDBConnection::getInstance()->prepare("UPDATE rsdb_logs SET log_taskdone_usr = :user_id WHERE log_id = :log_id");
-      $stmt->bindParam('user_id',$RSDB_intern_user_id,PDO::PARAM_STR);
-      $stmt->bindParam('log_id',$RSDB_TEMP_done,PDO::PARAM_STR);
-      $stmt->execute();
-		}
+
 		
 ?>
 	<table width="100%" border="0" cellpadding="0" cellspacing="0" class="admin">
@@ -655,50 +643,7 @@ p.tabLink_u         { color: black; font-size : 10pt; padding : 0 8px 1px 2px; m
     <td width="25%"><div align="center"><font color="#000000"><strong><font size="2" face="Arial, Helvetica, sans-serif">Title</font></strong></font></div></td> 
     <td width="45%"><div align="center"><font color="#000000"><strong><font size="2" face="Arial, Helvetica, sans-serif">Request</font></strong></font></div></td> 
     <td width="10%"><div align="center"><font color="#000000"><strong><font size="2" face="Arial, Helvetica, sans-serif">Done?</font></strong></font></div></td>
-    </tr> <?php
-					$cellcolor1="#E2E2E2";
-					$cellcolor2="#EEEEEE";
-					$cellcolorcounter="0";
-          $stmt=CDBConnection::getInstance()->prepare("SELECT * FROM rsdb_logs WHERE log_level LIKE 'low' AND log_action LIKE 'request' AND log_category LIKE 'user_moderator' ORDER BY log_date DESC LIMIT 30;");
-          $stmt->execute();
-					while($result_entry_sprequest = $stmt->fetch(PDO::FETCH_ASSOC)) {
-				?> 
-  <tr valign="top" bgcolor="<?php
-					$cellcolorcounter++;
-					if ($cellcolorcounter == "1") {
-						echo $cellcolor1;
-						$color = $cellcolor1;
-					}
-					elseif ($cellcolorcounter == "2") {
-						$cellcolorcounter="0";
-						echo $cellcolor2;
-						$color = $cellcolor2;
-					}
-				 ?>"> 
-    <td><div align="center"><font size="2" face="Arial, Helvetica, sans-serif"><?php if ($result_entry_sprequest['log_taskdone_usr'] != 0) { echo "<strike>"; } echo $result_entry_sprequest['log_date'];  if ($result_entry_sprequest['log_taskdone_usr'] != 0) { echo "</strike>"; } ?></font></div></td> 
-    <td><div align="center"><font size="2" face="Arial, Helvetica, sans-serif"><?php if ($result_entry_sprequest['log_taskdone_usr'] != 0) { echo "<strike>"; } echo @usrfunc_GetUsername($result_entry_sprequest['log_usrid']); if ($result_entry_sprequest['log_taskdone_usr'] != 0) { echo "</strike>"; } ?></font></div></td> 
-    <td><font size="2" face="Arial, Helvetica, sans-serif"><?php if ($result_entry_sprequest['log_taskdone_usr'] != 0) { echo "<strike>"; } echo htmlentities($result_entry_sprequest['log_title']); if ($result_entry_sprequest['log_taskdone_usr'] != 0) { echo "</strike>"; } ?></font></td> 
-    <td><font size="2" face="Arial, Helvetica, sans-serif"><?php if ($result_entry_sprequest['log_taskdone_usr'] != 0) { echo "<strike>"; } echo wordwrap(nl2br(htmlentities($result_entry_sprequest['log_description'], ENT_QUOTES))); if ($result_entry_sprequest['log_taskdone_usr'] != 0) { echo "</strike>"; } ?></font></td> 
-    <td><div align="center"><font size="2" face="Arial, Helvetica, sans-serif"><?php if ($result_entry_sprequest['log_taskdone_usr'] != 0) { echo @usrfunc_GetUsername($result_entry_sprequest['log_taskdone_usr']); } 
-		
-		else {
-	?>
-        <form name="form5" method="post" action="<?php echo $RSDB_intern_link_group_group2_both."#adminbar"; ?>">
-          <input type="submit" name="Submit5" value="Done!">
-          <input name="padmin" type="hidden" id="padmin" value="ok">
-          <font size="2" face="Arial, Helvetica, sans-serif">
-          <input name="done" type="hidden" id="done" value="<?php echo $result_entry_sprequest['log_id']; ?>">
-          </font>
-        </form>
-    <?php
-		}
-	
-	 ?>
-        </font></div></td>
-  </tr> 
-	<?php
-		}
-	?> 
+    </tr>
 </table>
 
 			</fieldset>

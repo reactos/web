@@ -27,6 +27,7 @@ if (get_magic_quotes_gpc()) {
 
 define('CDB_PATH', '');
 require_once("lib/Compat_Autoloader.class.php");
+require_once('config.php');
 
 
 

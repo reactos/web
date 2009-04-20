@@ -43,7 +43,7 @@ if ($result_page['comp_id']) {
 
 // Voting - update DB
 if (isset($_GET['vote']) && $_GET['vote'] != '' && isset($_GET['vote2']) && $_GET['vote2'] != '') {
-	Star::addVote($_GET['vote'], $_GET['vote2'], "rsdb_object_media", "media");
+	Star::addVote($_GET['vote'], $_GET['vote2'], CDBT_ATTACHMENTS, "media");
 }
 	
 if (isset($_GET['entry']) && ($_GET['entry'] == '' || $_GET['entry'] == 0)) {
@@ -54,7 +54,7 @@ if (isset($_GET['entry']) && ($_GET['entry'] == '' || $_GET['entry'] == 0)) {
 <?php
 	$roscms_TEMP_counter = 0;
 	
-	$stmt=CDBConnection::getInstance()->prepare("SELECT * FROM rsdb_object_media WHERE media_groupid = :group_id AND (( media_useful_vote_value / media_useful_vote_user) > 2 OR  media_useful_vote_user < 5) ORDER BY media_order ASC");
+	$stmt=CDBConnection::getInstance()->prepare("SELECT * FROM ".CDBT_ATTACHMENTS." WHERE entry_id = :group_id");
   $stmt->bindParam('group_id',$result_page['comp_media'],PDO::PARAM_STR);
   $stmt->execute();
 	while($result_screenshots= $stmt->fetch(PDO::FETCH_ASSOC)) {
@@ -64,25 +64,10 @@ if (isset($_GET['entry']) && ($_GET['entry'] == '' || $_GET['entry'] == 0)) {
 		}
 		echo '<td width="33%" valign="top">';
 
-		echo '<p align="center"><br /><a href="'.$RSDB_intern_link_item_item2.'screens&amp;entry='.$result_screenshots["media_id"].'"><img src="media/files/'.$result_screenshots["media_filetype"].'/'.urlencode($result_screenshots["media_thumbnail"]).'" width="250" height="188" border="0" alt="';
-		echo 'Description: '.htmlentities($result_screenshots["media_description"])."\nUser: ".usrfunc_GetUsername($result_screenshots["media_user_id"])."\nDate: ".$result_screenshots["media_date"]."\n\n".htmlentities($result_screenshots["media_exif"]);
-		echo '"></a><br /><i>'.htmlentities($result_screenshots["media_description"]).'</i><br />';
+		echo '<p align="center"><br /><a href="'.$RSDB_intern_link_item_item2.'screens&amp;entry='.$result_screenshots["id"].'"><img src="media/files/'.$result_screenshots["type"].'/'.urlencode($result_screenshots["file"]).'" width="250" height="188" border="0" alt="';
+		echo 'Description: '.htmlentities($result_screenshots["description"])."\nUser: ".usrfunc_GetUsername($result_screenshots["user_id"])."\nDate: ".$result_screenshots["creation"];
+		echo '"></a><br /><i>'.htmlentities($result_screenshots["description"]).'</i><br />';
 		echo '<br /><font size="1">';
-			  
-			  	$RSDB_TEMP_voting_history = strchr($result_screenshots['media_useful_vote_user_history'],("|".$RSDB_intern_user_id."="));
-				if ($RSDB_TEMP_voting_history == false) {
-					echo "Rate this screenshot: ";
-					if ($result_screenshots['media_useful_vote_user'] > $RSDB_setting_stars_threshold) {
-						echo drawVoteable($result_screenshots['media_useful_vote_value'], $result_screenshots['media_useful_vote_user'], 5, "", ($RSDB_intern_link_item_item2_vote.$result_screenshots['media_id']."&amp;vote2="));
-					}
-					else {
-						echo Star::drawVoteable(0, 0, 5, "", ($RSDB_intern_link_item_item2_vote.$result_screenshots['media_id']."&amp;vote2="));
-					}
-				}
-				else {
-					echo "Rating: ";
-					echo Star::drawNormal($result_screenshots['media_useful_vote_value'], $result_screenshots['media_useful_vote_user'], 5, "");
-				}
 				
 		echo '</font><br /><br /></p>';
 
@@ -106,18 +91,17 @@ echo "</table>";
 }
 else {
 	// Show one picture in max resolution:
-  $stmt=CDBConnection::getInstance()->prepare("SELECT * FROM rsdb_object_media WHERE media_id = :media_id LIMIT 1") ;
+  $stmt=CDBConnection::getInstance()->prepare("SELECT * FROM ".CDBT_ATTACHMENTS." WHERE id = :media_id LIMIT 1") ;
   $stmt->bindParam('media_id',@$_GET['entry'],PDO::PARAM_STR);
   $stmt->execute();
 	$result_screenshots= $stmt->fetch(PDO::FETCH_ASSOC);
 	echo '<p align="center"><b><a href="'.$RSDB_intern_link_item_item2.'screens">Show all screenshots</a></b></p>';
-	echo '<h5>'.htmlentities($result_screenshots["media_description"]).'&nbsp;</h5>';
-	echo '<p><img src="media/files/'.$result_screenshots["media_filetype"].'/'.urlencode($result_screenshots["media_file"]).'" border="0" alt="';
-	echo ''.$result_screenshots["media_description"].'"></a></p>';
-	echo '<p><b>Description:</b> '.htmlentities($result_screenshots["media_description"]).'<br />';
-	echo '<b>User:</b> '.usrfunc_GetUsername($result_screenshots["media_user_id"]).'<br />';
-	echo '<b>Date:</b> '.$result_screenshots["media_date"].'</p>';
-	echo '<p><b>EXIF-Data:</b><br />'.nl2br($result_screenshots["media_exif"]).'</p>';
+	echo '<h5>'.htmlentities($result_screenshots["description"]).'&nbsp;</h5>';
+	echo '<p><img src="media/files/'.$result_screenshots["type"].'/'.urlencode($result_screenshots["file"]).'" border="0" alt="';
+	echo ''.$result_screenshots["description"].'"></a></p>';
+	echo '<p><b>Description:</b> '.htmlentities($result_screenshots["description"]).'<br />';
+	echo '<b>User:</b> '.usrfunc_GetUsername($result_screenshots["user_id"]).'<br />';
+	echo '<b>Date:</b> '.$result_screenshots["creation"].'</p>';
 	echo '<p align="center"><b><a href="'.$RSDB_intern_link_item_item2.'screens">Show all screenshots</a></b></p>';
 }
 }

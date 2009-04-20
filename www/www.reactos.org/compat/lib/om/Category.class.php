@@ -36,18 +36,18 @@ class Category
   public static 	function showTree($RSDB_TEMP_cat_path, $RSDB_TEMP_cat_id, $RSDB_TEMP_cat_level, $RSDB_TEMP_cat_level_newmain, $option) {
 		global $RSDB_intern_link_category_cat;
 
-		$stmt=CDBConnection::getInstance()->prepare("SELECT * FROM rsdb_categories WHERE cat_path = :cat_path AND cat_visible = '1' AND cat_comp = '1' ORDER BY cat_name ASC");
+		$stmt=CDBConnection::getInstance()->prepare("SELECT * FROM ".CDBT_CATEGORIES." WHERE parent = :cat_path AND visible IS TRUE ORDER BY name ASC");
     $stmt->bindParam('cat_path',$RSDB_TEMP_cat_id,PDO::PARAM_STR);
     $stmt->execute();
 					
 		while($result_create_historybar=$stmt->fetch(PDO::FETCH_ASSOC)) { 
       if ($option) {
-				self::showLeafAsOption($result_create_historybar['cat_id'], $RSDB_TEMP_cat_level_newmain);
+				self::showLeafAsOption($result_create_historybar['id'], $RSDB_TEMP_cat_level_newmain);
       }
       else {
-				self::showLeafAsRow($result_create_historybar['cat_id'], $RSDB_TEMP_cat_level_newmain);
+				self::showLeafAsRow($result_create_historybar['id'], $RSDB_TEMP_cat_level_newmain);
       }
-				self::showTree($result_create_historybar['cat_path'], $result_create_historybar['cat_id'], $RSDB_TEMP_cat_level, $RSDB_TEMP_cat_level_newmain,$option);
+				self::showTree($result_create_historybar['parent'], $result_create_historybar['id'], $RSDB_TEMP_cat_level, $RSDB_TEMP_cat_level_newmain,$option);
 		}
 	} // end of member function showTree
 
@@ -67,7 +67,7 @@ class Category
 		
 
 		
-    $stmt=CDBConnection::getInstance()->prepare("SELECT * FROM rsdb_categories WHERE cat_id = :cat_id AND cat_visible = '1' AND cat_comp = '1'");
+    $stmt=CDBConnection::getInstance()->prepare("SELECT * FROM ".CDBT_CATEGORIES." WHERE id = :cat_id AND visible IS TRUE");
     $stmt->bindParam('cat_id',$RSDB_TEMP_entry_id,PDO::PARAM_STR);
     $stmt->execute();
 					
@@ -76,23 +76,23 @@ class Category
 		
 		
 		
-		$RSDB_TEMP_cat_current_id_guess = $result_create_tree_entry['cat_id'];
+		$RSDB_TEMP_cat_current_id_guess = $result_create_tree_entry['id'];
 
 		for ($guesslevel=1; ; $guesslevel++) {
-      $stmt=CDBConnection::getInstance()->prepare("SELECT * FROM rsdb_categories WHERE cat_id = :cat_id AND cat_visible = '1' AND cat_comp = '1'");
+      $stmt=CDBConnection::getInstance()->prepare("SELECT * FROM ".CDBT_CATEGORIES." WHERE id = :cat_id AND visible IS TRUE");
       $stmt->bindParam('cat_id',$RSDB_TEMP_cat_current_id_guess,PDO::PARAM_STR);
       $stmt->execute();
 				$result_category_tree_guesslevel=$stmt->fetchOnce(PDO::FETCH_ASSOC);
-				$RSDB_TEMP_cat_current_id_guess = $result_category_tree_guesslevel['cat_path'];
+				$RSDB_TEMP_cat_current_id_guess = $result_category_tree_guesslevel['parent'];
 				
-				if (!$result_category_tree_guesslevel['cat_name']) {
+				if (!$result_category_tree_guesslevel['name']) {
 					$RSDB_intern_catlevel = ($guesslevel-1);
 					break;
 				}
 		}
 
-		echo "<option value=\"". $result_create_tree_entry['cat_id']. "\"";
-		if ($RSDB_intern_selected != "" && $RSDB_intern_selected == $result_create_tree_entry['cat_id']) {
+		echo "<option value=\"". $result_create_tree_entry['id']. "\"";
+		if ($RSDB_intern_selected != "" && $RSDB_intern_selected == $result_create_tree_entry['id']) {
 			echo " selected "; 
 		}		
 		echo ">\n\n";
@@ -101,7 +101,7 @@ class Category
 			echo "&nbsp;&nbsp;&nbsp;&nbsp;";
 		}
 
-		echo $result_create_tree_entry['cat_name'];
+		echo $result_create_tree_entry['name'];
 
 		//echo "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(".$result_create_tree_entry['cat_description'] .")";
 		
@@ -124,7 +124,7 @@ class Category
 //		global $RSDB_TEMP_cat_icon;
 
 		
-    $stmt=CDBConnection::getInstance()->prepare("SELECT * FROM rsdb_categories WHERE cat_id = :cat_id AND cat_visible = '1' AND cat_comp = '1'");
+    $stmt=CDBConnection::getInstance()->prepare("SELECT * FROM ".CDBT_CATEGORIES." WHERE id = :cat_id AND visible IS TRUE");
     $stmt->bindParam('cat_id',$RSDB_TEMP_entry_id,PDO::PARAM_STR);
     $stmt->execute();
 					
@@ -139,19 +139,19 @@ class Category
 		echo "<div align='left'><font size='2' face='Arial, Helvetica, sans-serif'>&nbsp;";
 		
 		
-		$RSDB_TEMP_cat_current_id_guess = $result_create_tree_entry['cat_id'];
+		$RSDB_TEMP_cat_current_id_guess = $result_create_tree_entry['id'];
 
 		// count the levels -> current category level
 		for ($guesslevel=1; ; $guesslevel++) {
 //				echo $guesslevel."#";
-        $stmt=CDBConnection::getInstance()->prepare("SELECT * FROM rsdb_categories WHERE cat_id = :cat_id AND cat_visible = '1' AND cat_comp = '1'");
+        $stmt=CDBConnection::getInstance()->prepare("SELECT * FROM ".CDBT_CATEGORIES." WHERE id = :cat_id AND visible IS TRUE");
         $stmt->bindParam('cat_id',$RSDB_TEMP_cat_current_id_guess,PDO::PARAM_STR);
         $stmt->execute();
 				$result_category_tree_guesslevel=$stmt->fetch(PDO::FETCH_ASSOC);
 //					echo $result_category_tree_guesslevel['cat_name'];
-				$RSDB_TEMP_cat_current_id_guess = $result_category_tree_guesslevel['cat_path'];
+				$RSDB_TEMP_cat_current_id_guess = $result_category_tree_guesslevel['parent'];
 				
-				if (!$result_category_tree_guesslevel['cat_name']) {
+				if (!$result_category_tree_guesslevel['name']) {
 //					echo "ENDE:".($guesslevel-1);
 					$RSDB_intern_catlevel = ($guesslevel-1);
 					break;
@@ -166,15 +166,15 @@ class Category
 
 //		echo "<img src='media/icons/categories/".$RSDB_TEMP_cat_icon."' width='16' height='16'> ";
 
-		echo "<a href='".$RSDB_intern_link_category_cat.$result_create_tree_entry['cat_id']."'>".$result_create_tree_entry['cat_name']."</a>";
+		echo "<a href='".$RSDB_intern_link_category_cat.$result_create_tree_entry['id']."'>".$result_create_tree_entry['name']."</a>";
 
 		echo "</font></div></td>";
 		echo "<td width='45%' valign='top' bgcolor='".$cellcolor."'>";
 		echo "<div align='left'><font face='Arial, Helvetica, sans-serif'>";
 		
-		echo "<font size='2' face='Arial, Helvetica, sans-serif'>".$result_create_tree_entry['cat_description']."</font>";
+		echo "<font size='2' face='Arial, Helvetica, sans-serif'>".$result_create_tree_entry['description']."</font>";
 		
-		echo "</font></div></td><td width='10%' valign='top' bgcolor='".$cellcolor."'><font size='2'>".Count::entriesInGroup($result_create_tree_entry['cat_id'])."</font></td></tr>";
+		echo "</font></div></td><td width='10%' valign='top' bgcolor='".$cellcolor."'><font size='2'>".Count::entriesInGroup($result_create_tree_entry['id'])."</font></td></tr>";
 		
 	} // end of member function showLeafAsOption
 

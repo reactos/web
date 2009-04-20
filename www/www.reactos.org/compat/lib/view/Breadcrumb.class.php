@@ -109,7 +109,7 @@ class Breadcrumb
 
     // check if category exists and is visible
     if ($param > 0 && $param_type === self::PARAM_CATEGORY) {
-      $stmt=CDBConnection::getInstance()->prepare("SELECT cat_id FROM rsdb_categories WHERE cat_id = :cat_id AND cat_visible = '1'");
+      $stmt=CDBConnection::getInstance()->prepare("SELECT cat_id FROM ".CDBT_CATEGORIES." WHERE id = :cat_id AND visible IS TRUE");
       $stmt->bindParam('cat_id',$param,PDO::PARAM_INT);
       $stmt->execute();
       $category_id = $stmt->fetchColumn();
@@ -148,7 +148,7 @@ class Breadcrumb
     }
 
     // show current path
-    $stmt=CDBConnection::getInstance()->prepare("SELECT cat_name, cat_id, cat_path FROM rsdb_categories WHERE cat_id=:cat_id");
+    $stmt=CDBConnection::getInstance()->prepare("SELECT name, id, parent FROM ".CDBT_CATEGORIES." WHERE id=:cat_id AND visible IS TRUE");
     $stmt->bindParam('cat_id',$category_id,PDO::PARAM_INT);
     $stmt->execute();
 
@@ -156,10 +156,10 @@ class Breadcrumb
     $output = '';
     while ($category = $stmt->fetch(PDO::FETCH_ASSOC)) {
       $output = '
-        <li style="float: left;padding-left: 10px;">&rarr; <a href="'.$RSDB_intern_link_category_cat.$category['cat_id'].'">'.htmlspecialchars($category['cat_name']).'</a></li>'.$output;
+        <li style="float: left;padding-left: 10px;">&rarr; <a href="'.$RSDB_intern_link_category_cat.$category['id'].'">'.htmlspecialchars($category['name']).'</a></li>'.$output;
 
-      if ($category['cat_path'] > 0) {
-        $stmt->bindParam('cat_id',$category['cat_path'],PDO::PARAM_INT);
+      if ($category['parent'] > 0) {
+        $stmt->bindParam('cat_id',$category['parent'],PDO::PARAM_INT);
         $stmt->execute();
       }
     } // end while

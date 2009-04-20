@@ -153,14 +153,14 @@ if ($result_count_cat[0]) {
 				$counter_testentries += $result_count_testentries[0];
 				
 				// Forum entries:
-        $stmt_sub=CDBCOnnection::getInstance()->prepare("SELECT COUNT(*) FROM rsdb_item_comp_forum WHERE fmsg_visible = '1' AND fmsg_comp_id = :comp_id");
+        $stmt_sub=CDBCOnnection::getInstance()->prepare("SELECT COUNT(*) FROM ".CDBT_COMMENTS." WHERE visible IS TRUE AND entry_id = :comp_id");
         $stmt_sub->bindParam('comp_id',$result_group_sum_items['comp_id'],PDO::PARAM_STR);
         $stmt_sub->execute();
 				$result_count_forumentries = $stmt_sub->fetch(PDO::FETCH_NUM);
 				$counter_forumentries += $result_count_forumentries[0];
 
 				// Screenshots:
-        $stmt_sub=CDBConnection::getInstance()->prepare("SELECT COUNT(*) FROM rsdb_object_media WHERE media_visible = '1' AND media_groupid = :group_id");
+        $stmt_sub=CDBConnection::getInstance()->prepare("SELECT COUNT(*) FROM ".CDBT_ATTACHMENTS." WHERE visible IS TRUE AND entry_id = :group_id");
         $stmt_sub->bindParam('group_id',$result_group_sum_items['comp_media'],PDO::PARAM_STR);
         $stmt_sub->execute();
 				$result_count_screenshots = $stmt_sub->fetch(PDO::FETCH_NUM);

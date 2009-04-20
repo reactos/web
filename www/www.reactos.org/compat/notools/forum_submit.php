@@ -68,12 +68,12 @@ else {
 
 	if (isset($_GET['entry']) && $_GET['entry'] != 0) {
 		if ($RSDB_TEMP_txtsubject == "") {
-      $stmt=CDBConnection::getInstance()->prepare("SELECT * FROM rsdb_item_comp_forum WHERE fmsg_visible = '1' AND fmsg_id = " .  . "");
+      $stmt=CDBConnection::getInstance()->prepare("SELECT * FROM ".CDBT_COMMENTS." WHERE visible IS TRUE AND id = :msg_id");
       $stmt->bindParam('msg_id',@$_GET['entry'],PDO::PARAM_STR);
       $stmt->execute();
 
 			$result_page_entry = $stmt->fetchOnce(PDO::FETCH_ASSOC);
-			$RSDB_TEMP_txtsubject = "Re: ".$result_page_entry['fmsg_subject'];
+			$RSDB_TEMP_txtsubject = "Re: ".$result_page_entry['title'];
 		}
 	}
 	else {
@@ -99,13 +99,12 @@ else {
 		$rem_adr = "";
 		if (array_key_exists('REMOTE_ADDR', $_SERVER)) $rem_adr=htmlspecialchars($_SERVER['REMOTE_ADDR']);
 
-    $stmt=CDBConnection::getInstance()->prepare("SELECT * FROM rsdb_item_comp_forum ORDER BY fmsg_date DESC LIMIT 1");
+    $stmt=CDBConnection::getInstance()->prepare("SELECT * FROM ".CDBT_COMMENTS." ORDER BY creation DESC LIMIT 1");
     $stmt->execute();
 		$result_fmsgforum = $stmt->fetchOnce(PDO::FETCH_ASSOC);
 
-		if ($result_fmsgforum['fmsg_body'] != $RSDB_TEMP_txtbody && $RSDB_intern_user_id != 0) {
-      $stmt=CDBConnection::getInstance()->prepare("INSERT INTO `rsdb_item_comp_forum` ( `fmsg_id` , `fmsg_comp_id` , `fmsg_parent` , `fmsg_visible` , `fmsg_subject` , `fmsg_body` , `fmsg_user_id` , `fmsg_user_ip` , `fmsg_date` , `fmsg_useful_vote_value` , `fmsg_useful_vote_user` , `fmsg_useful_vote_user_history` )
-							VALUES ('', :comp_id, :parent, '1', :subject, :body, :user_id, :ip, NOW( ) , '0', '0', '')");
+		if ($result_fmsgforum['content'] != $RSDB_TEMP_txtbody && $RSDB_intern_user_id != 0) {
+      $stmt=CDBConnection::getInstance()->prepare("INSERT INTO ".CDBT_COMMENTS." ( id, entry_id, parent, visible, title, content, user_id, creation) VALUES (NULL, :comp_id, :parent, TRUE, :subject, :body, :user_id, NOW())");
       $stmt->bindParam('comp_id',@$_GET['item'],PDO::PARAM_STR);
       $stmt->bindParam('parent',$RSDB_TEMP_parententry,PDO::PARAM_STR);
       $stmt->bindParam('subject',$RSDB_TEMP_txtsubject,PDO::PARAM_STR);
@@ -116,11 +115,6 @@ else {
 
 			echo "<p><b>Your forum post has been saved!</b></p>";
 			include("inc/tools/forum.php");
-
-			// Stats update:
-      $stmt=CDBConnection::getInstance()->prepare("UPDATE rsdb_stats SET stat_s_icbb = (stat_s_icbb + 1) WHERE stat_date = :date");
-      $stmt->bindValue('date',date("Y-m-d"),PDO::PARAM_STR);
-      $stmt->execute();
 		}
 		else {
 			Message::show("Double post ...");

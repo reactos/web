@@ -388,7 +388,7 @@ class HTML_Group extends HTML
 					}
 ?>
 <?php
-          $stmt=CDBConnection::getInstance()->prepare("SELECT COUNT(*) FROM rsdb_item_comp_forum WHERE fmsg_comp_id = :comp_id AND fmsg_visible = '1' ;");
+          $stmt=CDBConnection::getInstance()->prepare("SELECT COUNT(*) FROM ".CDBT_COMMENTS." WHERE entry_id = :comp_id AND visible IS TRUE");
           $stmt->bindParam('comp_id',$result_version_newest['comp_id'],PDO::PARAM_STR);
           $stmt->execute();
 					$result_count_forumentries = $stmt->fetch(PDO::FETCH_NUM);
@@ -407,7 +407,7 @@ class HTML_Group extends HTML
 					}
 ?>
 <?php
-          $stmt=CDBConnection::getInstance()->prepare("SELECT COUNT(*) FROM rsdb_object_media WHERE media_groupid = :group_id AND media_visible = '1'");
+          $stmt=CDBConnection::getInstance()->prepare("SELECT COUNT(*) FROM ".CDBT_ATTACHMENTS." WHERE entry_id = :group_id AND visible IS TRUE");
           $stmt->bindParam('group_id',$result_version_newest['comp_media'],PDO::PARAM_STR);
           $stmt->execute();
 					$result_count_screenshots = $stmt->fetch(PDO::FETCH_NUM);
@@ -429,24 +429,15 @@ class HTML_Group extends HTML
 			</ul>
 		<br />
         <?php 
-      $stmt=CDBConnection::getInstance()->prepare("SELECT COUNT(*) FROM rsdb_group_bundles WHERE bundle_groupid = :group_id");
-      $stmt->bindParam('group_id',$result_page["grpentr_id"],PDO::PARAM_STR);
-			$result_count_bundle = $stmt->fetch(PDO::FETCH_NUM);
 
-			if (isset($_GET['group2']) && $_GET['group2'] != "" && $_GET['group2'] != "overview" || $result_count_bundle[0] != 0) {
+			if (isset($_GET['group2']) && $_GET['group2'] != "" && $_GET['group2'] != "overview") {
 				$temp_pic = mt_rand(1,$result_count_screenshots[0]);
-        $stmt=CDBConnection::getInstance()->prepare("SELECT * FROM rsdb_object_media WHERE media_groupid = :group_id AND media_order = :order AND (( media_useful_vote_value / media_useful_vote_user) > 2 OR  media_useful_vote_user < 5) ORDER BY media_useful_vote_value DESC LIMIT 1");
+        $stmt=CDBConnection::getInstance()->prepare("SELECT * FROM ".CDBT_ATTACHMENTS." WHERE entry_id = :group_id LIMIT 1");
         $stmt->bindParam('group_id',$result_version_newest['comp_media'],PDO::PARAM_STR);
-        $stmt->bindParam('order',$temp_pic,PDO::PARAM_STR);
         $stmt->execute();
 				$result_screenshots= $stmt->fetch($result_version_newest['comp_media']);
 		
-				if ($result_screenshots['media_thumbnail']=="") {
-					echo '<img src="media/screenshots/comp_default.jpg" width="250" height="188" border="0" />';
-				}
-				else {
-					echo '<a href="'.$RSDB_intern_link_item.$result_version_newest['comp_id'].'&amp;item2=screens"><img src="media/files/picture/'.urlencode($result_screenshots['media_thumbnail']).'" width="250" height="188" border="0" alt="'.htmlentities($result_screenshots['media_description']).'" /></a>';
-				}
+					echo '<a href="'.$RSDB_intern_link_item.$result_version_newest['comp_id'].'&amp;item2=screens"><img src="media/files/picture/'.urlencode($result_screenshots['file']).'" width="250" height="188" border="0" alt="'.htmlentities($result_screenshots['description']).'" /></a>';
 			}
 		?>
 </td>
@@ -494,89 +485,20 @@ class HTML_Group extends HTML
 		
 		?>
               </ul> 
-		<?php 
-		
-			
-			if ($result_count_bundle[0] != 0) {
-			
-		?>
-			<span class="simple"><strong>Bundles</strong></span>
-			<blockquote>
-	            <?php  
-		// Query Bundles	
-		$stmt=CDBConnections::getInstance()->prepare("SELECT * FROM rsdb_group_bundles WHERE bundle_groupid = :group_id") ;
-    $stmt->bindParam('group_id',$result_page["grpentr_id"],PDO::PARAM_STR);
-    $stmt->execute();
-		while($result_bundlelist = $stmt->fetch(PDO::FETCH_ASSOC)) {
-			// Count the bundle entries for the current bundle
-      $stmt_sub=CDBConnection::getInstance()->prepare("SELECT COUNT('bundle_id') FROM rsdb_group_bundles WHERE bundle_id = :bundle_id");
-      $stmt_sub->bindParam('bundle_id',$result_bundlelist["bundle_id"],PDO::PARAM_STR);
-      $stmt_sub->execute();
-			$result_count_bundle = $stmt_sub->fetch();
 
-			if ($result_count_bundle[0]) {
-
-				$farbe1="#E2E2E2";
-				$farbe2="#EEEEEE";
-				$zaehler="0";
-				echo "<table width='100%' border='0'>";
-				echo "  <tr bgcolor='#5984C3'>";
-				echo "	<td width='30%'><div align='center'><font color='#FFFFFF' size='2' face='Arial, Helvetica, sans-serif'><b>Name</b></font></div></td>";
-				echo "	<td width='70%'><div align='center'><font color='#FFFFFF' size='2' face='Arial, Helvetica, sans-serif'><b>Description</b></font></div></td>";
-				echo "  </tr>";
-        $stmt_bundle=CDBConnnection::getInstance()->prepare("SELECT * FROM rsdb_group_bundles WHERE bundle_id = :bundle_id ORDER BY bundle_groupid ASC");
-        $stmt_bundle->bindParam('bundle_id',$result_bundlelist["bundle_id"],PDO::PARAM_STR);
-        $stmt_bundle->execute();
-				while($result_bundlelist_groupitem = $stmt->fetch(PDO::FETCH_ASSOC)) {
-          $stmt_sub=CDBConnection::getInstance()->prepare("SELECT * FROM rsdb_groups WHERE grpentr_id = :group_id ORDER BY grpentr_name ASC");
-          $stmt_sub->bindParam('group_id',$result_bundlelist_groupitem["bundle_groupid"],PDO::PARAM_STR);
-          $stmt_sub->execute();
-					$result_bundlelist_item = $stmt_sub->fetch(PDO::FETCH_ASSOC);
-					echo "  <tr bgcolor='";
-						$zaehler++;
-						if ($zaehler == "1") {
-							echo $farbe1;
-							$farbe = $farbe1;
-						}
-						elseif ($zaehler == "2") {
-							$zaehler="0";
-							echo $farbe2;
-							$farbe = $farbe2;
-						}
-					echo "'>";
-					echo "	<td width='30%'><font size='2' face='Arial, Helvetica, sans-serif'>&nbsp;<b><a href='". $RSDB_intern_link_group.$result_bundlelist_item['grpentr_id'] ."'>". $result_bundlelist_item["grpentr_name"] ."</b></font></td>";
-					echo "	<td width='70%'><font size='2' face='Arial, Helvetica, sans-serif'>". $result_bundlelist_item["grpentr_description"] ."</font></td>";
-					echo "  </tr>";
-				}
-				echo "</table>";
-			}
-		}
-	?>			
-			  </blockquote>
-	<?php
-		}
-		else {
-	?>
 			  <br />
 	          <p>
 	            <?php
 					$temp_pic = mt_rand(1,$result_count_screenshots[0]);
-          $stmt=CDBConnection::getInstance()->prepare("SELECT * FROM rsdb_object_media WHERE media_groupid = :group_id AND media_order = :order AND (( media_useful_vote_value / media_useful_vote_user) > 2 OR  media_useful_vote_user < 5) ORDER BY media_useful_vote_value DESC LIMIT 1");
+          $stmt=CDBConnection::getInstance()->prepare("SELECT * FROM ".CDBT_ATTACHMENTS." WHERE entry_id = :group_id LIMIT 1");
           $stmt->bindParam('group_id',$result_version_newest['comp_media'],PDO::PARAM_STR);
-          $stmt->bindParam('order',$temp_pic,PDO::PARAM_STR);
           $stmt->execute();
 					$result_screenshots= $stmt->fetch(PDO::FETCH_ASSOC);
 			
-					if ($result_screenshots['media_thumbnail']=="") {
-						echo '<img src="media/screenshots/comp_default.jpg" width="250" height="188">';
-					}
-					else {
-						echo '<a href="'.$RSDB_intern_link_item.$result_version_newest['comp_id'].'&amp;item2=screens"><img src="media/files/picture/'.urlencode($result_screenshots['media_thumbnail']).'" width="250" height="188" border="0" alt="'.htmlentities($result_screenshots['media_description']).'" /></a>';
-					}
+						echo '<a href="'.$RSDB_intern_link_item.$result_version_newest['comp_id'].'&amp;item2=screens"><img src="media/files/picture/'.urlencode($result_screenshots['file']).'" width="250" height="188" border="0" alt="'.htmlentities($result_screenshots['description']).'" /></a>';
 			?>
 	  </p>
 <?php
-		}
 	}
 	else {
 		echo "<h3 align=\"center\">".$result_entry_appname['comp_name']." <font size=\"2\">- Overview</font></h3>";
@@ -773,7 +695,7 @@ class HTML_Group extends HTML
     $stmt->execute();
 		$result_maintainer_group =$stmt->fetchOnce(PDO::FETCH_ASSOC);
 
-    $stmt=CDBConnection::getInstance()->prepare("SELECT * FROM rsdb_categories WHERE cat_id = :cat_id AND cat_visible = '1' AND cat_comp = '1'") ;
+    $stmt=CDBConnection::getInstance()->prepare("SELECT * FROM ".CDBT_CATEGORIES." WHERE id = :cat_id AND visible IS TRUE") ;
     $stmt->bindParam('cat_id',$result_maintainer_group['grpentr_category'],PDO::PARAM_STR);
     $stmt->execute();
 		$result_maintainer_group_category = $stmt->fetchOnce(PDO::FETCH_ASSOC);
@@ -828,7 +750,7 @@ class HTML_Group extends HTML
       $stmt->bindParam('group_id',$result_maintainer_group['grpentr_id'],PDO::PARAM_STR);
       $stmt->execute();
 
-			CLog::add("low", "comp_group", "edit", "[App Group] Edit entry", @usrfunc_GetUsername($RSDB_intern_user_id)." changed the group data from: \n\nName: ".htmlentities($result_maintainer_group['grpentr_name'])." \n\nDescription: ".htmlentities($result_maintainer_group['grpentr_description'])." \n\nCategory: ".$result_maintainer_group_category['cat_name']."\n\nVendor: ".$result_maintainer_group_vendor['vendor_name']." \n\n\nTo: \n\nName: ".htmlentities($RSDB_TEMP_appgroup)."\n\nDesc: ".htmlentities($RSDB_TEMP_description)." \n\nCategory: ".htmlentities($RSDB_TEMP_category)." \n\nVendor: ".htmlentities($RSDB_TEMP_vendor), "0");
+			CLog::add("low", "comp_group", "edit", "[App Group] Edit entry", @usrfunc_GetUsername($RSDB_intern_user_id)." changed the group data from: \n\nName: ".htmlentities($result_maintainer_group['grpentr_name'])." \n\nDescription: ".htmlentities($result_maintainer_group['grpentr_description'])." \n\nCategory: ".$result_maintainer_group_category['name']."\n\nVendor: ".$result_maintainer_group_vendor['vendor_name']." \n\n\nTo: \n\nName: ".htmlentities($RSDB_TEMP_appgroup)."\n\nDesc: ".htmlentities($RSDB_TEMP_description)." \n\nCategory: ".htmlentities($RSDB_TEMP_category)." \n\nVendor: ".htmlentities($RSDB_TEMP_vendor), "0");
 			?>
 			<script language="JavaScript">
 				window.setTimeout('window.location.href="<?php echo $RSDB_intern_link_group_group2_both_javascript; ?>"','500')
@@ -838,21 +760,14 @@ class HTML_Group extends HTML
 
 		// Special request:
 		if ($RSDB_TEMP_pmod == "ok" && $RSDB_TEMP_txtreq1 != "" && $RSDB_TEMP_txtreq2 != "" && CUser::isModerator($RSDB_intern_user_id)) {
-			$stmt=CDBConnection::getInstance()->prepare("INSERT INTO rsdb_logs ( log_id, log_date, log_usrid, log_usrip, log_level, log_action, log_title, log_description, log_category, log_badusr, log_referrer, log_browseragent, log_read, log_taskdone_usr) VALUES ('', NOW(), :user_id, :ip, 'low', 'request', :title, :description, 'user_moderator', '0', :referrer, :user_agent, ';', '0')");
-      $stmt->bindParam('user_id',$RSDB_intern_user_id,PDO::PARAM_STR);
-      $stmt->bindParam('ip',$RSDB_ipaddr,PDO::PARAM_STR);
-      $stmt->bindParam('title',$RSDB_TEMP_txtreq1,PDO::PARAM_STR);
-      $stmt->bindParam('description',$RSDB_TEMP_txtreq2,PDO::PARAM_STR);
-      $stmt->bindParam('referrer',$RSDB_referrer,PDO::PARAM_STR);
-      $stmt->bindParam('user_agent',$RSDB_usragent,PDO::PARAM_STR);
-      $stmt->execute();
+      CLog::add(null, null, null, $RSDB_TEMP_txtreq1, $RSDB_TEMP_txtreq2,'');
 		}
 		// Report spam:
 		if ($RSDB_TEMP_pmod == "ok" && $RSDB_TEMP_txtspam != "" && CUser::isModerator($RSDB_intern_user_id)) {
       $stmt=CDBConnection::getInstance()->prepare("UPDATE rsdb_groups SET grpentr_visible = '3' WHERE grpentr_id = :group_id");
       $stmt->bindParam('group_id',$RSDB_SET_group,PDO::PARAM_STR);
       $stmt->execute();
-			CLog::add("low", "comp_group", "report_spam", "[App Group] Spam/ads report", @usrfunc_GetUsername($RSDB_intern_user_id)." wrote: \n".htmlentities($RSDB_TEMP_txtspam)." \n\n\n\nUser: ".@usrfunc_GetUsername($result_maintainer_group['grpentr_usrid'])." - ".$result_maintainer_group['grpentr_usrid']."\n\nAppName: ".htmlentities($result_maintainer_group['grpentr_name'])." - ".$result_maintainer_group['grpentr_id']."\n\nDesc: ".htmlentities($result_maintainer_group['grpentr_description'])." \n\nCategory: ".$result_maintainer_group_category['cat_name']." \n\nVendor: ".$result_maintainer_group_vendor['vendor_name'], $result_maintainer_group['grpentr_usrid']);
+			CLog::add("low", "comp_group", "report_spam", "[App Group] Spam/ads report", @usrfunc_GetUsername($RSDB_intern_user_id)." wrote: \n".htmlentities($RSDB_TEMP_txtspam)." \n\n\n\nUser: ".@usrfunc_GetUsername($result_maintainer_group['grpentr_usrid'])." - ".$result_maintainer_group['grpentr_usrid']."\n\nAppName: ".htmlentities($result_maintainer_group['grpentr_name'])." - ".$result_maintainer_group['grpentr_id']."\n\nDesc: ".htmlentities($result_maintainer_group['grpentr_description'])." \n\nCategory: ".$result_maintainer_group_category['name']." \n\nVendor: ".$result_maintainer_group_vendor['vendor_name'], $result_maintainer_group['grpentr_usrid']);
 		
 		}
 		// Verified:
@@ -868,7 +783,7 @@ class HTML_Group extends HTML
         $stmt->bindParam('checked',$temp_verified,PDO::PARAM_STR);
         $stmt->bindParam('group_id',$RSDB_SET_group,PDO::PARAM_STR);
 				$stmt->execute();
-				CLog::add("low", "comp_group", "verified", "[App Group] Verified", @usrfunc_GetUsername($RSDB_intern_user_id)." has verified the following app group: \n\n\n\nUser: ".@usrfunc_GetUsername($result_maintainer_group['grpentr_usrid'])." - ".$result_maintainer_group['grpentr_usrid']."\n\nAppName: ".htmlentities($result_maintainer_group['grpentr_name'])." - ".$result_maintainer_group['grpentr_id']."\n\nDesc: ".htmlentities($result_maintainer_group['grpentr_description'])." \n\nCategory: ".$result_maintainer_group_category['cat_name']." \n\nVendor: ".$result_maintainer_group_vendor['vendor_name'], "0");
+				CLog::add("low", "comp_group", "verified", "[App Group] Verified", @usrfunc_GetUsername($RSDB_intern_user_id)." has verified the following app group: \n\n\n\nUser: ".@usrfunc_GetUsername($result_maintainer_group['grpentr_usrid'])." - ".$result_maintainer_group['grpentr_usrid']."\n\nAppName: ".htmlentities($result_maintainer_group['grpentr_name'])." - ".$result_maintainer_group['grpentr_id']."\n\nDesc: ".htmlentities($result_maintainer_group['grpentr_description'])." \n\nCategory: ".$result_maintainer_group_category['name']." \n\nVendor: ".$result_maintainer_group_vendor['vendor_name'], "0");
 			}
 		}
 ?>
@@ -894,23 +809,16 @@ class HTML_Group extends HTML
 					      <option value="0">Please select a category</option>
 					      <?php 
 						  $RSDB_intern_selected = $result_maintainer_group['grpentr_category'];
-						  $stmt=CDBConnection::getInstance()->prepare("SELECT COUNT(*) FROM rsdb_categories WHERE cat_visible = '1' AND cat_path = '0' AND cat_comp = '1'");
+						  $stmt=CDBConnection::getInstance()->prepare("SELECT COUNT(*) FROM ".CDBT_CATEGORIES." WHERE visible IS TRUE AND parent IS NULL");
 $stmt->execute();
 $result_count_cat = $stmt->fetchOnce(PDO::FETCH_ASSOC);
-
-// Update the ViewCounter:
-if (!empty($_GET['cat'])) {
-  $stmt=CDBConnection::getInstance()->prepare("UPDATE rsdb_categories SET cat_viewcounter = (cat_viewcounter + 1) WHERE cat_id = :cat_id");
-  $stmt->bindParam('cat_id',@$_GET['cat'],PDO::PARAM_STR);
-  $stmt->execute();
-}
 
 if ($result_count_cat[0]) {
 
 
 	
 
-    $stmt=CDBConnection::getInstance()->prepare("SELECT * FROM rsdb_categories WHERE cat_visible = '1' AND cat_path = :cat_path AND cat_comp = '1' ORDER BY cat_name ASC");
+    $stmt=CDBConnection::getInstance()->prepare("SELECT * FROM ".CDBT_CATEGORIES." WHERE visible IS TRUE AND parent = :cat_path ORDER BY name ASC");
     $stmt->bindParam('cat_path',@$_GET['cat'],PDO::PARAM_STR);
     $stmt->execute();
 		
@@ -920,14 +828,14 @@ if ($result_count_cat[0]) {
 			$cellcolorcounter="0";
 			
 		while($result_treeview = $stmt->fetch(PDO::FETCH_ASSOC)) { // TreeView
-			echo "<option value=\"". $result_treeview['cat_id']. "\"";
-			if ($RSDB_intern_selected != "" && $RSDB_intern_selected == $result_treeview['cat_id']) {
+			echo "<option value=\"". $result_treeview['id']. "\"";
+			if ($RSDB_intern_selected != "" && $RSDB_intern_selected == $result_treeview['id']) {
 				echo " selected "; 
 			}		
-			echo ">+ ". $result_treeview['cat_name'] ."</option>\n\n";
+			echo ">+ ". $result_treeview['name'] ."</option>\n\n";
 	
-			$RSDB_TEMP_cat_path = $result_treeview['cat_path'];
-			$RSDB_TEMP_cat_id = $result_treeview['cat_id'];
+			$RSDB_TEMP_cat_path = $result_treeview['parent'];
+			$RSDB_TEMP_cat_id = $result_treeview['id'];
 			$RSDB_TEMP_cat_level=0;
 			
 			$RSDB_TEMP_cat_current_id_guess=$RSDB_TEMP_cat_id;
@@ -937,7 +845,7 @@ if ($result_count_cat[0]) {
 		}	// end while
 } ?>
 					  </select>
-						<font size="1">				        [<?php echo $result_maintainer_group_category['cat_name']; ?>]</font><br>
+						<font size="1">				        [<?php echo $result_maintainer_group_category['name']; ?>]</font><br>
 				        <br>
 				      Vendor:
 						<select name="vendor" id="vendor">
@@ -1008,7 +916,7 @@ if ($result_count_cat[0]) {
 		          <br>
 			        <strong>Category:</strong>			      <?php 
 					
-						echo htmlentities($result_maintainer_group_category['cat_name']);
+						echo htmlentities($result_maintainer_group_category['name']);
 					
 					 ?>
 		          <br>
@@ -1182,13 +1090,6 @@ if ($result_count_cat[0]) {
 		if (array_key_exists("padmin", $_POST)) $RSDB_TEMP_padmin=htmlspecialchars($_POST["padmin"]);
 		if (array_key_exists("done", $_POST)) $RSDB_TEMP_done=htmlspecialchars($_POST["done"]);
 		
-		if ($RSDB_TEMP_padmin == "ok" && $RSDB_TEMP_done != "" && CUser::isAdmin($RSDB_intern_user_id)) {
-      $stmt=CDBConnection::getInstance()->prepare("UPDATE rsdb_logs SET log_taskdone_usr = :user_id WHERE log_id = :log_id");
-      $stmt->bindParam('user_id',$RSDB_intern_user_id,PDO::PARAM_STR);
-      $stmt->bindParam('log_id',$RSDB_TEMP_done,PDO::PARAM_STR);
-      $stmt->execute();
-		}
-		
 ?>
 	<table width="100%" border="0" cellpadding="0" cellspacing="0" class="admin">
 	  <tr>
@@ -1203,50 +1104,7 @@ if ($result_count_cat[0]) {
     <td width="25%"><div align="center"><font color="#000000"><strong><font size="2" face="Arial, Helvetica, sans-serif">Title</font></strong></font></div></td> 
     <td width="45%"><div align="center"><font color="#000000"><strong><font size="2" face="Arial, Helvetica, sans-serif">Request</font></strong></font></div></td> 
     <td width="10%"><div align="center"><font color="#000000"><strong><font size="2" face="Arial, Helvetica, sans-serif">Done?</font></strong></font></div></td>
-    </tr> <?php
-					$cellcolor1="#E2E2E2";
-					$cellcolor2="#EEEEEE";
-					$cellcolorcounter="0";
-          $stmt=CDBConnection::getInstance()->prepare("SELECT * FROM rsdb_logs WHERE log_level LIKE 'low' AND log_action LIKE 'request' AND log_category LIKE 'user_moderator' ORDER BY log_date DESC LIMIT 30") ;
-          $stmt->execute();
-					while($result_entry_sprequest = $stmt->fetch()) {
-				?> 
-  <tr valign="top" bgcolor="<?php
-					$cellcolorcounter++;
-					if ($cellcolorcounter == "1") {
-						echo $cellcolor1;
-						$color = $cellcolor1;
-					}
-					elseif ($cellcolorcounter == "2") {
-						$cellcolorcounter="0";
-						echo $cellcolor2;
-						$color = $cellcolor2;
-					}
-				 ?>"> 
-    <td><div align="center"><font size="2" face="Arial, Helvetica, sans-serif"><?php if ($result_entry_sprequest['log_taskdone_usr'] != 0) { echo "<strike>"; } echo $result_entry_sprequest['log_date'];  if ($result_entry_sprequest['log_taskdone_usr'] != 0) { echo "</strike>"; } ?></font></div></td> 
-    <td><div align="center"><font size="2" face="Arial, Helvetica, sans-serif"><?php if ($result_entry_sprequest['log_taskdone_usr'] != 0) { echo "<strike>"; } echo @usrfunc_GetUsername($result_entry_sprequest['log_usrid']); if ($result_entry_sprequest['log_taskdone_usr'] != 0) { echo "</strike>"; } ?></font></div></td> 
-    <td><font size="2" face="Arial, Helvetica, sans-serif"><?php if ($result_entry_sprequest['log_taskdone_usr'] != 0) { echo "<strike>"; } echo htmlentities($result_entry_sprequest['log_title']); if ($result_entry_sprequest['log_taskdone_usr'] != 0) { echo "</strike>"; } ?></font></td> 
-    <td><font size="2" face="Arial, Helvetica, sans-serif"><?php if ($result_entry_sprequest['log_taskdone_usr'] != 0) { echo "<strike>"; } echo wordwrap(nl2br(htmlentities($result_entry_sprequest['log_description'], ENT_QUOTES))); if ($result_entry_sprequest['log_taskdone_usr'] != 0) { echo "</strike>"; } ?></font></td> 
-    <td><div align="center"><font size="2" face="Arial, Helvetica, sans-serif"><?php if ($result_entry_sprequest['log_taskdone_usr'] != 0) { echo @usrfunc_GetUsername($result_entry_sprequest['log_taskdone_usr']); } 
-		
-		else {
-	?>
-        <form name="form5" method="post" action="<?php echo $RSDB_intern_link_group_group2_both."#adminbar"; ?>">
-          <input type="submit" name="Submit5" value="Done!">
-          <input name="padmin" type="hidden" id="padmin" value="ok">
-          <font size="2" face="Arial, Helvetica, sans-serif">
-          <input name="done" type="hidden" id="done" value="<?php echo $result_entry_sprequest['log_id']; ?>">
-          </font>
-        </form>
-    <?php
-		}
-	
-	 ?>
-        </font></div></td>
-  </tr> 
-	<?php
-		}
-	?> 
+    </tr>
 </table>
 
 			</fieldset>

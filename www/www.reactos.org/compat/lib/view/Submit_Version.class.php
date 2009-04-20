@@ -529,8 +529,6 @@ else {
 			
 			$result_page = $stmt->fetch();
 			
-			// Stats update:
-      CDBConnection::getInstance()->exec("UPDATE rsdb_stats SET stat_s_icomp = (stat_s_icomp + 1) WHERE stat_date = '". date("Y-m-d") ."'");
 ?>
 	<table width="100%" border="0">
 		<tr>

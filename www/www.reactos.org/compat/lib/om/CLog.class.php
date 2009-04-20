@@ -44,17 +44,9 @@ class CLog
 		if (array_key_exists('REMOTE_ADDR', $_SERVER)) $RSDB_ipaddr=htmlspecialchars($_SERVER['REMOTE_ADDR']);
 	
 	
-    $stmt=CDBConnection::getInstance()->prepare("INSERT INTO rsdb_logs (log_id, log_date, log_usrid, log_usrip, log_level, log_action, log_title, log_description, log_category, log_badusr, log_referrer, log_browseragent, log_read) VALUES ('', NOW( ) , :user_id, :ip, :level, :action, :title, :description, :category, :baduser, :referrer, :user_agent, ';')");
+    $stmt=CDBConnection::getInstance()->prepare("INSERT INTO ".CDBT_LOGS." (id, creation, user_id, log_description) VALUES (NULL, NOW(), :user_id, :description)");
     $stmt->bindParam('user_id',$RSDB_intern_user_id,PDO::PARAM_STR);
-    $stmt->bindParam('ip',$RSDB_ipaddr,PDO::PARAM_STR);
-    $stmt->bindParam('level',$level,PDO::PARAM_STR);
-    $stmt->bindParam('action',$laction,PDO::PARAM_STR);
-    $stmt->bindParam('title',$title,PDO::PARAM_STR);
-    $stmt->bindParam('description',$desc,PDO::PARAM_STR);
-    $stmt->bindParam('category',$category,PDO::PARAM_STR);
-    $stmt->bindParam('baduser',$baduser,PDO::PARAM_STR);
-    $stmt->bindParam('referrer',$RSDB_referrer,PDO::PARAM_STR);
-    $stmt->bindParam('user_agent',$RSDB_usragent,PDO::PARAM_STR);
+    $stmt->bindValue('description',$title."\n\n".$desc,PDO::PARAM_STR);
     $stmt->execute();
 
 	} // end of member function add

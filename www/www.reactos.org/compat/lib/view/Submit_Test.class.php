@@ -119,9 +119,6 @@ else {
 		echo "<p>&nbsp;</p>";
 		echo "<p><a href=\"". $RSDB_intern_link_item_item2 ."tests\">Show all compatibility test reports</a></p>";
 		
-		
-		// Stats update:
-		$CDBConnection::getInstance()->exec("UPDATE rsdb_stats SET stat_s_ictest = (stat_s_ictest + 1) WHERE stat_date = '". date("Y-m-d") ."'";
 	}
 	else {
 ?>
