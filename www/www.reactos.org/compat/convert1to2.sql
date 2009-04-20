@@ -216,7 +216,6 @@ DROP TABLE rsdb_languages;
 
 
 
-
 -- -----------------------------------------------------------------
 -- Convert entries reports
 -- -----------------------------------------------------------------
@@ -228,13 +227,13 @@ CREATE TABLE cdb_entries_reports (
   old_version VARCHAR( 100 ) NOT NULL,
   old_description TEXT NOT NULL,
   user_id BIGINT UNSIGNED NOT NULL COMMENT '->roscms.users(id)',
+  works BOOL DEFAULT FALSE,
   checked BOOL NOT NULL DEFAULT FALSE,
   created DATETIME NOT NULL,
   visible BOOL NOT NULL DEFAULT FALSE,
   disabled BOOL NOT NULL DEFAULT TRUE,
   old_groupid BIGINT NOT NULL DEFAULT '0',
-  old_osversion VARCHAR( 6 ) NOT NULL DEFAULT '000000',
-  old_award SMALLINT NOT NULL DEFAULT '0'
+  old_osversion VARCHAR( 6 ) NOT NULL DEFAULT '000000'
 ) ENGINE = MyISAM;
 
 INSERT INTO cdb_entries_reports
@@ -246,13 +245,13 @@ SELECT DISTINCT
   comp_appversion,
   comp_description,
   comp_usrid,
+  NULL,
   FALSE,
   comp_date,
   TRUE,
   FALSE,
   comp_groupid,
-  comp_osversion,
-  comp_award
+  comp_osversion
 FROM rsdb_item_comp
 WHERE comp_date != '0000-00-00 00:00:00';
 
@@ -403,5 +402,74 @@ SELECT
   t.id
 FROM cdb_entries e
 JOIN cdb_tags t ON (t.old_groupid = e.old_groupid OR t.old_vendor =e.old_vendorid);
+
+ALTER TABLE cdb_entries DROP old_groupid;
+ALTER TABLE cdb_entries DROP old_vendorid;
+ALTER TABLE cdb_tags DROP old_groupid;
+ALTER TABLE cdb_tags DROP old_vendor;
+
+
+
+-- -----------------------------------------------------------------
+-- Convert os versions
+-- -----------------------------------------------------------------
+CREATE TABLE cdb_entries_tags (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  revision BIGINT UNSIGNED NOT NULL,
+  name VARCHAR( 30 ) NOT NULL,
+  visible BOOL NOT NULL DEFAULT FALSE,
+  old_osversion VARCHAR( 6 ) NOT NULL DEFAULT '000000'
+) ENGINE = MYISAM;
+
+INSERT INTO cdb_entries_tags VALUES
+(NULL,     4, 'ReactOS 0.0.7',  FALSE, '000007'),
+(NULL,    10, 'ReactOS 0.0.8',  FALSE, '000008'),
+(NULL,    21, 'ReactOS 0.0.9',  FALSE, '000009'),
+(NULL,    30, 'ReactOS 0.0.10', FALSE, '000010'),
+(NULL,    39, 'ReactOS 0.0.11', FALSE, '000011'),
+(NULL,    52, 'ReactOS 0.0.12', FALSE, '000012'),
+(NULL,   503, 'ReactOS 0.0.14', FALSE, '000014'),
+(NULL,   939, 'ReactOS 0.0.15', FALSE, '000015'),
+(NULL,  2126, 'ReactOS 0.0.18', FALSE, '000018'),
+(NULL,  2644, 'ReactOS 0.0.19', FALSE, '000019'),
+(NULL,  3316, 'ReactOS 0.0.20', FALSE, '000020'),
+(NULL,  3692, 'ReactOS 0.0.21', FALSE, '000021'),
+(NULL,  4092, 'ReactOS 0.0.x',  TRUE,  '000010'),
+(NULL,  4093, 'ReactOS 0.1.0',  TRUE,  '000100'),
+(NULL,  4455, 'ReactOS 0.1.1',  TRUE,  '000110'),
+(NULL,  4996, 'ReactOS 0.1.2',  TRUE,  '000120'),
+(NULL,  5949, 'ReactOS 0.1.3',  TRUE,  '000130'),
+(NULL,  6269, 'ReactOS 0.1.4',  TRUE,  '000140'),
+(NULL,  6688, 'ReactOS 0.1.5',  TRUE,  '000150'),
+(NULL,  7866, 'ReactOS 0.2.0',  TRUE,  '000200'),
+(NULL,  8516, 'ReactOS 0.2.1',  TRUE,  '000210'),
+(NULL,  9209, 'ReactOS 0.2.2',  TRUE,  '000220'),
+(NULL,  9910, 'ReactOS 0.2.3',  TRUE,  '000230'),
+(NULL, 10824, 'ReactOS 0.2.4',  TRUE,  '000240'),
+(NULL, 13828, 'ReactOS 0.2.5',  TRUE,  '000250'),
+(NULL, 14604, 'ReactOS 0.2.6',  TRUE,  '000260'),
+(NULL, 17770, 'ReactOS 0.2.7',  TRUE,  '000270'),
+(NULL, 18975, 'ReactOS 0.2.8',  TRUE,  '000280'),
+(NULL, 20308, 'ReactOS 0.2.9',  TRUE,  '000290'),
+(NULL, 23786, 'ReactOS 0.3.0',  TRUE,  '000300'),
+(NULL, 26044, 'ReactOS 0.3.1',  TRUE,  '000310'),
+(NULL, 29009, 'ReactOS 0.3.3',  TRUE,  '000330'),
+(NULL, 31933, 'ReactOS 0.3.4',  TRUE,  '000340'),
+(NULL, 34197, 'ReactOS 0.3.5',  TRUE,  '000350'),
+(NULL, 35137, 'ReactOS 0.3.6',  TRUE,  '000360'),
+(NULL, 37181, 'ReactOS 0.3.7',  TRUE,  '000370'),
+(NULL, 39330, 'ReactOS 0.3.8',  TRUE,  '000380'),
+(NULL, 66666, 'ReactOS 0.3.9',  TRUE,  '000390');
+
+
+
+-- -----------------------------------------------------------------
+-- set reported revisions
+-- -----------------------------------------------------------------
+UPDATE cdb_entries_reports r
+SET revision = (SELECT revision FROM cdb_entries_tags WHERE old_osversion=r.old_osversion LIMIT 1);
+
+ALTER TABLE cdb_entries_reports DROP old_osversion;
+
 
 
