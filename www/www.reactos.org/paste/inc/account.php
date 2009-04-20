@@ -19,19 +19,16 @@
     */
 
 	define("ROOT_PATH", "../");
-	require_once(ROOT_PATH . "roscms/logon/subsys_login.php");
-	$RSDB_intern_user_id = roscms_subsys_login('', ROSCMS_LOGIN_OPTIONAL, "/" . "http://localhost/reactos.org/");
+	define("ROSCMS_PATH", ROOT_PATH.'roscms/');
+
+	require_once(ROSCMS_PATH . "lib/RosCMS_Autoloader.class.php");
+	$RSDB_intern_user_id = Subsystem::in(Login::OPTIONAL, "/" . "http://localhost/reactos.org/");
 
 	include("connect.db.php");
 	
 	if($RSDB_intern_user_id != 0) {
-		$query_roscms_user = mysql_query("SELECT * 
-				FROM roscms.users 
-				WHERE user_id = '".mysql_escape_string($RSDB_intern_user_id)."' LIMIT 1;") ;
-		$result_roscms_user = mysql_fetch_array($query_roscms_user);
-		
 		// Name
-		$RSDB_USER_name = $result_roscms_user['user_name'];
+		$RSDB_USER_name = Subsystem::getUserName($RSDB_intern_user_id);
 		
 	}
 	else {
