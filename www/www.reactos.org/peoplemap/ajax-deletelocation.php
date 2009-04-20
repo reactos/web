@@ -25,7 +25,7 @@
 	}
 	
 	// Get the user ID from the session key
-	$stmt = $dbh->prepare("SELECT usersession_user_id FROM $DB_ROSCMS.user_sessions WHERE usersession_id = :usersessionid LIMIT 1");
+	$stmt = $dbh->prepare("SELECT user_id FROM $DB_ROSCMS.roscms_accounts_sessions WHERE id = :usersessionid LIMIT 1");
 	$stmt->bindParam(":usersessionid", $_COOKIE["roscmsusrkey"]);
 	$stmt->execute() or die("<error>Query failed #1</error>");
 	$userid = (int)$stmt->fetchColumn();

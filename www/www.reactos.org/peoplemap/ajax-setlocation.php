@@ -25,7 +25,7 @@
 	}
 	
 	// Get the user ID from the session key
-	$stmt = $dbh->prepare("SELECT usersession_user_id FROM $DB_ROSCMS.user_sessions WHERE usersession_id = :usersessionid LIMIT 1");
+	$stmt = $dbh->prepare("SELECT user_id FROM $DB_ROSCMS.roscms_accounts_sessions WHERE id = :usersessionid LIMIT 1");
 	$stmt->bindParam(":usersessionid", $_COOKIE["roscmsusrkey"]);
 	$stmt->execute() or die("<error>Query failed #1</error>");
 	$userid = (int)$stmt->fetchColumn();
@@ -44,7 +44,7 @@
 	$stmt->execute() or die("<error>Query failed #2</error>");
 	
 	// We succeeded, return all information about our account
-	$stmt = $dbh->prepare("SELECT user_name, user_fullname FROM $DB_ROSCMS.users WHERE user_id = :userid LIMIT 1");
+	$stmt = $dbh->prepare("SELECT name AS user_name, fullname AS user_fullname FROM $DB_ROSCMS.roscms_accounts WHERE id = :userid LIMIT 1");
 	$stmt->bindParam(":userid", $userid);
 	$stmt->execute() or die("<error>Query failed #3</error>");
 	$row = $stmt->fetch(PDO::FETCH_NUM);

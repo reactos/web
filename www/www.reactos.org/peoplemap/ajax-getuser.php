@@ -28,27 +28,27 @@
 	}
 	
 	// Build the query
-	$query = "SELECT u.user_id, u.user_name, u.user_fullname, l.latitude, l.longitude " .
-	         "FROM $DB_ROSCMS.users u " .
-	         "JOIN $DB_PEOPLEMAP.user_locations l ON u.user_id = l.roscms_user_id ";
+	$query = "SELECT u.id, u.name, u.fullname, l.latitude, l.longitude " .
+	         "FROM $DB_ROSCMS.roscms_accounts u " .
+	         "JOIN $DB_PEOPLEMAP.user_locations l ON u.id = l.roscms_user_id ";
 	
 	switch($_GET["subject"])
 	{
 		case "username":
-			$query .= "WHERE u.user_name LIKE :query";
+			$query .= "WHERE u.name LIKE :query";
 			break;
 		
 		case "fullname":
-			$query .= "WHERE u.user_fullname LIKE :query";
+			$query .= "WHERE u.fullname LIKE :query";
 			break;
 		
 		case "group":
-			$query .= "JOIN $DB_ROSCMS.usergroup_members g ON u.user_id = g.usergroupmember_userid " .
-			          "WHERE g.usergroupmember_usergroupid = :query";
+			$query .= "JOIN $DB_ROSCMS.roscms_rel_groups_accounts g ON u.id = g.user_id " .
+			          "WHERE g.group_id = :query";
 			break;
 		
 		case "userid":
-			$query .= "WHERE u.user_id = :query";
+			$query .= "WHERE u.id = :query";
 			$_GET["query"] = (int)$_GET["query"];
 			break;
 		
@@ -56,7 +56,7 @@
 			die("<error>Invalid subject!</error>");
 	}
 	
-	$query .= " ORDER BY u.user_name ASC";
+	$query .= " ORDER BY u.name ASC";
 	
 	switch($_GET["subject"])
 	{

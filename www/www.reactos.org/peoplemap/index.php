@@ -85,10 +85,10 @@
 							catch(PDOException $e)
 							{
 								// Give no exact error message here, so no server internals are exposed
-								die("<error>Could not establish the DB connection</error>");
+								die("Could not establish the DB connection");
 							}
 							
-							$stmt = $dbh->query("SELECT COUNT(*) FROM $DB_ROSCMS.users") or die("Query failed #1");
+							$stmt = $dbh->query("SELECT COUNT(*) FROM $DB_ROSCMS.roscms_accounts") or die("Query failed #1");
 							$user_count = (int)$stmt->fetchColumn();
 							
 							$stmt = $dbh->query("SELECT COUNT(*) FROM $DB_PEOPLEMAP.user_locations") or die("Query failed #2");
@@ -142,7 +142,7 @@
 							$iconcode  = '<script type="text/javascript">';
 							$iconcode .= 'IconTable = new Object();';
 							
-							$stmt = $dbh->query("SELECT usrgroup_name_id, usrgroup_name FROM $DB_ROSCMS.usergroups WHERE usrgroup_visible = 1") or die("Query failed #3");
+							$stmt = $dbh->query("SELECT id, name FROM $DB_ROSCMS.roscms_groups WHERE visible = 1") or die("Query failed #3");
 							
 							while($row = $stmt->fetch(PDO::FETCH_NUM))
 							{
@@ -234,7 +234,7 @@
 							
 							if($_COOKIE["roscmsusrkey"])
 							{
-								$stmt = $dbh->prepare("SELECT usersession_user_id FROM $DB_ROSCMS.user_sessions WHERE usersession_id = :usersessionid LIMIT 1");
+								$stmt = $dbh->prepare("SELECT user_id FROM $DB_ROSCMS.roscms_accounts_sessions WHERE id = :usersessionid LIMIT 1");
 								$stmt->bindParam(":usersessionid", $_COOKIE["roscmsusrkey"]);
 								$stmt->execute() or die("Query failed #4");
 								$userid = (int)$stmt->fetchColumn();
