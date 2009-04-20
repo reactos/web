@@ -143,3 +143,4 @@ require_once("$IP/extensions/ParserFunctions/ParserFunctions.php");
 
 # RosCMS-specific settings
 define("ROSCMS_PATH", "$IP/../roscms/");
+define("SHARED_PATH", "$IP/../shared/");

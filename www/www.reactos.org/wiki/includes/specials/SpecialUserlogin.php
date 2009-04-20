@@ -4,7 +4,7 @@
  * @ingroup SpecialPage
  */
 
-require_once(ROOT_PATH . "roscms/logon/subsys_login.php");
+require_once(ROSCMS_PATH . "lib/RosCMS_Autoloader.class.php");
 
 /**
  * constructor
@@ -12,7 +12,7 @@ require_once(ROOT_PATH . "roscms/logon/subsys_login.php");
 function wfSpecialUserlogin( $par = '' ) {
 	/* Login to RosCMS */
 	$target = "/wiki";
-	roscms_subsys_login('wiki', ROSCMS_LOGIN_REQUIRED, $target);
+	Subsystem_Wiki::in(Login::REQUIRED, $target);
 	
 	/* Just redirect us to the main page in case we were called but already logged in */
 	header("Location: $target");

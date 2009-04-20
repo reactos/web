@@ -14,7 +14,7 @@
 if( !defined( 'MEDIAWIKI' ) )
 	die( -1 );
 
-require_once(ROOT_PATH . "shared/subsys_layout.php");
+require_once(SHARED_PATH . "subsys_layout.php");
 
 /**
  * Inherit main code from SkinTemplate, set the CSS and template filter.
