@@ -13,8 +13,8 @@
 	var tResults = "";
 	//var twebsite = "http://localhost/reactos.org/support/index.php";
 	//var twebsite2 = "http://localhost/reactos.org/";
-	var twebsite = "http://www.reactos.org/support/index.php";
-	var twebsite2 = "http://www.reactos.org/";
+	var twebsite = "http://79.99.5.181/support/index.php";
+	var twebsite2 = "http://79.99.5.181/";
 	
 
 	function writeItemList_style_header() {

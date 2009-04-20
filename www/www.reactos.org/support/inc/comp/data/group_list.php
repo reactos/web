@@ -117,7 +117,7 @@ if ($RSDB_SET_search != "" || strlen($RSDB_SET_search) > 1) {
 		<comp><?php echo $result_page['grpentr_comp']; ?></comp>
 		<devnet><?php echo $result_page['grpentr_devnet']; ?></devnet>
 	</dbentry>
-<?
+<?php
 	}
 }
 ?>

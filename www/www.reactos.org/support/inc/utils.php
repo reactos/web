@@ -19,6 +19,6 @@
     */
 
 //require_once("/web/reactos.org/htdocs/roscms/inc/utils.php");
-require_once("../roscms/inc/utils.php");
+require_once("../shared/subsys_layout.php");
 
 ?>
