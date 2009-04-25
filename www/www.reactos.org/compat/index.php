@@ -131,7 +131,6 @@ require_once('config.php');
 switch (@$_GET['page']) {
 
   // Frontpage
-  case '':
   case 'home': 
     new Home();
     break;
@@ -240,9 +239,9 @@ switch (@$_GET['page']) {
     new HTML_Search();
     break;
 
-  // Category
+  // Submit
   case 'submit': 
-    new Submit_Item();
+    new HTML_Submit();
     break;
 
   // Help
@@ -251,7 +250,10 @@ switch (@$_GET['page']) {
     break;
 
   default:
-    echo '404';
+    // just show 404, if no request for 'get=' is given
+    if (!isset($_GET['get'])) {
+      echo '404';
+    }
     break;
 
   // export data
@@ -280,4 +282,13 @@ switch (@$_GET['page']) {
     } // end switch export
     break;
 } // end switch page
+
+switch (@$_GET['get']) {
+
+  // Suggestions
+  case 'suggestions':
+    new List_Suggestions();
+    break;
+
+} // end switch get
 ?>

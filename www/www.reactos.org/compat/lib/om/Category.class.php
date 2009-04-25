@@ -2,6 +2,7 @@
     /*
     CompatDB - ReactOS Compatability Database
     Copyright (C) 2005-2006  Klemens Friedl <frik85@reactos.org>
+                  2009       Danny Götte <dangerground@web.de>
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -33,24 +34,36 @@ class Category
    *
    * @access public
    */
-  public static 	function showTree($RSDB_TEMP_cat_path, $RSDB_TEMP_cat_id, $RSDB_TEMP_cat_level, $RSDB_TEMP_cat_level_newmain, $option) {
-		global $RSDB_intern_link_category_cat;
+  public static 	function showTreeAsOption($category_id = 0, $level = 0)
+  {
+    $output = '';
 
-		$stmt=CDBConnection::getInstance()->prepare("SELECT * FROM ".CDBT_CATEGORIES." WHERE parent = :cat_path AND visible IS TRUE ORDER BY name ASC");
-    $stmt->bindParam('cat_path',$RSDB_TEMP_cat_id,PDO::PARAM_STR);
+    $categories=self::getChilds($category_id);
+    if (count($categories) > 0) {
+      foreach($categories as $category) {
+        $output .= '
+          <option value="'.$category['id'].'">'.str_repeat('&nbsp;&nbsp;&nbsp;',$level).htmlspecialchars($category['name']).'</option>';
+        $output .= self::showTreeAsOption($category['id'],$level+1);
+      }
+    }
+
+    return $output;
+  } // end of member function showTree
+
+
+
+  /**
+   * @FILLME
+   *
+   * @access private
+   */
+  private static function getChilds($category_id)
+  {
+    $stmt=CDBConnection::getInstance()->prepare("SELECT id, name FROM ".CDBT_CATEGORIES." WHERE parent = :cat_path AND visible IS TRUE ORDER BY name ASC");
+    $stmt->bindParam('cat_path',$category_id,PDO::PARAM_INT);
     $stmt->execute();
-					
-		while($result_create_historybar=$stmt->fetch(PDO::FETCH_ASSOC)) { 
-      if ($option) {
-				self::showLeafAsOption($result_create_historybar['id'], $RSDB_TEMP_cat_level_newmain);
-      }
-      else {
-				self::showLeafAsRow($result_create_historybar['id'], $RSDB_TEMP_cat_level_newmain);
-      }
-				self::showTree($result_create_historybar['parent'], $result_create_historybar['id'], $RSDB_TEMP_cat_level, $RSDB_TEMP_cat_level_newmain,$option);
-		}
-	} // end of member function showTree
-
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+  }
 
 
   /**
@@ -58,10 +71,10 @@ class Category
    *
    * @access public
    */
-  public static 	function showLeafAsOption($RSDB_TEMP_entry_id, $RSDB_TEMP_cat_level_newmain) {
+  public static 	function showLeafAsOption($RSDB_TEMP_entry_id, $RSDB_TEMP_cat_level_newmain)
+  {
 	global $RSDB_intern_selected;
 		
-		global $RSDB_intern_link_category_cat;
 		global $cellcolor2;
 		$cellcolor=$cellcolor2;
 		
@@ -115,7 +128,8 @@ class Category
    *
    * @access public
    */
-  public static 	function showLeafAsRow($RSDB_TEMP_entry_id, $RSDB_TEMP_cat_level_newmain) {
+  public static 	function showLeafAsRow($RSDB_TEMP_entry_id, $RSDB_TEMP_cat_level_newmain)
+  {
 		
 		global $RSDB_intern_link_category_cat;
 		global $cellcolor2;
@@ -176,7 +190,7 @@ class Category
 		
 		echo "</font></div></td><td width='10%' valign='top' bgcolor='".$cellcolor."'><font size='2'>".Count::entriesInGroup($result_create_tree_entry['id'])."</font></td></tr>";
 		
-	} // end of member function showLeafAsOption
+	} // end of member function showLeafAsRow
 
 
 

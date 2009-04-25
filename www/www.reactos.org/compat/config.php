@@ -8,5 +8,6 @@ define('CDBT_REPORTS'    , 'cdb_entries_reports');
 define('CDBT_LANGUAGES'  , 'cdb_languages');
 define('CDBT_LOGS'       , 'cdb_logs');
 define('CDBT_TAGS'       , 'cdb_tags');
+define('CDBT_VERSIONS'   , 'cdb_entries_tags');
 
 ?>

@@ -37,17 +37,7 @@ INSERT INTO cdb_categories
     cat_icon,
     TRUE
   FROM rsdb_categories
-  WHERE cat_visible = '1'
-UNION
-  SELECT
-    cat_id,
-    cat_path,
-    cat_name,
-    cat_description,
-    cat_icon,
-    FALSE
-  FROM rsdb_categories
-  WHERE cat_visible = '0';
+  WHERE cat_visible = '1' AND cat_comp = '1';
 
 ALTER TABLE cdb_categories ORDER BY id;
 DROP TABLE rsdb_categories;
@@ -63,7 +53,7 @@ CREATE TABLE cdb_comments (
   user_id BIGINT UNSIGNED NOT NULL COMMENT '->roscms.accounts(id)',
   title VARCHAR( 100 ) NOT NULL ,
   content TEXT NOT NULL ,
-  creation DATETIME NOT NULL ,
+  created DATETIME NOT NULL ,
   visible BOOL NOT NULL DEFAULT FALSE
 ) ENGINE = MYISAM COMMENT = 'parent xor entry_id has to be NULL';
 
@@ -265,6 +255,7 @@ CREATE TABLE cdb_entries (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR( 100 ) NOT NULL,
   version VARCHAR( 100 ) NOT NULL,
+  category_id BIGINT NOT NULL,
   description TEXT NOT NULL,
   created DATETIME NOT NULL,
   modified DATETIME NOT NULL,
@@ -279,6 +270,7 @@ SELECT DISTINCT
   NULL,
   old_name,
   old_version,
+  0,
   old_description,
   created,
   modified,
@@ -303,7 +295,8 @@ SET entry_id = (SELECT e.id FROM cdb_entries e WHERE r.old_name=e.name LIMIT 1);
 ALTER TABLE cdb_entries_reports
   DROP old_name,
   DROP old_description,
-  DROP old_groupid;
+  DROP old_groupid,
+  DROP old_version;
 
 DROP TABLE rsdb_item_comp;
 
@@ -314,7 +307,6 @@ DROP TABLE rsdb_item_comp;
 -- -----------------------------------------------------------------
 CREATE TABLE cdb_tags (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY ,
-  category_id BIGINT COMMENT '->categories(id)',
   name VARCHAR( 100 ) NOT NULL ,
   description TEXT NOT NULL ,
   user_id BIGINT UNSIGNED NOT NULL COMMENT '->roscms.users(id)',
@@ -324,22 +316,6 @@ CREATE TABLE cdb_tags (
   old_vendor BIGINT,
   old_groupid BIGINT
 ) ENGINE = MYISAM;
-
--- groups
-INSERT INTO cdb_tags
-SELECT DISTINCT
-  NULL,
-  (SELECT grpentr_category FROM rsdb_groups WHERE grpentr_name=g.grpentr_name ORDER BY grpentr_date DESC LIMIT 1),
-  grpentr_name,
-  grpentr_description,
-  grpentr_usrid,
-  (SELECT grpentr_date FROM rsdb_groups WHERE grpentr_name=g.grpentr_name ORDER BY grpentr_date DESC LIMIT 1),
-  TRUE,
-  FALSE,
-  (SELECT grpentr_vendor FROM rsdb_groups WHERE grpentr_name=g.grpentr_name ORDER BY grpentr_date DESC LIMIT 1),
-  grpentr_id
-FROM rsdb_groups g
-WHERE grpentr_comp = '1' AND grpentr_visible = '1';
 
 -- vendors
 INSERT INTO cdb_tags
@@ -370,7 +346,7 @@ CREATE TABLE cdb_logs (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY ,
   user_id BIGINT UNSIGNED NOT NULL COMMENT '->roscms.users(id)',
   content TEXT NOT NULL ,
-  creation DATETIME NOT NULL
+  created DATETIME NOT NULL
 ) ENGINE = MYISAM;
 
 INSERT INTO cdb_logs
@@ -401,7 +377,7 @@ SELECT
   e.id,
   t.id
 FROM cdb_entries e
-JOIN cdb_tags t ON (t.old_groupid = e.old_groupid OR t.old_vendor =e.old_vendorid);
+JOIN cdb_tags t ON (t.old_vendor = e.old_vendorid);
 
 ALTER TABLE cdb_entries DROP old_groupid;
 ALTER TABLE cdb_entries DROP old_vendorid;
@@ -459,7 +435,7 @@ INSERT INTO cdb_entries_tags VALUES
 (NULL, 35137, 'ReactOS 0.3.6',  TRUE,  '000360'),
 (NULL, 37181, 'ReactOS 0.3.7',  TRUE,  '000370'),
 (NULL, 39330, 'ReactOS 0.3.8',  TRUE,  '000380'),
-(NULL, 66666, 'ReactOS 0.3.9',  TRUE,  '000390');
+(NULL, 40702, 'ReactOS 0.3.9',  TRUE,  '000390');
 
 
 

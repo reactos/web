@@ -44,7 +44,7 @@ abstract class HTML
     $this->title = $page_title;
     $this->register_css('style.css');
     $this->register_js('smoothscroll.js');
-    $this->register_js('search.js');
+    //$this->register_js('search.js');
 
     // get output
     $this->build();
@@ -57,7 +57,7 @@ abstract class HTML
    *
    * @access private
    */
-  private function build( )
+  protected function build( )
   {
     $this->header();
     $this->navigation();
