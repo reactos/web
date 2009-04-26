@@ -88,7 +88,15 @@
 	</tr>
 	<tr class="odd" onmouseover="Row_OnMouseOver(this)" onmouseout="Row_OnMouseOut(this)">
 		<td class="info"><?php echo $testman_langres["log"]; ?>:</td>
-		<td><pre><?php echo htmlspecialchars($row["log"]); ?></pre></td>
+		<td><pre><?php
+			$patterns[0] = "#^([a-z]*:?\()([a-zA-Z0-9\/]+.[a-z]+):([0-9]+)(\))#m";
+			$patterns[1] = "#^([a-zA-Z0-9]+.[a-z]+):([0-9]+)(: )#m";
+
+			$replacements[0] = '$1<a href="' . VIEWVC_TRUNK . '/reactos/$2?revision=' . $row["revision"] . '&amp;view=markup#l_$3">$2:$3</a>$4';
+			$replacements[1] = '<a href="' . VIEWVC_TRUNK . '/rostests/winetests/' . $row["module"] . '/$1?revision=' . $row["revision"] . '&amp;view=markup#l_$2">$1:$2</a>$3';
+			
+			echo preg_replace($patterns, $replacements, htmlspecialchars($row["log"]));
+		?></pre></td>
 	</tr>
 </table><br />
 

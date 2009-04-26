@@ -12,4 +12,5 @@
 	
 	define("RESULTS_PER_PAGE", 100);
 	define("MAX_COMPARE_RESULTS", 5);
+	define("VIEWVC_TRUNK", "http://svn.reactos.org/svn/reactos/trunk");
 ?>
