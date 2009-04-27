@@ -1,3 +1,15 @@
+
+.row1 {
+  background-color: #EEE;
+}
+.row2 {
+  background-color: #E7E7E7;
+}
+
+.tablebg {
+  margin:10px 10px 0 0; width:500px; border:1px solid #dfdfdf; padding:1em; background-color:#EAF0F8;
+}
+
 body {
 	font-family: Verdana;
 	font-size: 12px;

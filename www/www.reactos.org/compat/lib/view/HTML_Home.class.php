@@ -19,7 +19,7 @@
     */
 
 
-class Home extends HTML
+class HTML_Home extends HTML
 {
 
 
@@ -32,7 +32,7 @@ class Home extends HTML
     global $RSDB_intern_link_item_comp;
 
     // get number of entries
-    $stmt=CDBConnection::getInstance()->prepare("SELECT COUNT(*) FROM rsdb_groups WHERE grpentr_visible = '1'");
+    $stmt=CDBConnection::getInstance()->prepare("SELECT COUNT(*) FROM ".CDBT_ENTRIES." WHERE visible IS TRUE");
     $stmt->execute();
 
     echo '
@@ -43,30 +43,26 @@ class Home extends HTML
         <p>There are <strong>'.$stmt->fetchColumn().'</strong> applications and drivers currently in the database.</p>
       
         <h2>Recent submissions</h2>
-        <div style="margin:10px 10px 0 0; width:500px; border:1px solid #dfdfdf; padding:1em; background-color:#EAF0F8;">
+        <div class="tablebg">
           <table style="width:100%; border: none;" cellpadding="1" cellspacing="1">
             <tr style="background-color:#5984C3;color:white;">
               <th>Application</th>
               <th style="width:50px;">Works?</th>
-              <th style="width:150px;text-align:center;">Last update</th>
+              <th style="width:100px;text-align:center;">Last update</th>
             </tr>';
 
-    //@MOVEME to css
-    $cellcolor1='#E2E2E2';
-    $cellcolor2='#EEEEEE';
-    $cellcolorcounter=0;
-
     // show latest tests
-    $stmt=CDBConnection::getInstance()->prepare("SELECT t.test_user_submit_timestamp, i.comp_id, i.comp_name FROM rsdb_item_comp_testresults t JOIN rsdb_item_comp i ON t.test_comp_id=i.comp_id WHERE t.test_visible = '1' ORDER BY t.test_id DESC LIMIT 10");
+    $stmt=CDBConnection::getInstance()->prepare("SELECT e.name, r.created, r.works, e.id FROM ".CDBT_REPORTS." r JOIN ".CDBT_ENTRIES." e ON e.id=r.entry_id JOIN ".CDBT_VERSIONS." v ON v.revision=r.revision ORDER BY v.revision DESC, r.created DESC LIMIT 10");
     $stmt->execute();
+    $x=0;
     while ($entry = $stmt->fetch(PDO::FETCH_ASSOC)) {
-      ++$cellcolorcounter;
+      ++$x;
 
       echo '
-        <tr style="background-color:'.($cellcolorcounter%2 ? $cellcolor1 : $cellcolor2).';">
-          <td><a href="'.$RSDB_intern_link_item_comp.$entry['comp_id'].'&amp;item2=tests">'.$entry['comp_name'].'</a></td>
-          <td>TBI</td>
-          <td style="text-align: center;">'.$entry['test_user_submit_timestamp'].'</td>
+        <tr class="row'.($x%2+1).'">
+          <td><a href="'.$RSDB_intern_link_item_comp.$entry['id'].'">'.$entry['name'].'</a></td>
+          <td>'.($entry['works']?'yep':'doesn\'t').'</td>
+          <td style="text-align: center;">'.$entry['created'].'</td>
         </tr>'; 
     }
 
@@ -83,4 +79,4 @@ class Home extends HTML
 
 
 
-} // end of Home
+} // end of HTML_Home

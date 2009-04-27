@@ -132,7 +132,7 @@ switch (@$_GET['page']) {
 
   // Frontpage
   case 'home': 
-    new Home();
+    new HTML_Home();
     break;
 
   // RSDB About Page
@@ -199,10 +199,10 @@ switch (@$_GET['page']) {
       default:
         switch (@$_GET['item2']) {
 
-        // Details
-        case 'details':
+          // Details
+          case 'details':
           default:
-            new Item_Details();
+            new Entry_Details();
             break;
 
           // Screenshots
