@@ -1,24 +1,23 @@
-$Id: README.txt 15922 2006-03-05 17:42:12Z frik85 $
+=================================
+ReactOS Support Database
+Updated May 29th, 2006
+=================================
 
-===============
-ReactOS Website
-===============
+1. What is RSDB?
 
-If you run into problems or have suggestions for making the ReactOS Website better, please
-visit the address below. Mailing lists are available for a variety of topics, 
-bugs should be submitted to bugzilla and general chat takes place in the forums, 
-or #reactos-web on freenode
+   RSDB, the abbreviation of ReactOS Support Database, 
+is an an Open Source effort to develop a Support Database
+System that is simple, fast, unified, easy-to-use and flexible.
 
-
-More Information about the ReactOS Website:
-http://www.reactos.org/?page=about_homepage
+More information is available at: http://www.reactos.org/support/
 
 
-Previous versions of the ReactOS Website:
-http://web.archive.org/web/*/http://www.reactos.com
+2. Who is responsible?
+
+See the CREDITS.txt file
 
 
+3. What is the license?
 
-ReactOS Website Team
-http://www.reactos.org
+See the COPYING.txt file
 

@@ -1,1 +1,0 @@
-If you want to install, you need to copy the install folder from ressources/forum to this folder and call this folder in your web-browser.
