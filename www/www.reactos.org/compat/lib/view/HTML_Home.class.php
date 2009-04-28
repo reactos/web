@@ -44,12 +44,15 @@ class HTML_Home extends HTML
       
         <h2>Recent submissions</h2>
         <div class="tablebg">
-          <table style="width:100%; border: none;" cellpadding="1" cellspacing="1">
-            <tr style="background-color:#5984C3;color:white;">
-              <th>Application</th>
-              <th style="width:50px;">Works?</th>
-              <th style="width:100px;text-align:center;">Last update</th>
-            </tr>';
+          <table class="rtable" cellpadding="1" cellspacing="1">
+            <thead>
+              <tr>
+                <th>Application</th>
+                <th style="width:50px;">Works?</th>
+                <th style="width:100px;text-align:center;">Last update</th>
+              </tr>
+            </thead>
+            <tbody>';
 
     // show latest tests
     $stmt=CDBConnection::getInstance()->prepare("SELECT e.name, r.created, r.works, e.id FROM ".CDBT_REPORTS." r JOIN ".CDBT_ENTRIES." e ON e.id=r.entry_id JOIN ".CDBT_VERSIONS." v ON v.revision=r.revision ORDER BY v.revision DESC, r.created DESC LIMIT 10");
@@ -67,6 +70,7 @@ class HTML_Home extends HTML
     }
 
     echo '
+          </tbody>
         </table>
       </div>
       <p>You can also <a href="'.$RSDB_intern_link_db_sec.'submit">Submit new Entries</a></p>';

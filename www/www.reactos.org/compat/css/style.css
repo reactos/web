@@ -10,6 +10,9 @@
   margin:10px 10px 0 0; width:500px; border:1px solid #dfdfdf; padding:1em; background-color:#EAF0F8;
 }
 
+.rtable THEAD {
+  background-color:#5984C3;color:white;}
+
 body {
 	font-family: Verdana;
 	font-size: 12px;

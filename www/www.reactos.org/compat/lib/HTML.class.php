@@ -162,10 +162,10 @@ abstract class HTML
 
             <div class="navTitle">Browse Database</div>
             <ol>
-              <li><a href="'.$RSDB_intern_link_db_sec.'name&amp;letter=all">By Name</a></li>
-              <li><a href="'.$RSDB_intern_link_db_sec.'category&amp;cat=0">By Category</a></li>
-              <li><a href="'.$RSDB_intern_link_db_sec.'vendor&amp;letter=all">By Vendor</a></li>
-              <li><a href="'.$RSDB_intern_link_db_sec.'rank">By Rank</a></li>
+              <li><a href="'.$RSDB_intern_link_db_sec.'list">By Name</a></li>
+              <li><a href="'.$RSDB_intern_link_db_sec.'list&amp;cat=0">By Category</a></li>
+              <li><a href="'.$RSDB_intern_link_db_sec.'list">By Tag</a></li>
+              <li><a href="'.$RSDB_intern_link_db_sec.'list">By Rank</a></li>
             </ol>
             <br />
 

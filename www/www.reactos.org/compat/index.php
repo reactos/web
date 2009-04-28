@@ -123,11 +123,6 @@ require_once('config.php');
 	// URI building
 	require_once('rsdb_config.php');
 
-	// Tools
-	require_once("notools/forum_bar.php");
-	require_once("notools/osversion.php");
-	require_once("notools/plugins.php");
-
 switch (@$_GET['page']) {
 
   // Frontpage
@@ -145,34 +140,22 @@ switch (@$_GET['page']) {
     new Conditions();
     break;
 
-  // Browse by category
-  case 'category':
-    new HTML_Category();
-    break;
-
   // Browse by name
-  case 'name': 
-    new HTML_Name();
-    break;
-
-  // browse by Vendor/Company
-  case 'vendor': 
-    new HTML_Vendor();
+  case 'list': 
+    $filter = '';
+    if (isset($_GET['letter'])) {
+      $filter .= 's_w_'.$_GET['letter'];
+    }
+    if (isset($_GET['cat'])) {
+      if ($filter !== '') $filter .= '|';
+      $filter .= 'c_is_'.$_GET['cat'];
+    }
+    new HTML_List($filter);
     break;
 
   // Vendor information
   case 'vendor_info': 
     new HTML_VendorInfo();
-    break;
-
-  // Rank
-  case 'rank': 
-    new Rank();
-    break;
-
-  // Rank
-  case 'group': 
-    new HTML_Group();
     break;
 
   // show specific version
@@ -186,11 +169,6 @@ switch (@$_GET['page']) {
           case 'screens':
             new Submit_Screenshot();
             break;
-
-          // Test Reports
-          case 'tests':
-            new Submit_Test();
-            break;
         } // end switch item2
         break;
 
@@ -202,27 +180,12 @@ switch (@$_GET['page']) {
           // Details
           case 'details':
           default:
-            new Entry_Details();
+            new HTML_Version();
             break;
 
           // Screenshots
           case 'screens':
             new Item_Screenshots();
-            break;
-
-          // Test Reports
-          case 'tests':
-            new Item_Tests();
-            break;
-
-          // Comments
-          case 'forum':
-            new Item_Comments();
-            break;
-
-          // Known Bugs
-          case 'bugs':
-            new Item_Bugs();
             break;
 
           // Tips & Tricks
@@ -232,11 +195,6 @@ switch (@$_GET['page']) {
         } // end switch item2
         break;
     } // end switch addbox
-    break;
-
-  // Search
-  case 'search':
-    new HTML_Search();
     break;
 
   // Submit
@@ -254,32 +212,6 @@ switch (@$_GET['page']) {
     if (!isset($_GET['get'])) {
       echo '404';
     }
-    break;
-
-  // export data
-  case 'dat': 
-    switch (@$_GET['export']) {
-
-      // Compatibility versions list for one item
-      case 'grpitemlst': 
-        new List_Item();
-        break;
-
-      // AppGroup - Search results
-      case 'grplst': 
-        new List_Group();
-        break;
-
-      // Vendor - Search results
-      case 'vdrlst': 
-        new List_Vendor();
-        break;
-
-      // Search results for the compatibility item submit page
-      case 'compitemsubmit': 
-        new List_AppSubmit();
-        break;
-    } // end switch export
     break;
 } // end switch page
 

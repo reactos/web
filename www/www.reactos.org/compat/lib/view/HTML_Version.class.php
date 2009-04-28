@@ -112,7 +112,7 @@ class Entry_Details extends HTML
               <h3>'.htmlspecialchars($comment['title']).'</h3>
               <span>by '.Subsystem::getUserName($comment['user_id']).' on '.$comment['created'].'</span>
             </div>
-            '.htmlspecialchars($comment['content']).'
+            '.nl2br(htmlspecialchars($comment['content'])).'
           </div>';
       }
 
