@@ -89,7 +89,7 @@ abstract class HTML_User extends HTML
       echo_strip('
         <h2>Account</h2>
         <ul>
-          <li title="'.$thisuser->name().'">&nbsp;Nick:&nbsp;'.substr($thisuser->name(), 0, 9).'</li>
+          <li title="'.htmlentities($thisuser->name()).'">&nbsp;Nick:&nbsp;'.htmlentities($thisuser->name()).'</li>
           <li><a href="'.$config->pathInstance().'?page=my">My Profile</a></li>
           <li><a href="'.$config->pathInstance().'?page=search">User Search</a></li>
           <li><a href="'.$config->pathGenerated().'peoplemap/">User Map</a></li>');

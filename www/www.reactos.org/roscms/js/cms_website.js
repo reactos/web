@@ -2109,8 +2109,8 @@ function htmlCommandBar( preset )
 
   // prepare some commands
   var cmdhtml_space = '&nbsp;';
-  var cmdhtml_diff = '<div class="button" onclick="compareEntries()"><img src="'+roscms_intern_webserver_roscms+'images/compare.gif" alt="" /><span class="text">Compare</span></div>';
-  var cmdhtml_preview = '<div class="button" onclick="previewPage()"><img src="'+roscms_intern_webserver_roscms+'images/preview.gif" alt="" /><span class="text">Preview</span></div>';
+  var cmdhtml_diff = '<div class="button" onclick="compareEntries()"><img src="'+roscms_intern_webserver_roscms+'images/tool.gif" alt="" /><span class="text">Compare</span></div>';
+  var cmdhtml_preview = '<div class="button" onclick="previewPage()"><img src="'+roscms_intern_webserver_roscms+'images/search.gif" alt="" /><span class="text">Preview</span></div>';
   var cmdhtml_ready = '<div class="button" onclick="changeSelectedTags(\'mn\')"><img src="'+roscms_intern_webserver_roscms+'images/edit.gif" alt="" /><span class="text">Suggest</span></div>';
 
   
