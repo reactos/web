@@ -134,7 +134,7 @@ class Subsystem_Bugzilla extends SubsystemExternal
 
     // email or name is already used -> cancel
     if ($exists > 0) {
-      echo 'User name ('.$user_name.') and/or email address ('.$user_email.') collision<br />';
+      echo 'Bugzilla: User name ('.$user_name.') and/or email address ('.$user_email.') collision<br />';
       return false;
     }
 

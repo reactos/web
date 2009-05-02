@@ -194,7 +194,7 @@ function selectStars( status )
   selectAll(false);
 
   var sstar = status?'cStarOn':'cStarOff';
-alert(sstar);
+
   // select choosen ones
   for (var i=1; i<=nres; i++) {
     if (document.getElementById("tr"+i).getElementsByTagName('td')[1].getElementsByTagName('div')[0].className == sstar) {
@@ -1362,6 +1362,9 @@ function openOrCloseDiffArea( revid1, revid2 )
  */
 function changeSelectedTags( ctk )
 {
+  if (ctk === 'xe' && !confirm("Do you really want delete this entry?") ) {
+    return false;
+  }
   if (ctk === 'ms' || ctk === 'mn' || ctk === 'xe' || ctk === 'va') {
     var tentrs = selectedEntries().split("|");
 
@@ -2109,9 +2112,9 @@ function htmlCommandBar( preset )
 
   // prepare some commands
   var cmdhtml_space = '&nbsp;';
-  var cmdhtml_diff = '<div class="button" onclick="compareEntries()"><img src="'+roscms_intern_webserver_roscms+'images/tool.gif" alt="" /><span class="text">Compare</span></div>';
-  var cmdhtml_preview = '<div class="button" onclick="previewPage()"><img src="'+roscms_intern_webserver_roscms+'images/search.gif" alt="" /><span class="text">Preview</span></div>';
-  var cmdhtml_ready = '<div class="button" onclick="changeSelectedTags(\'mn\')"><img src="'+roscms_intern_webserver_roscms+'images/edit.gif" alt="" /><span class="text">Suggest</span></div>';
+  var cmdhtml_diff = '<div class="button" onclick="compareEntries()"><img src="'+roscms_intern_webserver_roscms+'images/compare.png" alt="" /><span class="text">Compare</span></div>';
+  var cmdhtml_preview = '<div class="button" onclick="previewPage()"><img src="'+roscms_intern_webserver_roscms+'images/preview.png" alt="" /><span class="text">Preview</span></div>';
+  var cmdhtml_ready = '<div class="button" onclick="changeSelectedTags(\'mn\')"><img src="'+roscms_intern_webserver_roscms+'images/submit" alt="" /><span class="text">to <em>Pending</em></span></div>';
 
   
   var cmdhtml_stable = '';
@@ -2120,13 +2123,13 @@ function htmlCommandBar( preset )
 
   // mark stable / generate
   if (roscms_access.make_stable) {
-    cmdhtml_stable = '<div class="button" onclick="changeSelectedTags(\'ms\')"><img src="'+roscms_intern_webserver_roscms+'images/mail.gif" alt="" /><span class="text">Publish</span></div>';
+    cmdhtml_stable = '<div class="button" onclick="changeSelectedTags(\'ms\')"><img src="'+roscms_intern_webserver_roscms+'images/publish.png" alt="" /><span class="text">Publish</span></div>';
   }
 
   // delete entries
   if (roscms_access.del_entry) {
-    cmdhtml_archive = '<div class="button" onclick="changeSelectedTags(\'va\')"><img src="'+roscms_intern_webserver_roscms+'images/rospc.gif" alt="" /><span class="text">to archive</span></div>';
-    cmdhtml_delete = '<div class="button" onclick="changeSelectedTags(\'xe\')"><img src="'+roscms_intern_webserver_roscms+'images/delete.gif" alt="" /><span class="text">Delete</span></div>';
+    cmdhtml_archive = '<div class="button" onclick="changeSelectedTags(\'va\')"><img src="'+roscms_intern_webserver_roscms+'images/archive.png" alt="" /><span class="text">to <em>Archive</em</span></div>';
+    cmdhtml_delete = '<div class="button" onclick="changeSelectedTags(\'xe\')"><img src="'+roscms_intern_webserver_roscms+'images/delete.png" alt="" /><span class="text">Delete</span></div>';
 
   }
 

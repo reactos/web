@@ -39,8 +39,8 @@ class Backend_Preview extends Backend
     parent::__construct();
 
     // remove "tr" so that it also work in translation view
-    if (isset($_GET['rev'])) {
-      $this->show($_GET['rev']);
+    if (isset($_GET['rev_id'])) {
+      $this->show($_GET['rev_id']);
     }
     else {
       die('Request is not complete');

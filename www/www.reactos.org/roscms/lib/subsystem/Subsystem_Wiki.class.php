@@ -125,7 +125,7 @@ class Subsystem_Wiki extends SubsystemExternal
 
     // stop if one of both already exists
     if ($stmt->fetchColumn() > 0) {
-      echo 'User name ('.$user_name.') and/or email address ('.$user_email.') collision<br />';
+      echo 'Wiki: User name ('.$user_name.') and/or email address ('.$user_email.') collision<br />';
       return false;
     }
 

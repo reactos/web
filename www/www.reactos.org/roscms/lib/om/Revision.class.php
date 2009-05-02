@@ -323,15 +323,50 @@ class Revision
    */
   public static function deleteFile( $rev_id )
   {
+    $config=&RosCMS::getInstance();
+  
     // only for admins
     if (!ThisUser::getInstance()->hasAccess('delete_file')) {
       return;
     }
 
-    //@TODO implement adding to job queue
-    $stmt=&DBConnection::getInstance()->prepare("INSERT INTO ".ROSCMST_JOBS." (name, content) VALUES('stub','stub')");
+    // get data name
+    $stmt=&DBConnection::getInstance()->prepare("SELECT d.name, r.lang_id FROM ".ROSCMST_ENTRIES." d JOIN ".ROSCMST_REVISIONS." r ON r.data_id=d.id WHERE r.id=:rev_id AND d.type='page'");
     $stmt->bindParam('rev_id',$rev_id,PDO::PARAM_INT);
     $stmt->execute();
+    $info = $stmt->fetch(PDO::FETCH_ASSOC);
+    if($info !== null) {
+
+      // and we need the file extension
+      $extension = '.'.Tag::getValue($rev_id,'extension',-1);
+
+      // delete for all languages
+      if ($config->multilanguage()) {
+
+        // if entry is of standard language -> delete all language entries
+        if ($info['lang_id'] == Language::getStandardId()) {
+    	  $stmt=&DBConnection::getInstance()->prepare("SELECT name_short FROM ".ROSCMST_LANGUAGES);
+        }
+        // just delete the entry of his own language
+    	else {
+    	  $stmt=&DBConnection::getInstance()->prepare("SELECT name_short FROM ".ROSCMST_LANGUAGES." WHERE id=:lang_id ");
+    	  $stmt->bindValue('lang_id',$info['lang_id'],PDO::PARAM_INT);
+    	}
+
+        // language specific deletion    
+    	$stmt->execute();
+    	while ($lang = $stmt->fetch(PDO::FETCH_ASSOC)) {
+          unlink($config->pathGenerated().$lang['name_short'].'/'.$info['name'].$extension);
+    	}
+    	
+      }
+      
+      // single language mode
+      else {
+        unlink($config->pathGenerated().$info['name'].$extension);
+      } 
+    }
+
   } // end of member function deleteFile
 
 

@@ -93,7 +93,7 @@
   .toolbar .button { text-align: center; cursor: pointer; float: left; padding: 2px 4px; margin: 0px 4px 3px 0px; text-decoration: none; }
   .toolbar .button:hover { background-color: #DAEBF9; border: 1px solid white; padding: 1px 3px; }
   .toolbar .button:active { background-color: lightgrey; }
-  .toolbar .button IMG { height: 16px; width: 16px; text-decoration: none; }
+  .toolbar .button IMG { height: 24px; width: 24px; text-decoration: none; }
   .toolbar .button .text { display: block; color: #000099; white-space: nowrap; }
 
 

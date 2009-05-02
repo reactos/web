@@ -115,7 +115,7 @@ abstract class HTML_CMS extends HTML
         <th'.(($this->branch == 'website') ? ' class="active"' : '').'>
           <div class="corner_TL">
             <div class="corner_TR">
-              <a class="text" href="'.RosCMS::getInstance()->pathInstance().'?page=data&branch=website" onclick="'."loadBranch()".'">Website</a>
+              <a class="text" href="'.RosCMS::getInstance()->pathInstance().'?page=data&branch=website" onclick="'."loadBranch()".'">Content</a>
             </div>
           </div>
         </th>

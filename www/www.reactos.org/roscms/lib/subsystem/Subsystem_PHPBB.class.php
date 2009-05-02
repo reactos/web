@@ -121,7 +121,7 @@ class Subsystem_PHPBB extends SubsystemExternal
     $stmt->bindParam('user_id',$subsys_user,PDO::PARAM_INT);
     $stmt->execute() or die('DB error (subsys_phpbb #7)');
     if ($stmt->fetchColumn() > 0) {
-        echo 'User name ('.$user_name.') and/or email address ('.$user_email.') collision<br />';
+        echo 'Forum: User name ('.$user_name.') and/or email address ('.$user_email.') collision<br />';
         return false;
     }
 

@@ -118,7 +118,6 @@ class Backend_EntryTable extends Backend
         // move to archiv
         case 'va':
           Revision::toArchive($revision['id']);
-          Revision::deleteFile($revision['id']);
           break;
       } // end switch
     } // end while
@@ -175,7 +174,7 @@ class Backend_EntryTable extends Backend
 
     // delete everything
     else {
-      //Data::deleteFile($revision['id']);
+      Revision::deleteFile($revision['id']);
       return Revision::delete($revision['id']);
     }
 

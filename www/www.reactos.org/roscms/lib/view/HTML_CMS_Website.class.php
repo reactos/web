@@ -257,7 +257,7 @@ class HTML_CMS_Website extends HTML_CMS
                 </div>
                 <div class="toolbar">
                   <div class="button" onclick="loadEntryTableWithOffset(roscms_current_tbl_position)">
-                    <img src="'.RosCMS::getInstance()->pathRosCMS().'images/reload.gif" alt="" />
+                    <img src="'.RosCMS::getInstance()->pathRosCMS().'images/refresh.png" alt="" />
                     <span class="text">Refresh</span>
                   </div>
                   <div id="toolbarExtension"></div> 
