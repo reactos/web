@@ -971,13 +971,13 @@ class Backend_ViewEditor extends Backend
   private function showDifference( $rev_id1, $rev_id2 )
   {
     // diff source 1
-    $stmt=&DBConnection::getInstance()->prepare("SELECT r.data_id, d.name, d.type, r.id, r.version, l.name AS language, r.datetime, u.name AS user_name, t.content FROM ".ROSCMST_ENTRIES." d JOIN ".ROSCMST_REVISIONS." r ON r.data_id = d.id JOIN ".ROSCMST_USERS." u ON r.user_id = u.id JOIN ".ROSCMST_LANGUAGES." l ON r.lang_id = l.id JOIN ".ROSCMST_TEXT." t ON t.rev_id=r.id WHERE r.id = :rev_id AND t.name='content' LIMIT 1");
+    $stmt=&DBConnection::getInstance()->prepare("SELECT r.data_id, d.name, d.type, r.id, r.version, l.name AS language, r.datetime, u.name AS user_name, t.content, r.status FROM ".ROSCMST_ENTRIES." d JOIN ".ROSCMST_REVISIONS." r ON r.data_id = d.id JOIN ".ROSCMST_USERS." u ON r.user_id = u.id JOIN ".ROSCMST_LANGUAGES." l ON r.lang_id = l.id JOIN ".ROSCMST_TEXT." t ON t.rev_id=r.id WHERE r.id = :rev_id AND t.name='content' LIMIT 1");
     $stmt->bindParam('rev_id',$rev_id1,PDO::PARAM_INT);
     $stmt->execute();
     $revision1 = $stmt->fetchOnce();
 
     // diff source 2
-    $stmt=&DBConnection::getInstance()->prepare("SELECT r.data_id, d.name, d.type, r.id, r.version, l.name AS language, r.datetime, u.name AS user_name, t.content FROM ".ROSCMST_ENTRIES." d JOIN ".ROSCMST_REVISIONS." r ON r.data_id = d.id JOIN ".ROSCMST_USERS." u ON r.user_id = u.id JOIN ".ROSCMST_LANGUAGES." l ON r.lang_id = l.id JOIN ".ROSCMST_TEXT." t ON t.rev_id=r.id WHERE r.id = :rev_id AND t.name='content' LIMIT 1");
+    $stmt=&DBConnection::getInstance()->prepare("SELECT r.data_id, d.name, d.type, r.id, r.version, l.name AS language, r.datetime, u.name AS user_name, t.content, r.status FROM ".ROSCMST_ENTRIES." d JOIN ".ROSCMST_REVISIONS." r ON r.data_id = d.id JOIN ".ROSCMST_USERS." u ON r.user_id = u.id JOIN ".ROSCMST_LANGUAGES." l ON r.lang_id = l.id JOIN ".ROSCMST_TEXT." t ON t.rev_id=r.id WHERE r.id = :rev_id AND t.name='content' LIMIT 1");
     $stmt->bindParam('rev_id',$rev_id2,PDO::PARAM_INT);
     $stmt->execute();
     $revision2 = $stmt->fetchOnce();
@@ -1003,7 +1003,12 @@ class Backend_ViewEditor extends Backend
         <tr>
           <td style="text-align:center;">
             <select name="cbmdiff1" id="cbmdiff1" onchange="'."getDiffEntries(this.value, document.getElementById('cbmdiff2').value)".'">');
-    $this->selectRevision($rev_id1);
+    if ($revision1['status'] == 'stable') {
+      $this->selectRevision($rev_id1);
+    }
+    else {
+      echo '<option>Not a stable entry.</option>';
+    }
     // history
     echo_strip('
             </select>
@@ -1013,7 +1018,12 @@ class Backend_ViewEditor extends Backend
           </td>
           <td style="text-align:center;">
             <select name="cbmdiff2" id="cbmdiff2" onchange="'."getDiffEntries(document.getElementById('cbmdiff1').value, this.value)".'">');
-    $this->selectRevision($rev_id2);
+    if ($revision2['status'] == 'stable') {
+      $this->selectRevision($rev_id2);
+    }
+    else {
+      echo '<option>Not a stable entry.</option>';
+    }
     // history
     echo_strip('
             </select>

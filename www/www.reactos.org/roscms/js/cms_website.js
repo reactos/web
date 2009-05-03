@@ -514,6 +514,8 @@ function registerMouseActions( )
  */
 function loadEntryTable( objevent )
 {
+  current_entry_table = objevent;
+
   if (document.getElementById('frametable').style.display !== 'block') {
     document.getElementById('frametable').style.display = 'block';
     document.getElementById('frameedit').style.display = 'none';
@@ -635,13 +637,20 @@ function reloadEntryTable( )
 /**
  * shows the edit frame which allows to edit an entry
  */
-function showEditor( )
+function showEditor( event )
 {
   if (document.getElementById('frameedit').style.display !== 'block') {
     document.getElementById('frametable').style.display = 'none';
     document.getElementById('previewarea').style.display = 'none';
     document.getElementById('newentryarea').style.display = 'none';
     document.getElementById('frameedit').style.display = 'block';
+  }
+  
+  if (event == 'diff') {
+    document.getElementById('editzone').style.display = 'none';
+  }
+  else {
+    document.getElementById('editzone').style.display = 'block';
   }
 
   // deactivate alert-timer
@@ -678,7 +687,7 @@ function loadEditor( objevent, entryid )
 {
   switch (objevent) {
     case 'diffentry':
-      showEditor();
+      showEditor('diff');
       document.getElementById('frmedithead').innerHTML = '<span class="virtualLink" onclick="loadEntryTableWithOffset(roscms_current_tbl_position)"><strong>&laquo; Back</strong></span> &nbsp; <strong>Compare two Entries</strong>';
       break;
 
@@ -2114,7 +2123,7 @@ function htmlCommandBar( preset )
   var cmdhtml_space = '&nbsp;';
   var cmdhtml_diff = '<div class="button" onclick="compareEntries()"><img src="'+roscms_intern_webserver_roscms+'images/compare.png" alt="" /><span class="text">Compare</span></div>';
   var cmdhtml_preview = '<div class="button" onclick="previewPage()"><img src="'+roscms_intern_webserver_roscms+'images/preview.png" alt="" /><span class="text">Preview</span></div>';
-  var cmdhtml_ready = '<div class="button" onclick="changeSelectedTags(\'mn\')"><img src="'+roscms_intern_webserver_roscms+'images/submit" alt="" /><span class="text">to <em>Pending</em></span></div>';
+  var cmdhtml_ready = '<div class="button" onclick="changeSelectedTags(\'mn\')"><img src="'+roscms_intern_webserver_roscms+'images/submit.png" alt="" /><span class="text">to <em>Pending</em></span></div>';
 
   
   var cmdhtml_stable = '';

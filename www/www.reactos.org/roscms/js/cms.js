@@ -28,6 +28,7 @@ var nres=0;
 
 var filtstring1 = '';
 var filtstring2 = '';
+var current_entry_table;
 
 
 
@@ -441,7 +442,7 @@ function sortEntryTable( header, by )
   if (setting != filtstring2) {
     filtstring2 = setting;
     htmlFilterChoices(setting);
-    loadEntryTable();
+    loadEntryTable(current_entry_table);
   }
 } // end of function sortEntryTable
 

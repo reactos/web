@@ -147,7 +147,7 @@ class HTML_CMS_Website extends HTML_CMS
           <div id="smenutab2" class="lmItemTop" onclick="loadMenu(this.id)">
             <div id="smenutabc2" class="lmItemBottom">Pending</div>
           </div>
-          <div id="smenutab7" class="lmItemTop" onclick="loadMenu(this.id)"'.($thisuser->language() == Language::getStandardId() ? ' style="display:none;"' : '').'>
+          <div id="smenutab7" class="lmItemTop" onclick="loadMenu(this.id)"'.($thisuser->language() == Language::getStandardId() && !$thisuser->hasAccess('admin') ? ' style="display:none;"' : '').'>
             <div id="smenutabc7" class="lmItemBottom">Translate</div>
           </div>
           <div id="smenutab8" class="lmItemTopSelected" onclick="loadMenu(this.id)">

@@ -103,7 +103,7 @@ abstract class HTML_CMS extends HTML
               <th'.(($this->branch == 'welcome') ? ' class="active"' : '').'>
                 <div class="corner_TL">
                   <div class="corner_TR">
-                    <a class="text" href="'.RosCMS::getInstance()->pathInstance().'?page=data&branch=welcome" onclick="'."loadBranch()".'">Welcome</a>
+                    <a class="text" href="'.RosCMS::getInstance()->pathInstance().'?page=data&amp;branch=welcome" onclick="'."loadBranch()".'">Welcome</a>
                   </div>
                 </div>
               </th>
@@ -115,7 +115,7 @@ abstract class HTML_CMS extends HTML
         <th'.(($this->branch == 'website') ? ' class="active"' : '').'>
           <div class="corner_TL">
             <div class="corner_TR">
-              <a class="text" href="'.RosCMS::getInstance()->pathInstance().'?page=data&branch=website" onclick="'."loadBranch()".'">Content</a>
+              <a class="text" href="'.RosCMS::getInstance()->pathInstance().'?page=data&amp;branch=website" onclick="'."loadBranch()".'">Content</a>
             </div>
           </div>
         </th>
@@ -128,7 +128,7 @@ abstract class HTML_CMS extends HTML
         <th'.(($this->branch == 'maintain') ? ' class="active"' : '').'>
           <div class="corner_TL">
             <div class="corner_TR">
-              <a class="text" href="'.RosCMS::getInstance()->pathInstance().'?page=data&branch=maintain" onclick="'."loadBranch()".'">Maintain</a>
+              <a class="text" href="'.RosCMS::getInstance()->pathInstance().'?page=data&amp;branch=maintain" onclick="'."loadBranch()".'">Maintain</a>
             </div>
           </div>
         </th>
@@ -141,7 +141,7 @@ abstract class HTML_CMS extends HTML
         <th'.(($this->branch == 'stats') ? ' class="active"' : '').'>
           <div class="corner_TL">
             <div class="corner_TR">
-              <a class="text" href="'.RosCMS::getInstance()->pathInstance().'?page=data&branch=stats" onclick="'."loadBranch()".'">Statistics</a>
+              <a class="text" href="'.RosCMS::getInstance()->pathInstance().'?page=data&amp;branch=stats" onclick="'."loadBranch()".'">Statistics</a>
             </div>
           </div>
         </th>
@@ -149,10 +149,10 @@ abstract class HTML_CMS extends HTML
     }
 
     echo_strip('
-            <th'.(($this->branch == 'help') ? ' class="active"' : '').'>
+            <th'.(($this->branch == 'help') ? ' class="active"' : '').' style="display:none">
               <div class="corner_TL">
                 <div class="corner_TR">
-                  <a class="text" href="'.RosCMS::getInstance()->pathInstance().'?page=data&branch=help" onclick="'."loadBranch()".'">Help</a>
+                  <a class="text" href="'.RosCMS::getInstance()->pathInstance().'?page=data&amp;branch=help" onclick="'."loadBranch()".'">Help</a>
                 </div>
               </div>
             </th>
