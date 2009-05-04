@@ -3,7 +3,7 @@
 -- -----------------------------------------------------------------
 -- Drop obsolete tables
 -- -----------------------------------------------------------------
-DROP TABLE rsdb_item_devnet;
+/*DROP TABLE rsdb_item_devnet;
 DROP TABLE rsdb_item_pack;
 DROP TABLE rsdb_urls;
 DROP TABLE _rsdb_users;
@@ -12,7 +12,7 @@ DROP TABLE rsdb_object_osversions; -- needs a manual convert to tag specific rev
 DROP TABLE _rsdb_item_comp_votes;
 DROP TABLE rsdb_object_description;
 DROP TABLE rsdb_group_bundles;
-
+*/
 
 
 -- -----------------------------------------------------------------
@@ -40,8 +40,8 @@ INSERT INTO cdb_categories
   WHERE cat_visible = '1' AND cat_comp = '1';
 
 ALTER TABLE cdb_categories ORDER BY id;
-DROP TABLE rsdb_categories;
-
+/*DROP TABLE rsdb_categories;
+*/
 
 -- -----------------------------------------------------------------
 -- Convert comments
@@ -58,57 +58,19 @@ CREATE TABLE cdb_comments (
 ) ENGINE = MYISAM COMMENT = 'parent xor entry_id has to be NULL';
 
 INSERT INTO cdb_comments
-  SELECT
-    fmsg_id,
-    NULL,
-    fmsg_parent,
-    fmsg_user_id,
-    fmsg_subject,
-    fmsg_body,
-    fmsg_date,
-    TRUE
-  FROM rsdb_item_comp_forum
-  WHERE fmsg_visible='1' AND fmsg_parent > 0
-UNION
-  SELECT
-    fmsg_id,
-    NULL,
-    fmsg_parent,
-    fmsg_user_id,
-    fmsg_subject,
-    fmsg_body,
-    fmsg_date,
-    FALSE
-  FROM rsdb_item_comp_forum
-  WHERE fmsg_visible='0' AND fmsg_parent > 0
-UNION
-  SELECT
-    fmsg_id,
-    fmsg_comp_id,
-    NULL,
-    fmsg_user_id,
-    fmsg_subject,
-    fmsg_body,
-    fmsg_date,
-    TRUE
-  FROM rsdb_item_comp_forum
-  WHERE fmsg_visible='1' AND fmsg_parent = 0
-UNION
-  SELECT
-    fmsg_id,
-    fmsg_comp_id,
-    NULL,
-    fmsg_user_id,
-    fmsg_subject,
-    fmsg_body,
-    fmsg_date,
-    FALSE
-  FROM rsdb_item_comp_forum
-  WHERE fmsg_visible='0' AND fmsg_parent = 0;
+SELECT
+  fmsg_id,
+  fmsg_comp_id,
+  fmsg_parent,
+  fmsg_user_id,
+  fmsg_subject,
+  fmsg_body,
+  fmsg_date,
+  TRUE
+  FROM rsdb_item_comp_forum;
 
-ALTER TABLE cdb_comments ORDER BY id;
-DROP TABLE rsdb_item_comp_forum;
-
+/*DROP TABLE rsdb_item_comp_forum;
+*/
 
 INSERT INTO cdb_comments
 SELECT
@@ -121,21 +83,21 @@ SELECT
 
 
 >>> What works: 
-',test_whatworks,'
+   ',test_whatworks,'
 
 >>> What doesn''t work
-',test_whatdoesntwork,'
+   ',test_whatdoesntwork,'
 
 >>> What I''ve not tested
-',test_whatnottested,'
+   ',test_whatnottested,'
 
 >>> Conclusion
-',test_conclusion),
+   ',test_conclusion),
   test_date,
   TRUE
 FROM rsdb_item_comp_testresults;
-DROP TABLE rsdb_item_comp_testresults;
-
+/*DROP TABLE rsdb_item_comp_testresults;
+*/
 
 
 
@@ -179,8 +141,8 @@ UNION
   WHERE media_visible = '0';
 
 ALTER TABLE cdb_attachments ORDER BY id;
-DROP TABLE rsdb_object_media;
-
+/*DROP TABLE rsdb_object_media;
+*/
 
 
 
@@ -202,8 +164,8 @@ SELECT
   ''
 FROM rsdb_languages;
 
-DROP TABLE rsdb_languages;
-
+/*DROP TABLE rsdb_languages;
+*/
 
 
 -- -----------------------------------------------------------------
@@ -212,12 +174,13 @@ DROP TABLE rsdb_languages;
 CREATE TABLE cdb_entries_reports (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
   entry_id BIGINT UNSIGNED NOT NULL COMMENT '->entries(id)',
+  version_id BIGINT UNSIGNED NOT NULL Comment '->version',
   revision BIGINT UNSIGNED NOT NULL,
   old_name VARCHAR( 100 ) NOT NULL,
   old_version VARCHAR( 100 ) NOT NULL,
   old_description TEXT NOT NULL,
   user_id BIGINT UNSIGNED NOT NULL COMMENT '->roscms.users(id)',
-  works BOOL DEFAULT FALSE,
+  works ENUM( 'full', 'part', 'not' ) NULL,
   checked BOOL NOT NULL DEFAULT FALSE,
   created DATETIME NOT NULL,
   visible BOOL NOT NULL DEFAULT FALSE,
@@ -229,6 +192,7 @@ CREATE TABLE cdb_entries_reports (
 INSERT INTO cdb_entries_reports
 SELECT DISTINCT
   comp_id,
+  0,
   0,
   0,
   comp_name,
@@ -245,6 +209,11 @@ SELECT DISTINCT
 FROM rsdb_item_comp
 WHERE comp_date != '0000-00-00 00:00:00';
 
+UPDATE cdb_entries_reports r
+SET works = IF((SELECT SUM(test_result_function)/COUNT(*) FROM rsdb_item_comp_testresults WHERE test_comp_id=r.id) = 5, 'full', IF((SELECT SUM(test_result_function)/COUNT(*) FROM rsdb_item_comp_testresults WHERE test_comp_id=r.id) = 1, 'not', 'part'));
+
+ALTER TABLE cdb_entries_reports CHANGE works works ENUM( 'full', 'part', 'not' ) NOT NULL DEFAULT 'not';
+
 
 
 
@@ -254,43 +223,36 @@ WHERE comp_date != '0000-00-00 00:00:00';
 CREATE TABLE cdb_entries (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR( 100 ) NOT NULL,
-  version VARCHAR( 100 ) NOT NULL,
   category_id BIGINT NOT NULL,
   description TEXT NOT NULL,
   created DATETIME NOT NULL,
   modified DATETIME NOT NULL,
   visible BOOL NOT NULL DEFAULT FALSE,
+  old_version VARCHAR( 100 ) NOT NULL,
   old_groupid BIGINT NOT NULL DEFAULT '0',
   old_vendorid BIGINT NOT NULL DEFAULT '0',
-  UNIQUE KEY(name, version)
+  old_name varchar(100) NOT NULL
 ) ENGINE = MyISAM;
 
 INSERT INTO cdb_entries
 SELECT DISTINCT
   NULL,
-  old_name,
-  old_version,
-  0,
-  old_description,
-  created,
-  modified,
+  grpentr_name,
+  g.grpentr_category,
+  (SELECT i.old_description FROM cdb_entries_reports i WHERE i.old_groupid=o.old_groupid ORDER BY i.created ASC LIMIT 1) AS old_description,
+  (SELECT i.created FROM cdb_entries_reports i WHERE i.old_groupid=o.old_groupid ORDER BY i.created ASC LIMIT 1) AS created,
+  (SELECT i.created FROM cdb_entries_reports i WHERE i.old_groupid=o.old_groupid ORDER BY i.created DESC LIMIT 1) AS modified,
   TRUE,
-  old_groupid,
-  grpentr_vendor
-FROM (
-  SELECT DISTINCT
-    o.old_name,
-    o.old_version,
-    (SELECT i.old_description FROM cdb_entries_reports i WHERE i.old_name=o.old_name AND i.old_version=o.old_version ORDER BY i.created ASC LIMIT 1) AS old_description,
-    (SELECT i.created FROM cdb_entries_reports i WHERE i.old_name=o.old_name AND i.old_version=o.old_version ORDER BY i.created ASC LIMIT 1) AS created,
-    (SELECT i.created FROM cdb_entries_reports i WHERE i.old_name=o.old_name AND i.old_version=o.old_version ORDER BY i.created DESC LIMIT 1) AS modified,
-    o.old_groupid,
-    g.grpentr_vendor
-  FROM cdb_entries_reports o
-  JOIN rsdb_groups g ON g.grpentr_id=o.old_groupid) k;
+  TRIM(REPLACE(old_name, grpentr_name, '')),
+  o.old_groupid,
+  g.grpentr_vendor,
+  old_name
+FROM cdb_entries_reports o
+JOIN rsdb_groups g ON g.grpentr_id=o.old_groupid;
+
 
 UPDATE cdb_entries_reports r
-SET entry_id = (SELECT e.id FROM cdb_entries e WHERE r.old_name=e.name LIMIT 1);
+SET entry_id = (SELECT e.id FROM cdb_entries e WHERE r.old_name=e.old_name LIMIT 1);
 
 ALTER TABLE cdb_entries_reports
   DROP old_name,
@@ -298,8 +260,34 @@ ALTER TABLE cdb_entries_reports
   DROP old_groupid,
   DROP old_version;
 
-DROP TABLE rsdb_item_comp;
 
+-- -----------------------------------------------------------------
+-- Convert versions
+-- -----------------------------------------------------------------
+CREATE TABLE cdb_entries_versions (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY ,
+  entry_id BIGINT UNSIGNED NOT NULL COMMENT '->entry',
+  version VARCHAR( 20 ) NOT NULL,
+  UNIQUE KEY(entry_id, version)
+) ENGINE = MYISAM;
+
+INSERT INTO cdb_entries_versions
+SELECT
+  NULL,
+  id,
+  old_version
+FROM cdb_entries;
+
+UPDATE cdb_entries_reports r
+SET version_id = (SELECT v.id FROM cdb_entries_versions v WHERE v.entry_id=r.entry_id LIMIT 1);
+
+ALTER TABLE cdb_entries
+  DROP old_name,
+  DROP old_version;
+
+
+/*DROP TABLE rsdb_item_comp;
+*/
 
 
 -- -----------------------------------------------------------------
@@ -321,7 +309,6 @@ CREATE TABLE cdb_tags (
 INSERT INTO cdb_tags
 SELECT DISTINCT
   NULL,
-  NULL,
   vendor_name,
   CONCAT(vendor_fullname,'
 
@@ -334,9 +321,9 @@ Website: ',vendor_url),
   NULL
 FROM rsdb_item_vendor;
 
-DROP TABLE rsdb_groups;
+/*DROP TABLE rsdb_groups;
 DROP TABLE rsdb_item_vendor;
-
+*/
 
 
 -- -----------------------------------------------------------------
@@ -359,8 +346,8 @@ SELECT
   log_date
 FROM rsdb_logs;
 
-DROP TABLE rsdb_logs;
-
+/*DROP TABLE rsdb_logs;
+*/
 
 
 -- -----------------------------------------------------------------
@@ -383,6 +370,34 @@ ALTER TABLE cdb_entries DROP old_groupid;
 ALTER TABLE cdb_entries DROP old_vendorid;
 ALTER TABLE cdb_tags DROP old_groupid;
 ALTER TABLE cdb_tags DROP old_vendor;
+
+
+
+-- -----------------------------------------------------------------
+-- remove double entries
+-- -----------------------------------------------------------------
+CREATE TABLE cdb_entries2 SELECT * FROM cdb_entries;
+TRUNCATE TABLE cdb_entries2;
+INSERT INTO cdb_entries2
+SELECT DISTINCT
+  (SELECT id FROM cdb_entries WHERE name = g.name ORDER BY created DESC LIMIT 1),
+  name,
+  (SELECT category_id FROM cdb_entries WHERE name = g.name ORDER BY created DESC LIMIT 1),
+  (SELECT description FROM cdb_entries WHERE name = g.name ORDER BY created DESC LIMIT 1),
+  (SELECT created FROM cdb_entries WHERE name = g.name ORDER BY created ASC LIMIT 1),
+  (SELECT modified FROM cdb_entries WHERE name = g.name ORDER BY created DESC LIMIT 1),
+  TRUE
+FROM cdb_entries g;
+
+UPDATE cdb_entries_reports r
+SET entry_id=(SELECT e.id FROM cdb_entries2 e JOIN cdb_entries x ON x.name=e.name WHERE x.id=r.entry_id);
+
+UPDATE cdb_entries_versions v
+SET entry_id=(SELECT e.id FROM cdb_entries2 e JOIN cdb_entries x ON x.name=e.name WHERE x.id=v.entry_id);
+
+
+DROP TABLE cdb_entries;
+RENAME TABLE cdb_entries2 TO cdb_entries;
 
 
 

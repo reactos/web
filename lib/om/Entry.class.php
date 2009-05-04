@@ -96,7 +96,7 @@ class Entry
     $stmt->bindParam('entry_id',$entry_id,PDO::PARAM_INT);
     $stmt->bindParam('user_id',$RSDB_intern_user_id,PDO::PARAM_INT);
     $stmt->bindParam('revision',$revision,PDO::PARAM_INT);
-    $stmt->bindParam('status',$status,PDO::PARAM_BOOL);
+    $stmt->bindParam('status',$status,PDO::PARAM_STR);
     return $stmt->execute();
   } // end of member function addReport
 
@@ -122,7 +122,7 @@ class Entry
     $stmt->bindParam('entry_id',$entry_id,PDO::PARAM_INT);
     $stmt->bindParam('user_id',$RSDB_intern_user_id,PDO::PARAM_INT);
     $stmt->bindParam('title',$title,PDO::PARAM_STR);
-    $stmt->bindParam('status',$content,PDO::PARAM_STR);
+    $stmt->bindParam('content',$content,PDO::PARAM_STR);
     return $stmt->execute();
   } // end of member function add
 

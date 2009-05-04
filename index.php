@@ -25,36 +25,18 @@ if (get_magic_quotes_gpc()) {
 	die("ERROR: Disable 'magic quotes' in php.ini (=Off)");
 }
 
+define('ROSCMS_PATH', '../roscms/');
 define('CDB_PATH', '');
 require_once("lib/Compat_Autoloader.class.php");
 require_once('config.php');
-
+$RSDB_intern_link_db_sec = 'index.php?page=';
 
 
 	if ( !defined('RSDB') ) {
 		define ("RSDB", "rossupportdb"); // to prevent hacking activity
 	}
-  define('ROSCMS_PATH', '../roscms/');
 	
-	
-	
-	
-	// Environment Vars:
-		$RSDB_intern_selected="";
-	
-		
-		// Forum bar settings:
-		if (isset($_POST['forumsave']) && $_POST['forumsave'] == 1) {
-			Cookie::write('rsdb_threshold', (isset($_POST['threshold']) ? htmlspecialchars($_POST['threshold']) : '?'), time() + 24 * 3600 * 30 * 5, '/');
-			Cookie::write('rsdb_fstyle', (isset($_POST['fstyle']) ? htmlspecialchars($_POST['fstyle']) : '?'), time() + 24 * 3600 * 30 * 5, '/');
-			Cookie::write('rsdb_order', (isset($_POST['order']) ? htmlspecialchars($_POST['order']) : '?'), time() + 24 * 3600 * 30 * 5, '/');
-		}
-	
-		// Test report bar settings:
-		if (isset($_POST['testsave']) && $_POST['testsave'] == 1) {
-			Cookie::write('rsdb_threshold', (isset($_POST['threshold']) ? htmlspecialchars($_POST['threshold']) : '?'), time() + 24 * 3600 * 30 * 5, '/');
-			Cookie::write('rsdb_order', (isset($_POST['order']) ? htmlspecialchars($_POST['order']) : '?'), time() + 24 * 3600 * 30 * 5, '/');
-		}
+
 
 
 
@@ -62,22 +44,10 @@ require_once('config.php');
 	$RSDB_SET_letter=""; // Browse by Name: Letter: All, A, B, C, ..., X, Y, Z
 	$RSDB_SET_group=""; // Group ID
 	
-	
-	$RSDB_SET_threshold="3";
-	$RSDB_SET_fstyle="nested";
-	$RSDB_SET_order="new";
-	$RSDB_SET_save="";
-	$RSDB_SET_msg="";
-	$RSDB_SET_filter="cur";
-	$RSDB_SET_filter2="";
-	
 	$rpm_lang="";
 
 
 
-	if (isset($_COOKIE['rsdb_threshold'])) {
-		$RSDB_SET_threshold = $_COOKIE['rsdb_threshold'];
-	}
 	if (isset($_COOKIE['rsdb_fstyle'])) {
 		$RSDB_SET_fstyle = $_COOKIE['rsdb_fstyle'];
 	}
@@ -86,26 +56,7 @@ require_once('config.php');
 	}
 
 	if (array_key_exists("letter", $_GET)) $RSDB_SET_letter=htmlspecialchars($_GET["letter"]);
-	if (array_key_exists("group", $_GET)) $RSDB_SET_group=htmlspecialchars($_GET["group"]);
-	
-	if (array_key_exists("threshold", $_GET)) $RSDB_SET_threshold=htmlspecialchars($_GET["threshold"]);
-	if (array_key_exists("fstyle", $_GET)) $RSDB_SET_fstyle=htmlspecialchars($_GET["fstyle"]);
-	if (array_key_exists("order", $_GET)) $RSDB_SET_order=htmlspecialchars($_GET["order"]);
-	if (array_key_exists("save", $_GET)) $RSDB_SET_save=htmlspecialchars($_GET["save"]);
-	if (array_key_exists("msg", $_GET)) $RSDB_SET_msg=htmlspecialchars($_GET["msg"]);
-	if (array_key_exists("filter", $_GET)) $RSDB_SET_filter=htmlspecialchars($_GET["filter"]);
-	if (array_key_exists("filter2", $_GET)) $RSDB_SET_filter2=htmlspecialchars($_GET["filter2"]);
-	
-	if (array_key_exists("threshold", $_POST)) $RSDB_SET_threshold=htmlspecialchars($_POST["threshold"]);
-	if (array_key_exists("fstyle", $_POST)) $RSDB_SET_fstyle=htmlspecialchars($_POST["fstyle"]);
-	if (array_key_exists("order", $_POST)) $RSDB_SET_order=htmlspecialchars($_POST["order"]);
-	if (array_key_exists("save", $_POST)) $RSDB_SET_save=htmlspecialchars($_POST["save"]);
-	if (array_key_exists("msg", $_POST)) $RSDB_SET_msg=htmlspecialchars($_POST["msg"]);
-	if (array_key_exists("filter", $_POST)) $RSDB_SET_filter=htmlspecialchars($_POST["filter"]);
-	if (array_key_exists("filter2", $_POST)) $RSDB_SET_filter2=htmlspecialchars($_POST["filter2"]);
 
-
-	session_start();
 	
 	if(isset($_COOKIE['roscms_usrset_lang'])) {
 		$roscms_usrsetting_lang=$_COOKIE["roscms_usrset_lang"];
@@ -117,17 +68,27 @@ require_once('config.php');
 	require_once('lang.php');
 
 
-	// Config
-	require_once('rsdb_setting.php');
-	
-	// URI building
-	require_once('rsdb_config.php');
-
 switch (@$_GET['page']) {
 
-  // Frontpage
+  default:
+    // AJAX requests
+    if (isset($_GET['get']) && $_SERVER['QUERY_STRING'] != '') {
+      switch (@$_GET['get']) {
+
+        // Suggestions
+        case 'suggestions':
+          new List_Suggestions();
+          break;
+
+      } // end switch get
+      break;
+    }
+
   case 'home': 
     new HTML_Home();
+    break;
+
+  // Frontpage
     break;
 
   // RSDB About Page
@@ -143,12 +104,19 @@ switch (@$_GET['page']) {
   // Browse by name
   case 'list': 
     $filter = '';
-    if (isset($_GET['letter'])) {
+    if (isset($_GET['letter']) && $_GET['letter'] != '*') {
       $filter .= 's_w_'.$_GET['letter'];
     }
     if (isset($_GET['cat'])) {
       if ($filter !== '') $filter .= '|';
       $filter .= 'c_is_'.$_GET['cat'];
+    }
+    if (isset($_GET['tag']) && $_GET['tag'] != '*') {
+      if ($filter !== '') $filter .= '|';
+      $filter .= 't_is_'.$_GET['tag'];
+    }
+    if (isset($_GET['filter']) && $_GET['filter'] != '') {
+      $filter = $_GET['filter'];
     }
     new HTML_List($filter);
     break;
@@ -180,7 +148,7 @@ switch (@$_GET['page']) {
           // Details
           case 'details':
           default:
-            new HTML_Version();
+            new HTML_Entry();
             break;
 
           // Screenshots
@@ -207,20 +175,6 @@ switch (@$_GET['page']) {
     new Help();
     break;
 
-  default:
-    // just show 404, if no request for 'get=' is given
-    if (!isset($_GET['get'])) {
-      echo '404';
-    }
-    break;
 } // end switch page
 
-switch (@$_GET['get']) {
-
-  // Suggestions
-  case 'suggestions':
-    new List_Suggestions();
-    break;
-
-} // end switch get
 ?>

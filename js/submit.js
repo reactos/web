@@ -124,6 +124,17 @@ function useSuggestion( from, type, index )
     
     document.getElementById('suggestedVersions').style.display='block';
     document.getElementById('suggestedVersions').innerHTML='<ul>'+show+'</ul>';
+    
+    var tags = entries[index].getElementsByTagName('tag');
+    show = '';
+    for (var i=0; i < tags.length; i++) {
+      if (show != '') show += ',';
+      show += tags[i].firstChild.nodeValue;
+    }
+    document.getElementById('tags').value=show;
+    
+    document.getElementById('description').value=entries[index].getAttribute('description');
+    document.getElementById('cat').value=entries[index].getAttribute('category');
   }
   else if (type == 'version') {
     id = 'version';

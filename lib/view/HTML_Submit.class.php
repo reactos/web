@@ -53,7 +53,7 @@ class HTML_Submit extends HTML
     }
 
     // try to insert a new entry
-    if (isset($_POST['cat']) && isset($_POST['description'])) {
+    if (isset($_POST['title']) && $_POST['title'] != '' && isset($_POST['tags']) && isset($_POST['cat']) && isset($_POST['description']) && isset($_POST['version']) && $_POST['version'] != '') {
       $entry_id = Entry::add($_POST['title'], $_POST['version'], $_POST['cat'], $_POST['description'], $_POST['tags'], (isset($_POST['iCheck']) && $_POST['iCheck'] == 'yes'));
     }
 
@@ -64,7 +64,8 @@ class HTML_Submit extends HTML
     
     // insert new report/comment
     if ($entry_id !== false) {
-      Entry::addReport($entry_id, $revision, ($_POST['status']=='yes'));
+      if (isset($_POST['status']) && ($_POST['status'] == 'works' || $_POST['status'] == 'part' ||$_POST['status'] == 'not'))
+      Entry::addReport($entry_id, $revision, $_POST['status']);
 
       // insert new comment
       if (isset($_POST['comment']) && $_POST['comment'] != '') {
@@ -115,9 +116,9 @@ class HTML_Submit extends HTML
                     <input type="text" name="description" id="description" />
                   </li>
 
-                  <li style="display:none;">
-                    <label for="tags">Tags: (seperate them by <em>,</em>)</label><br />
-                    <input type="text" name="tags" id="tags" />
+                  <li>
+                    <label for="tags">Tags: (e.g. vendor)</label><br />
+                    <input type="text" name="tags" id="tags" /> (seperate them by <em>,</em>)
                   </li>
                 </ul>
             </li>
@@ -130,20 +131,23 @@ class HTML_Submit extends HTML
           <ul style="list-style-type: none;">
             <li>
               Status:<br />
-              <input type="radio" name="status" id="noworks" value="no" />
+              <input type="radio" name="status" id="noworks" value="not" />
               <label for="noworks" style="color: red;">Doesn\'t Work</label>
-              <br />
-              <input type="radio" name="status" id="doesn\'t work" value="yes" />
+              
+              <input type="radio" name="status" id="partworks" value="part" />
+              <label for="partworks" style="color: orange;">Works partly</label>
+              
+              <input type="radio" name="status" id="works" value="works" />
               <label for="works" style="color: green;">Works</label>
               <br />
               <br />
             </li>
             <li>
               <label for="ver">Tested Version</label><br />
-              <select name="ver" id="ver">
+              <select name="ver" id="ver" onchange="'."javascript:document.getElementById('directRev').style.display=(this.value=='R' ? 'block' : 'none' );".'">
                 <option value="R"'.(($used_again && $_POST['ver'] == 'R') ? ' selected="selected"' : '').'>Use Revision</option>';
 
-    $stmt=CDBConnection::getInstance()->prepare("SELECT revision, name FROM ".CDBT_VERSIONS." WHERE VISIBLE IS TRUE ORDER BY revision DESC");
+    $stmt=CDBConnection::getInstance()->prepare("SELECT revision, name FROM ".CDBT_VERTAGS." WHERE VISIBLE IS TRUE ORDER BY revision DESC");
     $stmt->execute();
     $x = 0;
     while ($version = $stmt->fetch(PDO::FETCH_ASSOC) ) {
@@ -155,11 +159,21 @@ class HTML_Submit extends HTML
               </select>
             </li>
 
-            <li>
+            <li id="directRev">
               <label for="rev">Tested Revision (only trunk revisions are allowed, please don\'t enter revisions of tags or branches)</label><br />
               <input type="text" name="rev" id="rev"'.(($used_again && $_POST['ver'] == 'R') ? ' value="'.htmlspecialchars($_POST['revision']).'"' : '').' />
             </li>
-          </ul>
+          </ul>';
+    
+    if (!$used_again || $_POST['ver'] != 'R') {
+      echo '
+          <script type="text/javascript">
+          //<!--
+            document.getElementById("directRev").style.display="none";
+          //-->
+          </script>';
+    }
+    echo '
         </fieldset>
   
         <fieldset>
@@ -173,6 +187,9 @@ class HTML_Submit extends HTML
               next action:<br />
               <input type="radio" name="next" id="again" value="again" '.($used_again ? 'checked="checked"' : '').' />
               <label for="again">Insert another entry/report</label>
+              <br />
+              <input type="radio" name="next" id="more" value="more"  />
+              <label for="more">Add more information to that entry.</label>
               <br />
               <input type="radio" name="next" id="entry" value="entry" '.(!$used_again ? 'checked="checked"' : '').' />
               <label for="entry">Jump to inserted entry/report</label>

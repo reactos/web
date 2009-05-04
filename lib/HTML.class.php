@@ -141,10 +141,10 @@ abstract class HTML
    */
   protected function navigation( )
   {
-    include('rsdb_setting.php');
-    include('rsdb_config.php');
 
     global $RSDB_intern_link_db_sec;
+    global $RSDB_intern_path_server;
+    global $RSDB_intern_link_language;
 
     echo '
       <table style="border: none; width:100%;" cellpadding="0" cellspacing="0">
@@ -162,10 +162,10 @@ abstract class HTML
 
             <div class="navTitle">Browse Database</div>
             <ol>
-              <li><a href="'.$RSDB_intern_link_db_sec.'list">By Name</a></li>
+              <li><a href="'.$RSDB_intern_link_db_sec.'list&amp;letter=*">By Name</a></li>
               <li><a href="'.$RSDB_intern_link_db_sec.'list&amp;cat=0">By Category</a></li>
-              <li><a href="'.$RSDB_intern_link_db_sec.'list">By Tag</a></li>
-              <li><a href="'.$RSDB_intern_link_db_sec.'list">By Rank</a></li>
+              <li><a href="'.$RSDB_intern_link_db_sec.'list&amp;tag=*">By Tag</a></li>
+              <li><a href="'.$RSDB_intern_link_db_sec.'list&amp;filter=">Custom</a></li>
             </ol>
             <br />
 
@@ -208,7 +208,7 @@ abstract class HTML
     $language_name = $stmt->fetchColumn();
 
     echo '
-      <select id="select" size="1" name="select" class="selectbox" style="width:140px" onchange="'."window.open(this.options[this.selectedIndex].value,'_main');".'">
+      <select id="select" size="1" name="select" class="selectbox" style="width:140px" onchange="'."window.open('".$RSDB_intern_link_language."'+this.options[this.selectedIndex].value,'_main');".'">
         <optgroup label="current language">
           <option value="#">'.$language_name.'</option>
         </optgroup>
@@ -218,7 +218,7 @@ abstract class HTML
     $stmt->execute();
     while ($language=$stmt->fetch(PDO::FETCH_ASSOC)) {
       echo '
-        <option value="'.$RSDB_intern_link_language.$language['short'].'">'.$language['name'].'</option>';
+        <option value="'.$language['short'].'">'.$language['name'].'</option>';
     }
 
     echo '

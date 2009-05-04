@@ -30,35 +30,39 @@ class List_Suggestions
     switch (@$_GET['for']) {
       case 'name':
       default:
-      $stmt=CDBConnection::getInstance()->prepare("SELECT name, version FROM ".CDBT_ENTRIES." WHERE name LIKE :search ORDER BY name ASC, version DESC");
+      $stmt=CDBConnection::getInstance()->prepare("SELECT name, id, description, category_id FROM ".CDBT_ENTRIES." WHERE name LIKE :search ORDER BY name ASC");
         
     }
     $stmt->bindValue('search',@$_GET['search'].'%',PDO::PARAM_STR);
     $stmt->execute();
-    $oldname = null;
-    
+
+    // prepare for usage in loop
+    $stmt_ver=CDBConnection::getInstance()->prepare("SELECT version FROM ".CDBT_VERSIONS." WHERE entry_id=:entry_id ORDER BY version DESC");
+    $stmt_tag=CDBConnection::getInstance()->prepare("SELECT t.name FROM ".CDBT_TAGS." t JOIN ".CDBT_TAGGED." r ON r.tag_id=t.id WHERE r.entry_id=:entry_id ORDER BY name ASC");
+
     // build list of entries and their versions
     while ($entry=$stmt->fetch(PDO::FETCH_ASSOC)) {
-    
-      // open / close entry
-      if ($oldname === null || $oldname != $entry['name']) {
-        if ($oldname !== null) {
-          echo '</entry>';
-        }
-        echo '<entry name="'.htmlspecialchars($entry['name']).'">';
+
+      echo '<entry name="'.htmlspecialchars($entry['name']).'" description="'.htmlspecialchars($entry['description']).'" category="'.$entry['category_id'].'">';
+
+      // versions
+      $stmt_ver->bindParam('entry_id',$entry['id'],PDO::PARAM_INT);
+      $stmt_ver->execute();
+      while ($version=$stmt_ver->fetch(PDO::FETCH_ASSOC)) {
+        // version
+        echo '<version>'.htmlspecialchars($version['version']).'</version>';
       }
-      
-      // version
-      echo '<version>'.htmlspecialchars($entry['version']).'</version>';
-      
-      // update last entry name
-      $oldname = $entry['name'];
-    } // end while entry
-    
-    // close entry
-    if ($oldname !== null) {
+
+      // tags
+      $stmt_tag->bindParam('entry_id',$entry['id'],PDO::PARAM_INT);
+      $stmt_tag->execute();
+      while ($tag=$stmt_tag->fetch(PDO::FETCH_ASSOC)) {
+        // version
+        echo '<tag>'.htmlspecialchars($tag['name']).'</tag>';
+      }
+
       echo '</entry>';
-    }
+    } // end while entry
 
     echo '</root>';
   } // end of constructor

@@ -55,7 +55,18 @@ class HTML_Home extends HTML
             <tbody>';
 
     // show latest tests
-    $stmt=CDBConnection::getInstance()->prepare("SELECT e.name, r.created, r.works, e.id FROM ".CDBT_REPORTS." r JOIN ".CDBT_ENTRIES." e ON e.id=r.entry_id JOIN ".CDBT_VERSIONS." v ON v.revision=r.revision ORDER BY v.revision DESC, r.created DESC LIMIT 10");
+    if (1) {
+      $stmt=CDBConnection::getInstance()->prepare("SELECT revision FROM ".CDBT_VERTAGS." t WHERE visible IS TRUE AND 5<(SELECT COUNT(*) FROM ".CDBT_REPORTS." WHERE revision=t.revision) ORDER BY revision DESC LIMIT 1");
+      $stmt->execute();
+      $latest_version = $stmt->fetchColumn();
+
+      $stmt=CDBConnection::getInstance()->prepare("SELECT e.name, r.created, r.works, e.id FROM ".CDBT_REPORTS." r JOIN ".CDBT_ENTRIES." e ON e.id=r.entry_id WHERE r.revision = :revision ORDER BY r.created DESC LIMIT 10");
+      $stmt->bindParam('revision',$latest_version,PDO::PARAM_INT);
+    }
+    else {
+      $stmt=CDBConnection::getInstance()->prepare("SELECT e.name, r.created, r.works, e.id FROM ".CDBT_REPORTS." r JOIN ".CDBT_ENTRIES." e ON e.id=r.entry_id ORDER BY r.created DESC LIMIT 10");
+
+    }
     $stmt->execute();
     $x=0;
     while ($entry = $stmt->fetch(PDO::FETCH_ASSOC)) {
@@ -63,8 +74,8 @@ class HTML_Home extends HTML
 
       echo '
         <tr class="row'.($x%2+1).'">
-          <td><a href="'.$RSDB_intern_link_item_comp.$entry['id'].'">'.$entry['name'].'</a></td>
-          <td>'.($entry['works']?'yep':'doesn\'t').'</td>
+          <td><a href="?page=item&amp;item='.$entry['id'].'">'.$entry['name'].'</a></td>
+          <td>'.$entry['works'].'</td>
           <td style="text-align: center;">'.$entry['created'].'</td>
         </tr>'; 
     }

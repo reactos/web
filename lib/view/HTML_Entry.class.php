@@ -19,7 +19,7 @@
     */
 
 
-class Entry_Details extends HTML
+class HTML_Entry extends HTML
 {
 
   const MODE_NORMAL = 1;
@@ -29,14 +29,21 @@ class Entry_Details extends HTML
   {
     $mode = self::MODE_NORMAL;
 
-    $stmt=CDBConnection::getInstance()->prepare("SELECT e.id, e.name, e.version, e.description, c.name AS category, e.category_id FROM ".CDBT_ENTRIES." e LEFT JOIN ".CDBT_CATEGORIES." c ON c.id=e.category_id WHERE e.id=:entry_id");
-    $stmt->bindParam('entry_id',$_GET['item'],PDO::PARAM_INT);
+    // version info
+    $stmt=CDBConnection::getInstance()->prepare("SELECT version, entry_id FROM ".CDBT_VERSIONS." WHERE id=:version_id");
+    $stmt->bindParam('version_id',$_GET['ver'],PDO::PARAM_INT);
+    $stmt->execute();
+    $version = $stmt->fetchOnce(PDO::FETCH_ASSOC);
+
+    // entry info
+    $stmt=CDBConnection::getInstance()->prepare("SELECT e.id, e.name, e.description, c.name AS category, e.category_id FROM ".CDBT_ENTRIES." e LEFT JOIN ".CDBT_CATEGORIES." c ON c.id=e.category_id WHERE e.id=:entry_id");
+    $stmt->bindParam('entry_id',$version['entry_id'],PDO::PARAM_INT);
     $stmt->execute();
     $entry = $stmt->fetchOnce(PDO::FETCH_ASSOC);
 
     // tagged versions
     if ($mode == self::MODE_NORMAL) {
-      $stmt=CDBConnection::getInstance()->prepare("SELECT r.revision, v.name FROM ".CDBT_REPORTS." r LEFT JOIN ".CDBT_VERSIONS." v ON r.revision=v.revision WHERE r.entry_id=:entry_id AND works IS TRUE ORDER BY v.revision DESC");
+      $stmt=CDBConnection::getInstance()->prepare("SELECT r.revision, v.name FROM ".CDBT_REPORTS." r LEFT JOIN ".CDBT_VERTAGS." v ON r.revision=v.revision WHERE r.entry_id=:entry_id AND works IS TRUE ORDER BY v.revision DESC");
       $stmt->bindParam('entry_id',$entry['id'],PDO::PARAM_INT);
       $stmt->execute();
       $report = $stmt->fetchOnce(PDO::FETCH_ASSOC);
@@ -44,7 +51,7 @@ class Entry_Details extends HTML
 
     // untagged revisions
     elseif ($mode == self::MODE_DEV) {
-      $stmt=CDBConnection::getInstance()->prepare("SELECT r.works, r.revision FROM ".CDBT_REPORTS." r LEFT JOIN ".CDBT_VERSIONS." v ON r.revision=v.revision WHERE r.entry_id=:entry_id AND v.revision IS NULL ORDER BY r.revision DESC");
+      $stmt=CDBConnection::getInstance()->prepare("SELECT r.works, r.revision FROM ".CDBT_REPORTS." r LEFT JOIN ".CDBT_VERTAGS." v ON r.revision=v.revision WHERE r.entry_id=:entry_id AND v.revision IS NULL ORDER BY r.revision DESC");
       $stmt->bindParam('entry_id',$entry['id'],PDO::PARAM_INT);
       $stmt->execute();
       $reports = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -60,7 +67,7 @@ class Entry_Details extends HTML
             <th style="width:100px;">Name</th>
             <td style="width:200px;"><a href="">'.htmlspecialchars($entry['name']).'</a></td>
             <th style="width:100px;">Version</th>
-            <td style="width:200px;">'.($entry['version'] != '0' ? htmlspecialchars($entry['version']) : '').'</td>
+            <td style="width:200px;">'.htmlspecialchars($version['version']).'</td>
           </tr>
           <tr>
             <th style="width:100px;">Category</th>
@@ -119,5 +126,7 @@ class Entry_Details extends HTML
       echo '</div>';
     }
   } // end of member function body
-}
+
+
+} // end of HTML_Entry
 ?>
