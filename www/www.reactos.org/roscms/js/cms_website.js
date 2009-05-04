@@ -644,17 +644,17 @@ function showEditor( event )
     document.getElementById('previewarea').style.display = 'none';
     document.getElementById('newentryarea').style.display = 'none';
     document.getElementById('frameedit').style.display = 'block';
+    document.getElementById('editzone').style.display = 'block';
     
-  }
-  
     if (event == 'diff') {
       document.getElementById('editzone').style.display = 'none';
       document.getElementById('frmdiff').style.display = 'block';
     }
     else {
-      document.getElementById('editzone').style.display = 'block';
       document.getElementById('frmdiff').style.display = 'none';
     }
+  }
+  
 
   // deactivate alert-timer
   window.clearTimeout(alertactiv);
