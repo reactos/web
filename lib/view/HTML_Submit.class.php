@@ -32,13 +32,25 @@ class HTML_Submit extends HTML
 
   protected function build( )
   {
-    $this->header();
-    $this->navigation();
-    if (isset($_REQUEST['submit']) && $_REQUEST['submit'] == 'yes') {
-      $this->submit();
+    if (isset($_POST['next']) && $_POST['next'] == 'entry') {
+      $entry_id = Entry::getEntryId($_POST['type'], $_POST['title']);
+      $version_id = Entry::getVersionId($entry_id, $_POST['version']);
+      header('location: ?page=item&ver='.$version_id);
+      exit;
     }
-    $this->body();
-    $this->footer();
+    elseif (isset($_POST['next']) && $_POST['next'] == 'bug') {
+      echo 'Imagine a bugzilla here';
+      exit;
+    }
+    else {
+      $this->header();
+      $this->navigation();
+      if (isset($_REQUEST['submit']) && $_REQUEST['submit'] == 'yes') {
+        $this->submit();
+      }
+      $this->body();
+      $this->footer();
+    }
   }
 
 
@@ -54,18 +66,36 @@ class HTML_Submit extends HTML
 
     // try to insert a new entry
     if (isset($_POST['title']) && $_POST['title'] != '' && isset($_POST['tags']) && isset($_POST['cat']) && isset($_POST['description']) && isset($_POST['version']) && $_POST['version'] != '') {
-      $entry_id = Entry::add($_POST['title'], $_POST['version'], $_POST['cat'], $_POST['description'], $_POST['tags'], (isset($_POST['iCheck']) && $_POST['iCheck'] == 'yes'));
-    }
+      $ids = Entry::add($_POST['type'], $_POST['title'], $_POST['version'], $_POST['cat'], $_POST['description'], $_POST['tags']);
 
-    // search entry
-    else {
-      $entry_id = Entry::getId($_POST['title'], $_POST['version']);
+      // got no error
+      if ($ids !== false) {
+        $entry_id = $ids['entry'];
+        $version_id = $ids['version'];
+      }
     }
     
+    if (!isset($entry_id)) {
+      $entry_id = Entry::getEntryId($_POST['type'], $_POST['title']);
+      if ($entry_id !== false) {
+        $version_id = Entry::getVersionId($entry_id, $_POST['version']);
+      }
+    }
+
     // insert new report/comment
-    if ($entry_id !== false) {
-      if (isset($_POST['status']) && ($_POST['status'] == 'works' || $_POST['status'] == 'part' ||$_POST['status'] == 'not'))
-      Entry::addReport($entry_id, $revision, $_POST['status']);
+    if ($entry_id !== false && $version_id !== false) {
+      if (isset($_POST['status']) && ($_POST['status'] == 'full' || $_POST['status'] == 'part' ||$_POST['status'] == 'not')) {
+        if ($_POST['env'] == 'RH') {
+          $env = 'RH';
+          $env_ver = '';
+        }
+        else {
+          $env = $_POST['vm'];
+          $env_ver = $_POST['vmver'];
+        }
+
+        Entry::addReport($entry_id, $version_id, $revision, $env, $env_ver, $_POST['status']);
+      }
 
       // insert new comment
       if (isset($_POST['comment']) && $_POST['comment'] != '') {
@@ -81,71 +111,73 @@ class HTML_Submit extends HTML
     $used_again = (isset($_POST['next']) && $_POST['next']=='again');
   
     echo '
-      <form action="?page=submit&amp;submit=yes" method="post">
-        <fieldset>
-          <legend>App Details</legend>
-          <ul style="list-style-type: none;">
+      <form id="submit" action="?page=submit&amp;submit=yes" method="post" style="width: 700px;">
+        <div>
+          <h1 class="left">Step 1</h1><h1>&nbsp;Tested software</h1>
+          <ul>
             <li style="float: left;">
-              <label for="title">Application Name:</label><br />
-              <input type="text" name="title" id="title" onkeyup="suggestName(this.value);" />
-              <div id="suggestedNames" style="display:none;border: 1px solid red;"></div>
+              <label for="type">Type:</label><br />
+              <select name="type" id="type">
+                <option value="app" selected="selected">Application</option>
+                <option value="dll">DLL-Library</option>
+                <option value="drv">Driver</option>
+                <option value="oth">Other</option>
+              </select>
             </li>
 
-            <li style="float: right;">
+            <li style="float: left;">
+              <label for="title">Name:</label><br />
+              <input type="text" name="title" id="title" onkeyup="'."suggestName(this.value);".'" />
+              <div class="suggestion" id="suggestedNames" style="display:none;"></div>
+            </li>
+
+            <li style="float: left;">
               <label for="version">Version:</label><br />
-              <input type="text" name="version" id="version" />
-              <div id="suggestedVersions" style="display:none;border: 1px solid red;"></div>
+              <input type="text" name="version" id="version" style="width: 50%;" />
+              <div class="suggestion" id="suggestedVersions" style="display:none;"></div>
+            </li>
+
+            <li style="clear: both;float: left;">
+              <label for="cat">Category:</label><br />
+              <select name="cat" id="cat" style="width: 200px;">
+                <option value="0">&nbsp</option>
+                '.Category::showTreeAsOption().'
+              </select>
+            </li>
+            <li style="float:left;">
+              <label for="description">Short Description:</label><br />
+              <input type="text" name="description" id="description" />
             </li>
 
             <li style="clear: both;">
-              <fieldset>
-                <legend>
-                  <input type="checkbox" name="iCheck" id="iCheck" value="yes" onclick="toggleDetails();" />
-                  <label for="iCheck">I don\'t want to modify the additional information</label>
-                </legend>
-                <ul style="list-style-type: none;">
-                  <li>
-                    <label for="cat">Category:</label><br />
-                    <select name="cat" id="cat">
-                      <option value="0">&nbsp</option>
-                      '.Category::showTreeAsOption().'
-                    </select>
-                  </li>
-                  <li>
-                    <label for="description">Short Description:</label><br />
-                    <input type="text" name="description" id="description" />
-                  </li>
-
-                  <li>
-                    <label for="tags">Tags: (e.g. vendor)</label><br />
-                    <input type="text" name="tags" id="tags" /> (seperate them by <em>,</em>)
-                  </li>
-                </ul>
+              <label for="tags">Tags: (e.g. vendor)</label><br />
+              <input type="text" name="tags" id="tags" /> (seperate them by <em>,</em>)
             </li>
 
           </ul>
-        </fieldset>
+          <br style="clear: both;"/>
+        </div>
   
-        <fieldset>
-          <legend>Test</legend>
-          <ul style="list-style-type: none;">
+        <div>
+          <h1 class="left">Step 2</h1><h1>&nbsp;Test summary</h1>
+          <ul style="float:left;margin-right: 20px;">
             <li>
-              Status:<br />
-              <input type="radio" name="status" id="noworks" value="not" />
-              <label for="noworks" style="color: red;">Doesn\'t Work</label>
+              <span class="label">Outcome:</span><br />
+              <input type="radio" class="normal" name="status" id="works" value="full" onchange="'."javascript:document.getElementById('bugreport').style.display=(this.checked ? 'none' : 'block' );".'" />
+              <label for="works" style="color: #00CC00;">Running Stable</label>
               
-              <input type="radio" name="status" id="partworks" value="part" />
-              <label for="partworks" style="color: orange;">Works partly</label>
+              <input type="radio" class="normal" name="status" id="partworks" value="part" onchange="'."javascript:document.getElementById('bugreport').style.display=(this.checked ? 'none' : 'block' );".'" />
+              <label for="partworks" style="color: #FF7800;">Minor Problems</label>
               
-              <input type="radio" name="status" id="works" value="works" />
-              <label for="works" style="color: green;">Works</label>
+              <input type="radio" class="normal" name="status" id="noworks" value="not" onchange="'."javascript:document.getElementById('bugreport').style.display=(this.checked ? 'block' : 'none' );".'" />
+              <label for="noworks" style="color: #FF3300;">Crash</label>
               <br />
               <br />
             </li>
-            <li>
+            <li style="float: left;">
               <label for="ver">Tested Version</label><br />
               <select name="ver" id="ver" onchange="'."javascript:document.getElementById('directRev').style.display=(this.value=='R' ? 'block' : 'none' );".'">
-                <option value="R"'.(($used_again && $_POST['ver'] == 'R') ? ' selected="selected"' : '').'>Use Revision</option>';
+                <option value="R"'.(($used_again && $_POST['ver'] == 'R') ? ' selected="selected"' : '').'>Trunk</option>';
 
     $stmt=CDBConnection::getInstance()->prepare("SELECT revision, name FROM ".CDBT_VERTAGS." WHERE VISIBLE IS TRUE ORDER BY revision DESC");
     $stmt->execute();
@@ -159,47 +191,92 @@ class HTML_Submit extends HTML
               </select>
             </li>
 
-            <li id="directRev">
-              <label for="rev">Tested Revision (only trunk revisions are allowed, please don\'t enter revisions of tags or branches)</label><br />
+            <li id="directRev" style="float:left;">
+              <label for="rev">Revision:</label><br />
               <input type="text" name="rev" id="rev"'.(($used_again && $_POST['ver'] == 'R') ? ' value="'.htmlspecialchars($_POST['revision']).'"' : '').' />
             </li>
-          </ul>';
-    
+          </ul>
+          <div style="float: left;margin-right: 10px;">
+            <span class="label">Environment:</span><br />
+            <input type="radio" class="normal" name="env" id="envvm" value="VM" checked="checked" onchange="'."javascript:document.getElementById('vmlist').style.display=(this.checked ? 'block' : 'none' );".'" />
+            <label class="normal" for="envvm">Virtual Machine</label><br />
+
+            <input type="radio" class="normal" name="env" id="envrh" value="RH" onchange="'."javascript:document.getElementById('vmlist').style.display=(this.checked ? 'none' : 'block' );".'" />
+            <label class="normal" for="envrh">Real Hardware</label>
+          </div>
+          <div id="vmlist" style="list-style-type: none;float: left;">
+            <label for="vm">Virtual Machine:</label><br />
+            <select id="vm" name="vm">
+              <option>&nbsp;</option>
+              <option value="Bo">Bochs</option>
+              <option value="qe">Qemu</option>
+              <option value="vb">VirtualBox</option>
+              <option value="vp">VirtualPC</option>
+              <option value="vw">VMWare</option>
+              <option value="ot">Other</option>
+            </select>
+            <br />
+            <label for="vmver">VM Version:</label><br />
+            <input type="text" name="vmver" id="vmver" />
+          </div>
+          <br style="clear: both;"/>
+        </div>
+  
+        <div>
+          <h1 class="left">Step 3</h1><h1>&nbsp;Test details</h1>
+          <ul>
+            <li>
+              <label for="comment">Comment</label><br />
+              <textarea rows="5" cols="70" name="comment" id="comment"></textarea>
+            </li>
+            <li>
+              <span class="label">next action:</span><br />
+              <input type="radio" class="normal" name="next" id="again" value="again" '.($used_again ? 'checked="checked"' : '').' />
+              <label for="again" class="normal">Insert another entry/report</label>
+              <br />
+              <input type="radio" class="normal" name="next" id="more" value="more"  />
+              <label for="more" class="normal">Add more information to that entry.</label>
+              <br />
+              <div id="bugreport">
+                <input type="radio" class="normal" name="next" id="bug" value="bug"  />
+                <label for="bug" class="normal">Fill a bug report</label>
+                <br />
+              </div>
+              <input type="radio" class="normal" name="next" id="entry" value="entry" '.(!$used_again ? 'checked="checked"' : '').' />
+              <label for="entry" class="normal">Jump to inserted entry/report</label>
+            </li>
+          </ul>
+        </div>
+        <div>
+          <button type="submit">Submit report</button>
+        </div>
+        <hr style="color: #777;" />
+      </form>
+      <script type="text/javascript">
+      //<!--'."
+        document.getElementById('bugreport').style.display='none';
+      //".'-->
+      </script>';
+
+    // hide revision field
     if (!$used_again || $_POST['ver'] != 'R') {
       echo '
           <script type="text/javascript">
-          //<!--
-            document.getElementById("directRev").style.display="none";
-          //-->
+          //<!--'."
+            document.getElementById('directRev').style.display='none';
+          //".'-->
           </script>';
     }
-    echo '
-        </fieldset>
-  
-        <fieldset>
-          <legend>Additional</legend>
-          <ul style="list-style-type: none;">
-            <li>
-              <label for="comment">Comment</label><br />
-              <textarea rows="6" cols="80" name="comment" id="comment"></textarea>
-            </li>
-            <li>
-              next action:<br />
-              <input type="radio" name="next" id="again" value="again" '.($used_again ? 'checked="checked"' : '').' />
-              <label for="again">Insert another entry/report</label>
-              <br />
-              <input type="radio" name="next" id="more" value="more"  />
-              <label for="more">Add more information to that entry.</label>
-              <br />
-              <input type="radio" name="next" id="entry" value="entry" '.(!$used_again ? 'checked="checked"' : '').' />
-              <label for="entry">Jump to inserted entry/report</label>
-            </li>
-          </ul>
-        </fieldset>
-        <div>
-          <button type="submit">Submit new Compatibility Report</button>
-        </div>
-      </form>';
+
+    // hide VM
+    if ($used_again && $_POST['env'] == 'RH') {
+      echo '
+          <script type="text/javascript">
+          //<!--'."
+            document.getElementById('vmlist').style.display='none';
+          //".'-->
+          </script>';
+    }
   } // end of member function body
 
 

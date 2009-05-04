@@ -13,6 +13,69 @@
 .rtable THEAD {
   background-color:#5984C3;color:white;}
 
+#submit {
+  background-color: #EEE;
+}
+#submit H1 {
+  border-bottom: 2px solid #369;
+  line-height: 2em;
+  padding-left: 8px;
+
+}
+#submit H1.left {
+  border-right: 1px solid white;
+  border-bottom: 2px solid #D75700;
+  background-color: #FF7800;
+  float: left;
+  padding-right: 8px;
+  clear: left;
+}
+#submit BUTTON {
+  border: none;
+  border-bottom: 2px solid #D75700;
+  background-color: #FF7800;
+  color: white;
+  font-weight: bold;
+  margin: 1em;
+}
+#submit LABEL,
+#submit .label {
+  font-weight: bold;
+  color: #369;
+  line-height: 1.5em;
+}
+#submit LABEL.normal {
+  font-weight: normal;
+  color: black;
+}
+#submit INPUT,
+#submit SELECT,
+#submit TEXTAREA {
+  border: 1px solid #D75700;
+  margin-right: 10px;
+}
+#submit INPUT.normal {
+  margin-right: 0px;
+}
+#submit UL {
+  list-style-type: none;
+  margin-top: 0px;
+}
+#submit .suggestion {
+  position: absolute;
+  background-color: white;
+}
+#submit .suggestion UL {
+  padding-left:3px;
+  border: 1px solid #D75700;
+}
+#submit .suggestion LI A:hover {
+  cursor: pointer;
+}
+
+
+
+
 body {
 	font-family: Verdana;
 	font-size: 12px;

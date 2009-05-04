@@ -113,7 +113,6 @@ function useSuggestion( from, type, index )
   if (type == 'name') {
     id = 'title';
     hideSuggestions('suggestedNames');
-    disableDetails();
     
     var entries = xmldoc.getElementsByTagName('entry');
     var versions = entries[index].getElementsByTagName('version');
@@ -143,34 +142,3 @@ function useSuggestion( from, type, index )
   document.getElementById(id).value=from.innerHTML;
 }
 
-
-
-function toggleDetails( )
-{
-  if (!document.getElementById('iCheck').checked) {
-    enableDetails()
-  }
-  else {
-    disableDetails()
-  }
-}
-
-
-
-function disableDetails( )
-{
-  document.getElementById('iCheck').checked = true;
-  document.getElementById('cat').disabled = true;
-  document.getElementById('description').disabled = true;
-  document.getElementById('tags').disabled = true;
-}
-
-
-
-function enableDetails( )
-{
-  document.getElementById('iCheck').checked = false;
-  document.getElementById('cat').disabled = false;
-  document.getElementById('description').disabled = false;
-  document.getElementById('tags').disabled = false;
-}

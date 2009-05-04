@@ -21,6 +21,7 @@ DROP TABLE rsdb_group_bundles;
 CREATE TABLE cdb_categories (
   id BIGINT UNSIGNED NOT NULL ,
   parent BIGINT UNSIGNED NULL COMMENT '->categories(id)',
+  type ENUM('App','DLL','Drv', 'Oth') NOT NULL DEFAULT 'Oth',
   name VARCHAR( 100 ) NOT NULL ,
   description VARCHAR( 255 ) NOT NULL ,
   icon VARCHAR( 100 ) NULL ,
@@ -32,6 +33,7 @@ INSERT INTO cdb_categories
   SELECT
     cat_id,
     cat_path,
+    'App',
     cat_name,
     cat_description,
     cat_icon,
@@ -182,6 +184,8 @@ CREATE TABLE cdb_entries_reports (
   user_id BIGINT UNSIGNED NOT NULL COMMENT '->roscms.users(id)',
   works ENUM( 'full', 'part', 'not' ) NULL,
   checked BOOL NOT NULL DEFAULT FALSE,
+  environment CHAR(4) NOT NULL DEFAULT 'unkn',
+  environment_version VARCHAR(10) NOT NULL DEFAULT '',
   created DATETIME NOT NULL,
   visible BOOL NOT NULL DEFAULT FALSE,
   disabled BOOL NOT NULL DEFAULT TRUE,
@@ -201,6 +205,8 @@ SELECT DISTINCT
   comp_usrid,
   NULL,
   FALSE,
+  'unkn',
+  '',
   comp_date,
   TRUE,
   FALSE,
@@ -222,6 +228,7 @@ ALTER TABLE cdb_entries_reports CHANGE works works ENUM( 'full', 'part', 'not' )
 -- -----------------------------------------------------------------
 CREATE TABLE cdb_entries (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  type ENUM('App','DLL','Drv', 'Oth') NOT NULL DEFAULT 'Oth',
   name VARCHAR( 100 ) NOT NULL,
   category_id BIGINT NOT NULL,
   description TEXT NOT NULL,
@@ -237,6 +244,7 @@ CREATE TABLE cdb_entries (
 INSERT INTO cdb_entries
 SELECT DISTINCT
   NULL,
+  'App',
   grpentr_name,
   g.grpentr_category,
   (SELECT i.old_description FROM cdb_entries_reports i WHERE i.old_groupid=o.old_groupid ORDER BY i.created ASC LIMIT 1) AS old_description,
@@ -268,6 +276,7 @@ CREATE TABLE cdb_entries_versions (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY ,
   entry_id BIGINT UNSIGNED NOT NULL COMMENT '->entry',
   version VARCHAR( 20 ) NOT NULL,
+  created DATETIME NOT NULL,
   UNIQUE KEY(entry_id, version)
 ) ENGINE = MYISAM;
 
@@ -275,7 +284,8 @@ INSERT INTO cdb_entries_versions
 SELECT
   NULL,
   id,
-  old_version
+  old_version,
+  created
 FROM cdb_entries;
 
 UPDATE cdb_entries_reports r
@@ -381,6 +391,7 @@ TRUNCATE TABLE cdb_entries2;
 INSERT INTO cdb_entries2
 SELECT DISTINCT
   (SELECT id FROM cdb_entries WHERE name = g.name ORDER BY created DESC LIMIT 1),
+  g.type,
   name,
   (SELECT category_id FROM cdb_entries WHERE name = g.name ORDER BY created DESC LIMIT 1),
   (SELECT description FROM cdb_entries WHERE name = g.name ORDER BY created DESC LIMIT 1),
@@ -398,6 +409,7 @@ SET entry_id=(SELECT e.id FROM cdb_entries2 e JOIN cdb_entries x ON x.name=e.nam
 
 DROP TABLE cdb_entries;
 RENAME TABLE cdb_entries2 TO cdb_entries;
+ALTER TABLE cdb_entries ADD UNIQUE(type, name);
 
 
 

@@ -59,7 +59,7 @@ class Category
    */
   private static function getChilds($category_id)
   {
-    $stmt=CDBConnection::getInstance()->prepare("SELECT id, name FROM ".CDBT_CATEGORIES." WHERE parent = :cat_path AND visible IS TRUE ORDER BY name ASC");
+    $stmt=CDBConnection::getInstance()->prepare("SELECT id, name FROM ".CDBT_CATEGORIES." WHERE parent = :cat_path AND visible IS TRUE ORDER BY type ASC, name ASC");
     $stmt->bindParam('cat_path',$category_id,PDO::PARAM_INT);
     $stmt->execute();
     return $stmt->fetchAll(PDO::FETCH_ASSOC);

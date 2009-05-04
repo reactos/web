@@ -33,37 +33,44 @@ class Entry
    *
    * @access public
    */
-  public static function add( $title, $version, $category, $description, $tags, $update = false )
+  public static function add( $type, $name, $version, $category, $description )
   {
     // search for existing entry
-    $entry_id = self::getId($title, $version);
+    $entry = self::get($type, $name);
 
     // insert new entry
-    if ($entry_id === false) {
+    if ($entry === false) {
 
       // check category type
       if (!ctype_digit((string)$category) || $category == 0) {
-        echo 'Error: Unknown Categorie';
+        echo 'Error: Invalid category';
+        return false;
+      }
+      
+      // check type
+      if ($type != 'app' && $type != 'dll' && $type != 'drv' && $type != 'oth') {
+        echo 'Error: Invalid type';
         return false;
       }
 
       // insert
-      $stmt=CDBConnection::getInstance()->prepare("INSERT INTO ".CDBT_ENTRIES." (name, version, category_id, description, created, modified, visible) VALUES (:name, :version, :category, :description, NOW(), NOW(), TRUE)");
-      $stmt->bindParam('name',$title,PDO::PARAM_STR);
-      $stmt->bindParam('version',$version,PDO::PARAM_STR);
+      $stmt=CDBConnection::getInstance()->prepare("INSERT INTO ".CDBT_ENTRIES." (type, name, category_id, description, created, modified, visible) VALUES (:type, :name, :category, :description, NOW(), NOW(), TRUE)");
+      $stmt->bindParam('type',$type,PDO::PARAM_STR);
+      $stmt->bindParam('name',$name,PDO::PARAM_STR);
       $stmt->bindParam('category',$category,PDO::PARAM_INT);
       $stmt->bindParam('description',$description,PDO::PARAM_STR);
       if(!$stmt->execute()) {
         return false;
       }
 
-      $entry_id = self::getId($title, $version);
+      $entry = self::get($type, $name);
     }
 
     // update entry
-    elseif ($update) {
-      $stmt=CDBConnection::getInstance()->prepare("UPDATE ".CDBT_ENTRIES." SET category=:category, description=:description, modified=NOW() WHERE id=:entry_id");
-      $stmt->bindParam('entry_id',$entry_id,PDO::PARAM_STR);
+    elseif ($category != $entry['category_id'] || $description != $entry['description']) {
+    
+      $stmt=CDBConnection::getInstance()->prepare("UPDATE ".CDBT_ENTRIES." SET category_id=:category, description=:description, modified=NOW() WHERE id=:entry_id");
+      $stmt->bindParam('entry_id',$entry['id'],PDO::PARAM_INT);
       $stmt->bindParam('category',$category,PDO::PARAM_INT);
       $stmt->bindParam('description',$description,PDO::PARAM_STR);
       if(!$stmt->execute()) {
@@ -71,7 +78,18 @@ class Entry
       }
     }
 
-    return $entry_id;
+    // insert version
+    $ver = self::getVersionId($entry['id'], $version);
+    if ($ver === false) {
+      $stmt=CDBConnection::getInstance()->prepare("INSERT INTO ".CDBT_VERSIONS." (entry_id, version, created) VALUES (:entry_id, :version, NOW())");
+      $stmt->bindParam('entry_id',$entry['id'],PDO::PARAM_INT);
+      $stmt->bindParam('version',$version,PDO::PARAM_STR);
+      if(!$stmt->execute()) {
+        return false;
+      }
+    }
+
+    return array('entry'=>$entry['id'],'version'=>self::getVersionId($entry['id'],$version));
   } // end of member function add
 
 
@@ -81,21 +99,24 @@ class Entry
    *
    * @access public
    */
-  public static function addReport( $entry_id, $revision, $status = false )
+  public static function addReport( $entry_id, $version_id, $revision, $env, $env_version, $status = 'not' )
   {
     global $RSDB_intern_user_id;
 
     // check if entry exists
-    if ($entry_id === false) {
+    if ($entry_id === false || $version_id === false) {
       echo 'Error: Unknown entry';
       return false;
     }
 
     // insert
-    $stmt=CDBConnection::getInstance()->prepare("INSERT INTO ".CDBT_REPORTS." (entry_id, user_id, revision, works, created, visible, disabled) VALUES (:entry_id, :user_id, :revision, :status, NOW(), TRUE, FALSE)");
+    $stmt=CDBConnection::getInstance()->prepare("INSERT INTO ".CDBT_REPORTS." (entry_id, version_id, user_id, revision, environment, environment_version, works, created, visible, disabled) VALUES (:entry_id, :version_id, :user_id, :revision, :env, :env_ver, :status, NOW(), TRUE, FALSE)");
     $stmt->bindParam('entry_id',$entry_id,PDO::PARAM_INT);
+    $stmt->bindParam('version_id',$version_id,PDO::PARAM_INT);
     $stmt->bindParam('user_id',$RSDB_intern_user_id,PDO::PARAM_INT);
     $stmt->bindParam('revision',$revision,PDO::PARAM_INT);
+    $stmt->bindParam('env',$env,PDO::PARAM_STR);
+    $stmt->bindParam('env_ver',$env_version,PDO::PARAM_STR);
     $stmt->bindParam('status',$status,PDO::PARAM_STR);
     return $stmt->execute();
   } // end of member function addReport
@@ -133,11 +154,46 @@ class Entry
    *
    * @access public
    */
-  public static function getId( $title, $version )
+  public static function get( $type, $name )
   {
     // search for existing entry
-    $stmt=CDBConnection::getInstance()->prepare("SELECT id FROM ".CDBT_ENTRIES." WHERE name LIKE :name AND version LIKE :version LIMIT 1");
-    $stmt->bindParam('name',$title,PDO::PARAM_STR);
+    $stmt=CDBConnection::getInstance()->prepare("SELECT id, type, name, description, category_id FROM ".CDBT_ENTRIES." WHERE name LIKE :name AND type = :type LIMIT 1");
+    $stmt->bindParam('name',$name,PDO::PARAM_STR);
+    $stmt->bindParam('type',$type,PDO::PARAM_STR);
+    $stmt->execute();
+    return $stmt->fetchOnce(PDO::FETCH_ASSOC);
+  } // end of member function add
+
+
+
+  /**
+   * @FILLME
+   *
+   * @access public
+   */
+  public static function getEntryId( $type, $name )
+  {
+    // search for existing entry
+    $entry = self::get($type, $name);
+    if ($entry !== false) {
+      return $entry['id'];
+    }
+    return false;
+  } // end of member function add
+
+
+
+  /**
+   * @FILLME
+   *
+   * @access public
+   */
+  public static function getVersionId( $entry_id, $version)
+  {
+    // search for existing entry
+    // search for existing entry
+    $stmt=CDBConnection::getInstance()->prepare("SELECT id FROM ".CDBT_VERSIONS." WHERE entry_id = :entry_id AND version = :version ORDER BY created DESC LIMIT 1");
+    $stmt->bindParam('entry_id',$entry_id,PDO::PARAM_INT);
     $stmt->bindParam('version',$version,PDO::PARAM_STR);
     $stmt->execute();
     return $stmt->fetchColumn();
