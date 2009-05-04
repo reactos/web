@@ -1573,7 +1573,9 @@ function applyToEditor( http_request, objid )
     case 'diff2': 
       document.getElementById('frmdiff').innerHTML = http_request.responseText;
       loadEditor('diffentry');
-      document.getElementById('frmeditdiff').innerHTML = WDiffShortenOutput(WDiffString(document.getElementById('frmeditdiff1').innerHTML, document.getElementById('frmeditdiff2').innerHTML));
+      if (document.getElementById('frmeditdiff1') && document.getElementById('frmeditdiff2')) {
+        document.getElementById('frmeditdiff').innerHTML = WDiffShortenOutput(WDiffString(document.getElementById('frmeditdiff1').innerHTML, document.getElementById('frmeditdiff2').innerHTML));
+      }
       break;
 
     case 'changetags':

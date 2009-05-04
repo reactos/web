@@ -317,7 +317,7 @@ class Backend_ViewEditor extends Backend
     $revisions_count = $stmt->fetchColumn();
 
     // No compare
-    if ($revisions_count == 0) {
+    if ($revisions_count < 2) {
       $stmt=&DBConnection::getInstance()->prepare("SELECT name FROM ".ROSCMST_LANGUAGES." WHERE id=:lang_id");
       $stmt->bindParam('lang_id',Language::getStandardId(),PDO::PARAM_INT);
       $stmt->execute();
