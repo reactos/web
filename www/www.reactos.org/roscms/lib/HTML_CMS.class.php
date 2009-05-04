@@ -138,7 +138,7 @@ abstract class HTML_CMS extends HTML
     // Statistics branch tab
     if ($thisuser->hasAccess('stats')) {
       echo_strip('
-        <th'.(($this->branch == 'stats') ? ' class="active"' : '').'>
+        <th'.(($this->branch == 'stats') ? ' class="active"' : '').' style="display:none">
           <div class="corner_TL">
             <div class="corner_TR">
               <a class="text" href="'.RosCMS::getInstance()->pathInstance().'?page=data&amp;branch=stats" onclick="'."loadBranch()".'">Statistics</a>

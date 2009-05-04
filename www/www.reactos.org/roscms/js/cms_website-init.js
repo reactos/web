@@ -68,7 +68,7 @@ tinyMCE.init({
   theme_advanced_toolbar_location : "top",
   theme_advanced_toolbar_align : "left",
   theme_advanced_statusbar_location : "bottom",
-  theme_advanced_resizing : false,
+  theme_advanced_resizing : true,
 
   plugi2n_insertdate_dateFormat : "%Y-%m-%d",
   plugi2n_insertdate_timeFormat : "%H:%M:%S",

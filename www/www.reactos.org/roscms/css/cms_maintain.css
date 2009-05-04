@@ -27,3 +27,14 @@
 #usertable { min-height: 200px; background-color: white; }
 
 #lmAccess { margin-top: 1.5em; }
+
+LABEL {
+  display: block;
+  font-weight:bold;
+  color: #369;
+}
+LABEL.normal {
+  display: inline;
+  font-weight: normal;
+  color: black;
+}

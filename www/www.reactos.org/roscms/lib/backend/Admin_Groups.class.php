@@ -75,16 +75,19 @@ class Admin_Groups extends Admin
 
     // list rights in header
     foreach ($rights as $right) {
-      echo '<th style="vertical-align:bottom;" title="'.$right['name'].': '.$right['description'].'"><img src="'.RosCMS::getInstance()->pathInstance().'?page=presentation&amp;type=vtext&amp;text='.$right['name'].'" alt="'.$right['name'].'" /></th>';
+      echo '<th style="vertical-align:bottom;" title="'.$right['name'].': '.$right['description'].'"><img src="'.RosCMS::getInstance()->pathInstance().'?page=presentation&amp;type=vtext&amp;text='.$right['name'].'&bgcolor=5984C3&textc=ffffff" alt="'.$right['name'].'" /></th>';
     }
     echo '</tr></thead><tbody>';
 
     // get list of Groups
     $stmt=&DBConnection::getInstance()->prepare("SELECT id, name, description FROM ".ROSCMST_ACCESS." ORDER BY name ASC");
     $stmt->execute();
+    $x=0;
     while ($access = $stmt->fetch(PDO::FETCH_ASSOC)) {
+    ++$x;
+    
       echo_strip('
-        <tr title="'.htmlspecialchars($access['description']).'">
+        <tr id="tr'.$x.'" class="'.($x%2 ? 'even' : 'odd').'" onmouseover="'."hlRow('tr".$x."',1)".'" onmouseout="'."hlRow('tr".$x."',2)".'" title="'.htmlspecialchars($access['description']).'">
           <td>'.htmlspecialchars($access['name']).'</td>');
 
       // list rights per group
@@ -117,8 +120,8 @@ class Admin_Groups extends Admin
     while ($area = $stmt->fetch(PDO::FETCH_ASSOC)) {
       ++$x;
       echo_strip('
-        <tr id="trg'.$x.'" class="'.($x%2 ? 'even' : 'odd').'" onmouseover="'."hlRow('tr".$x."',1)".'" onmouseout="'."hlRow('tr".$x."',2)".'">
-          <td title="'.$area['description'].'"><label for="area'.$area['id'].'">'.$area['name'].'</label></td>
+        <tr id="trg'.$x.'" class="'.($x%2 ? 'even' : 'odd').'" onmouseover="'."hlRow('trg".$x."',1)".'" onmouseout="'."hlRow('trg".$x."',2)".'">
+          <td title="'.$area['description'].'"><label class="normal" for="area'.$area['id'].'">'.$area['name'].'</label></td>
           <td><input type="checkbox" value="1" name="area'.$area['id'].'" id="area'.$area['id'].'" /></td>
         </tr>');
     }
@@ -219,7 +222,7 @@ class Admin_Groups extends Admin
     while ($group = $stmt->fetch(PDO::FETCH_ASSOC)) {
       ++$x;
       echo_strip ('
-        <tr id="tr'.($x).'" class="'.($x%2 ? 'odd' : 'even').'" onclick="'."editGroup(".$group['id'].")".'" onmouseover="'."hlRow(this.id,1)".'" onmouseout="'."hlRow(this.id,2)".'">
+        <tr id="trg'.($x).'" class="'.($x%2 ? 'odd' : 'even').'" onclick="'."editGroup(".$group['id'].")".'" onmouseover="'."hlRow(this.id,1)".'" onmouseout="'."hlRow(this.id,2)".'">
           <td>'.$group['security_level'].'</td>
           <td>'.$group['name'].'</td>
           <td>'.htmlentities($group['description']).'</td>
@@ -303,13 +306,16 @@ class Admin_Groups extends Admin
         <br />
         <fieldset>
           <legend>configure group access rights</legend>
-          <table>
-            <tr>
-              <th>ACL Name</th>');
+          <table class="roscmsTable">
+            <thead>
+              <tr>
+                <th>ACL Name</th>');
     foreach ($rights as $right) {
-      echo '<th style="vertical-align:bottom;" title="'.$right['name'].': '.$right['description'].'"><img src="'.RosCMS::getInstance()->pathInstance().'?page=presentation&amp;type=vtext&amp;text='.$right['name'].'" alt="'.$right['name'].'" /></th>';
+      echo '<th style="vertical-align:bottom;" title="'.$right['name'].': '.$right['description'].'"><img src="'.RosCMS::getInstance()->pathInstance().'?page=presentation&amp;type=vtext&amp;text='.$right['name'].'&bgcolor=5984C3&textc=ffffff" alt="'.$right['name'].'" /></th>';
     }
-    echo '</tr>';
+    echo '
+        </tr>
+      </thead>';
 
     // for usage in loop
     $stmt_is=&DBConnection::getInstance()->prepare("SELECT TRUE FROM ".ROSCMST_ACL." WHERE group_id=:group_id AND right_id=:right_id AND access_id=:access_id LIMIT 1");
@@ -318,10 +324,13 @@ class Admin_Groups extends Admin
     // show current ACL settings
     $stmt=&DBConnection::getInstance()->prepare("SELECT id, name, description FROM ".ROSCMST_ACCESS." ORDER BY name ASC");
     $stmt->execute();
+    $x=0;
     while ($access = $stmt->fetch(PDO::FETCH_ASSOC)) {
+      ++$x;
+
       $stmt_is->bindParam('access_id',$access['id'],PDO::PARAM_INT);
       echo_strip('
-        <tr title="'.htmlspecialchars($access['description']).'">
+        <tr id="tr'.$x.'" class="'.($x%2 ? 'even' : 'odd').'" onmouseover="'."hlRow('tr".$x."',1)".'" onmouseout="'."hlRow('tr".$x."',2)".'" title="'.htmlspecialchars($access['description']).'">
           <td>'.htmlspecialchars($access['name']).'</td>');
 
       // show right per group
@@ -341,10 +350,13 @@ class Admin_Groups extends Admin
         <br />
         <fieldset>
           <legend>Area Protection List (APL)</legend>
-          <table>
-            <tr>
-              <th>APL Name</th>
-              <th>Status</th>');
+          <table class="roscmsTable">
+            <thead>
+              <tr>
+                <th>APL Name</th>
+                <th>Status</th>
+              </tr>
+            </thead>');
               
     // for usage in loop
       $stmt_is=&DBConnection::getInstance()->prepare("SELECT TRUE FROM ".ROSCMST_AREA_ACCESS." WHERE group_id=:group_id AND area_id=:area_id LIMIT 1");
@@ -353,14 +365,17 @@ class Admin_Groups extends Admin
     // show current APL settings
     $stmt=&DBConnection::getInstance()->prepare("SELECT id, name, description FROM ".ROSCMST_AREA." ORDER BY name ASC");
     $stmt->execute();
+    $x=0;
     while ($area = $stmt->fetch(PDO::FETCH_ASSOC)) {
+      ++$x;
+    
       $stmt_is->bindParam('area_id',$area['id'],PDO::PARAM_INT);
       $stmt_is->execute();
       $is = $stmt_is->fetchColumn();
 
       echo_strip('
-        <tr>
-          <td title="'.$area['description'].'"><label for="area'.$area['id'].'">'.$area['name'].'</label></td>
+        <tr id="trg'.$x.'" class="'.($x%2 ? 'even' : 'odd').'" onmouseover="'."hlRow('trg".$x."',1)".'" onmouseout="'."hlRow('trg".$x."',2)".'">
+          <td title="'.$area['description'].'"><label class="normal" for="area'.$area['id'].'">'.$area['name'].'</label></td>
           <td><input type="checkbox" value="1" name="area'.$area['id'].'" id="area'.$area['id'].'"'.($is ? ' checked="checked"' : '').' /></td>
         </tr>');
     }

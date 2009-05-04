@@ -367,8 +367,7 @@ class Backend_ViewEditor extends Backend
             &nbsp;&nbsp;<span id="mefasi">&nbsp;</span>
           </div>
         </div>
-      </div>
-      <div id="frmdiff" style="display:none;"></div>');
+      </div>');
   } // end of member function showEditor
 
 

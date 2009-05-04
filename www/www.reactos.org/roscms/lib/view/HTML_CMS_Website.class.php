@@ -318,7 +318,7 @@ class HTML_CMS_Website extends HTML_CMS
                 <div id="frmedithead" style="padding-bottom: 10px;">&nbsp;</div>
                 <div style="width:100%;">
                   <div id="editzone">&nbsp;</div>
-                  <div id="frmdiff"></div>
+                  <div id="frmdiff" style="display:none;"></div>
                 </div>
               </div>
               <div id="previewarea" style="display:none;">

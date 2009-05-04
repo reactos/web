@@ -74,8 +74,7 @@ class Backend_ViewUserDetails extends Backend
         <p><strong>Registered:</strong> '.$user['created'].'</p>
         <p>Account is '.($user['disabled']==false?'enabled':'disabled').'
           &nbsp;(
-          <span class="frmeditbutton" onclick="'."setAccount(".$user['id'].", '".($user['disabled']==false?'disable':'enable')."')".'">&nbsp;'.($user['disabled']==false?'disable':'enable').'</span> 
-          it)
+          <span class="virtualLink" onclick="'."setAccount(".$user['id'].", '".($user['disabled']==false?'disable':'enable')."')".'">'.($user['disabled']==false?'disable':'enable').' account</span>)
         </p>');
     }
 

@@ -37,7 +37,6 @@ class Backend_UserDetails extends Backend
   {
     parent::__construct();
 
-        echo $_GET['action'];
     // some userdata has to be updated ?
     if (isset($_GET['action'])) {
       switch ($_GET['action']) {

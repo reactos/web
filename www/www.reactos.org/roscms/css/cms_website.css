@@ -90,3 +90,4 @@
 
 .deletebutton { cursor:pointer; color:#006090; font-weight: bold; }
 
+#previewzone {background-color: white;min-height: 300px;padding-top: 10px;}

@@ -51,9 +51,11 @@ function clearSearchBox( id )
 {
   if (id.value == search_phrase) {
     id.value = '';
+    id.style.color='black';
   }
   else if (id.value === '') {
     id.value = search_phrase;
+    id.style.color='gray';
   }
 } // end of function clearSearchBox
 

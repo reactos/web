@@ -292,7 +292,7 @@ class HTML_CMS_Maintain extends HTML_CMS
               <div id="pageAccess" style="display: none;">
                 <div class="toolbar">
                   <div class="button" onclick="addAccess()">
-                    <img src="'.RosCMS::getInstance()->pathRosCMS().'images/clear.gif" alt="" />
+                    <img src="'.RosCMS::getInstance()->pathRosCMS().'images/new.png" alt="" />
                     <span class="text">add new</span>
                   </div>
                 </div>
@@ -317,7 +317,7 @@ class HTML_CMS_Maintain extends HTML_CMS
               <div id="pageGroups" style="display: none;">
                 <div class="toolbar">
                   <div class="button" onclick="addGroup()">
-                    <img src="'.RosCMS::getInstance()->pathRosCMS().'images/clear.gif" alt="" />
+                    <img src="'.RosCMS::getInstance()->pathRosCMS().'images/new.png" alt="" />
                     <span class="text">add new</span>
                   </div>
                 </div>
@@ -339,7 +339,7 @@ class HTML_CMS_Maintain extends HTML_CMS
               <div id="pageLanguages" style="display: none;">
                 <div class="toolbar">
                   <div class="button" onclick="addLanguage()">
-                    <img src="'.RosCMS::getInstance()->pathRosCMS().'images/clear.gif" alt="" />
+                    <img src="'.RosCMS::getInstance()->pathRosCMS().'images/new.png" alt="" />
                     <span class="text">add new</span>
                   </div>
                 </div>
