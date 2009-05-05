@@ -769,7 +769,7 @@ class User {
 		$_SESSION['wsToken'] = $this->mToken;
 		
 		/* If the User ID we got does not match with the User ID stored in the session variable, a login/logout was performed, so invalidate the cache. */
-		if($_SESSION["wsUserID"] != $this->mId)
+		if(isset($_SESSION["wsUserID"]) && $_SESSION["wsUserID"] != $this->mId)
 		{
 			$_SESSION["wsUserID"] = $this->mId;
 			$this->invalidateCache();
