@@ -208,7 +208,7 @@ class Generate
     $file_name = $data_name.'.'.$file_extension;
 
     // information, what was generated
-    echo $this->lang_id.'--'.$file_name.'<br />';
+    echo $this->lang.'--'.$file_name.'<br />';
 
     // needed by replacing functions
     $this->page_name = $data_name;
@@ -281,7 +281,7 @@ class Generate
       $file_name = $data_name.'_'.$i.'.'.$file_extension;
 
       // information, what was generated
-      echo $this->lang_id.'--'.$file_name.'<br />';
+      echo $this->lang.'--'.$file_name.'<br />';
 
       // needed by replacing functions
       $this->page_name = $data_name;
@@ -393,9 +393,7 @@ class Generate
 
       // only run update once per $rev_id
       if ($dependency['type'] != 'script') {
-
         $this->update($dependency['id'], $dynamic_num);
-        break;
       }
     } // end while dependency
 
