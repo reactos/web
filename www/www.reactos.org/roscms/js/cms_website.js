@@ -1811,6 +1811,9 @@ function loadMenu( objid )
 
   window.clearTimeout(autosave_timer);
   autosave_cache = '';
+  
+  // stop richt text editors
+  rtestop();
 
   if (document.getElementById('smenutab'+objid.substring(8)).className !== 'lmItemTopSelected') {
     highlightTab(objid);
