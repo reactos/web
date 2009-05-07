@@ -55,7 +55,7 @@ class EMail
     }
 
     // email addresses
-    $receiver = htmlentities($receiver, ENT_NOQUOTES, 'UTF-8');
+    $receiver = htmlspecialchars($receiver, ENT_NOQUOTES, 'UTF-8');
 
     // header
     $headers = "";

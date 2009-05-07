@@ -233,7 +233,7 @@ class HTML_User_Login extends HTML_User
 
     $target_clean = '';
     if (isset($_REQUEST['target']) && preg_match('/^(\/[a-zA-Z0-9!$%&,\'()*+\-.\/:;=?@_~]+)$/', $_REQUEST['target'], $matches)) {
-      $target_clean = htmlentities($matches[1]);
+      $target_clean = htmlspecialchars($matches[1]);
     }
 
     echo_strip('

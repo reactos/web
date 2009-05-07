@@ -172,7 +172,7 @@ class Admin_ACL extends Admin
         <tr id="tra'.($x).'" class="'.($x%2 ? 'odd' : 'even').'" onclick="'."editAccess(".$access['id'].")".'" onmouseover="'."hlRow(this.id,1)".'" onmouseout="'."hlRow(this.id,2)".'">
           <td>'.$access['standard'].'</td>
           <td>'.$access['name'].'</td>
-          <td>'.htmlentities($access['description']).'</td>
+          <td>'.htmlspecialchars($access['description']).'</td>
         </tr>');
     }
 

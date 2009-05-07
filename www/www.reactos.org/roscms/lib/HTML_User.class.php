@@ -89,7 +89,7 @@ abstract class HTML_User extends HTML
       echo_strip('
         <h2>Account</h2>
         <ul>
-          <li title="'.htmlentities($thisuser->name()).'">&nbsp;Nick:&nbsp;'.htmlentities($thisuser->name()).'</li>
+          <li title="'.htmlspecialchars($thisuser->name()).'">&nbsp;Nick:&nbsp;'.htmlspecialchars($thisuser->name()).'</li>
           <li><a href="'.$config->pathInstance().'?page=my">My Profile</a></li>
           <li><a href="'.$config->pathInstance().'?page=search">User Search</a></li>
           <li><a href="'.$config->pathGenerated().'peoplemap/">User Map</a></li>');
@@ -128,38 +128,50 @@ abstract class HTML_User extends HTML
       <ul>
         <li> 
           <div style="text-align:center;"> 
-            <select id="select" size="1" name="select" class="selectbox" style="width:140px" onchange="'."window.location.href = '".$config->pathInstance().'?'.htmlentities($_SERVER['QUERY_STRING'])."&lang=' + this.options[this.selectedIndex].value".'">
-              <optgroup label="current language">'); 
+            <select id="select" size="1" name="select" class="selectbox" style="width:140px" onchange="'."window.location.href = '".$config->pathInstance().'?'.htmlspecialchars($_SERVER['QUERY_STRING'])."&lang=' + this.options[this.selectedIndex].value".'">');
 
-    // print current language
-    $stmt=&DBConnection::getInstance()->prepare("SELECT id, name FROM ".ROSCMST_LANGUAGES." WHERE id = :lang_id");
-    $stmt->bindParam('lang_id',$thisuser->language(),PDO::PARAM_INT);
-    $stmt->execute();
-    $current_lang = $stmt->fetchOnce(PDO::FETCH_ASSOC);
+    // show current profile language of registered users
+    if ($thisuser->language() > 0) {
+      // print current language
+      $stmt=&DBConnection::getInstance()->prepare("SELECT id, name FROM ".ROSCMST_LANGUAGES." WHERE id = :lang_id");
+      $stmt->bindParam('lang_id',$thisuser->language(),PDO::PARAM_INT);
+      $stmt->execute();
+      $current_lang = $stmt->fetchOnce(PDO::FETCH_ASSOC);
 
-    echo_strip('
-        <option value="#">'.$current_lang['name'].'</option>
-      </optgroup>
-      <optgroup label="all languages">');
+      echo_strip('
+        <optgroup label="current language">
+          <option value="#">'.$current_lang['name'].'</option>
+        </optgroup>
+        <optgroup label="all languages">');
+
+      $stmt=&DBConnection::getInstance()->prepare("SELECT name, id, name_original FROM ".ROSCMST_LANGUAGES." WHERE id != :lang ORDER BY name ASC");
+      $stmt->bindParam('lang',$current_lang['id'],PDO::PARAM_INT);
+    }
+
+    // for guests show all
+    else {
+      $stmt=&DBConnection::getInstance()->prepare("SELECT name, id, name_original FROM ".ROSCMST_LANGUAGES." ORDER BY name ASC");
+    }
 
     // print available languages
-    $stmt=&DBConnection::getInstance()->prepare("SELECT name, id, name_original FROM ".ROSCMST_LANGUAGES." WHERE id != :lang ORDER BY name ASC");
-    $stmt->bindParam('lang',$current_lang['id'],PDO::PARAM_INT);
     $stmt->execute();
     while ($language = $stmt->fetch(PDO::FETCH_ASSOC)) {
 
       // display original name in brackets, if a localized version is available
       if ($language['name_original'] != '') {
-        echo '<option value="'.$language['id'].'">'.$language['name'].' ('.htmlentities($language['name_original']).')</option>';
+        echo '<option value="'.$language['id'].'">'.$language['name'].' ('.htmlspecialchars($language['name_original']).')</option>';
       }
       else {
         echo '<option value="'.$language['id'].'">'.$language['name'].'</option>';
       }
     }
+    
+    if ($thisuser->language() > 0) {
+      echo '</optgroup>';
+    }
 
     // close navigation and open content area
     echo_strip('
-                </optgroup>
               </select>
             </div>
           </li>

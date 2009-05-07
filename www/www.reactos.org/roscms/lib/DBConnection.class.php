@@ -53,6 +53,7 @@ class DBConnection extends PDO
       // show errors as warning, and use our own statement class
       $this->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_WARNING);
       $this->setAttribute(PDO::ATTR_STATEMENT_CLASS,array('DBStatement', array($this)));
+      $this->exec("SET names 'utf8'");
     }
     catch (PDOException $e) {
 

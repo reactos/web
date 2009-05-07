@@ -117,7 +117,7 @@ class Admin_Languages extends Admin
         <tr id="trl'.($x).'" class="'.($x%2 ? 'odd' : 'even').'" onclick="'."editLanguage(".$lang['id'].")".'" onmouseover="'."hlRow(this.id,1)".'" onmouseout="'."hlRow(this.id,2)".'">
           <td>'.$lang['name_short'].'</td>
           <td>'.$lang['name'].'</td>
-          <td>'.htmlentities($lang['name_original']).'</td>
+          <td>'.htmlspecialchars($lang['name_original']).'</td>
         </tr>');
     }
   } // end of member function showSearch

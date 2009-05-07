@@ -225,7 +225,7 @@ class Admin_Groups extends Admin
         <tr id="trg'.($x).'" class="'.($x%2 ? 'odd' : 'even').'" onclick="'."editGroup(".$group['id'].")".'" onmouseover="'."hlRow(this.id,1)".'" onmouseout="'."hlRow(this.id,2)".'">
           <td>'.$group['security_level'].'</td>
           <td>'.$group['name'].'</td>
-          <td>'.htmlentities($group['description']).'</td>
+          <td>'.htmlspecialchars($group['description']).'</td>
         </tr>');
     }
   } // end of member function showSearch

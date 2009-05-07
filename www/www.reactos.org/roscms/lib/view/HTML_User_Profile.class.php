@@ -86,7 +86,7 @@ class HTML_User_Profile extends HTML_User
               <h2>Profile Search</h2>
               <div class="field">
                 <label for="search">Username</label>
-                <input name="search" type="text" id="search" value="'.@htmlentities($_GET['search']).'" />
+                <input name="search" type="text" id="search" value="'.@htmlspecialchars($_GET['search']).'" />
               </div>
               <div class="field">
                 <input type="hidden" name="page" id="page" value="search" />

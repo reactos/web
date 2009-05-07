@@ -24,7 +24,7 @@ $db_host = 'localhost';
 $db_user = 'username';
 $db_pass = 'password';
 $db_name = 'roscms';
-$db_port = 3301;
+$db_port = 3306;
 
 // vars are unset in DBConnection class
 // !!! so be sure to use DBConnection or unset(..) yourself
