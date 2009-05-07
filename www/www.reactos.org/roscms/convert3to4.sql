@@ -156,13 +156,13 @@ UPDATE roscms_entries_access SET standard=TRUE WHERE name_short='default';
 -- --------------------------------------------------------
 CREATE TABLE roscms_entries_areas (
   id bigint(20) unsigned NOT NULL auto_increment,
-  name varchar(30) NOT NULL,
-  name_short varchar(15) NOT NULL,
-  description varchar(255) NOT NULL,
+  name varchar(30) collate utf8_unicode_ci NOT NULL,
+  name_short varchar(15) collate utf8_unicode_ci NOT NULL,
+  description varchar(255) collate utf8_unicode_ci NOT NULL,
   PRIMARY KEY  (id),
   UNIQUE KEY name_short (name_short),
   UNIQUE KEY `name` (name)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 INSERT INTO roscms_entries_areas VALUES
 (1, 'Translate', 'translate', 'user can translate this entry to the lang he has set in his profile'),
@@ -187,7 +187,7 @@ CREATE TABLE roscms_rel_acl (
   group_id bigint(20) unsigned NOT NULL COMMENT '->groups(id)',
   PRIMARY KEY  (id),
   UNIQUE KEY right_id (right_id,access_id,group_id)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 -- convert table
 INSERT INTO roscms_rel_acl
@@ -232,13 +232,13 @@ OR s.sec_allow LIKE CONCAT('%',g.name_short,'%'));
 -- --------------------------------------------------------
 CREATE TABLE roscms_area (
   id bigint(20) NOT NULL auto_increment,
-  `name` varchar(30) NOT NULL,
-  name_short varchar(18) NOT NULL,
-  description varchar(255) NOT NULL,
-  PRIMARY KEY  (id),
-  UNIQUE KEY `name` (`name`),
+  name varchar(30) collate utf8_unicode_ci NOT NULL,
+  name_short varchar(18) collate utf8_unicode_ci NOT NULL,
+  description varchar(255) collate utf8_unicode_ci NOT NULL,
+  PRIMARY KEY (id),
+  UNIQUE KEY name (name),
   UNIQUE KEY name_short (name_short)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 INSERT INTO roscms_area VALUES
 (1, 'System Tags', 'system_tags', 'Can the user modify/see system tags'),
@@ -288,7 +288,7 @@ CREATE TABLE roscms_rel_groups_area (
   group_id bigint(20) NOT NULL,
   area_id bigint(20) NOT NULL,
   PRIMARY KEY  (group_id,area_id)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 INSERT INTO roscms_rel_groups_area
 SELECT DISTINCT g.id, a.id
