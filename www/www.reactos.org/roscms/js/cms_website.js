@@ -1468,6 +1468,9 @@ function makeRequest( url, action, objid, format, kind, parameters )
             // page table main
             case 'ptm': 
               buildEntryTable(http_request, objid);
+
+              // stop richt text editors
+              rtestop();
               break;
 
             // main edit frame
@@ -1530,6 +1533,7 @@ function makeRequest( url, action, objid, format, kind, parameters )
     http_request.setRequestHeader("Content-length", parameters.length);
     http_request.setRequestHeader("If-Modified-Since", "Sat, 1 Jan 2000 00:00:00 GMT");	// Bypass the IE Cache
     http_request.setRequestHeader("Connection", "close");
+    http_request.setRequestHeader("Accept-Charset","UTF-8");
     http_request.send(parameters);
   }
   else {
@@ -1811,9 +1815,6 @@ function loadMenu( objid )
 
   window.clearTimeout(autosave_timer);
   autosave_cache = '';
-  
-  // stop richt text editors
-  rtestop();
 
   if (document.getElementById('smenutab'+objid.substring(8)).className !== 'lmItemTopSelected') {
     highlightTab(objid);
