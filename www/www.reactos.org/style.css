@@ -442,3 +442,13 @@ div.center {
 	font-size: 10px;
 	color: #367d10;
 }
+
+
+/* Quotes */
+.catchyquotes {
+	font-family: Georgia, "Times New Roman", Times, serif;
+	font-style: italic;
+	font-size: 24px;
+}
+
+
