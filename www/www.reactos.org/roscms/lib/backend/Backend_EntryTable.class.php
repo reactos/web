@@ -283,6 +283,37 @@ class Backend_EntryTable extends Backend
       return false;
     }
 
+    // @HACK
+    if (1) {
+      $stmt=&DBConnection::getInstance()->prepare("SELECT name FROM ".ROSCMST_ENTRIES." WHERE id=:data_id");
+      $stmt->bindParam('data_id',$revision['data_id'],PDO::PARAM_INT);
+      $stmt->execute();
+      $name = $stmt->fetchColumn();
+
+      $stmt=&DBConnection::getInstance()->prepare("SELECT r.id FROM ".ROSCMST_ENTRIES." d JOIN ".ROSCMST_REVISIONS." r ON r.data_id=d.id WHERE d.name = :name AND d.type='dynamic' AND r.archive IS FALSE AND r.status = 'stable' ORDER BY r.datetime DESC LIMIT 1");
+      if (strpos($name,'newsletter_') === 0) {
+        $stmt->bindValue('name','newsletter',PDO::PARAM_STR);
+      }
+      elseif (strpos($name,'news_page_') === 0) {
+        $stmt->bindValue('name','news_page',PDO::PARAM_STR);
+      }
+      elseif (strpos($name,'interview_') === 0) {
+        $stmt->bindValue('name','interview',PDO::PARAM_STR);
+      }
+      elseif (strpos($name,'blog_') === 0) {
+        $stmt->bindValue('name','blog',PDO::PARAM_STR);
+      }
+      else {
+        $stmt=null;
+      }
+
+      if ($stmt !== null) {
+        $stmt->execute();
+        $data = $stmt->fetchColumn();
+        Dependencies::addManual($data,$name,'content');
+      }
+    } // HACK END
+
     // make entry stable
     Revision::setStatus($revision['id'],'stable');
 
