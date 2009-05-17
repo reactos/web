@@ -17,7 +17,9 @@
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
     */
 
-.contentSmallTitle { display: block; line-height: normal; font-size: 14px; font-weight: bold; color: white; background-color: #5984C3; padding: 0px 0px 1px 10px; margin-top: 0px; }
+H1, .contentSmallTitle { display: block; line-height: normal; font-size: 14px; font-weight: bold; color: white; background-color: #5984C3; padding: 0px 0px 1px 10px; margin-top: 0px; }
+H1 A, .contentSmallTitle A {display: inline; color: white; text-decoration: none; }
+H1 A:hover, .contentSmallTitle A:hover {text-decoration: underline; }
 BODY { font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 83%; margin: 0px 0px 1em 0px; padding: 0px; background: white url('../images/topbar.jpg') repeat-x scroll top left; }
 
 

@@ -143,76 +143,76 @@ class HTML_User_LostPassword extends HTML_User
       else {
         echo '<h2>Lost Username or Password?</h2>';
       }
+    }
 
-      if (strlen($activation_code) > 6) {
-        echo_strip('
-          <div class="field">
-            <label for="userpwd1"'.(isset($_POST['registerpost']) ? ' style="color:red;"' : '').'>New Password</label>
-            <input type="password" name="userpwd1" tabindex="2" id="userpwd1" maxlength="50" />');
+    if (strlen($activation_code) > 6) {
+      echo_strip('
+        <div class="field">
+          <label for="userpwd1"'.(isset($_POST['registerpost']) ? ' style="color:red;"' : '').'>New Password</label>
+          <input type="password" name="userpwd1" tabindex="2" id="userpwd1" maxlength="50" />');
 
-        if ((isset($_POST['userpwd1']) && strlen($_POST['userpwd1']) > $config->limitUserNameMax())) {
-          echo_strip('
-            <br />
-            <em>Please use a stronger password! At least '.$config->limitPasswordMin().' characters, do not include common words or names, and combine three of these character types: uppercase letters, lowercase letters, numbers, or symbols (ASCII characters).</em>');
-        }
-        else {
-          echo_strip('
-            <br />
-            <div class="detail">uppercase letters, lowercase letters, numbers, and symbols (ASCII characters)</div>');
-        }
-        
+      if ((isset($_POST['userpwd1']) && strlen($_POST['userpwd1']) > $config->limitUserNameMax())) {
         echo_strip('
-          </div>
-          <div class="field">
-            <label for="userpwd2"'.(isset($_POST['registerpost']) ? ' style="color:red;"' : '').'>Re-type Password</label>
-            <input type="password" name="userpwd2" tabindex="3" id="userpwd2" maxlength="50" />
-          </div>');
+          <br />
+          <em>Please use a stronger password! At least '.$config->limitPasswordMin().' characters, do not include common words or names, and combine three of these character types: uppercase letters, lowercase letters, numbers, or symbols (ASCII characters).</em>');
       }
       else {
         echo_strip('
-          <div class="field">
-            <label for="useremail"'.((isset($_POST['registerpost']) && (empty($_POST['useremail']) || !EMail::isValid($_POST['useremail']))) ? ' style="color:red;"' : '').'>E-Mail</label>
-            <input name="useremail" type="text" tabindex="4" id="useremail"'.(isset($_POST['useremail']) ? 'value="'.$_POST['useremail'].'"' : '').' maxlength="50" />
-          </div>');
-      }
-
-      echo_strip('
-        <div class="field">
-          <label for="usercaptcha"'.(isset($_POST['registerpost'])? ' style="color:red;"' :'').'>Type the code shown</label>
-          <input type="text" name="usercaptcha" tabindex="7" id="usercaptcha" maxlength="50" />');
-
-      echo '
-          <script type="text/javascript">
-          <!--'."
-            var BypassCacheNumber = 0;
-
-            function CaptchaReload()
-            {
-              ++BypassCacheNumber;
-              document.getElementById('captcha').src = '".$config->pathInstance()."?page=captcha&nr=' + BypassCacheNumber;
-            }
-
-            document.write('".'<br /><span style="color:#817A71;">If you can\'t read this, try <a href="javascript:CaptchaReload()">another one</a>.</span>'."');
-          -->".'
-          </script>';
-      echo_strip('
-          <img id="captcha" src="'.$config->pathInstance().'?page=captcha" style="padding-top:10px;" alt="If you can\'t read this, try another one or email '.$config->emailSupport().' for help." title="Are you human?" />
-          <br />');
-
-      if (isset($_POST['registerpost'])) { 
-        echo_strip('
           <br />
-          <em>Captcha code is case insensitive. <br />If you can\'t read it, try another one.</em>');
+          <div class="detail">uppercase letters, lowercase letters, numbers, and symbols (ASCII characters)</div>');
       }
 
       echo_strip('
         </div>
         <div class="field">
-          <input name="registerpost" type="hidden" id="registerpost" value="reg" />
-          <button type="submit" name="submit">Send</button>
-          <button type="button" onclick="'."window.location=".$config->pathInstance()."'".'" style="color:#777777;">Cancel</button>
+          <label for="userpwd2"'.(isset($_POST['registerpost']) ? ' style="color:red;"' : '').'>Re-type Password</label>
+          <input type="password" name="userpwd2" tabindex="3" id="userpwd2" maxlength="50" />
         </div>');
     }
+    else {
+      echo_strip('
+        <div class="field">
+          <label for="useremail"'.((isset($_POST['registerpost']) && (empty($_POST['useremail']) || !EMail::isValid($_POST['useremail']))) ? ' style="color:red;"' : '').'>E-Mail</label>
+          <input name="useremail" type="text" tabindex="4" id="useremail"'.(isset($_POST['useremail']) ? 'value="'.$_POST['useremail'].'"' : '').' maxlength="50" />
+        </div>');
+    }
+
+    echo_strip('
+      <div class="field">
+        <label for="usercaptcha"'.(isset($_POST['registerpost'])? ' style="color:red;"' :'').'>Type the code shown</label>
+        <input type="text" name="usercaptcha" tabindex="7" id="usercaptcha" maxlength="50" />');
+
+    echo '
+        <script type="text/javascript">
+        <!--'."
+          var BypassCacheNumber = 0;
+
+          function CaptchaReload()
+          {
+            ++BypassCacheNumber;
+            document.getElementById('captcha').src = '".$config->pathInstance()."?page=captcha&nr=' + BypassCacheNumber;
+          }
+
+          document.write('".'<br /><span style="color:#817A71;">If you can\'t read this, try <a href="javascript:CaptchaReload()">another one</a>.</span>'."');
+        -->".'
+        </script>';
+    echo_strip('
+        <img id="captcha" src="'.$config->pathInstance().'?page=captcha" style="padding-top:10px;" alt="If you can\'t read this, try another one or email '.$config->emailSupport().' for help." title="Are you human?" />
+        <br />');
+
+    if (isset($_POST['registerpost'])) { 
+      echo_strip('
+        <br />
+        <em>Captcha code is case insensitive. <br />If you can\'t read it, try another one.</em>');
+    }
+
+    echo_strip('
+      </div>
+      <div class="field">
+        <input name="registerpost" type="hidden" id="registerpost" value="reg" />
+        <button type="submit" name="submit">Send</button>
+        <button type="button" onclick="'."window.location=".$config->pathInstance()."'".'" style="color:#777777;">Cancel</button>
+      </div>');
 
     echo_strip('
           <div class="corner_BL">

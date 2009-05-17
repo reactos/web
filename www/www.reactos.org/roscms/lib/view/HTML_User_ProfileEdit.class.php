@@ -330,13 +330,13 @@ class HTML_User_ProfileEdit extends HTML_User
         <fieldset>
           <legend style="color:#817A71;margin-bottom: 10px;">Login Settings</legend>
           <input name="loginoption1" style="width:auto;" type="checkbox" id="loginoption1" value="true"'.(isset($_POST['loginoption1']) || (empty($_POST['registerpost']) && $profile['match_session'] == true) ? ' checked="checked"' : '').' tabindex="11" />
-          <label style="display:inline;" for="loginoption1">Multisession</label>
+          <label style="display:inline;" for="loginoption1" title="allows to be logged in at the same time with different sessions">Multisession</label>
           <br />
           <input name="loginoption2" style="width:auto;" type="checkbox" id="loginoption2" value="true"'.(isset($_POST['loginoption2']) || (empty($_POST['registerpost']) && $profile['match_browseragent'] == true) ? ' checked="checked"' : '').' tabindex="12" /> 
-          <label style="display:inline;" for="loginoption2">Browser Agent Check</label>
+          <label style="display:inline;" for="loginoption2" title="checks if your browser agent is the same for each login">Browser Agent Check</label>
           <br />
           <input name="loginoption3" style="width:auto;" type="checkbox" id="loginoption3" value="true"'.((isset($_POST['loginoption3']) || (empty($_POST['registerpost']) && $profile['match_ip'] == true)) ? ' checked="checked"' : '').' tabindex="13" /> 
-          <label style="display:inline;" for="loginoption3">IP Address Check</label>
+          <label style="display:inline;" for="loginoption3" title="checks if you use the same ip address to log in">IP Address Check</label>
         </fieldset>
 
         <div class="field">
