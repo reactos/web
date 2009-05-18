@@ -287,7 +287,7 @@ class Backend_ViewUserTable extends Backend
             // set order field
             switch ($type_c) {
               case 'name': // accóunt name
-                $this->sql_order .= " u.name ";
+                $this->sql_order .= " LOWER(u.name) ";
                 break;
               case 'real-name': // real name
                 $this->sql_order .= " u.fullname ";
@@ -406,7 +406,8 @@ class Backend_ViewUserTable extends Backend
         break;
       case 'name': // account name
       default:
-        $this->sql_where .= " u.name";
+        $this->sql_where .= " LOWER(u.name)";
+        $searchtext = strtolower($searchtext);
         break;
     } // end switch
     $this->sql_where .= " LIKE ".DBConnection::getInstance()->quote('%'.$searchtext.'%',PDO::PARAM_STR)." ";

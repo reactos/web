@@ -568,7 +568,7 @@ class Backend_ViewEntryTable extends Backend
           // user
           case 'u': 
             // get user_id
-            $stmt=&DBConnection::getInstance()->prepare("SELECT id FROM ".ROSCMST_USERS." WHERE name = :user_name LIMIT 1");
+            $stmt=&DBConnection::getInstance()->prepare("SELECT id FROM ".ROSCMST_USERS." WHERE LOWER(name) = LOWER(:user_name) LIMIT 1");
             $stmt->bindParam('user_name',$type_c,PDO::PARAM_STR);
             $stmt->execute();
             $user_id = $stmt->fetchColumn();
