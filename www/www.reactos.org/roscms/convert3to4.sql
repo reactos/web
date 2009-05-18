@@ -571,7 +571,7 @@ ORDER BY tz_value;
 -- --------------------------------------------------------
 CREATE TABLE roscms_accounts (
   id bigint(20) unsigned NOT NULL auto_increment,
-  name varchar(20) collate utf8_unicode_ci NOT NULL,
+  name varchar(20) collate utf8_bin NOT NULL,
   password varchar(32) collate utf8_unicode_ci NOT NULL COMMENT 'md5 encoded',
   email varchar(150) collate utf8_unicode_ci NOT NULL,
   lang_id bigint(20) unsigned COMMENT '->languages(id)',

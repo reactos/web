@@ -69,10 +69,10 @@ class HTML_User_Register extends HTML_User
             <div class="corner_TR"></div>
           </div>');
 
-    if (isset($_POST['registerpost']) && $_POST['username'] != "" && strlen($_POST['username']) >= $config->limitUserNameMin()) {
+    if (isset($_POST['registerpost']) && isset($_POST['username']) && preg_match('/^[a-z0-9_\-[:space:]\.]{'.$config->limitUserNameMin().','.$config->limitUsernameMax().'}$/i')) {
 
       // check if another account with the same username already exists
-      $stmt=&DBConnection::getInstance()->prepare("SELECT name FROM ".ROSCMST_USERS." WHERE REPLACE(name, '_', ' ') = REPLACE(:username, '_', ' ') LIMIT 1");
+      $stmt=&DBConnection::getInstance()->prepare("SELECT name FROM ".ROSCMST_USERS." WHERE LOWER(REPLACE(name, '_', ' ')) = LOWER(REPLACE(:username, '_', ' ')) LIMIT 1");
       $stmt->bindParam('username',$_POST['username'],PDO::PARAM_STR);
       $stmt->execute();
       $name_exists = ($stmt->fetchColumn() !== false);
@@ -84,17 +84,11 @@ class HTML_User_Register extends HTML_User
 
       // name is not forbidden -> go on
       if ($stmt->fetchColumn() === false) {
-        if (isset($_POST['registerpost']) && isset($_POST['userpwd1']) && $_POST['userpwd1'] != '' && isset($_POST['userpwd2']) && $_POST['userpwd2'] != '' && $_POST['userpwd1'] == $_POST['userpwd2']) {
-          $stmt=&DBConnection::getInstance()->prepare("SELECT pwd_name FROM user_unsafepwds WHERE pwd_name = :pwd_name LIMIT 1");
-          $stmt->bindParam('pwd_name',$_POST['userpwd1'],PDO::PARAM_STR);
-          $stmt->execute();
-          $safepwd = ($stmt->fetchColumn() !== false);
-        }
 
         if (isset($_POST['registerpost']) && isset($_POST['useremail']) && $_POST['useremail'] != '') {
 
           // check if another account with the same email address already exists
-          $stmt=&DBConnection::getInstance()->prepare("SELECT user_email FROM users WHERE user_email = :email LIMIT 1");
+          $stmt=&DBConnection::getInstance()->prepare("SELECT email FROM ".ROSCMST_USERS." WHERE email = :email LIMIT 1");
           $stmt->bindParam('email',$_POST['useremail'],PDO::PARAM_STR);
           $stmt->execute();
           
@@ -116,7 +110,7 @@ class HTML_User_Register extends HTML_User
           $activation_code = substr($activation_code, 0, rand(10, 15));
 
           // add new account
-          $stmt=&DBConnection::getInstance()->prepare("INSERT INTO users ( user_name, user_roscms_password, user_register, user_register_activation, user_email, user_language ) VALUES ( :user_name, MD5( :password ), NOW(), :activation_code, :email, :lang )");
+          $stmt=&DBConnection::getInstance()->prepare("INSERT INTO ".ROSCMST_USERS." ( name, password, created, activation, email, language, modified ) VALUES ( :user_name, MD5( :password ), NOW(), :activation_code, :email, :lang, NOW() )");
           $stmt->bindParam('user_name',$_POST['username'],PDO::PARAM_STR);
           $stmt->bindParam('password',$_POST['userpwd1'],PDO::PARAM_STR);
           $stmt->bindParam('activation_code',$activation_code,PDO::PARAM_STR);
@@ -124,13 +118,13 @@ class HTML_User_Register extends HTML_User
           $stmt->bindParam('lang',$userlang,PDO::PARAM_STR);
           $stmt->execute();
 
-          $stmt=&DBConnection::getInstance()->prepare("SELECT user_id FROM users WHERE user_name = :user_name ORDER BY user_id DESC LIMIT 1");
+          $stmt=&DBConnection::getInstance()->prepare("SELECT id FROM ".ROSCMST_USERS." WHERE LOWER(name) = LOWER(:user_name)");
           $stmt->bindParam('user_name',$_POST['username'],PDO::PARAM_INT);
           $stmt->execute();
           $user_id = $stmt->fetchColumn();
 
           // give a 'user' group membership
-          $stmt=&DBConnection::getInstance()->prepare("INSERT INTO usergroup_members (usergroupmember_userid, usergroupmember_usergroupid) VALUES (:user_id, 'user')");
+          $stmt=&DBConnection::getInstance()->prepare("INSERT INTO ".ROSCMST_MEMBERSHIPS." (user_id, group_id) SELECT :user_id, id FROM ".ROSCMST_GROUPS." WHERE name_short = 'user' LIMIT 1");
           $stmt->bindParam('user_id',$user_id,PDO::PARAM_INT);
           $stmt->execute();
 

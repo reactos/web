@@ -56,14 +56,14 @@ class HTML_User_Profile extends HTML_User
     if ($this->search && empty($_GET['user_id'])) {
 
       if (isset($_GET['search'])) {
-        $stmt=&DBConnection::getInstance()->prepare("SELECT COUNT(*) FROM ".ROSCMST_USERS." WHERE name LIKE :nickname OR fullname LIKE :fullname");
+        $stmt=&DBConnection::getInstance()->prepare("SELECT COUNT(*) FROM ".ROSCMST_USERS." WHERE LOWER(name) LIKE LOWER(:nickname) OR fullname LIKE :fullname");
         $stmt->bindValue('nickname','%'.$_GET['search'].'%',PDO::PARAM_STR);
         $stmt->bindValue('fullname','%'.$_GET['search'].'%',PDO::PARAM_STR);
         $stmt->execute();
         $users_found = $stmt->fetchColumn();
 
         if ($users_found == 1) {
-          $stmt=&DBConnection::getInstance()->prepare("SELECT id FROM ".ROSCMST_USERS." WHERE name LIKE :nickname OR fullname LIKE :fullname LIMIT 1");
+          $stmt=&DBConnection::getInstance()->prepare("SELECT id FROM ".ROSCMST_USERS." WHERE LOWER(name) LIKE LOWER(:nickname) OR fullname LIKE :fullname LIMIT 1");
           $stmt->bindValue('nickname','%'.$_GET['search'].'%',PDO::PARAM_STR);
           $stmt->bindValue('fullname','%'.$_GET['search'].'%',PDO::PARAM_STR);
           $stmt->execute();
@@ -102,7 +102,7 @@ class HTML_User_Profile extends HTML_User
         if (isset($_GET['search']) && $_GET['search'] != '') {
           echo '<ul>';
 
-          $stmt=&DBConnection::getInstance()->prepare("SELECT name, fullname, id FROM ".ROSCMST_USERS." WHERE name LIKE :nickname OR fullname LIKE :fullname ORDER BY name ASC LIMIT 100");
+          $stmt=&DBConnection::getInstance()->prepare("SELECT name, fullname, id FROM ".ROSCMST_USERS." WHERE LOWER(name) LIKE LOWER(:nickname) OR fullname LIKE :fullname ORDER BY name ASC LIMIT 100");
           $stmt->bindValue('nickname','%'.$_GET['search'].'%',PDO::PARAM_STR);
           $stmt->bindValue('fullname','%'.$_GET['search'].'%',PDO::PARAM_STR);
           $stmt->execute();
@@ -120,7 +120,7 @@ class HTML_User_Profile extends HTML_User
       }
       else {
         if (empty($user_id) || $user_id === false) {
-          $stmt=&DBConnection::getInstance()->prepare("SELECT id FROM ".ROSCMST_USERS." WHERE name = :user_name LIMIT 1");
+          $stmt=&DBConnection::getInstance()->prepare("SELECT id FROM ".ROSCMST_USERS." WHERE LOWER(name) = LOWER(:user_name) LIMIT 1");
           $stmt->bindParam('user_name',rawurldecode(@$_GET['user_name']));
           $stmt->execute();
           $user_id = $stmt->fetchColumn();

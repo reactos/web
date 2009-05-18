@@ -112,7 +112,7 @@ class HTML_User_Login extends HTML_User
       }
 
       // get user data
-      $stmt=&DBConnection::getInstance()->prepare("SELECT id, password, logins, disabled, match_session FROM ".ROSCMST_USERS." WHERE name = :user_name LIMIT 1");
+      $stmt=&DBConnection::getInstance()->prepare("SELECT id, password, logins, disabled, match_session FROM ".ROSCMST_USERS." WHERE LOWER(name) = LOWER(:user_name) LIMIT 1");
       $stmt->bindParam('user_name',$user_name,PDO::PARAM_STR);
       $stmt->execute() or die('DB error (user login #1)!');
       $user = $stmt->fetchOnce(); 
