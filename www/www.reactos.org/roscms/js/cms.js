@@ -39,7 +39,7 @@ var current_entry_table;
  */
 function loadBranch( )
 {
-  exitmsg = '';
+  window.onbeforeunload = null;
 } // end of function loadBranch
 
 

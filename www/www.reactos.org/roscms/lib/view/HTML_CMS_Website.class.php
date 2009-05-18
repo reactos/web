@@ -109,8 +109,6 @@ class HTML_CMS_Website extends HTML_CMS
 
         // favorite user language
         var userlang = ".$thisuser->language().";
-
-        var exitmsg = ".'"Click Cancel to continue with RosCMS, click OK to leave RosCMS.\n\nThanks for using RosCMS!"'."
       -->
       </script>";echo_strip('
       <div id="alertbox">

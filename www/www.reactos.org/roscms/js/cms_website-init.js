@@ -49,12 +49,7 @@ if (readCookie('labtitel3') == 0) TabOpenCloseEx('labtitel3');
 roscms_page_load_finished = true;
 
 // window unload blocker
-if (exitmsg !== '') {
-  window.onbeforeunload = exitmsg;
-}
-else {
-  window.onbeforeunload = false;
-}
+window.onbeforeunload = function() { return "Click Cancel to continue with RosCMS, click OK to leave RosCMS.\n\nThanks for using RosCMS!" };
 
 // initialise tinyMCE
 tinyMCE.init({
