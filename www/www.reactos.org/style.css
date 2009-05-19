@@ -104,7 +104,8 @@ a.extern {
 }
 
 #content li {
-	list-style-image: url('http://www.reactos.org/images/bullet.png')
+	list-style-image: url('http://www.reactos.org/images/bullet.png');
+	text-align: left;
 }
 
 #top {
