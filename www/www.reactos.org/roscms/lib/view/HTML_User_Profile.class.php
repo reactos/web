@@ -263,7 +263,7 @@ class HTML_User_Profile extends HTML_User
     else {
       echo_strip('
           <div class="u-link">
-            <a href="'.$config->pathInstance().'?page=search">raquo; Profile Search</a>
+            <a href="'.$config->pathInstance().'?page=search">&raquo; Profile Search</a>
           </div>');
     }
       echo_strip('
