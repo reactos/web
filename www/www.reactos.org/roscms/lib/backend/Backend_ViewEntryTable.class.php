@@ -108,7 +108,7 @@ class Backend_ViewEntryTable extends Backend
       echo '<view curpos="'.$page_offset.'" pagelimit="'.$this->page_limit.'" pagemax="'.$ptm_entries.'" tblcols="'.($this->column_list !== false ? '|'.$this->column_list.'|' : '').'" />';
 
       // prepare for usage in loop
-      $stmt_trans=&DBConnection::getInstance()->prepare("SELECT r.data_id, d.name, d.type, r.id, r.version, r.lang_id, r.datetime, r.user_id FROM ".ROSCMST_ENTRIES." d JOIN ".ROSCMST_REVISIONS." r ON r.data_id=d.id WHERE d.id = :data_id AND r.version > 0 AND r.lang_id = :lang AND r.archive = :archive LIMIT 1");
+      $stmt_trans=&DBConnection::getInstance()->prepare("SELECT r.data_id, d.name, d.type, r.id, r.version, r.lang_id, r.datetime, r.user_id FROM ".ROSCMST_ENTRIES." d JOIN ".ROSCMST_REVISIONS." r ON r.data_id=d.id WHERE d.id = :data_id AND r.status = 'stable' AND r.lang_id = :lang AND r.archive = :archive LIMIT 1");
       $stmt_trans->bindParam('archive',$this->archive_mode,PDO::PARAM_BOOL);
       $stmt_trans->bindParam('lang',$this->translation_lang,PDO::PARAM_INT);
       $stmt_stext=&DBConnection::getInstance()->prepare("SELECT content FROM ".ROSCMST_STEXT." WHERE rev_id = :rev_id AND name = 'title' LIMIT 1");
@@ -185,7 +185,7 @@ class Backend_ViewEntryTable extends Backend
           }
           // translation already exists
           else {
-            if ($row['datetime'] > $translated_entry['datetime']) {
+            if (strtotime($row['datetime']) < strtotime($translated_entry['datetime'])) {
               $line_status = 'transg';
             }
             else {
