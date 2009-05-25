@@ -76,6 +76,11 @@ class Entry
   {
     $type_update = false;
     $name_update = false;
+
+    // call old data types as array index to get the short version
+    $convert = array(
+      'content'=>'cont',
+      'script'=>'inc');
   
     // get entry
     $stmt=&DBConnection::getInstance()->prepare("SELECT name, type, access_id FROM ".ROSCMST_ENTRIES." WHERE id = :data_id LIMIT 1");
@@ -89,47 +94,48 @@ class Entry
     }
 
     // update data type
-    if ($data_type != '' && $data_type != $data['type']) {
+    if (isset($convert[$type]) && $type != $data['type']) {
       $type_update = true;
 
       $stmt=&DBConnection::getInstance()->prepare("UPDATE ".ROSCMST_ENTRIES." SET type = :type_new WHERE id = :data_id LIMIT 1");
-      $stmt->bindParam('type_new',$data_type,PDO::PARAM_STR);
+      $stmt->bindParam('type_new',$type,PDO::PARAM_STR);
       $stmt->bindParam('data_id',$data_id,PDO::PARAM_INT);
       $stmt->execute();
-      Log::writeMedium('data-type changed: '.$data['type'].' =&gt; '.$data_type);
-      $new_data_type = $data_type;
+      Log::writeMedium('data-type changed: '.$data['type'].' =&gt; '.$type);
+      $new_type = $type;
     }
 
     // update data name
-    if ($data_name != '' && $data_name != $data['name']) {
+    if ($name != '' && $name != $data['name']) {
       $name_update = true;
 
       $stmt=&DBConnection::getInstance()->prepare("UPDATE ".ROSCMST_ENTRIES." SET name = :name_new WHERE id = :id LIMIT 1");
-      $stmt->bindParam('name_new',$data_name,PDO::PARAM_STR);
+      $stmt->bindParam('name_new',$name,PDO::PARAM_STR);
       $stmt->bindParam('id',$data_id,PDO::PARAM_INT);
       $stmt->execute();
-
-      Log::writeMedium('data-name changed: '.$data['name'].' =&gt; '.$data_name);
+      Log::writeMedium('data-name changed: '.$data['name'].' =&gt; '.$name);
+      $new_name = $name;
     }
 
     // update dependent entries
     if ($type_update || $name_update) {
 
-      // call old data types as array index to get the short version
-      $convert = array(
-        'content'=>'cont',
-        'script'=>'inc');
 
       // if the datatype has not changed, use the old one
-      if ($new_data_type == '') {
-        $new_data_type = $data['type'];
+      if (!isset($new_type)) {
+        $new_type = $data['type'];
+      }
+
+      // if the dataname has not changed, use the old one
+      if (!isset($new_name)) {
+        $new_name = $data['name'];
       }
 
       // update text content with new name and or types
       $stmt=&DBConnection::getInstance()->prepare("UPDATE ".ROSCMST_TEXT." SET content = REPLACE(content, :old_type_name, :new_type_name) WHERE content LIKE :search");
-      $stmt->bindParam('search','%[#'.$convert[$data['type']].'_'.$data['name'].']%',PDO::PARAM_STR);
-      $stmt->bindParam('old_type_name','[#'.$convert[$data['type']].'_'.$data['name'].']',PDO::PARAM_STR);
-      $stmt->bindParam('new_type_name','[#'.$convert[$new_type_short].'_'.$data_name.']',PDO::PARAM_STR);
+      $stmt->bindValue('search','%[#'.$convert[$data['type']].'_'.$data['name'].']%',PDO::PARAM_STR);
+      $stmt->bindValue('old_type_name','[#'.$convert[$data['type']].'_'.$data['name'].']',PDO::PARAM_STR);
+      $stmt->bindValue('new_type_name','[#'.$convert[$new_type].'_'.$new_name.']',PDO::PARAM_STR);
       $stmt->execute();
 
       Log::writeMedium('data-interlinks updated due data-name change');
@@ -138,19 +144,19 @@ class Entry
     // update page links
     if ($name_update && ($data['type'] == 'page' || $data['type'] == 'dynamic')) {
       $stmt=&DBConnection::getInstance()->prepare("UPDATE ".ROSCMST_TEXT." SET content = REPLACE(content, :old_link, :new_link) WHERE content LIKE :search");
-      $stmt->bindParam('search','%[#link_'.$data['name'].']%',PDO::PARAM_STR);
-      $stmt->bindParam('old_link','[#link_'.$data['name'].']',PDO::PARAM_STR);
-      $stmt->bindParam('new_link','[#link_'.$data_name.']',PDO::PARAM_STR);
+      $stmt->bindValue('search','%[#link_'.$data['name'].']%',PDO::PARAM_STR);
+      $stmt->bindValue('old_link','[#link_'.$data['name'].']',PDO::PARAM_STR);
+      $stmt->bindValue('new_link','[#link_'.$name.']',PDO::PARAM_STR);
       $stmt->execute();
     }
 
     // change ACL
-    if ($data_acl != '' && $data_acl != $data['access_id']) {
+    if ($acl != '' && $acl != $data['access_id']) {
       $stmt=&DBConnection::getInstance()->prepare("UPDATE ".ROSCMST_ENTRIES." SET access_id = :acl_new WHERE id = :data_id LIMIT 1");
-      $stmt->bindParam('acl_new',$data_acl);
+      $stmt->bindParam('acl_new',$acl);
       $stmt->bindParam('data_id',$data_id);
       $stmt->execute();
-      Log::writeMedium('data-acl changed: '.$data['access_id'].' =&gt; '.$data_acl);
+      Log::writeMedium('data-acl changed: '.$data['access_id'].' =&gt; '.$acl);
     } 
 
   } // end of member function update

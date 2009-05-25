@@ -163,7 +163,7 @@ class Backend_ViewEditor extends Backend
 
       // update Security details
       case 'altersecurity':
-        Entry::update($_GET['d_id'], $_GET['d_val'], $_GET['d_val2'], $_GET['d_val3'], $_GET['d_val4']=='true');
+        Entry::update($_GET['d_id'], $_GET['d_val'], $_GET['d_val2'], $_GET['d_val3']);
         $this->show();
         break;
 
@@ -472,10 +472,10 @@ class Backend_ViewEditor extends Backend
 
       // Fields
       if ($mode == self::FIELDS) {
-        echo '<strong>Fields</strong>';
+        echo '<strong>Text Fields</strong>';
       }
       else {
-        echo '<span class="detailmenu" onclick="'."showEditorTabFields(".$this->rev_id.")".'">Fields</span>';
+        echo '<span class="detailmenu" onclick="'."showEditorTabFields(".$this->rev_id.")".'">Text Fields</span>';
       }
     }
 
@@ -498,14 +498,17 @@ class Backend_ViewEditor extends Backend
 
       // Security
       if ($mode == self::SECURITY) {
-        echo '<strong>Security</strong>';
+        echo '<strong>Entry</strong>';
       }
       else {
-        echo '<span class="detailmenu" onclick="'."showEditorTabSecurity(".$this->rev_id.")".'">Security</span>';
+        echo '<span class="detailmenu" onclick="'."showEditorTabSecurity(".$this->rev_id.")".'">Entry</span>';
       }
     }
 
     echo_strip('
+        </div>
+        <div class="comment">
+          Changes in details are applied as you click the button, there is no need to save another draft.
         </div>
       </div>');
 

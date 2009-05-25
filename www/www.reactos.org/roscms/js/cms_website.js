@@ -971,14 +971,13 @@ function saveSecurityData( did, drid )
     var d_name_str = beautifystr2(document.getElementById('secdataname').value);
     var d_type_str = document.getElementById('cbmdatatype').value;
     var d_acl_str = document.getElementById('cbmdataacl').value;
-    var d_name_update = document.getElementById('chdname').checked;
 
     // remove leading space character
     if (d_name_str.substr(0, 1) === ' ') {
       d_name_str = d_name_str.substr(1, d_name_str.length-1); 
     }
 
-    makeRequest('?page=backend&type=text&subtype=mef&d_fl=altersecurity&d_id='+did+'&d_r_id='+drid+'&d_val='+d_name_str+'&d_val2='+d_type_str+'&d_val3='+d_acl_str+'&d_val4='+d_name_update, 'mef', 'editaltersecurity', 'html', 'GET', '');
+    makeRequest('?page=backend&type=text&subtype=mef&d_fl=altersecurity&d_id='+did+'&d_r_id='+drid+'&d_val='+d_name_str+'&d_val2='+d_type_str+'&d_val3='+d_acl_str, 'mef', 'editaltersecurity', 'html', 'GET', '');
   }
 } // end of function saveSecurityData
 
