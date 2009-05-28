@@ -178,6 +178,21 @@ class Subsystem_PHPBB extends SubsystemExternal
     $stmt->bindParam('user_id',$phpbb_user_id,PDO::PARAM_INT);
     $stmt->execute() or die('DB error (subsys_phpbb #19)');
 
+    // update forum statistics
+      // num_users
+      DBConnection::getInstance()->exec("UPDATE ".self::DB_NAME.".phpbb_config SET config_value = (SELECT COUNT(*) FROM ".$this->user_table.") WHERE config_name = 'num_users'");
+
+      // newest_user_id
+      $stmt=&DBConnection::getInstance()->prepare("UPDATE ".self::DB_NAME.".phpbb_config SET config_value = :user_id WHERE config_name = 'newest_user_id'");
+      $stmt->bindParam('user_id',$phpbb_user_id,PDO::PARAM_INT);
+      $stmt->execute();
+
+      // newest_username
+      $stmt=&DBConnection::getInstance()->prepare("UPDATE ".self::DB_NAME.".phpbb_config SET config_value = :user_name WHERE config_name = 'newest_username'");
+      $stmt->bindParam('user_name',$name,PDO::PARAM_STR);
+      $stmt->execute();
+    // end update forum statistics
+
     // Finally, insert a row in the mapping table
     $stmt=&DBConnection::getInstance()->prepare("INSERT INTO ".ROSCMST_SUBSYS." (user_id, subsys, subsys_user_id) VALUES(:roscms_user, 'phpbb', :phpbb_user)");
     $stmt->bindParam('roscms_user',$user_id,PDO::PARAM_INT);
