@@ -83,7 +83,7 @@ class Backend_SaveDraft extends Backend
       $stmt->execute();
       $stable = $stmt->fetchColumn();
 
-      if ($stable !== false) {
+      if ($stable !== false && $rev_id !== false) {
 
         // transfer from stable entry
         Tag::mergeFromRevision($stable, $rev_id);
@@ -102,6 +102,11 @@ class Backend_SaveDraft extends Backend
       $stmt=&DBConnection::getInstance()->prepare("DELETE FROM ".ROSCMST_TEXT." WHERE rev_id = :rev_id");
       $stmt->bindParam('rev_id',$rev_id,PDO::PARAM_INT);
       $stmt->execute();
+    }
+
+    if ($rev_id === false) {
+      echo 'Error while saving new draft';
+      return;
     }
 
     // insert/update short text
