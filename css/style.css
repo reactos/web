@@ -1,17 +1,11 @@
 
-.row1 {
-  background-color: #EEE;
-}
-.row2 {
-  background-color: #E7E7E7;
-}
 
 .tablebg {
   margin:10px 10px 0 0; width:500px; border:1px solid #dfdfdf; padding:1em; background-color:#EAF0F8;
 }
 
 .rtable THEAD {
-  background-color:#5984C3;color:white;}
+  background-color:#5984C3;color:white;border-collapse: collapse;}
 
 #submit {
   background-color: #EEE;
@@ -73,6 +67,28 @@
   cursor: pointer;
 }
 
+LABEL.stable { color: #00CC00 !important; }
+LABEL.unstable { color: #FF7800 !important; }
+LABEL.crash { color: #FF3300 !important; }
+
+.rtable TD.first { width: 1.5em;}
+
+.rtable TD.stable { background-color: #00CC00; opacity: 0.5; }
+.rtable TD.unstable { background-color: #FFCC00; opacity: 0.5;}
+.rtable TD.crash { background-color: #FF3300; opacity: 0.5;}
+.rtable A { opacity: 1;}
+
+.rtable TH { font-size: 1.2em; padding: 3px; }
+.rtable TD { border-bottom: 1px solid #CCC;padding: 2px 3px; }
+
+.row1 { background-color: #EEE; }
+.row2 { background-color: #E7E7E7; }
+
+#breadcrumb { display:block; list-style-type:none; clear:both; padding-left: 0px; }
+#breadcrumb LI { float:left; padding-left:10px; }
+
+#letternavi A {font-family: monospace; font-size:1.4em; text-decoration: none; padding: 0px 2px; }
+
 
 
 
@@ -83,7 +99,7 @@ body {
 	padding: 0; /* Only affects Opera */
 	background: #FFFFFF url('../images/topbar.jpg') repeat-x scroll top left;
 }
- 
+ /*
 hr {
 	margin: 5px 0 5px 0;
 	color: #8D8D8D;
@@ -104,7 +120,7 @@ address a:hover {
 	font-size: 9px;
 	text-decoration:underline;
 }
-
+*/
  
  
 h1, .contentSmallTitle {
@@ -456,6 +472,6 @@ SPAN.simple {
 	font-size: 15px;
 	font-weight: bold;	
 }
-
+*/
 
 

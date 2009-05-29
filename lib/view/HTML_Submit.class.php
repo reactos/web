@@ -164,13 +164,13 @@ class HTML_Submit extends HTML
             <li>
               <span class="label">Outcome:</span><br />
               <input type="radio" class="normal" name="status" id="works" value="full" onchange="'."javascript:document.getElementById('bugreport').style.display=(this.checked ? 'none' : 'block' );".'" />
-              <label for="works" style="color: #00CC00;">Running Stable</label>
+              <label for="works" class="stable">Running Stable</label>
               
-              <input type="radio" class="normal" name="status" id="partworks" value="part" onchange="'."javascript:document.getElementById('bugreport').style.display=(this.checked ? 'none' : 'block' );".'" />
-              <label for="partworks" style="color: #FF7800;">Minor Problems</label>
+              <input type="radio" class="normal pworks" name="status" id="partworks" value="part" onchange="'."javascript:document.getElementById('bugreport').style.display=(this.checked ? 'none' : 'block' );".'" />
+              <label for="partworks" class="unstable">Minor Problems</label>
               
-              <input type="radio" class="normal" name="status" id="noworks" value="not" onchange="'."javascript:document.getElementById('bugreport').style.display=(this.checked ? 'block' : 'none' );".'" />
-              <label for="noworks" style="color: #FF3300;">Crash</label>
+              <input type="radio" class="normal crash" name="status" id="noworks" value="not" onchange="'."javascript:document.getElementById('bugreport').style.display=(this.checked ? 'block' : 'none' );".'" />
+              <label for="noworks" class="crash">Crash</label>
               <br />
               <br />
             </li>

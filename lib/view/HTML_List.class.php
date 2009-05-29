@@ -25,6 +25,8 @@ class HTML_List extends HTML
   private $where = '';
   private $from = '';
   private $params = array();
+  private $select = '';
+  private $showColumn = array();
 
 
   public function __construct($filter='')
@@ -71,7 +73,88 @@ class HTML_List extends HTML
       }
       $stmt->execute();
       $entries_count = $stmt->fetchColumn();
-      
+
+      if ($entries_count > 0) {
+        echo '
+          <h2>Entries</h2>
+          <table class="rtable" cellspacing="0" cellpadding="0">
+            <thead>
+              <tr>
+                <th>&nbsp;</th>
+                <th>Application</th>';
+        if (count($this->showColumn) > 0) {
+          foreach ($this->showColumn as $column) {
+            echo '<th>'.$column['description'].'</th>';
+          }
+        }
+        echo '
+                <th>Last modified</th>
+              </tr>
+            </thead>
+            <tbody>';
+
+        reset($this->params);
+        $stmt=CDBConnection::getInstance()->prepare("SELECT e.id, e.name, e.modified, (SELECT works FROM ".CDBT_REPORTS." WHERE entry_id=e.id ORDER BY created DESC LIMIT 1) AS works ".$this->select." FROM ".CDBT_ENTRIES." e ".$this->from." WHERE e.visible IS TRUE ".$this->where." ORDER BY e.name ASC LIMIT :limit OFFSET :offset");
+        foreach ($this->params as $param) {
+          $stmt->bindValue($param[0],$param[1],$param[2]);
+        }
+        $stmt->bindParam('limit', $limit, PDO::PARAM_INT);
+        $stmt->bindParam('offset', $offset, PDO::PARAM_INT);
+        $stmt->execute();
+        $x=0;
+        while ($entry=$stmt->fetch(PDO::FETCH_ASSOC)) {
+          ++$x;
+
+          $stmt_ver=CDBConnection::getInstance()->prepare("SELECT id, version FROM ".CDBT_VERSIONS." WHERE entry_id=:entry_id ORDER BY version DESC");
+          $stmt_ver->bindParam('entry_id',$entry['id'],PDO::PARAM_STR);
+          $stmt_ver->execute();
+          $versions = $stmt_ver->fetchAll(PDO::FETCH_ASSOC);
+          
+          // display entry only if it has also at least one version information
+          if (count($versions) > 0) {
+            echo '
+              <tr class="row'.($x%2+1).'" id="tr'.$x.'" title="'.($entry['works'] == 'full' ? 'stable' : ($entry['works'] == 'part' ? 'unstable' : 'crash')).'">
+                <td class="first '.($entry['works'] == 'full' ? 'stable' : ($entry['works'] == 'part' ? 'unstable' : 'crash')).'">&nbsp;</td>
+                <td onmouseover="'."this.className=document.getElementById('tr".$x."').title;".'" onmouseout="this.className=\'\';">';
+            
+            if (count($versions) == 1) {
+              echo '
+                  <a href="?page=item&amp;ver='.$versions[0]['id'].'">'.htmlspecialchars($entry['name']).' '.$versions[0]['version'].'</a>';
+            }
+            else {
+              echo '
+                <a href="?page=item&amp;item='.$entry['id'].'">'.htmlspecialchars($entry['name']).'</a>
+                <ul style="display:none;">';
+
+              
+              foreach ($versions as $version) {
+                echo '
+                  <li><a href="item&amp;ver='.$entry['id'].'">'.htmlspecialchars($entry['name']).' '.$version['version'].'</a></li>';
+              }
+              
+              echo '
+                </ul>';
+            }
+
+
+            echo '
+                </td>';
+            if (count($this->showColumn) > 0) {
+              foreach ($this->showColumn as $column) {
+                echo '<th>'.$entry[$column['field']].'</th>';
+              }
+            }
+            echo '
+                <td class="modified">'.$entry['modified'].'</td>
+              </tr>';
+          }
+        }
+
+        echo '
+            </tbody>
+          </table>';
+      }
+
       if ($entries_count > $limit) {
         echo '<div>Navigation:';
         $to = ceil($entries_count/(float)$limit);
@@ -85,73 +168,6 @@ class HTML_List extends HTML
         }
         echo '</div>';
       }
-    
-
-      echo '
-        <table class="rtable">
-          <thead>
-            <tr>
-              <th>Application</th>
-              <th>Works?</th>
-              <th>Last modified</th>
-            </tr>
-          </thead>
-          <tbody>';
-
-      reset($this->params);
-      $stmt=CDBConnection::getInstance()->prepare("SELECT e.id, e.name, e.modified, (SELECT works FROM ".CDBT_REPORTS." WHERE entry_id=e.id ORDER BY created DESC LIMIT 1) AS works FROM ".CDBT_ENTRIES." e ".$this->from." WHERE e.visible IS TRUE ".$this->where." ORDER BY e.name ASC LIMIT :limit OFFSET :offset");
-      foreach ($this->params as $param) {
-        $stmt->bindValue($param[0],$param[1],$param[2]);
-      }
-      $stmt->bindParam('limit', $limit, PDO::PARAM_INT);
-      $stmt->bindParam('offset', $offset, PDO::PARAM_INT);
-      $stmt->execute();
-      $x=0;
-      while ($entry=$stmt->fetch(PDO::FETCH_ASSOC)) {
-        ++$x;
-
-        $stmt_ver=CDBConnection::getInstance()->prepare("SELECT id, version FROM ".CDBT_VERSIONS." WHERE entry_id=:entry_id ORDER BY version DESC");
-        $stmt_ver->bindParam('entry_id',$entry['id'],PDO::PARAM_STR);
-        $stmt_ver->execute();
-        $versions = $stmt_ver->fetchAll(PDO::FETCH_ASSOC);
-        
-        // display entry only if it has also at least one version information
-        if (count($versions) > 0) {
-          echo '
-            <tr class="row'.($x%2+1).'">
-              <td>';
-          
-          if (count($versions) == 1) {
-            echo '
-                <a href="?page=item&amp;ver='.$versions[0]['id'].'">'.htmlspecialchars($entry['name']).' '.$versions[0]['version'].'</a>';
-          }
-          else {
-            echo '
-              <a href="?page=item&amp;item='.$entry['id'].'">'.htmlspecialchars($entry['name']).'</a>
-              <ul style="display:none;">';
-
-            
-            foreach ($versions as $version) {
-              echo '
-                <li><a href="item&amp;ver='.$entry['id'].'">'.htmlspecialchars($entry['name']).' '.$version['version'].'</a></li>';
-            }
-            
-            echo '
-              </ul>';
-          }
-
-
-          echo '
-              </td>
-              <td>'.$entry['works'].'</td>
-              <td>'.$entry['modified'].'</td>
-            </tr>';
-        }
-      }
-
-      echo '
-          </tbody>
-        </table>';
     }
   } // end of member function body
 
@@ -159,10 +175,10 @@ class HTML_List extends HTML
 
   private function naviLetter( $letter )
   {
-    echo '<div>Letters:';
+    echo '<div id="letternavi"><h2>Letter Navigation</h2>';
     for ($i=ord('a'); $i <= ord('z') ; ++$i) {
       if (isset($letter) && chr($i)==$letter) {
-        echo '<strong>['.chr($i).']</strong>';
+        echo '<strong>['.strtoupper(chr($i)).']</strong>';
       }
       else {
         echo '<a href="?page=list&amp;letter='.chr($i).'">'.strtoupper(chr($i)).'</a>';
@@ -175,37 +191,72 @@ class HTML_List extends HTML
 
   private function naviCategory( $category_id )
   {
-    echo '
-      <div style="margin-bottom: 3em;">Categories
-        <table class="rtable">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Subcategories</th>
-              <th>direct&nbsp;entries</th>
-            </tr>
-          </thead>
-          <tbody>';
 
-    $stmt=CDBConnection::getInstance()->prepare("SELECT id, name, (SELECT COUNT(*) FROM ".CDBT_CATEGORIES." WHERE parent=p.id) AS subcategories, (SELECT COUNT(*) FROM ".CDBT_ENTRIES." WHERE category_id=p.id) AS entries FROM ".CDBT_CATEGORIES." p WHERE parent=:category_id ORDER BY name ASC");
+    // show root
+    echo '
+      <ul id="breadcrumb">
+        <li style="float: left;"><a href="?page=list&amp;cat=0">Root</a></li>';
+
+
+    // show current path
+    $stmt=CDBConnection::getInstance()->prepare("SELECT name, id, parent FROM ".CDBT_CATEGORIES." WHERE id=:cat_id AND visible IS TRUE");
+    $stmt->bindParam('cat_id',$category_id,PDO::PARAM_INT);
+    $stmt->execute();
+
+    // get output in reversed order
+    $output = '';
+    while ($category = $stmt->fetch(PDO::FETCH_ASSOC)) {
+      $output = '
+        <li>&rarr; <a href="?page=list&amp;cat='.$category['id'].'">'.htmlspecialchars($category['name']).'</a></li>'.$output;
+
+      if ($category['parent'] > 0) {
+        $stmt->bindParam('cat_id',$category['parent'],PDO::PARAM_INT);
+        $stmt->execute();
+      }
+    } // end while
+
+    echo $output.'
+      </ul>';
+  
+    $stmt=CDBConnection::getInstance()->prepare("SELECT COUNT(*) FROM ".CDBT_CATEGORIES." p WHERE parent=:category_id");
     $stmt->bindParam('category_id',$category_id,PDO::PARAM_STR);
     $stmt->execute();
-    $x=0;
-    while ($category=$stmt->fetch(PDO::FETCH_ASSOC)) {
-      ++$x;
+
+    if ($stmt->fetchColumn() > 0) {
+    
+      echo '
+        <div style="margin-bottom: 3em;clear:both;">
+          <h2>Category Navigation</h2>
+          <table class="rtable" cellspacing="0" cellpadding="0">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Subcategories</th>
+                <th>direct&nbsp;entries</th>
+              </tr>
+            </thead>
+            <tbody>';
+
+      $stmt=CDBConnection::getInstance()->prepare("SELECT id, name, (SELECT COUNT(*) FROM ".CDBT_CATEGORIES." WHERE parent=p.id) AS subcategories, (SELECT COUNT(*) FROM ".CDBT_ENTRIES." WHERE category_id=p.id) AS entries FROM ".CDBT_CATEGORIES." p WHERE parent=:category_id ORDER BY name ASC");
+      $stmt->bindParam('category_id',$category_id,PDO::PARAM_STR);
+      $stmt->execute();
+      $x=0;
+      while ($category=$stmt->fetch(PDO::FETCH_ASSOC)) {
+        ++$x;
+
+        echo '
+          <tr class="row'.($x%2+1).'">
+            <td><a href="?page=list&amp;cat='.$category['id'].'">'.$category['name'].'</a></td>
+            <td>'.$category['subcategories'].'</td>
+            <td>'.$category['entries'].'</td>
+          </tr>';
+      }
 
       echo '
-        <tr class="row'.($x%2+1).'">
-          <td><a href="?page=list&amp;cat='.$category['id'].'">'.$category['name'].'</a></td>
-          <td>'.$category['subcategories'].'</td>
-          <td>'.$category['entries'].'</td>
-        </tr>';
+            </tbody>
+          </table>
+        </div>';
     }
-
-    echo '
-          </tbody>
-        </table>
-      </div>';
   }
 
 
@@ -216,15 +267,16 @@ class HTML_List extends HTML
     $stmt=CDBConnection::getInstance()->prepare("SELECT MAX((SELECT COUNT(*) FROM ".CDBT_TAGGED." WHERE tag_id=t.id)) AS max FROM ".CDBT_TAGS." t");
     $stmt->execute();
     $max = $stmt->fetchColumn();
-    echo $max;
 
     echo '
-      <div style="margin-bottom: 3em;">';
+      <h2>Navigate by Tag</h2>
+      <div style="margin-bottom: 3em;text-align:left;">';
     
     $stmt=CDBConnection::getInstance()->prepare("SELECT id, name, (SELECT COUNT(*) FROM ".CDBT_TAGGED." WHERE tag_id=t.id) AS count FROM ".CDBT_TAGS." t ORDER BY name ASC");
     $stmt->execute();
     while ($tag=$stmt->fetch(PDO::FETCH_ASSOC)) {
-      echo '<span style="float: left; margin-right: 20px; font-size: '.((floor($tag['count']/(float)$max)*12.0)+8).'px;"><a href="?page=list&amp;tag='.htmlspecialchars($tag['name']).'">'.htmlspecialchars($tag['name']).'</a></span>';
+
+      echo '<a style="margin-right: 20px; font-size: '.(((int)$tag['count']/(float)$max*2.0)+0.9).'em;" href="?page=list&amp;tag='.htmlspecialchars($tag['name']).'">'.htmlspecialchars($tag['name']).'</a>';
     }
     echo '
       </div>';
@@ -235,7 +287,12 @@ class HTML_List extends HTML
 
   private function naviCustom( )
   {
-    echo '<div>Not yet implemented</div>';
+    echo '
+      <form action="" method="get">
+        <fieldset>
+          <legend></legend>
+        </fieldset>
+      </form>';
   }
 
 
@@ -280,6 +337,15 @@ class HTML_List extends HTML
           $this->from .= " JOIN ".CDBT_TAGGED." tr ON tr.entry_id=e.id ";
           $this->from .= " JOIN ".CDBT_TAGS." t ON t.id=tr.tag_id ";
           $this->params[] = array('tagname',$part[2],PDO::PARAM_STR);
+          break;
+
+        // show additional columns
+        case 's':
+          switch ($part[2]) {
+            case 'category';
+            $this->select .= " (SELECT name FROM ".CDBT_CATEGORIES." WHERE id=e.category_id) AS category";
+            $this->showColumn[] = array('field'=>'category','description'=>'Category');
+          }
           break;
 
         // category
