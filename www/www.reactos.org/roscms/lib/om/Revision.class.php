@@ -402,7 +402,7 @@ class Revision
     $thisuser_id = &ThisUser::getInstance()->id();
 
     // check if revision exists
-    $stmt=&DBConnection::getInstance()->prepare("SELECT id FROM ".ROSCMST_REVISIONS." WHERE data_id = :data_id AND version = 0 AND lang_id = :lang AND user_id = :user_id AND status='draft' ORDER BY datetime DESC LIMIT 1");
+    $stmt=&DBConnection::getInstance()->prepare("SELECT id FROM ".ROSCMST_REVISIONS." WHERE data_id = :data_id AND version = 0 AND lang_id = :lang AND user_id = :user_id AND status='draft' AND archive IS FALSE ORDER BY datetime DESC LIMIT 1");
     $stmt->bindParam('data_id',$data_id,PDO::PARAM_INT);
     $stmt->bindParam('lang',$lang_id,PDO::PARAM_INT);
     $stmt->bindParam('user_id',$thisuser_id,PDO::PARAM_INT);
