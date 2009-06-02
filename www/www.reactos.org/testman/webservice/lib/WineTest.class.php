@@ -70,16 +70,33 @@
 			if(!$stmt->fetchColumn())
 				return "No such test or no permissions!";
 			
-			// Parse the log
-			$line = strrchr($log, ":");
+			// Get the test name
+			$stmt = $dbh->prepare("SELECT test FROM " . DB_TESTMAN . ".winetest_suites WHERE id = :id");
+			$stmt->bindParam(":id", $suite_id);
+			$stmt->execute() or die("Submit(): SQL failed #2");
+			$test = $stmt->fetchColumn();
 			
-			if(!$line || sscanf($line, ": %u tests executed (%u marked as todo, %u %s%u skipped.", $count, $todo, $failures, $ignore, $skipped) != 5)
+			// Get all summary lines belonging to this test in the whole log (a test may have multiple summary lines)
+			$result = preg_match_all("#^{$test}: ([0-9]+) tests executed \([0-9]+ marked as todo, ([0-9]+) failure[s]?\), ([0-9]+) skipped.#m", $log, $matches, PREG_PATTERN_ORDER);
+			
+			if($result === FALSE)
+			{
+				return "preg_match_all failed!";
+			}
+			else if($result == 0)
 			{
 				// We found no summary line, so the test probably crashed
 				// Indicate this by setting count to -1 and set the rest to zero.
 				$count = -1;
 				$failures = 0;
 				$skipped = 0;
+			}
+			else
+			{
+				// Sum up the values of each summary line
+				$count = array_sum($matches[1]);
+				$failures = array_sum($matches[2]);
+				$skipped = array_sum($matches[3]);
 			}
 			
 			// Add the information into the DB
@@ -89,12 +106,12 @@
 			$stmt->bindParam(":count", $count);
 			$stmt->bindParam(":failures", $failures);
 			$stmt->bindParam(":skipped", $skipped);
-			$stmt->execute() or die("Submit(): SQL failed #2");
+			$stmt->execute() or die("Submit(): SQL failed #3");
 			
 			$stmt = $dbh->prepare("INSERT INTO " . DB_TESTMAN . ".winetest_logs (id, log) VALUES (:id, :log)");
 			$stmt->bindValue(":id", (int)$dbh->lastInsertId());
 			$stmt->bindParam(":log", $log);
-			$stmt->execute() or die("Submit(): SQL failed #3");
+			$stmt->execute() or die("Submit(): SQL failed #4");
 			
 			return "OK";
 		}

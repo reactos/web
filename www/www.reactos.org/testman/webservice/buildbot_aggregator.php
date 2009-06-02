@@ -70,7 +70,7 @@
 			break;
 		
 		// Parse the test line
-		if(!preg_match("#Running Wine Test, Module: (.+), Test: (.+)#", $line, $matches))
+		if(!preg_match("#Running Wine Test, Module: (.+), Test: ([\S]+)#", $line, $matches))
 			die("Wine Test line is invalid!");
 		
 		// Get a Suite ID for this combination
@@ -83,7 +83,7 @@
 		// Now get the real log
 		$log = "";
 		
-		do
+		for(;;)
 		{
 			$line = fgets($fp);
 			
@@ -101,8 +101,11 @@
 				$log .= "[TESTMAN] Maximum memory for log exceeded, aborting!";
 				break;
 			}
+			
+			// Sysreg might also have noticed a system crash or we even reached the end of the log. Break then.
+			if(substr($line, 0, 9) == "[SYSREG] " || feof($fp))
+				break;
 		}
-		while(strpos($line, " tests executed (") === false &&	substr($line, 0, 9) != "[SYSREG] " &&	!feof($fp));
 		
 		// Did we already get a Test ID for this run?
 		if(!$test_id)
