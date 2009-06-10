@@ -2,7 +2,7 @@
 /**
 *
 * @package acp
-* @version $Id: acp_captcha.php 8479 2008-03-29 00:22:48Z naderman $
+* @version $Id: acp_captcha.php 9475 2009-04-18 18:43:31Z acydburn $
 * @copyright (c) 2005 phpBB Group
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License
 */
@@ -28,13 +28,15 @@ class acp_captcha
 		global $config, $phpbb_root_path, $phpbb_admin_path, $phpEx;
 
 		$user->add_lang('acp/board');
-
-		
 		$captcha_vars = array(
 			'captcha_gd_x_grid'				=> 'CAPTCHA_GD_X_GRID',
 			'captcha_gd_y_grid'				=> 'CAPTCHA_GD_Y_GRID',
 			'captcha_gd_foreground_noise'	=> 'CAPTCHA_GD_FOREGROUND_NOISE',
-			'captcha_gd'					=> 'CAPTCHA_GD_PREVIEWED'
+			'captcha_gd'					=> 'CAPTCHA_GD_PREVIEWED',
+			'captcha_gd_wave'				=> 'CAPTCHA_GD_WAVE',
+			'captcha_gd_3d_noise'			=> 'CAPTCHA_GD_3D_NOISE',
+			'captcha_gd_fonts'				=> 'CAPTCHA_GD_FONTS',
+
 		);
 
 		if (isset($_GET['demo']))
@@ -52,14 +54,16 @@ class acp_captcha
 			{
 				include($phpbb_root_path . 'includes/captcha/captcha_non_gd.' . $phpEx);
 			}
+
 			$captcha = new captcha();
-			$captcha->execute(gen_rand_string(mt_rand(5, 8)), time());
-			exit_handler();
+			$captcha->execute(gen_rand_string(mt_rand(CAPTCHA_MIN_CHARS, CAPTCHA_MAX_CHARS)), time());
+			exit;
 		}
 
 		$config_vars = array(
 			'enable_confirm'		=> 'REG_ENABLE',
 			'enable_post_confirm'	=> 'POST_ENABLE',
+			'confirm_refresh'		=> 'CONFIRM_REFRESH',
 			'captcha_gd'			=> 'CAPTCHA_GD',
 		);
 
@@ -77,21 +81,29 @@ class acp_captcha
 			{
 				set_config($config_var, request_var($config_var, ''));
 			}
+
 			$captcha_vars = array_keys($captcha_vars);
+
 			foreach ($captcha_vars as $captcha_var)
 			{
-				set_config($captcha_var, request_var($captcha_var, 0));
+				$value = request_var($captcha_var, 0);
+				if ($value >= 0)
+				{
+					set_config($captcha_var, $value);
+				}
 			}
+
+			add_log('admin', 'LOG_CONFIG_VISUAL');
 			trigger_error($user->lang['CONFIG_UPDATED'] . adm_back_link($this->u_action));
 		}
 		else if ($submit)
 		{
-				trigger_error($user->lang['FORM_INVALID'] . adm_back_link($this->u_action));
+			trigger_error($user->lang['FORM_INVALID'] . adm_back_link($this->u_action));
 		}
 		else
 		{
-			
 			$preview_image_src = append_sid(append_sid("{$phpbb_admin_path}index.$phpEx", "i=$id&amp;demo=demo"));
+
 			if (@extension_loaded('gd'))
 			{
 				$template->assign_var('GD', true);
@@ -110,7 +122,6 @@ class acp_captcha
 				'CAPTCHA_PREVIEW'	=> $preview_image_src,
 				'PREVIEW'			=> isset($_POST['preview']),
 			));
-			
 		}
 	}
 }

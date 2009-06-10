@@ -2,7 +2,7 @@
 /**
 *
 * @package phpBB3
-* @version $Id: message_parser.php 8479 2008-03-29 00:22:48Z naderman $
+* @version $Id: message_parser.php 9453 2009-04-17 13:07:51Z acydburn $
 * @copyright (c) 2005 phpBB Group
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License
 *
@@ -346,6 +346,12 @@ class bbcode_firstpass extends bbcode
 		$in = trim($in);
 		$error = false;
 
+		// Do not allow 0-sizes generally being entered
+		if ($width <= 0 || $height <= 0)
+		{
+			return '[flash=' . $width . ',' . $height . ']' . $in . '[/flash]';
+		}
+
 		// Apply the same size checks on flash files as on images
 		if ($config['max_' . $this->mode . '_img_height'] || $config['max_' . $this->mode . '_img_width'])
 		{
@@ -385,7 +391,7 @@ class bbcode_firstpass extends bbcode
 
 	/**
 	* Parse code text from code tag
-	* @private
+	* @access private
 	*/
 	function bbcode_parse_code($stx, &$code)
 	{
@@ -394,7 +400,10 @@ class bbcode_firstpass extends bbcode
 			case 'php':
 
 				$remove_tags = false;
-				$code = str_replace(array('&lt;', '&gt;'), array('<', '>'), $code);
+
+				$str_from = array('&lt;', '&gt;', '&#91;', '&#93;', '&#46;', '&#58;', '&#058;');
+				$str_to = array('<', '>', '[', ']', '.', ':', ':');
+				$code = str_replace($str_from, $str_to, $code);
 
 				if (!preg_match('/\<\?.*?\?\>/is', $code))
 				{
@@ -595,10 +604,10 @@ class bbcode_firstpass extends bbcode
 					$out .= array_pop($list_end_tags) . ']';
 					$tok = '[';
 				}
-				else if (preg_match('#^list(=[0-9a-z])?$#i', $buffer, $m))
+				else if (preg_match('#^list(=[0-9a-z]+)?$#i', $buffer, $m))
 				{
 					// sub-list, add a closing tag
-					if (empty($m[1]) || preg_match('/^(?:disc|square|circle)$/i', $m[1]))
+					if (empty($m[1]) || preg_match('/^=(?:disc|square|circle)$/i', $m[1]))
 					{
 						array_push($list_end_tags, '/list:u:' . $this->bbcode_uid);
 					}
@@ -686,6 +695,7 @@ class bbcode_firstpass extends bbcode
 		* [quote="[i]test[/i]"]test[/quote] (correct: parsed)
 		* [quote="[quote]test[/quote]"]test[/quote] (correct: parsed - Username displayed as [quote]test[/quote])
 		* #20735 - [quote]test[/[/b]quote] test [/quote][/quote] test - (correct: quoted: "test[/[/b]quote] test" / non-quoted: "[/quote] test" - also failed if layout distorted)
+		* #40565 - [quote="a"]a[/quote][quote="a]a[/quote] (correct: first quote tag parsed, second quote tag unparsed)
 		*/
 
 		$in = str_replace("\r\n", "\n", str_replace('\"', '"', trim($in)));
@@ -696,7 +706,7 @@ class bbcode_firstpass extends bbcode
 		}
 
 		// To let the parser not catch tokens within quote_username quotes we encode them before we start this...
-		$in = preg_replace('#quote=&quot;(.*?)&quot;\]#ie', "'quote=&quot;' . str_replace(array('[', ']'), array('&#91;', '&#93;'), '\$1') . '&quot;]'", $in);
+		$in = preg_replace('#quote=&quot;(.*?)&quot;\]#ie', "'quote=&quot;' . str_replace(array('[', ']', '\\\"'), array('&#91;', '&#93;', '\"'), '\$1') . '&quot;]'", $in);
 
 		$tok = ']';
 		$out = '[';
@@ -848,6 +858,8 @@ class bbcode_firstpass extends bbcode
 			}
 		}
 		while ($in);
+
+		$out .= $buffer;
 
 		if (sizeof($close_tags))
 		{
@@ -1040,11 +1052,7 @@ class parse_message extends bbcode_firstpass
 	{
 		// Init BBCode UID
 		$this->bbcode_uid = substr(base_convert(unique_id(), 16, 36), 0, BBCODE_UID_LEN);
-
-		if ($message)
-		{
-			$this->message = $message;
-		}
+		$this->message = $message;
 	}
 
 	/**
@@ -1093,13 +1101,6 @@ class parse_message extends bbcode_firstpass
 			}
 		}
 
-		// Check for "empty" message
-		if ($mode !== 'sig' && utf8_clean_string($this->message) === '')
-		{
-			$this->warn_msg[] = $user->lang['TOO_FEW_CHARS'];
-			return (!$update_this_message) ? $return_message : $this->warn_msg;
-		}
-
 		// Prepare BBcode (just prepares some tags for better parsing)
 		if ($allow_bbcode && strpos($this->message, '[') !== false)
 		{
@@ -1140,6 +1141,14 @@ class parse_message extends bbcode_firstpass
 			{
 				$num_urls += preg_match_all('#\<!-- ([lmwe]) --\>.*?\<!-- \1 --\>#', $this->message, $matches);
 			}
+		}
+
+		// Check for "empty" message. We do not check here for maximum length, because bbcode, smilies, etc. can add to the length.
+		// The maximum length check happened before any parsings.
+		if ($mode !== 'sig' && utf8_clean_string($this->message) === '')
+		{
+			$this->warn_msg[] = $user->lang['TOO_FEW_CHARS'];
+			return (!$update_this_message) ? $return_message : $this->warn_msg;
 		}
 
 		// Check number of links

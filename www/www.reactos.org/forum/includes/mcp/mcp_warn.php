@@ -2,7 +2,7 @@
 /**
 *
 * @package mcp
-* @version $Id: mcp_warn.php 8479 2008-03-29 00:22:48Z naderman $
+* @version $Id: mcp_warn.php 9343 2009-02-27 10:54:57Z toonarmy $
 * @copyright (c) 2005 phpBB Group
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License
 *
@@ -170,7 +170,7 @@ class mcp_warn
 				'USERNAME'			=> $row['username'],
 				'USERNAME_COLOUR'	=> ($row['user_colour']) ? '#' . $row['user_colour'] : '',
 				'U_USER'			=> append_sid("{$phpbb_root_path}memberlist.$phpEx", 'mode=viewprofile&amp;u=' . $row['user_id']),
-			
+
 				'WARNING_TIME'	=> $user->format_date($row['user_last_warning']),
 				'WARNINGS'		=> $row['user_warnings'],
 			));
@@ -249,6 +249,25 @@ class mcp_warn
 			$this->u_action .= "&amp;f=$forum_id&amp;p=$post_id";
 		}
 
+		// Check if can send a notification
+		if ($config['allow_privmsg'])
+		{
+			$auth2 = new auth();
+			$auth2->acl($user_row);
+			$s_can_notify = ($auth2->acl_get('u_readpm')) ? true : false;
+			unset($auth2);
+		}
+		else
+		{
+			$s_can_notify = false;
+		}
+
+		// Prevent against clever people
+		if ($notify && !$s_can_notify)
+		{
+			$notify = false;
+		}
+
 		if ($warning && $action == 'add_warning')
 		{
 			if (check_form_key('mcp_warn'))
@@ -262,11 +281,11 @@ class mcp_warn
 			}
 			$redirect = append_sid("{$phpbb_root_path}mcp.$phpEx", "i=notes&amp;mode=user_notes&amp;u=$user_id");
 			meta_refresh(2, $redirect);
-			trigger_error($user->lang['USER_WARNING_ADDED'] . '<br /><br />' . sprintf($user->lang['RETURN_PAGE'], '<a href="' . $redirect . '">', '</a>'));
+			trigger_error($msg . '<br /><br />' . sprintf($user->lang['RETURN_PAGE'], '<a href="' . $redirect . '">', '</a>'));
 		}
 
 		// OK, they didn't submit a warning so lets build the page for them to do so
-		
+
 		// We want to make the message available here as a reminder
 		// Parse the message and subject
 		$message = censor_text($user_row['post_text']);
@@ -307,6 +326,8 @@ class mcp_warn
 			'RANK_IMG'			=> $rank_img,
 
 			'L_WARNING_POST_DEFAULT'	=> sprintf($user->lang['WARNING_POST_DEFAULT'], generate_board_url() . "/viewtopic.$phpEx?f=$forum_id&amp;p=$post_id#p$post_id"),
+
+			'S_CAN_NOTIFY'		=> $s_can_notify,
 		));
 	}
 
@@ -351,6 +372,25 @@ class mcp_warn
 			$this->u_action .= "&amp;u=$user_id";
 		}
 
+		// Check if can send a notification
+		if ($config['allow_privmsg'])
+		{
+			$auth2 = new auth();
+			$auth2->acl($user_row);
+			$s_can_notify = ($auth2->acl_get('u_readpm')) ? true : false;
+			unset($auth2);
+		}
+		else
+		{
+			$s_can_notify = false;
+		}
+
+		// Prevent against clever people
+		if ($notify && !$s_can_notify)
+		{
+			$notify = false;
+		}
+
 		if ($warning && $action == 'add_warning')
 		{
 			if (check_form_key('mcp_warn'))
@@ -380,15 +420,20 @@ class mcp_warn
 		$template->assign_vars(array(
 			'U_POST_ACTION'		=> $this->u_action,
 
-			'USERNAME'			=> $user_row['username'],
-			'USER_COLOR'		=> (!empty($user_row['user_colour'])) ? $user_row['user_colour'] : '',
 			'RANK_TITLE'		=> $rank_title,
 			'JOINED'			=> $user->format_date($user_row['user_regdate']),
 			'POSTS'				=> ($user_row['user_posts']) ? $user_row['user_posts'] : 0,
 			'WARNINGS'			=> ($user_row['user_warnings']) ? $user_row['user_warnings'] : 0,
 
+			'USERNAME_FULL'		=> get_username_string('full', $user_row['user_id'], $user_row['username'], $user_row['user_colour']),
+			'USERNAME_COLOUR'	=> get_username_string('colour', $user_row['user_id'], $user_row['username'], $user_row['user_colour']),
+			'USERNAME'			=> get_username_string('username', $user_row['user_id'], $user_row['username'], $user_row['user_colour']),
+			'U_PROFILE'			=> get_username_string('profile', $user_row['user_id'], $user_row['username'], $user_row['user_colour']),
+
 			'AVATAR_IMG'		=> $avatar_img,
 			'RANK_IMG'			=> $rank_img,
+
+			'S_CAN_NOTIFY'		=> $s_can_notify,
 		));
 
 		return $user_id;

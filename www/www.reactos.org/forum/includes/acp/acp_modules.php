@@ -2,7 +2,7 @@
 /**
 *
 * @package acp
-* @version $Id: acp_modules.php 8479 2008-03-29 00:22:48Z naderman $
+* @version $Id: acp_modules.php 9179 2008-12-06 18:23:42Z toonarmy $
 * @copyright (c) 2005 phpBB Group
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License
 *
@@ -658,6 +658,8 @@ class acp_modules
 
 			$iteration++;
 		}
+		$db->sql_freeresult($result);
+
 		unset($padding_store);
 
 		return $module_list;

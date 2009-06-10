@@ -2,7 +2,7 @@
 /**
 *
 * @package acm
-* @version $Id: cache.php 8479 2008-03-29 00:22:48Z naderman $
+* @version $Id: cache.php 8691 2008-07-28 13:26:20Z acydburn $
 * @copyright (c) 2005 phpBB Group
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License
 *
@@ -63,7 +63,7 @@ class cache extends acm
 
 			$this->put('config', $cached_config);
 		}
-	
+
 		return $config;
 	}
 
@@ -103,7 +103,7 @@ class cache extends acm
 		if (($icons = $this->get('_icons')) === false)
 		{
 			global $db;
-	
+
 			// Topic icons
 			$sql = 'SELECT *
 				FROM ' . ICONS_TABLE . '
@@ -134,7 +134,7 @@ class cache extends acm
 		if (($ranks = $this->get('_ranks')) === false)
 		{
 			global $db;
-	
+
 			$sql = 'SELECT *
 				FROM ' . RANKS_TABLE . '
 				ORDER BY rank_min DESC';
@@ -284,7 +284,7 @@ class cache extends acm
 		if (($bots = $this->get('_bots')) === false)
 		{
 			global $db;
-	
+
 			switch ($db->sql_layer)
 			{
 				case 'mssql':
@@ -321,7 +321,7 @@ class cache extends acm
 
 			$this->put('_bots', $bots);
 		}
-	
+
 		return $bots;
 	}
 

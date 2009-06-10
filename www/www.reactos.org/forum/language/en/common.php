@@ -4,7 +4,7 @@
 * common [English]
 *
 * @package language
-* @version $Id: common.php 8479 2008-03-29 00:22:48Z naderman $
+* @version $Id: common.php 9464 2009-04-17 15:52:40Z acydburn $
 * @copyright (c) 2005 phpBB Group
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License
 *
@@ -78,6 +78,7 @@ $lang = array_merge($lang, array(
 	'ATTACHED_IMAGE_NOT_IMAGE'		=> 'The image file you tried to attach is invalid.',
 	'AUTHOR'						=> 'Author',
 	'AUTH_NO_PROFILE_CREATED'		=> 'The creation of a user profile was unsuccessful.',
+	'AVATAR_DISALLOWED_CONTENT'		=> 'The upload was rejected because the uploaded file was identified as a possible attack vector.',
 	'AVATAR_DISALLOWED_EXTENSION'	=> 'This file cannot be displayed because the extension <strong>%s</strong> is not allowed.',
 	'AVATAR_EMPTY_REMOTE_DATA'		=> 'The specified avatar could not be uploaded because the remote data appears to be invalid or corrupted.',
 	'AVATAR_EMPTY_FILEUPLOAD'		=> 'The uploaded avatar file is empty.',
@@ -86,7 +87,7 @@ $lang = array_merge($lang, array(
 	'AVATAR_NO_SIZE'				=> 'The width or height of the linked avatar could not be determined. Please enter them manually.',
 	'AVATAR_PARTIAL_UPLOAD'			=> 'The specified file was only partially uploaded.',
 	'AVATAR_PHP_SIZE_NA'			=> 'The avatar’s filesize is too large.<br />The maximum allowed filesize set in php.ini could not be determined.',
-	'AVATAR_PHP_SIZE_OVERRUN'		=> 'The avatar’s filesize is too large. The maximum allowed upload size is %d MB.<br />Please note this is set in php.ini and cannot be overridden.',
+	'AVATAR_PHP_SIZE_OVERRUN'		=> 'The avatar’s filesize is too large. The maximum allowed upload size is %1$d %2$s.<br />Please note this is set in php.ini and cannot be overridden.',
 	'AVATAR_URL_INVALID'			=> 'The URL you specified is invalid.',
 	'AVATAR_URL_NOT_FOUND'			=> 'The file specified could not be found.',
 	'AVATAR_WRONG_FILESIZE'			=> 'The avatar’s filesize must be between 0 and %1d %2s.',
@@ -157,7 +158,7 @@ $lang = array_merge($lang, array(
 	'VIEWED_COUNT_NONE'		=> 'Not viewed yet',
 
 	'EDIT_POST'							=> 'Edit post',
-	'EMAIL'								=> 'E-mail',
+	'EMAIL'								=> 'E-mail', // Short form for EMAIL_ADDRESS
 	'EMAIL_ADDRESS'						=> 'E-mail address',
 	'EMAIL_SMTP_ERROR_RESPONSE'			=> 'Ran into problems sending e-mail at <strong>Line %1$s</strong>. Response: %2$s.',
 	'EMPTY_SUBJECT'						=> 'You must specify a subject when posting a new topic.',
@@ -169,6 +170,8 @@ $lang = array_merge($lang, array(
 	'ERR_JAB_AUTH'						=> 'Could not authorise on Jabber server.',
 	'ERR_JAB_CONNECT'					=> 'Could not connect to Jabber server.',
 	'ERR_UNABLE_TO_LOGIN'				=> 'The specified username or password is incorrect.',
+	'ERR_UNWATCHING'					=> 'An error occured while trying to unsubscribe.',
+	'ERR_WATCHING'						=> 'An error occured while trying to subscribe.',
 	'ERR_WRONG_PATH_TO_PHPBB'			=> 'The phpBB path specified appears to be invalid.',
 	'EXPAND_VIEW'						=> 'Expand view',
 	'EXTENSION'							=> 'Extension',
@@ -225,6 +228,8 @@ $lang = array_merge($lang, array(
 	'FTP_USERNAME_EXPLAIN'		=> 'Username used to connect to your server.',
 
 	'GENERAL_ERROR'				=> 'General Error',
+	'GB'						=> 'GB',
+	'GIB'						=> 'GiB',
 	'GO'						=> 'Go',
 	'GOTO_PAGE'					=> 'Go to page',
 	'GROUP'						=> 'Group',
@@ -261,7 +266,7 @@ $lang = array_merge($lang, array(
 	'HOME'							=> 'Home',
 
 	'ICQ'						=> 'ICQ',
-	'ICQ_STATUS'				=> 'ICQ status',	
+	'ICQ_STATUS'				=> 'ICQ status',
 	'IF'						=> 'If',
 	'IMAGE'						=> 'Image',
 	'IMAGE_FILETYPE_INVALID'	=> 'Image file type %d for mimetype %s not supported.',
@@ -277,7 +282,7 @@ $lang = array_merge($lang, array(
 
 	'JABBER'				=> 'Jabber',
 	'JOINED'				=> 'Joined',
-	'JUMP_PAGE'				=> 'Enter the page number you wish to go to.',
+	'JUMP_PAGE'				=> 'Enter the page number you wish to go to',
 	'JUMP_TO'				=> 'Jump to',
 	'JUMP_TO_PAGE'			=> 'Click to jump to page…',
 
@@ -332,7 +337,7 @@ $lang = array_merge($lang, array(
 	'MODERATORS'			=> 'Moderators',
 	'MONTH'					=> 'Month',
 	'MOVE'					=> 'Move',
-	'MSNM'					=> 'MSNM/WLM',	
+	'MSNM'					=> 'MSNM/WLM',
 
 	'NA'						=> 'N/A',
 	'NEWEST_USER'				=> 'Our newest member <strong>%s</strong>',
@@ -354,7 +359,7 @@ $lang = array_merge($lang, array(
 	'NOTIFY_ADMIN_EMAIL'		=> 'Please notify the board administrator or webmaster: <a href="mailto:%1$s">%1$s</a>',
 	'NO_ACCESS_ATTACHMENT'		=> 'You are not allowed to access this file.',
 	'NO_ACTION'					=> 'No action specified.',
-	'NO_ADMINISTRATORS'			=> 'No administrators assigned at this board.',
+	'NO_ADMINISTRATORS'			=> 'There are no administrators.',
 	'NO_AUTH_ADMIN'				=> 'Access to the Administration Control Panel is not allowed as you do not have administrative permissions.',
 	'NO_AUTH_ADMIN_USER_DIFFER'	=> 'You are not able to re-authenticate as a different user.',
 	'NO_AUTH_OPERATION'			=> 'You do not have the necessary permissions to complete this operation.',
@@ -371,7 +376,7 @@ $lang = array_merge($lang, array(
 	'NO_MEMBERS'				=> 'No members found for this search criterion.',
 	'NO_MESSAGES'				=> 'No messages',
 	'NO_MODE'					=> 'No mode specified.',
-	'NO_MODERATORS'				=> 'No moderators assigned at this board.',
+	'NO_MODERATORS'				=> 'There are no moderators.',
 	'NO_NEW_MESSAGES'			=> 'No new messages',
 	'NO_NEW_PM'					=> '<strong>0</strong> new messages',
 	'NO_NEW_POSTS'				=> 'No new posts',
@@ -390,6 +395,13 @@ $lang = array_merge($lang, array(
 	'NO_USER'					=> 'The requested user does not exist.',
 	'NO_USERS'					=> 'The requested users do not exist.',
 	'NO_USER_SPECIFIED'			=> 'No username was specified.',
+
+	// Nullar/Singular/Plural language entry. The key numbers define the number range in which a certain grammatical expression is valid.
+	'NUM_POSTS_IN_QUEUE'		=> array(
+		0			=> 'No posts in queue',		// 0
+		1			=> '1 post in queue',		// 1
+		2			=> '%d posts in queue',		// 2+
+	),
 
 	'OCCUPATION'				=> 'Occupation',
 	'OFFLINE'					=> 'Offline',
@@ -499,7 +511,7 @@ $lang = array_merge($lang, array(
 	'SEARCHING_FORUMS'			=> 'Searching forums',
 	'SEARCH_ACTIVE_TOPICS'		=> 'View active topics',
 	'SEARCH_FOR'				=> 'Search for',
-	'SEARCH_FORUM'				=> 'Search this forum…',	
+	'SEARCH_FORUM'				=> 'Search this forum…',
 	'SEARCH_NEW'				=> 'View new posts',
 	'SEARCH_POSTS_BY'			=> 'Search posts by',
 	'SEARCH_SELF'				=> 'View your posts',
@@ -510,7 +522,7 @@ $lang = array_merge($lang, array(
 	'SELECT_ALL_CODE'			=> 'Select all',
 	'SELECT_DESTINATION_FORUM'	=> 'Please select a destination forum',
 	'SELECT_FORUM'				=> 'Select a forum',
-	'SEND_EMAIL'				=> 'E-mail',
+	'SEND_EMAIL'				=> 'E-mail',				// Used for submit buttons
 	'SEND_EMAIL_USER'			=> 'E-mail',				// Used as: {L_SEND_EMAIL_USER} {USERNAME} -> E-mail UserX
 	'SEND_PRIVATE_MESSAGE'		=> 'Send private message',
 	'SETTINGS'					=> 'Settings',
@@ -542,6 +554,8 @@ $lang = array_merge($lang, array(
 	'THE_TEAM'			=> 'The team',
 	'TIME'				=> 'Time',
 
+	'TOO_LONG'						=> 'The value you entered is too long.',
+
 	'TOO_LONG_AIM'					=> 'The screenname you entered is too long.',
 	'TOO_LONG_CONFIRM_CODE'			=> 'The confirm code you entered is too long.',
 	'TOO_LONG_DATEFORMAT'			=> 'The date format you entered is too long.',
@@ -561,6 +575,8 @@ $lang = array_merge($lang, array(
 	'TOO_LONG_YIM'					=> 'The Yahoo! Messenger name you entered is too long.',
 
 	'TOO_MANY_VOTE_OPTIONS'			=> 'You have tried to vote for too many options.',
+
+	'TOO_SHORT'						=> 'The value you entered is too short.',
 
 	'TOO_SHORT_AIM'					=> 'The screenname you entered is too short.',
 	'TOO_SHORT_CONFIRM_CODE'		=> 'The confirm code you entered is too short.',
@@ -673,7 +689,7 @@ $lang = array_merge($lang, array(
 	'YEAR'				=> 'Year',
 	'YEAR_MONTH_DAY'	=> '(YYYY-MM-DD)',
 	'YES'				=> 'Yes',
-	'YIM'				=> 'YIM',	
+	'YIM'				=> 'YIM',
 	'YOU_LAST_VISIT'	=> 'Last visit was: %s',
 	'YOU_NEW_PM'		=> 'A new private message is waiting for you in your Inbox.',
 	'YOU_NEW_PMS'		=> 'New private messages are waiting for you in your Inbox.',
@@ -683,6 +699,12 @@ $lang = array_merge($lang, array(
 		'TODAY'		=> 'Today',
 		'TOMORROW'	=> 'Tomorrow',
 		'YESTERDAY'	=> 'Yesterday',
+		'AGO'		=> array(
+			0		=> 'less than a minute ago',
+			1		=> '%d minute ago',
+			2		=> '%d minutes ago',
+			60		=> '1 hour ago',
+		),
 
 		'Sunday'	=> 'Sunday',
 		'Monday'	=> 'Monday',
@@ -737,6 +759,7 @@ $lang = array_merge($lang, array(
 		'-7'	=> 'UTC - 7 hours',
 		'-6'	=> 'UTC - 6 hours',
 		'-5'	=> 'UTC - 5 hours',
+		'-4.5'	=> 'UTC - 4:30 hours',
 		'-4'	=> 'UTC - 4 hours',
 		'-3.5'	=> 'UTC - 3:30 hours',
 		'-3'	=> 'UTC - 3 hours',
@@ -780,6 +803,7 @@ $lang = array_merge($lang, array(
 		'-7'	=> '[UTC - 7] Mountain Standard Time',
 		'-6'	=> '[UTC - 6] Central Standard Time',
 		'-5'	=> '[UTC - 5] Eastern Standard Time',
+		'-4.5'	=> '[UTC - 4:30] Venezuelan Standard Time',
 		'-4'	=> '[UTC - 4] Atlantic Standard Time',
 		'-3.5'	=> '[UTC - 3:30] Newfoundland Standard Time',
 		'-3'	=> '[UTC - 3] Amazon Standard Time, Central Greenland Time',

@@ -2,7 +2,7 @@
 /**
 *
 * @package phpBB3
-* @version $Id: functions_upload.php 8479 2008-03-29 00:22:48Z naderman $
+* @version $Id: functions_upload.php 9464 2009-04-17 15:52:40Z acydburn $
 * @copyright (c) 2005 phpBB Group
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License
 *
@@ -121,9 +121,9 @@ class filespec
 			case 'avatar':
 				$this->extension = strtolower($this->extension);
 				$this->realname = $prefix . $user_id . '.' . $this->extension;
-				
+
 			break;
-			
+
 			case 'unique_ext':
 			default:
 				$this->realname = $prefix . md5(unique_id()) . '.' . $this->extension;
@@ -229,16 +229,45 @@ class filespec
 		return @filesize($filename);
 	}
 
+
+	/**
+	* Check the first 256 bytes for forbidden content
+	*/
+	function check_content($disallowed_content)
+	{
+		if (empty($disallowed_content))
+		{
+			return true;
+		}
+
+		$fp = @fopen($this->filename, 'rb');
+
+		if ($fp !== false)
+		{
+			$ie_mime_relevant = fread($fp, 256);
+			fclose($fp);
+			foreach ($disallowed_content as $forbidden)
+			{
+				if (stripos($ie_mime_relevant, '<' . $forbidden) !== false)
+				{
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
 	/**
 	* Move file to destination folder
 	* The phpbb_root_path variable will be applied to the destination path
 	*
 	* @param string $destination_path Destination path, for example $config['avatar_path']
 	* @param bool $overwrite If set to true, an already existing file will be overwritten
-	* @param octal $chmod Permission mask for chmodding the file after a successful move
+	* @param string $chmod Permission mask for chmodding the file after a successful move. The mode entered here reflects the mode defined by {@link phpbb_chmod()}
+	*
 	* @access public
 	*/
-	function move_file($destination, $overwrite = false, $skip_image_check = false, $chmod = 0666)
+	function move_file($destination, $overwrite = false, $skip_image_check = false, $chmod = false)
 	{
 		global $user, $phpbb_root_path;
 
@@ -246,6 +275,8 @@ class filespec
 		{
 			return false;
 		}
+
+		$chmod = ($chmod === false) ? CHMOD_READ | CHMOD_WRITE : $chmod;
 
 		// We need to trust the admin in specifying valid upload directories and an attacker not being able to overwrite it...
 		$this->destination_path = $phpbb_root_path . $destination;
@@ -257,7 +288,7 @@ class filespec
 			return false;
 		}
 
-		$upload_mode = (@ini_get('open_basedir') || @ini_get('safe_mode')) ? 'move' : 'copy';
+		$upload_mode = (@ini_get('open_basedir') || @ini_get('safe_mode') || strtolower(@ini_get('safe_mode')) == 'on') ? 'move' : 'copy';
 		$upload_mode = ($this->local) ? 'local' : $upload_mode;
 		$this->destination_file = $this->destination_path . '/' . basename($this->realname);
 
@@ -317,7 +348,7 @@ class filespec
 				break;
 			}
 
-			@chmod($this->destination_file, $chmod);
+			phpbb_chmod($this->destination_file, $chmod);
 		}
 
 		// Try to get real filesize from destination folder
@@ -388,7 +419,7 @@ class filespec
 		{
 			$size_lang = ($this->upload->max_filesize >= 1048576) ? $user->lang['MIB'] : (($this->upload->max_filesize >= 1024) ? $user->lang['KIB'] : $user->lang['BYTES'] );
 			$max_filesize = get_formatted_filesize($this->upload->max_filesize, false);
-	
+
 			$this->error[] = sprintf($user->lang[$this->upload->error_prefix . 'WRONG_FILESIZE'], $max_filesize, $size_lang);
 
 			return false;
@@ -427,6 +458,7 @@ class fileerror extends filespec
 class fileupload
 {
 	var $allowed_extensions = array();
+	var $disallowed_content = array();
 	var $max_filesize = 0;
 	var $min_width = 0;
 	var $min_height = 0;
@@ -446,12 +478,13 @@ class fileupload
 	* @param int $max_height Maximum image height (only checked for images)
 	*
 	*/
-	function fileupload($error_prefix = '', $allowed_extensions = false, $max_filesize = false, $min_width = false, $min_height = false, $max_width = false, $max_height = false)
+	function fileupload($error_prefix = '', $allowed_extensions = false, $max_filesize = false, $min_width = false, $min_height = false, $max_width = false, $max_height = false, $disallowed_content = false)
 	{
 		$this->set_allowed_extensions($allowed_extensions);
 		$this->set_max_filesize($max_filesize);
 		$this->set_allowed_dimensions($min_width, $min_height, $max_width, $max_height);
 		$this->set_error_prefix($error_prefix);
+		$this->set_disallowed_content($disallowed_content);
 	}
 
 	/**
@@ -463,6 +496,7 @@ class fileupload
 		$this->min_width = $this->min_height = $this->max_width = $this->max_height = 0;
 		$this->error_prefix = '';
 		$this->allowed_extensions = array();
+		$this->disallowed_content = array();
 	}
 
 	/**
@@ -495,6 +529,17 @@ class fileupload
 		if ($max_filesize !== false && (int) $max_filesize)
 		{
 			$this->max_filesize = (int) $max_filesize;
+		}
+	}
+
+	/**
+	* Set disallowed strings
+	*/
+	function set_disallowed_content($disallowed_content)
+	{
+		if ($disallowed_content !== false && is_array($disallowed_content))
+		{
+			$this->disallowed_content = $disallowed_content;
 		}
 	}
 
@@ -549,7 +594,18 @@ class fileupload
 		// PHP Upload filesize exceeded
 		if ($file->get('filename') == 'none')
 		{
-			$file->error[] = (@ini_get('upload_max_filesize') == '') ? $user->lang[$this->error_prefix . 'PHP_SIZE_NA'] : sprintf($user->lang[$this->error_prefix . 'PHP_SIZE_OVERRUN'], @ini_get('upload_max_filesize'));
+			$max_filesize = @ini_get('upload_max_filesize');
+			$unit = 'MB';
+
+			if (!empty($max_filesize))
+			{
+				$unit = strtolower(substr($max_filesize, -1, 1));
+				$max_filesize = (int) $max_filesize;
+
+				$unit = ($unit == 'k') ? 'KB' : (($unit == 'g') ? 'GB' : 'MB');
+			}
+
+			$file->error[] = (empty($max_filesize)) ? $user->lang[$this->error_prefix . 'PHP_SIZE_NA'] : sprintf($user->lang[$this->error_prefix . 'PHP_SIZE_OVERRUN'], $max_filesize, $user->lang[$unit]);
 			return $file;
 		}
 
@@ -625,7 +681,18 @@ class fileupload
 		// PHP Upload filesize exceeded
 		if ($file->get('filename') == 'none')
 		{
-			$file->error[] = (@ini_get('upload_max_filesize') == '') ? $user->lang[$this->error_prefix . 'PHP_SIZE_NA'] : sprintf($user->lang[$this->error_prefix . 'PHP_SIZE_OVERRUN'], @ini_get('upload_max_filesize'));
+			$max_filesize = @ini_get('upload_max_filesize');
+			$unit = 'MB';
+
+			if (!empty($max_filesize))
+			{
+				$unit = strtolower(substr($max_filesize, -1, 1));
+				$max_filesize = (int) $max_filesize;
+
+				$unit = ($unit == 'k') ? 'KB' : (($unit == 'g') ? 'GB' : 'MB');
+			}
+
+			$file->error[] = (empty($max_filesize)) ? $user->lang[$this->error_prefix . 'PHP_SIZE_NA'] : sprintf($user->lang[$this->error_prefix . 'PHP_SIZE_OVERRUN'], $max_filesize, $user->lang[$unit]);
 			return $file;
 		}
 
@@ -741,7 +808,7 @@ class fileupload
 			return $file;
 		}
 
-		$tmp_path = (!@ini_get('safe_mode')) ? false : $phpbb_root_path . 'cache';
+		$tmp_path = (!@ini_get('safe_mode') || strtolower(@ini_get('safe_mode')) == 'off') ? false : $phpbb_root_path . 'cache';
 		$filename = tempnam($tmp_path, unique_id() . '-');
 
 		if (!($fp = @fopen($filename, 'wb')))
@@ -773,7 +840,18 @@ class fileupload
 		switch ($errorcode)
 		{
 			case 1:
-				$error = (@ini_get('upload_max_filesize') == '') ? $user->lang[$this->error_prefix . 'PHP_SIZE_NA'] : sprintf($user->lang[$this->error_prefix . 'PHP_SIZE_OVERRUN'], @ini_get('upload_max_filesize'));
+				$max_filesize = @ini_get('upload_max_filesize');
+				$unit = 'MB';
+
+				if (!empty($max_filesize))
+				{
+					$unit = strtolower(substr($max_filesize, -1, 1));
+					$max_filesize = (int) $max_filesize;
+
+					$unit = ($unit == 'k') ? 'KB' : (($unit == 'g') ? 'GB' : 'MB');
+				}
+
+				$error = (empty($max_filesize)) ? $user->lang[$this->error_prefix . 'PHP_SIZE_NA'] : sprintf($user->lang[$this->error_prefix . 'PHP_SIZE_OVERRUN'], $max_filesize, $user->lang[$unit]);
 			break;
 
 			case 2:
@@ -830,6 +908,12 @@ class fileupload
 		{
 			$file->error[] = sprintf($user->lang[$this->error_prefix . 'DISALLOWED_EXTENSION'], $file->get('extension'));
 		}
+
+		// MIME Sniffing
+		if (!$this->valid_content($file))
+		{
+			$file->error[] = sprintf($user->lang[$this->error_prefix . 'DISALLOWED_CONTENT']);
+		}
 	}
 
 	/**
@@ -867,6 +951,15 @@ class fileupload
 	function is_valid($form_name)
 	{
 		return (isset($_FILES[$form_name]) && $_FILES[$form_name]['name'] != 'none') ? true : false;
+	}
+
+
+	/**
+	* Check for allowed extension
+	*/
+	function valid_content(&$file)
+	{
+		return ($file->check_content($this->disallowed_content));
 	}
 
 	/**

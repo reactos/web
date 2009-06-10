@@ -10,6 +10,7 @@
 .username-coloured {
 	font-weight: bold;
 	display: inline !important;
+	padding: 0 !important;
 }
 
 /* Links on gradient backgrounds */
@@ -196,4 +197,11 @@ a.right:hover {
 	color: #d2d2d2;
 	text-decoration: none;
 	background-position: 100% 60%;
+}
+
+/* invisible skip link, used for accessibility  */
+.skiplink {
+	position: absolute;
+	left: -999px;
+	width: 990px;
 }

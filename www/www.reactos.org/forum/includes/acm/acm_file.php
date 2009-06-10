@@ -2,7 +2,7 @@
 /**
 *
 * @package acm
-* @version $Id: acm_file.php 8479 2008-03-29 00:22:48Z naderman $
+* @version $Id: acm_file.php 9363 2009-03-11 12:53:54Z acydburn $
 * @copyright (c) 2005 phpBB Group
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License
 *
@@ -89,21 +89,30 @@ class acm
 		if ($fp = @fopen($this->cache_dir . 'data_global.' . $phpEx, 'wb'))
 		{
 			@flock($fp, LOCK_EX);
-			fwrite($fp, "<?php\n\$this->vars = " . var_export($this->vars, true) . ";\n\n\$this->var_expires = " . var_export($this->var_expires, true) . "\n?>");
+			fwrite($fp, "<?php\nif (!defined('IN_PHPBB')) exit;\n\$this->vars = " . var_export($this->vars, true) . ";\n\n\$this->var_expires = " . var_export($this->var_expires, true) . "\n?>");
 			@flock($fp, LOCK_UN);
 			fclose($fp);
 
-			@chmod($this->cache_dir . 'data_global.' . $phpEx, 0666);
+			if (!function_exists('phpbb_chmod'))
+			{
+				global $phpbb_root_path;
+				include($phpbb_root_path . 'includes/functions.' . $phpEx);
+			}
+
+			phpbb_chmod($this->cache_dir . 'data_global.' . $phpEx, CHMOD_READ | CHMOD_WRITE);
 		}
 		else
 		{
 			// Now, this occurred how often? ... phew, just tell the user then...
 			if (!@is_writable($this->cache_dir))
 			{
-				trigger_error($this->cache_dir . ' is NOT writable.', E_USER_ERROR);
+				// We need to use die() here, because else we may encounter an infinite loop (the message handler calls $cache->unload())
+				die($this->cache_dir . ' is NOT writable.');
+				exit;
 			}
 
-			trigger_error('Not able to open ' . $this->cache_dir . 'data_global.' . $phpEx, E_USER_ERROR);
+			die('Not able to open ' . $this->cache_dir . 'data_global.' . $phpEx);
+			exit;
 		}
 
 		$this->is_modified = false;
@@ -154,7 +163,7 @@ class acm
 				}
 			}
 		}
-		
+
 		set_config('cache_last_gc', time(), true);
 	}
 
@@ -193,11 +202,17 @@ class acm
 			if ($fp = @fopen($this->cache_dir . "data{$var_name}.$phpEx", 'wb'))
 			{
 				@flock($fp, LOCK_EX);
-				fwrite($fp, "<?php\n\$expired = (time() > " . (time() + $ttl) . ") ? true : false;\nif (\$expired) { return; }\n\n\$data = " . var_export($var, true) . ";\n?>");
+				fwrite($fp, "<?php\nif (!defined('IN_PHPBB')) exit;\n\$expired = (time() > " . (time() + $ttl) . ") ? true : false;\nif (\$expired) { return; }\n\n\$data =  " . (sizeof($var) ? "unserialize(" . var_export(serialize($var), true) . ");" : 'array();') . "\n\n?>");
 				@flock($fp, LOCK_UN);
 				fclose($fp);
 
-				@chmod($this->cache_dir . "data{$var_name}.$phpEx", 0666);
+				if (!function_exists('phpbb_chmod'))
+				{
+					global $phpbb_root_path;
+					include($phpbb_root_path . 'includes/functions.' . $phpEx);
+				}
+
+				phpbb_chmod($this->cache_dir . "data{$var_name}.$phpEx", CHMOD_READ | CHMOD_WRITE);
 			}
 		}
 		else
@@ -409,14 +424,20 @@ class acm
 			}
 			$db->sql_freeresult($query_result);
 
-			$file = "<?php\n\n/* " . str_replace('*/', '*\/', $query) . " */\n";
+			$file = "<?php\nif (!defined('IN_PHPBB')) exit;\n\n/* " . str_replace('*/', '*\/', $query) . " */\n";
 			$file .= "\n\$expired = (time() > " . (time() + $ttl) . ") ? true : false;\nif (\$expired) { return; }\n";
 
-			fwrite($fp, $file . "\n\$this->sql_rowset[\$query_id] = " . var_export($this->sql_rowset[$query_id], true) . ";\n?>");
+			fwrite($fp, $file . "\n\$this->sql_rowset[\$query_id] = " . (sizeof($this->sql_rowset[$query_id]) ? "unserialize(" . var_export(serialize($this->sql_rowset[$query_id]), true) . ");" : 'array();') . "\n\n?>");
 			@flock($fp, LOCK_UN);
 			fclose($fp);
 
-			@chmod($filename, 0666);
+			if (!function_exists('phpbb_chmod'))
+			{
+				global $phpbb_root_path;
+				include($phpbb_root_path . 'includes/functions.' . $phpEx);
+			}
+
+			phpbb_chmod($filename, CHMOD_READ | CHMOD_WRITE);
 
 			$query_result = $query_id;
 		}
@@ -491,7 +512,7 @@ class acm
 	*/
 	function remove_file($filename, $check = false)
 	{
-		if ($check && !@is_writeable($this->cache_dir))
+		if ($check && !@is_writable($this->cache_dir))
 		{
 			// E_USER_ERROR - not using language entry - intended.
 			trigger_error('Unable to remove files within ' . $this->cache_dir . '. Please check directory permissions.', E_USER_ERROR);

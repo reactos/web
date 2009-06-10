@@ -2,7 +2,7 @@
 /**
 *
 * @package acp
-* @version $Id: acp_forums.php 8479 2008-03-29 00:22:48Z naderman $
+* @version $Id: acp_forums.php 9344 2009-02-27 16:29:29Z toonarmy $
 * @copyright (c) 2005 phpBB Group
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License
 *
@@ -56,7 +56,7 @@ class acp_forums
 				$total = request_var('total', 0);
 
 				$this->display_progress_bar($start, $total);
-				exit_handler();
+				exit;
 			break;
 
 			case 'delete':
@@ -74,7 +74,7 @@ class acp_forums
 				{
 					trigger_error($user->lang['NO_PERMISSION_FORUM_ADD'] . adm_back_link($this->u_action . '&amp;parent_id=' . $this->parent_id), E_USER_WARNING);
 				}
-			
+
 			break;
 		}
 
@@ -100,7 +100,7 @@ class acp_forums
 					$cache->destroy('sql', FORUMS_TABLE);
 
 					trigger_error($user->lang['FORUM_DELETED'] . adm_back_link($this->u_action . '&amp;parent_id=' . $this->parent_id));
-	
+
 				break;
 
 				case 'edit':
@@ -154,8 +154,11 @@ class acp_forums
 					if ($forum_data['forum_type'] == FORUM_LINK)
 					{
 						$forum_data['display_on_index'] = request_var('link_display_on_index', false);
+					}
 
-						// Linked forums are not able to be locked...
+					// Linked forums and categories are not able to be locked...
+					if ($forum_data['forum_type'] == FORUM_LINK || $forum_data['forum_type'] == FORUM_CAT)
+					{
 						$forum_data['forum_status'] = ITEM_UNLOCKED;
 					}
 
@@ -180,7 +183,7 @@ class acp_forums
 						$forum_perm_from = request_var('forum_perm_from', 0);
 
 						// Copy permissions?
-						if ($forum_perm_from && !empty($forum_perm_from) && $forum_perm_from != $forum_data['forum_id'] &&
+						if (!empty($forum_perm_from) && $forum_perm_from != $forum_data['forum_id'] &&
 							(($action != 'edit') || empty($forum_id) || ($auth->acl_get('a_fauth') && $auth->acl_get('a_authusers') && $auth->acl_get('a_authgroups') && $auth->acl_get('a_mauth'))))
 						{
 							// if we edit a forum delete current permissions first
@@ -189,7 +192,7 @@ class acp_forums
 								$sql = 'DELETE FROM ' . ACL_USERS_TABLE . '
 									WHERE forum_id = ' . (int) $forum_data['forum_id'];
 								$db->sql_query($sql);
-	
+
 								$sql = 'DELETE FROM ' . ACL_GROUPS_TABLE . '
 									WHERE forum_id = ' . (int) $forum_data['forum_id'];
 								$db->sql_query($sql);
@@ -245,7 +248,7 @@ class acp_forums
 
 						$auth->acl_clear_prefetch();
 						$cache->destroy('sql', FORUMS_TABLE);
-	
+
 						$acl_url = '&amp;mode=setting_forum_local&amp;forum_id[]=' . $forum_data['forum_id'];
 
 						$message = ($action == 'add') ? $user->lang['FORUM_CREATED'] : $user->lang['FORUM_UPDATED'];
@@ -543,7 +546,7 @@ class acp_forums
 
 				$forum_type_options = '';
 				$forum_type_ary = array(FORUM_CAT => 'CAT', FORUM_POST => 'FORUM', FORUM_LINK => 'LINK');
-		
+
 				foreach ($forum_type_ary as $value => $lang)
 				{
 					$forum_type_options .= '<option value="' . $value . '"' . (($value == $forum_data['forum_type']) ? ' selected="selected"' : '') . '>' . $user->lang['TYPE_' . $lang] . '</option>';
@@ -557,13 +560,12 @@ class acp_forums
 					FROM ' . FORUMS_TABLE . '
 					WHERE forum_type = ' . FORUM_POST . "
 						AND forum_id <> $forum_id";
-				$result = $db->sql_query($sql);
+				$result = $db->sql_query_limit($sql, 1);
 
+				$postable_forum_exists = false;
 				if ($db->sql_fetchrow($result))
 				{
-					$template->assign_vars(array(
-						'S_MOVE_FORUM_OPTIONS'		=> make_forum_select($forum_data['parent_id'], $forum_id, false, true, false))
-					);
+					$postable_forum_exists = true;
 				}
 				$db->sql_freeresult($result);
 
@@ -580,23 +582,22 @@ class acp_forums
 
 					$forums_list = make_forum_select($forum_data['parent_id'], $subforums_id);
 
-					$sql = 'SELECT forum_id
-						FROM ' . FORUMS_TABLE . '
-						WHERE forum_type = ' . FORUM_POST . "
-							AND forum_id <> $forum_id";
-					$result = $db->sql_query($sql);
-
-					if ($db->sql_fetchrow($result))
+					if ($postable_forum_exists)
 					{
 						$template->assign_vars(array(
 							'S_MOVE_FORUM_OPTIONS'		=> make_forum_select($forum_data['parent_id'], $subforums_id)) // , false, true, false???
 						);
 					}
-					$db->sql_freeresult($result);
 
 					$template->assign_vars(array(
 						'S_HAS_SUBFORUMS'		=> ($forum_data['right_id'] - $forum_data['left_id'] > 1) ? true : false,
 						'S_FORUMS_LIST'			=> $forums_list)
+					);
+				}
+				else if ($postable_forum_exists)
+				{
+					$template->assign_vars(array(
+						'S_MOVE_FORUM_OPTIONS'		=> make_forum_select($forum_data['parent_id'], $forum_id, false, true, false))
 					);
 				}
 
@@ -613,7 +614,7 @@ class acp_forums
 						}
 					}
 				}
-				
+
 				if (strlen($forum_data['forum_password']) == 32)
 				{
 					$errors[] = $user->lang['FORUM_PASSWORD_OLD'];
@@ -711,7 +712,7 @@ class acp_forums
 					FROM ' . FORUMS_TABLE . '
 					WHERE forum_type = ' . FORUM_POST . "
 						AND forum_id <> $forum_id";
-				$result = $db->sql_query($sql);
+				$result = $db->sql_query_limit($sql, 1);
 
 				if ($db->sql_fetchrow($result))
 				{
@@ -804,10 +805,6 @@ class acp_forums
 
 				$url = $this->u_action . "&amp;parent_id=$this->parent_id&amp;f={$row['forum_id']}";
 
-				$forum_title = ($forum_type != FORUM_LINK) ? '<a href="' . $this->u_action . '&amp;parent_id=' . $row['forum_id'] . '">' : '';
-				$forum_title .= $row['forum_name'];
-				$forum_title .= ($forum_type != FORUM_LINK) ? '</a>' : '';
-
 				$template->assign_block_vars('forums', array(
 					'FOLDER_IMAGE'		=> $folder_image,
 					'FORUM_IMAGE'		=> ($row['forum_image']) ? '<img src="' . $phpbb_root_path . $row['forum_image'] . '" alt="" />' : '',
@@ -885,7 +882,7 @@ class acp_forums
 	*/
 	function update_forum_data(&$forum_data)
 	{
-		global $db, $user, $cache;
+		global $db, $user, $cache, $phpbb_root_path;
 
 		$errors = array();
 
@@ -918,13 +915,17 @@ class acp_forums
 			$forum_data['prune_days'] = $forum_data['prune_viewed'] = $forum_data['prune_freq'] = 0;
 			$errors[] = $user->lang['FORUM_DATA_NEGATIVE'];
 		}
-		
+
 		$range_test_ary = array(
 			array('lang' => 'FORUM_TOPICS_PAGE', 'value' => $forum_data['forum_topics_per_page'], 'column_type' => 'TINT:0'),
 		);
+
+		if (!file_exists($phpbb_root_path . $forum_data['forum_image']))
+		{
+			$errors[] = $user->lang['FORUM_IMAGE_NO_EXIST'];
+		}
+
 		validate_range($range_test_ary, $errors);
-
-
 
 		// Set forum flags
 		// 1 = link tracking
@@ -974,7 +975,7 @@ class acp_forums
 			$forum_data_sql['forum_password'] = phpbb_hash($forum_data_sql['forum_password']);
 		}
 		unset($forum_data_sql['forum_password_unset']);
-		
+
 		if (!isset($forum_data_sql['forum_id']))
 		{
 			// no forum_id means we're creating a new forum
@@ -1206,7 +1207,14 @@ class acp_forums
 
 			if ($row['parent_id'] != $forum_data_sql['parent_id'])
 			{
-				$errors = $this->move_forum($forum_data_sql['forum_id'], $forum_data_sql['parent_id']);
+				if ($row['forum_id'] != $forum_data_sql['parent_id'])
+				{
+					$errors = $this->move_forum($forum_data_sql['forum_id'], $forum_data_sql['parent_id']);
+				}
+				else
+				{
+					$forum_data_sql['parent_id'] = $row['parent_id'];
+				}
 			}
 
 			if (sizeof($errors))
@@ -1632,7 +1640,7 @@ class acp_forums
 			WHERE p.forum_id = $forum_id
 				AND a.in_message = 0
 				AND a.topic_id = p.topic_id";
-		$result = $db->sql_query($sql);	
+		$result = $db->sql_query($sql);
 
 		$topic_ids = array();
 		while ($row = $db->sql_fetchrow($result))
@@ -1647,7 +1655,8 @@ class acp_forums
 		$sql = 'SELECT poster_id
 			FROM ' . POSTS_TABLE . '
 			WHERE forum_id = ' . $forum_id . '
-				AND post_postcount = 1';
+				AND post_postcount = 1
+				AND post_approved = 1';
 		$result = $db->sql_query($sql);
 
 		$post_counts = array();
@@ -1690,7 +1699,7 @@ class acp_forums
 			break;
 
 			default:
-			
+
 				// Delete everything else and curse your DB for not offering multi-table deletion
 				$tables_ary = array(
 					'post_id'	=>	array(
@@ -1811,7 +1820,7 @@ class acp_forums
 		$row = $db->sql_fetchrow($result);
 		$db->sql_freeresult($result);
 
-		set_config('upload_dir_size', (int) $row['stat'], true);
+		set_config('upload_dir_size', (float) $row['stat'], true);
 
 		return array();
 	}

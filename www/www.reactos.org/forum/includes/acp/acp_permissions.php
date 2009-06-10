@@ -2,7 +2,7 @@
 /**
 *
 * @package acp
-* @version $Id: acp_permissions.php 8479 2008-03-29 00:22:48Z naderman $
+* @version $Id: acp_permissions.php 9496 2009-04-29 14:52:43Z acydburn $
 * @copyright (c) 2005 phpBB Group
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License
 *
@@ -23,7 +23,7 @@ class acp_permissions
 {
 	var $u_action;
 	var $permission_dropdown;
-	
+
 	function main($id, $mode)
 	{
 		global $db, $user, $auth, $template, $cache;
@@ -94,7 +94,7 @@ class acp_permissions
 			}
 			$db->sql_freeresult($result);
 		}
-		
+
 		// Map usernames to ids and vice versa
 		if ($usernames)
 		{
@@ -112,7 +112,7 @@ class acp_permissions
 			}
 		}
 		unset($username);
-		
+
 		// Build forum ids (of all forums are checked or subforum listing used)
 		if ($all_forums)
 		{
@@ -369,8 +369,8 @@ class acp_permissions
 
 					$template->assign_vars(array(
 						'S_SELECT_GROUP'		=> true,
-						'S_GROUP_OPTIONS'		=> group_select_options(false, false, (($user->data['user_type'] == USER_FOUNDER) ? false : 0)))
-					);
+						'S_GROUP_OPTIONS'		=> group_select_options(false, false, false), // Show all groups
+					));
 
 				break;
 
@@ -415,7 +415,7 @@ class acp_permissions
 						'S_SELECT_USERGROUP_VIEW'	=> ($victim == 'usergroup_view') ? true : false,
 						'S_DEFINED_USER_OPTIONS'	=> $items['user_ids_options'],
 						'S_DEFINED_GROUP_OPTIONS'	=> $items['group_ids_options'],
-						'S_ADD_GROUP_OPTIONS'		=> group_select_options(false, $items['group_ids'], (($user->data['user_type'] == USER_FOUNDER) ? false : 0)),
+						'S_ADD_GROUP_OPTIONS'		=> group_select_options(false, $items['group_ids'], false),	// Show all groups
 						'U_FIND_USERNAME'			=> append_sid("{$phpbb_root_path}memberlist.$phpEx", 'mode=searchuser&amp;form=add_user&amp;field=username&amp;select_single=true'),
 					));
 
@@ -528,7 +528,7 @@ class acp_permissions
 				}
 				continue;
 			}
-			
+
 			if ($branch_there)
 			{
 				$s_options .= ' [' . $user->lang['PLUS_SUBFORUMS'] . ']';
@@ -539,14 +539,14 @@ class acp_permissions
 
 		return $s_options;
 	}
-	
+
 	/**
 	* Build dropdown field for changing permission types
 	*/
 	function build_permission_dropdown($options, $default_option, $permission_scope)
 	{
 		global $user, $auth;
-		
+
 		$s_dropdown_options = '';
 		foreach ($options as $setting)
 		{
@@ -626,7 +626,7 @@ class acp_permissions
 		{
 			trigger_error($user->lang['NO_AUTH_OPERATION'] . adm_back_link($this->u_action), E_USER_WARNING);
 		}
-		
+
 		$ug_id = $forum_id = 0;
 
 		// We loop through the auth settings defined in our submit
@@ -762,7 +762,14 @@ class acp_permissions
 
 		$this->log_action($mode, 'add', $permission_type, $ug_type, $ug_ids, $forum_ids);
 
-		trigger_error($user->lang['AUTH_UPDATED'] . adm_back_link($this->u_action));
+		if ($mode == 'setting_forum_local' || $mode == 'setting_mod_local')
+		{
+			trigger_error($user->lang['AUTH_UPDATED'] . adm_back_link($this->u_action . '&amp;forum_id[]=' . implode('&amp;forum_id[]=', $forum_ids)));
+		}
+		else
+		{
+			trigger_error($user->lang['AUTH_UPDATED'] . adm_back_link($this->u_action));
+		}
 	}
 
 	/**
@@ -809,7 +816,7 @@ class acp_permissions
 	function remove_permissions($mode, $permission_type, &$auth_admin, &$user_id, &$group_id, &$forum_id)
 	{
 		global $user, $db, $auth;
-			
+
 		// User or group to be set?
 		$ug_type = (sizeof($user_id)) ? 'user' : 'group';
 
@@ -829,7 +836,14 @@ class acp_permissions
 
 		$this->log_action($mode, 'del', $permission_type, $ug_type, (($ug_type == 'user') ? $user_id : $group_id), (sizeof($forum_id) ? $forum_id : array(0 => 0)));
 
-		trigger_error($user->lang['AUTH_UPDATED'] . adm_back_link($this->u_action));
+		if ($mode == 'setting_forum_local' || $mode == 'setting_mod_local')
+		{
+			trigger_error($user->lang['AUTH_UPDATED'] . adm_back_link($this->u_action . '&amp;forum_id[]=' . implode('&amp;forum_id[]=', $forum_id)));
+		}
+		else
+		{
+			trigger_error($user->lang['AUTH_UPDATED'] . adm_back_link($this->u_action));
+		}
 	}
 
 	/**
@@ -1150,13 +1164,17 @@ class acp_permissions
 		{
 			$sql_where = 'AND (' . $db->sql_in_set('a.auth_option_id', $option_ids) . ' OR ' . $db->sql_in_set('a.auth_role_id', $role_ids) . ')';
 		}
-		else
+		else if (sizeof($role_ids))
+		{
+			$sql_where = 'AND ' . $db->sql_in_set('a.auth_role_id', $role_ids);
+		}
+		else if (sizeof($option_ids))
 		{
 			$sql_where = 'AND ' . $db->sql_in_set('a.auth_option_id', $option_ids);
 		}
 
 		// Not ideal, due to the filesort, non-use of indexes, etc.
-		$sql = 'SELECT DISTINCT u.user_id, u.username
+		$sql = 'SELECT DISTINCT u.user_id, u.username, u.username_clean, u.user_regdate
 			FROM ' . USERS_TABLE . ' u, ' . ACL_USERS_TABLE . " a
 			WHERE u.user_id = a.user_id
 				$sql_forum_id

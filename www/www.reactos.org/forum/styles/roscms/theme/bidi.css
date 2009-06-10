@@ -253,8 +253,8 @@
 }
 
 .rtl ul.topiclist li.row dt a.subforum {
-	padding: 0 0 0 12px;
-	background-position: 100% 100%;
+	padding-right: 12px;
+	background-position: right;
 	position: static;
 }
 
@@ -719,4 +719,7 @@
 * tweaks.css
 */
 
-
+/** Reference: Bug #27155 */
+.rtl #wrap, .rtl .headerbar, .rtl #site-description, .rtl .navbar {
+	position: relative;
+}

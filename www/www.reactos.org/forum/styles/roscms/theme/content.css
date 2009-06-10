@@ -44,7 +44,9 @@ ul.topiclist dd {
 
 ul.topiclist dfn {
 	/* Labels for post/view counts */
-	display: none;
+	position: absolute;
+	left: -999px;
+	width: 990px;
 }
 
 ul.topiclist li.row dt a.subforum {
@@ -280,6 +282,10 @@ div[class].topic-actions {
 	border-bottom-width: 0;
 }
 
+.post-ignore .postbody {
+	display: none;
+}
+
 /* Content container styles
 ----------------------------------------*/
 .content {
@@ -383,6 +389,15 @@ dd .signature {
 	padding: 0;
 	clear: none;
 	border: none;
+}
+
+.signature li {
+	list-style-type: inherit;
+}
+
+.signature ul, .signature ol {
+	margin-bottom: 1em;
+	margin-left: 3em;
 }
 
 /* Post noticies */

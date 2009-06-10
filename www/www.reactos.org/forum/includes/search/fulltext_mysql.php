@@ -2,7 +2,7 @@
 /**
 *
 * @package search
-* @version $Id: fulltext_mysql.php 8479 2008-03-29 00:22:48Z naderman $
+* @version $Id: fulltext_mysql.php 9438 2009-04-11 11:09:45Z acydburn $
 * @copyright (c) 2005 phpBB Group
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License
 *
@@ -118,7 +118,7 @@ class fulltext_mysql extends search_backend
 	*/
 	function split_keywords(&$keywords, $terms)
 	{
-		global $config;
+		global $config, $user;
 
 		if ($terms == 'all')
 		{
@@ -165,6 +165,12 @@ class fulltext_mysql extends search_backend
 			$matches = array();
 			preg_match_all('#(?:[^\w*"()]|^)([+\-|]?(?:[\w*"()]+\'?)*[\w*"()])(?:[^\w*"()]|$)#u', $split_keywords, $matches);
 			$this->split_words = $matches[1];
+		}
+
+		// We limit the number of allowed keywords to minimize load on the database
+		if ($config['max_num_search_keywords'] && sizeof($this->split_words) > $config['max_num_search_keywords'])
+		{
+			trigger_error($user->lang('MAX_NUM_SEARCH_KEYWORDS_REFINE', $config['max_num_search_keywords'], sizeof($this->split_words)));
 		}
 
 		// to allow phrase search, we need to concatenate quoted words
@@ -546,8 +552,8 @@ class fulltext_mysql extends search_backend
 			break;
 
 			case 't':
-				$sql_sort_table	= ($type == 'posts') ? TOPICS_TABLE . ' t, ' : '';
-				$sql_sort_join	= ($type == 'posts') ? ' AND t.topic_id = p.topic_id ' : '';
+				$sql_sort_table	= ($type == 'posts' && !$firstpost_only) ? TOPICS_TABLE . ' t, ' : '';
+				$sql_sort_join	= ($type == 'posts' && !$firstpost_only) ? ' AND t.topic_id = p.topic_id ' : '';
 			break;
 
 			case 'f':
@@ -704,7 +710,7 @@ class fulltext_mysql extends search_backend
 
 		if (!isset($this->stats['post_subject']))
 		{
-			if ($db->sql_layer == 'mysqli' || version_compare($db->mysql_version, '4.1.3', '>='))
+			if ($db->sql_layer == 'mysqli' || version_compare($db->sql_server_info(true), '4.1.3', '>='))
 			{
 				//$alter[] = 'MODIFY post_subject varchar(100) COLLATE utf8_unicode_ci DEFAULT \'\' NOT NULL';
 			}
@@ -717,7 +723,7 @@ class fulltext_mysql extends search_backend
 
 		if (!isset($this->stats['post_text']))
 		{
-			if ($db->sql_layer == 'mysqli' || version_compare($db->mysql_version, '4.1.3', '>='))
+			if ($db->sql_layer == 'mysqli' || version_compare($db->sql_server_info(true), '4.1.3', '>='))
 			{
 				$alter[] = 'MODIFY post_text mediumtext COLLATE utf8_unicode_ci NOT NULL';
 			}

@@ -2,7 +2,7 @@
 /**
 *
 * @package ucp
-* @version $Id: ucp.php 8479 2008-03-29 00:22:48Z naderman $
+* @version $Id: ucp.php 8915 2008-09-23 13:30:52Z acydburn $
 * @copyright (c) 2005 phpBB Group
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License
 *
@@ -36,6 +36,7 @@ $user->setup('ucp');
 $template->assign_var('S_IN_UCP', true);
 
 $module = new p_master();
+$default = false;
 
 // Basic "global" modes
 switch ($mode)
@@ -79,7 +80,7 @@ switch ($mode)
 			$message = ($user->data['user_id'] == ANONYMOUS) ? $user->lang['LOGOUT_REDIRECT'] : $user->lang['LOGOUT_FAILED'];
 		}
 		meta_refresh(3, append_sid("{$phpbb_root_path}index.$phpEx"));
-	
+
 		$message = $message . '<br /><br />' . sprintf($user->lang['RETURN_INDEX'], '<a href="' . append_sid("{$phpbb_root_path}index.$phpEx") . '">', '</a> ');
 		trigger_error($message);
 
@@ -178,6 +179,16 @@ switch ($mode)
 		trigger_error($message);
 
 	break;
+
+	default:
+		$default = true;
+	break;
+}
+
+// We use this approach because it does not impose large code changes
+if (!$default)
+{
+	return true;
 }
 
 // Only registered users can go beyond this point

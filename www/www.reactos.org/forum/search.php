@@ -2,7 +2,7 @@
 /**
 *
 * @package phpBB3
-* @version $Id: search.php 8479 2008-03-29 00:22:48Z naderman $
+* @version $Id: search.php 9488 2009-04-26 15:12:54Z acydburn $
 * @copyright (c) 2005 phpBB Group
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License
 *
@@ -88,7 +88,7 @@ if ($keywords || $author || $author_id || $search_id || $submit)
 	if ($search_id == 'egosearch')
 	{
 		$author_id = $user->data['user_id'];
-		
+
 		if ($user->data['user_id'] == ANONYMOUS)
 		{
 			login_box('', $user->lang['LOGIN_EXPLAIN_EGOSEARCH']);
@@ -372,6 +372,20 @@ if ($keywords || $author || $author_id || $search_id || $submit)
 							' . str_replace(array('p.', 'post_'), array('t.', 'topic_'), $m_approve_fid_sql) . '
 							' . ((sizeof($ex_fid_ary)) ? 'AND ' . $db->sql_in_set('t.forum_id', $ex_fid_ary, true) : '') . "
 						$sql_sort";
+/*
+		[Fix] queued replies missing from "view new posts" (Bug #42705 - Patch by Paul)
+		- Creates temporary table, query is far from optimized
+
+					$sql = 'SELECT t.topic_id
+						FROM ' . TOPICS_TABLE . ' t, ' . POSTS_TABLE . ' p
+						WHERE p.post_time > ' . $user->data['user_lastvisit'] . '
+							AND t.topic_id = p.topic_id
+							AND t.topic_moved_id = 0
+							' . $m_approve_fid_sql . '
+							' . ((sizeof($ex_fid_ary)) ? 'AND ' . $db->sql_in_set('t.forum_id', $ex_fid_ary, true) : '') . "
+						GROUP BY t.topic_id
+						$sql_sort";
+*/
 					$field = 'topic_id';
 				}
 			break;
@@ -395,7 +409,7 @@ if ($keywords || $author || $author_id || $search_id || $submit)
 
 			while ($row = $db->sql_fetchrow($result))
 			{
-				$id_ary[] = $row[$field];
+				$id_ary[] = (int) $row[$field];
 			}
 			$db->sql_freeresult($result);
 
@@ -419,7 +433,7 @@ if ($keywords || $author || $author_id || $search_id || $submit)
 	}
 	else if (sizeof($author_id_ary))
 	{
-		$firstpost_only = ($search_fields === 'firstpost') ? true : false;
+		$firstpost_only = ($search_fields === 'firstpost' || $search_fields == 'titleonly') ? true : false;
 		$total_match_count = $search->author_search($show_results, $firstpost_only, $sort_by_sql, $sort_key, $sort_dir, $sort_days, $ex_fid_ary, $m_approve_fid_ary, $topic_id, $author_id_ary, $id_ary, $start, $per_page);
 	}
 
@@ -466,6 +480,9 @@ if ($keywords || $author || $author_id || $search_id || $submit)
 
 	// define some vars for urls
 	$hilit = implode('|', explode(' ', preg_replace('#\s+#u', ' ', str_replace(array('+', '-', '|', '(', ')', '&quot;'), ' ', $keywords))));
+	// Do not allow *only* wildcard being used for hilight
+	$hilit = (strspn($hilit, '*') === strlen($hilit)) ? '' : $hilit;
+
 	$u_hilit = urlencode(htmlspecialchars_decode(str_replace('|', ' ', $hilit)));
 	$u_show_results = ($show_results != 'posts') ? '&amp;sr=' . $show_results : '';
 	$u_search_forum = implode('&amp;fid%5B%5D=', $search_forum);
@@ -473,6 +490,7 @@ if ($keywords || $author || $author_id || $search_id || $submit)
 	$u_search = append_sid("{$phpbb_root_path}search.$phpEx", $u_sort_param . $u_show_results);
 	$u_search .= ($search_id) ? '&amp;search_id=' . $search_id : '';
 	$u_search .= ($u_hilit) ? '&amp;keywords=' . urlencode(htmlspecialchars_decode($search->search_query)) : '';
+	$u_search .= ($search_terms != 'all') ? '&amp;terms=' . $search_terms : '';
 	$u_search .= ($topic_id) ? '&amp;t=' . $topic_id : '';
 	$u_search .= ($author) ? '&amp;author=' . urlencode(htmlspecialchars_decode($author)) : '';
 	$u_search .= ($author_id) ? '&amp;author_id=' . $author_id : '';
@@ -539,7 +557,7 @@ if ($keywords || $author || $author_id || $search_id || $submit)
 
 			if ($user->data['is_registered'])
 			{
-				if ($config['load_db_track'])
+				if ($config['load_db_track'] && $author_id !== $user->data['user_id'])
 				{
 					$sql_from .= ' LEFT JOIN ' . TOPICS_POSTED_TABLE . ' tp ON (tp.user_id = ' . $user->data['user_id'] . '
 						AND t.topic_id = tp.topic_id)';
@@ -600,18 +618,18 @@ if ($keywords || $author || $author_id || $search_id || $submit)
 					FROM ' . TOPICS_TABLE . '
 					WHERE ' . $db->sql_in_set('topic_id', array_keys($shadow_topic_list));
 				$result = $db->sql_query($sql);
-			
+
 				while ($row = $db->sql_fetchrow($result))
 				{
 					$orig_topic_id = $shadow_topic_list[$row['topic_id']];
-			
+
 					// We want to retain some values
 					$row = array_merge($row, array(
 						'topic_moved_id'	=> $rowset[$orig_topic_id]['topic_moved_id'],
 						'topic_status'		=> $rowset[$orig_topic_id]['topic_status'],
 						'forum_name'		=> $rowset[$orig_topic_id]['forum_name'])
 					);
-			
+
 					$rowset[$orig_topic_id] = $row;
 				}
 				$db->sql_freeresult($result);
@@ -627,7 +645,7 @@ if ($keywords || $author || $author_id || $search_id || $submit)
 				else if ($config['load_anon_lastread'] || $user->data['is_registered'])
 				{
 					$topic_tracking_info[$forum_id] = get_complete_topic_tracking($forum_id, $forum['topic_list'], ($forum_id) ? false : $forum['topic_list']);
-		
+
 					if (!$user->data['is_registered'])
 					{
 						$user->data['user_lastmark'] = (isset($tracking_topics['l'])) ? (int) (base_convert($tracking_topics['l'], 36, 10) + $config['board_startdate']) : 0;
@@ -708,7 +726,7 @@ if ($keywords || $author || $author_id || $search_id || $submit)
 						AND in_message = 0
 					ORDER BY filetime DESC, post_msg_id ASC';
 				$result = $db->sql_query($sql);
-		
+
 				while ($row = $db->sql_fetchrow($result))
 				{
 					$attachments[$row['post_msg_id']][] = $row;
@@ -742,12 +760,12 @@ if ($keywords || $author || $author_id || $search_id || $submit)
 				{
 					// Get a list of forums the user cannot read
 					$forum_ary = array_unique(array_keys($auth->acl_getf('!f_read', true)));
-	
+
 					// Determine first forum the user is able to read (must not be a category)
 					$sql = 'SELECT forum_id
 						FROM ' . FORUMS_TABLE . '
 						WHERE forum_type = ' . FORUM_POST;
-		
+
 					if (sizeof($forum_ary))
 					{
 						$sql .= ' AND ' . $db->sql_in_set('forum_id', $forum_ary, true);
@@ -763,12 +781,18 @@ if ($keywords || $author || $author_id || $search_id || $submit)
 				$u_forum_id = $forum_id;
 			}
 
-			$view_topic_url = append_sid("{$phpbb_root_path}viewtopic.$phpEx", "f=$u_forum_id&amp;t=$result_topic_id" . (($u_hilit) ? "&amp;hilit=$u_hilit" : ''));
+			$view_topic_url_params = "f=$u_forum_id&amp;t=$result_topic_id" . (($u_hilit) ? "&amp;hilit=$u_hilit" : '');
+			$view_topic_url = append_sid("{$phpbb_root_path}viewtopic.$phpEx", $view_topic_url_params);
 
 			$replies = ($auth->acl_get('m_approve', $forum_id)) ? $row['topic_replies_real'] : $row['topic_replies'];
 
 			if ($show_results == 'topics')
 			{
+				if ($config['load_db_track'] && $author_id === $user->data['user_id'])
+				{
+					$row['topic_posted'] = 1;
+				}
+
 				$folder_img = $folder_alt = $topic_type = '';
 				topic_status($row, $replies, (isset($topic_tracking_info[$forum_id][$row['topic_id']]) && $row['topic_last_post_time'] > $topic_tracking_info[$forum_id][$row['topic_id']]) ? true : false, $folder_img, $folder_alt, $topic_type);
 
@@ -797,6 +821,10 @@ if ($keywords || $author || $author_id || $search_id || $submit)
 
 					'TOPIC_FOLDER_IMG'		=> $user->img($folder_img, $folder_alt),
 					'TOPIC_FOLDER_IMG_SRC'	=> $user->img($folder_img, $folder_alt, false, '', 'src'),
+					'TOPIC_FOLDER_IMG_ALT'	=> $user->lang[$folder_alt],
+					'TOPIC_FOLDER_IMG_WIDTH'=> $user->img($folder_img, '', false, '', 'width'),
+					'TOPIC_FOLDER_IMG_HEIGHT'	=> $user->img($folder_img, '', false, '', 'height'),
+
 					'TOPIC_ICON_IMG'		=> (!empty($icons[$row['icon_id']])) ? $icons[$row['icon_id']]['img'] : '',
 					'TOPIC_ICON_IMG_WIDTH'	=> (!empty($icons[$row['icon_id']])) ? $icons[$row['icon_id']]['width'] : '',
 					'TOPIC_ICON_IMG_HEIGHT'	=> (!empty($icons[$row['icon_id']])) ? $icons[$row['icon_id']]['height'] : '',
@@ -812,10 +840,10 @@ if ($keywords || $author || $author_id || $search_id || $submit)
 					'S_TOPIC_UNAPPROVED'	=> $topic_unapproved,
 					'S_POSTS_UNAPPROVED'	=> $posts_unapproved,
 
-					'U_LAST_POST'			=> $view_topic_url . '&amp;p=' . $row['topic_last_post_id'] . '#p' . $row['topic_last_post_id'],
+					'U_LAST_POST'			=> append_sid("{$phpbb_root_path}viewtopic.$phpEx", $view_topic_url_params . '&amp;p=' . $row['topic_last_post_id']) . '#p' . $row['topic_last_post_id'],
 					'U_LAST_POST_AUTHOR'	=> get_username_string('profile', $row['topic_last_poster_id'], $row['topic_last_poster_name'], $row['topic_last_poster_colour']),
 					'U_TOPIC_AUTHOR'		=> get_username_string('profile', $row['topic_poster'], $row['topic_first_poster_name'], $row['topic_first_poster_colour']),
-					'U_NEWEST_POST'			=> $view_topic_url . '&amp;view=unread#unread',
+					'U_NEWEST_POST'			=> append_sid("{$phpbb_root_path}viewtopic.$phpEx", $view_topic_url_params . '&amp;view=unread') . '#unread',
 					'U_MCP_REPORT'			=> append_sid("{$phpbb_root_path}mcp.$phpEx", 'i=reports&amp;mode=reports&amp;t=' . $result_topic_id, true, $user->session_id),
 					'U_MCP_QUEUE'			=> $u_mcp_queue,
 				);
@@ -856,7 +884,7 @@ if ($keywords || $author || $author_id || $search_id || $submit)
 					if (!empty($attachments[$row['post_id']]))
 					{
 						parse_attachments($forum_id, $row['post_text'], $attachments[$row['post_id']], $update_count);
-				
+
 						// we only display inline attachments
 						unset($attachments[$row['post_id']]);
 					}
@@ -874,7 +902,7 @@ if ($keywords || $author || $author_id || $search_id || $submit)
 					'POST_AUTHOR_COLOUR'	=> get_username_string('colour', $row['poster_id'], $row['username'], $row['user_colour'], $row['post_username']),
 					'POST_AUTHOR'			=> get_username_string('username', $row['poster_id'], $row['username'], $row['user_colour'], $row['post_username']),
 					'U_POST_AUTHOR'			=> get_username_string('profile', $row['poster_id'], $row['username'], $row['user_colour'], $row['post_username']),
-				
+
 					'POST_SUBJECT'		=> $row['post_subject'],
 					'POST_DATE'			=> (!empty($row['post_time'])) ? $user->format_date($row['post_time']) : '',
 					'MESSAGE'			=> $row['post_text']
@@ -920,7 +948,7 @@ if ($keywords || $author || $author_id || $search_id || $submit)
 
 // Search forum
 $s_forums = '';
-$sql = 'SELECT f.forum_id, f.forum_name, f.parent_id, f.forum_type, f.left_id, f.right_id, f.forum_password, fa.user_id
+$sql = 'SELECT f.forum_id, f.forum_name, f.parent_id, f.forum_type, f.left_id, f.right_id, f.forum_password, f.enable_indexing, fa.user_id
 	FROM ' . FORUMS_TABLE . ' f
 	LEFT JOIN ' . FORUMS_ACCESS_TABLE . " fa ON (fa.forum_id = f.forum_id
 		AND fa.session_id = '" . $db->sql_escape($user->session_id) . "')
@@ -936,6 +964,12 @@ while ($row = $db->sql_fetchrow($result))
 	if ($row['forum_type'] == FORUM_CAT && ($row['left_id'] + 1 == $row['right_id']))
 	{
 		// Non-postable forum with no subforums, don't display
+		continue;
+	}
+
+	if ($row['forum_type'] == FORUM_POST && ($row['left_id'] + 1 == $row['right_id']) && !$row['enable_indexing'])
+	{
+		// Postable forum with no subforums and indexing disabled, don't display
 		continue;
 	}
 
@@ -1034,7 +1068,7 @@ if (!empty($_EXTRA_URL))
 }
 
 $template->assign_vars(array(
-	'S_SEARCH_ACTION'		=> "{$phpbb_root_path}search.$phpEx",
+	'S_SEARCH_ACTION'		=> append_sid("{$phpbb_root_path}search.$phpEx", false, true, 0), // We force no ?sid= appending by using 0
 	'S_HIDDEN_FIELDS'		=> build_hidden_fields($s_hidden_fields),
 	'S_CHARACTER_OPTIONS'	=> $s_characters,
 	'S_FORUM_OPTIONS'		=> $s_forums,
@@ -1056,7 +1090,7 @@ if ($auth->acl_get('a_search'))
 				WHERE dbms_lob.getlength(search_keywords) > 0
 				ORDER BY search_time DESC';
 		break;
-	
+
 		case 'mssql':
 		case 'mssql_odbc':
 			$sql = 'SELECT search_time, search_keywords
@@ -1064,7 +1098,7 @@ if ($auth->acl_get('a_search'))
 				WHERE DATALENGTH(search_keywords) > 0
 				ORDER BY search_time DESC';
 		break;
-	
+
 		default:
 			$sql = 'SELECT search_time, search_keywords
 				FROM ' . SEARCH_RESULTS_TABLE . '

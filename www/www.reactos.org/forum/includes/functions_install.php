@@ -2,7 +2,7 @@
 /**
 *
 * @package install
-* @version $Id: functions_install.php 8479 2008-03-29 00:22:48Z naderman $
+* @version $Id: functions_install.php 9518 2009-05-20 12:37:35Z toonarmy $
 * @copyright (c) 2006 phpBB Group
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License
 *
@@ -21,7 +21,7 @@ if (!defined('IN_PHPBB'))
 */
 function can_load_dll($dll)
 {
-	return ((@ini_get('enable_dl') || strtolower(@ini_get('enable_dl')) == 'on') && (!@ini_get('safe_mode') || strtolower(@ini_get('safe_mode')) == 'off') && @dl($dll . '.' . PHP_SHLIB_SUFFIX)) ? true : false;
+	return ((@ini_get('enable_dl') || strtolower(@ini_get('enable_dl')) == 'on') && (!@ini_get('safe_mode') || strtolower(@ini_get('safe_mode')) == 'off') && function_exists('dl') && @dl($dll . '.' . PHP_SHLIB_SUFFIX)) ? true : false;
 }
 
 /**
@@ -286,7 +286,7 @@ function connect_check_db($error_connect, &$error, $dbms_details, $table_prefix,
 	{
 		case 'mysql':
 		case 'mysqli':
-			if (strpos($table_prefix, '-') !== false || strpos($table_prefix, '.') !== false)
+			if (strspn($table_prefix, '-./\\') !== 0)
 			{
 				$error[] = $lang['INST_ERR_PREFIX_INVALID'];
 				return false;

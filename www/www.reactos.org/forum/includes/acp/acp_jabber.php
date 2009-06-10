@@ -2,7 +2,7 @@
 /**
 *
 * @package acp
-* @version $Id: acp_jabber.php 8479 2008-03-29 00:22:48Z naderman $
+* @version $Id: acp_jabber.php 9389 2009-03-17 15:50:19Z acydburn $
 * @copyright (c) 2005 phpBB Group
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License
 *
@@ -84,6 +84,20 @@ class acp_jabber
 				}
 
 				$jabber->disconnect();
+			}
+			else
+			{
+				// This feature is disabled.
+				// We update the user table to be sure all users that have IM as notify type are set to both as notify type
+				// We set this to both because users still have their jabber address entered and may want to receive jabber notifications again once it is re-enabled.
+				$sql_ary = array(
+					'user_notify_type'		=> NOTIFY_BOTH,
+				);
+
+				$sql = 'UPDATE ' . USERS_TABLE . '
+					SET ' . $db->sql_build_array('UPDATE', $sql_ary) . '
+					WHERE user_notify_type = ' . NOTIFY_IM;
+				$db->sql_query($sql);
 			}
 
 			set_config('jab_enable', $jab_enable);

@@ -2,7 +2,7 @@
 /**
 *
 * @package search
-* @version $Id: fulltext_native.php 8479 2008-03-29 00:22:48Z naderman $
+* @version $Id: fulltext_native.php 9473 2009-04-18 17:46:34Z acydburn $
 * @copyright (c) 2005 phpBB Group
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License
 *
@@ -81,7 +81,7 @@ class fulltext_native extends search_backend
 	*/
 	function split_keywords($keywords, $terms)
 	{
-		global $db, $user;
+		global $db, $user, $config;
 
 		$keywords = trim($this->cleanup($keywords, '+-|()*'));
 
@@ -167,6 +167,13 @@ class fulltext_native extends search_backend
 		);
 
 		$keywords = preg_replace($match, $replace, $keywords);
+		$num_keywords = sizeof(explode(' ', $keywords));
+
+		// We limit the number of allowed keywords to minimize load on the database
+		if ($config['max_num_search_keywords'] && $num_keywords > $config['max_num_search_keywords'])
+		{
+			trigger_error($user->lang('MAX_NUM_SEARCH_KEYWORDS_REFINE', $config['max_num_search_keywords'], $num_keywords));
+		}
 
 		// $keywords input format: each word separated by a space, words in a bracket are not separated
 
@@ -447,13 +454,15 @@ class fulltext_native extends search_backend
 			'FROM'		=> array(
 				SEARCH_WORDMATCH_TABLE	=> array(),
 				SEARCH_WORDLIST_TABLE	=> array(),
-				POSTS_TABLE				=> 'p'
 			),
-			'LEFT_JOIN'	=> array()
+			'LEFT_JOIN' => array(array(
+				'FROM'	=> array(POSTS_TABLE => 'p'),
+				'ON'	=> 'm0.post_id = p.post_id',
+			)),
 		);
-		$sql_where[] = 'm0.post_id = p.post_id';
 
 		$title_match = '';
+		$left_join_topics = false;
 		$group_by = true;
 		// Build some display specific sql strings
 		switch ($fields)
@@ -463,7 +472,7 @@ class fulltext_native extends search_backend
 				$group_by = false;
 			// no break
 			case 'firstpost':
-				$sql_array['FROM'][TOPICS_TABLE] = 't';
+				$left_join_topics = true;
 				$sql_where[] = 'p.post_id = t.topic_first_post_id';
 			break;
 
@@ -475,11 +484,7 @@ class fulltext_native extends search_backend
 
 		if ($type == 'topics')
 		{
-			if (!isset($sql_array['FROM'][TOPICS_TABLE]))
-			{
-				$sql_array['FROM'][TOPICS_TABLE] = 't';
-				$sql_where[] = 'p.topic_id = t.topic_id';
-			}
+			$left_join_topics = true;
 			$group_by = true;
 		}
 
@@ -640,13 +645,21 @@ class fulltext_native extends search_backend
 			$sql = '';
 			$sql_array_count = $sql_array;
 
+			if ($left_join_topics)
+			{
+				$sql_array_count['LEFT_JOIN'][] = array(
+					'FROM'	=> array(TOPICS_TABLE => 't'),
+					'ON'	=> 'p.topic_id = t.topic_id'
+				);
+			}
+
 			switch ($db->sql_layer)
 			{
 				case 'mysql4':
 				case 'mysqli':
 
 					// 3.x does not support SQL_CALC_FOUND_ROWS
-					$sql_array['SELECT'] = 'SQL_CALC_FOUND_ROWS ' . $sql_array['SELECT'];
+					// $sql_array['SELECT'] = 'SQL_CALC_FOUND_ROWS ' . $sql_array['SELECT'];
 					$is_mysql = true;
 
 				break;
@@ -687,17 +700,21 @@ class fulltext_native extends search_backend
 			break;
 
 			case 't':
-				if (!isset($sql_array['FROM'][TOPICS_TABLE]))
-				{
-					$sql_array['FROM'][TOPICS_TABLE] = 't';
-					$sql_where[] = 'p.topic_id = t.topic_id';
-				}
+				$left_join_topics = true;
 			break;
 
 			case 'f':
 				$sql_array['FROM'][FORUMS_TABLE] = 'f';
 				$sql_where[] = 'f.forum_id = p.forum_id';
 			break;
+		}
+
+		if ($left_join_topics)
+		{
+			$sql_array['LEFT_JOIN'][] = array(
+				'FROM'	=> array(TOPICS_TABLE => 't'),
+				'ON'	=> 'p.topic_id = t.topic_id'
+			);
 		}
 
 		$sql_array['WHERE'] = implode(' AND ', $sql_where);
@@ -723,6 +740,16 @@ class fulltext_native extends search_backend
 		// if we use mysql and the total result count is not cached yet, retrieve it from the db
 		if (!$total_results && $is_mysql)
 		{
+			// Count rows for the executed queries. Replace $select within $sql with SQL_CALC_FOUND_ROWS, and run it.
+			$sql_array_copy = $sql_array;
+			$sql_array_copy['SELECT'] = 'SQL_CALC_FOUND_ROWS p.post_id ';
+
+			$sql = $db->sql_build_query('SELECT', $sql_array_copy);
+			unset($sql_array_copy);
+
+			$db->sql_query($sql);
+			$db->sql_freeresult($result);
+
 			$sql = 'SELECT FOUND_ROWS() as total_results';
 			$result = $db->sql_query($sql);
 			$total_results = (int) $db->sql_fetchfield('total_results');
@@ -813,8 +840,8 @@ class fulltext_native extends search_backend
 			break;
 
 			case 't':
-				$sql_sort_table	= ($type == 'posts') ? TOPICS_TABLE . ' t, ' : '';
-				$sql_sort_join	= ($type == 'posts') ? ' AND t.topic_id = p.topic_id ' : '';
+				$sql_sort_table	= ($type == 'posts' && !$firstpost_only) ? TOPICS_TABLE . ' t, ' : '';
+				$sql_sort_join	= ($type == 'posts' && !$firstpost_only) ? ' AND t.topic_id = p.topic_id ' : '';
 			break;
 
 			case 'f':
@@ -846,7 +873,7 @@ class fulltext_native extends search_backend
 			{
 				case 'mysql4':
 				case 'mysqli':
-					$select = 'SQL_CALC_FOUND_ROWS ' . $select;
+//					$select = 'SQL_CALC_FOUND_ROWS ' . $select;
 					$is_mysql = true;
 				break;
 
@@ -900,7 +927,7 @@ class fulltext_native extends search_backend
 		if ($type == 'posts')
 		{
 			$sql = "SELECT $select
-				FROM " . $sql_sort_table . POSTS_TABLE . ' p' . (($topic_id || $firstpost_only) ? ', ' . TOPICS_TABLE . ' t' : '') . "
+				FROM " . $sql_sort_table . POSTS_TABLE . ' p' . (($firstpost_only) ? ', ' . TOPICS_TABLE . ' t' : '') . "
 				WHERE $sql_author
 					$sql_topic_id
 					$sql_firstpost
@@ -939,6 +966,12 @@ class fulltext_native extends search_backend
 
 		if (!$total_results && $is_mysql)
 		{
+			// Count rows for the executed queries. Replace $select within $sql with SQL_CALC_FOUND_ROWS, and run it.
+			$sql = str_replace('SELECT ' . $select, 'SELECT DISTINCT SQL_CALC_FOUND_ROWS p.post_id', $sql);
+
+			$db->sql_query($sql);
+			$db->sql_freeresult($result);
+
 			$sql = 'SELECT FOUND_ROWS() as total_results';
 			$result = $db->sql_query($sql);
 			$total_results = (int) $db->sql_fetchfield('total_results');
@@ -1108,7 +1141,7 @@ class fulltext_native extends search_backend
 
 		// Get unique words from the above arrays
 		$unique_add_words = array_unique(array_merge($words['add']['post'], $words['add']['title']));
-		
+
 		// We now have unique arrays of all words to be added and removed and
 		// individual arrays of added and removed words for text and title. What
 		// we need to do now is add the new words (if they don't already exist)
@@ -1673,7 +1706,7 @@ class fulltext_native extends search_backend
 		</dl>
 		<dl>
 			<dt><label for="fulltext_native_common_thres">' . $user->lang['COMMON_WORD_THRESHOLD'] . ':</label><br /><span>' . $user->lang['COMMON_WORD_THRESHOLD_EXPLAIN'] . '</span></dt>
-			<dd><input id="fulltext_native_common_thres" type="text" size="3" maxlength="3" name="config[fulltext_native_common_thres]" value="' . (int) $config['fulltext_native_common_thres'] . '" /> %</dd>
+			<dd><input id="fulltext_native_common_thres" type="text" size="3" maxlength="3" name="config[fulltext_native_common_thres]" value="' . (double) $config['fulltext_native_common_thres'] . '" /> %</dd>
 		</dl>
 		';
 

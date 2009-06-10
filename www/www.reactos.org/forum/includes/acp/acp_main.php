@@ -2,7 +2,7 @@
 /**
 *
 * @package acp
-* @version $Id: acp_main.php 8479 2008-03-29 00:22:48Z naderman $
+* @version $Id: acp_main.php 9351 2009-02-28 19:22:27Z acydburn $
 * @copyright (c) 2005 phpBB Group
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License
 *
@@ -61,6 +61,14 @@ class acp_main
 
 		if ($action)
 		{
+			if ($action === 'admlogout')
+			{
+				$user->unset_admin();
+				$redirect_url = append_sid("{$phpbb_root_path}index.$phpEx");
+				meta_refresh(3, $redirect_url);
+				trigger_error($user->lang['ADM_LOGGED_OUT'] . '<br /><br />' . sprintf($user->lang['RETURN_INDEX'], '<a href="' . $redirect_url . '">', '</a>'));
+			}
+
 			if (!confirm_box(true))
 			{
 				switch ($action)
@@ -157,9 +165,9 @@ class acp_main
 							FROM ' . ATTACHMENTS_TABLE . '
 							WHERE is_orphan = 0';
 						$result = $db->sql_query($sql);
-						set_config('upload_dir_size', (int) $db->sql_fetchfield('stat'), true);
+						set_config('upload_dir_size', (float) $db->sql_fetchfield('stat'), true);
 						$db->sql_freeresult($result);
-						
+
 						if (!function_exists('update_last_username'))
 						{
 							include($phpbb_root_path . "includes/functions_user.$phpEx");
@@ -175,22 +183,63 @@ class acp_main
 							trigger_error($user->lang['NO_AUTH_OPERATION'] . adm_back_link($this->u_action), E_USER_WARNING);
 						}
 
-						$sql = 'SELECT COUNT(p.post_id) AS num_posts, u.user_id
-							FROM ' . USERS_TABLE . ' u
-							LEFT JOIN  ' . POSTS_TABLE . ' p ON (u.user_id = p.poster_id AND p.post_postcount = 1)
-							GROUP BY u.user_id';
-						$result = $db->sql_query($sql);
+						// Resync post counts
+						$start = $max_post_id = 0;
 
-						while ($row = $db->sql_fetchrow($result))
-						{
-							$db->sql_query('UPDATE ' . USERS_TABLE . " SET user_posts = {$row['num_posts']} WHERE user_id = {$row['user_id']}");
-						}
+						// Find the maximum post ID, we can only stop the cycle when we've reached it
+						$sql = 'SELECT MAX(forum_last_post_id) as max_post_id
+							FROM ' . FORUMS_TABLE;
+						$result = $db->sql_query($sql);
+						$max_post_id = (int) $db->sql_fetchfield('max_post_id');
 						$db->sql_freeresult($result);
+
+						// No maximum post id? :o
+						if (!$max_post_id)
+						{
+							$sql = 'SELECT MAX(post_id)
+								FROM ' . POSTS_TABLE;
+							$result = $db->sql_query($sql);
+							$max_post_id = (int) $db->sql_fetchfield('max_post_id');
+							$db->sql_freeresult($result);
+						}
+
+						// Still no maximum post id? Then we are finished
+						if (!$max_post_id)
+						{
+							add_log('admin', 'LOG_RESYNC_POSTCOUNTS');
+							break;
+						}
+
+						$step = ($config['num_posts']) ? (max((int) ($config['num_posts'] / 5), 20000)) : 20000;
+						$db->sql_query('UPDATE ' . USERS_TABLE . ' SET user_posts = 0');
+
+						while ($start < $max_post_id)
+						{
+							$sql = 'SELECT COUNT(post_id) AS num_posts, poster_id
+								FROM ' . POSTS_TABLE . '
+								WHERE post_id BETWEEN ' . ($start + 1) . ' AND ' . ($start + $step) . '
+									AND post_postcount = 1 AND post_approved = 1
+								GROUP BY poster_id';
+							$result = $db->sql_query($sql);
+
+							if ($row = $db->sql_fetchrow($result))
+							{
+								do
+								{
+									$sql = 'UPDATE ' . USERS_TABLE . " SET user_posts = user_posts + {$row['num_posts']} WHERE user_id = {$row['poster_id']}";
+									$db->sql_query($sql);
+								}
+								while ($row = $db->sql_fetchrow($result));
+							}
+							$db->sql_freeresult($result);
+
+							$start += $step;
+						}
 
 						add_log('admin', 'LOG_RESYNC_POSTCOUNTS');
 
 					break;
-			
+
 					case 'date':
 						if (!$auth->acl_get('a_board'))
 						{
@@ -200,7 +249,7 @@ class acp_main
 						set_config('board_startdate', time() - 1);
 						add_log('admin', 'LOG_RESET_DATE');
 					break;
-				
+
 					case 'db_track':
 						switch ($db->sql_layer)
 						{
@@ -222,7 +271,7 @@ class acp_main
 							FROM ' . FORUMS_TABLE . '
 							WHERE forum_type <> ' . FORUM_CAT;
 						$result = $db->sql_query($sql);
-				
+
 						$forum_ids = array();
 						while ($row = $db->sql_fetchrow($result))
 						{
@@ -272,7 +321,7 @@ class acp_main
 								$db->sql_multi_insert(TOPICS_POSTED_TABLE, $sql_ary);
 							}
 						}
-			
+
 						add_log('admin', 'LOG_RESYNC_POST_MARKING');
 					break;
 
@@ -311,7 +360,7 @@ class acp_main
 		$files_per_day = sprintf('%.2f', $total_files / $boarddays);
 
 		$upload_dir_size = get_formatted_filesize($config['upload_dir_size']);
-	
+
 		$avatar_dir_size = 0;
 
 		if ($avatar_dir = @opendir($phpbb_root_path . $config['avatar_path']))
@@ -452,6 +501,18 @@ class acp_main
 		if (file_exists($phpbb_root_path . 'install'))
 		{
 			$template->assign_var('S_REMOVE_INSTALL', true);
+		}
+
+		if (!defined('PHPBB_DISABLE_CONFIG_CHECK') && file_exists($phpbb_root_path . 'config.' . $phpEx) && is_writable($phpbb_root_path . 'config.' . $phpEx))
+		{
+			// World-Writable? (000x)
+			$template->assign_var('S_WRITABLE_CONFIG', (bool) (@fileperms($phpbb_root_path . 'config.' . $phpEx) & 0x0002));
+		}
+
+		// Fill dbms version if not yet filled
+		if (empty($config['dbms_version']))
+		{
+			set_config('dbms_version', $db->sql_server_info(true));
 		}
 
 		$this->tpl_name = 'acp_main';

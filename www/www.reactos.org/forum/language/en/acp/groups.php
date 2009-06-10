@@ -4,7 +4,7 @@
 * acp_groups [English]
 *
 * @package language
-* @version $Id: groups.php 8479 2008-03-29 00:22:48Z naderman $
+* @version $Id: groups.php 8911 2008-09-23 13:03:33Z acydburn $
 * @copyright (c) 2005 phpBB Group
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License
 *
@@ -86,6 +86,8 @@ $lang = array_merge($lang, array(
 	'GROUP_NAME_TAKEN'				=> 'The group name you entered is already in use, please select an alternative.',
 	'GROUP_OPEN'					=> 'Open',
 	'GROUP_PENDING'					=> 'Pending members',
+	'GROUP_MAX_RECIPIENTS'			=> 'Maximum number of allowed recipients per private message',
+	'GROUP_MAX_RECIPIENTS_EXPLAIN'	=> 'The maximum number of allowed recipients in a private message. If 0 is entered, the board-wide setting is used.',
 	'GROUP_PROMOTE'					=> 'Promote to group leader',
 	'GROUP_RANK'					=> 'Group rank',
 	'GROUP_RECEIVE_PM'				=> 'Group able to receive private messages',
@@ -108,6 +110,7 @@ $lang = array_merge($lang, array(
 	'NO_PERMISSIONS'			=> 'Do not copy permissions',
 	'NO_USERS'					=> 'You haven’t entered any users.',
 	'NO_USERS_ADDED'			=> 'No users were added to the group.',
+	'NO_VALID_USERS'			=> 'You haven’t entered any users eligible for that action.',
 
 	'SPECIAL_GROUPS'			=> 'Pre-defined groups',
 	'SPECIAL_GROUPS_EXPLAIN'	=> 'Pre-defined groups are special groups, they cannot be deleted or directly modified. However you can still add users and alter basic settings.',

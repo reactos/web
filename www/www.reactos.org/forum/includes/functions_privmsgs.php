@@ -2,7 +2,7 @@
 /**
 *
 * @package phpBB3
-* @version $Id: functions_privmsgs.php 8479 2008-03-29 00:22:48Z naderman $
+* @version $Id: functions_privmsgs.php 9441 2009-04-12 13:21:25Z acydburn $
 * @copyright (c) 2005 phpBB Group
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License
 *
@@ -206,6 +206,11 @@ function get_folder($user_id, $folder_id = false)
 			'S_UNREAD_MESSAGES'	=> ($folder_ary['unread_messages']) ? true : false,
 			'S_CUSTOM_FOLDER'	=> ($f_id > 0) ? true : false)
 		);
+	}
+
+	if ($folder_id !== false && !isset($folder[$folder_id]))
+	{
+		trigger_error('UNKNOWN_FOLDER');
 	}
 
 	return $folder;
@@ -925,7 +930,7 @@ function handle_mark_actions($user_id, $mark_action)
 */
 function delete_pm($user_id, $msg_ids, $folder_id)
 {
-	global $db, $user;
+	global $db, $user, $phpbb_root_path, $phpEx;
 
 	$user_id	= (int) $user_id;
 	$folder_id	= (int) $folder_id;
@@ -973,6 +978,8 @@ function delete_pm($user_id, $msg_ids, $folder_id)
 	{
 		return false;
 	}
+
+	$db->sql_transaction('begin');
 
 	// if no one has read the message yet (meaning it is in users outbox)
 	// then mark the message as deleted...
@@ -1051,10 +1058,20 @@ function delete_pm($user_id, $msg_ids, $folder_id)
 
 	if (sizeof($delete_ids))
 	{
+		// Check if there are any attachments we need to remove
+		if (!function_exists('delete_attachments'))
+		{
+			include($phpbb_root_path . 'includes/functions_admin.' . $phpEx);
+		}
+
+		delete_attachments('message', $delete_ids, false);
+
 		$sql = 'DELETE FROM ' . PRIVMSGS_TABLE . '
 			WHERE ' . $db->sql_in_set('msg_id', $delete_ids);
 		$db->sql_query($sql);
 	}
+
+	$db->sql_transaction('commit');
 
 	return true;
 }
@@ -1324,12 +1341,17 @@ function submit_pm($mode, $subject, &$data, $put_in_outbox = true)
 
 		if (isset($data['address_list']['g']) && sizeof($data['address_list']['g']))
 		{
+			// We need to check the PM status of group members (do they want to receive PM's?)
+			// Only check if not a moderator or admin, since they are allowed to override this user setting
+			$sql_allow_pm = (!$auth->acl_gets('a_', 'm_') && !$auth->acl_getf_global('m_')) ? ' AND u.user_allow_pm = 1' : '';
+
 			$sql = 'SELECT u.user_type, ug.group_id, ug.user_id
 				FROM ' . USERS_TABLE . ' u, ' . USER_GROUP_TABLE . ' ug
 				WHERE ' . $db->sql_in_set('ug.group_id', array_keys($data['address_list']['g'])) . '
 					AND ug.user_pending = 0
 					AND u.user_id = ug.user_id
-					AND u.user_type IN (' . USER_NORMAL . ', ' . USER_FOUNDER . ')';
+					AND u.user_type IN (' . USER_NORMAL . ', ' . USER_FOUNDER . ')' .
+					$sql_allow_pm;
 			$result = $db->sql_query($sql);
 
 			while ($row = $db->sql_fetchrow($result))
@@ -1549,8 +1571,8 @@ function submit_pm($mode, $subject, &$data, $put_in_outbox = true)
 
 		if ($space_taken && $files_added)
 		{
-			set_config('upload_dir_size', $config['upload_dir_size'] + $space_taken, true);
-			set_config('num_files', $config['num_files'] + $files_added, true);
+			set_config_count('upload_dir_size', $space_taken, true);
+			set_config_count('num_files', $files_added, true);
 		}
 	}
 
@@ -1741,8 +1763,14 @@ function message_history($msg_id, $user_id, $message_row, $folder, $in_post_mode
 	$url = append_sid("{$phpbb_root_path}ucp.$phpEx", 'i=pm');
 	$next_history_pm = $previous_history_pm = $prev_id = 0;
 
-	foreach ($rowset as $id => $row)
+	// Re-order rowset to be able to get the next/prev message rows...
+	$rowset = array_values($rowset);
+
+	for ($i = 0, $size = sizeof($rowset); $i < $size; $i++)
 	{
+		$row = &$rowset[$i];
+		$id = (int) $row['msg_id'];
+
 		$author_id	= $row['author_id'];
 		$folder_id	= (int) $row['folder_id'];
 
@@ -1750,6 +1778,16 @@ function message_history($msg_id, $user_id, $message_row, $folder, $in_post_mode
 		$message	= $row['message_text'];
 
 		$message = censor_text($message);
+
+		$decoded_message = false;
+
+		if ($in_post_mode && $auth->acl_get('u_sendpm') && $author_id != ANONYMOUS && $author_id != $user->data['user_id'])
+		{
+			$decoded_message = $message;
+			decode_message($decoded_message, $row['bbcode_uid']);
+
+			$decoded_message = bbcode_nl2br($decoded_message);
+		}
 
 		if ($row['bbcode_bitfield'])
 		{
@@ -1763,21 +1801,22 @@ function message_history($msg_id, $user_id, $message_row, $folder, $in_post_mode
 
 		if ($id == $msg_id)
 		{
-			$next_history_pm = next($rowset);
-			$next_history_pm = (sizeof($next_history_pm)) ? (int) $next_history_pm['msg_id'] : 0;
+			$next_history_pm = (isset($rowset[$i + 1])) ? (int) $rowset[$i + 1]['msg_id'] : 0;
 			$previous_history_pm = $prev_id;
 		}
 
 		$template->assign_block_vars('history_row', array(
+			'MESSAGE_AUTHOR_QUOTE'		=> (($decoded_message) ? addslashes(get_username_string('username', $author_id, $row['username'], $row['user_colour'], $row['username'])) : ''),
 			'MESSAGE_AUTHOR_FULL'		=> get_username_string('full', $author_id, $row['username'], $row['user_colour'], $row['username']),
 			'MESSAGE_AUTHOR_COLOUR'		=> get_username_string('colour', $author_id, $row['username'], $row['user_colour'], $row['username']),
 			'MESSAGE_AUTHOR'			=> get_username_string('username', $author_id, $row['username'], $row['user_colour'], $row['username']),
 			'U_MESSAGE_AUTHOR'			=> get_username_string('profile', $author_id, $row['username'], $row['user_colour'], $row['username']),
 
-			'SUBJECT'		=> $subject,
-			'SENT_DATE'		=> $user->format_date($row['message_time']),
-			'MESSAGE'		=> $message,
-			'FOLDER'		=> implode(', ', $row['folder']),
+			'SUBJECT'			=> $subject,
+			'SENT_DATE'			=> $user->format_date($row['message_time']),
+			'MESSAGE'			=> $message,
+			'FOLDER'			=> implode(', ', $row['folder']),
+			'DECODED_MESSAGE'	=> $decoded_message,
 
 			'S_CURRENT_MSG'		=> ($row['msg_id'] == $msg_id),
 			'S_AUTHOR_DELETED'	=> ($author_id == ANONYMOUS) ? true : false,
@@ -1801,6 +1840,27 @@ function message_history($msg_id, $user_id, $message_row, $folder, $in_post_mode
 	));
 
 	return true;
+}
+
+/**
+* Set correct users max messages in PM folder.
+* If several group memberships define different amount of messages, the highest will be chosen.
+*/
+function set_user_message_limit()
+{
+	global $user, $db, $config;
+
+	// Get maximum about from user memberships - if it is 0, there is no limit set and we use the maximum value within the config.
+	$sql = 'SELECT MAX(g.group_message_limit) as max_message_limit
+		FROM ' . GROUPS_TABLE . ' g, ' . USER_GROUP_TABLE . ' ug
+		WHERE ug.user_id = ' . $user->data['user_id'] . '
+			AND ug.user_pending = 0
+			AND ug.group_id = g.group_id';
+	$result = $db->sql_query($sql);
+	$message_limit = (int) $db->sql_fetchfield('max_message_limit');
+	$db->sql_freeresult($result);
+
+	$user->data['message_limit'] = (!$message_limit) ? $config['pm_max_msgs'] : $message_limit;
 }
 
 ?>

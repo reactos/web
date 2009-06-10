@@ -2,7 +2,7 @@
 /**
 *
 * @package phpBB3
-* @version $Id: style.php 8486 2008-04-02 08:51:21Z acydburn $
+* @version $Id: style.php 9366 2009-03-11 17:47:31Z acydburn $
 * @copyright (c) 2005 phpBB Group
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License
 *
@@ -20,14 +20,14 @@ error_reporting(E_ALL ^ E_NOTICE);
 
 require($phpbb_root_path . 'config.' . $phpEx);
 
-if (!defined('PHPBB_INSTALLED') || empty($dbms) || !isset($dbhost) || !isset($dbpasswd) || empty($dbuser))
+if (!defined('PHPBB_INSTALLED') || empty($dbms) || empty($acm_type))
 {
 	exit;
 }
 
 if (version_compare(PHP_VERSION, '6.0.0-dev', '<'))
 {
-	set_magic_quotes_runtime(0);
+	@set_magic_quotes_runtime(0);
 }
 
 // Load Extensions
@@ -57,16 +57,12 @@ if (strspn($sid, 'abcdefABCDEF0123456789') !== strlen($sid))
 // server a little
 if ($id)
 {
-	if (empty($acm_type) || empty($dbms))
-	{
-		die('Hacking attempt');
-	}
-
 	// Include files
 	require($phpbb_root_path . 'includes/acm/acm_' . $acm_type . '.' . $phpEx);
 	require($phpbb_root_path . 'includes/cache.' . $phpEx);
 	require($phpbb_root_path . 'includes/db/' . $dbms . '.' . $phpEx);
 	require($phpbb_root_path . 'includes/constants.' . $phpEx);
+	require($phpbb_root_path . 'includes/functions.' . $phpEx);
 
 	$db = new $sql_db();
 	$cache = new cache();
@@ -100,7 +96,7 @@ if ($id)
 		$user		= array('user_id' => ANONYMOUS);
 	}
 
-	$sql = 'SELECT s.style_id, c.theme_data, c.theme_path, c.theme_name, c.theme_mtime, i.*, t.template_path
+	$sql = 'SELECT s.style_id, c.theme_id, c.theme_data, c.theme_path, c.theme_name, c.theme_mtime, i.*, t.template_path
 		FROM ' . STYLES_TABLE . ' s, ' . STYLES_TEMPLATE_TABLE . ' t, ' . STYLES_THEME_TABLE . ' c, ' . STYLES_IMAGESET_TABLE . ' i
 		WHERE s.style_id = ' . $id . '
 			AND t.template_id = s.template_id
@@ -122,10 +118,11 @@ if ($id)
 
 	$user_image_lang = (file_exists($phpbb_root_path . 'styles/' . $theme['imageset_path'] . '/imageset/' . $user['user_lang'])) ? $user['user_lang'] : $config['default_lang'];
 
+	// Same query in session.php
 	$sql = 'SELECT *
 		FROM ' . STYLES_IMAGESET_DATA_TABLE . '
 		WHERE imageset_id = ' . $theme['imageset_id'] . "
-		AND image_filename <> '' 
+		AND image_filename <> ''
 		AND image_lang IN ('" . $db->sql_escape($user_image_lang) . "', '')";
 	$result = $db->sql_query($sql, 3600);
 
@@ -198,7 +195,7 @@ if ($id)
 		);
 
 		$sql = 'UPDATE ' . STYLES_THEME_TABLE . ' SET ' . $db->sql_build_array('UPDATE', $sql_ary) . "
-			WHERE theme_id = $id";
+			WHERE theme_id = {$theme['theme_id']}";
 		$db->sql_query($sql);
 
 		$cache->destroy('sql', STYLES_THEME_TABLE);
@@ -261,11 +258,11 @@ if ($id)
 				case 'SRC':
 					$replace[] = $imgs[$img]['src'];
 				break;
-				
+
 				case 'WIDTH':
 					$replace[] = $imgs[$img]['width'];
 				break;
-	
+
 				case 'HEIGHT':
 					$replace[] = $imgs[$img]['height'];
 				break;

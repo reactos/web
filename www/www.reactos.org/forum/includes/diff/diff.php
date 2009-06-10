@@ -2,7 +2,7 @@
 /**
 *
 * @package diff
-* @version $Id: diff.php 8479 2008-03-29 00:22:48Z naderman $
+* @version $Id: diff.php 9505 2009-05-01 11:08:48Z acydburn $
 * @copyright (c) 2006 phpBB Group
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License
 *
@@ -17,7 +17,7 @@ if (!defined('IN_PHPBB'))
 }
 
 /**
-* Code from pear.php.net, Text_Diff-0.2.1 (beta) package
+* Code from pear.php.net, Text_Diff-1.1.0 package
 * http://pear.php.net/package/Text_Diff/
 *
 * Modified by phpBB Group to meet our coding standards
@@ -25,6 +25,9 @@ if (!defined('IN_PHPBB'))
 *
 * General API for generating and formatting diffs - the differences between
 * two sequences of strings.
+*
+* Copyright 2004 Geoffrey T. Dairiki <dairiki@dairiki.org>
+* Copyright 2004-2008 The Horde Project (http://www.horde.org/)
 *
 * @package diff
 * @author  Geoffrey T. Dairiki <dairiki@dairiki.org>
@@ -45,7 +48,7 @@ class diff
 	*/
 	function diff(&$from_content, &$to_content, $preserve_cr = true)
 	{
-		$diff_engine = &new diff_engine();
+		$diff_engine = new diff_engine();
 		$this->_edits = $diff_engine->diff($from_content, $to_content, $preserve_cr);
 	}
 
@@ -58,11 +61,53 @@ class diff
 	}
 
 	/**
+	* returns the number of new (added) lines in a given diff.
+	*
+	* @since Text_Diff 1.1.0
+	*
+	* @return integer The number of new lines
+	*/
+	function count_added_lines()
+	{
+		$count = 0;
+
+		foreach ($this->_edits as $edit)
+		{
+			if (is_a($edit, 'diff_op_add') || is_a($edit, 'diff_op_change'))
+			{
+				$count += $edit->nfinal();
+			}
+		}
+		return $count;
+	}
+
+	/**
+	* Returns the number of deleted (removed) lines in a given diff.
+	*
+	* @since Text_Diff 1.1.0
+	*
+	* @return integer The number of deleted lines
+	*/
+	function count_deleted_lines()
+	{
+		$count = 0;
+
+		foreach ($this->_edits as $edit)
+		{
+			if (is_a($edit, 'diff_op_delete') || is_a($edit, 'diff_op_change'))
+			{
+				$count += $edit->norig();
+			}
+		}
+		return $count;
+	}
+
+	/**
 	* Computes a reversed diff.
 	*
 	* Example:
 	* <code>
-	* $diff = &new diff($lines1, $lines2);
+	* $diff = new diff($lines1, $lines2);
 	* $rev = $diff->reverse();
 	* </code>
 	*
@@ -285,7 +330,7 @@ class diff_op
 	var $orig;
 	var $final;
 
-	function reverse()
+	function &reverse()
 	{
 		trigger_error('[diff] Abstract method', E_USER_ERROR);
 	}
@@ -321,7 +366,7 @@ class diff_op_copy extends diff_op
 
 	function &reverse()
 	{
-		$reverse = &new diff_op_copy($this->final, $this->orig);
+		$reverse = new diff_op_copy($this->final, $this->orig);
 		return $reverse;
 	}
 }
@@ -342,7 +387,7 @@ class diff_op_delete extends diff_op
 
 	function &reverse()
 	{
-		$reverse = &new diff_op_add($this->orig);
+		$reverse = new diff_op_add($this->orig);
 		return $reverse;
 	}
 }
@@ -363,7 +408,7 @@ class diff_op_add extends diff_op
 
 	function &reverse()
 	{
-		$reverse = &new diff_op_delete($this->final);
+		$reverse = new diff_op_delete($this->final);
 		return $reverse;
 	}
 }
@@ -384,7 +429,7 @@ class diff_op_change extends diff_op
 
 	function &reverse()
 	{
-		$reverse = &new diff_op_change($this->final, $this->orig);
+		$reverse = new diff_op_change($this->final, $this->orig);
 		return $reverse;
 	}
 }
@@ -413,7 +458,7 @@ class diff3 extends diff
 	*/
 	function diff3(&$orig, &$final1, &$final2)
 	{
-		$diff_engine = &new diff_engine();
+		$diff_engine = new diff_engine();
 
 		$diff_1 = $diff_engine->diff($orig, $final1);
 		$diff_2 = $diff_engine->diff($orig, $final2);
@@ -424,32 +469,36 @@ class diff3 extends diff
 	}
 
 	/**
-	* Return merged output
+	* Return number of conflicts
+	*/
+	function get_num_conflicts()
+	{
+		$conflicts = 0;
+
+		foreach ($this->_edits as $edit)
+		{
+			if ($edit->is_conflict())
+			{
+				$conflicts++;
+			}
+		}
+
+		return $conflicts;
+	}
+
+	/**
+	* Get conflicts content for download. This is generally a merged file, but preserving conflicts and adding explanations to it.
+	* A user could then go through this file, search for the conflicts and changes the code accordingly.
 	*
 	* @param string $label1 the cvs file version/label from the original set of lines
 	* @param string $label2 the cvs file version/label from the new set of lines
 	* @param string $label_sep the explanation between label1 and label2 - more of a helper for the user
-	* @param bool $get_conflicts if set to true only the number of conflicts is returned
-	* @param bool $merge_new if set to true the merged output will have the new file contents on a conflicting merge
 	*
 	* @return mixed the merged output
 	*/
-	function merged_output($label1 = 'CURRENT_FILE', $label2 = 'NEW_FILE', $label_sep = 'DIFF_SEP_EXPLAIN', $get_conflicts = false, $merge_new = false)
+	function get_conflicts_content($label1 = 'CURRENT_FILE', $label2 = 'NEW_FILE', $label_sep = 'DIFF_SEP_EXPLAIN')
 	{
 		global $user;
-
-		if ($get_conflicts)
-		{
-			foreach ($this->_edits as $edit)
-			{
-				if ($edit->is_conflict())
-				{
-					$this->_conflicting_blocks++;
-				}
-			}
-
-			return $this->_conflicting_blocks;
-		}
 
 		$label1 = (!empty($user->lang[$label1])) ? $user->lang[$label1] : $label1;
 		$label2 = (!empty($user->lang[$label2])) ? $user->lang[$label2] : $label2;
@@ -461,14 +510,12 @@ class diff3 extends diff
 		{
 			if ($edit->is_conflict())
 			{
-				if (!$merge_new)
-				{
-					$lines = array_merge($lines, array('<<<<<<<' . ($label1 ? ' ' . $label1 : '')), $edit->final1, array('=======' . ($label_sep ? ' ' . $label_sep : '')), $edit->final2, array('>>>>>>>' . ($label2 ? ' ' . $label2 : '')));
-				}
-				else
-				{
-					$lines = array_merge($lines, $edit->final1);
-				}
+				// Start conflict label
+				$label_start	= array('<<<<<<< ' . $label1);
+				$label_mid		= array('======= ' . $label_sep);
+				$label_end		= array('>>>>>>> ' . $label2);
+
+				$lines = array_merge($lines, $label_start, $edit->final1, $label_mid, $edit->final2, $label_end);
 				$this->_conflicting_blocks++;
 			}
 			else
@@ -478,6 +525,16 @@ class diff3 extends diff
 		}
 
 		return $lines;
+	}
+
+	/**
+	* Return merged output (used by the renderer)
+	*
+	* @return mixed the merged output
+	*/
+	function merged_output()
+	{
+		return $this->get_conflicts_content();
 	}
 
 	/**
@@ -548,7 +605,7 @@ class diff3 extends diff
 	function _diff3(&$edits1, &$edits2)
 	{
 		$edits = array();
-		$bb = &new diff3_block_builder();
+		$bb = new diff3_block_builder();
 
 		$e1 = current($edits1);
 		$e2 = current($edits2);
@@ -565,7 +622,7 @@ class diff3 extends diff
 				}
 
 				$ncopy = min($e1->norig(), $e2->norig());
-				$edits[] = &new diff3_op_copy(array_slice($e1->orig, 0, $ncopy));
+				$edits[] = new diff3_op_copy(array_slice($e1->orig, 0, $ncopy));
 
 				if ($e1->norig() > $ncopy)
 				{
@@ -759,7 +816,7 @@ class diff3_block_builder
 		}
 		else
 		{
-			$edit = &new diff3_op($this->orig, $this->final1, $this->final2);
+			$edit = new diff3_op($this->orig, $this->final1, $this->final2);
 			$this->_init();
 			return $edit;
 		}

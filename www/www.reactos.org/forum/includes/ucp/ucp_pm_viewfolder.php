@@ -2,7 +2,7 @@
 /**
 *
 * @package ucp
-* @version $Id: ucp_pm_viewfolder.php 8479 2008-03-29 00:22:48Z naderman $
+* @version $Id: ucp_pm_viewfolder.php 9454 2009-04-17 13:15:44Z acydburn $
 * @copyright (c) 2005 phpBB Group
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License
 *
@@ -328,7 +328,8 @@ function view_folder($id, $mode, $folder_id, $folder)
 				$data[] = array(
 					'subject'	=> censor_text($row['message_subject']),
 					'sender'	=> $row['username'],
-					'date'		=> $user->format_date($row['message_time']),
+					// ISO 8601 date. For PHP4 we are able to hardcode the timezone because $user->format_date() does not set it.
+					'date'		=> $user->format_date($row['message_time'], (PHP_VERSION >= 5) ? 'c' : "Y-m-d\TH:i:s+00:00", true),
 					'to'		=> ($folder_id == PRIVMSGS_OUTBOX || $folder_id == PRIVMSGS_SENTBOX) ? $address[$message_id] : '',
 					'message'	=> $message_row['message_text']
 				);
@@ -493,7 +494,7 @@ function get_pm_from($folder_id, $folder, $user_id)
 	}
 	else
 	{
-		$pm_count = $folder[$folder_id]['num_messages'];
+		$pm_count = (!empty($folder[$folder_id]['num_messages'])) ? $folder[$folder_id]['num_messages'] : 0;
 		$sql_limit_time = '';
 	}
 
@@ -502,7 +503,7 @@ function get_pm_from($folder_id, $folder, $user_id)
 		'PAGE_NUMBER'		=> on_page($pm_count, $config['topics_per_page'], $start),
 		'TOTAL_MESSAGES'	=> (($pm_count == 1) ? $user->lang['VIEW_PM_MESSAGE'] : sprintf($user->lang['VIEW_PM_MESSAGES'], $pm_count)),
 
-		'POST_IMG'		=> (!$auth->acl_get('u_sendpm')) ? $user->img('button_topic_locked', 'PM_LOCKED') : $user->img('button_pm_new', 'POST_PM'),
+		'POST_IMG'		=> (!$auth->acl_get('u_sendpm')) ? $user->img('button_topic_locked', 'POST_PM_LOCKED') : $user->img('button_pm_new', 'POST_NEW_PM'),
 
 		'L_NO_MESSAGES'	=> (!$auth->acl_get('u_sendpm')) ? $user->lang['POST_PM_LOCKED'] : $user->lang['NO_MESSAGES'],
 
@@ -512,8 +513,8 @@ function get_pm_from($folder_id, $folder, $user_id)
 		'S_TOPIC_ICONS'			=> ($config['enable_pm_icons']) ? true : false,
 
 		'U_POST_NEW_TOPIC'	=> ($auth->acl_get('u_sendpm')) ? append_sid("{$phpbb_root_path}ucp.$phpEx", 'i=pm&amp;mode=compose') : '',
-		'S_PM_ACTION'		=> append_sid("{$phpbb_root_path}ucp.$phpEx", "i=pm&amp;mode=view&amp;action=view_folder&amp;f=$folder_id"))
-	);
+		'S_PM_ACTION'		=> append_sid("{$phpbb_root_path}ucp.$phpEx", "i=pm&amp;mode=view&amp;action=view_folder&amp;f=$folder_id" . (($start !== 0) ? "&amp;start=$start" : '')),
+	));
 
 	// Grab all pm data
 	$rowset = $pm_list = array();
