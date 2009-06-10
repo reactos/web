@@ -1,12 +1,7 @@
 <?php
-// phpBB 3.0.x auto-generated configuration file
-// Do not change anything in this file!
+require_once("$phpbb_root_path/../../www.reactos.org_config/forum-connect.php");
+
 $dbms = 'mysqli';
-$dbhost = 'localhost';
-$dbport = '';
-$dbname = 'forum';
-$dbuser = 'root';
-$dbpasswd = '';
 $table_prefix = 'phpbb_';
 $acm_type = 'file';
 $load_extensions = '';
