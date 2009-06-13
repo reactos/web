@@ -8,13 +8,14 @@
 
 	header("Content-type: text/xml");
 	
-	if(!isset($_GET["startrev"]) || !isset($_GET["endrev"]) || !isset($_GET["user"]) || !isset($_GET["platform"]))
-		die("<error>Necessary information not specified!</error>");
-
-
 	require_once("config.inc.php");
 	require_once("connect.db.php");
 	require_once("utils.inc.php");
+	
+	// We may supply any "perpage" value as long as it doesn't exceed RESULTS_PER_PAGE
+	// This is currently only used for the default search
+	if(!isset($_GET["user"]) || !isset($_GET["perpage"]) || !is_numeric($_GET["perpage"]) || $_GET["perpage"] < 0 || $_GET["perpage"] > RESULTS_PER_PAGE)
+		die("<error>Necessary information not specified!</error>");
 	
 	try
 	{
@@ -49,7 +50,11 @@
 	
 	// Prepare some clauses
 	$tables = "FROM " . DB_TESTMAN . ".winetest_runs r JOIN " . DB_ROSCMS . ".roscms_accounts a ON r.user_id = a.id ";
-	$order = "ORDER BY revision ASC, r.id ASC ";
+	
+	if($_GET["desc"])
+		$order = "ORDER BY revision DESC, r.id DESC ";
+	else
+		$order = "ORDER BY revision ASC, r.id ASC ";
 	
 	echo "<results>";
 	
@@ -58,11 +63,11 @@
 	
 	$result_count = $stmt->fetchColumn();
 	
-	if($result_count > RESULTS_PER_PAGE)
+	if($result_count > $_GET["perpage"])
 	{
 		// The number of results exceeds the number of results per page.
 		// Therefore we will only output all results up to the maximum number of results per page with this call.
-		$result_count = RESULTS_PER_PAGE;
+		$result_count = $_GET["perpage"];
 		echo "<moreresults>1</moreresults>";
 	}
 	else
@@ -84,7 +89,7 @@
 			$stmt = $dbh->query(
 				"SELECT r.id, UNIX_TIMESTAMP(r.timestamp) timestamp, a.name, r.revision, r.platform, r.comment " .
 				$tables .	$where . $order .
-				"LIMIT " . RESULTS_PER_PAGE
+				"LIMIT " . $_GET["perpage"]
 			) or die("<error>Query failed #2</error>");
 			
 			$first = true;

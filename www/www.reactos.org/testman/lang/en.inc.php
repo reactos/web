@@ -16,8 +16,6 @@
 		"index_intro" => "This interface enables you to find, view and compare Results of automatically performed Regression Tests.",
 		"js_disclaimer" => "You have to activate JavaScript to use the interface!",
 		
-		"lastresults_header" => "Last 10 Test Results",
-		"comparelasttwo_button" => "Compare last two Results",
 		"date" => "Date",
 		"revision" => "Revision",
 		"user" => "User",
@@ -26,13 +24,13 @@
 		
 		"search_header" => "Search for Test Results",
 		"search_button" => "Search",
-		"searching" => "Searching for Test Results",
+		"comparefirsttwo_button" => "Compare first two Results",
+		"compareselected_button" => "Compare selected Results",
+		"opennewwindow_checkbox" => "Open in new Window",
 		
 		"foundresults" => "Found %s Results!",
 		"noresults" => "No Search Results!",
-		
-		"status" => "<b>%s</b> Tests selected for comparison",
-		"compare_button" => "Compare Now",
+		"status" => "%s Tests selected for comparison",
 		
 		"noselection" => "You did not select any results!",
 		"maxselection" => "You may only select up to %d results for comparison!",

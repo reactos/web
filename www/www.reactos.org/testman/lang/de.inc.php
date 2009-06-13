@@ -16,8 +16,6 @@
 		"index_intro" => "Mit dieser Oberfläche können Sie die Ergebnisse automatisch ausgeführter Regression-Tests suchen, anzeigen und vergleichen.",
 		"js_disclaimer" => "Sie müssen JavaScript aktivieren, um die Oberfläche zu benutzen!",
 		
-		"lastresults_header" => "Letzte 10 Testergebnisse",
-		"comparelasttwo_button" => "Letzte zwei Ergebnisse vergleichen",
 		"date" => "Datum",
 		"revision" => "Revision",
 		"user" => "Benutzer",
@@ -26,13 +24,13 @@
 		
 		"search_header" => "Nach Testergebnissen suchen",
 		"search_button" => "Suchen",
-		"searching" => "Testergebnisse werden gesucht",
+		"comparefirsttwo_button" => "Erste zwei Ergebnisse vergleichen",
+		"compareselected_button" => "Gewählte Ergebnisse vergleichen",
+		"opennewwindow_checkbox" => "In neuem Fenster öffnen",
 		
 		"foundresults" => "%s Ergebnisse gefunden!",
 		"noresults" => "Keine Suchergebnisse!",
-		
-		"status" => "<b>%s</b> Tests zum Vergleich ausgewählt",
-		"compare_button" => "Jetzt vergleichen",
+		"status" => "%s Tests zum Vergleich ausgewählt",
 		
 		"noselection" => "Sie haben keine Ergebnisse ausgewählt!",
 		"maxselection" => "Sie dürfen nur bis zu %d Ergebnisse zum Vergleich auswählen!",

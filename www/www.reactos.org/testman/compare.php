@@ -59,6 +59,7 @@
 	<link rel="stylesheet" type="text/css" href="../shared/css/basic.css" />
 	<link rel="stylesheet" type="text/css" href="../shared/css/reactos.css" />
 	<link rel="stylesheet" type="text/css" href="css/compare.css" />
+	<script type="text/javascript" src="js/shared.js"></script>
 	<script type="text/javascript">
 	//<![CDATA[
 		<?php require_once("js/compare.js.php"); ?>
@@ -89,7 +90,7 @@
 	if(count($id_array) > 1)
 	{
 		echo '<div>';
-		printf('<input type="checkbox" id="showchanged" onclick="ShowChangedCheckbox_OnClick(this)" /> %s', $testman_langres["showchanged"]);
+		printf('<input type="checkbox" id="showchanged" onclick="ShowChangedCheckbox_OnClick(this)" /> <label for="showchanged">%s</label>', $testman_langres["showchanged"]);
 		echo '</div><br />';
 	}
 ?>

@@ -10,7 +10,9 @@
 	define("SHARED_PATH", "../shared/");
 	define("TESTMAN_PATH", "");
 	
-	define("RESULTS_PER_PAGE", 100);
+	define("DEFAULT_SEARCH_RESULTS_PER_PAGE", 10);
+	define("DEFAULT_SEARCH_USER", "Admin");
 	define("MAX_COMPARE_RESULTS", 5);
+	define("RESULTS_PER_PAGE", 100);
 	define("VIEWVC_TRUNK", "http://svn.reactos.org/svn/reactos/trunk");
 ?>

@@ -39,9 +39,20 @@ th.TestCheckbox {
 	vertical-align: top;
 }
 
+.controlgroup {
+	padding-right: 40px;
+	vertical-align: top;
+}
+
+.controlgroup input[type=checkbox] {
+	margin-left: 10px;
+}
+
+.controlgroup input[type=checkbox], label {
+	vertical-align: top;
+}
+
 #ajax_loading_search {
-	font-weight: bold;
-	margin-left: 20px;
 	visibility: hidden;
 }
 
@@ -56,4 +67,13 @@ th.TestCheckbox {
 #pagesbox {
 	font-weight: bold;
 	text-align: right;
+}
+
+#resultcount, #selectedresultcount {
+	font-weight: bold;
+}
+
+#comparepage_frame {
+	display: none;
+	width: 100%;
 }

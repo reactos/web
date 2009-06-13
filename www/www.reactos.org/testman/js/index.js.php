@@ -76,7 +76,7 @@ function UpdateSelectedResults(checkbox)
 	}
 	
 	// Update the status message
-	document.getElementById("status").innerHTML = "<?php printf($testman_langres["status"], '<b>" + SelectedResultCount + "<\/b>'); ?>";
+	document.getElementById("status").innerHTML = '<?php printf($testman_langres["status"], '<span id="selectedresultcount">\' + SelectedResultCount + \'<\/span>'); ?>';
 }
 
 /**
@@ -187,6 +187,58 @@ function SearchButton_OnClick()
 	data["endrev"] = inputbox_endrev;
 	data["user"] = document.getElementById("search_user").value;
 	data["platform"] = document.getElementById("search_platform").value;
+	data["perpage"] = <?php echo RESULTS_PER_PAGE; ?>;
+	
+	data["resultlist"] = 1;
+	data["requesttype"] = REQUESTTYPE_FULLLOAD;
+	
+	SearchCall();
+}
+
+function DetectObsoleteIE()
+{
+	var position = navigator.userAgent.indexOf("MSIE");
+	
+	if(position >= 0)
+	{
+		var version = navigator.userAgent.substr(position + 5, 1);
+		return (version < 8);
+	}
+	
+	return false;
+}
+
+function ResizeIFrame()
+{
+	if(DetectObsoleteIE())
+		return;
+	
+	var iframe = document.getElementById("comparepage_frame");
+	iframe.height = iframe.contentDocument.body.offsetHeight + 16;
+}
+
+function Load()
+{
+	// General settings
+	var iframe = document.getElementById("comparepage_frame");
+	
+	if(DetectObsoleteIE())
+	{
+		document.getElementById("opennewwindow").checked = true;
+		document.getElementById("opennewwindow").disabled = true;
+	}
+	else
+	{
+		document.getElementById("opennewwindow").checked = parseInt(GetCookieValue("opennewwindow"));
+	}
+	
+	// Show the last revisions
+	data = new Array();
+	
+	CurrentPage = 1;
+	
+	data["perpage"] = <?php echo DEFAULT_SEARCH_RESULTS_PER_PAGE; ?>;
+	data["user"] = "<?php echo DEFAULT_SEARCH_USER; ?>";
 	
 	data["resultlist"] = 1;
 	data["requesttype"] = REQUESTTYPE_FULLLOAD;
@@ -230,6 +282,10 @@ function SearchCallback(HttpRequest)
 			html += document.getElementById("infobox").innerHTML;
 		}
 		
+		html += '<\/td>';
+		
+		html += '<td id="status">';
+		html += '<?php printf(addslashes($testman_langres["status"]), '<span id="selectedresultcount">0<\/span>'); ?>';
 		html += '<\/td>';
 		
 		// Page number boxes
@@ -278,7 +334,7 @@ function SearchCallback(HttpRequest)
 		html += '<\/td><\/tr><\/table>';
 
 		// File table
-		html += '<table class="datatable" cellspacing="0" cellpadding="0">';
+		html += '<table id="resulttable" class="datatable" cellspacing="0" cellpadding="0">';
 		
 		html += '<thead><tr class="head">';
 		html += '<th class="TestCheckbox"><\/th>';
@@ -367,19 +423,36 @@ function SearchCallback(HttpRequest)
 	document.getElementById("ajax_loading_search").style.visibility = "hidden";
 }
 
-function CompareLastTwoButton_OnClick()
+function OpenComparePage(parameters)
+{
+	if(document.getElementById("opennewwindow").checked || DetectObsoleteIE())
+	{
+		window.open("compare.php?" + parameters);
+	}
+	else
+	{
+		var iframe = document.getElementById("comparepage_frame");
+		
+		iframe.src = "compare.php?" + parameters;
+		iframe.style.display = "block";
+	}
+}
+
+function CompareFirstTwoButton_OnClick()
 {
 	var parameters = "ids=";
-	var trs = document.getElementById("lastresults").getElementsByTagName("tbody")[0].getElementsByTagName("tr");
+	var trs = document.getElementById("resulttable").getElementsByTagName("tbody")[0].getElementsByTagName("tr");
 	
-	if(trs.length < 2)
+	if(trs[0].firstChild.firstChild.nodeName != "INPUT")
 		return;
 	
-	// Get the IDs through the "name" attribute of the checkboxes	
-	parameters += trs[1].firstChild.firstChild.name.substr(5) + ",";
+	// Get the IDs through the "name" attribute of the checkboxes
 	parameters += trs[0].firstChild.firstChild.name.substr(5);
 	
-	window.open("compare.php?" + parameters);
+	if(trs[1])
+		parameters += "," + trs[1].firstChild.firstChild.name.substr(5);
+	
+	OpenComparePage(parameters);
 }
 
 function PageSwitch(NewPage, StartID)
@@ -427,7 +500,7 @@ function NumericComparison(a, b)
 	return a - b;
 }
 
-function CompareButton_OnClick()
+function CompareSelectedButton_OnClick()
 {
 	var parameters = "ids=";
 	var IDArray = new Array();
@@ -456,5 +529,11 @@ function CompareButton_OnClick()
 		parameters += "," + IDArray[i];
 	}
 	
-	window.open("compare.php?" + parameters);
+	OpenComparePage(parameters);
+}
+
+function OpenNewWindowCheckbox_OnClick(checkbox)
+{
+	document.cookie = "opennewwindow=" + (checkbox.checked ? "1" : "0");
+	document.getElementById("comparepage_frame").style.display = "none";
 }

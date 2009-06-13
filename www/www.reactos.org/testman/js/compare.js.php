@@ -54,6 +54,10 @@ function ShowChangedCheckbox_OnClick(checkbox)
 		document.getElementById("suite_" + UnchangedRows[i]).style.display = value;
 	
 	document.cookie = "showchanged=" + (checkbox.checked ? "1" : "0");
+	
+	// Report the size change to the parent window if "Open in new window" was disabled
+	if(parent.ResizeIFrame)
+		parent.ResizeIFrame();
 }
 
 function GetValueForResult(td)
@@ -298,21 +302,6 @@ function ResultHead_OnMouseDown(th)
 		CurrentRightDragBorder = Math.min(GetAbsoluteOffsetLeft(th.nextSibling), MaxRightDragBorder);
 	else
 		CurrentRightDragBorder = MaxRightDragBorder;
-}
-
-function GetCookieValue(cookie)
-{
-	var cookies = document.cookie.split(";");
-	
-	for(var i = 0; i < cookies.length; i++)
-	{
-		var data = cookies[i].split("=");
-		
-		if(data[0] == cookie)
-			return data[1];
-	}
-	
-	return null;
 }
 
 function Load()

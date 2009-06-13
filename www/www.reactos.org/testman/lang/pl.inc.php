@@ -17,8 +17,6 @@
 		"index_intro" => "Ten interfejs pozwala Tobie znaleźć, zobaczyć i porównać wyniki przeprowadzanych automatycznie testów regresji.",
 		"js_disclaimer" => "Musisz włączyć obsługę JavaScriptu, aby używać tego interfejsu!",
 		
-		"lastresults_header" => "10 ostatnich wyników testów",
-		"comparelasttwo_button" => "Porównaj dwa ostatnie wyniki testów",
 		"date" => "Data",
 		"revision" => "Rewizja",
 		"user" => "Użytkownik",
@@ -27,13 +25,13 @@
 		
 		"search_header" => "Szukaj wyników testów",
 		"search_button" => "Szukaj",
-		"searching" => "Trwa szukanie w wynikach testów",
+		"comparefirsttwo_button" => "Porównaj dwa ostatnie wyniki testów",
+		"compareselected_button" => "Porównaj dwa pierwsze wyniki testów",
+		"opennewwindow_checkbox" => "Otwórz w nowym oknie",
 		
 		"foundresults" => "Znaleziono %s wyników!",
-		"noresults" => "Brak wyników wyszukiwania!",
-		
-		"status" => "<b>%s</b> testów wybranych do porównania",
-		"compare_button" => "Porównaj",
+		"noresults" => "Brak wyników wyszukiwania!",		
+		"status" => "%s testów wybranych do porównania",
 		
 		"noselection" => "Nie wybrałeś/aś żadnych wyników!",
 		"maxselection" => "Możesz zaznaczyć do porównania maksymalnie %d wyników!",
