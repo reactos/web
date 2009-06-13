@@ -12,9 +12,7 @@
 	require_once("connect.db.php");
 	require_once("utils.inc.php");
 	
-	// We may supply any "perpage" value as long as it doesn't exceed RESULTS_PER_PAGE
-	// This is currently only used for the default search
-	if(!isset($_GET["user"]) || !isset($_GET["perpage"]) || !is_numeric($_GET["perpage"]) || $_GET["perpage"] < 0 || $_GET["perpage"] > RESULTS_PER_PAGE)
+	if(!isset($_GET["user"]))
 		die("<error>Necessary information not specified!</error>");
 	
 	try
@@ -63,11 +61,16 @@
 	
 	$result_count = $stmt->fetchColumn();
 	
-	if($result_count > $_GET["perpage"])
+	if($_GET["limit"] && $result_count > $_GET["limit"])
+	{
+		$result_count = (int)$_GET["limit"];
+		echo "<moreresults>0</moreresults>";
+	}	
+	else if($result_count > RESULTS_PER_PAGE)
 	{
 		// The number of results exceeds the number of results per page.
 		// Therefore we will only output all results up to the maximum number of results per page with this call.
-		$result_count = $_GET["perpage"];
+		$result_count = RESULTS_PER_PAGE;
 		echo "<moreresults>1</moreresults>";
 	}
 	else
@@ -89,7 +92,7 @@
 			$stmt = $dbh->query(
 				"SELECT r.id, UNIX_TIMESTAMP(r.timestamp) timestamp, a.name, r.revision, r.platform, r.comment " .
 				$tables .	$where . $order .
-				"LIMIT " . $_GET["perpage"]
+				"LIMIT " . $result_count
 			) or die("<error>Query failed #2</error>");
 			
 			$first = true;

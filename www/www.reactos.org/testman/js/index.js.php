@@ -187,7 +187,6 @@ function SearchButton_OnClick()
 	data["endrev"] = inputbox_endrev;
 	data["user"] = document.getElementById("search_user").value;
 	data["platform"] = document.getElementById("search_platform").value;
-	data["perpage"] = <?php echo RESULTS_PER_PAGE; ?>;
 	
 	data["resultlist"] = 1;
 	data["requesttype"] = REQUESTTYPE_FULLLOAD;
@@ -237,7 +236,8 @@ function Load()
 	
 	CurrentPage = 1;
 	
-	data["perpage"] = <?php echo DEFAULT_SEARCH_RESULTS_PER_PAGE; ?>;
+	data["desc"] = 1;
+	data["limit"] = <?php echo DEFAULT_SEARCH_LIMIT; ?>;
 	data["user"] = "<?php echo DEFAULT_SEARCH_USER; ?>";
 	
 	data["resultlist"] = 1;

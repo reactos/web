@@ -10,7 +10,7 @@
 	define("SHARED_PATH", "../shared/");
 	define("TESTMAN_PATH", "");
 	
-	define("DEFAULT_SEARCH_RESULTS_PER_PAGE", 10);
+	define("DEFAULT_SEARCH_LIMIT", 10);
 	define("DEFAULT_SEARCH_USER", "Debug-Buildslave");
 	define("MAX_COMPARE_RESULTS", 5);
 	define("RESULTS_PER_PAGE", 100);
