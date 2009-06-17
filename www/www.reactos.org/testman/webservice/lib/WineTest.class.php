@@ -85,24 +85,32 @@
 			}
 			else if($result == 0)
 			{
-				// We found no summary line, so the test probably crashed
-				// Indicate this by setting count to -1 and set the rest to zero.
-				$count = -1;
+				// We found no summary line, now check whether we find any signs that the test was canceled
+				$lastline = strrchr($log, "[");
+				
+				if($lastline && (strpos($lastline, "[SYSREG]") !== FALSE || strpos($lastline, "[TESTMAN]") !== FALSE))
+					$status = "canceled";
+				else
+					$status = "crash";
+				
+				$count = 0;
 				$failures = 0;
 				$skipped = 0;
 			}
 			else
 			{
 				// Sum up the values of each summary line
+				$status = "ok";
 				$count = array_sum($matches[1]);
 				$failures = array_sum($matches[2]);
 				$skipped = array_sum($matches[3]);
 			}
 			
 			// Add the information into the DB
-			$stmt = $dbh->prepare("INSERT INTO " . DB_TESTMAN . ".winetest_results (test_id, suite_id, count, failures, skipped) VALUES (:testid, :suiteid, :count, :failures, :skipped)");
+			$stmt = $dbh->prepare("INSERT INTO " . DB_TESTMAN . ".winetest_results (test_id, suite_id, status, count, failures, skipped) VALUES (:testid, :suiteid, :status, :count, :failures, :skipped)");
 			$stmt->bindValue(":testid", (int)$test_id);
 			$stmt->bindValue(":suiteid", (int)$suite_id);
+			$stmt->bindParam(":status", $status);
 			$stmt->bindParam(":count", $count);
 			$stmt->bindParam(":failures", $failures);
 			$stmt->bindParam(":skipped", $skipped);
@@ -124,8 +132,15 @@
 			if(!isset($test_id))
 				return "Necessary sub-information not specified!";
 			
-			// Mark this test as finished, so no more results can be submitted for it
-			$stmt = $dbh->prepare("UPDATE " . DB_TESTMAN . ".winetest_runs SET finished = 1 WHERE id = :testid AND user_id = :userid");
+			// Sum up all results and mark this test as finished, so no more results can be submitted for it
+			$stmt = $dbh->prepare(
+				"UPDATE " . DB_TESTMAN . ".winetest_runs " .
+				"SET " .
+					"finished = 1, " .
+					"count    = (SELECT SUM(count) FROM  " . DB_TESTMAN . ".winetest_results WHERE test_id = :testid), " .
+					"failures = (SELECT SUM(failures) FROM " . DB_TESTMAN . ".winetest_results WHERE test_id = :testid) " .
+				"WHERE id = :testid AND user_id = :userid"
+			);
 			$stmt->bindParam(":userid", $user_id);
 			$stmt->bindParam(":testid", $test_id);
 			$stmt->execute() or die("Finish(): SQL failed #1");

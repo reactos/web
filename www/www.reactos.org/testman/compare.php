@@ -23,11 +23,8 @@
 		// Return &nbsp; ("" is not possible because of IE...) if
 		//  - we have nothing to compare
 		//  - both values are identical
-		//  - a crash occured in one of the results
 		if(!$prev_result_row["id"] ||
-		   $current_result_row[$subject] == $prev_result_row[$subject] ||
-		   $current_result_row[$subject] == -1 ||
-		   $prev_result_row[$subject] == -1)
+		   $current_result_row[$subject] == $prev_result_row[$subject])
 		{
 			return "&nbsp;";
 		}
@@ -45,7 +42,7 @@
 		if($changed)
 			return;
 		
-		if($temp == -2)
+		if($temp == -1)
 			$temp = $current;
 		else if($current != $temp)
 			$changed = true;
@@ -140,7 +137,7 @@
 	for($i = 0; $i < count($id_array); $i++)
 	{
 		$result_stmt[$i] = $dbh->prepare(
-			"SELECT e.id, e.count, e.failures, e.skipped " .
+			"SELECT e.id, e.status, e.count, e.failures, e.skipped " .
 			"FROM " . DB_TESTMAN . ".winetest_suites s " .
 			"LEFT JOIN " . DB_TESTMAN . ".winetest_results e ON e.suite_id = s.id AND e.test_id = :testid " .
 			"WHERE s.id IN (" . $suite_idlist . ")" .
@@ -194,9 +191,9 @@
 		
 		$changed = false;
 		$prev_result_row = null;
-		$temp_totaltests = -2;
-		$temp_failedtests = -2;
-		$temp_skippedtests = -2;
+		$temp_totaltests = -1;
+		$temp_failedtests = -1;
+		$temp_skippedtests = -1;
 		
 		for($i = 0; $i < count($result_stmt); $i++)
 		{
@@ -216,8 +213,8 @@
 			
 			if($result_row["id"])
 			{
-				printf('<div title="%s" class="box totaltests">%s <span class="diff">%s</span></div>', $testman_langres["totaltests"], GetTotalTestsString($result_row["count"]), GetDifference($result_row, $prev_result_row, "count"));
-				printf('<div title="%s" class="box %s_failedtests">%d <span class="diff">%s</span></div>', $testman_langres["failedtests"], (($result_row["failures"] > 0 || $result_row["count"] == -1) ? 'real' : 'zero'), $result_row["failures"], GetDifference($result_row, $prev_result_row, "failures"));
+				printf('<div title="%s" class="box totaltests">%s <span class="diff">%s</span></div>', $testman_langres["totaltests"], GetTotalTestsString($result_row), GetDifference($result_row, $prev_result_row, "count"));
+				printf('<div title="%s" class="box %s_failedtests">%d <span class="diff">%s</span></div>', $testman_langres["failedtests"], (($result_row["failures"] > 0 || $result_row["status"] != "ok") ? 'real' : 'zero'), $result_row["failures"], GetDifference($result_row, $prev_result_row, "failures"));
 				printf('<div title="%s" class="box skippedtests">%d <span class="diff">%s</span></div>', $testman_langres["skippedtests"], $result_row["skipped"], GetDifference($result_row, $prev_result_row, "skipped"));
 			}
 			else

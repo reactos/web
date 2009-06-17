@@ -90,7 +90,7 @@
 		if($_GET["resultlist"])
 		{
 			$stmt = $dbh->query(
-				"SELECT r.id, UNIX_TIMESTAMP(r.timestamp) timestamp, a.name, r.revision, r.platform, r.comment " .
+				"SELECT r.id, UNIX_TIMESTAMP(r.timestamp) timestamp, a.name, r.revision, r.platform, r.comment, r.count, r.failures " .
 				$tables .	$where . $order .
 				"LIMIT " . $result_count
 			) or die("<error>Query failed #2</error>");
@@ -113,6 +113,8 @@
 				printf("<revision>%d</revision>", $row["revision"]);
 				printf("<platform>%s</platform>", GetPlatformString($row["platform"]));
 				printf("<comment>%s</comment>", htmlspecialchars($row["comment"]));
+				printf("<count>%d</count>", $row["count"]);
+				printf("<failures>%d</failures>", $row["failures"]);
 				echo "</result>";
 				
 				$last_revision = $row["revision"];

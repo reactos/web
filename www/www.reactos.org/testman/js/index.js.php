@@ -56,14 +56,8 @@ function UpdateSelectedResults(checkbox)
 		return;
 	}
 	
-	var id = checkbox.name.substr(5);
-	
-	// Make sure all checkboxes belonging to this test show the same state
-	var elems = document.getElementsByName(checkbox.name);
-	
-	for(var i = 0; i < elems.length; i++)
-		elems[i].checked = checkbox.checked;
-	
+	var id = checkbox.id.substr(5);
+
 	if(checkbox.checked)
 	{
 		SelectedResults[id] = true;
@@ -86,19 +80,19 @@ function UpdateAllCheckboxes()
 {
 	for(id in SelectedResults)
 	{
-		var elems = document.getElementsByName("test_" + id);
+		var checkbox = document.getElementById("test_" + id);
 		
-		for(var i = 0; i < elems.length; i++)
-			elems[i].checked = true;
+		if(checkbox)
+			checkbox.checked = true;
 	}
 }
 
-function Result_OnCheckboxClick(checkbox)
+function ResultCheckbox_OnClick(checkbox)
 {
 	UpdateSelectedResults(checkbox);
 }
 
-function Result_OnCellClick(elem)
+function ResultCell_OnClick(elem)
 {
 	var checkbox = elem.parentNode.firstChild.firstChild;
 	checkbox.checked = !checkbox.checked;
@@ -340,6 +334,8 @@ function SearchCallback(HttpRequest)
 		html += '<th class="TestCheckbox"><\/th>';
 		html += '<th><?php echo addslashes($testman_langres["revision"]); ?><\/th>';
 		html += '<th><?php echo addslashes($testman_langres["date"]); ?><\/th>';
+		html += '<th><?php echo addslashes($testman_langres["totaltests"]); ?><\/th>';
+		html += '<th><?php echo addslashes($testman_langres["failedtests"]); ?><\/th>';
 		html += '<th><?php echo addslashes($testman_langres["user"]); ?><\/th>';
 		html += '<th><?php echo addslashes($testman_langres["platform"]); ?><\/th>';
 		html += '<th><?php echo addslashes($testman_langres["comment"]); ?><\/th>';
@@ -350,7 +346,7 @@ function SearchCallback(HttpRequest)
 	
 		if(!results.length)
 		{
-			html += '<tr class="even"><td colspan="6"><?php echo addslashes($testman_langres["noresults"]); ?><\/td><\/tr>';
+			html += '<tr class="even"><td colspan="8"><?php echo addslashes($testman_langres["noresults"]); ?><\/td><\/tr>';
 		}
 		else
 		{
@@ -361,17 +357,21 @@ function SearchCallback(HttpRequest)
 				var ResultID = GetTagData(results[i], "id");
 				var ResultRevision = GetTagData(results[i], "revision");
 				var ResultDate = GetTagData(results[i], "date");
+				var ResultCount = GetTagData(results[i], "count");
+				var ResultFailures = GetTagData(results[i], "failures");
 				var ResultUser = GetTagData(results[i], "user");
 				var ResultPlatform = GetTagData(results[i], "platform");
 				var ResultComment = GetTagData(results[i], "comment");
 				
 				html += '<tr class="' + (oddeven ? "odd" : "even") + '" onmouseover="Result_OnMouseOver(this)" onmouseout="Result_OnMouseOut(this)">';
-				html += '<td><input onclick="Result_OnCheckboxClick(this)" type="checkbox" name="test_' + ResultID + '" \/><\/td>';
-				html += '<td onclick="Result_OnCellClick(this)">' + ResultRevision + '<\/td>';
-				html += '<td onclick="Result_OnCellClick(this)">' + ResultDate + '<\/td>';
-				html += '<td onclick="Result_OnCellClick(this)">' + ResultUser + '<\/td>';
-				html += '<td onclick="Result_OnCellClick(this)">' + ResultPlatform + '<\/td>';
-				html += '<td onclick="Result_OnCellClick(this)">' + ResultComment + '<\/td>';
+				html += '<td><input onclick="ResultCheckbox_OnClick(this)" type="checkbox" id="test_' + ResultID + '" \/><\/td>';
+				html += '<td onclick="ResultCell_OnClick(this)">' + ResultRevision + '<\/td>';
+				html += '<td onclick="ResultCell_OnClick(this)">' + ResultDate + '<\/td>';
+				html += '<td onclick="ResultCell_OnClick(this)">' + ResultCount + '<\/td>';
+				html += '<td onclick="ResultCell_OnClick(this)">' + ResultFailures + '<\/td>';
+				html += '<td onclick="ResultCell_OnClick(this)">' + ResultUser + '<\/td>';
+				html += '<td onclick="ResultCell_OnClick(this)">' + ResultPlatform + '<\/td>';
+				html += '<td onclick="ResultCell_OnClick(this)">' + ResultComment + '<\/td>';
 				html += '<\/tr>';
 
 				oddeven = !oddeven;
@@ -423,8 +423,30 @@ function SearchCallback(HttpRequest)
 	document.getElementById("ajax_loading_search").style.visibility = "hidden";
 }
 
-function OpenComparePage(parameters)
+/**
+ * Open the Compare page in the user-defined area
+ *
+ * @param ResultArray
+ * Array containing the result IDs to pass to the Compare page.
+ * The array will be sorted ascending before.
+ */
+function OpenComparePage(ResultArray)
 {
+	var parameters = "ids=";
+	
+	ResultArray.sort(NumericComparison);
+	
+	for(i = 0; i < ResultArray.length; i++)
+	{
+		if(!i)
+		{
+			parameters += ResultArray[i];
+			continue;
+		}
+		
+		parameters += "," + ResultArray[i];
+	}
+	
 	if(document.getElementById("opennewwindow").checked || DetectObsoleteIE())
 	{
 		window.open("compare.php?" + parameters);
@@ -440,19 +462,20 @@ function OpenComparePage(parameters)
 
 function CompareFirstTwoButton_OnClick()
 {
-	var parameters = "ids=";
+	var IDArray;
 	var trs = document.getElementById("resulttable").getElementsByTagName("tbody")[0].getElementsByTagName("tr");
 	
 	if(trs[0].firstChild.firstChild.nodeName != "INPUT")
 		return;
 	
-	// Get the IDs through the "name" attribute of the checkboxes
-	parameters += trs[0].firstChild.firstChild.name.substr(5);
+	// Get the IDs through the "id" attribute of the checkboxes
+	IDArray = new Array();
+	IDArray.push(parseInt(trs[0].firstChild.firstChild.id.substr(5)));
 	
 	if(trs[1])
-		parameters += "," + trs[1].firstChild.firstChild.name.substr(5);
+		IDArray.push(parseInt(trs[1].firstChild.firstChild.id.substr(5)));
 	
-	OpenComparePage(parameters);
+	OpenComparePage(IDArray);
 }
 
 function PageSwitch(NewPage, StartID)
@@ -502,7 +525,6 @@ function NumericComparison(a, b)
 
 function CompareSelectedButton_OnClick()
 {
-	var parameters = "ids=";
 	var IDArray = new Array();
 	
 	// Sort the selected IDs
@@ -515,21 +537,7 @@ function CompareSelectedButton_OnClick()
 		return;
 	}
 	
-	IDArray.sort(NumericComparison);
-	
-	for(i = 0; i < IDArray.length; i++)
-	{
-		if(!i)
-		{
-			parameters += IDArray[i];
-			first = false;
-			continue;
-		}
-		
-		parameters += "," + IDArray[i];
-	}
-	
-	OpenComparePage(parameters);
+	OpenComparePage(IDArray);
 }
 
 function OpenNewWindowCheckbox_OnClick(checkbox)

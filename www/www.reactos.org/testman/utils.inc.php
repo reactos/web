@@ -126,12 +126,11 @@
 		return date("Y-m-d H:i", $timestamp);
 	}
 	
-	function GetTotalTestsString($count)
+	function GetTotalTestsString($row)
 	{
-		// The number of total tests being -1 indicates that the test crashed while running
-		if($count == -1)
-			return "CRASH";
+		if($row["status"] != "ok")
+			return strtoupper($row["status"]);
 		
-		return $count;
+		return $row["count"];
 	}
 ?>

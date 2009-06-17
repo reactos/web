@@ -15,6 +15,7 @@ CREATE TABLE `winetest_results` (
   `id` int(10) unsigned NOT NULL auto_increment,
   `test_id` int(10) unsigned NOT NULL,
   `suite_id` int(10) unsigned NOT NULL,
+  `status` enum('ok','crash','canceled') collate latin1_general_ci NOT NULL,
   `count` int(10) NOT NULL COMMENT 'Number of all executed tests',
   `failures` int(10) unsigned NOT NULL COMMENT 'Number of failed tests',
   `skipped` int(10) unsigned NOT NULL COMMENT 'Number of skipped tests',
@@ -30,6 +31,8 @@ CREATE TABLE `winetest_runs` (
   `revision` int(9) unsigned NOT NULL,
   `platform` varchar(24) collate latin1_general_ci NOT NULL,
   `comment` varchar(255) collate latin1_general_ci default NULL,
+  `count` int(10) unsigned NOT NULL COMMENT 'Sum of all executed tests',
+  `failures` int(10) unsigned NOT NULL COMMENT 'Sum of all test failures',
   PRIMARY KEY  (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=latin1 COLLATE=latin1_general_ci;
 

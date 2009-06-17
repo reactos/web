@@ -52,7 +52,7 @@
 	
 	// Get information about this result
 	$stmt = $dbh->prepare(
-		"SELECT l.log, e.count, e.failures, e.skipped, s.module, s.test, UNIX_TIMESTAMP(r.timestamp) timestamp, r.revision, r.platform, a.name, r.comment " .
+		"SELECT l.log, e.status, e.count, e.failures, e.skipped, s.module, s.test, UNIX_TIMESTAMP(r.timestamp) timestamp, r.revision, r.platform, a.name, r.comment " .
 		"FROM " . DB_TESTMAN . ".winetest_results e " .
 		"JOIN " . DB_TESTMAN . ".winetest_logs l ON e.id = l.id " .
 		"JOIN " . DB_TESTMAN . ".winetest_suites s ON e.suite_id = s.id " .
@@ -76,17 +76,17 @@
 	</tr>
 	<tr class="odd" onmouseover="Row_OnMouseOver(this)" onmouseout="Row_OnMouseOut(this)">
 		<td class="info"><?php echo $testman_langres["totaltests"]; ?>:</td>
-		<td><?php echo GetTotalTestsString($row["count"]); ?></td>
+		<td><?php echo GetTotalTestsString($row); ?></td>
 	</tr>
 	<tr class="even" onmouseover="Row_OnMouseOver(this)" onmouseout="Row_OnMouseOut(this)">
 		<td class="info"><?php echo $testman_langres["failedtests"]; ?>:</td>
 		<td><?php echo $row["failures"]; ?></td>
 	</tr>
-	<tr class="even" onmouseover="Row_OnMouseOver(this)" onmouseout="Row_OnMouseOut(this)">
+	<tr class="odd" onmouseover="Row_OnMouseOver(this)" onmouseout="Row_OnMouseOut(this)">
 		<td class="info"><?php echo $testman_langres["skippedtests"]; ?>:</td>
 		<td><?php echo $row["skipped"]; ?></td>
 	</tr>
-	<tr class="odd" onmouseover="Row_OnMouseOver(this)" onmouseout="Row_OnMouseOut(this)">
+	<tr class="even" onmouseover="Row_OnMouseOver(this)" onmouseout="Row_OnMouseOut(this)">
 		<td class="info"><?php echo $testman_langres["log"]; ?>:</td>
 		<td><pre><?php
 			$patterns[0] = "#^([a-z]*:?\()([a-zA-Z0-9\/]+.[a-z]+):([0-9]+)(\))#m";
