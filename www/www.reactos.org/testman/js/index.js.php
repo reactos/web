@@ -354,24 +354,15 @@ function SearchCallback(HttpRequest)
 			
 			for(var i = 0; i < results.length; i++)
 			{
-				var ResultID = GetTagData(results[i], "id");
-				var ResultRevision = GetTagData(results[i], "revision");
-				var ResultDate = GetTagData(results[i], "date");
-				var ResultCount = GetTagData(results[i], "count");
-				var ResultFailures = GetTagData(results[i], "failures");
-				var ResultUser = GetTagData(results[i], "user");
-				var ResultPlatform = GetTagData(results[i], "platform");
-				var ResultComment = GetTagData(results[i], "comment");
-				
 				html += '<tr class="' + (oddeven ? "odd" : "even") + '" onmouseover="Result_OnMouseOver(this)" onmouseout="Result_OnMouseOut(this)">';
-				html += '<td><input onclick="ResultCheckbox_OnClick(this)" type="checkbox" id="test_' + ResultID + '" \/><\/td>';
-				html += '<td onclick="ResultCell_OnClick(this)">' + ResultRevision + '<\/td>';
-				html += '<td onclick="ResultCell_OnClick(this)">' + ResultDate + '<\/td>';
-				html += '<td onclick="ResultCell_OnClick(this)">' + ResultCount + '<\/td>';
-				html += '<td onclick="ResultCell_OnClick(this)">' + ResultFailures + '<\/td>';
-				html += '<td onclick="ResultCell_OnClick(this)">' + ResultUser + '<\/td>';
-				html += '<td onclick="ResultCell_OnClick(this)">' + ResultPlatform + '<\/td>';
-				html += '<td onclick="ResultCell_OnClick(this)">' + ResultComment + '<\/td>';
+				html += '<td><input onclick="ResultCheckbox_OnClick(this)" type="checkbox" id="test_' + GetTagData(results[i], "id") + '" \/><\/td>';
+				html += '<td onclick="ResultCell_OnClick(this)">' + GetTagData(results[i], "revision") + '<\/td>';
+				html += '<td onclick="ResultCell_OnClick(this)">' + GetTagData(results[i], "date") + '<\/td>';
+				html += '<td onclick="ResultCell_OnClick(this)">' + GetTagData(results[i], "count") + '<\/td>';
+				html += '<td onclick="ResultCell_OnClick(this)">' + GetTagData(results[i], "failures") + '<\/td>';
+				html += '<td onclick="ResultCell_OnClick(this)">' + GetTagData(results[i], "user") + '<\/td>';
+				html += '<td onclick="ResultCell_OnClick(this)">' + GetTagData(results[i], "platform") + '<\/td>';
+				html += '<td onclick="ResultCell_OnClick(this)">' + GetTagData(results[i], "comment") + '<\/td>';
 				html += '<\/tr>';
 
 				oddeven = !oddeven;
