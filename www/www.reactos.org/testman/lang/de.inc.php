@@ -40,14 +40,15 @@
 		"showchanged" => "Nur geänderte Ergebnisse anzeigen",
 		
 		"legend" => "Legende",
-		"totaltests" => "Alle Tests",
+		"totaltests" => "Ausgeführte Tests",
 		"failedtests" => "Fehlgeschlagene Tests",
 		"skippedtests" => "Übersprungene Tests",
 		"difference" => "Unterschied zum vorherigen Ergebnis",
 		
 		"testsuite" => "Test Suite",
 		"resulthead" => "Revision %d<br />am %s<br />von %s<br />unter %s",
-		
+		"totals" => "Gesamtzahlen",
+
 		// Result Details page
 		"detail_title" => "Ergebnis-Details",
 		

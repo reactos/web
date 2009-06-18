@@ -80,6 +80,10 @@ function AddDifferenceForColumn(th)
 		// Remove all difference data in this case as there is no previous element
 		for(var i = 0; i < trs.length; i++)
 		{
+			// Ignore empty rows (like separator rows)
+			if(!trs[i].childNodes.length)
+				continue;
+			
 			var divs = trs[i].childNodes[Index].getElementsByTagName("div");
 			
 			for(var j = 0; j < divs.length; j++)
@@ -95,6 +99,10 @@ function AddDifferenceForColumn(th)
 	// No, then add the difference data accordingly
 	for(var i = 0; i < trs.length; i++)
 	{
+		// Ignore empty rows (like separator rows)
+		if(!trs[i].childNodes.length)
+			continue;
+		
 		// We can only add difference data if the current table and the previous one contain result data
 		if(trs[i].childNodes[Index].firstChild.nodeName != "DIV" || trs[i].childNodes[Index - 1].firstChild.nodeName != "DIV")
 			continue;
@@ -262,7 +270,8 @@ function Document_OnMouseUp()
 			var tbody_trs = document.getElementById("comparetable").childNodes[1].childNodes;
 			
 			for(var i = 0; i < tbody_trs.length; i++)
-				SwapElements(tbody_trs[i].childNodes[DragColumnIndex], tbody_trs[i].childNodes[SwapColumnIndex]);
+				if(tbody_trs[i].childNodes.length)
+					SwapElements(tbody_trs[i].childNodes[DragColumnIndex], tbody_trs[i].childNodes[SwapColumnIndex]);
 			
 			AddDifferenceForColumn(DragColumn);
 			AddDifferenceForColumn(SwapColumn);

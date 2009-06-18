@@ -18,18 +18,21 @@
 	require_once("lang/$lang.inc.php");
 	
 	
-	function GetDifference(&$current_result_row, &$prev_result_row, $subject)
+	function GetDifference(&$current_row, &$prev_row, $subject)
 	{
 		// Return &nbsp; ("" is not possible because of IE...) if
-		//  - we have nothing to compare
+		//  - we have no previous array to compare with
+		//  - we have both arrays, but not the values for both of them
 		//  - both values are identical
-		if(!$prev_result_row["id"] ||
-		   $current_result_row[$subject] == $prev_result_row[$subject])
+		if(!$prev_row ||
+		   !array_key_exists($subject, $current_row) ||
+		   !array_key_exists($subject, $prev_row) ||
+		   $current_row[$subject] == $prev_row[$subject])
 		{
 			return "&nbsp;";
 		}
 		
-		$diff = $current_result_row[$subject] - $prev_result_row[$subject];
+		$diff = $current_row[$subject] - $prev_row[$subject];
 		
 		if($diff > 0)
 			return "(+$diff)";
@@ -131,22 +134,7 @@
 	$suite_ids = $stmt->fetchAll(PDO::FETCH_COLUMN);
 	$suite_idlist = implode(",", $suite_ids);
 	
-	// Get the test results for each column
-	$result_stmt = array();
-	
-	for($i = 0; $i < count($id_array); $i++)
-	{
-		$result_stmt[$i] = $dbh->prepare(
-			"SELECT e.id, e.status, e.count, e.failures, e.skipped " .
-			"FROM " . DB_TESTMAN . ".winetest_suites s " .
-			"LEFT JOIN " . DB_TESTMAN . ".winetest_results e ON e.suite_id = s.id AND e.test_id = :testid " .
-			"WHERE s.id IN (" . $suite_idlist . ")" .
-			"ORDER BY s.module, s.test"
-		);
-		$result_stmt[$i]->bindParam(":testid", $id_array[$i]);
-		$result_stmt[$i]->execute() or die("Query failed #2 for statement $i");
-	}
-	
+	// Add the table and fill in the table head part
 	echo '<table id="comparetable" class="datatable" cellspacing="0" cellpadding="0">';
 	echo '<thead><tr class="head">';
 	printf('<th class="TestSuite">%s</th>', $testman_langres["testsuite"]);
@@ -161,7 +149,7 @@
 	for($i = 0; $i < count($id_array); $i++)
 	{
 		$stmt->bindParam(":id", $id_array[$i]);
-		$stmt->execute() or die("Query failed #3");
+		$stmt->execute() or die("Query failed #2");
 		$row = $stmt->fetch(PDO::FETCH_ASSOC);
 		
 		echo '<th onmousedown="ResultHead_OnMouseDown(this)">';
@@ -172,8 +160,46 @@
 	echo '</tr></thead>';
 	echo '<tbody>';
 	
-	$oddeven = false;
-	$unchanged = array();
+	// Get the total numbers
+	echo   '<tr class="even">';
+	printf('<td id="totals" onmouseover="Cell_OnMouseOver(this)" onmouseout="Cell_OnMouseOut(this)">%s</td>', $testman_langres["totals"]);
+	
+	$stmt = $dbh->prepare("SELECT r.count, r.failures FROM " . DB_TESTMAN . ".winetest_runs r WHERE r.id = :id");
+	$prev_row = null;
+	
+	for($i = 0; $i < count($id_array); $i++)
+	{
+		$stmt->bindParam(":id", $id_array[$i]);
+		$stmt->execute() or die("Query failed #3");
+		$row = $stmt->fetch(PDO::FETCH_ASSOC);
+		
+		echo '<td onmouseover="Cell_OnMouseOver(this)" onmouseout="Cell_OnMouseOut(this)">';
+		printf('<div title="%s" class="box totaltests totals">%s <span class="diff">%s</span></div>', $testman_langres["totaltests"], $row["count"], GetDifference($row, $prev_row, "count"));
+		printf('<div title="%s" class="box %s_failedtests totals">%d <span class="diff">%s</span></div>', $testman_langres["failedtests"], ($row["failures"] > 0 ? 'real' : 'zero'), $row["failures"], GetDifference($row, $prev_row, "failures"));
+		echo '</td>';
+		
+		$prev_row = $row;
+	}
+	
+	// Add an empty separation row
+	echo '</tr>';
+	echo '<tr class="separator"></tr>';
+	
+	// Get the test results for each column
+	$result_stmt = array();
+	
+	for($i = 0; $i < count($id_array); $i++)
+	{
+		$result_stmt[$i] = $dbh->prepare(
+			"SELECT e.id, e.status, e.count, e.failures, e.skipped " .
+			"FROM " . DB_TESTMAN . ".winetest_suites s " .
+			"LEFT JOIN " . DB_TESTMAN . ".winetest_results e ON e.suite_id = s.id AND e.test_id = :testid " .
+			"WHERE s.id IN (" . $suite_idlist . ")" .
+			"ORDER BY s.module, s.test"
+		);
+		$result_stmt[$i]->bindParam(":testid", $id_array[$i]);
+		$result_stmt[$i]->execute() or die("Query failed #4 for statement $i");
+	}
 	
 	// Get all test suites for which we have at least one result in our ID list
 	$stmt = $dbh->query(
@@ -182,7 +208,10 @@
 		"JOIN " . DB_TESTMAN . ".winetest_results e ON e.suite_id = s.id " .
 		"WHERE test_id IN (" . $_GET["ids"] . ") " .
 		"ORDER BY s.module ASC, s.test ASC"
-	) or die("Query failed #3");
+	) or die("Query failed #5");
+	
+	$oddeven = true;
+	$unchanged = array();
 	
 	while($suites_row = $stmt->fetch(PDO::FETCH_ASSOC))
 	{
@@ -190,32 +219,32 @@
 		printf('<td onmouseover="Cell_OnMouseOver(this)" onmouseout="Cell_OnMouseOut(this)">%s:%s</td>', $suites_row["module"], $suites_row["test"]);
 		
 		$changed = false;
-		$prev_result_row = null;
+		$prev_row = null;
 		$temp_totaltests = -1;
 		$temp_failedtests = -1;
 		$temp_skippedtests = -1;
 		
 		for($i = 0; $i < count($result_stmt); $i++)
 		{
-			$result_row = $result_stmt[$i]->fetch(PDO::FETCH_ASSOC);
+			$row = $result_stmt[$i]->fetch(PDO::FETCH_ASSOC);
 			
 			echo '<td onmouseover="Cell_OnMouseOver(this)" onmouseout="Cell_OnMouseOut(this)"';
 			
-			if($result_row["id"])
-				printf(' class="clickable" onclick="Result_OnClick(%d)"', $result_row["id"]);
+			if($row["id"])
+				printf(' class="clickable" onclick="Result_OnClick(%d)"', $row["id"]);
 			
 			echo '>';
 			
 			// Check whether there are any changes within the test results of several runs
-			CheckIfChanged($changed, $temp_totaltests, $result_row["count"]);
-			CheckIfChanged($changed, $temp_failedtests, $result_row["failures"]);
-			CheckIfChanged($changed, $temp_skippedtests, $result_row["skipped"]);
+			CheckIfChanged($changed, $temp_totaltests, $row["count"]);
+			CheckIfChanged($changed, $temp_failedtests, $row["failures"]);
+			CheckIfChanged($changed, $temp_skippedtests, $row["skipped"]);
 			
-			if($result_row["id"])
+			if($row["id"])
 			{
-				printf('<div title="%s" class="box totaltests">%s <span class="diff">%s</span></div>', $testman_langres["totaltests"], GetTotalTestsString($result_row), GetDifference($result_row, $prev_result_row, "count"));
-				printf('<div title="%s" class="box %s_failedtests">%d <span class="diff">%s</span></div>', $testman_langres["failedtests"], (($result_row["failures"] > 0 || $result_row["status"] != "ok") ? 'real' : 'zero'), $result_row["failures"], GetDifference($result_row, $prev_result_row, "failures"));
-				printf('<div title="%s" class="box skippedtests">%d <span class="diff">%s</span></div>', $testman_langres["skippedtests"], $result_row["skipped"], GetDifference($result_row, $prev_result_row, "skipped"));
+				printf('<div title="%s" class="box totaltests">%s <span class="diff">%s</span></div>', $testman_langres["totaltests"], GetTotalTestsString($row), GetDifference($row, $prev_row, "count"));
+				printf('<div title="%s" class="box %s_failedtests">%d <span class="diff">%s</span></div>', $testman_langres["failedtests"], (($row["failures"] > 0 || $row["status"] != "ok") ? 'real' : 'zero'), $row["failures"], GetDifference($row, $prev_row, "failures"));
+				printf('<div title="%s" class="box skippedtests">%d <span class="diff">%s</span></div>', $testman_langres["skippedtests"], $row["skipped"], GetDifference($row, $prev_row, "skipped"));
 			}
 			else
 			{
@@ -225,7 +254,7 @@
 			
 			echo '</td>';
 			
-			$prev_result_row = $result_row;
+			$prev_row = $row;
 		}
 		
 		echo '</tr>';
@@ -242,10 +271,7 @@
 	echo "<script type=\"text/javascript\">\n";
 	echo "//<![CDATA[\n";
 	echo "var UnchangedRows = Array(";
-	
-	// Cut the last comma from the string
 	echo implode(",", $unchanged);
-	
 	echo ");\n";
 	echo "//]]>\n";
 	echo "</script>";

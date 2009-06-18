@@ -48,6 +48,7 @@
 		
 		"testsuite" => "Zestaw testów",
 		"resulthead" => "Rewizja %d<br />dnia %s<br />przez %s<br /> na %s",
+		"totals" => "Łącznie",
 		
 		// Result Details page
 		"detail_title" => "Szczegóły wyniku",

@@ -80,6 +80,10 @@
 	width: 200px;
 }
 
+#comparetable td#totals {
+	font-weight: bold;
+}
+
 #comparetable td, #comparetable td div.box {
 	border-right: solid 1px #BBBBBB;
 	border-bottom: solid 1px #BBBBBB;
@@ -102,4 +106,12 @@
 #comparetable td div.totaltests {
 	font-weight: bold;
 	width: 130px;
+}
+
+#comparetable td div.totals {
+	width: 163.5px;
+}
+
+#comparetable tr.separator {
+	height: 10px;
 }
