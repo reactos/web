@@ -25,8 +25,8 @@
 		//  - we have both arrays, but not the values for both of them
 		//  - both values are identical
 		if(!$prev_row ||
-		   !array_key_exists($subject, $current_row) ||
-		   !array_key_exists($subject, $prev_row) ||
+		   $current_row[$subject] === null ||
+		   $prev_row[$subject] === null ||
 		   $current_row[$subject] == $prev_row[$subject])
 		{
 			return "&nbsp;";
