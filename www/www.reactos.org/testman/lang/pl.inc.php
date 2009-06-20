@@ -26,7 +26,7 @@
 		"search_header" => "Szukaj wyników testów",
 		"search_button" => "Szukaj",
 		"comparefirsttwo_button" => "Porównaj dwa ostatnie wyniki testów",
-		"compareselected_button" => "Porównaj dwa pierwsze wyniki testów",
+		"compareselected_button" => "Porównaj wybrane wyniki",
 		"opennewwindow_checkbox" => "Otwórz w nowym oknie",
 		
 		"foundresults" => "Znaleziono %s wyników!",
