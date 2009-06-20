@@ -38,6 +38,7 @@
 		// Compare page
 		"compare_title" => "Comparing Results",
 		"showchanged" => "Show only changed results",
+		"export_as" => "Export as",
 		
 		"legend" => "Legend",
 		"totaltests" => "Total Tests",

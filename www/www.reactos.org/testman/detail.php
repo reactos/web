@@ -36,7 +36,7 @@
 <h2><?php echo $testman_langres["detail_title"]; ?></h2>
 
 <?php
-	if(!isset($_GET["id"]))
+	if(!array_key_exists("id", $_GET))
 		die("Necessary information not specified");
 	
 	// Establish a DB connection
@@ -123,7 +123,7 @@
 	</tr>
 	<tr class="even" onmouseover="Row_OnMouseOver(this)" onmouseout="Row_OnMouseOut(this)">
 		<td class="info"><?php echo $testman_langres["comment"]; ?>:</td>
-		<td><?php echo GetPlatformString($row["comment"]); ?></td>
+		<td><?php echo $row["comment"]; ?></td>
 	</tr>
 </table>
 

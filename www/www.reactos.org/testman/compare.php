@@ -9,7 +9,6 @@
 */
 
 	require_once("config.inc.php");
-	require_once("connect.db.php");
 	require_once("utils.inc.php");
 	require_once("languages.inc.php");
 	require_once(SHARED_PATH . "subsys_layout.php");
@@ -71,29 +70,29 @@
 <h2><?php echo $testman_langres["compare_title"]; ?></h2>
 
 <?php
-	if(!isset($_GET["ids"]))
+	if(!array_key_exists("ids", $_GET))
 		die("Necessary information not specified");
 	
-	$id_array = explode(",", $_GET["ids"]);
+	$reader = new WineTest_ResultReader();
+	$result = $reader->setTestIDList($_GET["ids"]);
 	
-	if(!$id_array)
-		die("<i>ids</i> parameter is no array");
-	
-	// Verify that the array only contains numeric values to prevent SQL injections
-	for($i = 0; $i < count($id_array); $i++)
-		if(!is_numeric($id_array[$i]))
-			die("<i>ids</i> parameter is not entirely numeric!");
-	
-	if(count($id_array) > MAX_COMPARE_RESULTS)
-		die(sprintf($testman_langres["maxselection"], MAX_COMPARE_RESULTS));
-	
-	if(count($id_array) > 1)
-	{
-		echo '<div>';
-		printf('<input type="checkbox" id="showchanged" onclick="ShowChangedCheckbox_OnClick(this)" /> <label for="showchanged">%s</label>', $testman_langres["showchanged"]);
-		echo '</div><br />';
-	}
+	// A string return value indicates an error.
+	if(is_string($result))
+		die($result);
 ?>
+
+<div>
+	<?php
+		// Activate the option to only show the changed results between several test runs if more than one Test ID was passed.
+		if($reader->getTestIDCount() > 1)
+			printf('<input type="checkbox" id="showchanged" onclick="ShowChangedCheckbox_OnClick(this)" /> <label for="showchanged">%s</label><br />', $testman_langres["showchanged"]);
+		
+		echo $testman_langres["export_as"];
+	?>:
+	
+	<button onclick="window.open('export.php?f=csv&amp;ids=<?php echo $_GET["ids"]; ?>')">CSV</button>
+	<button onclick="window.open('export.php?f=xml&amp;ids=<?php echo $_GET["ids"]; ?>')">XML</button>
+</div><br />
 
 <div id="legend">
 	<div id="intro"><?php echo $testman_langres["legend"]; ?>:</div>
@@ -113,43 +112,18 @@
 </div>
 
 <?php
-	// Establish a DB connection
-	try
-	{
-		$dbh = new PDO("mysql:host=" . DB_HOST, DB_USER, DB_PASS);
-	}
-	catch(PDOException $e)
-	{
-		// Give no exact error message here, so no server internals are exposed
-		die("Could not establish the DB connection");
-	}
-	
-	// Get all Suite IDs linked to our Test IDs
-	$stmt = $dbh->query(
-		"SELECT s.id " .
-		"FROM " . DB_TESTMAN . ".winetest_suites s " .
-		"JOIN " . DB_TESTMAN . ".winetest_results e ON e.suite_id = s.id " .
-		"WHERE e.test_id IN (" . $_GET["ids"] . ")"
-	) or die("Query failed #1");
-	$suite_ids = $stmt->fetchAll(PDO::FETCH_COLUMN);
-	$suite_idlist = implode(",", $suite_ids);
-	
 	// Add the table and fill in the table head part
 	echo '<table id="comparetable" class="datatable" cellspacing="0" cellpadding="0">';
 	echo '<thead><tr class="head">';
 	printf('<th class="TestSuite">%s</th>', $testman_langres["testsuite"]);
 	
-	$stmt = $dbh->prepare(
-		"SELECT UNIX_TIMESTAMP(r.timestamp) timestamp, a.name, r.revision, r.platform " .
-		"FROM " . DB_TESTMAN . ".winetest_runs r " .
-		"JOIN " . DB_ROSCMS . ".roscms_accounts a ON r.user_id = a.id " .
-		"WHERE r.id = :id"
-	);
-	
-	for($i = 0; $i < count($id_array); $i++)
+	for($i = 0; $i < $reader->getTestIDCount(); $i++)
 	{
-		$stmt->bindParam(":id", $id_array[$i]);
-		$stmt->execute() or die("Query failed #2");
+		$stmt = $reader->getTestRunInfoStatement($i);
+		
+		if(is_string($stmt))
+			die($stmt);
+		
 		$row = $stmt->fetch(PDO::FETCH_ASSOC);
 		
 		echo '<th onmousedown="ResultHead_OnMouseDown(this)">';
@@ -164,13 +138,15 @@
 	echo   '<tr class="even">';
 	printf('<td id="totals" onmouseover="Cell_OnMouseOver(this)" onmouseout="Cell_OnMouseOut(this)">%s</td>', $testman_langres["totals"]);
 	
-	$stmt = $dbh->prepare("SELECT r.count, r.failures FROM " . DB_TESTMAN . ".winetest_runs r WHERE r.id = :id");
 	$prev_row = null;
 	
-	for($i = 0; $i < count($id_array); $i++)
+	for($i = 0; $i < $reader->getTestIDCount(); $i++)
 	{
-		$stmt->bindParam(":id", $id_array[$i]);
-		$stmt->execute() or die("Query failed #3");
+		$stmt = $reader->getTestRunInfoStatement($i);
+		
+		if(is_string($stmt))
+			die($stmt);
+		
 		$row = $stmt->fetch(PDO::FETCH_ASSOC);
 		
 		echo '<td onmouseover="Cell_OnMouseOver(this)" onmouseout="Cell_OnMouseOut(this)">';
@@ -188,32 +164,23 @@
 	// Get the test results for each column
 	$result_stmt = array();
 	
-	for($i = 0; $i < count($id_array); $i++)
+	for($i = 0; $i < $reader->getTestIDCount(); $i++)
 	{
-		$result_stmt[$i] = $dbh->prepare(
-			"SELECT e.id, e.status, e.count, e.failures, e.skipped " .
-			"FROM " . DB_TESTMAN . ".winetest_suites s " .
-			"LEFT JOIN " . DB_TESTMAN . ".winetest_results e ON e.suite_id = s.id AND e.test_id = :testid " .
-			"WHERE s.id IN (" . $suite_idlist . ")" .
-			"ORDER BY s.module, s.test"
-		);
-		$result_stmt[$i]->bindParam(":testid", $id_array[$i]);
-		$result_stmt[$i]->execute() or die("Query failed #4 for statement $i");
+		$result_stmt[$i] = $reader->getListResultInfoStatement($i);
+		
+		if(is_string($result_stmt[$i]))
+			die($result_stmt[$i]);
 	}
 	
-	// Get all test suites for which we have at least one result in our ID list
-	$stmt = $dbh->query(
-		"SELECT DISTINCT s.id, s.module, s.test " .
-		"FROM " . DB_TESTMAN . ".winetest_suites s " .
-		"JOIN " . DB_TESTMAN . ".winetest_results e ON e.suite_id = s.id " .
-		"WHERE test_id IN (" . $_GET["ids"] . ") " .
-		"ORDER BY s.module ASC, s.test ASC"
-	) or die("Query failed #5");
+	$suites_stmt = $reader->getListTestSuiteInfoStatement();
+	
+	if(is_string($suites_stmt))
+		die($suites_stmt);
 	
 	$oddeven = true;
 	$unchanged = array();
 	
-	while($suites_row = $stmt->fetch(PDO::FETCH_ASSOC))
+	while($suites_row = $suites_stmt->fetch(PDO::FETCH_ASSOC))
 	{
 		printf('<tr id="suite_%s" class="%s">', $suites_row["id"], ($oddeven ? "odd" : "even"));
 		printf('<td onmouseover="Cell_OnMouseOver(this)" onmouseout="Cell_OnMouseOut(this)">%s:%s</td>', $suites_row["module"], $suites_row["test"]);
@@ -224,7 +191,7 @@
 		$temp_failedtests = -1;
 		$temp_skippedtests = -1;
 		
-		for($i = 0; $i < count($result_stmt); $i++)
+		for($i = 0; $i < $reader->getTestIDCount(); $i++)
 		{
 			$row = $result_stmt[$i]->fetch(PDO::FETCH_ASSOC);
 			

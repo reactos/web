@@ -5,7 +5,13 @@
   PURPOSE:    Utility functions shared among several PHP files
   COPYRIGHT:  Copyright 2008-2009 Colin Finck <colin@reactos.org>
 */
-		
+
+	// All classes are autoloaded through this magic function
+	function __autoload($class)
+	{
+		require_once("lib/$class.class.php");
+	}
+	
 	function GetPlatformString($platform)
 	{
 		// First get the main operating system

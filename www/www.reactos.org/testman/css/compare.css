@@ -5,6 +5,10 @@
   COPYRIGHT:  Copyright 2008-2009 Colin Finck <colin@reactos.org>
 */
 
+button {
+	font-weight: bold;
+}
+
 #legend {
 	border: solid 1px black;
 	display: inline-block;
