@@ -30,8 +30,7 @@
 	
 	if($_GET["startrev"] || $_GET["startid"] || $_GET["user"] || $_GET["platform"])
 	{
-		// Begin the WHERE clause with "WHERE 1 ", so we can begin all following statements with AND :-)
-		$where = "WHERE 1 ";
+		$where = "WHERE r.finished = 1 ";
 		
 		if($_GET["startrev"])
 			$where .= "AND r.revision >= " . (int)$_GET["startrev"] . " AND r.revision <= " . (int)$_GET["endrev"] . " ";
