@@ -36,34 +36,12 @@
 
 	
 	function show_osversion($osvernumber) { // intern function, don't call this function directly
-		$tempabc = array();
-		$tempd="";
+		$result = mysql_query("SELECT ver_name FROM rsdb_object_osversions WHERE ver_value = '$osvernumber' LIMIT 1");
 		
-		$tempabc = str_split($osvernumber, 1);
+		if(!$result)
+			return "";
 		
-		if ($tempabc[0] != 0) {
-			$tempd .= $tempabc[0];
-		}
-		if ($tempabc[1] != 0) {
-			$tempd .= $tempabc[1];
-		}
-		//if ($tempabc[2] != 0) {
-			$tempd .= $tempabc[2];
-		//}
-		//if ($tempabc[3] != 0) {
-			$tempd .= ".".$tempabc[3];
-		//}
-		//if ($tempabc[4] != 0) {
-			$tempd .= ".".$tempabc[4];
-		//}
-		if ($tempabc[5] != 0) {
-			$tempd .= $tempabc[5];
-		}
-		/*else {
-			$tempd = "unkown";
-		}*/
-		
-		return $tempd;
+		return mysql_result($result, 0);
 	}
 	
 ?>
