@@ -137,7 +137,7 @@ class Login
     $config = &RosCMS::getInstance();
 
     // do we have a session ?
-    if ($_COOKIE[$config->cookieUserKey()]) {
+    if (array_key_exists($config->cookieUserKey(), $_COOKIE)) {
 
       // delete cookie, kill session
       Cookie::write($config->cookieUserKey(), '', time() - 3600);
