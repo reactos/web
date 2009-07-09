@@ -60,10 +60,18 @@ class Login
       $session_id = $matches[1];
 
       // get a valid ip
-      if (isset($_SERVER['REMOTE_ADDR']) && preg_match('/^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})$/', $_SERVER['REMOTE_ADDR'], $matches) ) {
-          $remote_addr = $matches[1];
+      if (array_key_exists('HTTP_X_FORWARDED_FOR', $_SERVER))
+      {
+      	$proxies = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR']);
+      	$remote_addr = $proxies[0];
       }
-      else{
+      else
+      {
+      	$remote_addr = $_SERVER['REMOTE_ADDR'];
+      }
+      
+      if (!preg_match('/^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})$/', $remote_addr))
+      {
           $remote_addr = 'invalid';
       }
 

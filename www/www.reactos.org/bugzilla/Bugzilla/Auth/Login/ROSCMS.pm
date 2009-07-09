@@ -72,10 +72,24 @@ sub get_login_info {
 	if ( defined $session_id ) {
 		my $session_id_clean = $session_id;
 		trick_taint($session_id_clean);
-
+		
+		my $ip_clean;
+		if ($ENV{'HTTP_X_FORWARDED_FOR'}) {
+			my @proxies = split(/,/, $ENV{'HTTP_X_FORWARDED_FOR'});
+			$ip_clean = $proxies[0];
+		} else {
+			$ip_clean = $ENV{'REMOTE_ADDR'};
+		}
+		
+		if ($ip_clean =~ m/^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})/) {
+			$ip_clean = $1;
+		} else {
+			$ip_clean = 'invalid';
+		}
+		
 		my $browser_agent_clean = $ENV{'HTTP_USER_AGENT'};
 		trick_taint($browser_agent_clean);
-
+		
 		my $query = "SELECT m.subsys_user_id, m.user_id " .
 				"  FROM $roscms_db_name.roscms_accounts_sessions s " .
                                 "  JOIN $roscms_db_name.roscms_accounts u ON s.user_id = u.id " .
@@ -83,11 +97,13 @@ sub get_login_info {
 				" WHERE s.id = ? " .
 				"   AND (s.expires IS NULL OR " .
 				"        NOW() <= s.expires) " .
+				"   AND (s.ip = 'false' OR " .
+				"        s.ip = ?) " .
 				"   AND (s.browseragent = 'false' OR " .
 				"        s.browseragent = ?) " .
 				"   AND m.subsys = 'bugzilla'";
 
-		my @params = ($session_id_clean, $browser_agent_clean);
+		my @params = ($session_id_clean, $ip_clean, $browser_agent_clean);
 		($user_id, $roscms_user_id) = $dbh->selectrow_array($query, undef, @params);
 		
 		if ($user_id) {
