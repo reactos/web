@@ -43,7 +43,9 @@
 
 function create_head($page_title, $logo, $RSDB_langres)
 {
-	include('rsdb_setting.php');
+	global $RSDB_intern_path;
+	global $RSDB_intern_path_server;
+	global $RSDB_intern_user_id;
 
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">

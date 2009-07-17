@@ -37,7 +37,13 @@
 
 function create_structure($page )
 {
-	include('rsdb_setting.php');
+	global $RSDB_intern_index_php;
+	global $RSDB_intern_user_id;
+	global $RSDB_intern_loginsystem_path;
+	global $RSDB_intern_path;
+	global $RSDB_intern_path_server;
+	global $RSDB_USER_name;
+
 	include('rsdb_config.php');
 	
 	global $RSDB_SET_view;
