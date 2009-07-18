@@ -14,7 +14,7 @@ if (file_exists($probelang)) {
 @define('PLUGIN_ROSCMSACCOUNT_REGISTER', 'Register');
 @define('PLUGIN_ROSCMSACCOUNT_MANAGE', 'Manage blog entries');
 
-require_once(ROOT_PATH . "roscms/logon/subsys_login.php");
+require_once(ROSCMS_PATH . "lib/RosCMS_Autoloader.class.php");
 
 class serendipity_plugin_roscmsaccount extends serendipity_plugin 
 {
@@ -33,7 +33,7 @@ class serendipity_plugin_roscmsaccount extends serendipity_plugin
         global $serendipity;
 
         $title = PLUGIN_ROSCMSACCOUNT_TITLE;
-        $roscmsid = roscms_subsys_login('roscms', ROSCMS_LOGIN_OPTIONAL, '');
+        $roscmsid = @Subsystem::in(Login::OPTIONAL, '');
         if (0 == $roscmsid) {
             echo '<a href="/roscms/?page=login&target=' .
                  $serendipity['serendipityHTTPPath'] . '">' .
@@ -42,20 +42,18 @@ class serendipity_plugin_roscmsaccount extends serendipity_plugin
             echo '<a href="/roscms/?page=logout&target=' .
                  $serendipity['serendipityHTTPPath'] . '">' .
                  PLUGIN_ROSCMSACCOUNT_LOGOUT;
-            $who_query = "SELECT user_name " .
-                         "  FROM roscms.users " .
-                         " WHERE user_id = $roscmsid ";
+            $who_query = "SELECT name FROM roscms.roscms_accounts WHERE id = $roscmsid";
             $row_who = serendipity_db_query($who_query, true);
 
             if (is_array($row_who)) {
-                echo ' [' . $row_who['user_name'] . ']';
+                echo ' [' . $row_who['name'] . ']';
             }
             echo "</a><br />\n";
         }
         echo '<a href="/roscms/?page=register&target=' .
              $serendipity['serendipityHTTPPath'] . '">' .
              PLUGIN_ROSCMSACCOUNT_REGISTER . "</a><br />\n";
-        $authorid = roscms_subsys_login('blogs', ROSCMS_LOGIN_OPTIONAL, '');
+        $authorid = @Subsystem::in(Login::OPTIONAL, '', 'blogs');
         if (0 != $authorid) {
             $base = $serendipity['serendipityHTTPPath'];
 

@@ -5,7 +5,11 @@
         {foreach from=$dategroup.entries item="entry"}
         <div class="post">
             <h2 id="post-{$entry.id}"><a href="{$entry.link}">{$entry.title}</a></h2>
-            {if !$is_single_entry}<small>{$entry.timestamp|@formatTime:DATE_FORMAT_ENTRY}</small>{/if}
+            {if !$is_single_entry}
+                <small>
+                {$CONST.POSTED_BY} <a href="{$entry.link_author}">{$entry.author}</a>
+                {$CONST.ON} {$entry.timestamp|@formatTime:DATE_FORMAT_ENTRY}</small>
+            {/if}
 
             {if $entry.categories}
             <span class="categoryIcon">
@@ -47,34 +51,29 @@
                 {/if}
 
                 {else}
-                {$CONST.POSTED_BY} <a href="{$entry.link_author}">{$entry.author}</a>
                 {if $entry.categories}
                    {$CONST.IN} {foreach from=$entry.categories item="category" name="categories"}<a href="{$category.category_link}">{$category.category_name|@escape}</a>{if not $smarty.foreach.categories.last}, {/if}{/foreach}
                 {/if}
 
-                {if $dategroup.is_sticky}
-                    {$CONST.ON}
-                {else}
-                    {$CONST.AT}
-                {/if} <a href="{$entry.link}">{if $dategroup.is_sticky}{$entry.timestamp|@formatTime:DATE_FORMAT_ENTRY} {/if}{$entry.timestamp|@formatTime:'%H:%M'}</a>
-
                 {if $entry.has_comments}
                     {if $use_popups}
-                        | <a href="{$entry.link_popup_comments}" onclick="window.open(this.href, 'comments', 'width=480,height=480,scrollbars=yes'); return false;">{$entry.label_comments} ({$entry.comments})</a>
+                        <a href="{$entry.link_popup_comments}" onclick="window.open(this.href, 'comments', 'width=480,height=480,scrollbars=yes'); return false;">{$entry.label_comments} ({$entry.comments})</a>
                     {else}
-                        | <a href="{$entry.link}#comments">{$entry.label_comments} ({$entry.comments})</a>
+                        <a href="{$entry.link}#comments">{$entry.label_comments} ({$entry.comments})</a>
                     {/if}
                 {/if}
 
                 {if $entry.has_trackbacks}
+                    {if $entry.has_comments}| {/if}
                     {if $use_popups}
-                        | <a href="{$entry.link_popup_trackbacks}" onclick="window.open(this.href, 'comments', 'width=480,height=480,scrollbars=yes'); return false;">{$entry.label_trackbacks} ({$entry.trackbacks})</a>
+                        <a href="{$entry.link_popup_trackbacks}" onclick="window.open(this.href, 'comments', 'width=480,height=480,scrollbars=yes'); return false;">{$entry.label_trackbacks} ({$entry.trackbacks})</a>
                     {else}
-                        | <a href="{$entry.link}#trackbacks">{$entry.label_trackbacks} ({$entry.trackbacks})</a>
+                        <a href="{$entry.link}#trackbacks">{$entry.label_trackbacks} ({$entry.trackbacks})</a>
                     {/if}
                 {/if}
 
                 {if $entry.is_entry_owner and not $is_preview}
+                    {if $entry.has_comments || $entry.has_trackbacks}| {/if}
                         | <a href="{$entry.link_edit}">{$CONST.EDIT_ENTRY}</a>
                 {/if}
                 {/if}
@@ -83,6 +82,7 @@
             </p>
             </div>
         </div>
+<hr size="1" />
         <!--
         <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
                  xmlns:trackback="http://madskills.com/public/xml/rss/module/trackback/"
@@ -198,4 +198,6 @@
 
     {serendipity_hookPlugin hook="entries_footer"}
     </div>
+
+
 <!-- ENTRIES END -->

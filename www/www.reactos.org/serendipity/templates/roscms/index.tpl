@@ -79,7 +79,7 @@
 
     <td id="content"><div class="contentSmall">	
 
-<h1><a href="/xhtml/en/community.html">ReactOS Community</a> &gt;
+<h1><a href="/en/community.html">ReactOS Community</a> &gt;
 <a href="/serendipity/">ReactOS Blogs</a></h1>
 
 <table width='100' border='0' align='right'>

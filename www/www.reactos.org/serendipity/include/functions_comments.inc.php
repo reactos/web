@@ -309,26 +309,26 @@ function serendipity_approveComment($cid, $entry_id, $force = false) {
     return true;
 }
 
-require_once(ROOT_PATH . "roscms/logon/subsys_login.php");
+require_once(ROSCMS_PATH . "lib/RosCMS_Autoloader.class.php");
 @define('ROSCMSLOGIN_NOT_LOGGEDIN', 'You need to be logged in to leave a comment');
 
 
 function serendipity_saveComment($id, $commentInfo, $type = 'NORMAL', $source = 'internal') {
     global $serendipity;
 
-    $roscmsid = roscms_subsys_login('roscms', ROSCMS_LOGIN_OPTIONAL, '');
+    $roscmsid = Subsystem::in(Login::OPTIONAL, '');
     if (0 == $roscmsid) {
         $eventData = array('allow_comments' => false);
         $serendipity['messagestack']['comments'][] = ROSCMSLOGIN_NOT_LOGGEDIN;
         return false;
     }
-    $query = "SELECT user_fullname, user_email " .
-             "  FROM roscms.users " .
-             " WHERE user_id = " . (int) $roscmsid;
+    $query = "SELECT fullname, email " .
+             "  FROM roscms.roscms_accounts " .
+             " WHERE id = " . (int) $roscmsid;
     $userinfo = serendipity_db_query($query, true);
     if (is_array($userinfo)) {
-        $commentInfo['name'] = $userinfo['user_fullname'];
-        $commentInfo['email'] = $userinfo['user_email'];
+        $commentInfo['name'] = $userinfo['fullname'];
+        $commentInfo['email'] = $userinfo['email'];
     }
 
     $query = "SELECT id, allow_comments, moderate_comments, last_modified, timestamp, title FROM {$serendipity['dbPrefix']}entries WHERE id = '". (int)$id ."'";

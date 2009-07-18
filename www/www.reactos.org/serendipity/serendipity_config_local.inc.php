@@ -12,6 +12,6 @@
 	// End of Serendipity configuration file
 	// You can place your own special variables after here:
 
-	require_once("blogs-connect.php");
-	define("ROOT_PATH", "../");
+	require_once("../../www.reactos.org_config/blogs-connect.php");
+	define('ROSCMS_PATH', '../roscms/');
 ?>

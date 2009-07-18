@@ -273,18 +273,12 @@ function serendipity_deleteCookie($name) {
     unset($serendipity['COOKIE'][$name]);
 }
 
-require_once(ROOT_PATH . "roscms/logon/subsys_login.php");
+require_once(ROSCMS_PATH . "lib/RosCMS_Autoloader.class.php");
 
 function serendipity_authenticate_author($username = '', $password = '', $is_md5 = false, $use_external = true) {
     global $serendipity;
 
-    $authorid = roscms_subsys_login('blogs',
-                                    $use_external ? ROSCMS_LOGIN_REQUIRED :
-                                                    ROSCMS_LOGIN_OPTIONAL,
-                                    $serendipity['serendipityHTTPPath'] .
-                                    ($serendipity['rewrite'] == 'none' ?
-                                     $serendipity['indexFile'] .'?/' : '') .
-                                    PATH_ADMIN);
+    $authorid = Subsystem::in($use_external ? Login::REQUIRED : Login::OPTIONAL, $serendipity['serendipityHTTPPath'] . ($serendipity['rewrite'] == 'none' ? $serendipity['indexFile'] .'?/' : '') . PATH_ADMIN, 'blogs');
     if (0 == $authorid) {
         $_SESSION['serendipityAuthedUser'] = false;
         return false;

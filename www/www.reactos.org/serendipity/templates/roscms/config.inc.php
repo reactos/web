@@ -32,7 +32,7 @@ function roscms_smarty_sidebar_transform($params, &$smarty)
 
 function roscms_smarty_can_add_comment($params, &$smarty)
 {
-    if (0 == roscms_subsys_login('roscms', ROSCMS_LOGIN_OPTIONAL, '')) {
+    if (0 == Subsystem::in(Login::OPTIONAL, '')) {
         $smarty->assign('can_add_comment', 'false');
     } else {
         $smarty->assign('can_add_comment', 'true');
