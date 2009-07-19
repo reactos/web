@@ -91,6 +91,24 @@ LABEL.crash { color: #FF3300 !important; }
 
 
 
+#entryTop {clear: both; margin-bottom: 10px;}
+
+#entryDetails { float: left; border: 3px solid black; }
+
+#entrySide { float:right; border: 3px solid black; padding: 20px; font-weight: bold; }
+#entrySide .screenshot { float: left;  height: 100px; width: 100px; margin: 5px;}
+
+/* navigation */
+#entryNavigation { clear: both; margin-top: 10px; }
+#entryNavigation LI { float: left; background-color: gray; color: white; list-style-type: none; padding: 2px 10px; margin: 0px 3px; }
+#entryNavigation LI A { color: white; }
+#entryNavigation LI SPAN { font-weight: bold; }
+
+/**/
+#entryMain { clear: both; border: 3px solid black; padding: 20px; font-weight: bold; }
+#entryMain #buglist .bugNumber { margin-right: 10px; }
+
+
 
 body {
 	font-family: Verdana;

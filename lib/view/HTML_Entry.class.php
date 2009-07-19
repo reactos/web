@@ -22,12 +22,246 @@
 class HTML_Entry extends HTML
 {
 
-  const MODE_NORMAL = 1;
-  const MODE_DEV    = 2;
+  const SIDE_TESTS       = 1;
+  const SIDE_SCREENSHOTS = 2;
+  const SIDE_STATS       = 3;
+
+  const MAIN_TESTS       = 100;
+  const MAIN_SCREENSHOTS = 101;
+  const MAIN_COMMENTS    = 102;
+  //const MAIN_INSTALL     = 103;
+  const MAIN_BUGS        = 104;
+  
+  private $side = null;
+  private $sel = null;
+  private $entry_id = null;
+  
+  
+  public function __construct()
+  {
+    if (isset($_GET['view']) && $_GET['view'] == 'dev') {
+      $this->side = self::SIDE_TESTS;
+      $this->main = self::MAIN_TESTS;
+    }
+    elseif (isset($_GET['view']) && $_GET['view'] == 'screen') {
+      $this->side = self::SIDE_STATS;
+      $this->main = self::MAIN_SCREENSHOTS;
+    }
+    elseif(isset($_GET['view']) && $_GET['view'] == 'pref') {
+      $this->side = $_GET['pside'];
+      $this->main = $_GET['pmain'];
+    }
+    else {
+      $this->side = self::SIDE_SCREENSHOTS;
+      $this->main = self::MAIN_COMMENTS;
+    }
+
+    // get entry_id
+    $stmt=CDBConnection::getInstance()->prepare("SELECT entry_id FROM ".CDBT_VERSIONS." WHERE id=:version_id");
+    $stmt->bindParam('version_id',$_GET['ver'],PDO::PARAM_INT);
+    $stmt->execute();
+    $this->entry_id = $stmt->fetchColumn();
+   
+    parent::__construct();
+  } // end of constructor
+
+
 
   protected function body()
   {
-    $mode = self::MODE_NORMAL;
+    echo '
+      <h1>Compatability Database &gt; Entry Details</h1>
+      <div id="entryTop">';
+
+    $this->details();
+
+    // top right
+    switch ($this->side) {
+      case self::SIDE_STATS:
+        $this->sideStats();
+        break;
+      case self::SIDE_TESTS:
+        $this->sideTests();
+        break;
+      case self::SIDE_SCREENSHOTS:
+      default:
+        $this->sideScreenshots();
+        break;
+    }
+    
+    echo '</div>';
+    
+    // navigation
+    $this->tabNavigation();
+
+    // main information
+    switch ($this->main) {
+    
+      // screenshots
+      case self::MAIN_SCREENSHOTS:
+        $this->mainScreenshots();
+        break;
+        
+      // test reports
+      case self::MAIN_TESTS:
+        $this->mainTests();
+        break;
+        
+      // bug reports from bugzilla
+      case self::MAIN_BUGS:
+        $this->mainBugs();
+        break;
+        
+      // comments
+      case self::MAIN_COMMENTS:
+      default:
+        $this->mainComments();
+        break;
+    }
+  } // end of member function body
+  
+  
+  
+  private function mainComments()
+  {
+    echo '
+      <div id="entryMain">
+        <h2>Comments</h2>';
+
+      $stmt=CDBConnection::getInstance()->prepare("SELECT title, content, created, user_id FROM ".CDBT_COMMENTS." WHERE entry_id=:entry_id AND parent IS NULL ORDER BY created DESC");
+      $stmt->bindParam('entry_id',$this->entry_id,PDO::PARAM_INT);
+      $stmt->execute();
+      $comments=$stmt->fetchAll(PDO::FETCH_ASSOC);
+      
+      if (count($comments) > 0) {
+        foreach ($comments as $comment) {
+          echo '
+            <div>
+              <div>
+                <h3>'.htmlspecialchars($comment['title']).'</h3>
+                <span>by '.Subsystem::getUserName($comment['user_id']).' on '.$comment['created'].'</span>
+              </div>
+              '.nl2br(htmlspecialchars($comment['content'])).'
+            </div>';
+        }
+      }
+      else {
+        echo 'There are no comments submitted yet.';
+      }
+      
+    echo '</div>';
+  } // end of member function mainComments
+
+
+
+  private function mainScreenshots()
+  {
+    $stmt=CDBConnection::getInstance()->prepare("SELECT id, file, description FROM ".CDBT_ATTACHMENTS." WHERE type = 'picture' AND entry_id=:entry_id AND visible IS TRUE LIMIT 20 OFFSET 0");
+    $stmt->bindParam('entry_id',$this->entry_id,PDO::PARAM_INT);
+    $stmt->execute();
+    $screenshots = $stmt->fetchAll(PDO::FETCH_ASSOC);
+ 
+    echo '
+      <div id="entryMain">
+        <div class="screenshot">
+          <h2>Screenshots</h2>';
+    if (count($screenshots) > 0) {
+      echo '
+          <div style="border: 1px solid #78C;">';
+      foreach ($screenshots as $screenshot) {
+        echo '
+          <a href="?page=entry&amp;show=screenshot&amp;id='.$screenshot['id'].'">
+            <img src="media/files/picture/'.$screenshot['file'].'" alt="screenshot" title="'.htmlspecialchars($screenshot['description']).'" />
+          </a>';
+      }
+      echo '
+          </div>';
+    }
+    
+    echo '
+          <a href="#">Add Screenshots</a>
+        </div>
+      </div>';
+  } // end of member function mainScreenshots
+
+
+
+  private function mainTests()
+  {
+    $stmt=CDBConnection::getInstance()->prepare("SELECT user_id, revision, works, environment, environment_version, created FROM ".CDBT_REPORTS." t WHERE version_id = :version_id AND visible IS TRUE AND disabled IS FALSE ORDER BY revision DESC");
+    $stmt->bindParam('version_id', $_GET['ver'], PDO::PARAM_INT);
+    $stmt->execute();
+    $tests = $stmt->fetchAll(PDO::FETCH_ASSOC);
+ 
+    echo '
+      <div id="entryMain">
+        <h2>Test reports</h2>';
+
+      if (count($tests) > 0) {
+        foreach ($tests as $test) {
+          echo '
+            <div class="testReport" style="margin-top: 10px;">
+              <span>by '.Subsystem::getUserName($test['user_id']).' on '.$test['created'].'</span><br />
+              r'.$test['revision'].' in '.$test['environment'].' ('.$test['environment_version'].')<br />
+              <strong>status:</strong> '.$test['works'].' 
+            </div>';
+        }
+      }
+      else {
+        echo 'There are no tests submitted yet.';
+      }
+    
+    echo '
+        <a href="#">Submit Test</a>
+      </div>';
+  } // end of member function mainScreenshots
+
+
+
+  private function mainBugs()
+  {
+    $stmt=CDBConnection::getInstance()->prepare("SELECT name FROM ".CDBT_ENTRIES." WHERE id=:entry_id");
+    $stmt->bindParam('entry_id',$this->entry_id,PDO::PARAM_INT);
+    $stmt->execute();
+    $entry_name=$stmt->fetchColumn();
+  
+  
+    $stmt=CDBConnection::getInstance()->prepare("SELECT DISTINCT bug_id, short_desc FROM bugs.bugs WHERE short_desc LIKE :entry_name AND bug_status NOT IN('RESOLVED', 'CLOSED')");
+    $stmt->bindValue('entry_name', '%'.$entry_name.'%', PDO::PARAM_STR);
+    $stmt->execute();
+    $bugs = $stmt->fetchAll(PDO::FETCH_ASSOC);
+ 
+    echo '
+      <div id="entryMain">
+        <h2>Bugs</h2>';
+
+      if (count($bugs) > 0) {
+        echo '<ul id="buglist">';
+        foreach ($bugs as $bug) {
+          echo '
+            <li><a href="http://www.reactos.org/bugzilla/show_bug.cgi?id='.$bug['bug_id'].'" class="bugNumber">#'.$bug['bug_id'].'</a>'.htmlspecialchars($bug['short_desc']).'</li>';
+        }
+        echo '</ul>';
+      }
+      else {
+        echo 'There are no bugs submitted yet.';
+      }
+    
+    echo '
+        <a href="#">Submit Bug</a>
+      </div>';
+  } // end of member function mainScreenshots
+  
+  
+  
+  private function details()
+  {
+
+    // entry info
+    $stmt=CDBConnection::getInstance()->prepare("SELECT e.id, e.name, e.description, c.name AS category, e.category_id FROM ".CDBT_ENTRIES." e LEFT JOIN ".CDBT_CATEGORIES." c ON c.id=e.category_id WHERE e.id=:entry_id");
+    $stmt->bindParam('entry_id',$this->entry_id,PDO::PARAM_INT);
+    $stmt->execute();
+    $entry = $stmt->fetchOnce(PDO::FETCH_ASSOC);
 
     // version info
     $stmt=CDBConnection::getInstance()->prepare("SELECT version, entry_id FROM ".CDBT_VERSIONS." WHERE id=:version_id");
@@ -35,59 +269,94 @@ class HTML_Entry extends HTML
     $stmt->execute();
     $version = $stmt->fetchOnce(PDO::FETCH_ASSOC);
 
-    // entry info
-    $stmt=CDBConnection::getInstance()->prepare("SELECT e.id, e.name, e.description, c.name AS category, e.category_id FROM ".CDBT_ENTRIES." e LEFT JOIN ".CDBT_CATEGORIES." c ON c.id=e.category_id WHERE e.id=:entry_id");
-    $stmt->bindParam('entry_id',$version['entry_id'],PDO::PARAM_INT);
-    $stmt->execute();
-    $entry = $stmt->fetchOnce(PDO::FETCH_ASSOC);
-
-    // tagged versions
-    if ($mode == self::MODE_NORMAL) {
       $stmt=CDBConnection::getInstance()->prepare("SELECT r.revision, v.name FROM ".CDBT_REPORTS." r LEFT JOIN ".CDBT_VERTAGS." v ON r.revision=v.revision WHERE r.entry_id=:entry_id AND works IS TRUE ORDER BY v.revision DESC");
       $stmt->bindParam('entry_id',$entry['id'],PDO::PARAM_INT);
       $stmt->execute();
       $report = $stmt->fetchOnce(PDO::FETCH_ASSOC);
-    }
 
-    // untagged revisions
-    elseif ($mode == self::MODE_DEV) {
-      $stmt=CDBConnection::getInstance()->prepare("SELECT r.works, r.revision FROM ".CDBT_REPORTS." r LEFT JOIN ".CDBT_VERTAGS." v ON r.revision=v.revision WHERE r.entry_id=:entry_id AND v.revision IS NULL ORDER BY r.revision DESC");
-      $stmt->bindParam('entry_id',$entry['id'],PDO::PARAM_INT);
-      $stmt->execute();
-      $reports = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
 
-    echo '
-      <h1>Compatability Database &gt; Entry Details</h1>
-    
-      <div>
+      echo '    
+      <div id="entryDetails">
         <h2>Details</h2>
-        <table style="width: 600px;">
-          <tr>
-            <th style="width:100px;">Name</th>
-            <td style="width:200px;"><a href="">'.htmlspecialchars($entry['name']).'</a></td>
-            <th style="width:100px;">Version</th>
-            <td style="width:200px;">'.htmlspecialchars($version['version']).'</td>
-          </tr>
-          <tr>
-            <th style="width:100px;">Category</th>
-            <td style="width:200px;" colspan="3"><a href="">'.htmlspecialchars($entry['category']).'</a></td>
-          </tr>
-          <tr>
-            <th style="width:100px;">Description</th>
-            <td style="width:200px;" colspan="3">'.htmlspecialchars($entry['description']).'</td>
-          </tr>';
-    if ($mode == self::MODE_NORMAL) {
-      echo '
-          <tr>
-            <th style="width:100px;">Works in</th>
-            <td style="width:200px;" colspan="3">'.(($report['name']) ? htmlspecialchars($report['name']) : (($report['revision'] > 0) ? 'r'.$report['revision'].' (trunk)' : 'no working version known')).'</td>
-          </tr>';
-    }
-    echo '
-        </table>
+        <ul>
+          <li>
+            <span class="key">Name:</span>
+            <a class="value" href="">'.htmlspecialchars($entry['name']).'</a>
+          </li>
+          <li>
+            <span class="key">Version:</span>
+            <span class="value">'.htmlspecialchars($version['version']).'</span>
+          </li>
+          <li>
+            <span class="key">Category:</span>
+            <a class="value" href="?page=list&amp;cat='.$entry['category_id'].'">'.htmlspecialchars($entry['category']).'</a>
+          </li>
+          <li>
+            <span class="key">Works in:</span>
+            <span class="value">'.(($report['name']) ? htmlspecialchars($report['name']) : (($report['revision'] > 0) ? 'r'.$report['revision'].' (trunk)' : 'no working version known')).'</span>
+          </li>
+          <li>
+            <span class="key">Description:</span>
+            <div class="value">'.htmlspecialchars($entry['description']).'</div>
+          </li>
+        </ul>
       </div>';
+
+  } // end of member function details
+
+
+
+  private function tabNavigation()
+  {
+    echo '
+      <ul id="entryNavigation">
+        <li>'.($this->main == self::MAIN_COMMENTS ? '<span>Comments</span>' : '<a href="?page=item&amp;ver='.$_GET['ver'].'&amp;view=pref&amp;pside='.$this->side.'&amp;pmain='.self::MAIN_COMMENTS.'">Comments</a>').'</li>
+        <li>'.($this->main == self::MAIN_TESTS ? '<span>Tests</span>' : '<a href="?page=item&amp;ver='.$_GET['ver'].'&amp;view=pref&amp;pside='.$this->side.'&amp;pmain='.self::MAIN_TESTS.'">Tests</a>').'</li>
+        <li>'.($this->main == self::MAIN_BUGS ? '<span>Bugs</span>' : '<a href="?page=item&amp;ver='.$_GET['ver'].'&amp;view=pref&amp;pside='.$this->side.'&amp;pmain='.self::MAIN_BUGS.'">Bugs</a>').'</li>
+        <li>'.($this->main == self::MAIN_SCREENSHOTS ? '<span>Screenshots</span>' : '<a href="?page=item&amp;ver='.$_GET['ver'].'&amp;view=pref&amp;pside='.$this->side.'&amp;pmain='.self::MAIN_SCREENSHOTS.'">Screenshots</a>').'</li>
+      </ul>';
+      
+//        <li>'.($this->main == self::MAIN_INSTALL ? '<span>Install tipps</span>' : '<a href="?page=item&amp;ver='.$_GET['ver'].'&amp;view=pref&amp;pside='.$this->side.'&amp;pmain='.self::MAIN_INSTALL.'">Install tipps</a>').'</li>
+
+  } // end of member function screenshotShort
+
+
+
+  private function sideScreenshots()
+  {
+    $stmt=CDBConnection::getInstance()->prepare("SELECT id, file, description FROM ".CDBT_ATTACHMENTS." WHERE type = 'picture' AND entry_id=:entry_id AND visible IS TRUE LIMIT 2");
+    $stmt->bindParam('entry_id',$this->entry_id,PDO::PARAM_INT);
+    $stmt->execute();
+    $screenshots = $stmt->fetchAll(PDO::FETCH_ASSOC);
+ 
+    echo '
+      <div id="entrySide">
+        <div class="screenshot">
+          <h2>Screenshots</h2>';
+    if (count($screenshots) > 0) {
+      echo '
+          <div style="border: 1px solid #78C;">';
+      foreach ($screenshots as $screenshot) {
+        echo '
+          <a href="?page=entry&amp;show=screenshot&amp;id='.$screenshot['id'].'">
+            <img src="media/files/picture/'.$screenshot['file'].'" alt="screenshot" title="'.htmlspecialchars($screenshot['description']).'" />
+          </a>';
+      }
+      echo '
+          </div>';
+    }
     
+    echo '
+          <a href="#">Add Screenshots</a>
+        </div>
+      </div>';
+  } // end of member function sideScreenshots
+
+
+
+  private function sideTests()
+  {
+    echo '<div id="entrySide">';
     if (isset($reports) && count($reports) > 0) {
       echo '
         <div>
@@ -100,32 +369,9 @@ class HTML_Entry extends HTML
           </ul>
         </div>';
     }
+    echo '</div>';
+  } // end of member function sideTests
 
-
-    $stmt=CDBConnection::getInstance()->prepare("SELECT title, content, created, user_id FROM ".CDBT_COMMENTS." WHERE entry_id=:entry_id AND parent IS NULL ORDER BY created DESC");
-    $stmt->bindParam('entry_id',$entry['id'],PDO::PARAM_STR);
-    $stmt->execute();
-    $comments=$stmt->fetchAll(PDO::FETCH_ASSOC);
-    
-    if (count($comments) > 0) {
-      echo '
-        <div>
-          <h2>Comments</h2>';
-
-      foreach ($comments as $comment) {
-        echo '
-          <div>
-            <div>
-              <h3>'.htmlspecialchars($comment['title']).'</h3>
-              <span>by '.Subsystem::getUserName($comment['user_id']).' on '.$comment['created'].'</span>
-            </div>
-            '.nl2br(htmlspecialchars($comment['content'])).'
-          </div>';
-      }
-
-      echo '</div>';
-    }
-  } // end of member function body
 
 
 } // end of HTML_Entry
