@@ -560,15 +560,21 @@ class Generate
     }
 
     // get revision
-    $stmt=&DBConnection::getInstance()->prepare("SELECT r.id FROM ".ROSCMST_ENTRIES." d JOIN ".ROSCMST_REVISIONS." r ON r.data_id = d.id WHERE d.name = :name AND (d.type='page' OR d.type='dynamic') AND r.version > 0 LIMIT 1");
+    $stmt=&DBConnection::getInstance()->prepare("SELECT r.id FROM ".ROSCMST_ENTRIES." d JOIN ".ROSCMST_REVISIONS." r ON r.data_id = d.id WHERE d.name = :name AND (d.type='page' OR d.type='dynamic') AND r.status = 'stable' AND r.archive IS FALSE LIMIT 1");
     $stmt->bindParam('name',$page_name,PDO::PARAM_STR);
     $stmt->execute();
 
     // get page extension
-    $link_extension = Tag::getValue($stmt->fetchColumn(), 'extension', -1);
+    $rev_id = $stmt->fetchColumn();
+    $link_extension = Tag::getValue($rev_id, 'extension', -1);
+
     if ($link_extension === false) {
       $link_extension = 'html';
     }
+    else {
+      echo '<span class="red">no extension: '.$rev_id.' -- '.$page_name.' ('.$raw_page_name.')</span>';
+    }
+
 
     // get page link
     return $raw_page_name.'.'.$link_extension;
