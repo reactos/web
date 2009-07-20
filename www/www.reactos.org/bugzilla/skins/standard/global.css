@@ -22,6 +22,12 @@
   *                 Marc Schumann <wurblzap@gmail.com>
   */
 
+/* global (begin) */
+    body {
+        font-size: 12px;
+    }
+/* global (end) */
+
 /* header (begin) */
     #header {
         margin-bottom: 1em;
