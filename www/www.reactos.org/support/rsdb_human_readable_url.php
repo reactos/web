@@ -27,11 +27,7 @@
 	}
 
 	$RSDB_URI_mode = "";
-
-
-	$RSDB_intern_SET_path = "http://79.99.5.181/support/";
-	$RSDB_intern_SET_path_ex = "http://79.99.5.181/support/index.php/";
-	$RSDB_intern_dirs = "79.99.5.181/support/";
+	$RSDB_intern_dirs = "reactos.org/support/";
 
 
 	$RSDB_URI_tree = $_SERVER['REQUEST_URI'];
