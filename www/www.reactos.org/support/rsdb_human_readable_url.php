@@ -27,7 +27,7 @@
 	}
 
 	$RSDB_URI_mode = "";
-	$RSDB_intern_dirs = "reactos.org/support/";
+	$RSDB_intern_dirs = "support/";
 
 
 	$RSDB_URI_tree = $_SERVER['REQUEST_URI'];
