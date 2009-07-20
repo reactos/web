@@ -41,9 +41,9 @@ $config->setSiteTimezone(-2); // time difference to utc time from server time
 
 $config->setMultiLanguage(true);  // is site multilingual
 
-$config->setPathRoscms('/reactos/roscms/'); // path to roscms files
-$config->setPathInstance('/reactos/roscms/'); // path to roscms files
-$config->setPathGenerationCache('../roscms_cache/'); // path to generated files (relative to roscms folder)
+$config->setPathRoscms('/roscms/'); // path to roscms files
+$config->setPathInstance('/roscms/'); // path to roscms files
+$config->setPathGenerationCache('../../www.reactos.org_cache/'); // path to generated files (relative to roscms folder)
 $config->setPathGenerated('../'); // path to generated files (relative to roscms folder)
 
 
