@@ -10,12 +10,12 @@
 body {
 	margin: 0 0 1em 0;
 	padding: 0; /* Only affects Opera */
-	background: #FFFFFF url('http://www.reactos.org/images/topbar.jpg') repeat-x scroll top left;
+	background: #FFFFFF url('/images/topbar.jpg') repeat-x scroll top left;
 }
 
 #top {
 	margin: 0;
-	background: url('http://www.reactos.org/images/logo.jpg') no-repeat scroll 35px 0;
+	background: url('/images/logo.jpg') no-repeat scroll 35px 0;
 	padding: 103px 0 26px 0;
 	color: #FFFFFF;
 	text-align: right;

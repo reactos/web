@@ -3,7 +3,7 @@ body {
 	font-size: 12px;
 	margin: 0 0 1em 0;
 	padding: 0; /* Only affects Opera */
-	background: #FFFFFF url('http://www.reactos.org/images/topbar.jpg') repeat-x scroll top left;
+	background: #FFFFFF url('/images/topbar.jpg') repeat-x scroll top left;
 }
 
 hr {
@@ -93,7 +93,7 @@ a:hover {
 
 /* set by the generator */
 a.extern {
-	background: url('http://www.reactos.org/wiki/stylesheets/monobook/external.png') no-repeat center right;
+	background: url('/wiki/stylesheets/monobook/external.png') no-repeat center right;
 	padding-right: 14px;
 }
 
@@ -104,13 +104,13 @@ a.extern {
 }
 
 #content li {
-	list-style-image: url('http://www.reactos.org/images/bullet.png');
+	list-style-image: url('/images/bullet.png');
 	text-align: left;
 }
 
 #top {
 	margin: 0;
-	background: url('http://www.reactos.org/images/logo.jpg') no-repeat scroll 35px 0;
+	background: url('/images/logo.jpg') no-repeat scroll 35px 0;
 	padding: 103px 0 26px 0;
 	color: #FFFFFF;
 	text-align: right;
@@ -324,14 +324,14 @@ div.center {
 	padding-left: 30px;
 	font-size: 14px;
 	color: #367d10;
-	background: url('http://www.reactos.org/images/button_reactos_big.jpg') no-repeat 0 100%;
+	background: url('/images/button_reactos_big.jpg') no-repeat 0 100%;
 }
 
 #b_download a:hover {
 	font-size: 18px;
 	color: #3A935B;
 	background-color: transparent;
-	background: url('http://www.reactos.org/images/button_reactos_big_m.jpg') no-repeat 0 100%;
+	background: url('/images/button_reactos_big_m.jpg') no-repeat 0 100%;
 	cursor: pointer;
 }
 
@@ -348,14 +348,14 @@ div.center {
 
 	font-size: 16px;
 	color: #367d10;
-	background: url('http://www.reactos.org/images/button_download.jpg') no-repeat 0 100%;
+	background: url('/images/button_download.jpg') no-repeat 0 100%;
 }
 
 #b_downloadsmall a:hover {
 	font-size: 16px;
 	color: #3A935B;
 	background-color: transparent;
-	background: url('http://www.reactos.org/images/button_download_m.jpg') no-repeat 0 100%;
+	background: url('/images/button_download_m.jpg') no-repeat 0 100%;
 	cursor: pointer;
 }
 
@@ -384,14 +384,14 @@ div.center {
 
 	font-size: 16px;
 	color: #367d10;
-	background: url('http://www.reactos.org/images/button_donate.jpg') no-repeat 0 100%;
+	background: url('/images/button_donate.jpg') no-repeat 0 100%;
 }
 
 #b_donate a:hover {
 	font-size: 16px;
 	color: #3A935B;
 	background-color: transparent;
-	background: url('http://www.reactos.org/images/button_donate_m.jpg') no-repeat 0 100%;
+	background: url('/images/button_donate_m.jpg') no-repeat 0 100%;
 	cursor: pointer;
 }
 
@@ -420,7 +420,7 @@ div.center {
 
 	font-size: 16px;
 	color: #367d10;
-	background: url('http://www.reactos.org/support/media/icons/buttons/button_comp_home.jpg') no-repeat 0 100%;
+	background: url('/support/media/icons/buttons/button_comp_home.jpg') no-repeat 0 100%;
 
 	padding-left: 0 !important;
 }
@@ -429,7 +429,7 @@ div.center {
 	font-size: 16px;
 	color: #3A935B;
 	background-color: transparent;
-	background: url('http://www.reactos.org/support/media/icons/buttons/button_comp_home_m.jpg') no-repeat 0 100%;
+	background: url('/support/media/icons/buttons/button_comp_home_m.jpg') no-repeat 0 100%;
 	cursor: pointer;
 }
 
