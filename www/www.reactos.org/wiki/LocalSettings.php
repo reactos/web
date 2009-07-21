@@ -142,5 +142,6 @@ $wgAllowExternalImages = true;
 require_once("$IP/extensions/ParserFunctions/ParserFunctions.php");
 
 # RosCMS-specific settings
-define("ROSCMS_PATH", "$IP/../roscms/");
-define("SHARED_PATH", "$IP/../shared/");
+define("ROOT_PATH", "$IP/../");
+define("ROSCMS_PATH", ROOT_PATH . "roscms/");
+define("SHARED_PATH", ROOT_PATH . "shared/");

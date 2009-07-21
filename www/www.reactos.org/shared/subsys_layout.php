@@ -57,8 +57,8 @@
 	
 	function BasicLayout($lang)
 	{
-		readfile("http://www.reactos.org/$lang/subsys_extern_menu_top.html");
-		readfile("http://www.reactos.org/$lang/subsys_extern_menu_left.html");
+		readfile(ROOT_PATH . "$lang/subsys_extern_menu_top.html");
+		readfile(ROOT_PATH . "$lang/subsys_extern_menu_left.html");
 	}
 	
 	function LanguageBox($lang)

@@ -17,6 +17,7 @@ if (!defined('IN_PHPBB'))
 }
 
 define("ROOT_PATH", "$phpbb_root_path/../");
+define("SHARED_PATH", ROOT_PATH . "shared/");
 
 $starttime = explode(' ', microtime());
 $starttime = $starttime[1] + $starttime[0];

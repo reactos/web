@@ -5,6 +5,9 @@
   PURPOSE:    Easily download prebuilt ReactOS Revisions
   COPYRIGHT:  Copyright 2007-2009 Colin Finck <mail@colinfinck.de>
 */
+
+	define("ROOT_PATH", "../");
+	define("SHARED_PATH", ROOT_PATH . "shared/");
 	
 	// Configuration
 	$AJAX_GETFILES_PROVIDER_URL = "http://iso.reactos.org/scripts/ajax-getfiles-provider.php";

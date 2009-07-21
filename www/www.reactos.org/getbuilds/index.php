@@ -6,15 +6,13 @@
   COPYRIGHT:  Copyright 2007-2009 Colin Finck <mail@colinfinck.de>
 */
 
-	define("ROOT_PATH", "../");
-	
 	require_once("config.inc.php");
 	require_once("languages.inc.php");
-	require_once(ROOT_PATH . "shared/subsys_layout.php");
-	require_once(ROOT_PATH . "shared/svn.php");
+	require_once(SHARED_PATH . "subsys_layout.php");
+	require_once(SHARED_PATH . "svn.php");
 	
 	GetLanguage();
-	require_once(ROOT_PATH . "shared/lang/$lang.inc.php");
+	require_once(SHARED_PATH . "lang/$lang.inc.php");
 	require_once("lang/$lang.inc.php");
 	
 	$rev = GetLatestRevision();

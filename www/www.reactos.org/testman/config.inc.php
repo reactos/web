@@ -6,8 +6,9 @@
   COPYRIGHT:  Copyright 2008-2009 Colin Finck <colin@reactos.org>
 */
 
-	define("ROSCMS_PATH", "../roscms/");
-	define("SHARED_PATH", "../shared/");
+	define("ROOT_PATH", "../");
+	define("ROSCMS_PATH", ROOT_PATH . "roscms/");
+	define("SHARED_PATH", ROOT_PATH . "shared/");
 	define("TESTMAN_PATH", "");
 	
 	define("DEFAULT_SEARCH_LIMIT", 10);
