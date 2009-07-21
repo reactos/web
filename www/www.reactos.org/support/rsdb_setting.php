@@ -39,8 +39,8 @@
 	// **************
 	
 		// Config: (please sync this with the database)
-		$RSDB_intern_version = "RSDB 0.1 - http://reactos.org/"; // RSDB version info
-		$RSDB_intern_path_server = "http://reactos.org/"; // complete server path
+		$RSDB_intern_version = "RSDB 0.1 - http://www.reactos.org/"; // RSDB version info
+		$RSDB_intern_path_server = "http://www.reactos.org/"; // complete server path
 		$RSDB_intern_path = "support/"; // the dirs after http://www.reactos.org
 		
 		// script file fix (for Safari browser)

@@ -90,11 +90,11 @@ else {
 			$RSDB_TEMP_SUBMIT_valid = false;
 			echo "<br />";
 		}*/
-		if ((strlen($RSDB_TEMP_txtwhatnottested) <= 3) || $RSDB_TEMP_txtwhatnottested != "Features tested:\n\n\nNOT tested features:\n") {
+		/*if ((strlen($RSDB_TEMP_txtwhatnottested) <= 3) || $RSDB_TEMP_txtwhatnottested != "Features tested:\n\n\nNOT tested features:\n") {
 			msg_bar("The 'What has been tested and what not' textbox is (almost) empty  ...");
 			$RSDB_TEMP_SUBMIT_valid = false;
 			echo "<br />";
-		}
+		}*/
 		if ($RSDB_TEMP_optfunc < 1 || $RSDB_TEMP_optfunc > 5) {
 			msg_bar("Application function: please select the star(s) ...");
 			$RSDB_TEMP_SUBMIT_valid = false;
