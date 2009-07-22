@@ -50,6 +50,8 @@ class HTML_User_Activate extends HTML_User
     $activation_code_exists = false; // pwd-id exists in the database (true = pwd-id exists)
 
     $activation_code = @$_GET['code'];
+    if ($activation_code == '') $activation_code = $_POST['code'];
+echo $activation_code;
 
     echo_strip('
       <h1>Activate '.RosCMS::getInstance()->siteName().' Account</h1>
@@ -111,6 +113,7 @@ class HTML_User_Activate extends HTML_User
         </div>
 
         <div class="field">
+          <input type="hidden" name="code" value="'.htmlspecialchars($_GET['code']).'" />
           <label for="useremail"'.((isset($_POST['registerpost']) && (EMail::isValid($_POST['useremail']) || !$mail_exists)) ? ' style="color:red;"' : '').'>Your E-Mail Address</label>
           <input type="text" name="useremail" tabindex="4" id="useremail"'.(isset($_POST['useremail']) ? 'value="'.$_POST['useremail'].'"' : '').' maxlength="50" />
         </div>
