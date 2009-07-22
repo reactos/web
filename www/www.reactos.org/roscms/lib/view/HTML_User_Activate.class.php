@@ -99,7 +99,7 @@ echo $activation_code;
       $user_id = $stmt->fetchColumn();
 
       // set new account password
-      $stmt=&DBConnection::getInstance()->prepare("UPDATE ".ROSCMST_USERS." SET activation = '', modified = NOW() WHERE id = :user_id LIMIT 1");
+      $stmt=&DBConnection::getInstance()->prepare("UPDATE ".ROSCMST_USERS." SET activation = '', modified = NOW(), disabled = FALSE, visible = TRUE WHERE id = :user_id LIMIT 1");
       $stmt->bindParam('user_id',$user_id,PDO::PARAM_INT);
       $stmt->execute();
 
