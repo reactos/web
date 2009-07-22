@@ -69,7 +69,7 @@ class HTML_User_Register extends HTML_User
             <div class="corner_TR"></div>
           </div>');
 
-    if (isset($_POST['registerpost']) && isset($_POST['username']) && preg_match('/^[a-z0-9_\-[:space:]\.]{'.$config->limitUserNameMin().','.$config->limitUsernameMax().'}$/i', $_POST['username'])) {
+    if (isset($_POST['registerpost']) && isset($_POST['username']) && preg_match('/^[a-z0-9_\-[:space:]\.]{'.$config->limitUserNameMin().','.$config->limitUsernameMax().'}$/i', trim($_POST['username']))) {
 
       // check if another account with the same username already exists
       $stmt=&DBConnection::getInstance()->prepare("SELECT name FROM ".ROSCMST_USERS." WHERE LOWER(REPLACE(name, '_', ' ')) = LOWER(REPLACE(:username, '_', ' ')) LIMIT 1");
@@ -110,12 +110,12 @@ class HTML_User_Register extends HTML_User
           $activation_code = substr($activation_code, 0, rand(10, 15));
 
           // add new account
-          $stmt=&DBConnection::getInstance()->prepare("INSERT INTO ".ROSCMST_USERS." ( name, password, created, activation, email, language, modified ) VALUES ( :user_name, MD5( :password ), NOW(), :activation_code, :email, :lang, NOW() )");
-          $stmt->bindParam('user_name',$_POST['username'],PDO::PARAM_STR);
+          $stmt=&DBConnection::getInstance()->prepare("INSERT INTO ".ROSCMST_USERS." ( name, password, created, activation, email, lang_id, modified ) VALUES ( :user_name, MD5( :password ), NOW(), :activation_code, :email, :lang, NOW() )");
+          $stmt->bindValue('user_name',trim($_POST['username']),PDO::PARAM_STR);
           $stmt->bindParam('password',$_POST['userpwd1'],PDO::PARAM_STR);
           $stmt->bindParam('activation_code',$activation_code,PDO::PARAM_STR);
           $stmt->bindParam('email',$_POST['useremail'],PDO::PARAM_STR);
-          $stmt->bindParam('lang',$userlang,PDO::PARAM_STR);
+          $stmt->bindParam('lang',$userlang,PDO::PARAM_INT);
           $stmt->execute();
 
           $stmt=&DBConnection::getInstance()->prepare("SELECT id FROM ".ROSCMST_USERS." WHERE LOWER(name) = LOWER(:user_name)");
