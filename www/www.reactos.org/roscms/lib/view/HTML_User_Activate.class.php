@@ -67,7 +67,7 @@ class HTML_User_Activate extends HTML_User
       $stmt=&DBConnection::getInstance()->prepare("SELECT 1 FROM ".ROSCMST_USERS." WHERE email = :email LIMIT 1");
       $stmt->bindParam('email',$_POST['useremail'],PDO::PARAM_STR);
       $stmt->execute();
-      $mail_exists = ($stmt->fetchColum() !== false);
+      $mail_exists = ($stmt->fetchColumn() !== false);
     }
 
     if (strlen($activation_code) > 6) {
