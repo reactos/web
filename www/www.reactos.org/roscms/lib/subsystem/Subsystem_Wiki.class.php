@@ -114,11 +114,11 @@ class Subsystem_Wiki extends SubsystemExternal
   protected function updateUserPrivate( $user_id, $user_name, $user_email, $user_fullname, $subsys_user )
   {
     // be sure the user name has the right format for the wiki
-    $wiki_user_name = str_replace('_', ' ', $user_name);
+    $user_name = $this->convertUserName($user_name);
 
     // Make sure that the email address and/or user name are not already in use in wiki from another user_id
     $stmt=&DBConnection::getInstance()->prepare("SELECT COUNT(*) FROM ".$this->user_table." WHERE (LOWER(user_name) = LOWER(:user_name) OR  LOWER(user_email) = LOWER(:user_email)) AND user_id <> :user_id");
-    $stmt->bindParam('user_name',$wiki_user_name,PDO::PARAM_STR);
+    $stmt->bindParam('user_name',$user_name,PDO::PARAM_STR);
     $stmt->bindParam('user_email',$user_email,PDO::PARAM_STR);
     $stmt->bindParam('user_id',$subsys_user,PDO::PARAM_INT);
     $stmt->execute() or die('DB error (subsys_wiki #7)');
@@ -131,10 +131,10 @@ class Subsystem_Wiki extends SubsystemExternal
 
     // Now, make sure that info in wiki matches info in roscms
     $stmt=&DBConnection::getInstance()->prepare("UPDATE ".$this->user_table." SET user_name = :user_name, user_email = :user_email, user_real_name = :user_fullname WHERE user_id = :user_id");
-    $stmt->bindParam('user_name',$wiki_sql_user_name,PDO::PARAM_STR);
-    $stmt->bindParam('user_email',$roscms_user_email,PDO::PARAM_STR);
-    $stmt->bindParam('user_fullname',$roscms_user_fullname,PDO::PARAM_STR);
-    $stmt->bindParam('user_id',$wiki_user_id,PDO::PARAM_INT);
+    $stmt->bindValue('user_name',$user_name,PDO::PARAM_STR);
+    $stmt->bindParam('user_email',$user_email,PDO::PARAM_STR);
+    $stmt->bindParam('user_fullname',$user_fullname,PDO::PARAM_STR);
+    $stmt->bindParam('user_id',$user_id,PDO::PARAM_INT);
     $stmt->execute() or die('DB error (subsys_wiki #8)');
 
     return true;
@@ -156,7 +156,7 @@ class Subsystem_Wiki extends SubsystemExternal
   {
     // add new user to wiki user table
     $stmt=&DBConnection::getInstance()->prepare("INSERT INTO ".$this->user_table." (user_name, user_real_name, user_password, user_newpassword, user_email, user_options, user_touched) VALUES (REPLACE(:user_name, '_', ' '), :user_fullname, '', '', :user_email, '', DATE_FORMAT(NOW(), '%Y%m%d%H%i%s'))");
-    $stmt->bindParam('user_name',$name,PDO::PARAM_STR);
+    $stmt->bindValue('user_name',$this->convertUserName($name),PDO::PARAM_STR);
     $stmt->bindParam('user_fullname',$fullname,PDO::PARAM_STR);
     $stmt->bindParam('user_email',$email,PDO::PARAM_STR);
     $stmt->execute() or die('DB error (subsys_wiki #10)');
@@ -194,8 +194,8 @@ class Subsystem_Wiki extends SubsystemExternal
     if ($wiki_user_id === false) {
 
       // search by name
-      $stmt=&DBConnection::getInstance()->prepare("SELECT user_id FROM ".$this->user_table." WHERE LOWER(user_name) = LOWER(REPLACE(:user_name, '_', ' '))");
-      $stmt->bindParam('user_name',$user['name'],PDO::PARAM_STR);
+      $stmt=&DBConnection::getInstance()->prepare("SELECT user_id FROM ".$this->user_table." WHERE LOWER(user_name) = LOWER(:user_name)");
+      $stmt->bindValue('user_name',$this->convertUserName($user['name']),PDO::PARAM_STR);
       $stmt->execute() or die('DB error (subsys_wiki #6)');
       $wiki_user_id = $stmt->fetchColumn();
     }
@@ -217,6 +217,24 @@ class Subsystem_Wiki extends SubsystemExternal
     }
     return true;
   } // end of member function addUser
+  
+  
+
+  /**
+   * converts a given username to a username that is suitable for mediawiki
+   *
+   * @param string user_name
+   * @return converted username
+   * @access protected
+   */
+  protected function convertUserName( $user_name )
+  {
+    $user_name = trim($user_name);
+    $user_name = str_replace('/', '', $user_name);
+    $user_name = str_replace('_', ' ', $user_name);
+    $user_name = ucfirst($user_name);
+    return $user_name;
+  }
 
 
 
