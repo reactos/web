@@ -550,13 +550,16 @@ class Generate
    */
   private function replaceWithHyperlink( $matches )
   {
-    $page_name = $matches[1];
+    $raw_page_name = $matches[1];
     $dynamic_num = null; // number in page name
 
     // is dynamic page ?
     if ( preg_match('/^(.+)_([1-9][0-9]*)$/', $page_name, $matches) ) {
       $page_name = $matches[1];
       $dynamic_num = $matches[2];
+    }
+    else {
+      $page_name = $raw_page_name;
     }
 
     // get revision
