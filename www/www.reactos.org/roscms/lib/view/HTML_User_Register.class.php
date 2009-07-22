@@ -264,6 +264,8 @@ class HTML_User_Register extends HTML_User
   **/
   private function canRegister($safename, $name_exists, $safepwd, $mail_exists)
   {
+    $config = &RosCMS::getInstance();
+  
   
     // <form> was send
     return (isset($_POST['registerpost'])
