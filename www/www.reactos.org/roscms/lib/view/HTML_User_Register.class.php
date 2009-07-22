@@ -69,7 +69,7 @@ class HTML_User_Register extends HTML_User
             <div class="corner_TR"></div>
           </div>');
 
-    if (isset($_POST['registerpost']) && isset($_POST['username']) && preg_match('/^[a-z0-9_\-[:space:]\.]{'.$config->limitUserNameMin().','.$config->limitUsernameMax().'}$/i')) {
+    if (isset($_POST['registerpost']) && isset($_POST['username']) && preg_match('/^[a-z0-9_\-[:space:]\.]{'.$config->limitUserNameMin().','.$config->limitUsernameMax().'}$/i', $_POST['username'])) {
 
       // check if another account with the same username already exists
       $stmt=&DBConnection::getInstance()->prepare("SELECT name FROM ".ROSCMST_USERS." WHERE LOWER(REPLACE(name, '_', ' ')) = LOWER(REPLACE(:username, '_', ' ')) LIMIT 1");
@@ -188,7 +188,7 @@ class HTML_User_Register extends HTML_User
           <input name="userpwd2" type="password" tabindex="3" id="userpwd2" maxlength="50" />
         </div>
         <div class="field">
-          <label for="useremail"'.(isset($_POST['registerpost']) && isset($_POST['useremail']) && Email::isValid($_POST['useremail']) ? ' style="color:red;"' : '').'>E-Mail</label>
+          <label for="useremail"'.(isset($_POST['registerpost']) && isset($_POST['useremail']) && EMail::isValid($_POST['useremail']) ? ' style="color:red;"' : '').'>E-Mail</label>
           <input name="useremail" type="text" class="input" tabindex="4" id="useremail"'.(isset($_POST['useremail']) ? 'value="' . $_POST['useremail'] . '"' : '').'maxlength="50" />');
 
       if (isset($_POST['registerpost']) && $mail_exists) {
