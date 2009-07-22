@@ -550,11 +550,11 @@ class Generate
    */
   private function replaceWithHyperlink( $matches )
   {
-    $raw_page_name = $matches[1];
+    $page_name = $matches[1];
     $dynamic_num = null; // number in page name
 
     // is dynamic page ?
-    if ( preg_match('/^(.+)_([1-9][0-9]*)$/', $raw_page_name, $matches) ) {
+    if ( preg_match('/^(.+)_([1-9][0-9]*)$/', $page_name, $matches) ) {
       $page_name = $matches[1];
       $dynamic_num = $matches[2];
     }
@@ -570,9 +570,6 @@ class Generate
 
     if ($link_extension === false) {
       $link_extension = 'html';
-    }
-    else {
-      echo '<span class="red">no extension: '.$rev_id.' -- '.$page_name.' ('.$raw_page_name.')</span>';
     }
 
 
