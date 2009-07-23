@@ -34,6 +34,7 @@ $config->setCookieUserName('roscmsusrname'); // user_name
 $config->setCookiePassword('rospassword');  // user_password (used for keep login function)
 $config->setCookieLoginName('roscmslogon'); // where username is stored for 'save username' in login options
 $config->setCookieSecure('roscmsseckey'); // stores security settings
+$config->setCookieLanguage('roscmslang'); // currently used language
 
 $config->setSiteName('ReactOS.org'); // sites name
 $config->setSiteLanguage('en'); // standard language
