@@ -73,5 +73,20 @@ class Presentation
     imagedestroy($image);
   } // end of member function verticalText
 
+
+
+  /**
+   * do escaping for rss feeds
+   *
+   * @param string text
+   * @access public
+   */
+  public static function escapeRSS( $text )
+  {
+    $text = str_replace('&', '&#x26;', $text);
+    $text = str_replace('<', '&#x3C;', $text);
+    return $text;
+  } // end of member function escapeRSS
+
 } // end of Presentation
 ?>
