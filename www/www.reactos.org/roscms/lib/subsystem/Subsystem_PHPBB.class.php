@@ -130,7 +130,7 @@ class Subsystem_PHPBB extends SubsystemExternal
     $stmt->bindParam('user_name',$user_name,PDO::PARAM_STR);
     $stmt->bindParam('reg_date',$user_register,PDO::PARAM_STR);
     $stmt->bindParam('user_email',$user_email,PDO::PARAM_STR);
-    $stmt->bindParam('subsys_user',$user_id,PDO::PARAM_INT);
+    $stmt->bindParam('user_id',$subsys_user,PDO::PARAM_INT);
     return $stmt->execute();
   } // end of member function updateUserPrivate
 
