@@ -36,6 +36,7 @@ $config->setCookieLoginName('roscmslogon'); // where username is stored for 'sav
 $config->setCookieSecure('roscmsseckey'); // stores security settings
 $config->setCookieLanguage('roscmslang'); // currently used language
 
+$config->setSiteURL('http://www.reactos.org/'); // sites url
 $config->setSiteName('ReactOS.org'); // sites name
 $config->setSiteLanguage('en'); // standard language
 $config->setSiteTimezone(-2); // time difference to utc time from server time

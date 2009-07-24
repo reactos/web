@@ -135,7 +135,7 @@ class HTML_User_Register extends HTML_User
           $subject = $config->siteName()." - Account Activation";
 
           // message
-          $message = $config->siteName()." - Account Activation\n\n\nYou have registered an account on ".$config->siteName().". The next step in order to enable the account is to activate it by using the hyperlink below.\n\nYou haven't registered an account? Oops, then someone has tried to register an account with your email address. Just ignore this email, no one can use it anyway as it is not activated and the account will get deleted soon.\n\n\nUsername: ".$_POST['username']."\nPassword: ".$_POST['userpwd1']."\n\nActivation-Hyperlink: ".$config->siteName()."?page=login&subpage=activate&code=".$account_act_code."/\n\n\nBest regards,\nThe ".$config->siteName()." Team\n\n\n(please do not reply as this is an auto generated email!)";
+          $message = $config->siteName()." - Account Activation\n\n\nYou have registered an account on ".$config->siteName().". The next step in order to enable the account is to activate it by using the hyperlink below.\n\nYou haven't registered an account? Oops, then someone has tried to register an account with your email address. Just ignore this email, no one can use it anyway as it is not activated and the account will get deleted soon.\n\n\nUsername: ".$_POST['username']."\nPassword: ".$_POST['userpwd1']."\n\nActivation-Hyperlink: ".$config->siteURL()."?page=login&subpage=activate&code=".$account_act_code."/\n\n\nBest regards,\nThe ".$config->siteName()." Team\n\n\n(please do not reply as this is an auto generated email!)";
 
           // send the mail
           if (Email::send($_POST['useremail'], $subject, $message)) {

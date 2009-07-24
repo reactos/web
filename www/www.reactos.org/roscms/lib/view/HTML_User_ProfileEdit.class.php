@@ -166,7 +166,7 @@ class HTML_User_ProfileEdit extends HTML_User
         $subject = $config->siteName()." - Email Address Activation";
 
         // message
-        $message = $config->siteName()." - Email Address Activation\n\n\nYou have requested an email address change for your account on ".$config->siteName().". The next step in order to enable the new email address for the account is to activate it by using the hyperlink below.\n\n\nCurrent E-Mail Address: ".$profile['email']."\nNew E-Mail Address: ".$_POST['useremail']."\n\nActivation-Hyperlink: ".$config->siteName()."?page=my&amp;subpage=activate&code=".$account_act_code."/\n\n\nBest regards,\nThe ".$config->siteName()." Team\n\n\n(please do not reply as this is an auto generated email!)";
+        $message = $config->siteName()." - Email Address Activation\n\n\nYou have requested an email address change for your account on ".$config->siteName().". The next step in order to enable the new email address for the account is to activate it by using the hyperlink below.\n\n\nCurrent E-Mail Address: ".$profile['email']."\nNew E-Mail Address: ".$_POST['useremail']."\n\nActivation-Hyperlink: ".$config->siteURL()."?page=my&subpage=activate&code=".$account_act_code."/\n\n\nBest regards,\nThe ".$config->siteName()." Team\n\n\n(please do not reply as this is an auto generated email!)";
 
         // send the mail
         if (EMail::send($_POST['useremail'], $subject, $message)) {

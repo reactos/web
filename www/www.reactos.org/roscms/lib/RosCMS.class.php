@@ -37,6 +37,7 @@ class RosCMS
   private $cookie_security = null; // stores security settings
   private $cookie_language = null; // stores default language
 
+  private $site_url = null; // sites url
   private $site_name = null; // sites name
   private $site_language = null; // standard language
   private $site_timezone = null; // time difference to utc time from server time
@@ -130,6 +131,7 @@ class RosCMS
   public function systemBrand( ) { return $this->system_brand; }
   public function systemVersion() { return $this->system_version; }
 
+  public function siteURL() { if ($this->applied) return $this->site_url; }
   public function siteName() { if ($this->applied) return $this->site_name; }
   public function siteLanguage() { if ($this->applied) return $this->site_language; }
   public function siteTimezone(){ if ($this->applied) return $this->site_timezone; }
@@ -182,6 +184,10 @@ class RosCMS
   public function setCookieLanguage( $new_value ) {
     if (preg_match('/[A-Za-z0-9_]+/', $new_value)) $this->config['cookie_language'] = $new_value;
     else die('bad language login cookie name');
+  }
+
+  public function setSiteURL( $new_value ) {
+    $this->config['site_url'] = $new_value;
   }
 
   public function setSiteName( $new_value ) {
