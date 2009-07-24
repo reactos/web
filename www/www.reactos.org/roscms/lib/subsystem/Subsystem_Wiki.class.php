@@ -134,7 +134,7 @@ class Subsystem_Wiki extends SubsystemExternal
     $stmt->bindValue('user_name',$user_name,PDO::PARAM_STR);
     $stmt->bindParam('user_email',$user_email,PDO::PARAM_STR);
     $stmt->bindParam('user_fullname',$user_fullname,PDO::PARAM_STR);
-    $stmt->bindParam('user_id',$user_id,PDO::PARAM_INT);
+    $stmt->bindParam('user_id',$subsys_user,PDO::PARAM_INT);
     $stmt->execute() or die('DB error (subsys_wiki #8)');
 
     return true;
