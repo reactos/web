@@ -50,6 +50,7 @@ class HTML_User_ProfileEdit extends HTML_User
     $config = &RosCMS::getInstance();
 
     $activation_code = @$_GET['code'];
+    if ($activation_code == '') $activation_code = @$_POST['code'];
 
     $existemail = false; // email already exists in the database (true = email exists)
     $safepwd = ''; // unsafe password, common cracked passwords ("" = not checked; "true" = fine; "false" =  match with a db entry => protected name)
@@ -193,6 +194,7 @@ class HTML_User_ProfileEdit extends HTML_User
           <input type="text" name="useremail" tabindex="4" id="useremail" maxlength="50" />
         </div>
         <div class="field">
+          <input type="hidden" name="code" value="'.htmlspecialchars($activation_code).'"
           <input type="hidden" name="registerpost" id="registerpost" value="reg" />
           <button type="submit" name="submit">Save</button>
           <button type="button" onclick="'."window.location='".$config->pathGenerated()."'".'" style="color:#777777;">Cancel</button>
