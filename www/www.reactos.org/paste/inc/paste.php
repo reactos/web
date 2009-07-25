@@ -37,7 +37,7 @@
 									LIMIT 1 ;");	
 		$result_pasteid = mysql_fetch_array($query_pasteid);
 		
-		if ($result_pasteid['paste_lines'] == "" || $result_pasteid['paste_lines'] <= 0 || compareDate((date('Y')."-".date('m')."-".date('d')),stripDate($result_pasteid['paste_datetime'])) > 7) {
+		if ($result_pasteid['paste_lines'] == "" || $result_pasteid['paste_lines'] <= 0 || compareDate((date('Y')."-".date('m')."-".date('d')),stripDate($result_pasteid['paste_datetime'])) > $result_pasteid['paste_days']) {
 			echo "<p><b>No related paste exists.</b></p>";
 		} else if (compareDate((date('Y')."-".date('m')."-".date('d')),stripDate($result_pasteid['paste_datetime'])) <= $result_pasteid['paste_days']) {
 		
