@@ -505,8 +505,11 @@ class Generate
   {
     $config = &RosCMS::getInstance();
 
-    // website url
+    // website path
     $content = str_replace('[#roscms_path_homepage]', $config->pathGenerated(), $content);
+
+    // website url (used for absolute paths)
+    $content = str_replace('[#roscms_site_url]', $config->siteURL(), $content);
 
     // take care of dynamic number independent entries
     if ($this->dynamic_num === false) {
