@@ -44,6 +44,6 @@ if ($page_lang === null) {
 // }
 
 // redirect to selected page
-header('Location: '.ROSCMS_PATH.RosCMS::getInstance()->siteURL().$page_lang.'/'.$page_name.'.'.$page_extension);
+header('Location: '.RosCMS::getInstance()->siteURL().$page_lang.'/'.$page_name.'.'.$page_extension);
 exit();
 ?>
