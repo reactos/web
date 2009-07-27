@@ -51,7 +51,6 @@ class HTML_User_Activate extends HTML_User
 
     $activation_code = @$_GET['code'];
     if ($activation_code == '') $activation_code = $_POST['code'];
-echo $activation_code;
 
     echo_strip('
       <h1>Activate '.RosCMS::getInstance()->siteName().' Account</h1>
@@ -92,7 +91,7 @@ echo $activation_code;
       $this->err_message = 'Nothing for you to see here. <br />Please move along.';
     }
 
-    if (strlen($activation_code) > 6 && isset($_POST['registerpost']) && isset($_POST['useremail']) && EMail::isValid($_POST['useremail']) && $activation_code_exists && $mail_exists) {
+    if ($activation_code_exists) {
       $stmt=&DBConnection::getInstance()->prepare("SELECT id FROM ".ROSCMST_USERS." WHERE activation = :activation_code LIMIT 1");
       $stmt->bindParam('activation_code',$activation_code,PDO::PARAM_STR);
       $stmt->execute();
@@ -107,7 +106,7 @@ echo $activation_code;
         <h2>Account activated</h2>
         <div><a href="'.RosCMS::getInstance()->pathInstance().'?page=login" style="color:red !important; text-decoration:underline;">Login now</a>!</div>');
     }
-    elseif ($activation_code_exists) {
+    elseif (!$activation_code_exists || $activation_code == '') {
       echo_strip('
           <h2>Activate your Account</h2>
         </div>
