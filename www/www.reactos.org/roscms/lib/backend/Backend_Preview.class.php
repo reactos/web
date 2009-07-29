@@ -55,6 +55,12 @@ class Backend_Preview extends Backend
    */
   private function show( $rev_id )
   {
+    // check if revision isn't translated
+    if (strpos($rev_id, 'tr') === 0) {
+      // remove prefix to be able to preview the revision
+      $rev_id = str_replace('tr','',$rev_id);
+    }
+
     // output a preview of the selected content
     $generate = new Generate();
     $generate->preview($rev_id);
