@@ -324,11 +324,7 @@ class Generate
   public function update( $rev_id, $dynamic_num = null )
   {
     static $base_rev;
-
-    // exclude the base ref to avoid circles
-    if (empty($this->base_rev)) {
-      $base_rev = $rev_id;
-    }
+    static $base_lang;
 
     // get revision information
     $stmt=&DBConnection::getInstance()->prepare("SELECT r.data_id, r.lang_id, d.type, d.name FROM ".ROSCMST_REVISIONS." r JOIN ".ROSCMST_ENTRIES." d ON d.id=r.data_id WHERE r.id=:rev_id");
@@ -340,15 +336,22 @@ class Generate
     $this->lang_id = $revision['lang_id'];
     $this->cacheFiles($revision['data_id'], false);
 
+    // exclude the base ref to avoid circles
+    if (empty($base_rev)) {
+      $base_rev = $rev_id;
+      $base_lang = $revision['lang_id'];
+      echo $base_lang;
+    }
+
     if ($revision['type'] == 'page' || $revision['type'] == 'dynamic') {
 
       // in standard language we may have dependencies to other languages, so better generate them all
-      if ($revision['lang_id'] == Language::getStandardId()){
+      if ($base_lang == Language::getStandardId()){
         $stmt=&DBConnection::getInstance()->prepare("SELECT id, name_short FROM ".ROSCMST_LANGUAGES." ORDER BY level DESC, name ASC");
       }
       else {
         $stmt=&DBConnection::getInstance()->prepare("SELECT id, name_short FROM ".ROSCMST_LANGUAGES." WHERE id=:lang_id");
-        $stmt->bindParam('lang_id',$revision['lang_id'],PDO::PARAM_INT);
+        $stmt->bindParam('lang_id',$base_lang,PDO::PARAM_INT);
       }
       $stmt->execute();
       while ($language = $stmt->fetch(PDO::FETCH_ASSOC)) {
@@ -387,7 +390,7 @@ class Generate
     $stmt->bindParam('rev_id',$base_rev,PDO::PARAM_INT);
     $stmt->bindParam('rev_id2',$rev_id,PDO::PARAM_INT);
     $stmt->bindParam('standard_lang',Language::getStandardId(),PDO::PARAM_INT);
-    $stmt->bindParam('lang_id',$revision['lang_id'],PDO::PARAM_INT);
+    $stmt->bindParam('lang_id',$base_lang,PDO::PARAM_INT);
     $stmt->execute();
     while ($dependency = $stmt->fetch(PDO::FETCH_ASSOC)) {
 
@@ -456,8 +459,8 @@ class Generate
           $this->dynamic_num = false;
         }
         
-        // get content and replace [#cont_[%NAME%]] with [#cont_~pagename~]
-        $content = preg_replace('/\[#cont_\[%Name%\]\]/i',$this->page_name, $revision['content']);
+        // get content and replace [#cont_%NAME%] with [#cont_~pagename~]
+        $content = preg_replace('/\[#cont_%Name%\]/i','[#cont_'.$this->page_name.']', $revision['content']);
 
         // replace links
         $content = preg_replace_callback('/\[#link_([^][#[:space:]]+)\]/', array($this, 'replaceWithHyperlink'), $content);
