@@ -21,7 +21,10 @@ if (RosCMS::getInstance()->multiLanguage()) {
 
   // check for client language
   elseif (isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
-    $page_lang = Language::validate($_SERVER['HTTP_ACCEPT_LANGUAGE']);
+    foreach(explode(',', $_SERVER['HTTP_ACCEPT_LANGUAGE']) as $accept_lang) {
+      list($accept_lang) = explode(';',$accept_lang);
+      if(($page_lang = Language::validate($accept_lang)) == $accept_lang) break;
+    }
   }
 
   // set cookie to remember selected language
