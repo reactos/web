@@ -130,46 +130,26 @@ abstract class HTML_User extends HTML
           <div style="text-align:center;"> 
             <select id="select" size="1" name="select" class="selectbox" style="width:140px" onchange="'."window.location.href = '".$config->pathInstance().'?'.htmlspecialchars($_SERVER['QUERY_STRING'])."&lang=' + this.options[this.selectedIndex].value".'">');
 
-    // show current profile language of registered users
-    if ($thisuser->language() > 0) {
-      // print current language
-      $stmt=&DBConnection::getInstance()->prepare("SELECT id, name FROM ".ROSCMST_LANGUAGES." WHERE id = :lang_id");
-      $stmt->bindParam('lang_id',$thisuser->language(),PDO::PARAM_INT);
-      $stmt->execute();
-      $current_lang = $stmt->fetchOnce(PDO::FETCH_ASSOC);
-
-      echo_strip('
-        <optgroup label="current language">
-          <option value="#">'.$current_lang['name'].'</option>
-        </optgroup>
-        <optgroup label="all languages">');
-
-      $stmt=&DBConnection::getInstance()->prepare("SELECT name, id, name_original FROM ".ROSCMST_LANGUAGES." WHERE id != :lang ORDER BY name ASC");
-      $stmt->bindParam('lang',$current_lang['id'],PDO::PARAM_INT);
-    }
-
     // for guests show all
-    else {
-      $stmt=&DBConnection::getInstance()->prepare("SELECT name, id, name_original FROM ".ROSCMST_LANGUAGES." ORDER BY name ASC");
-    }
+    $stmt=&DBConnection::getInstance()->prepare("SELECT name, id, name_original FROM ".ROSCMST_LANGUAGES." ORDER BY name_original ASC");
 
     // print available languages
     $stmt->execute();
+    $current_lang = $thisuser->language();
     while ($language = $stmt->fetch(PDO::FETCH_ASSOC)) {
 
       // display original name in brackets, if a localized version is available
+      echo '<option value="'.$language['id'].'"'.($language['id'] == $current_lang ? ' selected="selected"' : '').'>';
       if ($language['name_original'] != '') {
-        echo '<option value="'.$language['id'].'">'.$language['name'].' ('.htmlspecialchars($language['name_original']).')</option>';
+        echo htmlspecialchars($language['name_original']);
       }
       else {
-        echo '<option value="'.$language['id'].'">'.$language['name'].'</option>';
+        echo $language['name'];
       }
+      echo '</option>';
+
     }
     
-    if ($thisuser->language() > 0) {
-      echo '</optgroup>';
-    }
-
     // close navigation and open content area
     echo_strip('
               </select>
