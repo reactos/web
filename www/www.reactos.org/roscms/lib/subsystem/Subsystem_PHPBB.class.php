@@ -107,12 +107,12 @@ class Subsystem_PHPBB extends SubsystemExternal
    * @param int user_id
    * @param string user_name
    * @param string user_email
-   * @param string user_register
+   * @param string user_fullname this param is ignored in this subsystem
    * @param int subsys_user
    * @return bool
    * @access protected
    */
-  protected function updateUserPrivate( $user_id, $user_name, $user_email, $user_register, $subsys_user )
+  protected function updateUserPrivate( $user_id, $user_name, $user_email, $user_fullname, $subsys_user )
   {
     // Make sure that the email address and/or user name are not already in use in phpbb
     $stmt=&DBConnection::getInstance()->prepare("SELECT COUNT(*) FROM ".$this->user_table." WHERE (LOWER(username) = LOWER(:user_name) OR LOWER(user_email) = LOWER(:user_email)) AND user_id <> :user_id");
@@ -121,14 +121,13 @@ class Subsystem_PHPBB extends SubsystemExternal
     $stmt->bindParam('user_id',$subsys_user,PDO::PARAM_INT);
     $stmt->execute() or die('DB error (subsys_phpbb #7)');
     if ($stmt->fetchColumn() > 0) {
-        echo 'Forum: User name ('.$user_name.') and/or email address ('.$user_email.') collision<br />';
+        echo 'Forum: User name ('.$user_name.') or email address ('.$user_email.') collision<br />';
         return false;
     }
 
     // Now, make sure that info in phpbb matches info in roscms
-    $stmt=&DBConnection::getInstance()->prepare("UPDATE ".$this->user_table." SET username = :user_name, user_email = :user_email, user_regdate = :reg_date WHERE user_id = :user_id");
+    $stmt=&DBConnection::getInstance()->prepare("UPDATE ".$this->user_table." SET username = :user_name, user_email = :user_email WHERE user_id = :user_id");
     $stmt->bindParam('user_name',$user_name,PDO::PARAM_STR);
-    $stmt->bindParam('reg_date',$user_register,PDO::PARAM_STR);
     $stmt->bindParam('user_email',$user_email,PDO::PARAM_STR);
     $stmt->bindParam('user_id',$subsys_user,PDO::PARAM_INT);
     return $stmt->execute();
