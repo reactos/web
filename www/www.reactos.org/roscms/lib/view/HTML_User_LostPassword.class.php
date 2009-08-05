@@ -54,6 +54,7 @@ class HTML_User_LostPassword extends HTML_User
     $password_id_exists = null; // pwd-id exists in the database (true = pwd-id exists)
 
     $activation_code = @$_GET['code'];
+    if ($activation_code == '') $activation_code = @$_POST['code'];
     $mail_exists = isset($_POST['registerpost']) && isset($_POST['useremail']) && $_POST['useremail'] != '' && EMail::isUsed($_POST['useremail']);
     $password_id_exists =  ROSUser::hasPasswordReset($activation_code);
 
@@ -100,6 +101,7 @@ class HTML_User_LostPassword extends HTML_User
         <h2>Password changed</h2>
         <div><a href="'.$config->pathInstance().'?page=login" style="color:red !important; text-decoration:underline;">Login now</a>!</div>');
 
+      $noshow=true;
     }
     elseif (strlen($activation_code) < 6 && isset($_POST['registerpost']) && !empty($_POST['useremail']) && EMail::isValid($_POST['useremail']) && !empty($_POST['usercaptcha']) && !empty($_SESSION['rdf_security_code']) && strtolower($_SESSION['rdf_security_code']) == strtolower($_POST['usercaptcha']) && $mail_exists) {
     
@@ -114,14 +116,14 @@ class HTML_User_LostPassword extends HTML_User
       // add activation code to account
       $stmt=&DBConnection::getInstance()->prepare("UPDATE ".ROSCMST_USERS." SET activation_password = :getpwd_id WHERE id = :user_id LIMIT 1");
       $stmt->bindParam('getpwd_id',$activation_code,PDO::PARAM_STR);
-      $stmt->bindParam('user_id',$user['user_id'],PDO::PARAM_INT);
+      $stmt->bindParam('user_id',$user['id'],PDO::PARAM_INT);
       $stmt->execute();
 
       // Email subject
       $subject = $config->siteName().' - Lost username or password?';
 
       // Email message
-      $message = $config->siteName()." - Lost username or password?\n\n\nYou have requested your ".$config->siteName()." account login data.\n\nYou haven't requested your account login data? Oops, then someone has tried the 'Lost username or password?' function with your email address, just ignore this email.\n\n\nUsername: ".$user['name']."\n\n\nLost your password? Reset your password: ".$config->pathInstance()."?page=login&subpage=lost&code=".$activation_code."/\n\n\nBest regards,\nThe ".$config->siteName()." Team\n\n\n(please do not reply as this is an auto generated email!)";
+      $message = $config->siteName()." - Lost username or password?\n\n\nYou have requested your ".$config->siteName()." account login data.\n\nYou haven't requested your account login data? Oops, then someone has tried the 'Lost username or password?' function with your E-Mail address, just ignore this E-Mail.\n\n\nUsername: ".$user['name']."\n\n\nLost your password? Reset your password: ".$config->siteURL()."/".$config->pathInstance()."?page=login&subpage=lost&code=".$activation_code."\n\n\nBest regards,\nThe ".$config->siteName()." Team\n\n\n(please do not reply as this is an auto generated email!)";
 
       // send the Email
       if (EMail::send($_POST['useremail'], $subject, $message)) {
@@ -130,6 +132,7 @@ class HTML_User_LostPassword extends HTML_User
           <div>Check your email inbox (and spam folder) for the email that contains your account login data.</div>');
         unset($_SESSION['rdf_security_code']);
         unset($message);
+        $noshow = true;
       }
       else {
         $err_message = 'Error while trying to send Email.';
@@ -139,15 +142,18 @@ class HTML_User_LostPassword extends HTML_User
 
       if (strlen($activation_code) > 6) {
         echo '<h2>Reset your Password</h2>';
+        $show = true;
       }
       else {
         echo '<h2>Lost Username or Password?</h2>';
       }
     }
 
+    if (!isset($noshow) || $noshow !== true) {
     if (strlen($activation_code) > 6) {
       echo_strip('
         <div class="field">
+          <input type="hidden" name="code" value="'.htmlspecialchars($activation_code).'" />
           <label for="userpwd1"'.(isset($_POST['registerpost']) ? ' style="color:red;"' : '').'>New Password</label>
           <input type="password" name="userpwd1" tabindex="2" id="userpwd1" maxlength="50" />');
 
@@ -213,6 +219,7 @@ class HTML_User_LostPassword extends HTML_User
         <button type="submit" name="submit">Send</button>
         <button type="button" onclick="'."window.location=".$config->pathInstance()."'".'" style="color:#777777;">Cancel</button>
       </div>');
+    } // end if show = true
 
     echo_strip('
           <div class="corner_BL">
