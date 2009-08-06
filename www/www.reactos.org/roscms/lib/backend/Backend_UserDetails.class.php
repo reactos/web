@@ -50,7 +50,7 @@ class Backend_UserDetails extends Backend
           ROSUser::disableAccount($_GET['user']);
           break;
         case 'accountenable':
-          ROSUser::disableAccount($_GET['user']);
+          ROSUser::enableAccount($_GET['user']);
           break;
         case 'updateusrlang':
           ROSUser::changeLanguage($_GET['user'], $_GET['lang']);

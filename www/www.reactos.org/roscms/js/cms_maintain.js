@@ -78,7 +78,7 @@ function setAccount( user_id, enable )
   var uf_check = confirm("Do you want to "+enable+" this membership?");
 
   if (uf_check) {
-    makeRequest('?page=backend&type=text&subtype=ud&action=account'+enable+'&d_val='+encodeURIComponent(user_id), 'userdetails', 'pageUserDetails', 'text', 'GET');
+    makeRequest('?page=backend&type=text&subtype=ud&action=account'+enable+'&user='+encodeURIComponent(user_id), 'userdetails', 'pageUserDetails', 'text', 'GET');
   }
 }
 

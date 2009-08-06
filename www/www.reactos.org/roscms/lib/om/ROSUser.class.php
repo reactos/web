@@ -156,7 +156,7 @@ class ROSUser
   public static function disableAccount( $user )
   {
     // only with admin rights
-    if ($thisuser->hasAccess('disableaccount')) {
+    if (ThisUser::getInstance()->hasAccess('disableaccount')) {
       $stmt=&DBConnection::getInstance()->prepare("UPDATE ".ROSCMST_USERS." SET disabled = TRUE WHERE id = :user_id");
       $stmt->bindParam('user_id',$user,PDO::PARAM_INT);
       if ($stmt->execute()) {
@@ -177,7 +177,7 @@ class ROSUser
   public static function enableAccount( $user )
   {
     // enable account only with admin rights
-    if ($thisuser->hasAccess('disableaccount')) {
+    if (ThisUser::getInstance()->hasAccess('disableaccount')) {
       // enable account only, if he has already activated his account
       $stmt=&DBConnection::getInstance()->prepare("UPDATE ".ROSCMST_USERS." SET disabled = FALSE WHERE activation = '' AND id = :user_id");
       $stmt->bindParam('user_id',$user,PDO::PARAM_INT);

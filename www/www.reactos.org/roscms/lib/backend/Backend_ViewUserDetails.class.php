@@ -54,7 +54,7 @@ class Backend_ViewUserDetails extends Backend
     $thisuser = &ThisUser::getInstance();
 
     // get user data
-    $stmt=&DBConnection::getInstance()->prepare("SELECT u.id, u.name, u.modified, u.logins, u.created, u.fullname, u.email, u.lang_id, l.name AS language, u.disabled FROM ".ROSCMST_USERS." u JOIN ".ROSCMST_LANGUAGES." l ON l.id=u.lang_id WHERE u.id = :user_id LIMIT 1");
+    $stmt=&DBConnection::getInstance()->prepare("SELECT u.id, u.name, u.modified, u.logins, u.created, u.fullname, u.email, u.lang_id, l.name AS language, u.disabled FROM ".ROSCMST_USERS." u LEFT JOIN ".ROSCMST_LANGUAGES." l ON l.id=u.lang_id WHERE u.id = :user_id LIMIT 1");
     $stmt->bindParam('user_id',$_GET['user'],PDO::PARAM_INT);
     $stmt->execute();
     $user = $stmt->fetchOnce();
