@@ -92,15 +92,12 @@ sub get_login_info {
 		
 		my $query = "SELECT m.subsys_user_id, m.user_id " .
 				"  FROM $roscms_db_name.roscms_accounts_sessions s " .
-                                "  JOIN $roscms_db_name.roscms_accounts u ON s.user_id = u.id " .
+				"  JOIN $roscms_db_name.roscms_accounts u ON s.user_id = u.id " .
 				"  JOIN $roscms_db_name.roscms_rel_accounts_subsys m ON m.user_id=u.id " .
 				" WHERE s.id = ? " .
-				"   AND (s.expires IS NULL OR " .
-				"        NOW() <= s.expires) " .
-				"   AND (s.ip = 'false' OR " .
-				"        s.ip = ?) " .
-				"   AND (s.browseragent = 'false' OR " .
-				"        s.browseragent = ?) " .
+				"   AND (s.expires IS NULL OR NOW() <= s.expires) " .
+				"   AND (u.match_ip = 0 OR s.ip = ?) " .
+				"   AND (u.match_browseragent = 0 OR s.browseragent = ?) " .
 				"   AND m.subsys = 'bugzilla'";
 
 		my @params = ($session_id_clean, $ip_clean, $browser_agent_clean);
