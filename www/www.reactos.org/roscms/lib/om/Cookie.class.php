@@ -33,8 +33,6 @@ class Cookie
    * This will return the last two components of the server name, with a leading
    * dot (i.e. usually .reactos.com or .reactos.org for us). See the PHP docs
    * on setcookie() why we need the leading dot.
-   * 
-   * DEPENDS on usage of www. or atleast one subdomain
    *
    * @return 
    * @access public
@@ -47,8 +45,8 @@ class Cookie
     }
 
     /* If it' a DNS address, return the domain name along with the suffix */
-    if (preg_match('#(\.[^.]+\.[^.]+$)#', $_SERVER['SERVER_NAME'], $matches)) {
-      return $matches[1];
+    if (preg_match('#^(?:[^.]+\.)?([^.]+\.[^.]+)$#', $_SERVER['SERVER_NAME'], $matches)) {
+      return '.' . $matches[1];
     }
 
     // no domain was found
