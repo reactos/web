@@ -99,7 +99,7 @@
 
 
 /* ### RosCMS Table ### */
-  .roscmsTable { overflow: hidden; width: 100%; font-style: normal; border-collapse: collpse; border: none; border-spacing: 0px; }
+  .roscmsTable { overflow: hidden; width: 100%; font-style: normal; border: none; border-spacing: 0px; }
   .roscmsTable THEAD { background: #5984C3; color: white; text-align: left; height:1.7em; }
   .roscmsTable THEAD TH.sortable { background: #5984C3 url("../images/sort.gif") no-repeat left center; padding-left: 15px; cursor: pointer; }
   .roscmsTable TBODY { cursor: pointer; }
