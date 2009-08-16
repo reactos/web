@@ -52,7 +52,7 @@
 	
 	// Get information about this result
 	$stmt = $dbh->prepare(
-		"SELECT l.log, e.status, e.count, e.failures, e.skipped, s.module, s.test, UNIX_TIMESTAMP(r.timestamp) timestamp, r.revision, r.platform, a.name, r.comment " .
+		"SELECT UNCOMPRESS(l.log) log, e.status, e.count, e.failures, e.skipped, s.module, s.test, UNIX_TIMESTAMP(r.timestamp) timestamp, r.revision, r.platform, a.name, r.comment " .
 		"FROM " . DB_TESTMAN . ".winetest_results e " .
 		"JOIN " . DB_TESTMAN . ".winetest_logs l ON e.id = l.id " .
 		"JOIN " . DB_TESTMAN . ".winetest_suites s ON e.suite_id = s.id " .

@@ -116,7 +116,7 @@
 			$stmt->bindParam(":skipped", $skipped);
 			$stmt->execute() or die("Submit(): SQL failed #3");
 			
-			$stmt = $dbh->prepare("INSERT INTO " . DB_TESTMAN . ".winetest_logs (id, log) VALUES (:id, :log)");
+			$stmt = $dbh->prepare("INSERT INTO " . DB_TESTMAN . ".winetest_logs (id, log) VALUES (:id, COMPRESS(:log))");
 			$stmt->bindValue(":id", (int)$dbh->lastInsertId());
 			$stmt->bindParam(":log", $log);
 			$stmt->execute() or die("Submit(): SQL failed #4");

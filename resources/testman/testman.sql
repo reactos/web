@@ -7,7 +7,7 @@ CREATE TABLE `permitted_users` (
 
 CREATE TABLE `winetest_logs` (
   `id` int(10) unsigned NOT NULL auto_increment,
-  `log` longtext collate latin1_general_ci NOT NULL,
+  `log` mediumblob NOT NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=latin1 COLLATE=latin1_general_ci;
 
