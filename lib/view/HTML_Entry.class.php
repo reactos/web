@@ -29,15 +29,15 @@ class HTML_Entry extends HTML
   const MAIN_TESTS       = 100;
   const MAIN_SCREENSHOTS = 101;
   const MAIN_COMMENTS    = 102;
-  //const MAIN_INSTALL     = 103;
-  const MAIN_BUGS        = 104;
+  const MAIN_BUGS        = 103;
   
   private $side = null;
   private $sel = null;
   private $entry_id = null;
-  
-  
-  public function __construct()
+
+
+
+  protected function body()
   {
     if (isset($_GET['view']) && $_GET['view'] == 'dev') {
       $this->side = self::SIDE_TESTS;
@@ -58,65 +58,75 @@ class HTML_Entry extends HTML
 
     // get entry_id
     $stmt=CDBConnection::getInstance()->prepare("SELECT entry_id FROM ".CDBT_VERSIONS." WHERE id=:version_id");
-    $stmt->bindParam('version_id',$_GET['ver'],PDO::PARAM_INT);
+    $stmt->bindParam('version_id',$_GET['id'],PDO::PARAM_INT);
     $stmt->execute();
     $this->entry_id = $stmt->fetchColumn();
    
-    parent::__construct();
-  } // end of constructor
+    echo '<h1>Compatability Database &gt; Entry Details</h1>';
 
+    // check if entry exists
+    if ($this->entry_id !== false)
+    {
+    
+      echo '<div id="entryTop">';
 
+      echo '<div id="entrySide">';
+      
+      $this->tabSideNavigation();
 
-  protected function body()
-  {
-    echo '
-      <h1>Compatability Database &gt; Entry Details</h1>
-      <div id="entryTop">';
+      // top right
+      switch ($this->side) {
+        case self::SIDE_STATS:
+          $this->sideStats();
+          break;
+        case self::SIDE_TESTS:
+          $this->sideTests();
+          break;
+        case self::SIDE_SCREENSHOTS:
+        default:
+          $this->sideScreenshots();
+          break;
+      }
 
-    $this->details();
+      echo '</div>'; // end side
+      
+      $this->details();
+      
+      echo '</div>'; // end top
 
-    // top right
-    switch ($this->side) {
-      case self::SIDE_STATS:
-        $this->sideStats();
-        break;
-      case self::SIDE_TESTS:
-        $this->sideTests();
-        break;
-      case self::SIDE_SCREENSHOTS:
-      default:
-        $this->sideScreenshots();
-        break;
+      // navigation
+      $this->tabNavigation();
+
+      // main information
+      switch ($this->main) {
+      
+        // screenshots
+        case self::MAIN_SCREENSHOTS:
+          $this->mainScreenshots();
+          break;
+          
+        // test reports
+        case self::MAIN_TESTS:
+          $this->mainTests();
+          break;
+          
+        // bug reports from bugzilla
+        case self::MAIN_BUGS:
+          $this->mainBugs();
+          break;
+          
+        // comments
+        case self::MAIN_COMMENTS:
+        default:
+          $this->mainComments();
+          break;
+      }
     }
-    
-    echo '</div>';
-    
-    // navigation
-    $this->tabNavigation();
 
-    // main information
-    switch ($this->main) {
-    
-      // screenshots
-      case self::MAIN_SCREENSHOTS:
-        $this->mainScreenshots();
-        break;
-        
-      // test reports
-      case self::MAIN_TESTS:
-        $this->mainTests();
-        break;
-        
-      // bug reports from bugzilla
-      case self::MAIN_BUGS:
-        $this->mainBugs();
-        break;
-        
-      // comments
-      case self::MAIN_COMMENTS:
-      default:
-        $this->mainComments();
-        break;
+    // no entry found
+    else
+    {
+      echo '<strong>Entry not found.</strong>';
     }
   } // end of member function body
   
@@ -124,9 +134,7 @@ class HTML_Entry extends HTML
   
   private function mainComments()
   {
-    echo '
-      <div id="entryMain">
-        <h2>Comments</h2>';
+    echo '<div id="entryMain">';
 
       $stmt=CDBConnection::getInstance()->prepare("SELECT title, content, created, user_id FROM ".CDBT_COMMENTS." WHERE entry_id=:entry_id AND parent IS NULL ORDER BY created DESC");
       $stmt->bindParam('entry_id',$this->entry_id,PDO::PARAM_INT);
@@ -161,26 +169,20 @@ class HTML_Entry extends HTML
     $stmt->execute();
     $screenshots = $stmt->fetchAll(PDO::FETCH_ASSOC);
  
-    echo '
-      <div id="entryMain">
-        <div class="screenshot">
-          <h2>Screenshots</h2>';
+    echo '<div id="entryMain">';
     if (count($screenshots) > 0) {
-      echo '
-          <div style="border: 1px solid #78C;">';
       foreach ($screenshots as $screenshot) {
-        echo '
-          <a href="?page=entry&amp;show=screenshot&amp;id='.$screenshot['id'].'">
-            <img src="media/files/picture/'.$screenshot['file'].'" alt="screenshot" title="'.htmlspecialchars($screenshot['description']).'" />
-          </a>';
-      }
       echo '
-          </div>';
+        <div class="screenshot">
+          <a href="?show=entry&amp;show=screenshot&amp;id='.$screenshot['id'].'">
+            <img src="media/files/picture/'.$screenshot['file'].'" alt="screenshot" title="'.htmlspecialchars($screenshot['description']).'" />
+          </a>
+        </div>';
+      }
     }
     
     echo '
-          <a href="#">Add Screenshots</a>
-        </div>
+        <a href="#">Add Screenshots</a>
       </div>';
   } // end of member function mainScreenshots
 
@@ -193,9 +195,7 @@ class HTML_Entry extends HTML
     $stmt->execute();
     $tests = $stmt->fetchAll(PDO::FETCH_ASSOC);
  
-    echo '
-      <div id="entryMain">
-        <h2>Test reports</h2>';
+    echo '<div id="entryMain">';
 
       if (count($tests) > 0) {
         foreach ($tests as $test) {
@@ -231,9 +231,7 @@ class HTML_Entry extends HTML
     $stmt->execute();
     $bugs = $stmt->fetchAll(PDO::FETCH_ASSOC);
  
-    echo '
-      <div id="entryMain">
-        <h2>Bugs</h2>';
+    echo '<div id="entryMain">';
 
       if (count($bugs) > 0) {
         echo '<ul id="buglist">';
@@ -265,7 +263,7 @@ class HTML_Entry extends HTML
 
     // version info
     $stmt=CDBConnection::getInstance()->prepare("SELECT version, entry_id FROM ".CDBT_VERSIONS." WHERE id=:version_id");
-    $stmt->bindParam('version_id',$_GET['ver'],PDO::PARAM_INT);
+    $stmt->bindParam('version_id',$_GET['id'],PDO::PARAM_INT);
     $stmt->execute();
     $version = $stmt->fetchOnce(PDO::FETCH_ASSOC);
 
@@ -276,12 +274,12 @@ class HTML_Entry extends HTML
 
 
       echo '    
+      <h2>'.htmlspecialchars($entry['name']).' '.htmlspecialchars($version['version']).'</h2>
       <div id="entryDetails">
-        <h2>Details</h2>
         <ul>
           <li>
             <span class="key">Name:</span>
-            <a class="value" href="">'.htmlspecialchars($entry['name']).'</a>
+            <a class="value" href="?show=entry&amp;id='.$entry['id'].'">'.htmlspecialchars($entry['name']).'</a>
           </li>
           <li>
             <span class="key">Version:</span>
@@ -289,7 +287,7 @@ class HTML_Entry extends HTML
           </li>
           <li>
             <span class="key">Category:</span>
-            <a class="value" href="?page=list&amp;cat='.$entry['category_id'].'">'.htmlspecialchars($entry['category']).'</a>
+            <a class="value" href="?show=list&amp;cat='.$entry['category_id'].'">'.htmlspecialchars($entry['category']).'</a>
           </li>
           <li>
             <span class="key">Works in:</span>
@@ -309,15 +307,24 @@ class HTML_Entry extends HTML
   private function tabNavigation()
   {
     echo '
-      <ul id="entryNavigation">
-        <li>'.($this->main == self::MAIN_COMMENTS ? '<span>Comments</span>' : '<a href="?page=item&amp;ver='.$_GET['ver'].'&amp;view=pref&amp;pside='.$this->side.'&amp;pmain='.self::MAIN_COMMENTS.'">Comments</a>').'</li>
-        <li>'.($this->main == self::MAIN_TESTS ? '<span>Tests</span>' : '<a href="?page=item&amp;ver='.$_GET['ver'].'&amp;view=pref&amp;pside='.$this->side.'&amp;pmain='.self::MAIN_TESTS.'">Tests</a>').'</li>
-        <li>'.($this->main == self::MAIN_BUGS ? '<span>Bugs</span>' : '<a href="?page=item&amp;ver='.$_GET['ver'].'&amp;view=pref&amp;pside='.$this->side.'&amp;pmain='.self::MAIN_BUGS.'">Bugs</a>').'</li>
-        <li>'.($this->main == self::MAIN_SCREENSHOTS ? '<span>Screenshots</span>' : '<a href="?page=item&amp;ver='.$_GET['ver'].'&amp;view=pref&amp;pside='.$this->side.'&amp;pmain='.self::MAIN_SCREENSHOTS.'">Screenshots</a>').'</li>
+      <ul class="entryNavigation">
+        <li'.($this->main == self::MAIN_COMMENTS ? ' class="active"><span>Comments</span>' : '><a href="?show=version&amp;id='.$_GET['id'].'&amp;view=pref&amp;pside='.$this->side.'&amp;pmain='.self::MAIN_COMMENTS.'">Comments</a>').'</li>
+        <li'.($this->main == self::MAIN_TESTS ? ' class="active"><span>Tests</span>' : '><a href="?show=version&amp;id='.$_GET['id'].'&amp;view=pref&amp;pside='.$this->side.'&amp;pmain='.self::MAIN_TESTS.'">Tests</a>').'</li>
+        <li'.($this->main == self::MAIN_BUGS ? ' class="active"><span>Bugs</span>' : '><a href="?show=version&amp;id='.$_GET['id'].'&amp;view=pref&amp;pside='.$this->side.'&amp;pmain='.self::MAIN_BUGS.'">Bugs</a>').'</li>
+        <li'.($this->main == self::MAIN_SCREENSHOTS ? ' class="active"><span>Screenshots</span>' : '><a href="?show=version&amp;id='.$_GET['id'].'&amp;view=pref&amp;pside='.$this->side.'&amp;pmain='.self::MAIN_SCREENSHOTS.'">Screenshots</a>').'</li>
       </ul>';
-      
-//        <li>'.($this->main == self::MAIN_INSTALL ? '<span>Install tipps</span>' : '<a href="?page=item&amp;ver='.$_GET['ver'].'&amp;view=pref&amp;pside='.$this->side.'&amp;pmain='.self::MAIN_INSTALL.'">Install tipps</a>').'</li>
-
+  } // end of member function screenshotShort
+  
+  
+  
+  private function tabSideNavigation()
+  {
+    echo '
+      <ul class="entryNavigation">
+        <li'.($this->side == self::SIDE_SCREENSHOTS ? ' class="active"><span>Screenshots</span>' : '><a href="?show=version&amp;id='.$_GET['id'].'&amp;view=pref&amp;pmain='.$this->main.'&amp;pside='.self::SIDE_SCREENSHOTS.'">Screenshots</a>').'</li>
+        <li'.($this->side == self::SIDE_TESTS ? ' class="active"><span>Tests</span>' : '><a href="?show=version&amp;id='.$_GET['id'].'&amp;view=pref&amp;pmain='.$this->main.'&amp;pside='.self::SIDE_TESTS.'">Tests</a>').'</li>
+        <li'.($this->side == self::SIDE_STATS ? ' class="active"><span>Statistics</span>' : '><a href="?show=version&amp;id='.$_GET['id'].'&amp;view=pref&amp;pmain='.$this->main.'&amp;pside='.self::SIDE_STATS.'">Statistics</a>').'</li>
+      </ul>';
   } // end of member function screenshotShort
 
 
@@ -330,25 +337,20 @@ class HTML_Entry extends HTML
     $screenshots = $stmt->fetchAll(PDO::FETCH_ASSOC);
  
     echo '
-      <div id="entrySide">
-        <div class="screenshot">
-          <h2>Screenshots</h2>';
+      <div id="sideContent">';
     if (count($screenshots) > 0) {
-      echo '
-          <div style="border: 1px solid #78C;">';
       foreach ($screenshots as $screenshot) {
         echo '
-          <a href="?page=entry&amp;show=screenshot&amp;id='.$screenshot['id'].'">
+        <div class="screenshot">
+          <a href="?show=entry&amp;show=screenshot&amp;id='.$screenshot['id'].'">
             <img src="media/files/picture/'.$screenshot['file'].'" alt="screenshot" title="'.htmlspecialchars($screenshot['description']).'" />
-          </a>';
-      }
-      echo '
-          </div>';
+          </a>
+        </div>';
+      } // end foreach
     }
     
     echo '
-          <a href="#">Add Screenshots</a>
-        </div>
+        <a href="#">Add Screenshots</a>
       </div>';
   } // end of member function sideScreenshots
 
@@ -356,11 +358,10 @@ class HTML_Entry extends HTML
 
   private function sideTests()
   {
-    echo '<div id="entrySide">';
+    echo '<div id="sideContent">';
     if (isset($reports) && count($reports) > 0) {
       echo '
         <div>
-          <h2>Tests</h2>
           <ul>';
       foreach($reports as $report) {
         echo '<li>'.($report['works'] ? 'works' : 'doesn\'t').' &mdash; r'.$report['revision'].'</li>';
@@ -370,6 +371,33 @@ class HTML_Entry extends HTML
         </div>';
     }
     echo '</div>';
+  } // end of member function sideTests
+
+
+
+  private function sideStats()
+  {
+    echo '
+      <div id="sideContent" class="statistics">
+        <ul>
+          <li>
+            <span class="key">Comments</span>
+            <span class="value">0</span>
+          </li>
+          <li>
+            <span class="key">Tests</span>
+            <span class="value">0</span>
+          </li>
+          <li>
+            <span class="key">Bugs</span>
+            <span class="value">0</span>
+          </li>
+          <li>
+            <span class="key">Screenshots</span>
+            <span class="value">0</span>
+          </li>
+        </ul>
+      </div>';
   } // end of member function sideTests
 
 

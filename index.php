@@ -29,7 +29,7 @@ define('ROSCMS_PATH', '../roscms/');
 define('CDB_PATH', '');
 require_once("lib/Compat_Autoloader.class.php");
 require_once('config.php');
-$RSDB_intern_link_db_sec = 'index.php?page=';
+$RSDB_intern_link_db_sec = 'index.php?show=';
 
 
 	if ( !defined('RSDB') ) {
@@ -68,7 +68,7 @@ $RSDB_intern_link_db_sec = 'index.php?page=';
 	require_once('lang.php');
 
 
-switch (@$_GET['page']) {
+switch (@$_GET['show']) {
 
   default:
     // AJAX requests
@@ -127,7 +127,11 @@ switch (@$_GET['page']) {
     break;
 
   // show specific version
-  case 'item':
+  case 'version':
+    new HTML_Entry();
+    break;
+  
+  /*
     switch (@$_GET['addbox']) {
       case 'add':
       case 'submit':
@@ -145,12 +149,6 @@ switch (@$_GET['page']) {
       default:
         switch (@$_GET['item2']) {
 
-          // Details
-          case 'details':
-          default:
-            new HTML_Entry();
-            break;
-
           // Screenshots
           case 'screens':
             new Item_Screenshots();
@@ -164,6 +162,7 @@ switch (@$_GET['page']) {
         break;
     } // end switch addbox
     break;
+  */
 
   // Submit
   case 'submit': 

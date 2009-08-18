@@ -1,9 +1,4 @@
 
-
-.tablebg {
-  margin:10px 10px 0 0; width:500px; border:1px solid #dfdfdf; padding:1em; background-color:#EAF0F8;
-}
-
 .rtable THEAD {
   background-color:#5984C3;color:white;border-collapse: collapse;}
 
@@ -71,12 +66,13 @@ LABEL.stable { color: #00CC00 !important; }
 LABEL.unstable { color: #FF7800 !important; }
 LABEL.crash { color: #FF3300 !important; }
 
+.rtable { width: 100%; }
+
 .rtable TD.first { width: 1.5em;}
 
 .rtable TD.stable { background-color: #00CC00; opacity: 0.5; }
 .rtable TD.unstable { background-color: #FFCC00; opacity: 0.5;}
 .rtable TD.crash { background-color: #FF3300; opacity: 0.5;}
-.rtable A { opacity: 1;}
 
 .rtable TH { font-size: 1.2em; padding: 3px; }
 .rtable TD { border-bottom: 1px solid #CCC;padding: 2px 3px; }
@@ -91,21 +87,26 @@ LABEL.crash { color: #FF3300 !important; }
 
 
 
-#entryTop {clear: both; margin-bottom: 10px;}
+#entryTop {clear: both; margin-bottom: 10px; height: 120px; }
+#entryTop H2 { margin: 5px 0px; max-width: 50%;}
 
-#entryDetails { float: left; border: 3px solid black; }
+#entryDetails { float: left; padding: 3px; border: 1px solid #5984C3; }
+#entryDetails UL { list-style-type: none; margin: 0px 0px 0px 5px; padding: 0px;}
+#entryDetails UL .key { font-weight: bold; color: gray; }
 
-#entrySide { float:right; border: 3px solid black; padding: 20px; font-weight: bold; }
-#entrySide .screenshot { float: left;  height: 100px; width: 100px; margin: 5px;}
+#entrySide { float:right; width: 500px; height: 100px;}
+
+#sideContent { padding: 3px; border: 1px solid #5984C3; font-weight: bold; clear: both; height: 110px; }
+#sideContent .screenshot { float: left; margin: 5px; height: 100px; width: 100px; border: 1px solid black; }
 
 /* navigation */
-#entryNavigation { clear: both; margin-top: 10px; }
-#entryNavigation LI { float: left; background-color: gray; color: white; list-style-type: none; padding: 2px 10px; margin: 0px 3px; }
-#entryNavigation LI A { color: white; }
-#entryNavigation LI SPAN { font-weight: bold; }
+.entryNavigation { clear: both; margin: 0px; padding: 0px; }
+.entryNavigation LI { float: left; background-color: #5984C3; color: white; list-style-type: none; padding: 2px 10px; margin: 0px 3px; }
+.entryNavigation LI A { color: white; }
+.entryNavigation LI.active { background-color: #7BA6E5; font-weight: bold; }
 
 /**/
-#entryMain { clear: both; border: 3px solid black; padding: 20px; font-weight: bold; }
+#entryMain { clear: both; border: 3px solid #7BA6E5; padding: 3px; font-weight: bold; background-color: #FAFAFA; }
 #entryMain #buglist .bugNumber { margin-right: 10px; }
 
 

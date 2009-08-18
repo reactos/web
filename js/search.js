@@ -33,9 +33,9 @@
 		var tempb = "";
 		
 		tempb += "<tr> \n";
-		tempb += "<td width=\"30%\" valign=\"top\" bgcolor=\"" + colorcur + "\"><font size=\"2\"><b><a href=\""+twebsite+"?page=group&amp;group=" + itemid + "\">" + itemname + "</a></b></font></td> \n";
+		tempb += "<td width=\"30%\" valign=\"top\" bgcolor=\"" + colorcur + "\"><font size=\"2\"><b><a href=\""+twebsite+"?show=group&amp;group=" + itemid + "\">" + itemname + "</a></b></font></td> \n";
 		if (vendorid != 0) {		
-			tempb += "<td width=\"30%\" valign=\"top\" bgcolor=\"" + colorcur + "\"><font size=\"2\"><a href=\""+twebsite+"?page=vendor_info&amp;vendor=" + vendorid + "\">" + vendorname + "</a></font></td> \n";
+			tempb += "<td width=\"30%\" valign=\"top\" bgcolor=\"" + colorcur + "\"><font size=\"2\"><a href=\""+twebsite+"?show=vendor_info&amp;vendor=" + vendorid + "\">" + vendorname + "</a></font></td> \n";
 		}
 		else {
 			tempb += "<td width=\"30%\" valign=\"top\" bgcolor=\"" + colorcur + "\"><font size=\"2\">&nbsp;</font></td> \n";
@@ -56,13 +56,13 @@
 		
 	function write_bar_entry(itemid, itemname) {
 		var tempb = "";	
-		tempb += "<a href=\""+twebsite+"?page=group&amp;group=" + itemid + "\">&bull; " + itemname + "</a>\n";
+		tempb += "<a href=\""+twebsite+"?show=group&amp;group=" + itemid + "\">&bull; " + itemname + "</a>\n";
 		return tempb;
 	}
 
 	function write_rosweb_entry(itemname, itemid) {
 		var tempb = "";	
-		tempb += "<a href=\""+twebsite2+"?page=" + itemid + "\">&bull; " + itemname + "</a>\n";
+		tempb += "<a href=\""+twebsite2+"?show=" + itemid + "\">&bull; " + itemname + "</a>\n";
 		return tempb;
 	}
 
@@ -81,7 +81,7 @@
 		var tempb = "";
 		
 		tempb += "<tr> \n";
-		tempb += "<td width=\"60%\" valign=\"top\" bgcolor=\"" + colorcur + "\"><font size=\"2\"><b><a href=\""+twebsite+"?page=group&amp;group=" + itemid + "\">" + itemname + "</a></b></font></td> \n";
+		tempb += "<td width=\"60%\" valign=\"top\" bgcolor=\"" + colorcur + "\"><font size=\"2\"><b><a href=\""+twebsite+"?show=group&amp;group=" + itemid + "\">" + itemname + "</a></b></font></td> \n";
 		if (vendorname != ". ") {		
 			tempb += "<td width=\"40%\" valign=\"top\" bgcolor=\"" + colorcur + "\"><font size=\"2\">" + vendorname + "</font></td> \n";
 		}
@@ -153,11 +153,11 @@
 				
 			
 				if (tWhere == "comp") {
-					makeRequest(twebsite+'?page=dat&export=grplst&search='+asearch);
+					makeRequest(twebsite+'?show=dat&export=grplst&search='+asearch);
 				}
 				else if (tWhere == "vendor") {
 					//alert("vendor");
-					makeRequest(twebsite+'?page=dat&export=vdrlst&search='+asearch);
+					makeRequest(twebsite+'?show=dat&export=vdrlst&search='+asearch);
 				}
 				else if (tWhere.substr(0, 6) == "roscms") {
 					//alert("vendor");

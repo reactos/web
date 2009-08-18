@@ -36,35 +36,35 @@ class HTML_Home extends HTML
     $stmt->execute();
 
     echo '
-
         <h1>Compatibility Database - Overview</h1>
-        <img src="media/pictures/compatibility.jpg" alt="ReactOS Compatibility Database" style="float: right;"/>
         <p>The ReactOS Compatibility Database contains information about compatible software. Below the latest reports are listed</p>
         <p>There are <strong>'.$stmt->fetchColumn().'</strong> applications and drivers currently in the database.</p>
       
         <h2>Recent submissions</h2>
-        <div class="tablebg">
-          <table class="rtable" cellpadding="1" cellspacing="1">
-            <thead>
-              <tr>
-                <th>Application</th>
-                <th style="width:50px;">Works?</th>
-                <th style="width:100px;text-align:center;">Last update</th>
-              </tr>
-            </thead>
-            <tbody>';
+        <table class="rtable" cellpadding="1" cellspacing="1">
+          <thead>
+            <tr>
+              <th></th>
+              <th>Application</th>
+              <th style="width:100px;text-align:center;">Last update</th>
+            </tr>
+          </thead>
+          <tbody>';
 
     // show latest tests
     if (1) {
+    
+      // get latest reactos version
       $stmt=CDBConnection::getInstance()->prepare("SELECT revision FROM ".CDBT_VERTAGS." t WHERE visible IS TRUE AND 5<(SELECT COUNT(*) FROM ".CDBT_REPORTS." WHERE revision=t.revision) ORDER BY revision DESC LIMIT 1");
       $stmt->execute();
       $latest_version = $stmt->fetchColumn();
 
-      $stmt=CDBConnection::getInstance()->prepare("SELECT e.name, r.created, r.works, e.id FROM ".CDBT_REPORTS." r JOIN ".CDBT_ENTRIES." e ON e.id=r.entry_id WHERE r.revision = :revision ORDER BY r.created DESC LIMIT 10");
+      //
+      $stmt=CDBConnection::getInstance()->prepare("SELECT e.name, r.created, r.works, e.id, (SELECT v.id FROM ".CDBT_VERSIONS." v WHERE v.entry_id=e.id ORDER BY created DESC LIMIT 1) FROM ".CDBT_REPORTS." r JOIN ".CDBT_ENTRIES." e ON e.id=r.entry_id WHERE r.revision = :revision ORDER BY r.created DESC LIMIT 15");
       $stmt->bindParam('revision',$latest_version,PDO::PARAM_INT);
     }
     else {
-      $stmt=CDBConnection::getInstance()->prepare("SELECT e.name, r.created, r.works, e.id FROM ".CDBT_REPORTS." r JOIN ".CDBT_ENTRIES." e ON e.id=r.entry_id ORDER BY r.created DESC LIMIT 10");
+      $stmt=CDBConnection::getInstance()->prepare("SELECT e.name, r.created, r.works, e.id FROM ".CDBT_REPORTS." r JOIN ".CDBT_ENTRIES." e ON e.id=r.entry_id ORDER BY r.created DESC LIMIT 15");
 
     }
     $stmt->execute();
@@ -74,17 +74,16 @@ class HTML_Home extends HTML
 
       echo '
         <tr class="row'.($x%2+1).'">
-          <td><a href="?page=item&amp;item='.$entry['id'].'">'.$entry['name'].'</a></td>
-          <td>'.$entry['works'].'</td>
-          <td style="text-align: center;">'.$entry['created'].'</td>
+          <td class="first '.($entry['works'] == 'full' ? 'stable' : ($entry['works'] == 'part' ? 'unstable' : 'crash')).'">&nbsp;</td>
+          <td><a href="?show=version&amp;id='.$entry['id'].'">'.$entry['name'].'</a></td>
+          <td style="text-align: center;white-space:nowrap;">'.$entry['created'].'</td>
         </tr>'; 
     }
 
     echo '
-          </tbody>
-        </table>
-      </div>
-      <p>You can also <a href="'.$RSDB_intern_link_db_sec.'submit">Submit new Entries</a></p>';
+        </tbody>
+      </table>
+      <p>You can also <a href="?show=submit">Submit new Entries</a></p>';
 
     // print some login blah to guest users
     if ($RSDB_intern_user_id <= 0) {

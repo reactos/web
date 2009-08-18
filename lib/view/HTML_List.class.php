@@ -116,26 +116,28 @@ class HTML_List extends HTML
               <tr class="row'.($x%2+1).'" id="tr'.$x.'" title="'.($entry['works'] == 'full' ? 'stable' : ($entry['works'] == 'part' ? 'unstable' : 'crash')).'">
                 <td class="first '.($entry['works'] == 'full' ? 'stable' : ($entry['works'] == 'part' ? 'unstable' : 'crash')).'">&nbsp;</td>
                 <td onmouseover="'."this.className=document.getElementById('tr".$x."').title;".'" onmouseout="this.className=\'\';">';
-            
+
+            // just one version stored
             if (count($versions) == 1) {
               echo '
-                  <a href="?page=item&amp;ver='.$versions[0]['id'].'">'.htmlspecialchars($entry['name']).' '.$versions[0]['version'].'</a>';
+                  <a href="?show=version&amp;id='.$versions[0]['id'].'">'.htmlspecialchars($entry['name']).' '.$versions[0]['version'].'</a>';
             }
+
+            // show all app version
             else {
               echo '
-                <a href="?page=item&amp;item='.$entry['id'].'">'.htmlspecialchars($entry['name']).'</a>
-                <ul style="display:none;">';
+                <a href="?show=entry&amp;id='.$entry['id'].'">'.htmlspecialchars($entry['name']).'</a>
+                <ul>';
 
-              
+              // list all app versions
               foreach ($versions as $version) {
                 echo '
-                  <li><a href="item&amp;ver='.$entry['id'].'">'.htmlspecialchars($entry['name']).' '.$version['version'].'</a></li>';
+                  <li><a href="?show=version&amp;id='.$version['id'].'">'.$version['version'].'</a></li>';
               }
               
               echo '
                 </ul>';
             }
-
 
             echo '
                 </td>';
@@ -163,7 +165,7 @@ class HTML_List extends HTML
             echo '<strong>['.$i.']</strong>';
           }
           else {
-            echo '<a href="?page=list'.(isset($_GET['letter']) ? '&amp;letter='.$_GET['letter']:'').'&amp;offset='.(($i-1)*$limit).'">'.$i.'</a>';
+            echo '<a href="?show=list'.(isset($_GET['letter']) ? '&amp;letter='.$_GET['letter']:'').'&amp;offset='.(($i-1)*$limit).'">'.$i.'</a>';
           }
         }
         echo '</div>';
@@ -181,7 +183,7 @@ class HTML_List extends HTML
         echo '<strong>['.strtoupper(chr($i)).']</strong>';
       }
       else {
-        echo '<a href="?page=list&amp;letter='.chr($i).'">'.strtoupper(chr($i)).'</a>';
+        echo '<a href="?show=list&amp;letter='.chr($i).'">'.strtoupper(chr($i)).'</a>';
       }
     }
     echo '</div>';
@@ -195,7 +197,7 @@ class HTML_List extends HTML
     // show root
     echo '
       <ul id="breadcrumb">
-        <li style="float: left;"><a href="?page=list&amp;cat=0">Root</a></li>';
+        <li style="float: left;"><a href="?show=list&amp;cat=0">Root</a></li>';
 
 
     // show current path
@@ -207,7 +209,7 @@ class HTML_List extends HTML
     $output = '';
     while ($category = $stmt->fetch(PDO::FETCH_ASSOC)) {
       $output = '
-        <li>&rarr; <a href="?page=list&amp;cat='.$category['id'].'">'.htmlspecialchars($category['name']).'</a></li>'.$output;
+        <li>&rarr; <a href="?show=list&amp;cat='.$category['id'].'">'.htmlspecialchars($category['name']).'</a></li>'.$output;
 
       if ($category['parent'] > 0) {
         $stmt->bindParam('cat_id',$category['parent'],PDO::PARAM_INT);
@@ -246,7 +248,7 @@ class HTML_List extends HTML
 
         echo '
           <tr class="row'.($x%2+1).'">
-            <td><a href="?page=list&amp;cat='.$category['id'].'">'.$category['name'].'</a></td>
+            <td><a href="?show=list&amp;cat='.$category['id'].'">'.$category['name'].'</a></td>
             <td>'.$category['subcategories'].'</td>
             <td>'.$category['entries'].'</td>
           </tr>';
@@ -276,7 +278,7 @@ class HTML_List extends HTML
     $stmt->execute();
     while ($tag=$stmt->fetch(PDO::FETCH_ASSOC)) {
 
-      echo '<a style="margin-right: 20px; font-size: '.(((int)$tag['count']/(float)$max*2.0)+0.9).'em;" href="?page=list&amp;tag='.htmlspecialchars($tag['name']).'">'.htmlspecialchars($tag['name']).'</a>';
+      echo '<a style="margin-right: 20px; font-size: '.(((int)$tag['count']/(float)$max*2.0)+0.9).'em;" href="?show=list&amp;tag='.htmlspecialchars($tag['name']).'">'.htmlspecialchars($tag['name']).'</a>';
     }
     echo '
       </div>';

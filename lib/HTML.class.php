@@ -92,7 +92,7 @@ abstract class HTML
       <html lang="EN">
         <head>
           <title>ReactOS '.$this->title.'</title>
-          <base href="'.$RSDB_intern_path_server.$RSDB_intern_path.'" />
+          <base href="'.$RSDB_intern_path_server.'" />
           <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
           <meta http-equiv="Pragma" content="no-cache" />
           <meta name="Description" content="The ReactOS Compatibility Database has stored a lot of information about application and driver compatibility with ReactOS." />
@@ -106,10 +106,10 @@ abstract class HTML
     // link css files (use register_css method)
     foreach($this->css_files as $file) {
       if ($file['condition'] === false) {
-        echo '<link href="'.$RSDB_intern_path_server.$RSDB_intern_path.'css/'.$file['name'].'" type="text/css" rel="stylesheet" />';
+        echo '<link href="css/'.$file['name'].'" type="text/css" rel="stylesheet" />';
       }
       else {
-        echo '<!--[if '.$file['condition'].']<link href="'.$RSDB_intern_path_server.$RSDB_intern_path.'css/'.$file['name'].'" type="text/css" rel="stylesheet" /><![endif]-->';
+        echo '<!--[if '.$file['condition'].']<link href="css/'.$file['name'].'" type="text/css" rel="stylesheet" /><![endif]-->';
       }
     }
 
@@ -191,6 +191,7 @@ abstract class HTML
               <li>';
 
     // get selected language
+    $lang = 'x';
     if (empty($_GET['lang']) && isset($_COOKIE['roscms_usrset_lang'])) {
       $lang = $_COOKIE['roscms_usrset_lang'];
       if (substr($lang, -1) == '/') {
@@ -249,7 +250,7 @@ abstract class HTML
           <hr />
           <address style="text-align:center">
             <a href="http://www.reactos.org">ReactOS</a> is a registered trademark or a trademark of <a href="http://www.reactos.org/?page=foundation">ReactOS Foundation</a> in the United States and other countries.<br />
-            Copyright  &copy; Klemens Friedl 2005-2009, All rights reserved.
+            Copyright  &copy; Klemens Friedl, Danny G&ouml;tte 2005-2009, All rights reserved.
           </address>
 
         </body>

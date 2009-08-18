@@ -35,7 +35,7 @@ class HTML_Submit extends HTML
     if (isset($_POST['next']) && $_POST['next'] == 'entry') {
       $entry_id = Entry::getEntryId($_POST['type'], $_POST['title']);
       $version_id = Entry::getVersionId($entry_id, $_POST['version']);
-      header('location: ?page=item&ver='.$version_id);
+      header('location: ?show=entry&ver='.$version_id);
       exit;
     }
     elseif (isset($_POST['next']) && $_POST['next'] == 'bug') {
@@ -111,7 +111,7 @@ class HTML_Submit extends HTML
     $used_again = (isset($_POST['next']) && $_POST['next']=='again');
   
     echo '
-      <form id="submit" action="?page=submit&amp;submit=yes" method="post" style="width: 700px;">
+      <form id="submit" action="?show=submit&amp;submit=yes" method="post" style="width: 700px;">
         <div>
           <h1 class="left">Step 1</h1><h1>&nbsp;Tested software</h1>
           <ul>

@@ -50,13 +50,15 @@ ALTER TABLE cdb_categories ORDER BY id;
 -- -----------------------------------------------------------------
 CREATE TABLE cdb_comments (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY ,
-  entry_id BIGINT UNSIGNED NULL COMMENT '->entries(id)',
+  entry_id BIGINT UNSIGNED NOT NULL COMMENT '->entries(id)',
   parent BIGINT UNSIGNED NULL COMMENT '->comments(id)',
   user_id BIGINT UNSIGNED NOT NULL COMMENT '->roscms.accounts(id)',
   title VARCHAR( 100 ) NOT NULL ,
   content TEXT NOT NULL ,
+  is_tipp BOOL NOT NULL DEFAULT FALSE,
   created DATETIME NOT NULL ,
-  visible BOOL NOT NULL DEFAULT FALSE
+  visible BOOL NOT NULL DEFAULT FALSE,
+  test_id BIGINT UNSIGNED
 ) ENGINE = MYISAM COMMENT = 'parent xor entry_id has to be NULL';
 
 INSERT INTO cdb_comments
@@ -67,8 +69,10 @@ SELECT
   fmsg_user_id,
   fmsg_subject,
   fmsg_body,
+  FALSE,
   fmsg_date,
-  TRUE
+  TRUE,
+  NULL
   FROM rsdb_item_comp_forum;
 
 /*DROP TABLE rsdb_item_comp_forum;
@@ -95,8 +99,10 @@ SELECT
 
 >>> Conclusion
    ',test_conclusion),
+  FALSE,
   test_date,
-  TRUE
+  TRUE,
+  test_id
 FROM rsdb_item_comp_testresults;
 /*DROP TABLE rsdb_item_comp_testresults;
 */
@@ -176,7 +182,8 @@ FROM rsdb_languages;
 CREATE TABLE cdb_entries_reports (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
   entry_id BIGINT UNSIGNED NOT NULL COMMENT '->entries(id)',
-  version_id BIGINT UNSIGNED NOT NULL Comment '->version',
+  version_id BIGINT UNSIGNED NOT NULL COMMENT '->version(id)',
+  comment_id BIGINT UNSIGNED NOT NULL COMMENT '->comment(id)',
   revision BIGINT UNSIGNED NOT NULL,
   old_name VARCHAR( 100 ) NOT NULL,
   old_version VARCHAR( 100 ) NOT NULL,
@@ -196,6 +203,7 @@ CREATE TABLE cdb_entries_reports (
 INSERT INTO cdb_entries_reports
 SELECT DISTINCT
   comp_id,
+  0,
   0,
   0,
   0,
@@ -262,11 +270,17 @@ JOIN rsdb_groups g ON g.grpentr_id=o.old_groupid;
 UPDATE cdb_entries_reports r
 SET entry_id = (SELECT e.id FROM cdb_entries e WHERE r.old_name=e.old_name LIMIT 1);
 
+UPDATE cdb_entries_reports r
+SET comment_id = (SELECT c.id FROM cdb_comments c WHERE c.entry_id=r.entry_id AND test_id IS NOT NULL ORDER BY created ASC LIMIT 1);
+
 ALTER TABLE cdb_entries_reports
   DROP old_name,
   DROP old_description,
   DROP old_groupid,
   DROP old_version;
+  
+ALTER TABLE cdb_comments
+  DROP test_id;
 
 
 -- -----------------------------------------------------------------
@@ -473,6 +487,4 @@ UPDATE cdb_entries_reports r
 SET revision = (SELECT revision FROM cdb_entries_tags WHERE old_osversion=r.old_osversion LIMIT 1);
 
 ALTER TABLE cdb_entries_reports DROP old_osversion;
-
-
 

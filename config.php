@@ -22,51 +22,30 @@
 define('CDBT_ATTACHMENTS', 'cdb_attachments');
 define('CDBT_CATEGORIES' , 'cdb_categories');
 define('CDBT_COMMENTS'   , 'cdb_comments');
-define('CDBT_ENTRIES'    , 'cdb_entries');
-define('CDBT_REPORTS'    , 'cdb_entries_reports');
+define('CDBT_ENTRIES'    , 'cdb_entries'); // applications/...
+define('CDBT_REPORTS'    , 'cdb_entries_reports'); // test reports
 define('CDBT_LANGUAGES'  , 'cdb_languages');
 define('CDBT_LOGS'       , 'cdb_logs');
-define('CDBT_TAGGED'     , 'cdb_rel_entries_tags');
-define('CDBT_TAGS'       , 'cdb_tags');
-define('CDBT_VERTAGS'    , 'cdb_entries_tags');
-define('CDBT_VERSIONS'   , 'cdb_entries_versions');
+define('CDBT_TAGGED'     , 'cdb_rel_entries_tags'); // assignings for tags - entries
+define('CDBT_TAGS'       , 'cdb_tags'); // tags for entries
+define('CDBT_VERTAGS'    , 'cdb_entries_tags'); // ReactOS version tags
+define('CDBT_VERSIONS'   , 'cdb_entries_versions'); // application versions
 
 
 
 
 		// Config: (please sync this with the database)
-		$RSDB_intern_version = "RSDB 0.1 - http://www.reactos.org/"; // RSDB version info
-		$RSDB_intern_path_server = "/reactos/"; // complete server path
 		$RSDB_intern_path = "compat/"; // the dirs after http://www.reactos.org
 		
 		// script file fix (for Safari browser)
-		$RSDB_intern_index_php = $RSDB_intern_path_server.$RSDB_intern_path."index.php";
+    $RSDB_intern_path_server = "/reactos/".$RSDB_intern_path;
+		$RSDB_intern_index_php = $RSDB_intern_path_server."index.php";
 		
 		// Global Login System
 		$RSDB_intern_loginsystem_path = "roscms/"; // RosCMS dir
-		$RSDB_intern_loginsystem_fullpath = $RSDB_intern_path_server.$RSDB_intern_loginsystem_path; // RosCMS dir
+		$RSDB_intern_loginsystem_fullpath = "/reactos/".$RSDB_intern_loginsystem_path; // RosCMS dir
 	
-		// Items per Page
-		$RSDB_intern_items_per_page = 25;
-
 		// User ID
     require_once(ROSCMS_PATH.'lib/RosCMS_Autoloader.class.php');
 		$RSDB_intern_user_id = Subsystem::in(Login::OPTIONAL, '/'.$RSDB_intern_path);
-		
-		if($RSDB_intern_user_id !== false) {
-			
-			// Name
-			$RSDB_USER_name = Subsystem::getUserName($RSDB_intern_user_id);
-			
-			
-			// RSDB user settings
-			
-				// Items per page
-				$RSDB_USER_setting_itemsperpage = 30; //$result_roscms_user['user_setting_itemsperpage'];
-				$RSDB_intern_items_per_page = $RSDB_USER_setting_itemsperpage;
-
-		}
-		else {
-			$RSDB_USER_name = "Anonymous";
-		}
 ?>
