@@ -20,10 +20,10 @@
 
 
 /**
- * class Star
+ * class Image
  * 
  */
-class Star
+class Image
 {
 
 
@@ -33,60 +33,28 @@ class Star
    *
    * @access public
    */
-  private static function toGIF($img_sourse, $save_to, $quality, $str) { 
-		$size = GetImageSize($img_sourse);
-		$im_in = ImageCreateFromGIF($img_sourse);
+  public static function toPNG($img_source, $save_to, $str)
+  {
+    $font = 2;
+    
+		$size = GetImageSize($img_source);
+		$im_in = ImageCreateFromPNG($img_source);
 		
 		$im_out = imagecreatetruecolor($size[0], $size[1]);
 		
 		ImageCopyResampled($im_out, $im_in, 0, 0, 0, 0, $size[0], $size[1], $size[0], $size[1]);
 		   
 		#Find X & Y for note
-		$X_var = ImageSX($im_out); 
-		$X_var = $X_var - 130;
-		$Y_var = ImageSY($im_out); 
-		$Y_var = $Y_var - 25;
+		$X_var = imagesx($im_out) - imagefontwidth($font)*strlen($str);
+		$Y_var = imagesy($im_out) - imagefontheight($font);
 		
 		#Color
 		$white = ImageColorAllocate($im_out, 0, 0, 0);
 		
 		#Add note(simple: site address)
-		ImageString($im_out,2,$X_var,$Y_var,$str,$white);
+		ImageString($im_out,$font,$X_var,$Y_var,$str,$white);
 		
-		ImageGIF($im_out, $save_to, $quality); // Create image
-		ImageDestroy($im_in);
-		ImageDestroy($im_out);() {
-
-  } // end of member function icon
-
-
-
-  /**
-   * @FILLME
-   *
-   * @access public
-   */
-  private static function toPNG($img_sourse, $save_to, $quality, $str) { 
-		$size = GetImageSize($img_sourse);
-		$im_in = ImageCreateFromPNG($img_sourse);
-		
-		$im_out = imagecreatetruecolor($size[0], $size[1]);
-		
-		ImageCopyResampled($im_out, $im_in, 0, 0, 0, 0, $size[0], $size[1], $size[0], $size[1]);
-		   
-		#Find X & Y for note
-		$X_var = ImageSX($im_out); 
-		$X_var = $X_var - 130;
-		$Y_var = ImageSY($im_out); 
-		$Y_var = $Y_var - 25;
-		
-		#Color
-		$white = ImageColorAllocate($im_out, 0, 0, 0);
-		
-		#Add note(simple: site address)
-		ImageString($im_out,2,$X_var,$Y_var,$str,$white);
-		
-		ImagePNG($im_out, $save_to, $quality); // Create image
+		ImagePNG($im_out, $save_to); // Create image
 		ImageDestroy($im_in);
 		ImageDestroy($im_out);
   } // end of member function icon
@@ -98,27 +66,28 @@ class Star
    *
    * @access public
    */
-  private static function toJPG($img_sourse, $save_to, $quality, $str) { 
-		$size = GetImageSize($img_sourse);
-		$im_in = ImageCreateFromJPEG($img_sourse);
+  public static function toJPG($img_source, $save_to, $str)
+  {
+    $font = 2;
+    
+		$size = GetImageSize($img_source);
+		$im_in = ImageCreateFromJPEG($img_source);
 		
 		$im_out = imagecreatetruecolor($size[0], $size[1]);
 		
 		ImageCopyResampled($im_out, $im_in, 0, 0, 0, 0, $size[0], $size[1], $size[0], $size[1]);
 		   
 		#Find X & Y for note
-		$X_var = ImageSX($im_out); 
-		$X_var = $X_var - 130;
-		$Y_var = ImageSY($im_out); 
-		$Y_var = $Y_var - 25;
+		$X_var = imagesx($im_out) - imagefontwidth($font)*strlen($str);
+		$Y_var = imagesy($im_out) - imagefontheight($font);
 		
 		#Color
 		$white = ImageColorAllocate($im_out, 0, 0, 0);
 		
 		#Add note(simple: site address)
-		ImageString($im_out,2,$X_var,$Y_var,$str,$white);
+		ImageString($im_out,$font,$X_var,$Y_var,$str,$white);
 		
-		ImageJPEG($im_out, $save_to, $quality); // Create image
+		ImageJPEG($im_out, $save_to, 100); // Create image
 		ImageDestroy($im_in);
 		ImageDestroy($im_out);
   } // end of member function icon
@@ -130,9 +99,41 @@ class Star
    *
    * @access public
    */
-  private static function thumbGIF($img_sourse, $save_to, $quality, $width, $str) { 
-		$size = GetImageSize($img_sourse);
-		$im_in = ImageCreateFromGIF($img_sourse);
+  public static function thumb($type, $img_source, $save_to, $width, $str)
+  { 
+    switch ($type) {
+
+      // PNG
+      case 'image/png':
+        self::thumbPNG($img_source, $save_to, $width, $str);
+        break;
+
+      // JPEG
+      case 'image/jpeg':
+        self::thumbJPG($img_source, $save_to, $width, $str);
+        break;
+
+      // ...
+      default:
+      echo 'domg:'.$type;
+        break;
+    }
+
+  } // end of member function icon
+
+
+
+  /**
+   * @FILLME
+   *
+   * @access public
+   */
+  public static function thumbPNG($img_source, $save_to, $width, $str)
+  {
+    $font = 2;
+    
+		$size = GetImageSize($img_source);
+		$im_in = ImageCreateFromPNG($img_source);
 		
 		$new_height = ($width * $size[1]) / $size[0]; // Generate new height for image
 		$im_out = imagecreatetruecolor($width, $new_height);
@@ -140,18 +141,16 @@ class Star
 		ImageCopyResampled($im_out, $im_in, 0, 0, 0, 0, $width, $new_height, $size[0], $size[1]);
 		   
 		#Find X & Y for note
-		$X_var = ImageSX($im_out); 
-		$X_var = $X_var - 130;
-		$Y_var = ImageSY($im_out); 
-		$Y_var = $Y_var - 25;
+		$X_var = imagesx($im_out) - imagefontwidth($font)*strlen($str);
+		$Y_var = imagesy($im_out) - imagefontheight($font);
 		
 		#Color
 		$white = ImageColorAllocate($im_out, 0, 0, 0);
 		
 		#Add note(simple: site address)
-		ImageString($im_out,2,$X_var,$Y_var,$str,$white);
+		ImageString($im_out,$font,$X_var,$Y_var,$str,$white);
 		
-		ImageGIF($im_out, $save_to, $quality); // Create image
+		ImagePNG($im_out, $save_to); // Create image
 		ImageDestroy($im_in);
 		ImageDestroy($im_out);
 
@@ -164,43 +163,12 @@ class Star
    *
    * @access public
    */
-  private static function thumbPNG($img_sourse, $save_to, $quality, $width, $str) { 
-		$size = GetImageSize($img_sourse);
-		$im_in = ImageCreateFromPNG($img_sourse);
-		
-		$new_height = ($width * $size[1]) / $size[0]; // Generate new height for image
-		$im_out = imagecreatetruecolor($width, $new_height);
-		
-		ImageCopyResampled($im_out, $im_in, 0, 0, 0, 0, $width, $new_height, $size[0], $size[1]);
-		   
-		#Find X & Y for note
-		$X_var = ImageSX($im_out); 
-		$X_var = $X_var - 130;
-		$Y_var = ImageSY($im_out); 
-		$Y_var = $Y_var - 25;
-		
-		#Color
-		$white = ImageColorAllocate($im_out, 0, 0, 0);
-		
-		#Add note(simple: site address)
-		ImageString($im_out,2,$X_var,$Y_var,$str,$white);
-		
-		ImagePNG($im_out, $save_to, $quality); // Create image
-		ImageDestroy($im_in);
-		ImageDestroy($im_out);
-
-  } // end of member function icon
-
-
-
-  /**
-   * @FILLME
-   *
-   * @access public
-   */
-  private static function thumbJPG($img_sourse, $save_to, $quality, $width, $str) { 
-		$size = GetImageSize($img_sourse);
-		$im_in = ImageCreateFromJPEG($img_sourse);
+  public static function thumbJPG($img_source, $save_to, $width, $str)
+  {
+    $font = 2;
+ 
+		$size = GetImageSize($img_source);
+		$im_in = ImageCreateFromJPEG($img_source);
 		
 		$new_height = ($width * $size[1]) / $size[0]; // Generate new height for image
 		$im_out = imagecreatetruecolor($width, $new_height);
@@ -208,18 +176,16 @@ class Star
 		ImageCopyResampled($im_out, $im_in, 0, 0, 0, 0, $width, $new_height, $size[0], $size[1]);
 		
 		#Find X & Y for note
-		$X_var = ImageSX($im_out); 
-		$X_var = $X_var - 130;
-		$Y_var = ImageSY($im_out); 
-		$Y_var = $Y_var - 25;
+		$X_var = imagesx($im_out) - imagefontwidth($font)*strlen($str);
+		$Y_var = imagesy($im_out) - imagefontheight($font);
 		
 		#Color
 		$white = ImageColorAllocate($im_out, 0, 0, 0);
 		
 		#Add note(simple: site address)
-		ImageString($im_out,2,$X_var,$Y_var,$str,$white);
+		ImageString($im_out,$font,$X_var,$Y_var,$str,$white);
 		
-		ImageJPEG($im_out, $save_to, $quality); // Create image
+		ImageJPEG($im_out, $save_to, 100); // Create image
 		ImageDestroy($im_in);
 		ImageDestroy($im_out);
 

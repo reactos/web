@@ -154,6 +154,47 @@ class Entry
    *
    * @access public
    */
+  public static function addScreenshot( $entry_id, $ptr )
+  {
+    global $RSDB_intern_user_id;
+    global $CDB_upload_path_fs;
+
+    // check if entry exists
+    if ($entry_id === false) {
+      echo 'Error: Unknown entry';
+      return false;
+    }
+    
+    $filename = date('Y-m-d-H-i-s').'_'.$RSDB_intern_user_id.'_'.rawurlencode(htmlspecialchars($_FILES[$ptr]['name']));
+    
+    if (move_uploaded_file($_FILES[$ptr]['tmp_name'], $CDB_upload_path_fs.$filename)) {
+    
+      Image::thumb($_FILES[$ptr]['type'], $CDB_upload_path_fs.$filename, $CDB_upload_path_fs.'th/'.$filename, 120, "reactos.org");
+
+      // insert
+      $stmt=CDBConnection::getInstance()->prepare("INSERT INTO ".CDBT_ATTACHMENTS." (id, entry_id, user_id, file, type, description, created, visible) VALUES (NULL, :entry_id, :user_id, :file, 'picture', :description, NOW(), TRUE)");
+      $stmt->bindParam('entry_id',$entry_id,PDO::PARAM_INT);
+      $stmt->bindParam('user_id',$RSDB_intern_user_id,PDO::PARAM_INT);
+      $stmt->bindParam('file',$filename,PDO::PARAM_STR);
+      $stmt->bindParam('description',$_POST['description'],PDO::PARAM_STR);
+      return $stmt->execute();
+    }
+    else {
+      echo 'Problem while uploading file.<br /><pre>';
+      var_dump($_FILES);
+      echo '</pre>';
+    }
+
+    return false;
+  } // end of member function add
+
+
+
+  /**
+   * @FILLME
+   *
+   * @access public
+   */
   public static function get( $type, $name )
   {
     // search for existing entry

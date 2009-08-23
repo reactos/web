@@ -32,8 +32,6 @@ define('CDBT_VERTAGS'    , 'cdb_entries_tags'); // ReactOS version tags
 define('CDBT_VERSIONS'   , 'cdb_entries_versions'); // application versions
 
 
-
-
 		// Config: (please sync this with the database)
 		$RSDB_intern_path = "compat/"; // the dirs after http://www.reactos.org
 		
@@ -48,4 +46,7 @@ define('CDBT_VERSIONS'   , 'cdb_entries_versions'); // application versions
 		// User ID
     require_once(ROSCMS_PATH.'lib/RosCMS_Autoloader.class.php');
 		$RSDB_intern_user_id = Subsystem::in(Login::OPTIONAL, '/'.$RSDB_intern_path);
+
+$CDB_upload_path_fs = 'J:\\Web\\reactos\\compat\\media\\files\\picture\\';
+$CDB_upload_path_web = $RSDB_intern_path_server.'media/files/picture/';
 ?>

@@ -184,25 +184,67 @@ class HTML_Entry extends HTML
 
   private function mainScreenshots()
   {
-    $stmt=CDBConnection::getInstance()->prepare("SELECT id, file, description FROM ".CDBT_ATTACHMENTS." WHERE type = 'picture' AND entry_id=:entry_id AND visible IS TRUE LIMIT 20 OFFSET 0");
-    $stmt->bindParam('entry_id',$this->entry_id,PDO::PARAM_INT);
-    $stmt->execute();
-    $screenshots = $stmt->fetchAll(PDO::FETCH_ASSOC);
- 
-    echo '<div id="entryMain">';
-    if (count($screenshots) > 0) {
-      foreach ($screenshots as $screenshot) {
+    global $RSDB_intern_user_id;
+    global $CDB_upload_path_web;
+
       echo '
-        <div class="screenshot">
-          <a href="?show=entry&amp;show=screenshot&amp;id='.$screenshot['id'].'">
-            <img src="media/files/picture/'.$screenshot['file'].'" alt="screenshot" title="'.htmlspecialchars($screenshot['description']).'" />
-          </a>
-        </div>';
+        <div id="entryMain">';
+
+    if (isset($_GET['scrid']) && $_GET['scrid'] > 0) {
+      $stmt=CDBConnection::getInstance()->prepare("SELECT user_id, created, file, description FROM ".CDBT_ATTACHMENTS." WHERE type = 'picture' AND id=:screenshot_id AND visible IS TRUE LIMIT 1");
+      $stmt->bindParam('screenshot_id',$_GET['scrid'],PDO::PARAM_INT);
+      $stmt->execute();
+      $screenshot = $stmt->fetchOnce(PDO::FETCH_ASSOC);
+
+      echo '
+        <span>Screenshot:</span><br />
+        <img src="'.$CDB_upload_path_web.$screenshot['file'].'" alt="screenshot" /><br />
+        <span>Description:</span>
+        <div>'.$screenshot['description'].'</div><br />
+        <span>Submitted on:</span>'.$screenshot['created'].'<br />
+        <span>Submitted by:'.CUser::getName($screenshot['user_id']).'</span>';
+    }
+    else {
+      if ($this->entry_id > 0 && isset($_FILES['shot']) && $RSDB_intern_user_id > 0) {
+        Entry::addScreenshot($this->entry_id, 'shot');
+      }
+    
+      $stmt=CDBConnection::getInstance()->prepare("SELECT id, file, description FROM ".CDBT_ATTACHMENTS." WHERE type = 'picture' AND entry_id=:entry_id AND visible IS TRUE LIMIT 20 OFFSET 0");
+      $stmt->bindParam('entry_id',$this->entry_id,PDO::PARAM_INT);
+      $stmt->execute();
+      $screenshots = $stmt->fetchAll(PDO::FETCH_ASSOC);
+   
+        
+      if ($RSDB_intern_user_id > 0) {
+        echo '
+          <form action="" method="post" enctype="multipart/form-data">
+            <label for="shot">screenshot(jpg,png)</label>
+            <input type="file" name="shot" id="shot" />
+            <br />
+            <label for="description">description</label>
+            <input type="text" name="description" id="description" />
+            <br />
+            <button type="submit">Upload</button>
+          </form>
+          <hr />';
+      }
+      else {
+        echo 'To add screenshots, you need to login with your RosCMS account.<hr />';
+      }
+
+      if (count($screenshots) > 0) {
+        foreach ($screenshots as $screenshot) {
+        echo '
+          <div class="screenshot">
+            <a href="?show=version&amp;id='.$_GET['id'].'&amp;view=pref&amp;pside='.$this->side.'&amp;pmain='.self::MAIN_SCREENSHOTS.'&amp;scrid='.$screenshot['id'].'">
+              <img src="'.$CDB_upload_path_web.'th/'.$screenshot['file'].'" alt="screenshot" title="'.htmlspecialchars($screenshot['description']).'" />
+            </a>
+          </div>';
+        }
       }
     }
-    
+
     echo '
-        <a href="#">Add Screenshots</a>
       </div>';
   } // end of member function mainScreenshots
 
@@ -378,7 +420,9 @@ class HTML_Entry extends HTML
 
   private function sideScreenshots()
   {
-    $stmt=CDBConnection::getInstance()->prepare("SELECT id, file, description FROM ".CDBT_ATTACHMENTS." WHERE type = 'picture' AND entry_id=:entry_id AND visible IS TRUE LIMIT 2");
+    global $CDB_upload_path_web;
+  
+    $stmt=CDBConnection::getInstance()->prepare("SELECT id, file, description FROM ".CDBT_ATTACHMENTS." WHERE type = 'picture' AND entry_id=:entry_id AND visible IS TRUE ORDER BY created DESC LIMIT 3");
     $stmt->bindParam('entry_id',$this->entry_id,PDO::PARAM_INT);
     $stmt->execute();
     $screenshots = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -389,15 +433,14 @@ class HTML_Entry extends HTML
       foreach ($screenshots as $screenshot) {
         echo '
         <div class="screenshot">
-          <a href="?show=entry&amp;show=screenshot&amp;id='.$screenshot['id'].'">
-            <img src="media/files/picture/'.$screenshot['file'].'" alt="screenshot" title="'.htmlspecialchars($screenshot['description']).'" />
+          <a href="?show=version&amp;id='.$_GET['id'].'&amp;view=pref&amp;pside='.$this->side.'&amp;pmain='.self::MAIN_SCREENSHOTS.'&amp;scrid='.$screenshot['id'].'">
+            <img src="'.$CDB_upload_path_web.'th/'.$screenshot['file'].'" alt="screenshot" title="'.htmlspecialchars($screenshot['description']).'" />
           </a>
         </div>';
       } // end foreach
     }
     
     echo '
-        <a href="#">Add Screenshots</a>
       </div>';
   } // end of member function sideScreenshots
 
