@@ -377,25 +377,50 @@ class HTML_Entry extends HTML
 
   private function sideStats()
   {
+    $stat = array();
+  
+    // comments
+    $stmt=CDBConnection::getInstance()->prepare("SELECT COUNT(*) FROM ".CDBT_COMMENTS." WHERE entry_id=:entry_id AND visible IS TRUE");
+    $stmt->bindParam('entry_id',$this->entry_id,PDO::PARAM_INT);
+    $stmt->execute();
+    $stat['Comments'] = $stmt->fetchColumn();
+
+    // tests
+    $stmt=CDBConnection::getInstance()->prepare("SELECT COUNT(*) FROM ".CDBT_REPORTS." WHERE entry_id=:entry_id AND visible IS TRUE AND disabled IS FALSE");
+    $stmt->bindParam('entry_id',$this->entry_id,PDO::PARAM_INT);
+    $stmt->execute();
+    $stat['Tests'] = $stmt->fetchColumn();
+
+    // bugs
+    $stmt=CDBConnection::getInstance()->prepare("SELECT name FROM ".CDBT_ENTRIES." WHERE id=:entry_id");
+    $stmt->bindParam('entry_id',$this->entry_id,PDO::PARAM_INT);
+    $stmt->execute();
+    $entry_name=$stmt->fetchColumn();
+
+    $stmt=CDBConnection::getInstance()->prepare("SELECT COUNT(*) FROM bugs.bugs WHERE short_desc LIKE :entry_name AND bug_status NOT IN('RESOLVED', 'CLOSED')");
+    $stmt->bindValue('entry_name', '%'.$entry_name.'%', PDO::PARAM_STR);
+    $stmt->execute();
+    $stat['Related bugs'] = $stmt->fetchColumn();
+
+    // screenshots
+    $stmt=CDBConnection::getInstance()->prepare("SELECT COUNT(*) FROM ".CDBT_ATTACHMENTS." WHERE entry_id=:entry_id AND type = 'picture' AND visible IS TRUE");
+    $stmt->bindParam('entry_id',$this->entry_id,PDO::PARAM_INT);
+    $stmt->execute();
+    $stat['Screenshots'] = $stmt->fetchColumn();
+
     echo '
       <div id="sideContent" class="statistics">
-        <ul>
-          <li>
-            <span class="key">Comments</span>
-            <span class="value">0</span>
-          </li>
-          <li>
-            <span class="key">Tests</span>
-            <span class="value">0</span>
-          </li>
-          <li>
-            <span class="key">Bugs</span>
-            <span class="value">0</span>
-          </li>
-          <li>
-            <span class="key">Screenshots</span>
-            <span class="value">0</span>
-          </li>
+        <ul>';
+
+    // output stats
+    foreach($stat as $key => $val) {
+      echo '
+        <li>
+          <span class="key">'.$key.':</span>
+          <span class="value">'.$val.'</span>
+        </li>';
+    }
+    echo '
         </ul>
       </div>';
   } // end of member function sideTests
