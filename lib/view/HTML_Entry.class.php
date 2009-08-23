@@ -190,29 +190,55 @@ class HTML_Entry extends HTML
 
   private function mainTests()
   {
-    $stmt=CDBConnection::getInstance()->prepare("SELECT user_id, revision, works, environment, environment_version, created FROM ".CDBT_REPORTS." t WHERE version_id = :version_id AND visible IS TRUE AND disabled IS FALSE ORDER BY revision DESC");
-    $stmt->bindParam('version_id', $_GET['ver'], PDO::PARAM_INT);
+    $stmt=CDBConnection::getInstance()->prepare("SELECT user_id, t.revision, works, environment, environment_version, created, v.name AS releasename FROM ".CDBT_REPORTS." t LEFT JOIN ".CDBT_VERTAGS." v ON v.revision=t.revision WHERE entry_id = :entry_id AND t.visible IS TRUE AND t.disabled IS FALSE ORDER BY revision DESC");
+    $stmt->bindParam('entry_id', $this->entry_id, PDO::PARAM_INT);
     $stmt->execute();
     $tests = $stmt->fetchAll(PDO::FETCH_ASSOC);
  
     echo '<div id="entryMain">';
 
       if (count($tests) > 0) {
+        echo '
+          <table class="rtable" cellspacing="0" cellpadding="0">
+            <thead>
+              <th>&nbsp;</th>
+              <th>User</th>
+              <th>Date</th>
+              <th>Revision</th>
+              <th>Environment</th>
+            </thead>';
+
+        $x=0;
         foreach ($tests as $test) {
           echo '
-            <div class="testReport" style="margin-top: 10px;">
-              <span>by '.Subsystem::getUserName($test['user_id']).' on '.$test['created'].'</span><br />
-              r'.$test['revision'].' in '.$test['environment'].' ('.$test['environment_version'].')<br />
-              <strong>status:</strong> '.$test['works'].' 
-            </div>';
+            <tr class="row'.($x%2+1).'" id="tr'.$x.'">
+              <td class="first '.($test['works'] == 'full' ? 'stable' : ($test['works'] == 'part' ? 'unstable' : 'crash')).'">&nbsp;</td>
+              <td>'.CUser::getName($test['user_id']).'</td>
+              <td>'.$test['created'].'</td>
+              <td>'.($test['releasename'] != '' ? $test['releasename'] : $test['revision']).'</td>
+              <td>';
+          
+          // is there a environment
+          if ($test['environment'] != 'unkn') {
+            echo $test['environment'];
+            
+            if ($test['environment_version'] != '') {
+              echo '('.$test['environment_version'].')';
+            }
+          }
+          echo '</td>
+            </tr>';
+            
+          $x++;
         }
+        echo '</table>';
       }
       else {
         echo 'There are no tests submitted yet.';
       }
     
     echo '
-        <a href="#">Submit Test</a>
+        <a href="?show=submit">Submit Test</a>
       </div>';
   } // end of member function mainScreenshots
 
@@ -322,9 +348,10 @@ class HTML_Entry extends HTML
     echo '
       <ul class="entryNavigation">
         <li'.($this->side == self::SIDE_SCREENSHOTS ? ' class="active"><span>Screenshots</span>' : '><a href="?show=version&amp;id='.$_GET['id'].'&amp;view=pref&amp;pmain='.$this->main.'&amp;pside='.self::SIDE_SCREENSHOTS.'">Screenshots</a>').'</li>
-        <li'.($this->side == self::SIDE_TESTS ? ' class="active"><span>Tests</span>' : '><a href="?show=version&amp;id='.$_GET['id'].'&amp;view=pref&amp;pmain='.$this->main.'&amp;pside='.self::SIDE_TESTS.'">Tests</a>').'</li>
         <li'.($this->side == self::SIDE_STATS ? ' class="active"><span>Statistics</span>' : '><a href="?show=version&amp;id='.$_GET['id'].'&amp;view=pref&amp;pmain='.$this->main.'&amp;pside='.self::SIDE_STATS.'">Statistics</a>').'</li>
       </ul>';
+      
+    //         <li'.($this->side == self::SIDE_TESTS ? ' class="active"><span>Tests</span>' : '><a href="?show=version&amp;id='.$_GET['id'].'&amp;view=pref&amp;pmain='.$this->main.'&amp;pside='.self::SIDE_TESTS.'">Tests</a>').'</li>
   } // end of member function screenshotShort
 
 
