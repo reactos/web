@@ -134,29 +134,49 @@ class HTML_Entry extends HTML
   
   private function mainComments()
   {
-    echo '<div id="entryMain">';
+    global $RSDB_intern_loginsystem_fullpath;
+    global $RSDB_intern_user_id;
+  
+    if ($this->entry_id > 0 && isset($_POST['comment_content']) && strlen(trim($_POST['comment_content'])) > 0 && $RSDB_intern_user_id > 0) {
+      Entry::addComment($this->entry_id, '',$_POST['comment_content']);
+    }
+  
+    echo '
+      <div id="entryMain">';
+      
+    if ($RSDB_intern_user_id > 0) {
+      echo '
+        <form action="" method="post">
+          <label for="comment_content">Commment/Answer to ...:</label><br />
+          <textarea name="comment_content" id="comment_content"></textarea><br />
+          <button type="submit">Submit</button>
+        </form>';
+    }
+    else {
+      echo 'To add comments, you need to login with your RosCMS account.<hr />';
+    }
 
-      $stmt=CDBConnection::getInstance()->prepare("SELECT title, content, created, user_id FROM ".CDBT_COMMENTS." WHERE entry_id=:entry_id AND parent IS NULL ORDER BY created DESC");
-      $stmt->bindParam('entry_id',$this->entry_id,PDO::PARAM_INT);
-      $stmt->execute();
-      $comments=$stmt->fetchAll(PDO::FETCH_ASSOC);
+    $stmt=CDBConnection::getInstance()->prepare("SELECT title, content, created, user_id FROM ".CDBT_COMMENTS." WHERE entry_id=:entry_id AND parent IS NULL ORDER BY created DESC");
+    $stmt->bindParam('entry_id',$this->entry_id,PDO::PARAM_INT);
+    $stmt->execute();
+    $comments=$stmt->fetchAll(PDO::FETCH_ASSOC);
       
-      if (count($comments) > 0) {
-        foreach ($comments as $comment) {
-          echo '
-            <div>
-              <div>
-                <h3>'.htmlspecialchars($comment['title']).'</h3>
-                <span>by '.Subsystem::getUserName($comment['user_id']).' on '.$comment['created'].'</span>
-              </div>
-              '.nl2br(htmlspecialchars($comment['content'])).'
-            </div>';
-        }
+    if (count($comments) > 0) {
+      foreach ($comments as $comment) {
+        echo '
+          <div style="background-color: white;margin: 10px 3px 3px 3px; border: 1px solid lightgray;padding:3px;">
+            <div style="border-bottom: 1px solid gray;">
+              <!--<h3>'.htmlspecialchars($comment['title']).'</h3>-->
+              <span>by <a href="'.$RSDB_intern_loginsystem_fullpath.'?page=search&user_id='.$comment['user_id'].'">'.Subsystem::getUserName($comment['user_id']).'</a> on '.$comment['created'].'</span>
+            </div>
+            '.nl2br(htmlspecialchars($comment['content'])).'
+          </div>';
       }
-      else {
-        echo 'There are no comments submitted yet.';
-      }
-      
+    }
+    else {
+      echo 'There are no comments submitted yet.';
+    }
+
     echo '</div>';
   } // end of member function mainComments
 

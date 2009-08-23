@@ -86,6 +86,7 @@ abstract class HTML
     global $RSDB_intern_path_server;
     global $RSDB_intern_path;
     global $RSDB_intern_user_id;
+    global $RSDB_intern_loginsystem_fullpath;
 
     echo '
       <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
@@ -127,7 +128,7 @@ abstract class HTML
           <a href="'.$RSDB_intern_path_server.'?page=about">Info</a> |
           <a href="'.$RSDB_intern_path_server.'?page=community">Community</a> |
           <a href="'.$RSDB_intern_path_server.'?page=dev">Development</a> |
-          <a href="'.$RSDB_intern_path_server.'roscms/?page=user">myReactOS</a>
+          <a href="'.$RSDB_intern_loginsystem_fullpath.'?page=user">myReactOS</a>
         </div>
       </div>';
   } // end of member function header
@@ -145,6 +146,7 @@ abstract class HTML
     global $RSDB_intern_link_db_sec;
     global $RSDB_intern_path_server;
     global $RSDB_intern_link_language;
+    global $RSDB_intern_loginsystem_fullpath;
 
     echo '
       <table style="border: none; width:100%;" cellpadding="0" cellspacing="0">
@@ -156,7 +158,7 @@ abstract class HTML
               <li><a href="'.$RSDB_intern_path_server.'?page=about">Info</a></li>
               <li><a href="'.$RSDB_intern_path_server.'?page=community">Community</a></li>
               <li><a href="'.$RSDB_intern_path_server.'?page=dev">Development</a></li>
-              <li><a href="'.$RSDB_intern_path_server.'roscms/?page=user">myReactOS</a></li>
+              <li><a href="'.$RSDB_intern_loginsystem_fullpath.'?page=user">myReactOS</a></li>
             </ol>
             <br />
 
