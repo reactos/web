@@ -34,7 +34,7 @@ class Category
    *
    * @access public
    */
-  public static 	function showTreeAsOption($category_id = 0, $level = 0)
+  public static function showTreeAsOption($select = 0, $category_id = 0, $level = 0)
   {
     $output = '';
 
@@ -42,8 +42,8 @@ class Category
     if (count($categories) > 0) {
       foreach($categories as $category) {
         $output .= '
-          <option value="'.$category['id'].'">'.str_repeat('&nbsp;&nbsp;&nbsp;',$level).htmlspecialchars($category['name']).'</option>';
-        $output .= self::showTreeAsOption($category['id'],$level+1);
+          <option value="'.$category['id'].'"'.($select == $category['id'] ? ' selected="selected"' : '').'>'.str_repeat('&nbsp;&nbsp;&nbsp;',$level).htmlspecialchars($category['name']).'</option>';
+        $output .= self::showTreeAsOption($select,$category['id'],$level+1);
       }
     }
 

@@ -109,6 +109,38 @@ class HTML_Submit extends HTML
   protected function body( )
   {
     $used_again = (isset($_POST['next']) && $_POST['next']=='again');
+    
+    // preselect step 1
+    if (isset($_GET['version']) && $_GET['version'] > 0) {
+      $stmt=CDBConnection::getInstance()->prepare("SELECT e.id, e.type, e.name, v.version, e.category_id, e.description FROM ".CDBT_ENTRIES." e JOIN ".CDBT_VERSIONS." v ON v.entry_id=e.id  WHERE v.id=:version_id");
+      $stmt->bindParam('version_id',$_GET['version'],PDO::PARAM_INT);
+      $stmt->execute();
+      $entry = $stmt->fetchOnce(PDO::FETCH_ASSOC);
+      
+      // get tags
+      if ($entry !== false) {
+        $entry['tags'] = '';
+        
+        $stmt=CDBConnection::getInstance()->prepare("SELECT name FROM ".CDBT_TAGS." t JOIN ".CDBT_TAGGED." r ON t.id=r.tag_id WHERE r.entry_id=:entry_id");
+        $stmt->bindParam('entry_id',$entry['id'],PDO::PARAM_INT);
+        $stmt->execute();
+        while ($tag = $stmt->fetch(PDO::FETCH_ASSOC)) {
+          if ($entry['tags'] != '') $entry['tags'] .= ',';
+          $entry['tags'] .= $tag['name'];
+        }
+      }
+    }
+    
+    // no preselection, provide standard values
+    if (empty($entry)) {
+      $entry = array(
+        'type' => '',
+        'name' => '',
+        'version' => '',
+        'category_id' => 0,
+        'description' => '',
+        'tags' => '');
+    }
   
     echo '
       <form id="submit" action="?show=submit&amp;submit=yes" method="post" style="width: 700px;">
@@ -118,22 +150,22 @@ class HTML_Submit extends HTML
             <li style="float: left;">
               <label for="type">Type:</label><br />
               <select name="type" id="type">
-                <option value="app" selected="selected">Application</option>
-                <option value="dll">DLL-Library</option>
-                <option value="drv">Driver</option>
-                <option value="oth">Other</option>
+                <option value="app"'.($entry['type'] == 'app' ? ' selected="selected"' : '').'>Application</option>
+                <option value="dll"'.($entry['type'] == 'dll' ? ' selected="selected"' : '').'>DLL-Library</option>
+                <option value="drv"'.($entry['type'] == 'drv' ? ' selected="selected"' : '').'>Driver</option>
+                <option value="oth"'.($entry['type'] == 'oth' ? ' selected="selected"' : '').'>Other</option>
               </select>
             </li>
 
             <li style="float: left;">
               <label for="title">Name:</label><br />
-              <input type="text" name="title" id="title" onkeyup="'."suggestName(this.value);".'" />
+              <input type="text" name="title" id="title" onkeyup="'."suggestName(this.value);".'"  value="'.htmlspecialchars($entry['name']).'"/>
               <div class="suggestion" id="suggestedNames" style="display:none;"></div>
             </li>
 
             <li style="float: left;">
               <label for="version">Version:</label><br />
-              <input type="text" name="version" id="version" style="width: 50%;" />
+              <input type="text" name="version" id="version" style="width: 50%;" value="'.htmlspecialchars($entry['version']).'" />
               <div class="suggestion" id="suggestedVersions" style="display:none;"></div>
             </li>
 
@@ -141,17 +173,17 @@ class HTML_Submit extends HTML
               <label for="cat">Category:</label><br />
               <select name="cat" id="cat" style="width: 200px;">
                 <option value="0">&nbsp;</option>
-                '.Category::showTreeAsOption().'
+                '.Category::showTreeAsOption($entry['category_id']).'
               </select>
             </li>
             <li style="float:left;">
               <label for="description">Short Description:</label><br />
-              <input type="text" name="description" id="description" />
+              <input type="text" name="description" id="description" value="'.htmlspecialchars($entry['description']).'" />
             </li>
 
             <li style="clear: both;">
               <label for="tags">Tags: (e.g. vendor)</label><br />
-              <input type="text" name="tags" id="tags" /> (seperate them by <em>,</em>)
+              <input type="text" name="tags" id="tags" value="'.htmlspecialchars($entry['tags']).'" /> (seperate them by <em>,</em>)
             </li>
 
           </ul>

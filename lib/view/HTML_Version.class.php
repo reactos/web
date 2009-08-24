@@ -307,7 +307,7 @@ class HTML_Version extends HTML
       }
     
     echo '
-        <a href="?show=submit">Submit Test</a>
+        <a href="?show=submit&amp;version='.rawurlencode($_GET['id']).'">Submit Test</a>
       </div>';
   } // end of member function mainScreenshots
 
