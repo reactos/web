@@ -245,10 +245,10 @@ class HTML_Submit extends HTML
           </ul>
           <div style="float: left;margin-right: 10px;">
             <span class="label">Environment:</span><br />
-            <input type="radio" class="normal" name="env" id="envvm" value="VM" checked="checked" onchange="'."javascript:document.getElementById('vmselect').style.display=(this.checked ? 'block' : 'none' );javascript:document.getElementById('vmverlabel').innerHTML='Version:';".'" />
+            <input type="radio" class="normal" name="env" id="envvm" value="VM"'.((($used_again && $_POST['env']=='VM') || !$used_again) ? ' checked="checked"' : '').' onchange="'."javascript:document.getElementById('vmselect').style.display=(this.checked ? 'block' : 'none' );javascript:document.getElementById('vmverlabel').innerHTML='Version:';".'" />
             <label class="normal" for="envvm">Virtual Machine</label><br />
 
-            <input type="radio" class="normal" name="env" id="envrh" value="RH" onchange="'."javascript:document.getElementById('vmselect').style.display=(this.checked ? 'none' : 'block' );javascript:document.getElementById('vmverlabel').innerHTML='Specs:';".'" />
+            <input type="radio" class="normal" name="env" id="envrh" value="RH"'.(($used_again && $_POST['env']=='RH') ? ' checked="checked"' : '').' onchange="'."javascript:document.getElementById('vmselect').style.display=(this.checked ? 'none' : 'block' );javascript:document.getElementById('vmverlabel').innerHTML='Specs:';".'" />
             <label class="normal" for="envrh">Real Hardware</label>
           </div>
           <div id="vmlist" style="list-style-type: none;float: left;">
@@ -256,17 +256,17 @@ class HTML_Submit extends HTML
               <label for="vm">Virtual Machine:</label><br />
               <select id="vm" name="vm">
                 <option>&nbsp;</option>
-                <option value="Bo">Bochs</option>
-                <option value="qe">Qemu</option>
-                <option value="vb">VirtualBox</option>
-                <option value="vp">VirtualPC</option>
-                <option value="vw">VMWare</option>
-                <option value="ot">Other</option>
+                <option value="Bo"'.(($used_again && $_POST['vm']=='Bo') ? ' selected="selected"' : '').'>Bochs</option>
+                <option value="qe"'.(($used_again && $_POST['vm']=='qe') ? ' selected="selected"' : '').'>Qemu</option>
+                <option value="vb"'.(($used_again && $_POST['vm']=='vb') ? ' selected="selected"' : '').'>VirtualBox</option>
+                <option value="vp"'.(($used_again && $_POST['vm']=='vp') ? ' selected="selected"' : '').'>VirtualPC</option>
+                <option value="vw"'.(($used_again && $_POST['vm']=='vw') ? ' selected="selected"' : '').'>VMWare</option>
+                <option value="ot"'.(($used_again && $_POST['vm']=='ot') ? ' selected="selected"' : '').'>Other</option>
               </select>
             </div>
             <br />
             <label for="vmver" id="vmverlabel">Version:</label><br />
-            <input type="text" name="vmver" id="vmver" />
+            <input type="text" name="vmver" id="vmver" value="'.($used_again ? htmlspecialchars($_POST['vmver']) : '').'" />
           </div>
           <br style="clear: both;"/>
         </div>

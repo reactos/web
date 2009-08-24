@@ -546,14 +546,16 @@ class HTML_Version extends HTML
     $stmt->execute();
     $stat['Tests'] = $stmt->fetchColumn();
 
-    // bugs
+    // bugs part1, getting entry name
     $stmt=CDBConnection::getInstance()->prepare("SELECT name FROM ".CDBT_ENTRIES." WHERE id=:entry_id");
     $stmt->bindParam('entry_id',$this->entry_id,PDO::PARAM_INT);
     $stmt->execute();
     $entry_name=$stmt->fetchColumn();
 
-    $stmt=CDBConnection::getInstance()->prepare("SELECT COUNT(*) FROM bugs.bugs WHERE short_desc LIKE :entry_name AND bug_status NOT IN('RESOLVED', 'CLOSED')");
+    // bugs part2, getting a number
+    $stmt=CDBConnection::getInstance()->prepare("SELECT COUNT(*) FROM bugs.bugs WHERE short_desc LIKE :entry_name OR bug_id IN(SELECT bug_id FROM ".CDBT_BUGS." WHERE entry_id=:entry_id)");
     $stmt->bindValue('entry_name', '%'.$entry_name.'%', PDO::PARAM_STR);
+    $stmt->bindParam('entry_id',$this->entry_id,PDO::PARAM_INT);
     $stmt->execute();
     $stat['Related bugs'] = $stmt->fetchColumn();
 

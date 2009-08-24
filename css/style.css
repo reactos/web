@@ -97,7 +97,7 @@ LABEL.crash { color: #FF3300 !important; }
 #entrySide { float:right; width: 500px; height: 100px;}
 
 #sideContent { padding: 3px; border: 1px solid #5984C3; font-weight: bold; clear: both; height: 110px; }
-#sideContent .screenshot { float: left; margin: 5px; height: 100px; width: 100px; border: 1px solid black; }
+#sideContent .screenshot { float: left; margin: 5px; border: 0px solid black; }
 
 /* navigation */
 .entryNavigation { clear: both; margin: 0px; padding: 0px; }
