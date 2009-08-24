@@ -256,6 +256,7 @@ class HTML_Version extends HTML
 
   private function mainTests()
   {
+  
     $stmt=CDBConnection::getInstance()->prepare("SELECT user_id, t.revision, works, environment, environment_version, created, v.name AS releasename FROM ".CDBT_REPORTS." t LEFT JOIN ".CDBT_VERTAGS." v ON v.revision=t.revision WHERE entry_id = :entry_id AND t.visible IS TRUE AND t.disabled IS FALSE ORDER BY revision DESC");
     $stmt->bindParam('entry_id', $this->entry_id, PDO::PARAM_INT);
     $stmt->execute();
@@ -315,24 +316,60 @@ class HTML_Version extends HTML
 
   private function mainBugs()
   {
+    global $RSDB_intern_user_id;
+    
+    // link bugs
+    if (isset($_POST['bug']) && ctype_digit($_POST['bug']) && $RSDB_intern_user_id > 0) {
+    
+      // check if already exists
+      $stmt=CDBConnection::getInstance()->prepare("SELECT 1 FROM ".CDBT_BUGS." WHERE version_id=:entry_id AND bug_id=:bug_id");
+      $stmt->bindParam('entry_id',$_GET['id'],PDO::PARAM_INT);
+      $stmt->bindParam('bug_id',$_POST['bug'],PDO::PARAM_STR);
+
+      // insert new entry
+      if ($stmt->execute() && $stmt->fetchColumn() === false) {
+      echo 'str';
+        $stmt=CDBConnection::getInstance()->prepare("INSERT INTO ".CDBT_BUGS." (version_id, entry_id, bug_id) VALUES (:version_id, :entry_id, :bug_id)");
+        $stmt->bindParam('version_id',$_GET['id'],PDO::PARAM_INT);
+        $stmt->bindParam('entry_id',$this->entry_id,PDO::PARAM_INT);
+        $stmt->bindParam('bug_id',$_POST['bug'],PDO::PARAM_STR);
+        $stmt->execute();
+      }
+    }
+  
+    // we need entry name to search in bugzilla
     $stmt=CDBConnection::getInstance()->prepare("SELECT name FROM ".CDBT_ENTRIES." WHERE id=:entry_id");
     $stmt->bindParam('entry_id',$this->entry_id,PDO::PARAM_INT);
     $stmt->execute();
     $entry_name=$stmt->fetchColumn();
-  
+    
+    // and we also use linked bug numbers
     if (isset($_GET['old']) AND $_GET['old'] == 'true') {
-      $stmt=CDBConnection::getInstance()->prepare("SELECT DISTINCT bug_id, short_desc, bug_status FROM bugs.bugs WHERE short_desc LIKE :entry_name ORDER BY bug_id DESC");
+      $stmt=CDBConnection::getInstance()->prepare("SELECT DISTINCT bug_id, short_desc, bug_status FROM bugs.bugs WHERE short_desc LIKE :entry_name OR bug_id IN(SELECT bug_id FROM ".CDBT_BUGS." WHERE entry_id=:entry_id) ORDER BY bug_id DESC");
       $old = true;
     }
     else {
-      $stmt=CDBConnection::getInstance()->prepare("SELECT DISTINCT bug_id, short_desc, bug_status FROM bugs.bugs WHERE short_desc LIKE :entry_name AND bug_status NOT IN('RESOLVED', 'CLOSED') ORDER BY bug_id DESC");
+      $stmt=CDBConnection::getInstance()->prepare("SELECT DISTINCT bug_id, short_desc, bug_status FROM bugs.bugs WHERE (short_desc LIKE :entry_name OR bug_id IN(SELECT bug_id FROM ".CDBT_BUGS." WHERE entry_id=:entry_id)) AND bug_status NOT IN('RESOLVED', 'CLOSED') ORDER BY bug_id DESC");
       $old = false;
     }
     $stmt->bindValue('entry_name', '%'.$entry_name.'%', PDO::PARAM_STR);
+    $stmt->bindParam('entry_id',$this->entry_id,PDO::PARAM_INT);
     $stmt->execute();
     $bugs = $stmt->fetchAll(PDO::FETCH_ASSOC);
  
     echo '<div id="entryMain">';
+    
+    // show input to link bugs
+    if (isset($_REQUEST['link']) && $RSDB_intern_user_id > 0) {
+      echo '
+        <form action="" method="post">
+          <fieldset>
+            <label for="bug">#</label>
+            <input type="text" name="bug" id="bug" />
+            <button type="submit">link to this entry</button>
+          </fieldset>
+        </form>';
+    }
 
       if (count($bugs) > 0) {
         echo '<ul id="buglist">';
@@ -348,7 +385,8 @@ class HTML_Version extends HTML
     
     echo '
       <br />
-        <a href="#">Submit Bug</a> | ';
+        <a href="/wiki/File_Bugs">Submit new Bug</a> | 
+        '.($RSDB_intern_user_id > 0 ? '<a href="?show=version&amp;id='.$_GET['id'].'&amp;view=pref&amp;pside='.$this->side.'&amp;pmain='.self::MAIN_BUGS.'&amp;link=true">link to existing bug</a> | ' : '');
 
     if ($old === true) {
       echo '<a href="?show=version&amp;id='.$_GET['id'].'&amp;view=pref&amp;pside='.$this->side.'&amp;pmain='.self::MAIN_BUGS.'&amp;old=false">Hide old bugs</a>';

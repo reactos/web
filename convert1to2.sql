@@ -480,6 +480,19 @@ INSERT INTO cdb_entries_tags VALUES
 (NULL, 37181, 'ReactOS 0.3.7',  TRUE,  '000370'),
 (NULL, 39330, 'ReactOS 0.3.8',  TRUE,  '000380'),
 (NULL, 40702, 'ReactOS 0.3.9',  TRUE,  '000390');
+(NULL, 41757, 'ReactOS 0.3.10', TRUE,  '003100');
+
+
+
+-- -----------------------------------------------------------------
+-- assign bugs to an app
+-- -----------------------------------------------------------------
+CREATE TABLE cdb_rel_entries_bugs (
+  version_id BIGINT UNSIGNED NOT NULL COMMENT '->version(id)',
+  entry_id BIGINT UNSIGNED NOT NULL COMMENT '->entry(id)',
+  bug_id BIGINT UNSIGNED NOT NULL COMMENT '->bugs(id)',
+  PRIMARY KEY ( version_id , bug_id )
+) ENGINE = MYISAM;
 
 
 

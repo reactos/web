@@ -19,17 +19,19 @@
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
     */
 
-define('CDBT_ATTACHMENTS', 'cdb_attachments');
-define('CDBT_CATEGORIES' , 'cdb_categories');
-define('CDBT_COMMENTS'   , 'cdb_comments');
-define('CDBT_ENTRIES'    , 'cdb_entries'); // applications/...
-define('CDBT_REPORTS'    , 'cdb_entries_reports'); // test reports
-define('CDBT_LANGUAGES'  , 'cdb_languages');
-define('CDBT_LOGS'       , 'cdb_logs');
-define('CDBT_TAGGED'     , 'cdb_rel_entries_tags'); // assignings for tags - entries
-define('CDBT_TAGS'       , 'cdb_tags'); // tags for entries
-define('CDBT_VERTAGS'    , 'cdb_entries_tags'); // ReactOS version tags
-define('CDBT_VERSIONS'   , 'cdb_entries_versions'); // application versions
+define('CDBTDATABASE', 'compat.');
+define('CDBT_ATTACHMENTS', CDBTDATABASE.'cdb_attachments');
+define('CDBT_BUGS'       , CDBTDATABASE.'cdb_rel_entries_bugs');
+define('CDBT_CATEGORIES' , CDBTDATABASE.'cdb_categories');
+define('CDBT_COMMENTS'   , CDBTDATABASE.'cdb_comments');
+define('CDBT_ENTRIES'    , CDBTDATABASE.'cdb_entries'); // applications/...
+define('CDBT_REPORTS'    , CDBTDATABASE.'cdb_entries_reports'); // test reports
+define('CDBT_LANGUAGES'  , CDBTDATABASE.'cdb_languages');
+define('CDBT_LOGS'       , CDBTDATABASE.'cdb_logs');
+define('CDBT_TAGGED'     , CDBTDATABASE.'cdb_rel_entries_tags'); // assignings for tags - entries
+define('CDBT_TAGS'       , CDBTDATABASE.'cdb_tags'); // tags for entries
+define('CDBT_VERTAGS'    , CDBTDATABASE.'cdb_entries_tags'); // ReactOS version tags
+define('CDBT_VERSIONS'   , CDBTDATABASE.'cdb_entries_versions'); // application versions
 
 
 		// Config: (please sync this with the database)
