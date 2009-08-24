@@ -116,7 +116,7 @@ abstract class HTML
 
     // link js files (use register_js method)
     foreach($this->js_files as $file) {
-      echo '<script src="'.$RSDB_intern_path_server.$RSDB_intern_path.'js/'.$file.'" type="text/javascript"></script>';
+      echo '<script src="js/'.$file.'" type="text/javascript"></script>';
     }
 
     echo '
@@ -162,6 +162,7 @@ abstract class HTML
             </ol>
             <br />
 
+            <form action="?show=search" method="post">
             <div class="navTitle"><label for="searchbar" accesskey="s">Search</label></div>
             <ol>
               <li>
@@ -169,6 +170,7 @@ abstract class HTML
                 <button>&gt;</button>
               </li>
             </ol>
+            </form>
             <br />
 
             <div class="navTitle">Browse Database</div>
@@ -176,7 +178,7 @@ abstract class HTML
               <li><a href="'.$RSDB_intern_link_db_sec.'list&amp;letter=*">By Name</a></li>
               <li><a href="'.$RSDB_intern_link_db_sec.'list&amp;cat=0">By Category</a></li>
               <li><a href="'.$RSDB_intern_link_db_sec.'list&amp;tag=*">By Tag</a></li>
-              <li><a href="'.$RSDB_intern_link_db_sec.'list&amp;filter=">Custom</a></li>
+<!--              <li><a href="'.$RSDB_intern_link_db_sec.'list&amp;filter=">Custom</a></li>-->
             </ol>
             <br />
 

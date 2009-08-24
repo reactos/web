@@ -70,15 +70,15 @@ LABEL.crash { color: #FF3300 !important; }
 
 .rtable TD.first { width: 1.5em;}
 
-.rtable TD.stable { background-color: #00CC00; opacity: 0.5; }
-.rtable TD.unstable { background-color: #FFCC00; opacity: 0.5;}
-.rtable TD.crash { background-color: #FF3300; opacity: 0.5;}
-
 .rtable TH { font-size: 1.2em; padding: 3px; }
-.rtable TD { border-bottom: 1px solid #CCC;padding: 2px 3px; }
+.rtable TD { border-bottom: 1px solid #CCC;padding: 4px 3px; }
 
-.row1 { background-color: #EEE; }
+.row1 { background-color: #EFEFEF; }
 .row2 { background-color: #E7E7E7; }
+
+.stable { background-color: #78E578; }
+.unstable { background-color: #FFE578;}
+.crash { background-color: #FF9978;}
 
 #breadcrumb { display:block; list-style-type:none; clear:both; padding-left: 0px; }
 #breadcrumb LI { float:left; padding-left:10px; }

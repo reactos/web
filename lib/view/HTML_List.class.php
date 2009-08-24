@@ -77,6 +77,7 @@ class HTML_List extends HTML
       
       $stmt=CDBConnection::getInstance()->prepare("SELECT COUNT(*) FROM ".CDBT_ENTRIES." e ".$this->from." WHERE e.visible IS TRUE ".$this->where);
       foreach ($this->params as $param) {
+      //var_dump($param);
         $stmt->bindValue($param[0],$param[1],$param[2]);
       }
       $stmt->execute();
@@ -134,7 +135,7 @@ class HTML_List extends HTML
             // show all app version
             else {
               echo '
-                <a href="?show=entry&amp;id='.$entry['id'].'">'.htmlspecialchars($entry['name']).'</a> <small style="color: gray;">(more versions)</small>';
+                <a href="?show=entry&amp;id='.$entry['id'].'">'.htmlspecialchars($entry['name']).'</a> <small style="color: gray;">(several versions)</small>';
 
             }
 
@@ -154,6 +155,9 @@ class HTML_List extends HTML
         echo '
             </tbody>
           </table>';
+      }
+      else {
+        echo 'No entries found.';
       }
 
       if ($entries_count > $limit) {
@@ -277,7 +281,7 @@ class HTML_List extends HTML
     $stmt->execute();
     while ($tag=$stmt->fetch(PDO::FETCH_ASSOC)) {
 
-      echo '<a style="margin-right: 20px; font-size: '.(((int)$tag['count']/(float)$max*2.0)+0.9).'em;" href="?show=list&amp;tag='.htmlspecialchars($tag['name']).'">'.htmlspecialchars($tag['name']).'</a>';
+      echo '<a style="margin-right: 20px; font-size: '.(((int)$tag['count']/(float)$max*2.0)+0.9).'em;" href="?show=list&amp;tag='.rawurlencode($tag['name']).'">'.htmlspecialchars($tag['name']).'</a>';
     }
     echo '
       </div>';

@@ -101,11 +101,21 @@ switch (@$_GET['show']) {
     new HTML_Conditions();
     break;
 
+  // search
+  case 'search': 
+    $filter = '';
+    if (isset($_POST['searchbar']) && $_POST['searchbar'] != '') {
+      $filter .= 'n_h_'.str_replace(Listing::DEVIDE_FILTER, '%', $_POST['searchbar']);
+    }
+
+    new HTML_List($filter);
+    break;
+
   // Browse by name
   case 'list': 
     $filter = '';
     if (isset($_GET['letter']) && $_GET['letter'] != '*') {
-      $filter .= 's_w_'.$_GET['letter'];
+      $filter .= 'n_s_'.$_GET['letter'];
     }
     if (isset($_GET['cat'])) {
       if ($filter !== '') $filter .= '|';

@@ -33,18 +33,18 @@ class Listing
 
 
 
-  public function construct($filter)
+  public function __construct($filter)
   {
     if ($filter == '') {
       return false;
     }
-    elseif (!strstr($filter, DEVIDE_SETTING)) {
+    elseif (!strstr($filter, self::DEVIDE_SETTING)) {
       return false;
     }
   
-    $filters = explode(DEVIDE_FILTER,$filter);
+    $filters = explode(self::DEVIDE_FILTER,$filter);
     foreach ($filters as $filter) {
-      $part = explode(DEVIDE_SETTING,$filter);
+      $part = explode(self::DEVIDE_SETTING,$filter);
 
       $this->where .= ' AND ';
 
@@ -55,19 +55,19 @@ class Listing
         case 'n':
 
           // starts with:
-          if ($part['1']=='s') {
+          if ($part[1]=='s') {
             $this->where .= " e.name LIKE :starts_with ";
             $this->params[] = array('starts_with',$part[2].'%',PDO::PARAM_STR);
           }
 
           // contains
-          elseif ($part['1']=='h') {
+          elseif ($part[1]=='h') {
             $this->where .= " e.name LIKE :contains ";
             $this->params[] = array('contains','%'.$part[2].'%',PDO::PARAM_STR);
           }
 
           // ends with
-          elseif ($part['1']=='e') {
+          elseif ($part[1]=='e') {
             $this->where .= " e.name LIKE :ends_with ";
             $this->params[] = array('ends_with','%'.$part[2],PDO::PARAM_STR);
           }

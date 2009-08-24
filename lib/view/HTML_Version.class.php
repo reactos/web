@@ -169,7 +169,7 @@ class HTML_Version extends HTML
           <div style="background-color: white;margin: 10px 3px 3px 3px; border: 1px solid lightgray;padding:3px;">
             <div style="border-bottom: 1px solid gray;">
               <!--<h3>'.htmlspecialchars($comment['title']).'</h3>-->
-              <span>by <a href="'.$RSDB_intern_loginsystem_fullpath.'?page=search&user_id='.$comment['user_id'].'">'.Subsystem::getUserName($comment['user_id']).'</a> on '.$comment['created'].'</span>
+              <span>by <a href="'.$RSDB_intern_loginsystem_fullpath.'?page=search&amp;user_id='.$comment['user_id'].'">'.Subsystem::getUserName($comment['user_id']).'</a> on '.$comment['created'].'</span>
             </div>
             '.nl2br(htmlspecialchars($comment['content'])).'
           </div>';
@@ -267,12 +267,15 @@ class HTML_Version extends HTML
         echo '
           <table class="rtable" cellspacing="0" cellpadding="0">
             <thead>
-              <th>&nbsp;</th>
-              <th>User</th>
-              <th>Date</th>
-              <th>Revision</th>
-              <th>Environment</th>
-            </thead>';
+              <tr>
+                <th>&nbsp;</th>
+                <th>User</th>
+                <th>Date</th>
+                <th>Revision</th>
+                <th>Environment</th>
+              </tr>
+            </thead>
+            <tbody>';
 
         $x=0;
         foreach ($tests as $test) {
@@ -297,7 +300,7 @@ class HTML_Version extends HTML
             
           $x++;
         }
-        echo '</table>';
+        echo '</tbody></table>';
       }
       else {
         echo 'There are no tests submitted yet.';
@@ -317,8 +320,14 @@ class HTML_Version extends HTML
     $stmt->execute();
     $entry_name=$stmt->fetchColumn();
   
-  
-    $stmt=CDBConnection::getInstance()->prepare("SELECT DISTINCT bug_id, short_desc FROM bugs.bugs WHERE short_desc LIKE :entry_name AND bug_status NOT IN('RESOLVED', 'CLOSED')");
+    if (isset($_GET['old']) AND $_GET['old'] == 'true') {
+      $stmt=CDBConnection::getInstance()->prepare("SELECT DISTINCT bug_id, short_desc, bug_status FROM bugs.bugs WHERE short_desc LIKE :entry_name ORDER BY bug_id DESC");
+      $old = true;
+    }
+    else {
+      $stmt=CDBConnection::getInstance()->prepare("SELECT DISTINCT bug_id, short_desc, bug_status FROM bugs.bugs WHERE short_desc LIKE :entry_name AND bug_status NOT IN('RESOLVED', 'CLOSED') ORDER BY bug_id DESC");
+      $old = false;
+    }
     $stmt->bindValue('entry_name', '%'.$entry_name.'%', PDO::PARAM_STR);
     $stmt->execute();
     $bugs = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -329,7 +338,7 @@ class HTML_Version extends HTML
         echo '<ul id="buglist">';
         foreach ($bugs as $bug) {
           echo '
-            <li><a href="http://www.reactos.org/bugzilla/show_bug.cgi?id='.$bug['bug_id'].'" class="bugNumber">#'.$bug['bug_id'].'</a>'.htmlspecialchars($bug['short_desc']).'</li>';
+            <li'.(($bug['bug_status'] == 'RESOLVED' || $bug['bug_status'] == 'CLOSED') ? ' style="color: lightgray;"' : '').'><a href="http://www.reactos.org/bugzilla/show_bug.cgi?id='.$bug['bug_id'].'" class="bugNumber">#'.$bug['bug_id'].'</a>'.htmlspecialchars($bug['short_desc']).'</li>';
         }
         echo '</ul>';
       }
@@ -338,7 +347,16 @@ class HTML_Version extends HTML
       }
     
     echo '
-        <a href="#">Submit Bug</a>
+      <br />
+        <a href="#">Submit Bug</a> | ';
+
+    if ($old === true) {
+      echo '<a href="?show=version&amp;id='.$_GET['id'].'&amp;view=pref&amp;pside='.$this->side.'&amp;pmain='.self::MAIN_BUGS.'&amp;old=false">Hide old bugs</a>';
+    }
+    else {
+      echo '<a href="?show=version&amp;id='.$_GET['id'].'&amp;view=pref&amp;pside='.$this->side.'&amp;pmain='.self::MAIN_BUGS.'&amp;old=true">Also show old bugs</a>';
+    }
+    echo '
       </div>';
   } // end of member function mainScreenshots
   
@@ -442,6 +460,11 @@ class HTML_Version extends HTML
           </a>
         </div>';
       } // end foreach
+    }
+    else {
+      echo 'No screenshots uploaded yet.<br />
+        <br />
+        <a href="?show=version&amp;id='.$_GET['id'].'&amp;view=pref&amp;pside='.$this->side.'&amp;pmain='.self::MAIN_SCREENSHOTS.'">Submit new screenshot</a>';
     }
     
     echo '

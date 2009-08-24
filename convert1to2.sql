@@ -423,7 +423,10 @@ SET entry_id=(SELECT e.id FROM cdb_entries2 e JOIN cdb_entries x ON x.name=e.nam
 
 DROP TABLE cdb_entries;
 RENAME TABLE cdb_entries2 TO cdb_entries;
-ALTER TABLE cdb_entries ADD UNIQUE(type, name);
+ALTER TABLE cdb_entries
+  ADD UNIQUE(type, name),
+  ADD PRIMARY KEY(id),
+  CHANGE id id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT;
 
 
 

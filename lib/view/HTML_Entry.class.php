@@ -37,19 +37,21 @@ class HTML_Entry extends HTML
         <table class="rtable" cellpadding="0" cellspacing="0">
           <thead>
             <tr>
+              <th></th>
               <th>Version</th>
               <th>Date</th>
             </tr>
           </thead>
           <tbody>';
       
-      $stmt=CDBConnection::getInstance()->prepare("SELECT id, version, created FROM ".CDBT_VERSIONS." WHERE entry_id=:entry_id ORDER BY version");
+      $stmt=CDBConnection::getInstance()->prepare("SELECT id, version, created, (SELECT works FROM ".CDBT_REPORTS." WHERE version_id=v.id ORDER BY created DESC LIMIT 1) AS works FROM ".CDBT_VERSIONS." v WHERE entry_id=:entry_id ORDER BY version");
       $stmt->bindParam('entry_id',$entry['id'],PDO::PARAM_INT);
       $stmt->execute();
       $x=0;
       while ($version = $stmt->fetch(PDO::FETCH_ASSOC)) {
         echo '
           <tr class="row'.($x%2+1).'">
+            <td class="first '.($version['works'] == 'full' ? 'stable' : ($version['works'] == 'part' ? 'unstable' : 'crash')).'">&nbsp;</td>
             <td><a href="?show=version&amp;id='.$version['id'].'">'.htmlspecialchars($version['version']).'</a></td>
             <td>'.$version['created'].'</td>
           </tr>';

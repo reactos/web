@@ -40,8 +40,14 @@ class HTML_Home extends HTML
         <p>The ReactOS Compatibility Database contains information about compatible software. Below the latest reports are listed</p>
         <p>There are <strong>'.$stmt->fetchColumn().'</strong> applications and drivers currently in the database.</p>
       
+        <div style="margin-top: 20px;">
+          <a style="margin: 20px 10px 10px 10px;" href="?show=submit">
+            <img style="border: none;" src="images/button_submit.jpg" alt="Submit new entry" />
+          </a>
+        </div>
+      
         <h2>Recent submissions</h2>
-        <table class="rtable" cellpadding="1" cellspacing="1">
+        <table class="rtable" cellpadding="0" cellspacing="0">
           <thead>
             <tr>
               <th></th>
@@ -83,11 +89,22 @@ class HTML_Home extends HTML
     echo '
         </tbody>
       </table>
-      <p>You can also <a href="?show=submit">Submit new Entries</a></p>';
+      
+      <h2 style="margin: 20px 0px 5px 0px;font-size: 1.5em;">Legend</h2>
+      <div style="clear: both;margin-bottom: 10px;">
+        <div class="stable" style="float: left;width: 1.5em;margin-left: 10px;">&nbsp;</div> <span style="float: left; margin: 0px 2em 0px 3px;">works stable</span>
+        <div class="unstable" style="float: left;width: 1.5em;">&nbsp;</div> <span style="float: left; margin: 0px 2em 0px 3px;">works unstable</span>
+        <div class="crash" style="float: left;width: 1.5em;">&nbsp;</div> <span style="float: left; margin: 0px 2em 0px 3px;">Crashes sometimes</span>
+      </div>';
 
     // print some login blah to guest users
     if ($RSDB_intern_user_id <= 0) {
-      echo '<p style="font-size:2;">Some of the features of the ReactOS Compatibility Database require that you have a <a href="'.$RSDB_intern_loginsystem_fullpath.'?page=register">myReactOS account</a> and are <a href="'.$RSDB_intern_loginsystem_fullpath.'?page=login">logged in</a>.</p>';
+      echo '
+        <div style="margin-top: 30px;">
+          <p style="clear: both;">
+            Some of the features of the ReactOS Compatibility Database require that you have a <a href="'.$RSDB_intern_loginsystem_fullpath.'?page=register">myReactOS account</a> and are <a href="'.$RSDB_intern_loginsystem_fullpath.'?page=login">logged in</a>.
+          </p>
+        </div>';
     }
   } // end of member function body
 

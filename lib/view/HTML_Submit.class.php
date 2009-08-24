@@ -32,22 +32,23 @@ class HTML_Submit extends HTML
 
   protected function build( )
   {
+    if (isset($_REQUEST['submit']) && $_REQUEST['submit'] == 'yes') {
+      $this->submit();
+    }
+
     if (isset($_POST['next']) && $_POST['next'] == 'entry') {
       $entry_id = Entry::getEntryId($_POST['type'], $_POST['title']);
       $version_id = Entry::getVersionId($entry_id, $_POST['version']);
-      header('location: ?show=entry&ver='.$version_id);
+      header('location: ?show=version&id='.$version_id);
       exit;
     }
     elseif (isset($_POST['next']) && $_POST['next'] == 'bug') {
-      echo 'Imagine a bugzilla here';
+      header('location: http://www.reactos.org/bugzilla/enter_bug.cgi?product=ReactOS');
       exit;
     }
     else {
       $this->header();
       $this->navigation();
-      if (isset($_REQUEST['submit']) && $_REQUEST['submit'] == 'yes') {
-        $this->submit();
-      }
       $this->body();
       $this->footer();
     }
@@ -93,7 +94,6 @@ class HTML_Submit extends HTML
           $env = $_POST['vm'];
           $env_ver = $_POST['vmver'];
         }
-
         Entry::addReport($entry_id, $version_id, $revision, $env, $env_ver, $_POST['status']);
       }
 
@@ -140,7 +140,7 @@ class HTML_Submit extends HTML
             <li style="clear: both;float: left;">
               <label for="cat">Category:</label><br />
               <select name="cat" id="cat" style="width: 200px;">
-                <option value="0">&nbsp</option>
+                <option value="0">&nbsp;</option>
                 '.Category::showTreeAsOption().'
               </select>
             </li>
@@ -234,9 +234,9 @@ class HTML_Submit extends HTML
               <input type="radio" class="normal" name="next" id="again" value="again" '.($used_again ? 'checked="checked"' : '').' />
               <label for="again" class="normal">Insert another entry/report</label>
               <br />
-              <input type="radio" class="normal" name="next" id="more" value="more"  />
+<!--          <input type="radio" class="normal" name="next" id="more" value="more"  />
               <label for="more" class="normal">Add more information to that entry.</label>
-              <br />
+              <br />-->
               <div id="bugreport">
                 <input type="radio" class="normal" name="next" id="bug" value="bug"  />
                 <label for="bug" class="normal">Fill a bug report</label>
