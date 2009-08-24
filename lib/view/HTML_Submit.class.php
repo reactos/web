@@ -57,6 +57,13 @@ class HTML_Submit extends HTML
 
   private function submit( )
   {
+    global $RSDB_intern_user_id;
+
+    // check if user is logged in
+    if ($RSDB_intern_user_id <= 0) {
+      return false;
+    }
+  
     // get used revision number
     if ($_POST['ver'] == 'R') {
       $revision = $_POST['rev'];
@@ -88,7 +95,7 @@ class HTML_Submit extends HTML
       if (isset($_POST['status']) && ($_POST['status'] == 'full' || $_POST['status'] == 'part' ||$_POST['status'] == 'not')) {
         if ($_POST['env'] == 'RH') {
           $env = 'RH';
-          $env_ver = '';
+          $env_ver = $_POST['vmver'];
         }
         else {
           $env = $_POST['vm'];
@@ -108,6 +115,14 @@ class HTML_Submit extends HTML
 
   protected function body( )
   {
+    global $RSDB_intern_user_id;
+  
+    // check if user is logged in
+    if ($RSDB_intern_user_id <= 0) {
+      Subsystem::in(Login::REQUIRED, $_SERVER["REQUEST_URI"]);
+      return false;
+    }
+  
     $used_again = (isset($_POST['next']) && $_POST['next']=='again');
     
     // preselect step 1
@@ -198,7 +213,7 @@ class HTML_Submit extends HTML
               <input type="radio" class="normal" name="status" id="works" value="full" onchange="'."javascript:document.getElementById('bugreport').style.display=(this.checked ? 'none' : 'block' );".'" />
               <label for="works" class="stable">Running Stable</label>
               
-              <input type="radio" class="normal pworks" name="status" id="partworks" value="part" onchange="'."javascript:document.getElementById('bugreport').style.display=(this.checked ? 'none' : 'block' );".'" />
+              <input type="radio" class="normal pworks" name="status" id="partworks" value="part" onchange="'."javascript:document.getElementById('bugreport').style.display=(this.checked ? 'block' : 'none' );".'" />
               <label for="partworks" class="unstable">Minor Problems</label>
               
               <input type="radio" class="normal crash" name="status" id="noworks" value="not" onchange="'."javascript:document.getElementById('bugreport').style.display=(this.checked ? 'block' : 'none' );".'" />
@@ -230,25 +245,27 @@ class HTML_Submit extends HTML
           </ul>
           <div style="float: left;margin-right: 10px;">
             <span class="label">Environment:</span><br />
-            <input type="radio" class="normal" name="env" id="envvm" value="VM" checked="checked" onchange="'."javascript:document.getElementById('vmlist').style.display=(this.checked ? 'block' : 'none' );".'" />
+            <input type="radio" class="normal" name="env" id="envvm" value="VM" checked="checked" onchange="'."javascript:document.getElementById('vmselect').style.display=(this.checked ? 'block' : 'none' );javascript:document.getElementById('vmverlabel').innerHTML='Version:';".'" />
             <label class="normal" for="envvm">Virtual Machine</label><br />
 
-            <input type="radio" class="normal" name="env" id="envrh" value="RH" onchange="'."javascript:document.getElementById('vmlist').style.display=(this.checked ? 'none' : 'block' );".'" />
+            <input type="radio" class="normal" name="env" id="envrh" value="RH" onchange="'."javascript:document.getElementById('vmselect').style.display=(this.checked ? 'none' : 'block' );javascript:document.getElementById('vmverlabel').innerHTML='Specs:';".'" />
             <label class="normal" for="envrh">Real Hardware</label>
           </div>
           <div id="vmlist" style="list-style-type: none;float: left;">
-            <label for="vm">Virtual Machine:</label><br />
-            <select id="vm" name="vm">
-              <option>&nbsp;</option>
-              <option value="Bo">Bochs</option>
-              <option value="qe">Qemu</option>
-              <option value="vb">VirtualBox</option>
-              <option value="vp">VirtualPC</option>
-              <option value="vw">VMWare</option>
-              <option value="ot">Other</option>
-            </select>
+            <div id="vmselect">
+              <label for="vm">Virtual Machine:</label><br />
+              <select id="vm" name="vm">
+                <option>&nbsp;</option>
+                <option value="Bo">Bochs</option>
+                <option value="qe">Qemu</option>
+                <option value="vb">VirtualBox</option>
+                <option value="vp">VirtualPC</option>
+                <option value="vw">VMWare</option>
+                <option value="ot">Other</option>
+              </select>
+            </div>
             <br />
-            <label for="vmver">VM Version:</label><br />
+            <label for="vmver" id="vmverlabel">Version:</label><br />
             <input type="text" name="vmver" id="vmver" />
           </div>
           <br style="clear: both;"/>
