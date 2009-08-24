@@ -123,7 +123,7 @@ abstract class HTML
     </head>
     <body>
       <div id="top">
-        <div id="topMenu"> 
+        <div id="topMenu" style="text-align: left;"> 
           <a href="'.$RSDB_intern_path_server.'?page=index">Home</a> |
           <a href="'.$RSDB_intern_path_server.'?page=about">Info</a> |
           <a href="'.$RSDB_intern_path_server.'?page=community">Community</a> |
@@ -162,6 +162,15 @@ abstract class HTML
             </ol>
             <br />
 
+            <div class="navTitle"><label for="searchbar" accesskey="s">Search</label></div>
+            <ol>
+              <li>
+                <input name="searchbar" type="text" id="searchbar" tabindex="0" size="17" maxlength="50" style="font-family: Verdana; font-size: x-small; font-style: normal;" />
+                <button>&gt;</button>
+              </li>
+            </ol>
+            <br />
+
             <div class="navTitle">Browse Database</div>
             <ol>
               <li><a href="'.$RSDB_intern_link_db_sec.'list&amp;letter=*">By Name</a></li>
@@ -177,17 +186,10 @@ abstract class HTML
               <li><a href="'.$RSDB_intern_link_db_sec.'submit">Submit Application</a></li>
               <li><a href="'.$RSDB_intern_link_db_sec.'help">Help &amp; FAQ</a></li>
             </ol>
-            <br />
+            <br />';
 
-            <div class="navTitle"><label for="searchbar" accesskey="s">Search</label></div>
-            <ol>
-              <li>
-                <input name="searchbar" type="text" id="searchbar" tabindex="0" size="17" maxlength="50" style="font-family: Verdana; font-size: x-small; font-style: normal;" />
-                <button>&gt;</button>
-              </li>
-            </ol>
-            <br />
-
+/*
+    echo '
             <div class="navTitle">Language</div>   
             <ol>
               <li>';
@@ -228,7 +230,10 @@ abstract class HTML
               </optgroup>
             </select>
           </li>
-        </ol>
+        </ol>';
+*/
+
+    echo '
       </td>
       <td id="content">';
   } // end of member function navigation

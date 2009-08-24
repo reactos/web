@@ -19,7 +19,7 @@
     */
 
 
-class Help extends HTML
+class HTML_Help extends HTML
 {
 
 

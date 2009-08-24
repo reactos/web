@@ -93,12 +93,12 @@ switch (@$_GET['show']) {
 
   // RSDB About Page
   case 'about': 
-    new About();
+    new HTML_About();
     break;
 
   // RSDB Submit Conditions Page
   case 'conditions': 
-    new Conditions();
+    new HTML_Conditions();
     break;
 
   // Browse by name
@@ -121,48 +121,16 @@ switch (@$_GET['show']) {
     new HTML_List($filter);
     break;
 
-  // Vendor information
-  case 'vendor_info': 
-    new HTML_VendorInfo();
-    break;
-
   // show specific version
   case 'version':
+    new HTML_Version();
+    break;
+
+  // show entry overview
+  case 'entry':
     new HTML_Entry();
     break;
   
-  /*
-    switch (@$_GET['addbox']) {
-      case 'add':
-      case 'submit':
-        switch (@$_GET['item2']) {
-
-          // Screenshots
-          case 'screens':
-            new Submit_Screenshot();
-            break;
-        } // end switch item2
-        break;
-
-      // no addbox crap
-      case '':
-      default:
-        switch (@$_GET['item2']) {
-
-          // Screenshots
-          case 'screens':
-            new Item_Screenshots();
-            break;
-
-          // Tips & Tricks
-          case 'tips':
-            new Item_Tips();
-            break;
-        } // end switch item2
-        break;
-    } // end switch addbox
-    break;
-  */
 
   // Submit
   case 'submit': 
@@ -171,7 +139,7 @@ switch (@$_GET['show']) {
 
   // Help
   case 'help':
-    new Help();
+    new HTML_Help();
     break;
 
 } // end switch page
