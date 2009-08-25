@@ -99,7 +99,7 @@ class Entry
    *
    * @access public
    */
-  public static function addReport( $entry_id, $version_id, $revision, $env, $env_version, $status = 'not' )
+  public static function addReport( $entry_id, $version_id, $comment_id, $revision, $env, $env_version, $status = 'not' )
   {
     global $RSDB_intern_user_id;
 
@@ -110,9 +110,10 @@ class Entry
     }
 
     // insert
-    $stmt=CDBConnection::getInstance()->prepare("INSERT INTO ".CDBT_REPORTS." (entry_id, version_id, user_id, revision, environment, environment_version, works, created, visible, disabled) VALUES (:entry_id, :version_id, :user_id, :revision, :env, :env_ver, :status, NOW(), TRUE, FALSE)");
+    $stmt=CDBConnection::getInstance()->prepare("INSERT INTO ".CDBT_REPORTS." (id, entry_id, version_id, comment_id, user_id, revision, environment, environment_version, works, created, visible, disabled) VALUES (NULL, :entry_id, :version_id, :comment_id, :user_id, :revision, :env, :env_ver, :status, NOW(), TRUE, FALSE)");
     $stmt->bindParam('entry_id',$entry_id,PDO::PARAM_INT);
     $stmt->bindParam('version_id',$version_id,PDO::PARAM_INT);
+    $stmt->bindParam('comment_id',$comment_id,PDO::PARAM_INT);
     $stmt->bindParam('user_id',$RSDB_intern_user_id,PDO::PARAM_INT);
     $stmt->bindParam('revision',$revision,PDO::PARAM_INT);
     $stmt->bindParam('env',$env,PDO::PARAM_STR);
@@ -144,7 +145,15 @@ class Entry
     $stmt->bindParam('user_id',$RSDB_intern_user_id,PDO::PARAM_INT);
     $stmt->bindParam('title',$title,PDO::PARAM_STR);
     $stmt->bindParam('content',$content,PDO::PARAM_STR);
-    return $stmt->execute();
+    if ($stmt->execute()) {
+      $stmt=CDBConnection::getInstance()->prepare("SELECT id FROM ".CDBT_COMMENTS." WHERE entry_id=:entry_id AND user_id=:user_id ORDER BY created DESC LIMIT 1");
+      $stmt->bindParam('entry_id',$entry_id,PDO::PARAM_INT);
+      $stmt->bindParam('user_id',$RSDB_intern_user_id,PDO::PARAM_INT);
+      $stmt->execute();
+      return $stmt->fetchColumn();
+    }
+    
+    return false;
   } // end of member function add
 
 

@@ -357,7 +357,6 @@ class HTML_Version extends HTML
 
       // insert new entry
       if ($stmt->execute() && $stmt->fetchColumn() === false) {
-      echo 'str';
         $stmt=CDBConnection::getInstance()->prepare("INSERT INTO ".CDBT_BUGS." (version_id, entry_id, bug_id) VALUES (:version_id, :entry_id, :bug_id)");
         $stmt->bindParam('version_id',$_GET['id'],PDO::PARAM_INT);
         $stmt->bindParam('entry_id',$this->entry_id,PDO::PARAM_INT);

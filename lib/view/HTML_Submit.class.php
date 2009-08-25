@@ -92,6 +92,16 @@ class HTML_Submit extends HTML
 
     // insert new report/comment
     if ($entry_id !== false && $version_id !== false) {
+
+      // insert new comment
+      if (isset($_POST['comment']) && $_POST['comment'] != '') {
+        $comment_id = Entry::addComment($entry_id, 'test of r'.$revision, $_POST['comment']);
+      }
+      else {
+        $comment_id = 0;
+      }
+
+      // new report
       if (isset($_POST['status']) && ($_POST['status'] == 'full' || $_POST['status'] == 'part' ||$_POST['status'] == 'not')) {
         if ($_POST['env'] == 'RH') {
           $env = 'RH';
@@ -101,12 +111,7 @@ class HTML_Submit extends HTML
           $env = $_POST['vm'];
           $env_ver = $_POST['vmver'];
         }
-        Entry::addReport($entry_id, $version_id, $revision, $env, $env_ver, $_POST['status']);
-      }
-
-      // insert new comment
-      if (isset($_POST['comment']) && $_POST['comment'] != '') {
-        Entry::addComment($entry_id, 'test of r'.$revision, $_POST['comment']);
+        Entry::addReport($entry_id, $version_id, $comment_id, $revision, $env, $env_ver, $_POST['status']);
       }
     }
   } // end of member function submit
