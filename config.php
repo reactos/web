@@ -25,13 +25,13 @@ define('CDBT_BUGS'       , CDBTDATABASE.'cdb_rel_entries_bugs');
 define('CDBT_CATEGORIES' , CDBTDATABASE.'cdb_categories');
 define('CDBT_COMMENTS'   , CDBTDATABASE.'cdb_comments');
 define('CDBT_ENTRIES'    , CDBTDATABASE.'cdb_entries'); // applications/...
-define('CDBT_REPORTS'    , CDBTDATABASE.'cdb_entries_reports'); // test reports
+define('CDBT_REPORTS'    , CDBTDATABASE.'cdb_reports'); // test reports
 define('CDBT_LANGUAGES'  , CDBTDATABASE.'cdb_languages');
 define('CDBT_LOGS'       , CDBTDATABASE.'cdb_logs');
 define('CDBT_TAGGED'     , CDBTDATABASE.'cdb_rel_entries_tags'); // assignings for tags - entries
 define('CDBT_TAGS'       , CDBTDATABASE.'cdb_tags'); // tags for entries
-define('CDBT_VERTAGS'    , CDBTDATABASE.'cdb_entries_tags'); // ReactOS version tags
-define('CDBT_VERSIONS'   , CDBTDATABASE.'cdb_entries_versions'); // application versions
+define('CDBT_VERTAGS'    , CDBTDATABASE.'cdb_os'); // ReactOS version tags
+define('CDBT_VERSIONS'   , CDBTDATABASE.'cdb_versions'); // application versions
 
 
 		// Config: (please sync this with the database)

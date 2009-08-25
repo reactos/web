@@ -18,6 +18,7 @@ DROP TABLE rsdb_group_bundles;
 -- -----------------------------------------------------------------
 -- Convert categories
 -- -----------------------------------------------------------------
+DROP TABLE IF EXISTS cdb_categories; 
 CREATE TABLE cdb_categories (
   id BIGINT UNSIGNED NOT NULL ,
   parent BIGINT UNSIGNED NULL COMMENT '->categories(id)',
@@ -48,6 +49,7 @@ ALTER TABLE cdb_categories ORDER BY id;
 -- -----------------------------------------------------------------
 -- Convert comments
 -- -----------------------------------------------------------------
+DROP TABLE IF EXISTS cdb_comments; 
 CREATE TABLE cdb_comments (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY ,
   entry_id BIGINT UNSIGNED NOT NULL COMMENT '->entries(id)',
@@ -112,6 +114,7 @@ FROM rsdb_item_comp_testresults;
 -- -----------------------------------------------------------------
 -- Convert attachements
 -- -----------------------------------------------------------------
+DROP TABLE IF EXISTS cdb_attachments; 
 CREATE TABLE cdb_attachments (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY ,
   entry_id BIGINT UNSIGNED NOT NULL COMMENT '->entry(id)',
@@ -120,35 +123,23 @@ CREATE TABLE cdb_attachments (
   type VARCHAR( 100 ) NOT NULL COMMENT 'content type',
   description TEXT NOT NULL ,
   created DATETIME NOT NULL ,
-  visible BOOL NOT NULL DEFAULT FALSE
+  visible BOOL NOT NULL DEFAULT FALSE,
+  old_groupid BIGINT NOT NULL
 ) ENGINE = MYISAM;
 
 INSERT INTO cdb_attachments
   SELECT
     media_id,
-    media_groupid,
+    0,
     media_user_id,
     media_file,
     media_filetype,
     media_description,
     media_date,
-    TRUE
-  FROM rsdb_object_media
-  WHERE media_visible = '1'
-UNION
-  SELECT
-    media_id,
-    media_groupid,
-    media_user_id,
-    media_file,
-    media_filetype,
-    media_description,
-    media_date,
-    FALSE
-  FROM rsdb_object_media
-  WHERE media_visible = '0';
+    TRUE,
+    media_groupid
+  FROM rsdb_object_media;
 
-ALTER TABLE cdb_attachments ORDER BY id;
 /*DROP TABLE rsdb_object_media;
 */
 
@@ -157,6 +148,7 @@ ALTER TABLE cdb_attachments ORDER BY id;
 -- -----------------------------------------------------------------
 -- Convert languages
 -- -----------------------------------------------------------------
+DROP TABLE IF EXISTS cdb_languages; 
 CREATE TABLE cdb_languages (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY ,
   name VARCHAR( 50 ) NOT NULL ,
@@ -179,7 +171,8 @@ FROM rsdb_languages;
 -- -----------------------------------------------------------------
 -- Convert entries reports
 -- -----------------------------------------------------------------
-CREATE TABLE cdb_entries_reports (
+DROP TABLE IF EXISTS cdb_reports; 
+CREATE TABLE cdb_reports (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
   entry_id BIGINT UNSIGNED NOT NULL COMMENT '->entries(id)',
   version_id BIGINT UNSIGNED NOT NULL COMMENT '->version(id)',
@@ -200,7 +193,7 @@ CREATE TABLE cdb_entries_reports (
   old_osversion VARCHAR( 6 ) NOT NULL DEFAULT '000000'
 ) ENGINE = MyISAM;
 
-INSERT INTO cdb_entries_reports
+INSERT INTO cdb_reports
 SELECT DISTINCT
   comp_id,
   0,
@@ -221,12 +214,35 @@ SELECT DISTINCT
   comp_groupid,
   comp_osversion
 FROM rsdb_item_comp
-WHERE comp_date != '0000-00-00 00:00:00';
+WHERE comp_date != '0000-00-00 00:00:00'
+UNION
+SELECT DISTINCT
+  comp_id,
+  0,
+  0,
+  0,
+  0,
+  comp_name,
+  comp_appversion,
+  comp_description,
+  comp_usrid,
+  NULL,
+  FALSE,
+  'unkn',
+  '',
+  '2006-04-03 00:00:00',
+  TRUE,
+  FALSE,
+  comp_groupid,
+  comp_osversion
+FROM rsdb_item_comp
+WHERE comp_date = '0000-00-00 00:00:00';
+ 	
 
-UPDATE cdb_entries_reports r
+UPDATE cdb_reports r
 SET works = IF((SELECT SUM(test_result_function)/COUNT(*) FROM rsdb_item_comp_testresults WHERE test_comp_id=r.id) = 5, 'full', IF((SELECT SUM(test_result_function)/COUNT(*) FROM rsdb_item_comp_testresults WHERE test_comp_id=r.id) = 1, 'not', 'part'));
 
-ALTER TABLE cdb_entries_reports CHANGE works works ENUM( 'full', 'part', 'not' ) NOT NULL DEFAULT 'not';
+ALTER TABLE cdb_reports CHANGE works works ENUM( 'full', 'part', 'not' ) NOT NULL DEFAULT 'not';
 
 
 
@@ -234,6 +250,7 @@ ALTER TABLE cdb_entries_reports CHANGE works works ENUM( 'full', 'part', 'not' )
 -- -----------------------------------------------------------------
 -- Convert entries
 -- -----------------------------------------------------------------
+DROP TABLE IF EXISTS cdb_entries; 
 CREATE TABLE cdb_entries (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
   type ENUM('App','DLL','Drv', 'Oth') NOT NULL DEFAULT 'Oth',
@@ -246,34 +263,45 @@ CREATE TABLE cdb_entries (
   old_version VARCHAR( 100 ) NOT NULL,
   old_groupid BIGINT NOT NULL DEFAULT '0',
   old_vendorid BIGINT NOT NULL DEFAULT '0',
-  old_name varchar(100) NOT NULL
+  old_name varchar(100),
+  old_compid BIGINT
 ) ENGINE = MyISAM;
 
 INSERT INTO cdb_entries
 SELECT DISTINCT
   NULL,
   'App',
-  grpentr_name,
+  g.grpentr_name,
   g.grpentr_category,
-  (SELECT i.old_description FROM cdb_entries_reports i WHERE i.old_groupid=o.old_groupid ORDER BY i.created ASC LIMIT 1) AS old_description,
-  (SELECT i.created FROM cdb_entries_reports i WHERE i.old_groupid=o.old_groupid ORDER BY i.created ASC LIMIT 1) AS created,
-  (SELECT i.created FROM cdb_entries_reports i WHERE i.old_groupid=o.old_groupid ORDER BY i.created DESC LIMIT 1) AS modified,
+  COALESCE((SELECT i.old_description FROM cdb_reports i WHERE i.old_groupid=o.old_groupid ORDER BY i.created ASC LIMIT 1),g.grpentr_description) AS old_description,
+  COALESCE((SELECT i.created FROM cdb_reports i WHERE i.old_groupid=o.old_groupid ORDER BY i.created ASC LIMIT 1),g.grpentr_date) AS created,
+  COALESCE((SELECT i.created FROM cdb_reports i WHERE i.old_groupid=o.old_groupid ORDER BY i.created DESC LIMIT 1),g.grpentr_date) AS modified,
   TRUE,
-  TRIM(REPLACE(old_name, grpentr_name, '')),
-  o.old_groupid,
+  TRIM(REPLACE(o.old_name, g.grpentr_name, '')),
+  g.grpentr_id,
   g.grpentr_vendor,
-  old_name
-FROM cdb_entries_reports o
-JOIN rsdb_groups g ON g.grpentr_id=o.old_groupid;
+  o.old_name,
+  o.id
+FROM rsdb_groups g
+LEFT JOIN cdb_reports o ON g.grpentr_id=o.old_groupid;
 
 
-UPDATE cdb_entries_reports r
+UPDATE cdb_reports r
 SET entry_id = (SELECT e.id FROM cdb_entries e WHERE r.old_name=e.old_name LIMIT 1);
 
-UPDATE cdb_entries_reports r
+UPDATE cdb_reports r
 SET comment_id = (SELECT c.id FROM cdb_comments c WHERE c.entry_id=r.entry_id AND test_id IS NOT NULL ORDER BY created ASC LIMIT 1);
 
-ALTER TABLE cdb_entries_reports
+UPDATE cdb_comments c
+SET entry_id = (SELECT e.id FROM cdb_entries e WHERE c.entry_id=e.old_compid LIMIT 1);
+
+UPDATE cdb_attachments a
+SET entry_id = (SELECT e.id FROM cdb_entries e WHERE a.old_groupid=e.old_groupid LIMIT 1);
+
+ALTER TABLE cdb_entries
+  DROP old_compid;
+
+ALTER TABLE cdb_reports
   DROP old_name,
   DROP old_description,
   DROP old_groupid,
@@ -282,41 +310,40 @@ ALTER TABLE cdb_entries_reports
 ALTER TABLE cdb_comments
   DROP test_id;
 
-
 -- -----------------------------------------------------------------
 -- Convert versions
 -- -----------------------------------------------------------------
-CREATE TABLE cdb_entries_versions (
+DROP TABLE IF EXISTS cdb_versions; 
+CREATE TABLE cdb_versions (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY ,
   entry_id BIGINT UNSIGNED NOT NULL COMMENT '->entry',
   version VARCHAR( 20 ) NOT NULL,
-  created DATETIME NOT NULL,
-  UNIQUE KEY(entry_id, version)
+  created DATETIME NOT NULL
 ) ENGINE = MYISAM;
 
-INSERT INTO cdb_entries_versions
+INSERT INTO cdb_versions
 SELECT
   NULL,
   id,
   old_version,
   created
-FROM cdb_entries;
+FROM cdb_entries WHERE old_version IS NOT NULL;
 
-UPDATE cdb_entries_reports r
-SET version_id = (SELECT v.id FROM cdb_entries_versions v WHERE v.entry_id=r.entry_id LIMIT 1);
+UPDATE cdb_reports r
+SET version_id = (SELECT v.id FROM cdb_versions v WHERE v.entry_id=r.entry_id LIMIT 1);
 
 ALTER TABLE cdb_entries
   DROP old_name,
   DROP old_version;
 
+-- DROP TABLE rsdb_item_comp;
 
-/*DROP TABLE rsdb_item_comp;
-*/
 
 
 -- -----------------------------------------------------------------
 -- Convert tags
 -- -----------------------------------------------------------------
+DROP TABLE IF EXISTS cdb_tags; 
 CREATE TABLE cdb_tags (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY ,
   name VARCHAR( 100 ) NOT NULL ,
@@ -345,14 +372,15 @@ Website: ',vendor_url),
   NULL
 FROM rsdb_item_vendor;
 
-/*DROP TABLE rsdb_groups;
-DROP TABLE rsdb_item_vendor;
-*/
+-- DROP TABLE rsdb_groups;
+-- DROP TABLE rsdb_item_vendor;
+
 
 
 -- -----------------------------------------------------------------
 -- Convert logs
 -- -----------------------------------------------------------------
+DROP TABLE IF EXISTS cdb_logs; 
 CREATE TABLE cdb_logs (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY ,
   user_id BIGINT UNSIGNED NOT NULL COMMENT '->roscms.users(id)',
@@ -370,13 +398,74 @@ SELECT
   log_date
 FROM rsdb_logs;
 
-/*DROP TABLE rsdb_logs;
-*/
+-- DROP TABLE rsdb_logs;
+
+
+
+ALTER TABLE cdb_entries DROP old_groupid;
+ALTER TABLE cdb_tags DROP old_groupid;
+-- -----------------------------------------------------------------
+-- remove double entries
+-- -----------------------------------------------------------------
+DROP TABLE IF EXISTS cdb_entries2; 
+CREATE TABLE cdb_entries2 SELECT * FROM cdb_entries;
+TRUNCATE TABLE cdb_entries2;
+ALTER TABLE cdb_entries2  ENGINE = MYISAM;
+
+INSERT INTO cdb_entries2
+SELECT DISTINCT
+  (SELECT id FROM cdb_entries WHERE name = g.name ORDER BY created DESC LIMIT 1),
+  g.type,
+  name,
+  (SELECT category_id FROM cdb_entries WHERE name = g.name ORDER BY created DESC LIMIT 1),
+  (SELECT description FROM cdb_entries WHERE name = g.name ORDER BY created DESC LIMIT 1),
+  (SELECT created FROM cdb_entries WHERE name = g.name ORDER BY created ASC LIMIT 1),
+  (SELECT modified FROM cdb_entries WHERE name = g.name ORDER BY created DESC LIMIT 1),
+  TRUE,
+  (SELECT old_vendorid FROM cdb_entries WHERE name = g.name ORDER BY created DESC LIMIT 1)
+FROM cdb_entries g;
+
+-- old -> new
+DROP TABLE IF EXISTS temp_entries;
+CREATE TABLE temp_entries (
+  new_id BIGINT NOT NULL,
+  old_id BIGINT NOT NULL PRIMARY KEY
+) ENGINE=MYISAM;
+
+INSERT INTO temp_entries
+SELECT
+  n.id,
+  o.id
+FROM cdb_entries2 n JOIN cdb_entries o ON o.name=n.name;
+
+
+UPDATE cdb_reports r
+SET entry_id=(SELECT n.new_id FROM temp_entries n WHERE n.old_id=r.entry_id);
+
+UPDATE cdb_versions v
+SET entry_id=(SELECT n.new_id FROM temp_entries n WHERE n.old_id=v.entry_id);
+
+UPDATE cdb_comments c
+SET entry_id=(SELECT n.new_id FROM temp_entries n WHERE n.old_id=c.entry_id);
+
+UPDATE cdb_attachments a
+SET entry_id=(SELECT n.new_id FROM temp_entries n WHERE n.old_id=a.entry_id);
+
+
+-- DROP TABLE cdb_entries;
+DROP TABLE IF EXISTS cdb_entries; 
+RENAME TABLE cdb_entries2 TO cdb_entries;
+ALTER TABLE cdb_entries
+  ADD UNIQUE(type, name),
+  ADD PRIMARY KEY(id),
+  CHANGE id id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT;
+
 
 
 -- -----------------------------------------------------------------
 -- Convert tag assignments
 -- -----------------------------------------------------------------
+DROP TABLE IF EXISTS cdb_rel_entries_tags; 
 CREATE TABLE cdb_rel_entries_tags (
   entry_id BIGINT UNSIGNED NOT NULL COMMENT '->entries(id)',
   tag_id BIGINT UNSIGNED NOT NULL COMMENT '->tags(id)',
@@ -390,50 +479,58 @@ SELECT
 FROM cdb_entries e
 JOIN cdb_tags t ON (t.old_vendor = e.old_vendorid);
 
-ALTER TABLE cdb_entries DROP old_groupid;
+
 ALTER TABLE cdb_entries DROP old_vendorid;
-ALTER TABLE cdb_tags DROP old_groupid;
 ALTER TABLE cdb_tags DROP old_vendor;
-
+  
 
 
 -- -----------------------------------------------------------------
--- remove double entries
+-- remove double versions
 -- -----------------------------------------------------------------
-CREATE TABLE cdb_entries2 SELECT * FROM cdb_entries;
-TRUNCATE TABLE cdb_entries2;
-INSERT INTO cdb_entries2
+DROP TABLE IF EXISTS cdb_versions2; 
+CREATE TABLE cdb_versions2 SELECT * FROM cdb_versions;
+TRUNCATE TABLE cdb_versions2;
+ALTER TABLE cdb_versions2  ENGINE = MYISAM;
+
+INSERT INTO cdb_versions2
 SELECT DISTINCT
-  (SELECT id FROM cdb_entries WHERE name = g.name ORDER BY created DESC LIMIT 1),
-  g.type,
-  name,
-  (SELECT category_id FROM cdb_entries WHERE name = g.name ORDER BY created DESC LIMIT 1),
-  (SELECT description FROM cdb_entries WHERE name = g.name ORDER BY created DESC LIMIT 1),
-  (SELECT created FROM cdb_entries WHERE name = g.name ORDER BY created ASC LIMIT 1),
-  (SELECT modified FROM cdb_entries WHERE name = g.name ORDER BY created DESC LIMIT 1),
-  TRUE
-FROM cdb_entries g;
+  (SELECT id FROM cdb_versions WHERE entry_id=g.entry_id AND version=g.version ORDER BY created DESC LIMIT 1),
+  entry_id,
+  version,
+  (SELECT created FROM cdb_versions WHERE entry_id=g.entry_id AND version=g.version ORDER BY created ASC LIMIT 1)
+FROM cdb_versions g;
 
-UPDATE cdb_entries_reports r
-SET entry_id=(SELECT e.id FROM cdb_entries2 e JOIN cdb_entries x ON x.name=e.name WHERE x.id=r.entry_id);
+-- old -> new
+DROP TABLE IF EXISTS temp_versions;
+CREATE TABLE temp_versions (
+  new_id BIGINT NOT NULL,
+  old_id BIGINT NOT NULL PRIMARY KEY
+) ENGINE=MYISAM;
 
-UPDATE cdb_entries_versions v
-SET entry_id=(SELECT e.id FROM cdb_entries2 e JOIN cdb_entries x ON x.name=e.name WHERE x.id=v.entry_id);
+INSERT INTO temp_versions
+SELECT
+  n.id,
+  o.id
+FROM cdb_versions2 n JOIN cdb_versions o ON o.entry_id=n.entry_id AND o.version=n.version;
 
 
-DROP TABLE cdb_entries;
-RENAME TABLE cdb_entries2 TO cdb_entries;
-ALTER TABLE cdb_entries
-  ADD UNIQUE(type, name),
-  ADD PRIMARY KEY(id),
-  CHANGE id id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT;
+UPDATE cdb_reports r
+SET version_id=(SELECT n.new_id FROM temp_versions n WHERE n.old_id=r.version_id);
+  
+-- replace duplicate versions
+DROP TABLE IF EXISTS cdb_versions; 
+RENAME TABLE cdb_versions2 TO cdb_versions;
+ALTER TABLE cdb_versions
+  ADD UNIQUE(entry_id, version);
 
 
 
 -- -----------------------------------------------------------------
 -- Convert os versions
 -- -----------------------------------------------------------------
-CREATE TABLE cdb_entries_tags (
+DROP TABLE IF EXISTS cdb_os; 
+CREATE TABLE cdb_os (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
   revision BIGINT UNSIGNED NOT NULL,
   name VARCHAR( 30 ) NOT NULL,
@@ -441,7 +538,7 @@ CREATE TABLE cdb_entries_tags (
   old_osversion VARCHAR( 6 ) NOT NULL DEFAULT '000000'
 ) ENGINE = MYISAM;
 
-INSERT INTO cdb_entries_tags VALUES
+INSERT INTO cdb_os VALUES
 (NULL,     4, 'ReactOS 0.0.7',  FALSE, '000007'),
 (NULL,    10, 'ReactOS 0.0.8',  FALSE, '000008'),
 (NULL,    21, 'ReactOS 0.0.9',  FALSE, '000009'),
@@ -479,7 +576,7 @@ INSERT INTO cdb_entries_tags VALUES
 (NULL, 35137, 'ReactOS 0.3.6',  TRUE,  '000360'),
 (NULL, 37181, 'ReactOS 0.3.7',  TRUE,  '000370'),
 (NULL, 39330, 'ReactOS 0.3.8',  TRUE,  '000380'),
-(NULL, 40702, 'ReactOS 0.3.9',  TRUE,  '000390');
+(NULL, 40702, 'ReactOS 0.3.9',  TRUE,  '000390'),
 (NULL, 41757, 'ReactOS 0.3.10', TRUE,  '003100');
 
 
@@ -487,6 +584,7 @@ INSERT INTO cdb_entries_tags VALUES
 -- -----------------------------------------------------------------
 -- assign bugs to an app
 -- -----------------------------------------------------------------
+DROP TABLE IF EXISTS cdb_rel_entries_bugs; 
 CREATE TABLE cdb_rel_entries_bugs (
   version_id BIGINT UNSIGNED NOT NULL COMMENT '->version(id)',
   entry_id BIGINT UNSIGNED NOT NULL COMMENT '->entry(id)',
@@ -499,8 +597,14 @@ CREATE TABLE cdb_rel_entries_bugs (
 -- -----------------------------------------------------------------
 -- set reported revisions
 -- -----------------------------------------------------------------
-UPDATE cdb_entries_reports r
-SET revision = (SELECT revision FROM cdb_entries_tags WHERE old_osversion=r.old_osversion LIMIT 1);
+UPDATE cdb_reports r
+SET revision = (SELECT revision FROM cdb_os WHERE old_osversion=r.old_osversion LIMIT 1);
 
-ALTER TABLE cdb_entries_reports DROP old_osversion;
+ALTER TABLE cdb_reports DROP old_osversion;
 
+
+--
+ALTER TABLE cdb_os DROP old_osversion;
+ALTER TABLE cdb_attachments DROP old_groupid;
+DROP TABLE temp_entries;
+DROP TABLE temp_versions;
