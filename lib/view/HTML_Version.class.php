@@ -257,7 +257,7 @@ class HTML_Version extends HTML
   private function mainTests()
   {
   
-    $stmt=CDBConnection::getInstance()->prepare("SELECT user_id, t.revision, works, environment, environment_version, created, v.name AS releasename FROM ".CDBT_REPORTS." t LEFT JOIN ".CDBT_VERTAGS." v ON v.revision=t.revision WHERE entry_id = :entry_id AND t.visible IS TRUE AND t.disabled IS FALSE ORDER BY revision DESC");
+    $stmt=CDBConnection::getInstance()->prepare("SELECT user_id, t.revision, works, environment, environment_version, created, v.name AS releasename FROM ".CDBT_REPORTS." t LEFT JOIN ".CDBT_VERTAGS." v ON v.revision=t.revision WHERE entry_id = :entry_id AND t.visible IS TRUE AND t.disabled IS FALSE ORDER BY v.revision DESC, created DESC");
     $stmt->bindParam('entry_id', $this->entry_id, PDO::PARAM_INT);
     $stmt->execute();
     $tests = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -290,18 +290,47 @@ class HTML_Version extends HTML
           
           // is there a environment
           if ($test['environment'] != 'unkn') {
-            echo $test['environment'];
+            switch ($test['environment']) {
+              case 'rh':
+                echo 'Real hardware';
+                break;
+              case 'vb':
+                echo 'VirtualBox';
+                break;
+              case 'Bo':
+                echo 'Bochs';
+                break;
+              case 'vp':
+                echo 'VirtualPC';
+                break;
+              case 'vw':
+                echo 'VMWare';
+                break;
+              case 'qe':
+                echo 'QEMU';
+                break;
+              case 'ot':
+                echo 'Other VM';
+                break;
+              default:
+              case 'unkn':
+                echo 'Unknown';
+                break;
+            } // end switch
             
             if ($test['environment_version'] != '') {
-              echo '('.$test['environment_version'].')';
+              echo ' ('.$test['environment_version'].')';
             }
           }
           echo '</td>
             </tr>';
             
           $x++;
-        }
-        echo '</tbody></table>';
+        } // end foreach
+        
+        echo '
+            </tbody>
+          </table>';
       }
       else {
         echo 'There are no tests submitted yet.';
