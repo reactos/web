@@ -190,7 +190,8 @@ CREATE TABLE cdb_reports (
   visible BOOL NOT NULL DEFAULT FALSE,
   disabled BOOL NOT NULL DEFAULT TRUE,
   old_groupid BIGINT NOT NULL DEFAULT '0',
-  old_osversion VARCHAR( 6 ) NOT NULL DEFAULT '000000'
+  old_osversion VARCHAR( 6 ) NOT NULL DEFAULT '000000',
+  old_mediaid BIGINT NOT NULL
 ) ENGINE = MyISAM;
 
 INSERT INTO cdb_reports
@@ -212,7 +213,8 @@ SELECT DISTINCT
   TRUE,
   FALSE,
   comp_groupid,
-  comp_osversion
+  comp_osversion,
+  comp_media
 FROM rsdb_item_comp
 WHERE comp_date != '0000-00-00 00:00:00'
 UNION
@@ -234,7 +236,8 @@ SELECT DISTINCT
   TRUE,
   FALSE,
   comp_groupid,
-  comp_osversion
+  comp_osversion,
+  comp_media
 FROM rsdb_item_comp
 WHERE comp_date = '0000-00-00 00:00:00';
  	
@@ -264,7 +267,8 @@ CREATE TABLE cdb_entries (
   old_groupid BIGINT NOT NULL DEFAULT '0',
   old_vendorid BIGINT NOT NULL DEFAULT '0',
   old_name varchar(100),
-  old_compid BIGINT
+  old_compid BIGINT,
+  old_mediaid BIGINT
 ) ENGINE = MyISAM;
 
 INSERT INTO cdb_entries
@@ -281,7 +285,8 @@ SELECT DISTINCT
   g.grpentr_id,
   g.grpentr_vendor,
   o.old_name,
-  o.id
+  o.id,
+  o.old_mediaid
 FROM rsdb_groups g
 LEFT JOIN cdb_reports o ON g.grpentr_id=o.old_groupid;
 
@@ -296,16 +301,18 @@ UPDATE cdb_comments c
 SET entry_id = (SELECT e.id FROM cdb_entries e WHERE c.entry_id=e.old_compid LIMIT 1);
 
 UPDATE cdb_attachments a
-SET entry_id = (SELECT e.id FROM cdb_entries e WHERE a.old_groupid=e.old_groupid LIMIT 1);
+SET entry_id = (SELECT e.id FROM cdb_entries e WHERE a.id=e.old_mediaid LIMIT 1);
 
 ALTER TABLE cdb_entries
-  DROP old_compid;
+  DROP old_compid,
+  DROP old_mediaid;
 
 ALTER TABLE cdb_reports
   DROP old_name,
   DROP old_description,
   DROP old_groupid,
-  DROP old_version;
+  DROP old_version,
+  DROP old_mediaid;
   
 ALTER TABLE cdb_comments
   DROP test_id;
