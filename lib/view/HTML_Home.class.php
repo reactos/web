@@ -52,27 +52,20 @@ class HTML_Home extends HTML
             <tr>
               <th></th>
               <th>Application</th>
+              <th>User</th>
               <th style="width:100px;text-align:center;">Last update</th>
             </tr>
           </thead>
           <tbody>';
 
-    // show latest tests
-    if (1) {
-    
-      // get latest reactos version
-      $stmt=CDBConnection::getInstance()->prepare("SELECT revision FROM ".CDBT_VERTAGS." t WHERE visible IS TRUE AND 5<(SELECT COUNT(*) FROM ".CDBT_REPORTS." WHERE revision=t.revision) ORDER BY revision DESC LIMIT 1");
-      $stmt->execute();
-      $latest_version = $stmt->fetchColumn();
+    // get latest reactos version
+    $stmt=CDBConnection::getInstance()->prepare("SELECT revision FROM ".CDBT_VERTAGS." t WHERE visible IS TRUE AND 5<(SELECT COUNT(*) FROM ".CDBT_REPORTS." WHERE revision=t.revision) ORDER BY revision DESC LIMIT 1");
+    $stmt->execute();
+    $latest_version = $stmt->fetchColumn();
 
-      //
-      $stmt=CDBConnection::getInstance()->prepare("SELECT e.name, r.created, r.works, e.id, (SELECT v.id FROM ".CDBT_VERSIONS." v WHERE v.entry_id=e.id ORDER BY created DESC LIMIT 1) FROM ".CDBT_REPORTS." r JOIN ".CDBT_ENTRIES." e ON e.id=r.entry_id WHERE r.revision = :revision ORDER BY r.created DESC LIMIT 15");
-      $stmt->bindParam('revision',$latest_version,PDO::PARAM_INT);
-    }
-    else {
-      $stmt=CDBConnection::getInstance()->prepare("SELECT e.name, r.created, r.works, e.id FROM ".CDBT_REPORTS." r JOIN ".CDBT_ENTRIES." e ON e.id=r.entry_id ORDER BY r.created DESC LIMIT 15");
-
-    }
+    // get recent entries
+    $stmt=CDBConnection::getInstance()->prepare("SELECT e.name, r.created, r.works, e.id, user_id, (SELECT v.version FROM ".CDBT_VERSIONS." v WHERE v.entry_id=e.id ORDER BY created DESC LIMIT 1) AS version FROM ".CDBT_REPORTS." r JOIN ".CDBT_ENTRIES." e ON e.id=r.entry_id WHERE r.revision = :revision ORDER BY r.created DESC LIMIT 15");
+    $stmt->bindParam('revision',$latest_version,PDO::PARAM_INT);
     $stmt->execute();
     $x=0;
     while ($entry = $stmt->fetch(PDO::FETCH_ASSOC)) {
@@ -81,7 +74,8 @@ class HTML_Home extends HTML
       echo '
         <tr class="row'.($x%2+1).'">
           <td class="first '.($entry['works'] == 'full' ? 'stable' : ($entry['works'] == 'part' ? 'unstable' : 'crash')).'">&nbsp;</td>
-          <td><a href="?show=version&amp;id='.$entry['id'].'">'.$entry['name'].'</a></td>
+          <td><a href="?show=version&amp;id='.$entry['id'].'">'.htmlentities($entry['name']).'</a> '.htmlentities($entry['version']).'</td>
+          <td>'.CUser::getName($entry['user_id']).'</td>
           <td style="text-align: center;white-space:nowrap;">'.$entry['created'].'</td>
         </tr>'; 
     }
