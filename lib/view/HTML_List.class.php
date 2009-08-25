@@ -141,7 +141,7 @@ class HTML_List extends HTML
             // just one version stored
             if (count($versions) == 1) {
               echo '
-                  <a href="?show=version&amp;id='.$versions[0]['id'].'">'.htmlspecialchars($entry['name']).' '.$versions[0]['version'].'</a>';
+                  <a href="?show=version&amp;id='.$versions[0]['id'].'">'.htmlspecialchars($entry['name']).'</a> <small style="color: gray;">'.$versions[0]['version'].'</small>';
             }
 
             // show all app version

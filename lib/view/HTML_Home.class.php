@@ -75,7 +75,7 @@ class HTML_Home extends HTML
       echo '
         <tr class="row'.($x%2+1).'">
           <td class="first '.($entry['works'] == 'full' ? 'stable' : ($entry['works'] == 'part' ? 'unstable' : 'crash')).'">&nbsp;</td>
-          <td><a href="?show=version&amp;id='.$entry['version_id'].'">'.htmlentities($entry['name']).'</a> '.htmlentities($entry['version']).'</td>
+          <td><a href="?show=version&amp;id='.$entry['version_id'].'">'.htmlentities($entry['name']).'</a> <small style="color: gray;">'.htmlentities($entry['version']).'</small></td>
           <td>'.CUser::getName($entry['user_id']).'</td>
           <td style="text-align: center;white-space:nowrap;">'.$entry['created'].'</td>
         </tr>'; 
