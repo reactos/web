@@ -36,14 +36,15 @@ define('CDBT_VERSIONS'   , CDBTDATABASE.'cdb_versions'); // application versions
 
 		// Config: (please sync this with the database)
 		$RSDB_intern_path = "compat/"; // the dirs after http://www.reactos.org
+    $RSDB_site_root = '/reactos/';
 		
 		// script file fix (for Safari browser)
-    $RSDB_intern_path_server = "/reactos/".$RSDB_intern_path;
+    $RSDB_intern_path_server = $RSDB_site_root.$RSDB_intern_path;
 		$RSDB_intern_index_php = $RSDB_intern_path_server."index.php";
 		
 		// Global Login System
 		$RSDB_intern_loginsystem_path = "roscms/"; // RosCMS dir
-		$RSDB_intern_loginsystem_fullpath = "/reactos/".$RSDB_intern_loginsystem_path; // RosCMS dir
+		$RSDB_intern_loginsystem_fullpath = $RSDB_site_root.$RSDB_intern_loginsystem_path; // RosCMS dir
 	
 		// User ID
     require_once(ROSCMS_PATH.'lib/RosCMS_Autoloader.class.php');

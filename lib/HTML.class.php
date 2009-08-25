@@ -84,6 +84,7 @@ abstract class HTML
   protected function header( )
   {
     global $RSDB_intern_path_server;
+    global $RSDB_site_root;
     global $RSDB_intern_path;
     global $RSDB_intern_user_id;
     global $RSDB_intern_loginsystem_fullpath;
@@ -124,10 +125,10 @@ abstract class HTML
     <body>
       <div id="top">
         <div id="topMenu" style="text-align: left;"> 
-          <a href="'.$RSDB_intern_path_server.'?page=index">Home</a> |
-          <a href="'.$RSDB_intern_path_server.'?page=about">Info</a> |
-          <a href="'.$RSDB_intern_path_server.'?page=community">Community</a> |
-          <a href="'.$RSDB_intern_path_server.'?page=dev">Development</a> |
+          <a href="'.$RSDB_site_root.'?page=index">Home</a> |
+          <a href="'.$RSDB_site_root.'?page=about">Info</a> |
+          <a href="'.$RSDB_site_root.'?page=community">Community</a> |
+          <a href="'.$RSDB_site_root.'?page=dev">Development</a> |
           <a href="'.$RSDB_intern_loginsystem_fullpath.'?page=user">myReactOS</a>
         </div>
       </div>';
@@ -144,7 +145,7 @@ abstract class HTML
   {
 
     global $RSDB_intern_link_db_sec;
-    global $RSDB_intern_path_server;
+    global $RSDB_site_root;
     global $RSDB_intern_link_language;
     global $RSDB_intern_loginsystem_fullpath;
 
@@ -154,10 +155,10 @@ abstract class HTML
           <td style="width:147px" id="leftNav">
             <div class="navTitle">Navigation</div>
             <ol>
-              <li><a href="'.$RSDB_intern_path_server.'?page=index">Home</a></li>
-              <li><a href="'.$RSDB_intern_path_server.'?page=about">Info</a></li>
-              <li><a href="'.$RSDB_intern_path_server.'?page=community">Community</a></li>
-              <li><a href="'.$RSDB_intern_path_server.'?page=dev">Development</a></li>
+              <li><a href="'.$RSDB_site_root.'?page=index">Home</a></li>
+              <li><a href="'.$RSDB_site_root.'?page=about">Info</a></li>
+              <li><a href="'.$RSDB_site_root.'?page=community">Community</a></li>
+              <li><a href="'.$RSDB_site_root.'?page=dev">Development</a></li>
               <li><a href="'.$RSDB_intern_loginsystem_fullpath.'?page=user">myReactOS</a></li>
             </ol>
             <br />
