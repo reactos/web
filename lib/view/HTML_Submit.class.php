@@ -39,19 +39,25 @@ class HTML_Submit extends HTML
     if (isset($_POST['next']) && $_POST['next'] == 'entry') {
       $entry_id = Entry::getEntryId($_POST['type'], $_POST['title']);
       $version_id = Entry::getVersionId($entry_id, $_POST['version']);
-      header('location: ?show=version&id='.$version_id);
+      if ($entry_id !== false && $version_id !== false) {
+        header('location: ?show=version&id='.$version_id);
+      }
       exit;
     }
     elseif (isset($_POST['next']) && $_POST['next'] == 'bug') {
-      header('location: http://www.reactos.org/bugzilla/enter_bug.cgi?product=ReactOS');
+      $entry_id = Entry::getEntryId($_POST['type'], $_POST['title']);
+      $version_id = Entry::getVersionId($entry_id, $_POST['version']);
+      if ($entry_id !== false && $version_id !== false) {
+        header('location: http://www.reactos.org/bugzilla/enter_bug.cgi?product=ReactOS');
+      }
       exit;
     }
-    else {
-      $this->header();
-      $this->navigation();
-      $this->body();
-      $this->footer();
-    }
+    
+    
+    $this->header();
+    $this->navigation();
+    $this->body();
+    $this->footer();
   }
 
 
@@ -70,6 +76,11 @@ class HTML_Submit extends HTML
     }
     else {
       $revision = $_POST['ver'];
+    }
+    
+    if (!preg_match('/^\d+$/',$revision)) {
+      echo 'No valid Revision. A valid revision only consists of digits.';
+      return false;
     }
 
     // try to insert a new entry
@@ -111,6 +122,7 @@ class HTML_Submit extends HTML
           $env = $_POST['vm'];
           $env_ver = $_POST['vmver'];
         }
+        
         Entry::addReport($entry_id, $version_id, $comment_id, $revision, $env, $env_ver, $_POST['status']);
       }
     }
@@ -170,10 +182,10 @@ class HTML_Submit extends HTML
             <li style="float: left;">
               <label for="type">Type:</label><br />
               <select name="type" id="type">
-                <option value="app"'.($entry['type'] == 'app' ? ' selected="selected"' : '').'>Application</option>
-                <option value="dll"'.($entry['type'] == 'dll' ? ' selected="selected"' : '').'>DLL-Library</option>
-                <option value="drv"'.($entry['type'] == 'drv' ? ' selected="selected"' : '').'>Driver</option>
-                <option value="oth"'.($entry['type'] == 'oth' ? ' selected="selected"' : '').'>Other</option>
+                <option value="app"'.($entry['type'] == 'App' ? ' selected="selected"' : '').'>Application</option>
+                <option value="dll"'.($entry['type'] == 'DLL' ? ' selected="selected"' : '').'>DLL-Library</option>
+                <option value="drv"'.($entry['type'] == 'Drv' ? ' selected="selected"' : '').'>Driver</option>
+                <option value="oth"'.($entry['type'] == 'Oth' ? ' selected="selected"' : '').'>Other</option>
               </select>
             </li>
 
@@ -260,13 +272,12 @@ class HTML_Submit extends HTML
             <div id="vmselect">
               <label for="vm">Virtual Machine:</label><br />
               <select id="vm" name="vm">
-                <option>&nbsp;</option>
+                <option value="ot"'.((($used_again && $_POST['vm']=='ot') || !$used_again) ? ' selected="selected"' : '').'>Other</option>
                 <option value="Bo"'.(($used_again && $_POST['vm']=='Bo') ? ' selected="selected"' : '').'>Bochs</option>
                 <option value="qe"'.(($used_again && $_POST['vm']=='qe') ? ' selected="selected"' : '').'>Qemu</option>
                 <option value="vb"'.(($used_again && $_POST['vm']=='vb') ? ' selected="selected"' : '').'>VirtualBox</option>
                 <option value="vp"'.(($used_again && $_POST['vm']=='vp') ? ' selected="selected"' : '').'>VirtualPC</option>
                 <option value="vw"'.(($used_again && $_POST['vm']=='vw') ? ' selected="selected"' : '').'>VMWare</option>
-                <option value="ot"'.(($used_again && $_POST['vm']=='ot') ? ' selected="selected"' : '').'>Other</option>
               </select>
             </div>
             <br />
@@ -284,7 +295,7 @@ class HTML_Submit extends HTML
               <textarea rows="5" cols="70" name="comment" id="comment"></textarea>
             </li>
             <li>
-              <span class="label">next action:</span><br />
+              <span class="label">Next action:</span><br />
               <input type="radio" class="normal" name="next" id="again" value="again" '.($used_again ? 'checked="checked"' : '').' />
               <label for="again" class="normal">Insert another entry/report</label>
               <br />

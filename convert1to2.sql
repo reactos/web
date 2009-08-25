@@ -522,7 +522,9 @@ SET version_id=(SELECT n.new_id FROM temp_versions n WHERE n.old_id=r.version_id
 DROP TABLE IF EXISTS cdb_versions; 
 RENAME TABLE cdb_versions2 TO cdb_versions;
 ALTER TABLE cdb_versions
-  ADD UNIQUE(entry_id, version);
+  ADD UNIQUE(entry_id, version),
+  ADD PRIMARY KEY(id),
+  CHANGE id id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT;
 
 
 

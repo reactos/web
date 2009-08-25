@@ -54,24 +54,36 @@ class HTML_List extends HTML
     else {
       $offset = 0;
     }
-
-    echo '
-      <h1>Compatability Database &gt; browse by name</h1>';
       
-    
+    ob_start();
     if (isset($_GET['letter'])) {
       $this->naviLetter($_GET['letter']);
+      $browse = 'name';
     }
     elseif (isset($_GET['cat'])) {
       $this->naviCategory($_GET['cat']);
+      $browse = 'category';
     }
     elseif (isset($_GET['tag']) && $_GET['tag'] == '*') {
       $this->naviTags();
+      $browse = 'tag';
     }
 
     elseif (isset($_GET['filter'])) {
       $this->naviCustom();
+      $browse = 'custom filter';
     }
+    elseif (isset($_POST['searchbar']))
+      $browse = 'search for: '.htmlspecialchars($_POST['searchbar']);
+    else {
+      $browse = 'unknown setting';
+    }
+    $output = ob_get_contents();
+    ob_end_clean();
+
+    echo '
+      <h1>Compatability Database &gt; Browse by '.$browse.'</h1>'.
+      $output;
 
     if (!isset($_GET['tag']) || $_GET['tag'] != '*') {
       
@@ -221,7 +233,8 @@ class HTML_List extends HTML
     } // end while
 
     echo $output.'
-      </ul>';
+      </ul>
+      <br style="clear: both;" />';
   
     $stmt=CDBConnection::getInstance()->prepare("SELECT COUNT(*) FROM ".CDBT_CATEGORIES." p WHERE parent=:category_id");
     $stmt->bindParam('category_id',$category_id,PDO::PARAM_STR);

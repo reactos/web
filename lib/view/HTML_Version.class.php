@@ -257,8 +257,8 @@ class HTML_Version extends HTML
   private function mainTests()
   {
   
-    $stmt=CDBConnection::getInstance()->prepare("SELECT user_id, t.revision, works, environment, environment_version, created, v.name AS releasename FROM ".CDBT_REPORTS." t LEFT JOIN ".CDBT_VERTAGS." v ON v.revision=t.revision WHERE entry_id = :entry_id AND t.visible IS TRUE AND t.disabled IS FALSE ORDER BY v.revision DESC, created DESC");
-    $stmt->bindParam('entry_id', $this->entry_id, PDO::PARAM_INT);
+    $stmt=CDBConnection::getInstance()->prepare("SELECT user_id, t.revision, works, environment, environment_version, created, v.name AS releasename FROM ".CDBT_REPORTS." t LEFT JOIN ".CDBT_VERTAGS." v ON v.revision=t.revision WHERE version_id = :version_id AND t.visible IS TRUE AND t.disabled IS FALSE ORDER BY t.revision DESC, created DESC");
+    $stmt->bindParam('version_id', $_GET['id'],PDO::PARAM_INT);
     $stmt->execute();
     $tests = $stmt->fetchAll(PDO::FETCH_ASSOC);
  
@@ -291,7 +291,7 @@ class HTML_Version extends HTML
           // is there a environment
           if ($test['environment'] != 'unkn') {
             switch ($test['environment']) {
-              case 'rh':
+              case 'RH':
                 echo 'Real hardware';
                 break;
               case 'vb':
@@ -372,14 +372,7 @@ class HTML_Version extends HTML
     $entry_name=$stmt->fetchColumn();
     
     // and we also use linked bug numbers
-    if (isset($_GET['old']) AND $_GET['old'] == 'true') {
-      $stmt=CDBConnection::getInstance()->prepare("SELECT DISTINCT bug_id, short_desc, bug_status FROM bugs.bugs WHERE short_desc LIKE :entry_name OR bug_id IN(SELECT bug_id FROM ".CDBT_BUGS." WHERE entry_id=:entry_id) ORDER BY bug_id DESC");
-      $old = true;
-    }
-    else {
-      $stmt=CDBConnection::getInstance()->prepare("SELECT DISTINCT bug_id, short_desc, bug_status FROM bugs.bugs WHERE (short_desc LIKE :entry_name OR bug_id IN(SELECT bug_id FROM ".CDBT_BUGS." WHERE entry_id=:entry_id)) AND bug_status NOT IN('RESOLVED', 'CLOSED') ORDER BY bug_id DESC");
-      $old = false;
-    }
+    $stmt=CDBConnection::getInstance()->prepare("SELECT DISTINCT bug_id, short_desc, bug_status FROM bugs.bugs WHERE short_desc LIKE :entry_name OR bug_id IN(SELECT bug_id FROM ".CDBT_BUGS." WHERE entry_id=:entry_id) ORDER BY bug_id DESC");
     $stmt->bindValue('entry_name', '%'.$entry_name.'%', PDO::PARAM_STR);
     $stmt->bindParam('entry_id',$this->entry_id,PDO::PARAM_INT);
     $stmt->execute();
@@ -394,7 +387,7 @@ class HTML_Version extends HTML
           <fieldset>
             <label for="bug">#</label>
             <input type="text" name="bug" id="bug" />
-            <button type="submit">link to this entry</button>
+            <button type="submit">Link to this entry</button>
           </fieldset>
         </form>';
     }
@@ -403,7 +396,7 @@ class HTML_Version extends HTML
         echo '<ul id="buglist">';
         foreach ($bugs as $bug) {
           echo '
-            <li'.(($bug['bug_status'] == 'RESOLVED' || $bug['bug_status'] == 'CLOSED') ? ' style="color: lightgray;"' : '').'><a href="http://www.reactos.org/bugzilla/show_bug.cgi?id='.$bug['bug_id'].'" class="bugNumber">#'.$bug['bug_id'].'</a>'.htmlspecialchars($bug['short_desc']).'</li>';
+            <li'.(($bug['bug_status'] == 'RESOLVED' || $bug['bug_status'] == 'CLOSED') ? ' style="text-decoration: line-through;"' : '').'><a href="http://www.reactos.org/bugzilla/show_bug.cgi?id='.$bug['bug_id'].'" class="bugNumber">#'.$bug['bug_id'].'</a>'.htmlspecialchars($bug['short_desc']).'</li>';
         }
         echo '</ul>';
       }
@@ -413,16 +406,8 @@ class HTML_Version extends HTML
     
     echo '
       <br />
-        <a href="/wiki/File_Bugs">Submit new Bug</a> | 
-        '.($RSDB_intern_user_id > 0 ? '<a href="?show=version&amp;id='.$_GET['id'].'&amp;view=pref&amp;pside='.$this->side.'&amp;pmain='.self::MAIN_BUGS.'&amp;link=true">link to existing bug</a> | ' : '');
-
-    if ($old === true) {
-      echo '<a href="?show=version&amp;id='.$_GET['id'].'&amp;view=pref&amp;pside='.$this->side.'&amp;pmain='.self::MAIN_BUGS.'&amp;old=false">Hide old bugs</a>';
-    }
-    else {
-      echo '<a href="?show=version&amp;id='.$_GET['id'].'&amp;view=pref&amp;pside='.$this->side.'&amp;pmain='.self::MAIN_BUGS.'&amp;old=true">Also show old bugs</a>';
-    }
-    echo '
+        <a href="http://www.reactos.org/wiki/File_Bugs">Submit new Bug</a> | 
+        '.($RSDB_intern_user_id > 0 ? '<a href="?show=version&amp;id='.$_GET['id'].'&amp;view=pref&amp;pside='.$this->side.'&amp;pmain='.self::MAIN_BUGS.'&amp;link=true">Link to existing bug</a>' : '').'
       </div>';
   } // end of member function mainScreenshots
   
