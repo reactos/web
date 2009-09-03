@@ -181,7 +181,22 @@ class HTML_List extends HTML
             echo '<strong>['.$i.']</strong>';
           }
           else {
-            echo '<a href="?show=list'.(isset($_GET['letter']) ? '&amp;letter='.$_GET['letter']:'').'&amp;offset='.(($i-1)*$limit).'">'.$i.'</a>';
+            echo '<a href="';
+            
+            if (isset($_GET['letter'])) {
+              echo '?show=list&amp;letter='.$_GET['letter'];
+            }
+            elseif (isset($_GET['cat'])) {
+              echo '?show=list&amp;cat='.$_GET['cat'];
+            }
+            elseif (isset($_GET['tag'])) {
+              echo '?show=list&amp;tag='.$_GET['tag'];
+            }
+            elseif (isset($_GET['by'])) {
+              echo '?show=search&amp;by='.$_GET['by'];
+            }
+            
+            echo '&amp;offset='.(($i-1)*$limit).'">'.$i.'</a>';
           }
         }
         echo '</div>';

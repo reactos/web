@@ -163,11 +163,12 @@ abstract class HTML
             </ol>
             <br />
 
-            <form action="?show=search" method="post">
-            <div class="navTitle"><label for="searchbar" accesskey="s">Search</label></div>
+            <form action="?show=search" method="get">
+            <div class="navTitle"><label for="by" accesskey="s">Search</label></div>
             <ol>
               <li>
-                <input name="searchbar" type="text" id="searchbar" tabindex="0" size="17" maxlength="50" style="font-family: Verdana; font-size: x-small; font-style: normal;" />
+                <input type="hidden" name="show" value="search" />
+                <input name="by" type="text" id="by" tabindex="0" size="17" maxlength="50" style="font-family: Verdana; font-size: x-small; font-style: normal;" />
                 <button>&gt;</button>
               </li>
             </ol>

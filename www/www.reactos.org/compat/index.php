@@ -104,8 +104,8 @@ switch (@$_GET['show']) {
   // search
   case 'search': 
     $filter = '';
-    if (isset($_POST['searchbar']) && $_POST['searchbar'] != '') {
-      $filter .= 'n_h_'.str_replace(Listing::DEVIDE_FILTER, '%', $_POST['searchbar']);
+    if (isset($_GET['by']) && $_GET['by'] != '') {
+      $filter .= 'n_h_'.str_replace(Listing::DEVIDE_FILTER, '%', $_GET['by']);
     }
 
     new HTML_List($filter);
