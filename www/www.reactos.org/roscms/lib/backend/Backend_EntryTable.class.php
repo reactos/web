@@ -283,7 +283,7 @@ class Backend_EntryTable extends Backend
       return false;
     }
 
-    // @HACK
+    // @HACK, add dependencies for dynamic contents
     if (1) {
       $stmt=&DBConnection::getInstance()->prepare("SELECT name FROM ".ROSCMST_ENTRIES." WHERE id=:data_id");
       $stmt->bindParam('data_id',$revision['data_id'],PDO::PARAM_INT);

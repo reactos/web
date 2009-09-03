@@ -1292,7 +1292,7 @@ function tryAutosave( )
  */
 function changeNewEntryTab( mode )
 {
-  if (mode === 'single' || mode === 'dynamic' || 'template') {
+  if (mode === 'single' || mode === 'dynamic' || mode === 'template') {
     makeRequest('?page=backend&type=text&subtype=ned&action=dialog&tab='+mode, 'ned', 'newentryarea', 'html', 'GET', '');
   }
 } // end of function changeNewEntryTab
@@ -2143,11 +2143,13 @@ function htmlCommandBar( preset )
     cmdhtml_stable = '<div class="button" onclick="changeSelectedTags(\'ms\')"><img src="'+roscms_intern_webserver_roscms+'images/publish.png" alt="" /><span class="text">Publish</span></div>';
   }
 
+  // delete button for all
+  cmdhtml_delete_always = '<div class="button" onclick="changeSelectedTags(\'xe\')"><img src="'+roscms_intern_webserver_roscms+'images/delete.png" alt="" /><span class="text">Delete</span></div>';
+    
   // delete entries
   if (roscms_access.del_entry) {
     cmdhtml_archive = '<div class="button" onclick="changeSelectedTags(\'va\')"><img src="'+roscms_intern_webserver_roscms+'images/archive.png" alt="" /><span class="text">to <em>Archive</em</span></div>';
-    cmdhtml_delete = '<div class="button" onclick="changeSelectedTags(\'xe\')"><img src="'+roscms_intern_webserver_roscms+'images/delete.png" alt="" /><span class="text">Delete</span></div>';
-
+    cmdhtml_archive = cmdhtml_delete_always;
   }
 
   switch (preset) {
@@ -2192,7 +2194,7 @@ function htmlCommandBar( preset )
         + cmdhtml_ready
         + cmdhtml_stable
         + cmdhtml_archive
-        + cmdhtml_delete;
+        + cmdhtml_delete_always;
       break;
 
     case 'archive':

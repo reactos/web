@@ -78,7 +78,7 @@ class Dependencies
     $stmt=&DBConnection::getInstance()->prepare("SELECT content FROM ".ROSCMST_TEXT." WHERE rev_id=:rev_id AND name='content'");
     $stmt->bindParam('rev_id',$rev_id,PDO::PARAM_INT);
     if ($stmt->execute()) {
-      return preg_replace_callback('/\[#((inc|templ|cont|link)_([^][#[:space:]]+))\]/', array($this,'newDependency'), $stmt->fetchColumn());
+      return preg_replace_callback('/\[#((inc|cont|link)_([^][#[:space:]]+))\]/', array($this,'newDependency'), $stmt->fetchColumn());
     }
     return false;
   } // end of member function addRevision
@@ -244,14 +244,18 @@ class Dependencies
         $dependency_name = 'link_'.$name;
         $include = false;
         break;
+      default:
+        return false;
+        break;
     }
 
     // check for existing entry
     $stmt=&DBConnection::getInstance()->prepare("SELECT id FROM ".ROSCMST_ENTRIES." WHERE name = :name AND type = :type LIMIT 1");
     $stmt->bindParam('name',$name,PDO::PARAM_STR);
     $stmt->bindParam('type',$type,PDO::PARAM_STR);
-    if ($stmt->execute()) {
-      $data_id = $stmt->fetchColumn();
+    $stmt->execute();
+    $data_id = $stmt->fetchColumn();
+    if ($data_id !== false) {
 
       // check if we already have an dependency to this entry
       $stmt=&DBConnection::getInstance()->prepare("SELECT id FROM ".ROSCMST_DEPENDENCIES." WHERE child_name=:dependency_name");
@@ -270,22 +274,24 @@ class Dependencies
       // insert new dependency
       else {
 
-        // insert dependency with name
-        if ($data_id === false) {
-          $stmt=&DBConnection::getInstance()->prepare("INSERT INTO ".ROSCMST_DEPENDENCIES." (rev_id, child_name, include, user_defined) VALUES (:rev_id, :dependency_name, :is_include, :user_defined)");
-          $stmt->bindParam('dependency_name',$dependency_name,PDO::PARAM_STR);
-        }
-
         // insert dependency with id
-        else {
-          $stmt=&DBConnection::getInstance()->prepare("INSERT INTO ".ROSCMST_DEPENDENCIES." (rev_id, child_id, include, user_defined) VALUES (:rev_id, :dependency_id, :is_include, :user_defined)");
-          $stmt->bindParam('dependency_id',$data_id,PDO::PARAM_INT);
-        }
+        $stmt=&DBConnection::getInstance()->prepare("INSERT INTO ".ROSCMST_DEPENDENCIES." (rev_id, child_id, include, user_defined) VALUES (:rev_id, :dependency_id, :is_include, :user_defined)");
+        $stmt->bindParam('dependency_id',$data_id,PDO::PARAM_INT);
         $stmt->bindParam('rev_id',$rev_id,PDO::PARAM_INT);
         $stmt->bindParam('is_include',$include,PDO::PARAM_BOOL);
         $stmt->bindParam('user_defined',$user_defined,PDO::PARAM_BOOL);
         return $stmt->execute();
       }
+    }
+
+    // insert dependency with name, as we've no id to that entry
+    else {
+      $stmt=&DBConnection::getInstance()->prepare("INSERT INTO ".ROSCMST_DEPENDENCIES." (rev_id, child_name, include, user_defined) VALUES (:rev_id, :dependency_name, :is_include, :user_defined)");
+      $stmt->bindParam('dependency_name',$dependency_name,PDO::PARAM_STR);
+      $stmt->bindParam('rev_id',$rev_id,PDO::PARAM_INT);
+      $stmt->bindParam('is_include',$include,PDO::PARAM_BOOL);
+      $stmt->bindParam('user_defined',$user_defined,PDO::PARAM_BOOL);
+      return $stmt->execute();
     }
     return false;
   } // end of member function deleteManual

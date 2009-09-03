@@ -165,28 +165,32 @@ class Admin_Groups extends Admin
         $stmt_acl=&DBConnection::getInstance()->prepare("INSERT INTO ".ROSCMST_ACL." (access_id, group_id, right_id) VALUES (:access_id,:group_id,:right_id)");
         $stmt_acl->bindParam('group_id',$group_id,PDO::PARAM_INT);
         $stmt_apl=&DBConnection::getInstance()->prepare("INSERT INTO ".ROSCMST_AREA_ACCESS." (area_id, group_id) VALUES (:area_id,:group_id)");
-        $stmt_apl->bindParam('group_id',$_POST['group_id'],PDO::PARAM_INT);
+        $stmt_apl->bindParam('group_id',$group_id,PDO::PARAM_INT);
         foreach ($_POST as $item=>$val) {
-        
-          // insert ACL
-          if (strpos($item,'valid')===0) {
-            $item = substr($item, 5);
-            $id = explode('_',$item);
-            if($id[0] > 0 && $id[1] > 0 && $val=='true') {
-              $stmt_acl->bindParam('right_id',$id[1],PDO::PARAM_INT);
-              $stmt_acl->bindParam('access_id',$id[0],PDO::PARAM_INT);
-              $success = $success && $stmt_acl->execute();
-            }
-          }
 
-          // insert APL
-          elseif (strpos($item,'area')===0 && $val=='true') {
-            $id = substr($item, 4);
-            if($id > 0) {
-              $stmt_apl->bindParam('area_id',$id,PDO::PARAM_INT);
-              $success = $success && $stmt_apl->execute();
+          // checkbox is checked
+          if ($val == 'true') {
+
+            // insert ACL
+            if (strpos($item,'valid')===0) {
+              $item = substr($item, 5);
+              $id = explode('_',$item);
+             if($id[0] > 0 && $id[1] > 0) {
+                $stmt_acl->bindParam('right_id',$id[1],PDO::PARAM_INT);
+                $stmt_acl->bindParam('access_id',$id[0],PDO::PARAM_INT);
+                $success = $success && $stmt_acl->execute();
+              }
             }
-          }
+
+            // insert APL
+           elseif (strpos($item,'area')===0) {
+              $id = substr($item, 4);
+              if($id > 0) {
+                $stmt_apl->bindParam('area_id',$id,PDO::PARAM_INT);
+                $success = $success && $stmt_apl->execute();
+              }
+            }
+          } // val == true
         } // end foreach
       } // end got list id
       else {

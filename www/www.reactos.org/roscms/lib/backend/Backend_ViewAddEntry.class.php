@@ -86,9 +86,6 @@ class Backend_ViewAddEntry extends Backend
         $page = $stmt->fetchOnce(PDO::FETCH_ASSOC);
         $next_index = Tag::getValue($page['rev_id'],'next_index',-1);
 
-        // update next index for dynamic page
-        Tag::update(Tag::getId($page['rev_id'],'next_index',-1),$next_index+1);
-
         // create new dynamic entry
         $rev_id = Entry::add($page['name'].'_'.$next_index, 'content',null, true);
 

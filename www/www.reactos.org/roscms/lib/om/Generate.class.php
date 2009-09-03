@@ -130,8 +130,9 @@ class Generate
     if ($id_type != 'revision') {
       $this->cacheFiles();
     }
+exit;
 
-    // build all entries
+    // build all pages/dynamic pages
     if ($id === null) {
       $stmt=&DBConnection::getInstance()->prepare("SELECT d.name, type, l.id AS lang_id, l.name AS language, l.name_short AS lang_short FROM ".ROSCMST_ENTRIES." d CROSS JOIN ".ROSCMST_LANGUAGES." l WHERE (d.type = 'page' OR d.type = 'dynamic') ORDER BY l.level DESC, l.name ASC, d.name ASC");
     }
@@ -227,6 +228,9 @@ class Generate
       $content = str_replace('[#'.$this->short[$dependency['type']].'_'.$dependency['name'].']', $this->getCached(array(null, $this->short[$dependency['type']].'_'.$dependency['name'])), $content);
     } // end foreach
 
+    // get content and replace [#cont_%NAME%] with [#cont_~pagename~]
+    $content = preg_replace('/\[#cont_%Name%\]/i',$this->getCached(array(null, 'cont_'.$this->page_name)), $content);
+
     // execute scripts
     $content = preg_replace_callback('/\[#inc_([a-zA-Z0-9_]+)\]/', array($this,'evalScript'),$content);
 
@@ -301,6 +305,9 @@ class Generate
         $content = str_replace('[#'.$this->short[$dependency['type']].'_'.$dependency['name'].']', $this->getCached(array(null, $this->short[$dependency['type']].'_'.$dependency['name'])), $content);
       } // end foreach
 
+      // get content and replace [#cont_%NAME%] with [#cont_~pagename~]
+      $content = preg_replace('/\[#cont_%Name%\]/i',$this->getCached(array(null, 'cont_'.$this->page_name)), $content);
+
       // replace scripts
       $content = preg_replace_callback('/\[#inc_([a-zA-Z0-9_]+)\]/', array($this,'evalScript'),$content);
 
@@ -340,7 +347,6 @@ class Generate
     if (empty($base_rev)) {
       $base_rev = $rev_id;
       $base_lang = $revision['lang_id'];
-      echo $base_lang;
     }
 
     if ($revision['type'] == 'page' || $revision['type'] == 'dynamic') {
@@ -382,9 +388,9 @@ class Generate
         SELECT DISTINCT
           org.name, org.type, COALESCE( trans.id, org.id ) AS id, org.data_id
         FROM (
-          SELECT d.name, d.type, r.id, r.data_id FROM ".ROSCMST_DEPENDENCIES." w JOIN ".ROSCMST_REVISIONS." r ON r.id=w.rev_id JOIN ".ROSCMST_ENTRIES." d ON d.id=r.data_id WHERE w.child_id=:dependency_id AND r.lang_id = :standard_lang AND w.rev_id NOT IN(:rev_id,:rev_id2) AND r.archive IS FALSE AND w.include IS TRUE
+          SELECT d.name, d.type, r.id, r.data_id FROM ".ROSCMST_DEPENDENCIES." w JOIN ".ROSCMST_REVISIONS." r ON r.id=w.rev_id JOIN ".ROSCMST_ENTRIES." d ON d.id=r.data_id WHERE w.child_id=:dependency_id AND r.lang_id = :standard_lang AND w.rev_id NOT IN(:rev_id,:rev_id2) AND r.archive IS FALSE AND r.status = 'stable' AND w.include IS TRUE
         ) AS org LEFT OUTER JOIN (
-          SELECT d.name, d.type, r.id, r.data_id FROM ".ROSCMST_DEPENDENCIES." w JOIN ".ROSCMST_REVISIONS." r ON r.id=w.rev_id JOIN ".ROSCMST_ENTRIES." d ON d.id=r.data_id WHERE w.child_id=:dependency_id AND r.lang_id = :lang_id AND w.rev_id NOT IN(:rev_id,:rev_id2) AND r.archive IS FALSE AND w.include IS TRUE
+          SELECT d.name, d.type, r.id, r.data_id FROM ".ROSCMST_DEPENDENCIES." w JOIN ".ROSCMST_REVISIONS." r ON r.id=w.rev_id JOIN ".ROSCMST_ENTRIES." d ON d.id=r.data_id WHERE w.child_id=:dependency_id AND r.lang_id = :lang_id AND w.rev_id NOT IN(:rev_id,:rev_id2) AND r.archive IS FALSE AND r.status = 'stable' AND w.include IS TRUE
         ) AS trans ON org.data_id = trans.data_id");
     $stmt->bindParam('dependency_id',$revision['data_id'],PDO::PARAM_INT);
     $stmt->bindParam('rev_id',$base_rev,PDO::PARAM_INT);
@@ -458,32 +464,34 @@ class Generate
         else {
           $this->dynamic_num = false;
         }
-        
-        // get content and replace [#cont_%NAME%] with [#cont_~pagename~]
-        $content = preg_replace('/\[#cont_%Name%\]/i','[#cont_'.$this->page_name.']', $revision['content']);
+        $content = $revision['content'];
 
         // replace links
         $content = preg_replace_callback('/\[#link_([^][#[:space:]]+)\]/', array($this, 'replaceWithHyperlink'), $content);
 
-        // do we care about dependencies ?
-        if ($recursive) {
-
         // process dependencies first
-          $stmt_more->bindParam('rev_id',$revision['id'],PDO::PARAM_INT);
-          $stmt_more->execute();
-          $dependencies = $stmt_more->fetchAll(PDO::FETCH_ASSOC);
-          foreach ($dependencies as $dependency) {
+        $stmt_more->bindParam('rev_id',$revision['id'],PDO::PARAM_INT);
+        $stmt_more->execute();
+        $dependencies = $stmt_more->fetchAll(PDO::FETCH_ASSOC);
+        foreach ($dependencies as $dependency) {
+
+          // do we care about generating dependencies ?
+          if ($recursive) {
 
             // cache dependent entries first
             $dependency_file = $data['lang_id'].'/'.$this->short[$dependency['type']].'_'.$dependency['name'].'.rcf';
             if (!file_exists($this->cache_dir.$dependency_file) || $this->begin > date('Y-m-d H:i:s',filemtime($this->cache_dir.$dependency_file))) {
-              $this->cacheFiles($dependency['child_id']);
+              $this->cacheFiles($dependency['child_id'], true);
             }
-
-            // replace
-            $content = str_replace('[#'.$this->short[$dependency['type']].'_'.$dependency['name'].']', $this->getCached(array(null, $this->short[$dependency['type']].'_'.$dependency['name'])), $content);
           }
-        }
+
+          // replace contents
+          if ($dependency['type'] == 'content') {
+            $content = str_replace('[#cont_'.$dependency['name'].']', $this->getCached(array(null, 'cont_'.$dependency['name'])), $content);
+          }
+        } // end foreach
+
+        // write cache file
         $this->writeFile($data['lang_id'],$filename, $content);
       }
     } // end while

@@ -141,8 +141,8 @@ class HTML_User_ProfileEdit extends HTML_User
       }
 
       // validate website
-      if (!preg_match('#://#',$_POST['userwebsite'])) {
-        $_POST['userwebsite'] = 'http://'.$_POST['userwebsite'];
+      if (!preg_match('#://#',$_POST['userwebsite']) && trim($_POST['userwebsite']) != '') {
+        $_POST['userwebsite'] = 'http://'.trim($_POST['userwebsite']);
       }
 
       // update account data

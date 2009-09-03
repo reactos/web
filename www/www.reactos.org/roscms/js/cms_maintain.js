@@ -517,7 +517,7 @@ function editGroup( id )
  */
 function submitGroupEdit( )
 {
-  makeRequest('?page=backend&type=admin&subtype=group&action=delete&submit=true', 'apply', 'groupDetails', 'html', 'POST');
+  makeRequest('?page=backend&type=admin&subtype=group&action=edit&submit=true', 'apply', 'groupDetails', 'html', 'POST');
   
   loadGroups();
 }
