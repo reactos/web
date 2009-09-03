@@ -293,7 +293,7 @@ function deleteUserFilterShared( uf_id, uf_name, objid, type )
  */
 function TabOpenClose( objid )
 {
-  if (document.getElementById(objid +'c').style.display === 'none') {
+  if (document.getElementById(objid +'c') != null && document.getElementById(objid +'c').style.display === 'none') {
     document.getElementById(objid +'c').style.display = 'block';
     document.getElementById(objid +'i').src = roscms_intern_webserver_roscms+'images/tab_open.gif';
   }
@@ -313,7 +313,7 @@ function TabOpenClose( objid )
 function TabOpenCloseEx( objid )
 {
   // save status
-  if (document.getElementById(objid +'c').style.display === 'none') {
+  if (document.getElementById(objid +'c') != null && document.getElementById(objid +'c').style.display === 'none') {
     createCookie(objid,'1',365); // 365 days
   }
   else {
