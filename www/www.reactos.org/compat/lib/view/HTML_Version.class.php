@@ -34,6 +34,7 @@ class HTML_Version extends HTML
   private $side = null;
   private $sel = null;
   private $entry_id = null;
+  private $entry_type = null;
 
 
 
@@ -61,6 +62,12 @@ class HTML_Version extends HTML
     $stmt->bindParam('version_id',$_GET['id'],PDO::PARAM_INT);
     $stmt->execute();
     $this->entry_id = $stmt->fetchColumn();
+    
+    // get entry_type
+    $stmt=CDBConnection::getInstance()->prepare("SELECT type FROM ".CDBT_ENTRIES." WHERE id=:entry_id");
+    $stmt->bindParam('entry_id',$this->entry_id,PDO::PARAM_INT);
+    $stmt->execute();
+    $this->entry_type = $stmt->fetchColumn();
    
     echo '<h1>Compatability Database &gt; Entry Details</h1>';
 
@@ -76,15 +83,17 @@ class HTML_Version extends HTML
 
       // top right
       switch ($this->side) {
+        case self::SIDE_SCREENSHOTS:
+        default:
+          if ($this->entry_type == 'App') {
+            $this->sideScreenshots();
+            break;
+          }
         case self::SIDE_STATS:
           $this->sideStats();
           break;
         case self::SIDE_TESTS:
           $this->sideTests();
-          break;
-        case self::SIDE_SCREENSHOTS:
-        default:
-          $this->sideScreenshots();
           break;
       }
 
@@ -99,11 +108,6 @@ class HTML_Version extends HTML
 
       // main information
       switch ($this->main) {
-      
-        // screenshots
-        case self::MAIN_SCREENSHOTS:
-          $this->mainScreenshots();
-          break;
           
         // test reports
         case self::MAIN_TESTS:
@@ -114,6 +118,13 @@ class HTML_Version extends HTML
         case self::MAIN_BUGS:
           $this->mainBugs();
           break;
+      
+        // screenshots
+        case self::MAIN_SCREENSHOTS:
+          if ($this->entry_type == 'App') {
+            $this->mainScreenshots();
+            break;
+          }
           
         // comments
         case self::MAIN_COMMENTS:
@@ -186,70 +197,73 @@ class HTML_Version extends HTML
 
   private function mainScreenshots()
   {
-    global $RSDB_intern_user_id;
-    global $CDB_upload_path_web;
+    // hide from non app entries
+    if ($this->entry_type == 'App') {
+      global $RSDB_intern_user_id;
+      global $CDB_upload_path_web;
 
-      echo '
-        <div id="entryMain">';
-
-    if (isset($_GET['scrid']) && $_GET['scrid'] > 0) {
-      $stmt=CDBConnection::getInstance()->prepare("SELECT user_id, created, file, description FROM ".CDBT_ATTACHMENTS." WHERE type = 'picture' AND id=:screenshot_id AND visible IS TRUE LIMIT 1");
-      $stmt->bindParam('screenshot_id',$_GET['scrid'],PDO::PARAM_INT);
-      $stmt->execute();
-      $screenshot = $stmt->fetchOnce(PDO::FETCH_ASSOC);
-
-      echo '
-        <span>Screenshot:</span><br />
-        <img src="'.$CDB_upload_path_web.$screenshot['file'].'" alt="screenshot" /><br />
-        <span>Description:</span>
-        <div>'.$screenshot['description'].'</div><br />
-        <span>Submitted on:</span>'.$screenshot['created'].'<br />
-        <span>Submitted by:'.CUser::getName($screenshot['user_id']).'</span>';
-    }
-    else {
-      if ($this->entry_id > 0 && isset($_FILES['shot']) && $RSDB_intern_user_id > 0) {
-        Entry::addScreenshot($this->entry_id, 'shot');
-      }
-    
-      $stmt=CDBConnection::getInstance()->prepare("SELECT id, file, description FROM ".CDBT_ATTACHMENTS." WHERE type = 'picture' AND entry_id=:entry_id AND visible IS TRUE LIMIT 20 OFFSET 0");
-      $stmt->bindParam('entry_id',$this->entry_id,PDO::PARAM_INT);
-      $stmt->execute();
-      $screenshots = $stmt->fetchAll(PDO::FETCH_ASSOC);
-   
-        
-      if ($RSDB_intern_user_id > 0) {
         echo '
-          <form action="" method="post" enctype="multipart/form-data">
-            <fieldset>
-              <label for="shot">screenshot(jpg,png)</label>
-              <input type="file" name="shot" id="shot" />
-              <br />
-              <label for="description">description</label>
-              <input type="text" name="description" id="description" />
-              <br />
-              <button type="submit">Upload</button>
-            </fieldset>
-          </form>
-          <hr />';
+          <div id="entryMain">';
+
+      if (isset($_GET['scrid']) && $_GET['scrid'] > 0) {
+        $stmt=CDBConnection::getInstance()->prepare("SELECT user_id, created, file, description FROM ".CDBT_ATTACHMENTS." WHERE type = 'picture' AND id=:screenshot_id AND visible IS TRUE LIMIT 1");
+        $stmt->bindParam('screenshot_id',$_GET['scrid'],PDO::PARAM_INT);
+        $stmt->execute();
+        $screenshot = $stmt->fetchOnce(PDO::FETCH_ASSOC);
+
+        echo '
+          <span>Screenshot:</span><br />
+          <img src="'.$CDB_upload_path_web.$screenshot['file'].'" alt="screenshot" /><br />
+          <span>Description:</span>
+          <div>'.$screenshot['description'].'</div><br />
+          <span>Submitted on:</span>'.$screenshot['created'].'<br />
+          <span>Submitted by:'.CUser::getName($screenshot['user_id']).'</span>';
       }
       else {
-        echo 'To add screenshots, you need to login with your RosCMS account.<hr />';
-      }
+        if ($this->entry_id > 0 && isset($_FILES['shot']) && $RSDB_intern_user_id > 0) {
+          Entry::addScreenshot($this->entry_id, 'shot');
+        }
+      
+        $stmt=CDBConnection::getInstance()->prepare("SELECT id, file, description FROM ".CDBT_ATTACHMENTS." WHERE type = 'picture' AND entry_id=:entry_id AND visible IS TRUE LIMIT 20 OFFSET 0");
+        $stmt->bindParam('entry_id',$this->entry_id,PDO::PARAM_INT);
+        $stmt->execute();
+        $screenshots = $stmt->fetchAll(PDO::FETCH_ASSOC);
+     
+          
+        if ($RSDB_intern_user_id > 0) {
+          echo '
+            <form action="" method="post" enctype="multipart/form-data">
+              <fieldset>
+                <label for="shot">screenshot(jpg,png)</label>
+                <input type="file" name="shot" id="shot" />
+                <br />
+                <label for="description">description</label>
+                <input type="text" name="description" id="description" />
+                <br />
+                <button type="submit">Upload</button>
+              </fieldset>
+            </form>
+            <hr />';
+        }
+        else {
+          echo 'To add screenshots, you need to login with your RosCMS account.<hr />';
+        }
 
-      if (count($screenshots) > 0) {
-        foreach ($screenshots as $screenshot) {
-        echo '
-          <div class="screenshot">
-            <a href="?show=version&amp;id='.$_GET['id'].'&amp;view=pref&amp;pside='.$this->side.'&amp;pmain='.self::MAIN_SCREENSHOTS.'&amp;scrid='.$screenshot['id'].'">
-              <img src="'.$CDB_upload_path_web.'th/'.$screenshot['file'].'" alt="screenshot" title="'.htmlspecialchars($screenshot['description']).'" />
-            </a>
-          </div>';
+        if (count($screenshots) > 0) {
+          foreach ($screenshots as $screenshot) {
+          echo '
+            <div class="screenshot">
+              <a href="?show=version&amp;id='.$_GET['id'].'&amp;view=pref&amp;pside='.$this->side.'&amp;pmain='.self::MAIN_SCREENSHOTS.'&amp;scrid='.$screenshot['id'].'">
+                <img src="'.$CDB_upload_path_web.'th/'.$screenshot['file'].'" alt="screenshot" title="'.htmlspecialchars($screenshot['description']).'" />
+              </a>
+            </div>';
+          }
         }
       }
-    }
 
-    echo '
-      </div>';
+      echo '
+        </div>';
+    }
   } // end of member function mainScreenshots
 
 
@@ -471,8 +485,11 @@ class HTML_Version extends HTML
       <ul class="entryNavigation">
         <li'.($this->main == self::MAIN_COMMENTS ? ' class="active"><span>Comments</span>' : '><a href="?show=version&amp;id='.$_GET['id'].'&amp;view=pref&amp;pside='.$this->side.'&amp;pmain='.self::MAIN_COMMENTS.'">Comments</a>').'</li>
         <li'.($this->main == self::MAIN_TESTS ? ' class="active"><span>Tests</span>' : '><a href="?show=version&amp;id='.$_GET['id'].'&amp;view=pref&amp;pside='.$this->side.'&amp;pmain='.self::MAIN_TESTS.'">Tests</a>').'</li>
-        <li'.($this->main == self::MAIN_BUGS ? ' class="active"><span>Bugs</span>' : '><a href="?show=version&amp;id='.$_GET['id'].'&amp;view=pref&amp;pside='.$this->side.'&amp;pmain='.self::MAIN_BUGS.'">Bugs</a>').'</li>
-        <li'.($this->main == self::MAIN_SCREENSHOTS ? ' class="active"><span>Screenshots</span>' : '><a href="?show=version&amp;id='.$_GET['id'].'&amp;view=pref&amp;pside='.$this->side.'&amp;pmain='.self::MAIN_SCREENSHOTS.'">Screenshots</a>').'</li>
+        <li'.($this->main == self::MAIN_BUGS ? ' class="active"><span>Bugs</span>' : '><a href="?show=version&amp;id='.$_GET['id'].'&amp;view=pref&amp;pside='.$this->side.'&amp;pmain='.self::MAIN_BUGS.'">Bugs</a>').'</li>';
+    if ($this->entry_type == 'App') {
+      echo '<li'.($this->main == self::MAIN_SCREENSHOTS ? ' class="active"><span>Screenshots</span>' : '><a href="?show=version&amp;id='.$_GET['id'].'&amp;view=pref&amp;pside='.$this->side.'&amp;pmain='.self::MAIN_SCREENSHOTS.'">Screenshots</a>').'</li>';
+    }
+    echo '
       </ul>';
   } // end of member function screenshotShort
   
@@ -481,8 +498,13 @@ class HTML_Version extends HTML
   private function tabSideNavigation()
   {
     echo '
-      <ul class="entryNavigation">
-        <li'.($this->side == self::SIDE_SCREENSHOTS ? ' class="active"><span>Screenshots</span>' : '><a href="?show=version&amp;id='.$_GET['id'].'&amp;view=pref&amp;pmain='.$this->main.'&amp;pside='.self::SIDE_SCREENSHOTS.'">Screenshots</a>').'</li>
+      <ul class="entryNavigation">';
+    
+    if ($this->entry_type == 'App') {
+      echo '
+        <li'.($this->side == self::SIDE_SCREENSHOTS ? ' class="active"><span>Screenshots</span>' : '><a href="?show=version&amp;id='.$_GET['id'].'&amp;view=pref&amp;pmain='.$this->main.'&amp;pside='.self::SIDE_SCREENSHOTS.'">Screenshots</a>').'</li>';
+    }
+    echo '
         <li'.($this->side == self::SIDE_STATS ? ' class="active"><span>Statistics</span>' : '><a href="?show=version&amp;id='.$_GET['id'].'&amp;view=pref&amp;pmain='.$this->main.'&amp;pside='.self::SIDE_STATS.'">Statistics</a>').'</li>
       </ul>';
       
@@ -493,33 +515,36 @@ class HTML_Version extends HTML
 
   private function sideScreenshots()
   {
-    global $CDB_upload_path_web;
-  
-    $stmt=CDBConnection::getInstance()->prepare("SELECT id, file, description FROM ".CDBT_ATTACHMENTS." WHERE type = 'picture' AND entry_id=:entry_id AND visible IS TRUE ORDER BY created DESC LIMIT 3");
-    $stmt->bindParam('entry_id',$this->entry_id,PDO::PARAM_INT);
-    $stmt->execute();
-    $screenshots = $stmt->fetchAll(PDO::FETCH_ASSOC);
- 
-    echo '
-      <div id="sideContent">';
-    if (count($screenshots) > 0) {
-      foreach ($screenshots as $screenshot) {
-        echo '
-        <div class="screenshot">
-          <a href="?show=version&amp;id='.$_GET['id'].'&amp;view=pref&amp;pside='.$this->side.'&amp;pmain='.self::MAIN_SCREENSHOTS.'&amp;scrid='.$screenshot['id'].'">
-            <img src="'.$CDB_upload_path_web.'th/'.$screenshot['file'].'" alt="screenshot" title="'.htmlspecialchars($screenshot['description']).'" />
-          </a>
-        </div>';
-      } // end foreach
-    }
-    else {
-      echo 'No screenshots uploaded yet.<br />
-        <br />
-        <a href="?show=version&amp;id='.$_GET['id'].'&amp;view=pref&amp;pside='.$this->side.'&amp;pmain='.self::MAIN_SCREENSHOTS.'">Submit new screenshot</a>';
-    }
+    // hide from non app entries
+    if ($this->entry_type == 'App') {
+      global $CDB_upload_path_web;
     
-    echo '
-      </div>';
+      $stmt=CDBConnection::getInstance()->prepare("SELECT id, file, description FROM ".CDBT_ATTACHMENTS." WHERE type = 'picture' AND entry_id=:entry_id AND visible IS TRUE ORDER BY created DESC LIMIT 3");
+      $stmt->bindParam('entry_id',$this->entry_id,PDO::PARAM_INT);
+      $stmt->execute();
+      $screenshots = $stmt->fetchAll(PDO::FETCH_ASSOC);
+   
+      echo '
+        <div id="sideContent">';
+      if (count($screenshots) > 0) {
+        foreach ($screenshots as $screenshot) {
+          echo '
+          <div class="screenshot">
+            <a href="?show=version&amp;id='.$_GET['id'].'&amp;view=pref&amp;pside='.$this->side.'&amp;pmain='.self::MAIN_SCREENSHOTS.'&amp;scrid='.$screenshot['id'].'">
+              <img src="'.$CDB_upload_path_web.'th/'.$screenshot['file'].'" alt="screenshot" title="'.htmlspecialchars($screenshot['description']).'" />
+            </a>
+          </div>';
+        } // end foreach
+      }
+      else {
+        echo 'No screenshots uploaded yet.<br />
+          <br />
+          <a href="?show=version&amp;id='.$_GET['id'].'&amp;view=pref&amp;pside='.$this->side.'&amp;pmain='.self::MAIN_SCREENSHOTS.'">Submit new screenshot</a>';
+      }
+      
+      echo '
+        </div>';
+    }
   } // end of member function sideScreenshots
 
 
@@ -572,11 +597,13 @@ class HTML_Version extends HTML
     $stmt->execute();
     $stat['Related bugs'] = $stmt->fetchColumn();
 
-    // screenshots
-    $stmt=CDBConnection::getInstance()->prepare("SELECT COUNT(*) FROM ".CDBT_ATTACHMENTS." WHERE entry_id=:entry_id AND type = 'picture' AND visible IS TRUE");
-    $stmt->bindParam('entry_id',$this->entry_id,PDO::PARAM_INT);
-    $stmt->execute();
-    $stat['Screenshots'] = $stmt->fetchColumn();
+    if ($this->entry_type == 'App') {
+      // screenshots
+      $stmt=CDBConnection::getInstance()->prepare("SELECT COUNT(*) FROM ".CDBT_ATTACHMENTS." WHERE entry_id=:entry_id AND type = 'picture' AND visible IS TRUE");
+      $stmt->bindParam('entry_id',$this->entry_id,PDO::PARAM_INT);
+      $stmt->execute();
+      $stat['Screenshots'] = $stmt->fetchColumn();
+    }
 
     echo '
       <div id="sideContent" class="statistics">
