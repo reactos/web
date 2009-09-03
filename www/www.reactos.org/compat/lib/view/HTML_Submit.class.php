@@ -191,13 +191,13 @@ class HTML_Submit extends HTML
 
             <li style="float: left;">
               <label for="title">Name:</label><br />
-              <input type="text" name="title" id="title" onkeyup="'."suggestName(this.value);".'"  value="'.htmlspecialchars($entry['name']).'"/>
+              <input type="text" name="title" id="title" onkeyup="'."suggestName(this.value);".'" maxlength="100" value="'.htmlspecialchars($entry['name']).'"/>
               <div class="suggestion" id="suggestedNames" style="display:none;"></div>
             </li>
 
             <li style="float: left;">
               <label for="version">Version:</label><br />
-              <input type="text" name="version" id="version" style="width: 50%;" value="'.htmlspecialchars($entry['version']).'" />
+              <input type="text" name="version" id="version" style="width: 50%;" maxlength="20" value="'.htmlspecialchars($entry['version']).'" />
               <div class="suggestion" id="suggestedVersions" style="display:none;"></div>
             </li>
 
@@ -257,7 +257,7 @@ class HTML_Submit extends HTML
 
             <li id="directRev" style="float:left;">
               <label for="rev">Revision:</label><br />
-              <input type="text" name="rev" id="rev"'.(($used_again && $_POST['ver'] == 'R') ? ' value="'.htmlspecialchars($_POST['revision']).'"' : '').' />
+              <input type="text" name="rev" id="rev"'.(($used_again && $_POST['ver'] == 'R') ? ' maxlength="6" value="'.htmlspecialchars($_POST['revision']).'"' : '').' />
             </li>
           </ul>
           <div style="float: left;margin-right: 10px;">
@@ -282,7 +282,7 @@ class HTML_Submit extends HTML
             </div>
             <br />
             <label for="vmver" id="vmverlabel">Version:</label><br />
-            <input type="text" name="vmver" id="vmver" value="'.($used_again ? htmlspecialchars($_POST['vmver']) : '').'" />
+            <input type="text" name="vmver" id="vmver" maxlength="100" value="'.($used_again ? htmlspecialchars($_POST['vmver']) : '').'" />
           </div>
           <br style="clear: both;"/>
         </div>

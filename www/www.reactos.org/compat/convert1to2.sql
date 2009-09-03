@@ -185,7 +185,7 @@ CREATE TABLE cdb_reports (
   works ENUM( 'full', 'part', 'not' ) NULL,
   checked BOOL NOT NULL DEFAULT FALSE,
   environment CHAR(4) NOT NULL DEFAULT 'unkn',
-  environment_version VARCHAR(10) NOT NULL DEFAULT '',
+  environment_version VARCHAR(100) NOT NULL DEFAULT '',
   created DATETIME NOT NULL,
   visible BOOL NOT NULL DEFAULT FALSE,
   disabled BOOL NOT NULL DEFAULT TRUE,
