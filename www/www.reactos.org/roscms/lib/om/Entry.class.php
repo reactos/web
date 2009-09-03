@@ -257,7 +257,7 @@ class Entry
 
       // add initial next dynamic number for dynamic entries
       if ($data_type == 'dynamic') {
-        Tag::add($rev_id, 'next_number', 1, -1);
+        Tag::add($rev_id, 'next_index', 1, -1);
       }
     }
 
