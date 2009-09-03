@@ -130,7 +130,6 @@ class Generate
     if ($id_type != 'revision') {
       $this->cacheFiles();
     }
-exit;
 
     // build all pages/dynamic pages
     if ($id === null) {
