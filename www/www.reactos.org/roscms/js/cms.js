@@ -293,13 +293,15 @@ function deleteUserFilterShared( uf_id, uf_name, objid, type )
  */
 function TabOpenClose( objid )
 {
-  if (document.getElementById(objid +'c') != null && document.getElementById(objid +'c').style.display === 'none') {
-    document.getElementById(objid +'c').style.display = 'block';
-    document.getElementById(objid +'i').src = roscms_intern_webserver_roscms+'images/tab_open.gif';
-  }
-  else {
-    document.getElementById(objid +'c').style.display = 'none';
-    document.getElementById(objid +'i').src = roscms_intern_webserver_roscms+'images/tab_closed.gif';
+  if (document.getElementById(objid +'c') !== null) {
+    if (document.getElementById(objid +'c').style.display === 'none') {
+      document.getElementById(objid +'c').style.display = 'block';
+      document.getElementById(objid +'i').src = roscms_intern_webserver_roscms+'images/tab_open.gif';
+    }
+    else {
+      document.getElementById(objid +'c').style.display = 'none';
+      document.getElementById(objid +'i').src = roscms_intern_webserver_roscms+'images/tab_closed.gif';
+    }
   }
 } // end of function TabOpenClose
 
