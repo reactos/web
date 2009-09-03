@@ -88,6 +88,7 @@ class HTML_List extends HTML
     if (!isset($_GET['tag']) || $_GET['tag'] != '*') {
       
       $stmt=CDBConnection::getInstance()->prepare("SELECT COUNT(*) FROM ".CDBT_ENTRIES." e ".$this->from." WHERE e.visible IS TRUE ".$this->where);
+
       foreach ($this->params as $param) {
       //var_dump($param);
         $stmt->bindValue($param[0],$param[1],$param[2]);
@@ -155,7 +156,7 @@ class HTML_List extends HTML
                 </td>';
             if (count($this->showColumn) > 0) {
               foreach ($this->showColumn as $column) {
-                echo '<th>'.$entry[$column['field']].'</th>';
+                echo '<td>'.$entry[$column['field']].'</td>';
               }
             }
             echo '

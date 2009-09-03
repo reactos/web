@@ -39,12 +39,13 @@ class HTML_Entry extends HTML
             <tr>
               <th></th>
               <th>Version</th>
+              <th>Revision</th>
               <th>Date</th>
             </tr>
           </thead>
           <tbody>';
       
-      $stmt=CDBConnection::getInstance()->prepare("SELECT id, version, created, (SELECT works FROM ".CDBT_REPORTS." WHERE version_id=v.id ORDER BY created DESC LIMIT 1) AS works FROM ".CDBT_VERSIONS." v WHERE entry_id=:entry_id ORDER BY version");
+      $stmt=CDBConnection::getInstance()->prepare("SELECT id, version, created, (SELECT works FROM ".CDBT_REPORTS." WHERE version_id=v.id ORDER BY created DESC LIMIT 1) AS works, (SELECT IF(vt.name IS NULL, CONCAT('r',r.revision),vt.name) FROM ".CDBT_REPORTS." r LEFT JOIN ".CDBT_VERTAGS." vt ON vt.revision=r.revision WHERE version_id=v.id ORDER BY created DESC LIMIT 1) AS rosversion FROM ".CDBT_VERSIONS." v WHERE entry_id=:entry_id ORDER BY version");
       $stmt->bindParam('entry_id',$entry['id'],PDO::PARAM_INT);
       $stmt->execute();
       $x=0;
@@ -53,6 +54,7 @@ class HTML_Entry extends HTML
           <tr class="row'.($x%2+1).'">
             <td class="first '.($version['works'] == 'full' ? 'stable' : ($version['works'] == 'part' ? 'unstable' : 'crash')).'">&nbsp;</td>
             <td><a href="?show=version&amp;id='.$version['id'].'">'.htmlspecialchars($version['version']).'</a></td>
+            <td>'.htmlspecialchars($version['rosversion']).'</td>
             <td>'.$version['created'].'</td>
           </tr>';
           ++$x;

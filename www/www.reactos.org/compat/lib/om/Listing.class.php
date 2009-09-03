@@ -83,10 +83,16 @@ class Listing
 
         // show additional columns
         case 'a':
+          $this->where = substr($this->where, 0, -5);
           switch ($part[2]) {
             case 'category';
-            $this->select .= " (SELECT name FROM ".CDBT_CATEGORIES." WHERE id=e.category_id) AS category";
-            $this->showColumn[] = array('field'=>'category','description'=>'Category');
+              $this->select .= ", (SELECT name FROM ".CDBT_CATEGORIES." WHERE id=e.category_id) AS category";
+              $this->showColumn[] = array('field'=>'category','description'=>'Category');
+              break;
+            case 'rosversion';
+              $this->select .= ", (SELECT IF(vt.name IS NULL, CONCAT('r',r.revision),vt.name) FROM ".CDBT_REPORTS." r LEFT JOIN ".CDBT_VERTAGS." vt ON vt.revision=r.revision WHERE entry_id=e.id ORDER BY created DESC LIMIT 1) AS rosversion";
+              $this->showColumn[] = array('field'=>'rosversion','description'=>'Revision');
+              break;
           }
           break;
 

@@ -115,15 +115,18 @@ switch (@$_GET['show']) {
   case 'list': 
     $filter = '';
     if (isset($_GET['letter']) && $_GET['letter'] != '*') {
-      $filter .= 'n_s_'.$_GET['letter'];
+      $filter .= 'n_s_'.$_GET['letter'].'|a_is_rosversion';
+    }
+    elseif (isset($_GET['letter']) && $_GET['letter'] == '*') {
+      $filter .= 'a_is_rosversion';
     }
     if (isset($_GET['cat'])) {
       if ($filter !== '') $filter .= '|';
-      $filter .= 'c_is_'.$_GET['cat'];
+      $filter .= 'c_is_'.$_GET['cat'].'|a_is_rosversion';
     }
     if (isset($_GET['tag']) && $_GET['tag'] != '*') {
       if ($filter !== '') $filter .= '|';
-      $filter .= 't_is_'.$_GET['tag'];
+      $filter .= 't_is_'.$_GET['tag'].'|a_is_rosversion';
     }
     if (isset($_GET['filter']) && $_GET['filter'] != '') {
       $filter = $_GET['filter'];
