@@ -166,7 +166,7 @@ class HTML_Version extends HTML
         </form>';
     }
     else {
-      echo 'To add comments, you need to login with your RosCMS account.<hr />';
+      echo 'To add comments, you need to login with your RosCMS account.';
     }
 
     $stmt=CDBConnection::getInstance()->prepare("SELECT title, content, created, user_id FROM ".CDBT_COMMENTS." WHERE entry_id=:entry_id AND parent IS NULL ORDER BY created DESC");
@@ -177,12 +177,10 @@ class HTML_Version extends HTML
     if (count($comments) > 0) {
       foreach ($comments as $comment) {
         echo '
-          <div style="background-color: white;margin: 10px 3px 3px 3px; border: 1px solid lightgray;padding:3px;">
-            <div style="border-bottom: 1px solid gray;">
-              <!--<h3>'.htmlspecialchars($comment['title']).'</h3>-->
-              <span>by <a href="'.$RSDB_intern_loginsystem_fullpath.'?page=search&amp;user_id='.$comment['user_id'].'">'.Subsystem::getUserName($comment['user_id']).'</a> on '.$comment['created'].'</span>
-            </div>
+          <div style="background-color: white;margin: 10px 3px 3px 3px; border: 1px solid lightgray;padding:10px;">
             '.nl2br(htmlspecialchars($comment['content'])).'
+            <br />
+            <div style="color: gray;margin-top: 1em;">by <strong>'.Subsystem::getUserName($comment['user_id']).'</strong> on '.$comment['created'].'</div>
           </div>';
       }
     }

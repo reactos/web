@@ -106,8 +106,9 @@ DIV.crash, TD.crash { background-color: #FF9978;}
 .entryNavigation LI.active { background-color: #7BA6E5; font-weight: bold; }
 
 /**/
-#entryMain { clear: both; border: 3px solid #7BA6E5; padding: 3px; font-weight: bold; background-color: #FAFAFA; }
-#entryMain #buglist .bugNumber { margin-right: 10px; }
+#entryMain { clear: both; border-top: 1px solid #7BA6E5; padding: 3px; }
+/*#entryMain { clear: both; border: 3px solid #7BA6E5; padding: 3px; font-weight: bold; background-color: #FAFAFA; }
+*/#entryMain #buglist .bugNumber { margin-right: 10px; }
 
 
 
