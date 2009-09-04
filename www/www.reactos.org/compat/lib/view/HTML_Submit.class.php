@@ -24,6 +24,14 @@ class HTML_Submit extends HTML
 
   public function __construct( )
   {
+    global $RSDB_intern_user_id;
+
+    // check if user is logged in
+    if ($RSDB_intern_user_id <= 0) {
+      Subsystem::in(Login::REQUIRED, $_SERVER["REQUEST_URI"]);
+      return false;
+    }
+
     $this->register_js('submit.js');
   
     parent::__construct();
@@ -63,13 +71,6 @@ class HTML_Submit extends HTML
 
   private function submit( )
   {
-    global $RSDB_intern_user_id;
-
-    // check if user is logged in
-    if ($RSDB_intern_user_id <= 0) {
-      return false;
-    }
-  
     // get used revision number
     if ($_POST['ver'] == 'R') {
       $revision = $_POST['rev'];
@@ -132,14 +133,6 @@ class HTML_Submit extends HTML
 
   protected function body( )
   {
-    global $RSDB_intern_user_id;
-  
-    // check if user is logged in
-    if ($RSDB_intern_user_id <= 0) {
-      Subsystem::in(Login::REQUIRED, $_SERVER["REQUEST_URI"]);
-      return false;
-    }
-  
     $used_again = (isset($_POST['next']) && $_POST['next']=='again');
     
     // preselect step 1
