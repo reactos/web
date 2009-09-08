@@ -28,6 +28,7 @@ define('CDBT_ENTRIES'    , CDBTDATABASE.'cdb_entries'); // applications/...
 define('CDBT_REPORTS'    , CDBTDATABASE.'cdb_reports'); // test reports
 define('CDBT_LANGUAGES'  , CDBTDATABASE.'cdb_languages');
 define('CDBT_LOGS'       , CDBTDATABASE.'cdb_logs');
+define('CDBT_SETTINGS'   , CDBTDATABASE.'cdb_settings'); // user settings / preferences
 define('CDBT_TAGGED'     , CDBTDATABASE.'cdb_rel_entries_tags'); // assignings for tags - entries
 define('CDBT_TAGS'       , CDBTDATABASE.'cdb_tags'); // tags for entries
 define('CDBT_VERTAGS'    , CDBTDATABASE.'cdb_os'); // ReactOS version tags

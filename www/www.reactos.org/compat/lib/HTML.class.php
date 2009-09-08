@@ -43,7 +43,6 @@ abstract class HTML
     // get page title and register css files
     $this->title = $page_title;
     $this->register_css('style.css');
-    $this->register_js('smoothscroll.js');
     //$this->register_js('search.js');
 
     // get output
@@ -148,6 +147,12 @@ abstract class HTML
     global $RSDB_site_root;
     global $RSDB_intern_link_language;
     global $RSDB_intern_loginsystem_fullpath;
+    global $RSDB_intern_user_id;
+    
+    // php for some reason doesn't like to use the return value directly for empty
+    $tmp = Setting::getPreference('standard queries');
+    $show_standard = empty($tmp) && $tmp !== 'false';
+
 
     echo '
       <table style="border: none; width:100%;" cellpadding="0" cellspacing="0">
@@ -163,81 +168,67 @@ abstract class HTML
             </ol>
             <br />
 
-            <form action="?show=search" method="get">
+            <form action="" method="get">
             <div class="navTitle"><label for="by" accesskey="s">Search</label></div>
             <ol>
               <li>
-                <input type="hidden" name="show" value="search" />
+                <input type="hidden" name="show" value="list" />
                 <input name="by" type="text" id="by" tabindex="0" size="17" maxlength="50" style="font-family: Verdana; font-size: x-small; font-style: normal;" />
                 <button>&gt;</button>
               </li>
             </ol>
             </form>
-            <br />
-
-            <div class="navTitle">Browse Database</div>
-            <ol>
-              <li><a href="'.$RSDB_intern_link_db_sec.'list&amp;letter=*">By Name</a></li>
-              <li><a href="'.$RSDB_intern_link_db_sec.'list&amp;cat=0">By Category</a></li>
-              <li><a href="'.$RSDB_intern_link_db_sec.'list&amp;tag=*">By Tag</a></li>
-<!--              <li><a href="'.$RSDB_intern_link_db_sec.'list&amp;filter=">Custom</a></li>-->
-            </ol>
-            <br />
-
-            <div class="navTitle">Compatibility</div>
-            <ol>
-              <li><a href="'.$RSDB_intern_link_db_sec.'home">Overview</a></li>
-              <li><a href="'.$RSDB_intern_link_db_sec.'submit">Submit Application</a></li>
-              <li><a href="'.$RSDB_intern_link_db_sec.'help">Help &amp; FAQ</a></li>
-            </ol>
             <br />';
 
-/*
-    echo '
-            <div class="navTitle">Language</div>   
+    // standard queries
+    if ($show_standard) {
+      echo '
+            <div class="navTitle">Browse Database</div>
             <ol>
-              <li>';
+              <li><a href="'.$RSDB_intern_link_db_sec.'list&amp;letter=*">By name</a></li>
+              <li><a href="'.$RSDB_intern_link_db_sec.'list&amp;cat=0">By category</a></li>
+              <li><a href="'.$RSDB_intern_link_db_sec.'list&amp;tag=*">By tag</a></li>
+              <li><a href="'.$RSDB_intern_link_db_sec.'list&amp;filter=">By custom query</a></li>
+            </ol>
+            <br />';
+    }
 
-    // get selected language
-    $lang = 'x';
-    if (empty($_GET['lang']) && isset($_COOKIE['roscms_usrset_lang'])) {
-      $lang = $_COOKIE['roscms_usrset_lang'];
-      if (substr($lang, -1) == '/') {
-        $lang = substr($lang, -1);
+    // own queries
+    if ($RSDB_intern_user_id > 0) { 
+      $stmt=CDBConnection::getInstance()->prepare("SELECT value, name FROM ".CDBT_SETTINGS." WHERE type = 'query' AND user_id=:user_id ORDER BY created ASC");
+      $stmt->bindParam('user_id',$RSDB_intern_user_id,PDO::PARAM_INT);
+      $stmt->execute();
+      $settings = $stmt->fetchAll(PDO::FETCH_ASSOC);
+      if (count($settings) > 0 || !$show_standard) {
+
+        echo '
+          <div class="navTitle">Own queries</div>
+          <ol>';
+
+        foreach ($settings as $setting) {
+          echo '<li><a href="'.$RSDB_intern_link_db_sec.'list&amp;filter='.htmlspecialchars($setting['value']).'">'.htmlspecialchars($setting['name']).'</a></li>';
+        }
+
+        if (!$show_standard) {
+          echo '<li><a href="'.$RSDB_intern_link_db_sec.'list&amp;filter=">New ...</a></li>';
+        }
+
+        echo '
+          </ol>
+          <br />';
       }
     }
 
-    // check if language exists, use fallback if needed
-    $lang = CLanguage::validate($lang);
-
-    // get name of currently used language
-    $stmt=CDBConnection::getInstance()->prepare("SELECT name FROM ".CDBT_LANGUAGES." WHERE short = :lang_id");
-    $stmt->bindParam('lang_id',$lang,PDO::PARAM_STR);
-    $stmt->execute();
-    $language_name = $stmt->fetchColumn();
-
     echo '
-      <select id="select" size="1" name="select" class="selectbox" style="width:140px" onchange="'."window.open('".$RSDB_intern_link_language."'+this.options[this.selectedIndex].value,'_main');".'">
-        <optgroup label="current language">
-          <option value="#">'.$language_name.'</option>
-        </optgroup>
-        <optgroup label="most popular">';
-    $stmt=CDBConnection::getInstance()->prepare("SELECT short, name FROM ".CDBT_LANGUAGES." WHERE short != :lang_id");
-    $stmt->bindParam('lang_id',$lang,PDO::PARAM_STR);
-    $stmt->execute();
-    while ($language=$stmt->fetch(PDO::FETCH_ASSOC)) {
-      echo '
-        <option value="'.$language['short'].'">'.$language['name'].'</option>';
-    }
 
-    echo '
-              </optgroup>
-            </select>
-          </li>
-        </ol>';
-*/
-
-    echo '
+            <div class="navTitle">Miscellaneous</div>
+            <ol>
+              <li><a href="'.$RSDB_intern_link_db_sec.'home">Overview</a></li>
+              <li><a href="'.$RSDB_intern_link_db_sec.'submit">Submit application</a></li>
+              <li><a href="'.$RSDB_intern_link_db_sec.'preferences">Preferences</a></li>
+              <li><a href="'.$RSDB_intern_link_db_sec.'help">Help &amp; FAQ</a></li>
+            </ol>
+            <br />
       </td>
       <td id="content">';
   } // end of member function navigation

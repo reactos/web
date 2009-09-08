@@ -67,6 +67,31 @@ class Category
 
 
 
+  /**
+   * @FILLME
+   *
+   * @access private
+   */
+  public static function getAllChildsAsList($category_id)
+  {
+    $list = '';
+
+    $childs = self::getChilds($category_id);
+    foreach ($childs as $child) {
+
+      if ($list !== '') $list .= ',';
+      $list .= $child['id'];
+
+      $plus = self::getAllChildsAsList($child['id']);
+      if ($list !== '' && $plus != '') $list .= ',';
+      $list .= $plus; 
+    }
+    
+    return $list;
+  }
+
+
+
 
 } // end of Category
 ?>

@@ -36,11 +36,6 @@ class HTML_Home extends HTML
     $stmt->execute();
     $entries = $stmt->fetchColumn();
 
-    // get latest reactos version
-    $stmt=CDBConnection::getInstance()->prepare("SELECT revision, name FROM ".CDBT_VERTAGS." t WHERE visible IS TRUE AND 5<(SELECT COUNT(*) FROM ".CDBT_REPORTS." WHERE revision=t.revision) ORDER BY revision DESC LIMIT 1");
-    $stmt->execute();
-    $latest_version = $stmt->fetchOnce();
-
     echo '
         <h1>Compatibility Database - Overview</h1>
         <p>The ReactOS Compatibility Database contains information about compatible software. Below the latest reports are listed</p>
@@ -51,39 +46,137 @@ class HTML_Home extends HTML
             <img style="border: none;" src="images/button_submit.jpg" alt="Submit new entry" />
           </a>
         </div>
-      
-        <h2 style="margin-bottom: 0px;">Recent submissions</h2><small style="display: block;margin: 0px 0px 15px 5px;"> for '.$latest_version['name'].'</small>
-        <table class="rtable" cellpadding="0" cellspacing="0">
-          <thead>
-            <tr>
-              <th></th>
-              <th>Application</th>
-              <th>User</th>
-              <th style="width:100px;text-align:center;">Last update</th>
-            </tr>
-          </thead>
-          <tbody>';
+        ';
+    $frontpage = Setting::getPreference('frontpage');
+    $revision_type = Setting::getPreference('revision_type');
 
-    // get recent entries
-    $stmt=CDBConnection::getInstance()->prepare("SELECT e.name, r.created, r.works, e.id, user_id, (SELECT v.id FROM ".CDBT_VERSIONS." v WHERE v.entry_id=e.id ORDER BY created DESC LIMIT 1) AS version_id, (SELECT v.version FROM ".CDBT_VERSIONS." v WHERE v.entry_id=e.id ORDER BY created DESC LIMIT 1) AS version FROM ".CDBT_REPORTS." r JOIN ".CDBT_ENTRIES." e ON e.id=r.entry_id WHERE r.revision = :revision ORDER BY r.created DESC LIMIT 15");
-    $stmt->bindParam('revision',$latest_version['revision'],PDO::PARAM_INT);
-    $stmt->execute();
-    $x=0;
-    while ($entry = $stmt->fetch(PDO::FETCH_ASSOC)) {
-      ++$x;
 
+    // standard
+    if (empty($frontpage)) {
+
+    
+      // get latest reactos version
+      $stmt=CDBConnection::getInstance()->prepare("SELECT revision, name FROM ".CDBT_VERTAGS." t WHERE visible IS TRUE AND 5<(SELECT COUNT(*) FROM ".CDBT_REPORTS." WHERE revision=t.revision) ORDER BY revision DESC LIMIT 1");
+      $stmt->execute();
+      $latest_version = $stmt->fetchOnce();
+    
       echo '
-        <tr class="row'.($x%2+1).'">
-          <td class="first '.($entry['works'] == 'full' ? 'stable' : ($entry['works'] == 'part' ? 'unstable' : 'crash')).'">&nbsp;</td>
-          <td><a href="?show=version&amp;id='.$entry['version_id'].'">'.htmlentities($entry['name']).'</a> <small style="color: gray;">'.htmlentities($entry['version']).'</small></td>
-          <td>'.CUser::getName($entry['user_id']).'</td>
-          <td style="text-align: center;white-space:nowrap;">'.$entry['created'].'</td>
-        </tr>'; 
+        <h2 style="margin-bottom: 0px;">Recent submissions</h2><small style="display: block;margin: 0px 0px 15px 5px;"> for '.$latest_version['name'].'</small>';
+
+      if (!empty($revision_type)) {
+        $filter = 'a_is_user|a_is_datediff|o_desc_creation';
+      }
+      else {
+        $filter = 'a_is_user|a_is_datediff|r_eq_'.$latest_version['revision'].'|o_desc_creation';
+      }
+
+
+    }
+    // custom query
+    else {
+      $filter = $frontpage;
     }
 
+    if (!empty($revision_type)) {
+      $filter .= Listing::DEVIDE_FILTER.'p'.Listing::DEVIDE_SETTING.'is'.Listing::DEVIDE_SETTING.$revision_type;
+    }
+      // evaluate filters
+      $this->listing = new Listing($filter);
+      
+      // apply to current settings
+      $this->where = $this->listing->where();
+      $this->from = $this->listing->from();
+      $this->select = $this->listing->select();
+      $this->order = $this->listing->order();
+      $this->params = $this->listing->params();
+      $this->showColumn = $this->listing->showColumn();
+      
+      $stmt=CDBConnection::getInstance()->prepare("SELECT COUNT(*) FROM ".CDBT_ENTRIES." e JOIN ".CDBT_REPORTS." r ON r.entry_id=e.id ".$this->from." WHERE e.visible IS TRUE AND r.id=(SELECT id FROM ".CDBT_REPORTS." WHERE entry_id=e.id ORDER BY created DESC LIMIT 1) ".$this->where);
+      foreach ($this->params as $param) {
+        $stmt->bindValue($param[0],$param[1],$param[2]);
+      }
+      $stmt->execute();
+      $entries_count = $stmt->fetchColumn();
+
+      if ($entries_count > 0) {
+        echo '
+          <h2>Entries</h2>
+          <table class="rtable" cellspacing="0" cellpadding="0">
+            <thead>
+              <tr>
+                <th>&nbsp;</th>
+                <th>Name</th>';
+        if (count($this->showColumn) > 0) {
+          foreach ($this->showColumn as $column) {
+            echo '<th>'.$column['description'].'</th>';
+          }
+        }
+        echo '
+              </tr>
+            </thead>
+            <tbody>';
+
+        reset($this->params);
+        $stmt=CDBConnection::getInstance()->prepare("SELECT e.id, e.name, r.works ".$this->select." FROM ".CDBT_ENTRIES." e JOIN ".CDBT_REPORTS." r ON r.entry_id=e.id ".$this->from." WHERE e.visible IS TRUE AND r.id=(SELECT id FROM ".CDBT_REPORTS." WHERE entry_id=e.id ORDER BY created DESC LIMIT 1) ".$this->where.(!empty($this->order) ? ' ORDER BY '.$this->order : '')." LIMIT 15");
+        foreach ($this->params as $param) {
+          $stmt->bindValue($param[0],$param[1],$param[2]);
+        }
+        $stmt->execute();
+        $x=0;
+        while ($entry=$stmt->fetch(PDO::FETCH_ASSOC)) {
+          ++$x;
+
+          $stmt_ver=CDBConnection::getInstance()->prepare("SELECT id, version FROM ".CDBT_VERSIONS." WHERE entry_id=:entry_id ORDER BY version DESC");
+          $stmt_ver->bindParam('entry_id',$entry['id'],PDO::PARAM_STR);
+          $stmt_ver->execute();
+          $versions = $stmt_ver->fetchAll(PDO::FETCH_ASSOC);
+          
+          // display entry only if it has also at least one version information
+          if (count($versions) > 0) {
+            echo '
+              <tr onmouseover="highlightTableRow(this);" class="row'.($x%2+1).'">
+                <th class="first"><div class="'.($entry['works'] == 'full' ? 'stable' : ($entry['works'] == 'part' ? 'unstable' : 'crash')).'">&nbsp;</div></th>
+                <td>';
+
+            // just one version stored
+            if (count($versions) == 1) {
+              echo '
+                  <a href="?show=version&amp;id='.$versions[0]['id'].'">'.htmlspecialchars($entry['name']).'</a> <small style="color: gray;">'.$versions[0]['version'].'</small>';
+            }
+
+            // show all app version
+            else {
+              echo '
+                <a href="?show=entry&amp;id='.$entry['id'].'">'.htmlspecialchars($entry['name']).'</a> <small style="color: gray;">(several versions)</small>';
+
+            }
+
+            echo '
+                </td>';
+            if (count($this->showColumn) > 0) {
+              foreach ($this->showColumn as $column) {
+                if (isset($column['format'])) {
+                  echo '<td>'.call_user_func($column['format'],$entry[$column['field']]).'</td>';
+                }
+                else {
+                  echo '<td>'.htmlspecialchars($entry[$column['field']]).'</td>';
+                }
+              }
+            }
+            echo '
+              </tr>';
+          }
+        }
+
+        echo '
+            </tbody>
+          </table>';
+      }
+      else {
+        echo 'No entries found.';
+      }
+
     echo '
-        </tbody>
-      </table>
       
       <h2 style="margin: 20px 0px 5px 0px;font-size: 1.5em;">Legend</h2>
       <div style="clear: both;margin-bottom: 10px;">

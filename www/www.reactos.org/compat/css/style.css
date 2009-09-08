@@ -68,13 +68,16 @@ LABEL.crash { color: #FF3300 !important; }
 
 .rtable { width: 100%; }
 
-.rtable TD.first { width: 1.5em;}
+.rtable .first { width: 1.5em;}
 
 .rtable TH { font-size: 1.2em; padding: 3px; }
 .rtable TD { border-bottom: 1px solid #CCC;padding: 4px 3px; }
+.rtable TBODY TH { padding: 0px; }
 
 .row1 { background-color: #EFEFEF; }
 .row2 { background-color: #E7E7E7; }
+
+.highlight {background-color: #FFFFCC; }
 
 DIV.stable, TD.stable { background-color: #78E578; }
 DIV.unstable, TD.unstable { background-color: #FFE578;}
@@ -107,8 +110,14 @@ DIV.crash, TD.crash { background-color: #FF9978;}
 
 /**/
 #entryMain { clear: both; border-top: 1px solid #7BA6E5; padding: 3px; }
-/*#entryMain { clear: both; border: 3px solid #7BA6E5; padding: 3px; font-weight: bold; background-color: #FAFAFA; }
-*/#entryMain #buglist .bugNumber { margin-right: 10px; }
+#entryMain #buglist .bugNumber { margin-right: 10px; }
+
+#query LI { list-style-type: none; }
+#query UL { padding: 0px; margin: 0px; }
+#query LI EM { font-family: monospace; }
+
+#preferences LI { list-style-type: none; }
+#preferences UL { padding: 0px; margin: 0px; }
 
 
 
@@ -492,6 +501,6 @@ SPAN.simple {
 	font-size: 15px;
 	font-weight: bold;	
 }
-*/
+
 
 

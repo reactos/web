@@ -44,8 +44,21 @@ class HTML_Entry extends HTML
             </tr>
           </thead>
           <tbody>';
+          
+      $revision_type = Setting::getPreference('revision_type');
+      if (!empty($revision_type)) {
+        if ($revision_type == 'trunk') {
+          $not = "";
+        }
+        else {
+          $not = "NOT";
+        }
       
-      $stmt=CDBConnection::getInstance()->prepare("SELECT id, version, created, (SELECT works FROM ".CDBT_REPORTS." WHERE version_id=v.id ORDER BY created DESC LIMIT 1) AS works, (SELECT IF(vt.name IS NULL, CONCAT('r',r.revision),vt.name) FROM ".CDBT_REPORTS." r LEFT JOIN ".CDBT_VERTAGS." vt ON vt.revision=r.revision WHERE version_id=v.id ORDER BY created DESC LIMIT 1) AS rosversion FROM ".CDBT_VERSIONS." v WHERE entry_id=:entry_id ORDER BY version");
+        $stmt=CDBConnection::getInstance()->prepare("SELECT v.id, version, v.created, works, IF(o.name IS NULL, CONCAT('r',r.revision),o.name) AS rosversion FROM ".CDBT_VERSIONS." v JOIN ".CDBT_REPORTS." r ON r.version_id=v.id LEFT JOIN ".CDBT_VERTAGS." o ON o.revision=r.revision WHERE v.entry_id=:entry_id AND o.revision IS ".$not." NULL AND r.id=(SELECT id FROM ".CDBT_REPORTS." WHERE entry_id=v.entry_id ORDER BY created DESC LIMIT 1) ORDER BY version");
+      }
+      else {
+        $stmt=CDBConnection::getInstance()->prepare("SELECT v.id, version, v.created, works, IF(o.name IS NULL, CONCAT('r',r.revision),o.name) AS rosversion FROM ".CDBT_VERSIONS." v JOIN ".CDBT_REPORTS." r ON r.version_id=v.id LEFT JOIN ".CDBT_VERTAGS." o ON o.revision=r.revision WHERE v.entry_id=:entry_id AND r.id=(SELECT id FROM ".CDBT_REPORTS." WHERE entry_id=v.entry_id ORDER BY created DESC LIMIT 1) ORDER BY version");
+      }
       $stmt->bindParam('entry_id',$entry['id'],PDO::PARAM_INT);
       $stmt->execute();
       $x=0;

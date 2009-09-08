@@ -31,43 +31,6 @@ require_once("lib/Compat_Autoloader.class.php");
 require_once('config.php');
 $RSDB_intern_link_db_sec = 'index.php?show=';
 
-
-	if ( !defined('RSDB') ) {
-		define ("RSDB", "rossupportdb"); // to prevent hacking activity
-	}
-	
-
-
-
-
-	// Global Vars:
-	$RSDB_SET_letter=""; // Browse by Name: Letter: All, A, B, C, ..., X, Y, Z
-	$RSDB_SET_group=""; // Group ID
-	
-	$rpm_lang="";
-
-
-
-	if (isset($_COOKIE['rsdb_fstyle'])) {
-		$RSDB_SET_fstyle = $_COOKIE['rsdb_fstyle'];
-	}
-	if (isset($_COOKIE['rsdb_order'])) {
-		$RSDB_SET_order = $_COOKIE['rsdb_order'];
-	}
-
-	if (array_key_exists("letter", $_GET)) $RSDB_SET_letter=htmlspecialchars($_GET["letter"]);
-
-	
-	if(isset($_COOKIE['roscms_usrset_lang'])) {
-		$roscms_usrsetting_lang=$_COOKIE["roscms_usrset_lang"];
-	}
-	else {
-		$roscms_usrsetting_lang="";
-	}
-
-	require_once('lang.php');
-
-
 switch (@$_GET['show']) {
 
   default:
@@ -80,6 +43,11 @@ switch (@$_GET['show']) {
           new List_Suggestions();
           break;
 
+        // Filter
+        case 'filter':
+          new List_Filter(@$_GET['part']);
+          break;
+
       } // end switch get
       break;
     }
@@ -88,7 +56,9 @@ switch (@$_GET['show']) {
     new HTML_Home();
     break;
 
-  // Frontpage
+  // RSDB About Page
+  case 'preferences': 
+    new HTML_Preferences();
     break;
 
   // RSDB About Page
@@ -101,16 +71,6 @@ switch (@$_GET['show']) {
     new HTML_Conditions();
     break;
 
-  // search
-  case 'search': 
-    $filter = '';
-    if (isset($_GET['by']) && $_GET['by'] != '') {
-      $filter .= 'n_h_'.str_replace(Listing::DEVIDE_FILTER, '%', $_GET['by']);
-    }
-
-    new HTML_List($filter);
-    break;
-
   // Browse by name
   case 'list': 
     $filter = '';
@@ -118,7 +78,7 @@ switch (@$_GET['show']) {
       $filter .= 'n_s_'.$_GET['letter'].'|a_is_rosversion';
     }
     elseif (isset($_GET['letter']) && $_GET['letter'] == '*') {
-      $filter .= 'a_is_rosversion';
+      $filter .= 'a_is_category|a_is_rosversion';
     }
     if (isset($_GET['cat'])) {
       if ($filter !== '') $filter .= '|';
@@ -128,9 +88,16 @@ switch (@$_GET['show']) {
       if ($filter !== '') $filter .= '|';
       $filter .= 't_is_'.$_GET['tag'].'|a_is_rosversion';
     }
-    if (isset($_GET['filter']) && $_GET['filter'] != '') {
+    if (isset($_GET['filter']) && $_GET['filter'] == 'custom') {
+      $filter = HTML_List::formToFilter();
+    }
+    elseif (isset($_GET['filter']) && $_GET['filter'] != '') {
       $filter = $_GET['filter'];
     }
+    if (isset($_GET['by']) && $_GET['by'] != '') {
+      $filter .= 'n_h_'.str_replace(Listing::DEVIDE_FILTER, '%', $_GET['by']);
+    }
+    
     new HTML_List($filter);
     break;
 

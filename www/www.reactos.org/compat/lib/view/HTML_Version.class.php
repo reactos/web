@@ -169,7 +169,7 @@ class HTML_Version extends HTML
       echo 'To add comments, you need to login with your RosCMS account.';
     }
 
-    $stmt=CDBConnection::getInstance()->prepare("SELECT title, content, created, user_id FROM ".CDBT_COMMENTS." WHERE entry_id=:entry_id AND parent IS NULL ORDER BY created DESC");
+    $stmt=CDBConnection::getInstance()->prepare("SELECT id, title, content, created, user_id FROM ".CDBT_COMMENTS." WHERE entry_id=:entry_id AND parent IS NULL ORDER BY created DESC");
     $stmt->bindParam('entry_id',$this->entry_id,PDO::PARAM_INT);
     $stmt->execute();
     $comments=$stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -177,6 +177,7 @@ class HTML_Version extends HTML
     if (count($comments) > 0) {
       foreach ($comments as $comment) {
         echo '
+          <a id="comm'.$comment['id'].'"></a>
           <div style="background-color: white;margin: 10px 3px 3px 3px; border: 1px solid lightgray;padding:10px;">
             '.nl2br(htmlspecialchars($comment['content'])).'
             <br />
@@ -268,8 +269,20 @@ class HTML_Version extends HTML
 
   private function mainTests()
   {
-  
-    $stmt=CDBConnection::getInstance()->prepare("SELECT user_id, t.revision, works, environment, environment_version, created, v.name AS releasename FROM ".CDBT_REPORTS." t LEFT JOIN ".CDBT_VERTAGS." v ON v.revision=t.revision WHERE version_id = :version_id AND t.visible IS TRUE AND t.disabled IS FALSE ORDER BY t.revision DESC, created DESC");
+    $revision_type = Setting::getPreference('revision_type');
+    if (!empty($revision_type)) {
+      if ($revision_type == 'trunk') {
+        $not = "";
+      }
+      else {
+        $not = "NOT";
+      }
+      
+      $stmt=CDBConnection::getInstance()->prepare("SELECT user_id, t.revision, works, environment, environment_version, created, v.name AS releasename FROM ".CDBT_REPORTS." t LEFT JOIN ".CDBT_VERTAGS." v ON v.revision=t.revision WHERE version_id = :version_id AND v.revision IS ".$not." NULL AND t.visible IS TRUE AND t.disabled IS FALSE ORDER BY t.revision DESC, created DESC");
+    }
+    else {
+      $stmt=CDBConnection::getInstance()->prepare("SELECT user_id, t.revision, works, environment, environment_version, created, v.name AS releasename FROM ".CDBT_REPORTS." t LEFT JOIN ".CDBT_VERTAGS." v ON v.revision=t.revision WHERE version_id = :version_id AND t.visible IS TRUE AND t.disabled IS FALSE ORDER BY t.revision DESC, created DESC");
+    }
     $stmt->bindParam('version_id', $_GET['id'],PDO::PARAM_INT);
     $stmt->execute();
     $tests = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -282,10 +295,10 @@ class HTML_Version extends HTML
             <thead>
               <tr>
                 <th>&nbsp;</th>
-                <th>User</th>
-                <th>Date</th>
                 <th>Revision</th>
                 <th>Environment</th>
+                <th>User</th>
+                <th>Date</th>
               </tr>
             </thead>
             <tbody>';
@@ -295,8 +308,6 @@ class HTML_Version extends HTML
           echo '
             <tr class="row'.($x%2+1).'" id="tr'.$x.'">
               <td class="first '.($test['works'] == 'full' ? 'stable' : ($test['works'] == 'part' ? 'unstable' : 'crash')).'">&nbsp;</td>
-              <td>'.CUser::getName($test['user_id']).'</td>
-              <td>'.$test['created'].'</td>
               <td>'.($test['releasename'] != '' ? $test['releasename'] : $test['revision']).'</td>
               <td>';
           
@@ -334,7 +345,10 @@ class HTML_Version extends HTML
               echo ' ('.$test['environment_version'].')';
             }
           }
-          echo '</td>
+          echo '
+              </td>
+              <td>'.CUser::getName($test['user_id']).'</td>
+              <td>'.$test['created'].'</td>
             </tr>';
             
           $x++;

@@ -24,22 +24,52 @@ class HTML_List extends HTML
 
   private $where = '';
   private $from = '';
+  private $order = '';
   private $params = array();
   private $select = '';
   private $showColumn = array();
+  
+  private $filter = '';
+  private $query = false;
 
 
   public function __construct($filter='')
   {
-    // evaluate filters
-    $this->listing = new Listing($filter);
+    global $RSDB_intern_user_id;
     
-    // apply to current settings
-    $this->where = $this->listing->where();
-    $this->from = $this->listing->from();
-    $this->select = $this->listing->select();
-    $this->params = $this->listing->params();
-    $this->showColumn = $this->listing->showColumn();
+    $this->query = ($filter!='');
+    
+    // check preferences and apply additional filter
+    if ($RSDB_intern_user_id > 0) {
+      $value = Setting::getPreference('revision_type');
+      
+      // get preferences for revision type
+      if (!empty($value)) {
+        $filter .= Listing::DEVIDE_FILTER.'p'.Listing::DEVIDE_SETTING.'is'.Listing::DEVIDE_SETTING.$value;
+      }
+      
+      // save queries
+      if (!empty($_POST['savename'])) {
+        Setting::setQuery($_POST['savename'],$this->filter);
+      }
+    }
+  
+    $this->filter = $filter;
+    $this->register_js('compat.js');
+    // just display the query if there is one
+    if ($this->query != '') {
+
+      // evaluate filters
+      $this->listing = new Listing($filter);
+      
+      // apply to current settings
+      $this->where = $this->listing->where();
+      $this->from = $this->listing->from();
+      $this->order = $this->listing->order();
+      $this->select = $this->listing->select();
+      $this->params = $this->listing->params();
+      $this->showColumn = $this->listing->showColumn();
+    }
     parent::__construct();
   }
 
@@ -71,7 +101,7 @@ class HTML_List extends HTML
 
     elseif (isset($_GET['filter'])) {
       $this->naviCustom();
-      $browse = 'custom filter';
+      $browse = 'custom query';
     }
     elseif (isset($_POST['searchbar']))
       $browse = 'search for: '.htmlspecialchars($_POST['searchbar']);
@@ -87,8 +117,7 @@ class HTML_List extends HTML
 
     if (!isset($_GET['tag']) || $_GET['tag'] != '*') {
       
-      $stmt=CDBConnection::getInstance()->prepare("SELECT COUNT(*) FROM ".CDBT_ENTRIES." e ".$this->from." WHERE e.visible IS TRUE ".$this->where);
-
+      $stmt=CDBConnection::getInstance()->prepare("SELECT COUNT(*) FROM ".CDBT_ENTRIES." e JOIN ".CDBT_REPORTS." r ON r.entry_id=e.id ".$this->from." WHERE e.visible IS TRUE AND r.id=(SELECT id FROM ".CDBT_REPORTS." WHERE entry_id=e.id ORDER BY checked DESC, created DESC LIMIT 1) ".$this->where);
       foreach ($this->params as $param) {
       //var_dump($param);
         $stmt->bindValue($param[0],$param[1],$param[2]);
@@ -96,27 +125,26 @@ class HTML_List extends HTML
       $stmt->execute();
       $entries_count = $stmt->fetchColumn();
 
-      if ($entries_count > 0) {
+      if ($entries_count > 0 && $this->query) {
         echo '
           <h2>Entries</h2>
           <table class="rtable" cellspacing="0" cellpadding="0">
             <thead>
               <tr>
                 <th>&nbsp;</th>
-                <th>Application</th>';
+                <th>Name</th>';
         if (count($this->showColumn) > 0) {
           foreach ($this->showColumn as $column) {
             echo '<th>'.$column['description'].'</th>';
           }
         }
         echo '
-                <th>Last modified</th>
               </tr>
             </thead>
             <tbody>';
 
         reset($this->params);
-        $stmt=CDBConnection::getInstance()->prepare("SELECT e.id, e.name, e.modified, (SELECT works FROM ".CDBT_REPORTS." WHERE entry_id=e.id ORDER BY created DESC LIMIT 1) AS works ".$this->select." FROM ".CDBT_ENTRIES." e ".$this->from." WHERE e.visible IS TRUE ".$this->where." ORDER BY e.name ASC LIMIT :limit OFFSET :offset");
+        $stmt=CDBConnection::getInstance()->prepare("SELECT e.id, e.name, r.works ".$this->select." FROM ".CDBT_ENTRIES." e JOIN ".CDBT_REPORTS." r ON r.entry_id=e.id ".$this->from." WHERE e.visible IS TRUE AND r.id=(SELECT id FROM ".CDBT_REPORTS." WHERE entry_id=e.id ORDER BY created DESC LIMIT 1) ".$this->where.(!empty($this->order) ? ' ORDER BY '.$this->order : '')." LIMIT :limit OFFSET :offset");
         foreach ($this->params as $param) {
           $stmt->bindValue($param[0],$param[1],$param[2]);
         }
@@ -135,8 +163,8 @@ class HTML_List extends HTML
           // display entry only if it has also at least one version information
           if (count($versions) > 0) {
             echo '
-              <tr class="row'.($x%2+1).'" id="tr'.$x.'">
-                <td class="first '.($entry['works'] == 'full' ? 'stable' : ($entry['works'] == 'part' ? 'unstable' : 'crash')).'">&nbsp;</td>
+              <tr onmouseover="highlightTableRow(this);" class="row'.($x%2+1).'">
+                <th class="first"><div class="'.($entry['works'] == 'full' ? 'stable' : ($entry['works'] == 'part' ? 'unstable' : 'crash')).'">&nbsp;</div></th>
                 <td>';
 
             // just one version stored
@@ -156,11 +184,15 @@ class HTML_List extends HTML
                 </td>';
             if (count($this->showColumn) > 0) {
               foreach ($this->showColumn as $column) {
-                echo '<td>'.$entry[$column['field']].'</td>';
+                if (isset($column['format'])) {
+                  echo '<td>'.call_user_func($column['format'],$entry[$column['field']]).'</td>';
+                }
+                else {
+                  echo '<td>'.htmlspecialchars($entry[$column['field']]).'</td>';
+                }
               }
             }
             echo '
-                <td class="modified">'.$entry['modified'].'</td>
               </tr>';
           }
         }
@@ -168,38 +200,41 @@ class HTML_List extends HTML
         echo '
             </tbody>
           </table>';
+
+        if ($entries_count > $limit) {
+          echo '<div>Navigation:';
+          $to = ceil($entries_count/(float)$limit);
+          for ($i=1; $i <= $to ; ++$i) {
+            if ($offset==($i-1)*$limit) {
+              echo '<strong>['.$i.']</strong>';
+            }
+            else {
+              echo '<a href="';
+              
+              if (isset($_GET['letter'])) {
+                echo '?show=list&amp;letter='.$_GET['letter'];
+              }
+              elseif (isset($_GET['cat'])) {
+                echo '?show=list&amp;cat='.$_GET['cat'];
+              }
+              elseif (isset($_GET['tag'])) {
+                echo '?show=list&amp;tag='.$_GET['tag'];
+              }
+              elseif (isset($_GET['by'])) {
+                echo '?show=search&amp;by='.$_GET['by'];
+              }
+              else {
+                echo '?show=list&amp;filter='.$this->filter;
+              }
+              
+              echo '&amp;offset='.(($i-1)*$limit).'">'.$i.'</a>';
+            }
+          }
+          echo '</div>';
+        }
       }
       else {
         echo 'No entries found.';
-      }
-
-      if ($entries_count > $limit) {
-        echo '<div>Navigation:';
-        $to = ceil($entries_count/(float)$limit);
-        for ($i=1; $i <= $to ; ++$i) {
-          if ($offset==($i-1)*$limit) {
-            echo '<strong>['.$i.']</strong>';
-          }
-          else {
-            echo '<a href="';
-            
-            if (isset($_GET['letter'])) {
-              echo '?show=list&amp;letter='.$_GET['letter'];
-            }
-            elseif (isset($_GET['cat'])) {
-              echo '?show=list&amp;cat='.$_GET['cat'];
-            }
-            elseif (isset($_GET['tag'])) {
-              echo '?show=list&amp;tag='.$_GET['tag'];
-            }
-            elseif (isset($_GET['by'])) {
-              echo '?show=search&amp;by='.$_GET['by'];
-            }
-            
-            echo '&amp;offset='.(($i-1)*$limit).'">'.$i.'</a>';
-          }
-        }
-        echo '</div>';
       }
     }
   } // end of member function body
@@ -321,12 +356,128 @@ class HTML_List extends HTML
 
   private function naviCustom( )
   {
+    global $RSDB_intern_user_id;
+
+    $filters = explode(Listing::DEVIDE_FILTER, $this->filter);
+  
+    $list = Listing::filterList();
+    
+    $i=0; // sequence number
+
     echo '
-      <form action="" method="get">
+      <form id="query" action="?show=list&amp;filter=custom" method="post">
         <fieldset>
-          <legend></legend>
+          <legend>Custom Query</legend>
+          <ul id="customfilters">';
+    foreach ($filters as $filter) {
+      reset($list);
+      ++$i;
+    
+      $part = explode(Listing::DEVIDE_SETTING,$filter);
+      if ($part[0] == '') $part[0] = key($list);
+      
+      $details = Listing::inputByFilter($part[0]);
+        
+        
+      echo '
+        <li id="fr'.$i.'">
+          <em>'.($i > 1 ? 'and' : '&nbsp;&nbsp;&nbsp;').'</em>
+        <select id="ft'.$i.'" name="ft'.$i.'" onchange="CsFilterDetails(this.value,\'fd'.$i.'\');">';
+
+      // list types
+      foreach ($list as $shortcut=>$name) {
+        echo '<option value="'.$shortcut.'"'.($part[0]==$shortcut ? ' selected="selected"':'').'>'.htmlspecialchars($name).'</option>';
+      }
+      echo '
+        </select>
+        <span id="fd'.$i.'">
+          <select id="fe'.$i.'" name="fe'.$i.'">';
+
+      // list equation
+      foreach ($details['type'] as $shortcut=>$name) {
+        echo '<option value="'.$shortcut.'"'.($part[1]==$shortcut ? ' selected="selected"':'').'>'.htmlspecialchars($name).'</option>';
+      }
+      echo '</select> ';
+
+      // text
+      if ($details['input_type'] == 'text') {
+        echo '<input type="text" id="fc'.$i.'" name="fc'.$i.'" value="'.htmlspecialchars(@$part[2]).'" />';
+      }
+      // dropdown
+      else {
+        echo '<select id="fc'.$i.'" name="fc'.$i.'">';
+        foreach ($details['content'] as $shortcut=>$name) {
+          echo '<option value="'.$shortcut.'"'.($part[2]==$shortcut ? ' selected="selected"':'').'>'.htmlspecialchars($name).'</option>';
+        }
+        echo '</select>';
+      }
+
+      echo '
+          </span>'.($i > 1 ? '
+          <a href="#" onclick="'."CsDeleteFilter('fr".$i."');".'">&mdash;</a>' : '').'
+        </li>';
+    }
+    echo '
+            <li style="display:none;">
+              <input type="hidden" name="sequ_num" id="sequ_num" value="'.($i>1?$i:1).'" />
+              <input type="hidden" name="savename" id="savename" value="" />
+            </li>
+          </ul>
+          <ul>
+            <li><button onclick="CsNewFilter();return false; ">add</button></li>
+          </ul>'.($RSDB_intern_user_id > 0 ?'
+          <button type="submit" onclick="'."CsSaveQuery();".'">Save</button>' : '').'
+          <button type="submit" onclick="'."document.forms['query'].submit();".'">execute</button>
         </fieldset>
       </form>';
+  }
+  
+  
+  
+  public static function formToFilter()
+  {
+    if (isset($_POST['sequ_num']) && $_POST['sequ_num'] > 0) {
+      $filter = null;
+
+      for ($i=0; $i <= $_POST['sequ_num']; ++$i) {
+        if (isset($_POST['ft'.$i]) && isset($_POST['fe'.$i]) && isset($_POST['fc'.$i])) {
+          if ($filter !== null) {
+            $filter .= Listing::DEVIDE_FILTER;
+          }
+          $filter .= $_POST['ft'.$i].Listing::DEVIDE_SETTING.$_POST['fe'.$i].Listing::DEVIDE_SETTING.$_POST['fc'.$i];
+        }
+      }
+
+      return $filter;
+    }
+    
+    return false;
+  } // end of member function formToFilter
+  
+  
+  public static function formatWorkingStatus($status)
+  {
+    if ($status == null) return '';
+    return '<div class="'.($status == 'full' ? 'stable' : ($status == 'part' ? 'unstable' : 'crash')).'">&nbsp;</div>';
+  }
+  
+  
+  public static function formatType($type)
+  {
+    switch ($type) {
+      case 'App':
+        return 'Application';
+        break;
+      case 'DLL':
+        return 'DLL';
+        break;
+      case 'Drv':
+        return 'Driver';
+        break;
+      case 'Oth':
+        return 'Other';
+        break;
+    }
   }
   
 } // end HTML_List

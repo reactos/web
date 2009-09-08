@@ -610,10 +610,24 @@ UPDATE cdb_reports r
 SET revision = (SELECT revision FROM cdb_os WHERE old_osversion=r.old_osversion LIMIT 1);
 
 ALTER TABLE cdb_reports DROP old_osversion;
-
-
---
 ALTER TABLE cdb_os DROP old_osversion;
 ALTER TABLE cdb_attachments DROP old_groupid;
 DROP TABLE temp_entries;
 DROP TABLE temp_versions;
+
+
+
+-- -----------------------------------------------------------------
+-- create table for user settings
+-- -----------------------------------------------------------------
+CREATE TABLE cdb_settings (
+  id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY ,
+  type VARCHAR( 10 ) NOT NULL ,
+  name VARCHAR( 30 ) NOT NULL ,
+  user_id BIGINT UNSIGNED NOT NULL COMMENT '->roscms_accounts(id)',
+  value TEXT NOT NULL ,
+  created DATETIME NOT NULL ,
+  modified DATETIME NOT NULL ,
+  UNIQUE (type, name, user_id)
+) ENGINE = MYISAM;
+

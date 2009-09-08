@@ -27,10 +27,7 @@ class HTML_Submit extends HTML
     global $RSDB_intern_user_id;
 
     // check if user is logged in
-    if ($RSDB_intern_user_id <= 0) {
-      Subsystem::in(Login::REQUIRED, $_SERVER["REQUEST_URI"]);
-      return false;
-    }
+    $RSDB_intern_user_id = Subsystem::in(Login::REQUIRED, $_SERVER["REQUEST_URI"]);
 
     $this->register_js('submit.js');
   
