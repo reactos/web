@@ -25,18 +25,22 @@ class Setting
   
   
   
-  private static function read($type, $name)
+  private static function read($type, $name, $user_id=null)
   {
     global $RSDB_intern_user_id;
     
     // guests don't have settings
-    if ($RSDB_intern_user_id <= 0) {
+    if ($user_id === null) {
+      $user_id = $RSDB_intern_user_id;
+    }
+    
+    if ($user_id <= 0) {
       return false;
     }
     
     // do we already have a frontpage setting?
     $stmt=CDBConnection::getInstance()->prepare("SELECT value FROM ".CDBT_SETTINGS." WHERE type=:type AND name=:name AND user_id=:user_id");
-    $stmt->bindParam('user_id',$RSDB_intern_user_id,PDO::PARAM_INT);
+    $stmt->bindParam('user_id',$user_id,PDO::PARAM_INT);
     $stmt->bindParam('type',$type,PDO::PARAM_INT);
     $stmt->bindParam('name',$name,PDO::PARAM_INT);
     if ($stmt->execute()) {
@@ -47,18 +51,22 @@ class Setting
   
   
   
-  private static function write($type, $name, $value)
+  private static function write($type, $name, $value, $user_id=null)
   {
     global $RSDB_intern_user_id;
     
     // guests don't have settings
-    if ($RSDB_intern_user_id <= 0) {
+    if ($user_id === null) {
+      $user_id = $RSDB_intern_user_id;
+    }
+    
+    if ($user_id <= 0) {
       return false;
     }
 
-    // do we already have a frontpage setting?
+    // do we already have a setting?
     $stmt=CDBConnection::getInstance()->prepare("SELECT id FROM ".CDBT_SETTINGS." WHERE type=:type AND name=:name AND user_id=:user_id");
-    $stmt->bindParam('user_id',$RSDB_intern_user_id,PDO::PARAM_INT);
+    $stmt->bindParam('user_id',$user_id,PDO::PARAM_INT);
     $stmt->bindParam('type',$type,PDO::PARAM_INT);
     $stmt->bindParam('name',$name,PDO::PARAM_INT);
     $stmt->execute();
@@ -78,7 +86,7 @@ class Setting
       $stmt->bindParam('name',$name,PDO::PARAM_STR);
       $stmt->bindParam('type',$type,PDO::PARAM_INT);
       $stmt->bindParam('value',$value,PDO::PARAM_STR);
-      $stmt->bindParam('user_id',$RSDB_intern_user_id,PDO::PARAM_INT);
+      $stmt->bindParam('user_id',$user_id,PDO::PARAM_INT);
       return $stmt->execute();
     }
   } // end of member function writePreference
@@ -111,6 +119,25 @@ class Setting
   public static function setPreference($name, $value)
   {
     return self::write('preference', $name, $value);
+  } // end of member function writePreference
+  
+  
+  
+  
+  
+  public static function hasRight($name, $user_id=null)
+  {
+    return (self::read('right', $name, $user_id) === 'true');
+  } // end of member function writePreference
+  
+  
+  public static function setRight($user_id, $name, $value)
+  {
+    if (self::hasRight('grant')) {
+      return self::write('right', $name, $value?'true':'false', $user_id);
+    }
+    
+    return false;
   } // end of member function writePreference
   
 } // end Setting

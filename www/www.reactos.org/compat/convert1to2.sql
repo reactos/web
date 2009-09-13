@@ -631,3 +631,12 @@ CREATE TABLE cdb_settings (
   UNIQUE (type, name, user_id)
 ) ENGINE = MYISAM;
 
+-- update categories
+UPDATE cdb_categories SET type = 'Drv', parent = NULL WHERE parent = 1;
+UPDATE cdb_categories SET type = 'App', parent = NULL WHERE parent = 2;
+DELETE FROM cdb_categories WHERE id IN (1,2);
+
+--
+ALTER TABLE cdb_categories CHANGE id id BIGINT( 20 ) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+

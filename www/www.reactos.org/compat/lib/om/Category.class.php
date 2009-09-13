@@ -34,18 +34,52 @@ class Category
    *
    * @access public
    */
-  public static function showTreeAsOption($select = 0, $category_id = 0, $level = 0)
+  public static function showTreeAsOption($selected = 0, $category_id = 0,$with_types = false)
   {
     $output = '';
+    
+    $types = array(
+      'App'=>'Applications',
+      'DLL'=>'Dynamic Link Libraries',
+      'Drv'=>'Drivers',
+      'Oth'=>'Other');
+  
+    $output = '';
 
-    $categories=self::getChilds($category_id);
+    foreach ($types as $shortcut=>$name) {
+      $output .= '<optgroup id="grp'.$shortcut.'" label="'.$name.'">';
+      $output .= self::showSubTree($selected, 0, $shortcut);
+      $output .= '</optgroup>';
+    }
+
+    return $output;
+  } // end of member function showTree
+
+
+
+  /**
+   * @FILLME
+   *
+   * @access public
+   */
+  public static function showSubTree($selected = 0, $category_id = 0, $type = null)
+  {
+    static $level = -1;
+    ++$level;
+  
+    $output = '';
+
+    $categories=self::getChilds($category_id, $type);
     if (count($categories) > 0) {
       foreach($categories as $category) {
+      
         $output .= '
-          <option value="'.$category['id'].'"'.($select == $category['id'] ? ' selected="selected"' : '').'>'.str_repeat('&nbsp;&nbsp;&nbsp;',$level).htmlspecialchars($category['name']).'</option>';
-        $output .= self::showTreeAsOption($select,$category['id'],$level+1);
+          <option value="'.$category['id'].'"'.($selected == $category['id'] ? ' selected="selected"' : '').'>'.str_repeat('&nbsp;&rang;&nbsp;',$level).htmlspecialchars($category['name']).'</option>';
+        $output .= self::showSubTree($selected,$category['id']);
       }
     }
+    
+    --$level;
 
     return $output;
   } // end of member function showTree
@@ -57,10 +91,16 @@ class Category
    *
    * @access private
    */
-  private static function getChilds($category_id)
+  private static function getChilds($category_id,$type=null)
   {
-    $stmt=CDBConnection::getInstance()->prepare("SELECT id, name FROM ".CDBT_CATEGORIES." WHERE parent = :cat_path AND visible IS TRUE ORDER BY type ASC, name ASC");
-    $stmt->bindParam('cat_path',$category_id,PDO::PARAM_INT);
+    if ($type !== null) {
+      $stmt=CDBConnection::getInstance()->prepare("SELECT id, name FROM ".CDBT_CATEGORIES." WHERE parent IS NULL AND type = :type AND visible IS TRUE ORDER BY name ASC");
+      $stmt->bindParam('type',$type,PDO::PARAM_STR);
+    }
+    else {
+      $stmt=CDBConnection::getInstance()->prepare("SELECT id, name FROM ".CDBT_CATEGORIES." WHERE parent = :cat_path AND visible IS TRUE ORDER BY type ASC, name ASC");
+      $stmt->bindParam('cat_path',$category_id,PDO::PARAM_INT);
+    }
     $stmt->execute();
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
   }
@@ -72,11 +112,15 @@ class Category
    *
    * @access private
    */
-  public static function getAllChildsAsList($category_id)
+  public static function getAllChildsAsList($category_id,$self=false,$type=null)
   {
     $list = '';
 
-    $childs = self::getChilds($category_id);
+    if ($self === true && $type===null) {
+      $list .= $category_id;
+    }
+
+    $childs = self::getChilds($category_id,$type);
     foreach ($childs as $child) {
 
       if ($list !== '') $list .= ',';

@@ -37,7 +37,7 @@ define('CDBT_VERSIONS'   , CDBTDATABASE.'cdb_versions'); // application versions
 
 		// Config: (please sync this with the database)
 		$RSDB_intern_path = "compat/"; // the dirs after http://www.reactos.org
-    $RSDB_site_root = '/reactos/';
+    $RSDB_site_root = '/~Brain/www.reactos.org/';
 		
 		// script file fix (for Safari browser)
     $RSDB_intern_path_server = $RSDB_site_root.$RSDB_intern_path;

@@ -94,6 +94,10 @@ class HTML_List extends HTML
       $this->naviCategory($_GET['cat']);
       $browse = 'category';
     }
+    elseif (isset($_GET['type'])) {
+      $this->naviCategory(0,$_GET['type']);
+      $browse = 'category';
+    }
     elseif (isset($_GET['tag']) && $_GET['tag'] == '*') {
       $this->naviTags();
       $browse = 'tag';
@@ -119,7 +123,6 @@ class HTML_List extends HTML
       
       $stmt=CDBConnection::getInstance()->prepare("SELECT COUNT(*) FROM ".CDBT_ENTRIES." e JOIN ".CDBT_REPORTS." r ON r.entry_id=e.id ".$this->from." WHERE e.visible IS TRUE AND r.id=(SELECT id FROM ".CDBT_REPORTS." WHERE entry_id=e.id ORDER BY checked DESC, created DESC LIMIT 1) ".$this->where);
       foreach ($this->params as $param) {
-      //var_dump($param);
         $stmt->bindValue($param[0],$param[1],$param[2]);
       }
       $stmt->execute();
@@ -257,41 +260,66 @@ class HTML_List extends HTML
 
 
 
-  private function naviCategory( $category_id )
+  private function naviCategory( $category_id=0,$type=null )
   {
+    $types = array(
+    'App'=>'Applications',
+    'DLL'=>'Dynamic Link Libraries',
+    'Drv'=>'Drivers',
+    'Oth'=>'Other');
 
     // show root
     echo '
-      <ul id="breadcrumb">
-        <li style="float: left;"><a href="?show=list&amp;cat=0">Root</a></li>';
+      <ul id="breadcrumb">';
 
 
-    // show current path
-    $stmt=CDBConnection::getInstance()->prepare("SELECT name, id, parent FROM ".CDBT_CATEGORIES." WHERE id=:cat_id AND visible IS TRUE");
-    $stmt->bindParam('cat_id',$category_id,PDO::PARAM_INT);
-    $stmt->execute();
+    if ($category_id > 0) {
+      
+      // show current path
+      $stmt=CDBConnection::getInstance()->prepare("SELECT name, id, parent,type FROM ".CDBT_CATEGORIES." WHERE id=:cat_id AND visible IS TRUE");
+      $stmt->bindParam('cat_id',$category_id,PDO::PARAM_INT);
+      $stmt->execute();
+  
+      // get output in reversed order
+      $output = '';
+      while ($category = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        $output = '
+          <li>&rarr; <a href="?show=list&amp;cat='.$category['id'].'">'.htmlspecialchars($category['name']).'</a></li>'.$output;
+  
+        if ($category['parent'] > 0) {
+          $stmt->bindParam('cat_id',$category['parent'],PDO::PARAM_INT);
+          $stmt->execute();
+        }
+        $cat_type = $category['type'];
+      } // end while
 
-    // get output in reversed order
-    $output = '';
-    while ($category = $stmt->fetch(PDO::FETCH_ASSOC)) {
-      $output = '
-        <li>&rarr; <a href="?show=list&amp;cat='.$category['id'].'">'.htmlspecialchars($category['name']).'</a></li>'.$output;
+      echo '
+        <li><a href="?show=list&amp;type='.$cat_type.'">'.htmlspecialchars($types[$cat_type]).'</a></li>'.$output;
+    }
+    elseif (!empty($type)) {
+      echo '
+        <li><a href="?show=list&amp;type='.$type.'">'.htmlspecialchars($types[$type]).'</a></li>';
+    }
+    else {
+      echo '
+        <li></li>';
+    }
 
-      if ($category['parent'] > 0) {
-        $stmt->bindParam('cat_id',$category['parent'],PDO::PARAM_INT);
-        $stmt->execute();
-      }
-    } // end while
-
-    echo $output.'
+    echo '
       </ul>
       <br style="clear: both;" />';
-  
-    $stmt=CDBConnection::getInstance()->prepare("SELECT COUNT(*) FROM ".CDBT_CATEGORIES." p WHERE parent=:category_id");
-    $stmt->bindParam('category_id',$category_id,PDO::PARAM_STR);
+
+    if (empty($type)) {
+      $stmt=CDBConnection::getInstance()->prepare("SELECT COUNT(*) FROM ".CDBT_CATEGORIES." p WHERE parent=:category_id");
+      $stmt->bindParam('category_id',$category_id,PDO::PARAM_INT);
+    }
+    else {
+      $stmt=CDBConnection::getInstance()->prepare("SELECT COUNT(*) FROM ".CDBT_CATEGORIES." p WHERE parent IS NULL and type=:type");
+      $stmt->bindParam('type',$type,PDO::PARAM_STR);
+    }
     $stmt->execute();
 
-    if ($stmt->fetchColumn() > 0) {
+    if ($stmt->fetchColumn() > 0 || empty($type)) {
     
       echo '
         <div style="margin-bottom: 3em;clear:both;">
@@ -301,24 +329,99 @@ class HTML_List extends HTML
               <tr>
                 <th>Name</th>
                 <th>Subcategories</th>
-                <th>direct&nbsp;entries</th>
+                <th>Entries</th>
               </tr>
             </thead>
             <tbody>';
 
-      $stmt=CDBConnection::getInstance()->prepare("SELECT id, name, (SELECT COUNT(*) FROM ".CDBT_CATEGORIES." WHERE parent=p.id) AS subcategories, (SELECT COUNT(*) FROM ".CDBT_ENTRIES." WHERE category_id=p.id) AS entries FROM ".CDBT_CATEGORIES." p WHERE parent=:category_id ORDER BY name ASC");
-      $stmt->bindParam('category_id',$category_id,PDO::PARAM_STR);
-      $stmt->execute();
-      $x=0;
-      while ($category=$stmt->fetch(PDO::FETCH_ASSOC)) {
-        ++$x;
+      // show types
+      if ($category_id == 0 && empty($type)) {
 
-        echo '
-          <tr class="row'.($x%2+1).'">
-            <td><a href="?show=list&amp;cat='.$category['id'].'">'.$category['name'].'</a></td>
-            <td>'.$category['subcategories'].'</td>
-            <td>'.$category['entries'].'</td>
-          </tr>';
+        $x=0;
+        foreach ($types as $shortcut=>$name) {
+          ++$x;
+        
+          // subcategories count
+          $stmt_sub = CDBConnection::getInstance()->prepare("SELECT COUNT(*) FROM ".CDBT_CATEGORIES." WHERE type = :shortcut");
+          $stmt_sub->bindParam('shortcut',$shortcut,PDO::PARAM_STR);
+          $stmt_sub->execute();
+          $subcategories = $stmt_sub->fetchColumn();
+
+          // entries count
+          $sub_list = Category::getAllChildsAsList(0, true, $shortcut);
+          if (!empty($sub_list)) {
+          
+            $revision_type = Setting::getPreference('revision_type');
+            if (!empty($revision_type)) {
+              if ($revision_type == 'trunk') {
+                $not = '';
+              }
+              else {
+                $not = 'NOT';
+              }
+
+              $stmt_entr = CDBConnection::getInstance()->prepare("SELECT COUNT(*) FROM ".CDBT_ENTRIES." e WHERE id IN(SELECT r.entry_id FROM ".CDBT_REPORTS." r LEFT JOIN ".CDBT_VERTAGS." o ON o.revision=r.revision WHERE o.revision IS ".$not." NULL AND e.id=r.entry_id) AND category_id IN (".$sub_list.")");
+            
+            }
+            else {
+              $stmt_entr = CDBConnection::getInstance()->prepare("SELECT COUNT(*) FROM ".CDBT_ENTRIES." WHERE category_id IN (".$sub_list.")");
+            }
+            $stmt_entr->execute();
+            $entries = $stmt_entr->fetchColumn();
+          }
+          else {
+            $entries = 0;
+          }
+  
+          echo '
+            <tr class="row'.($x%2+1).'">
+              <td><a href="?show=list&amp;type='.$shortcut.'">'.$name.'</a></td>
+              <td>'.$subcategories.'</td>
+              <td>'.$entries.'</td>
+            </tr>';
+        } // end foreach
+      }
+
+      // show categories
+      else {
+
+        if ($category_id > 0) {
+          $stmt=CDBConnection::getInstance()->prepare("SELECT id, name FROM ".CDBT_CATEGORIES." p WHERE parent=:category_id ORDER BY name ASC");
+          $stmt->bindParam('category_id',$category_id,PDO::PARAM_INT);
+        }
+        else {
+          $stmt=CDBConnection::getInstance()->prepare("SELECT id, name FROM ".CDBT_CATEGORIES." p WHERE parent IS NULL AND type=:type ORDER BY name ASC");
+          $stmt->bindParam('type',$type,PDO::PARAM_STR);
+        }
+        $stmt->execute();
+        $x=0;
+        while ($category=$stmt->fetch(PDO::FETCH_ASSOC)) {
+          ++$x;
+
+          $sub_list = Category::getAllChildsAsList($category['id'], false);
+          if (!empty($sub_list)) {
+            // subcategories count
+            $stmt_sub = CDBConnection::getInstance()->prepare("SELECT COUNT(*) FROM ".CDBT_CATEGORIES." WHERE id IN (".$sub_list.")");
+            $stmt_sub->execute();
+            $subcategories = $stmt_sub->fetchColumn();
+          }
+          else {
+            $subcategories = 0;
+          }
+
+          $sub_list = Category::getAllChildsAsList($category['id'], true);
+            // entries count
+            $stmt_entr = CDBConnection::getInstance()->prepare("SELECT COUNT(*) FROM ".CDBT_ENTRIES." WHERE category_id IN (".$sub_list.")");
+            $stmt_entr->execute();
+            $entries = $stmt_entr->fetchColumn();
+
+          echo '
+            <tr class="row'.($x%2+1).'">
+              <td><a href="?show=list&amp;cat='.$category['id'].'">'.$category['name'].'</a></td>
+              <td>'.$subcategories.'</td>
+              <td>'.$entries.'</td>
+            </tr>';
+        } // end while
       }
 
       echo '

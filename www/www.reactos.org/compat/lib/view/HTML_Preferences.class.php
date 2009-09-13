@@ -52,6 +52,26 @@ class HTML_Preferences extends HTML
       if (isset($_POST['standard_queries'])) {
         Setting::setPreference('standard queries',$_POST['standard_queries']);
       }
+
+      // environment
+      if (isset($_POST['environment'])) {
+        Setting::setPreference('environment',$_POST['environment']);
+      }
+
+      // environment details
+      if (isset($_POST['environment_details'])) {
+        Setting::setPreference('environment_details',$_POST['environment_details']);
+      }
+
+      // view main tabs
+      if (isset($_POST['vertab_prem'])) {
+        Setting::setPreference('vertab_prem',$_POST['vertab_prem']);
+      }
+
+      // view side tabs
+      if (isset($_POST['vertab_pres'])) {
+        Setting::setPreference('vertab_pres',$_POST['vertab_pres']);
+      }
     } // end of write actions
   
     parent::__construct();
@@ -67,6 +87,10 @@ class HTML_Preferences extends HTML
     $revision = Setting::getPreference('revision_type');
     $notification = Setting::getPreference('notification_type');
     $standard_queries = Setting::getPreference('standard queries');
+    $environment = Setting::getPreference('environment');
+    $environment_details = Setting::getPreference('environment_details');
+    $vertab_prem = Setting::getPreference('vertab_prem');
+    $vertab_pres = Setting::getPreference('vertab_pres');
 
     echo '
       <h1>Compatability Database &gt; Preferences</h1>
@@ -105,6 +129,37 @@ class HTML_Preferences extends HTML
               <select id="standard_queries" name="standard_queries">
                 <option value=""'.(empty($standard_queries) ? ' selected="selected"':'').'>Yes</option>
                 <option value="false"'.($standard_queries == 'false' ? ' selected="selected"':'').'>No</option>
+              </select>
+            </li>
+            <li>
+              <label for="environment">Standard environment</label>
+              <select id="environment" name="environment">
+                <option value=""'.(empty($environment) ? ' selected="selected"':'').'>leave empty</option>
+                <option value="RH"'.($environment == 'RH' ? ' selected="selected"':'').'>Real hardware</option>
+                <optgroup label="Virtual Machines">
+                  <option value="ot"'.($environment == 'ot' ? ' selected="selected"':'').'>Other</option>
+                  <option value="Bo"'.($environment == 'Bo' ? ' selected="selected"':'').'>Bochs</option>
+                  <option value="qe"'.($environment == 'qe' ? ' selected="selected"':'').'>Qemu</option>
+                  <option value="vb"'.($environment == 'vb' ? ' selected="selected"':'').'>VirtualBox</option>
+                  <option value="vp"'.($environment == 'vp' ? ' selected="selected"':'').'>VirtualPC</option>
+                  <option value="vw"'.($environment == 'vw' ? ' selected="selected"':'').'>VMware</option>
+                </optgroup>
+              </select>
+              <label for="environment_details">Details (Specs / Version)</label>
+              <input type="text" id="environment_details" name="environment_details" value="'.$environment_details.'" />
+            </li>
+            <li>
+              <label for="vertab_prem">Version view tabs preselection (main)</label>
+              <select id="vertab_prem" name="vertab_prem">
+                <option value=""'.(empty($vertab_prem) ? ' selected="selected"':'').'>Comments</option>
+                <option value="tests"'.($vertab_prem == 'tests' ? ' selected="selected"':'').'>Test reports</option>
+                <option value="bugs"'.($vertab_prem == 'bugs' ? ' selected="selected"':'').'>Related bugs</option>
+                <option value="screens"'.($vertab_prem == 'screens' ? ' selected="selected"':'').'>Screenshots</option>
+              </select>
+              <label for="vertab_pres">(side)</label>
+              <select id="vertab_pres" name="vertab_pres">
+                <option value=""'.(empty($vertab_pres) ? ' selected="selected"':'').'>Screenshots</option>
+                <option value="stats"'.($vertab_pres == 'stats' ? ' selected="selected"':'').'>Statistics</option>
               </select>
             </li><!--
             <li>

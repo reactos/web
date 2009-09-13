@@ -225,7 +225,8 @@ abstract class HTML
             <ol>
               <li><a href="'.$RSDB_intern_link_db_sec.'home">Overview</a></li>
               <li><a href="'.$RSDB_intern_link_db_sec.'submit">Submit application</a></li>
-              <li><a href="'.$RSDB_intern_link_db_sec.'preferences">Preferences</a></li>
+              <li><a href="'.$RSDB_intern_link_db_sec.'preferences">Preferences</a></li>'.(Setting::hasRight('admin_interface') ? '
+              <li><a href="'.$RSDB_intern_link_db_sec.'administration">Administration</a></li>' : '').'
               <li><a href="'.$RSDB_intern_link_db_sec.'help">Help &amp; FAQ</a></li>
             </ol>
             <br />

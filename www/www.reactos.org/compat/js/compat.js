@@ -2,6 +2,22 @@ var sequ_num; // sequence number for filters
 
 
 
+
+function ViewTabSide(id, target)
+{
+  requestText('?show=version&id='+id+'&direct=true&side='+target,'viewSide',target);
+  return false;
+}
+
+
+function ViewTabMain(id, target)
+{
+  requestText('?show=version&id='+id+'&direct=true&main='+target,'viewMain',target);
+  return false;
+}
+
+
+
 function highlightTableRow(e)
 {
   var i;
@@ -131,10 +147,64 @@ function CsDeleteFilter(target)
 
 
 
+function requestText( url, action, target )
+{
+  var http_request = false;
+  if (window.XMLHttpRequest) { // Mozilla, Safari,...
+    http_request = new XMLHttpRequest();
+  }
+  else if (window.ActiveXObject) { // IE
+    try {
+      http_request = new ActiveXObject("Msxml2.XMLHTTP");
+    } catch (e) {
+      try {
+        http_request = new ActiveXObject("Microsoft.XMLHTTP");
+      } catch (e2) {
+      }
+    }
+  }
+  http_request.overrideMimeType('text');
+
+
+  http_request.onreadystatechange = function()
+  {
+    try {
+      if (http_request.readyState === 4) {
+        if (http_request.status === 200) {
+
+          switch (action) {
+
+            case 'viewSide':
+              viewTabSetNew(http_request, 'side',target);
+              break;
+              
+            case 'viewMain':
+              viewTabSetNew(http_request, 'main',target);
+              break;
+          }
+        }
+      }
+    }
+    catch (e) {
+    }
+
+  };
+  
+  http_request.overrideMimeType('text/plain');
+
+  // internal function end
+  http_request.open('GET', url, true);
+  http_request.setRequestHeader("If-Modified-Since", "Sat, 1 Jan 2000 00:00:00 GMT");	// Bypass the IE Cache
+  http_request.send(null);
+
+  return true;
+} // end of function makeRequestfunction CsRequest( url, action, target )
+
+
+
 function CsRequest( url, action, target )
 {
   var http_request = false;
-
   if (window.XMLHttpRequest) { // Mozilla, Safari,...
     http_request = new XMLHttpRequest();
   }
@@ -156,6 +226,7 @@ function CsRequest( url, action, target )
     try {
       if (http_request.readyState === 4) {
         if (http_request.status === 200) {
+
           switch (action) {
 
             case 'newFilter':
@@ -181,3 +252,25 @@ function CsRequest( url, action, target )
 
   return true;
 } // end of function makeRequest
+
+
+
+function viewTabSetNew(http_request, mode, target)
+{
+  if (mode == 'side') {
+    document.getElementById('entrySideScreenshots').className = (target=='screens' ? 'active' : '');
+    document.getElementById('entrySideStats').className = (target=='stats' ? 'active' : '');
+    document.getElementById('sideContent').innerHTML = http_request.responseText;
+  }
+  
+  // main
+  else {
+    document.getElementById('naviMainComments').className = (target=='comments' ? 'active' : '');
+    document.getElementById('naviMainTests').className = (target=='tests' ? 'active' : '');
+    document.getElementById('naviMainBugs').className = (target=='bugs' ? 'active' : '');
+    if (document.getElementById('naviMainScreenshots') != undefined) {
+      document.getElementById('naviMainScreenshots').className = (target=='screens' ? 'active' : '');
+    }
+    document.getElementById('entryMain').innerHTML = http_request.responseText;
+  }
+}

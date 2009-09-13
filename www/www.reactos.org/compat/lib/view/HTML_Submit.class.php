@@ -163,6 +163,30 @@ class HTML_Submit extends HTML
         'description' => '',
         'tags' => '');
     }
+
+    // preferences
+    $revision_type = Setting::getPreference('revision_type');
+
+    if ($used_again) {
+      $tested_version = $_POST['ver'];
+      $tested_vm = $_POST['vm'];
+      $tested_env = $_POST['env'];
+      $tested_env_details = $_POST['vmver'];
+      $tested_rev = $_POST['revision'];
+    }
+    else {
+      if ($revision_type == 'trunk') {
+        $tested_version = 'R';
+      }
+      else {
+        $tested_version = '';
+      }
+  
+      $tested_vm = Setting::getPreference('environment');
+      $tested_env = (Setting::getPreference('environment') != 'RH' ? 'VM' : 'RH');
+      $tested_env_details = Setting::getPreference('environment_details');
+      $tested_rev = '';
+    }
   
     echo '
       <form id="submit" action="?show=submit&amp;submit=yes" method="post" style="width: 700px;">
@@ -230,49 +254,57 @@ class HTML_Submit extends HTML
             </li>
             <li style="float: left;">
               <label for="ver">Tested Version</label><br />
-              <select name="ver" id="ver" onchange="'."javascript:document.getElementById('directRev').style.display=(this.value=='R' ? 'block' : 'none' );".'">
-                <option value="R"'.(($used_again && $_POST['ver'] == 'R') ? ' selected="selected"' : '').'>Trunk</option>';
+              <select name="ver" id="ver" style="width:150px;" onchange="'."javascript:document.getElementById('directRev').style.display=(this.value=='R' ? 'block' : 'none' );".'">';
 
-    $stmt=CDBConnection::getInstance()->prepare("SELECT revision, name FROM ".CDBT_VERTAGS." WHERE VISIBLE IS TRUE ORDER BY revision DESC");
-    $stmt->execute();
-    $x = 0;
-    while ($version = $stmt->fetch(PDO::FETCH_ASSOC) ) {
-      ++$x;
+    if ($revision_type != 'release') {
       echo '
-        <option value="'.$version['revision'].'"'.((($used_again && $_POST['ver'] == $version['revision']) || (!$used_again && $x===1)) ? ' selected="selected"' : '').'>'.$version['name'].'</option>';
+        <option value="R"'.(($tested_version == 'R') ? ' selected="selected"' : '').'>Trunk</option>';
+    }
+
+    //
+    if ($revision_type != 'trunk') {
+
+      $stmt=CDBConnection::getInstance()->prepare("SELECT revision, name FROM ".CDBT_VERTAGS." WHERE VISIBLE IS TRUE ORDER BY revision DESC");
+      $stmt->execute();
+      $x = 0;
+      while ($version = $stmt->fetch(PDO::FETCH_ASSOC) ) {
+        ++$x;
+        echo '
+          <option value="'.$version['revision'].'"'.((($tested_version == $version['revision']) || (!$used_again && $x===1)) ? ' selected="selected"' : '').'>'.$version['name'].'</option>';
+      }
     }
     echo '
               </select>
             </li>
 
-            <li id="directRev" style="float:left;">
+            <li id="directRev" style="float:left;display:'.($revision_type == 'trunk' ? 'block' : 'none').';">
               <label for="rev">Revision:</label><br />
-              <input type="text" name="rev" id="rev"'.(($used_again && $_POST['ver'] == 'R') ? ' maxlength="6" value="'.htmlspecialchars($_POST['revision']).'"' : '').' />
+              <input type="text" name="rev" id="rev" maxlength="6" value="'.$tested_rev.'" />
             </li>
           </ul>
           <div style="float: left;margin-right: 10px;">
             <span class="label">Environment:</span><br />
-            <input type="radio" class="normal" name="env" id="envvm" value="VM"'.((($used_again && $_POST['env']=='VM') || !$used_again) ? ' checked="checked"' : '').' onchange="'."javascript:document.getElementById('vmselect').style.display=(this.checked ? 'block' : 'none' );javascript:document.getElementById('vmverlabel').innerHTML='Version:';".'" />
+            <input type="radio" class="normal" name="env" id="envvm" value="VM"'.(($tested_env=='VM') ? ' checked="checked"' : '').' onchange="'."javascript:document.getElementById('vmselect').style.display=(this.checked ? 'block' : 'none' );javascript:document.getElementById('vmverlabel').innerHTML='Version:';".'" />
             <label class="normal" for="envvm">Virtual Machine</label><br />
 
-            <input type="radio" class="normal" name="env" id="envrh" value="RH"'.(($used_again && $_POST['env']=='RH') ? ' checked="checked"' : '').' onchange="'."javascript:document.getElementById('vmselect').style.display=(this.checked ? 'none' : 'block' );javascript:document.getElementById('vmverlabel').innerHTML='Specs:';".'" />
+            <input type="radio" class="normal" name="env" id="envrh" value="RH"'.(($tested_env=='RH') ? ' checked="checked"' : '').' onchange="'."javascript:document.getElementById('vmselect').style.display=(this.checked ? 'none' : 'block' );javascript:document.getElementById('vmverlabel').innerHTML='Specs:';".'" />
             <label class="normal" for="envrh">Real Hardware</label>
           </div>
           <div id="vmlist" style="list-style-type: none;float: left;">
             <div id="vmselect">
               <label for="vm">Virtual Machine:</label><br />
               <select id="vm" name="vm">
-                <option value="ot"'.((($used_again && $_POST['vm']=='ot') || !$used_again) ? ' selected="selected"' : '').'>Other</option>
-                <option value="Bo"'.(($used_again && $_POST['vm']=='Bo') ? ' selected="selected"' : '').'>Bochs</option>
-                <option value="qe"'.(($used_again && $_POST['vm']=='qe') ? ' selected="selected"' : '').'>Qemu</option>
-                <option value="vb"'.(($used_again && $_POST['vm']=='vb') ? ' selected="selected"' : '').'>VirtualBox</option>
-                <option value="vp"'.(($used_again && $_POST['vm']=='vp') ? ' selected="selected"' : '').'>VirtualPC</option>
-                <option value="vw"'.(($used_again && $_POST['vm']=='vw') ? ' selected="selected"' : '').'>VMWare</option>
+                <option value="ot"'.(($tested_vm=='ot') ? ' selected="selected"' : '').'>Other</option>
+                <option value="Bo"'.(($tested_vm=='Bo') ? ' selected="selected"' : '').'>Bochs</option>
+                <option value="qe"'.(($tested_vm=='qe') ? ' selected="selected"' : '').'>Qemu</option>
+                <option value="vb"'.(($tested_vm=='vb') ? ' selected="selected"' : '').'>VirtualBox</option>
+                <option value="vp"'.(($tested_vm=='vp') ? ' selected="selected"' : '').'>VirtualPC</option>
+                <option value="vw"'.(($tested_vm=='vw') ? ' selected="selected"' : '').'>VMWare</option>
               </select>
             </div>
             <br />
             <label for="vmver" id="vmverlabel">Version:</label><br />
-            <input type="text" name="vmver" id="vmver" maxlength="100" value="'.($used_again ? htmlspecialchars($_POST['vmver']) : '').'" />
+            <input type="text" name="vmver" id="vmver" maxlength="100" value="'.$tested_env_details.'" />
           </div>
           <br style="clear: both;"/>
         </div>
@@ -314,7 +346,7 @@ class HTML_Submit extends HTML
       </script>';
 
     // hide revision field
-    if (!$used_again || $_POST['ver'] != 'R') {
+    if ($tested_version != 'R') {
       echo '
           <script type="text/javascript">
           //<!--'."
@@ -324,11 +356,12 @@ class HTML_Submit extends HTML
     }
 
     // hide VM
-    if ($used_again && $_POST['env'] == 'RH') {
+    if ($tested_env == 'RH') {
       echo '
           <script type="text/javascript">
           //<!--'."
-            document.getElementById('vmlist').style.display='none';
+            document.getElementById('vmselect').style.display='none';
+            document.getElementById('vmverlabel').innerHTML='Specs:';
           //".'-->
           </script>';
     }

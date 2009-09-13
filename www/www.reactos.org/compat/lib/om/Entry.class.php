@@ -110,7 +110,7 @@ class Entry
     }
 
     // insert
-    $stmt=CDBConnection::getInstance()->prepare("INSERT INTO ".CDBT_REPORTS." (id, entry_id, version_id, comment_id, user_id, revision, environment, environment_version, works, created, visible, disabled) VALUES (NULL, :entry_id, :version_id, :comment_id, :user_id, :revision, :env, :env_ver, :status, NOW(), TRUE, FALSE)");
+    $stmt=CDBConnection::getInstance()->prepare("INSERT INTO ".CDBT_REPORTS." (id, entry_id, version_id, comment_id, user_id, revision, environment, environment_version, works, checked, created, visible, disabled) VALUES (NULL, :entry_id, :version_id, :comment_id, :user_id, :revision, :env, :env_ver, :status, :checked, NOW(), TRUE, FALSE)");
     $stmt->bindParam('entry_id',$entry_id,PDO::PARAM_INT);
     $stmt->bindParam('version_id',$version_id,PDO::PARAM_INT);
     $stmt->bindParam('comment_id',$comment_id,PDO::PARAM_INT);
@@ -119,6 +119,7 @@ class Entry
     $stmt->bindParam('env',$env,PDO::PARAM_STR);
     $stmt->bindParam('env_ver',$env_version,PDO::PARAM_STR);
     $stmt->bindParam('status',$status,PDO::PARAM_STR);
+    $stmt->bindParam('checked',hasRight('checked_tests'),PDO::PARAM_BOOL);
     return $stmt->execute();
   } // end of member function addReport
 
@@ -129,7 +130,21 @@ class Entry
    *
    * @access public
    */
-  public static function addComment( $entry_id, $title, $content )
+  public static function deleteReport( $test_id )
+  {
+    $stmt=CDBConnection::getInstance()->prepare("DELETE FROM ".CDBT_REPORTS." WHERE id=:test_id");
+    $stmt->bindParam('test_id',$test_id,PDO::PARAM_INT);
+    return $stmt->execute();
+  } // end of member function addReport
+
+
+
+  /**
+   * @FILLME
+   *
+   * @access public
+   */
+  public static function addComment( $entry_id, $title, $content , $reply=null)
   {
     global $RSDB_intern_user_id;
 
@@ -140,11 +155,19 @@ class Entry
     }
 
     // insert
-    $stmt=CDBConnection::getInstance()->prepare("INSERT INTO ".CDBT_COMMENTS." (entry_id, user_id, parent, title, content, created, visible) VALUES (:entry_id, :user_id, NULL, :title, :content, NOW(), TRUE)");
+    $stmt=CDBConnection::getInstance()->prepare("INSERT INTO ".CDBT_COMMENTS." (entry_id, user_id, parent, title, content, created, visible) VALUES (:entry_id, :user_id, :parent, :title, :content, NOW(), TRUE)");
     $stmt->bindParam('entry_id',$entry_id,PDO::PARAM_INT);
     $stmt->bindParam('user_id',$RSDB_intern_user_id,PDO::PARAM_INT);
+    if (empty($reply)) {
+      $stmt->bindValue('parent',null,PDO::PARAM_NULL);
+    }
+    else {
+      $stmt->bindParam('parent',$reply,PDO::PARAM_INT);
+    }
     $stmt->bindParam('title',$title,PDO::PARAM_STR);
     $stmt->bindParam('content',$content,PDO::PARAM_STR);
+    
+    //@ last_insert_id
     if ($stmt->execute()) {
       $stmt=CDBConnection::getInstance()->prepare("SELECT id FROM ".CDBT_COMMENTS." WHERE entry_id=:entry_id AND user_id=:user_id ORDER BY created DESC LIMIT 1");
       $stmt->bindParam('entry_id',$entry_id,PDO::PARAM_INT);
@@ -154,6 +177,20 @@ class Entry
     }
     
     return false;
+  } // end of member function add
+
+
+
+  /**
+   * @FILLME
+   *
+   * @access public
+   */
+  public static function deleteComment( $comment_id)
+  {
+    $stmt=CDBConnection::getInstance()->prepare(" DELETE FROM ".CDBT_COMMENTS." WHERE id=:comment_id");
+    $stmt->bindParam('comment_id',$comment_id,PDO::PARAM_INT);
+    return $stmt->execute();
   } // end of member function add
 
 

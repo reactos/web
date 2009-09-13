@@ -1,7 +1,7 @@
-<?php
+﻿<?php
     /*
     RSDB - ReactOS Support Database
-    Copyright (C) 2009 Danny G�tte <dangerground@web.de>
+    Copyright (C) 2009 Danny Gˆtte <dangerground@web.de>
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -32,9 +32,70 @@ class HTML_Version extends HTML
   const MAIN_BUGS        = 103;
   
   private $side = null;
-  private $sel = null;
+  private $main = null;
   private $entry_id = null;
   private $entry_type = null;
+
+
+  public function __construct()
+  {
+
+    // get entry_id
+    $stmt=CDBConnection::getInstance()->prepare("SELECT entry_id FROM ".CDBT_VERSIONS." WHERE id=:version_id");
+    $stmt->bindParam('version_id',$_GET['id'],PDO::PARAM_INT);
+    $stmt->execute();
+    $this->entry_id = $stmt->fetchColumn();
+
+    // get entry_type
+    $stmt=CDBConnection::getInstance()->prepare("SELECT type FROM ".CDBT_ENTRIES." WHERE id=:entry_id");
+    $stmt->bindParam('entry_id',$this->entry_id,PDO::PARAM_INT);
+    $stmt->execute();
+    $this->entry_type = $stmt->fetchColumn();
+
+    // ajax only needs the content, no decoration around it
+    if (isset($_GET['direct'])) {
+
+      // side
+      if (isset($_GET['side'])) {
+        switch ($_GET['side']) {
+          case 'screens':
+            $this->side = self::SIDE_SCREENSHOTS;
+            $this->sideScreenshots();
+            break;
+          case 'stats':
+            $this->side = self::SIDE_STATS;
+            $this->sideStats();
+            break;
+        }
+      }
+
+      // main
+      if (isset($_GET['main'])) {
+        switch ($_GET['main']) {
+          case 'tests':
+            $this->main = self::MAIN_TESTS;
+            $this->mainTests();
+            break;
+          case 'bugs':
+            $this->main = self::MAIN_BUGS;
+            $this->mainBugs();
+            break;
+          case 'screens':
+            $this->main = self::MAIN_SCREENSHOTS;
+            $this->mainScreenshots();
+            break;
+          case 'comments':
+            $this->main = self::MAIN_COMMENTS;
+            $this->mainComments();
+            break;
+        }
+      }
+    }
+    else {
+      $this->register_js('compat.js');
+      parent::__construct();
+    }
+  }
 
 
 
@@ -53,21 +114,38 @@ class HTML_Version extends HTML
       $this->main = $_GET['pmain'];
     }
     else {
-      $this->side = self::SIDE_SCREENSHOTS;
-      $this->main = self::MAIN_COMMENTS;
-    }
+      
+      $vertab_prem = Setting::getPreference('vertab_prem');
+      $vertab_pres = Setting::getPreference('vertab_pres');
 
-    // get entry_id
-    $stmt=CDBConnection::getInstance()->prepare("SELECT entry_id FROM ".CDBT_VERSIONS." WHERE id=:version_id");
-    $stmt->bindParam('version_id',$_GET['id'],PDO::PARAM_INT);
-    $stmt->execute();
-    $this->entry_id = $stmt->fetchColumn();
-    
-    // get entry_type
-    $stmt=CDBConnection::getInstance()->prepare("SELECT type FROM ".CDBT_ENTRIES." WHERE id=:entry_id");
-    $stmt->bindParam('entry_id',$this->entry_id,PDO::PARAM_INT);
-    $stmt->execute();
-    $this->entry_type = $stmt->fetchColumn();
+      // default side
+      switch ($vertab_pres) {
+        case 'stats':
+          $this->side = self::SIDE_STATS;
+          break;
+        default:
+        case '':
+          $this->side = self::SIDE_SCREENSHOTS;
+          break;
+      }
+
+      // default main
+      switch ($vertab_prem) {
+        case 'screens':
+          $this->main = self::MAIN_SCREENSHOTS;
+          break;
+        case 'tests':
+          $this->main = self::MAIN_TESTS;
+          break;
+        case 'bugs':
+          $this->main = self::MAIN_BUGS;
+          break;
+        default:
+        case '':
+          $this->main = self::MAIN_COMMENTS;
+          break;
+      }
+    }
    
     echo '<h1>Compatability Database &gt; Entry Details</h1>';
 
@@ -75,12 +153,21 @@ class HTML_Version extends HTML
     if ($this->entry_id !== false)
     {
     
-      echo '<div id="entryTop">';
+      echo '
+        <div id="entryTop">
+          <div id="entrySide">
+        <ul class="entryNavigation">';
+    
+      if ($this->entry_type == 'App') {
+        echo '
+        <li id="entrySideScreenshots" '.($this->side == self::SIDE_SCREENSHOTS ? ' class="active"' : '').'><a href="'.$this->buildLink(null, self::SIDE_SCREENSHOTS).'"onclick="'."return ViewTabSide(".$_GET['id'].",'screens');".'">Screenshots</a></li>';
+      }
 
-      echo '<div id="entrySide">';
-      
-      $this->tabSideNavigation();
-
+      echo '
+        <li id="entrySideStats"'.($this->side == self::SIDE_STATS ? ' class="active"' : '').'><a href="'.$this->buildLink(null, self::SIDE_STATS).'" onclick="'."return ViewTabSide(".$_GET['id'].",'stats');".'">Statistics</a></li>
+      </ul>
+        <div id="sideContent">';
+        
       // top right
       switch ($this->side) {
         case self::SIDE_SCREENSHOTS:
@@ -96,15 +183,36 @@ class HTML_Version extends HTML
           $this->sideTests();
           break;
       }
+      echo '
+        </div>';
 
       echo '</div>'; // end side
       
       $this->details();
       
-      echo '</div>'; // end top
+      echo '
+        </div>
+        <ul class="entryNavigation">
+          <li id="naviMainComments"'.($this->main == self::MAIN_COMMENTS ? ' class="active"' : '').'>
+            <a href="'.$this->buildLink(self::MAIN_COMMENTS,null).'" onclick="'."return ViewTabMain(".$_GET['id'].",'comments');".'">Comments</a>
+          </li>
+          <li id="naviMainTests"'.($this->main == self::MAIN_TESTS ? ' class="active"' : '').'>
+            <a href="'.$this->buildLink(self::MAIN_TESTS,null).'" onclick="'."return ViewTabMain(".$_GET['id'].",'tests');".'">Tests</a>
+          </li>
+          <li id="naviMainBugs"'.($this->main == self::MAIN_BUGS ? ' class="active"' : '').'>
+            <a href="'.$this->buildLink(self::MAIN_BUGS,null).'" onclick="'."return ViewTabMain(".$_GET['id'].",'bugs');".'">Bugs</a>
+          </li>';
 
-      // navigation
-      $this->tabNavigation();
+      if ($this->entry_type == 'App') {
+        echo '
+          <li id="naviMainScreenshots"'.($this->main == self::MAIN_SCREENSHOTS ? ' class="active"' : '').'>
+            <a href="'.$this->buildLink(self::MAIN_SCREENSHOTS,null).'"  onclick="'."return ViewTabMain(".$_GET['id'].",'screens');".'">Screenshots</a>
+          </li>';
+      }
+
+      echo '
+        </ul>
+        <div id="entryMain">';
 
       // main information
       switch ($this->main) {
@@ -143,23 +251,37 @@ class HTML_Version extends HTML
   
   
   
+  private function buildLink($main=null, $side=null)
+  {
+    return '?show=version&amp;id='.$_GET['id'].'&amp;view=pref&amp;pside='.($side !== null ? $side : $this->side).'&amp;pmain='.($main !== null ? $main : $this->main);
+  }
+  
+  
+  
   private function mainComments()
   {
     global $RSDB_intern_loginsystem_fullpath;
     global $RSDB_intern_user_id;
   
     if ($this->entry_id > 0 && isset($_POST['comment_content']) && strlen(trim($_POST['comment_content'])) > 0 && $RSDB_intern_user_id > 0) {
-      Entry::addComment($this->entry_id, '',$_POST['comment_content']);
+      Entry::addComment($this->entry_id, '',$_POST['comment_content'],$_POST['reply']);
+    }
+    elseif (isset($_GET['deleteComment']) && $_GET['deleteComment'] > 0 && Setting::hasRight('delete_comments')) {
+      if (Entry::deleteComment($_GET['deleteComment'])) {
+        echo 'Comment was deleted successful<br />';
+      }
+      else {
+        echo 'Problem while deleting comment<br />';
+      }
     }
   
-    echo '
-      <div id="entryMain">';
       
     if ($RSDB_intern_user_id > 0) {
       echo '
         <form action="" method="post">
           <fieldset>
-            <label for="comment_content">Commment/Answer to ...:</label><br />
+            <input type="hidden" name="reply" id="reply" value="'.(isset($_GET['replyComment']) ? $_GET['replyComment'] : '').'" />
+            <label for="comment_content">'.(isset($_GET['replyComment']) ? 'Answer to highlighted comment:' : 'New comment').'</label><br />
             <textarea name="comment_content" id="comment_content" rows="6" cols="80"></textarea><br />
             <button type="submit">Submit</button>
           </fieldset>
@@ -169,7 +291,7 @@ class HTML_Version extends HTML
       echo 'To add comments, you need to login with your RosCMS account.';
     }
 
-    $stmt=CDBConnection::getInstance()->prepare("SELECT id, title, content, created, user_id FROM ".CDBT_COMMENTS." WHERE entry_id=:entry_id AND parent IS NULL ORDER BY created DESC");
+    $stmt=CDBConnection::getInstance()->prepare("SELECT c.id, c.title, c.content, c.parent, c.created, c.user_id, r.works, IF(o.revision IS NULL,CONCAT('r',r.revision),o.name) AS rosversion FROM ".CDBT_COMMENTS." c LEFT JOIN ".CDBT_REPORTS." r ON r.comment_id=c.id LEFT JOIN ".CDBT_VERTAGS." o ON o.revision=r.revision WHERE c.entry_id=:entry_id ORDER BY c.created DESC");
     $stmt->bindParam('entry_id',$this->entry_id,PDO::PARAM_INT);
     $stmt->execute();
     $comments=$stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -177,11 +299,35 @@ class HTML_Version extends HTML
     if (count($comments) > 0) {
       foreach ($comments as $comment) {
         echo '
-          <a id="comm'.$comment['id'].'"></a>
-          <div style="background-color: white;margin: 10px 3px 3px 3px; border: 1px solid lightgray;padding:10px;">
-            '.nl2br(htmlspecialchars($comment['content'])).'
+          <div style="background-color: white;margin: 10px 3px 3px 3px; border: 1px solid lightgray;padding:10px;'.(isset($_GET['replyComment']) && $_GET['replyComment'] == $comment['id'] ? 'background-color:lightblue;' : '').'">
+          <a id="comm'.$comment['id'].'"></a>';
+          
+        if (!empty($comment['works'])) {
+          echo '
+            <h3>
+              <div style="width:1.5em;float:left;margin-right:1em;" class="'.($comment['works'] == 'full' ? 'stable' : ($comment['works'] == 'part' ? 'unstable' : 'crash')).'">&nbsp;</div>
+              '.$comment['rosversion'].'
+            </h3>';
+        }
+        elseif ($comment['parent'] > 0) {
+          echo '
+            <h3>
+              In reply <a href="#comm'.$comment['parent'].'">to</a>
+            </h3>';
+        }
+        
+        echo nl2br(htmlspecialchars($comment['content'])).'
             <br />
-            <div style="color: gray;margin-top: 1em;">by <strong>'.Subsystem::getUserName($comment['user_id']).'</strong> on '.$comment['created'].'</div>
+            <div style="color: gray;margin-top: 1em;">by <strong>'.Subsystem::getUserName($comment['user_id']).'</strong> on '.$comment['created'];
+        
+        if ($RSDB_intern_user_id > 0) {
+          echo ' <a href="'.$this->buildLink(self::MAIN_COMMENTS, null).'&amp;replyComment='.$comment['id'].'">reply</a>';
+        }
+        if (Setting::hasRight('delete_comments')) {
+          echo ' <a style="float:right;" onclick="'."return confirm('are you sure?');".'" href="'.$this->buildLink(self::MAIN_COMMENTS, null).'&amp;deleteComment='.$comment['id'].'">delete</a>';
+        }
+        echo '
+            </div>
           </div>';
       }
     }
@@ -189,7 +335,6 @@ class HTML_Version extends HTML
       echo 'There are no comments submitted yet.';
     }
 
-    echo '</div>';
   } // end of member function mainComments
 
 
@@ -200,9 +345,6 @@ class HTML_Version extends HTML
     if ($this->entry_type == 'App') {
       global $RSDB_intern_user_id;
       global $CDB_upload_path_web;
-
-        echo '
-          <div id="entryMain">';
 
       if (isset($_GET['scrid']) && $_GET['scrid'] > 0) {
         $stmt=CDBConnection::getInstance()->prepare("SELECT user_id, created, file, description FROM ".CDBT_ATTACHMENTS." WHERE type = 'picture' AND id=:screenshot_id AND visible IS TRUE LIMIT 1");
@@ -252,16 +394,13 @@ class HTML_Version extends HTML
           foreach ($screenshots as $screenshot) {
           echo '
             <div class="screenshot">
-              <a href="?show=version&amp;id='.$_GET['id'].'&amp;view=pref&amp;pside='.$this->side.'&amp;pmain='.self::MAIN_SCREENSHOTS.'&amp;scrid='.$screenshot['id'].'">
+              <a href="'.$this->buildLink(self::MAIN_SCREENSHOTS, null).'&amp;scrid='.$screenshot['id'].'">
                 <img src="'.$CDB_upload_path_web.'th/'.$screenshot['file'].'" alt="screenshot" title="'.htmlspecialchars($screenshot['description']).'" />
               </a>
             </div>';
           }
         }
       }
-
-      echo '
-        </div>';
     }
   } // end of member function mainScreenshots
 
@@ -269,6 +408,16 @@ class HTML_Version extends HTML
 
   private function mainTests()
   {
+    if (isset($_GET['deleteReport']) && $_GET['deleteReport'] > 0 && Setting::hasRight('delete_tests')) {
+      if (Entry::deleteReport($_GET['deleteReport'])) {
+        echo 'Test report was deleted successful.<br />';
+      }
+      else {
+        echo 'Problem while deleting test report.<br />';
+      }
+    }
+  
+  
     $revision_type = Setting::getPreference('revision_type');
     if (!empty($revision_type)) {
       if ($revision_type == 'trunk') {
@@ -278,16 +427,14 @@ class HTML_Version extends HTML
         $not = "NOT";
       }
       
-      $stmt=CDBConnection::getInstance()->prepare("SELECT user_id, t.revision, works, environment, environment_version, created, v.name AS releasename FROM ".CDBT_REPORTS." t LEFT JOIN ".CDBT_VERTAGS." v ON v.revision=t.revision WHERE version_id = :version_id AND v.revision IS ".$not." NULL AND t.visible IS TRUE AND t.disabled IS FALSE ORDER BY t.revision DESC, created DESC");
+      $stmt=CDBConnection::getInstance()->prepare("SELECT t.id, user_id, t.revision, works, t.comment_id, environment, environment_version, created, v.name AS releasename FROM ".CDBT_REPORTS." t LEFT JOIN ".CDBT_VERTAGS." v ON v.revision=t.revision WHERE version_id = :version_id AND v.revision IS ".$not." NULL AND t.visible IS TRUE AND t.disabled IS FALSE ORDER BY t.revision DESC, created DESC");
     }
     else {
-      $stmt=CDBConnection::getInstance()->prepare("SELECT user_id, t.revision, works, environment, environment_version, created, v.name AS releasename FROM ".CDBT_REPORTS." t LEFT JOIN ".CDBT_VERTAGS." v ON v.revision=t.revision WHERE version_id = :version_id AND t.visible IS TRUE AND t.disabled IS FALSE ORDER BY t.revision DESC, created DESC");
+      $stmt=CDBConnection::getInstance()->prepare("SELECT t.id, user_id, t.revision, works,t.comment_id, environment, environment_version, created, v.name AS releasename FROM ".CDBT_REPORTS." t LEFT JOIN ".CDBT_VERTAGS." v ON v.revision=t.revision WHERE version_id = :version_id AND t.visible IS TRUE AND t.disabled IS FALSE ORDER BY t.revision DESC, created DESC");
     }
     $stmt->bindParam('version_id', $_GET['id'],PDO::PARAM_INT);
     $stmt->execute();
     $tests = $stmt->fetchAll(PDO::FETCH_ASSOC);
- 
-    echo '<div id="entryMain">';
 
       if (count($tests) > 0) {
         echo '
@@ -296,9 +443,11 @@ class HTML_Version extends HTML
               <tr>
                 <th>&nbsp;</th>
                 <th>Revision</th>
+                <th>&nbsp;</th>
                 <th>Environment</th>
                 <th>User</th>
                 <th>Date</th>
+                <th>&nbsp;</th>
               </tr>
             </thead>
             <tbody>';
@@ -306,9 +455,14 @@ class HTML_Version extends HTML
         $x=0;
         foreach ($tests as $test) {
           echo '
-            <tr class="row'.($x%2+1).'" id="tr'.$x.'">
+            <tr class="row'.($x%2+1).'" onmouseover="highlightTableRow(this);">
               <td class="first '.($test['works'] == 'full' ? 'stable' : ($test['works'] == 'part' ? 'unstable' : 'crash')).'">&nbsp;</td>
               <td>'.($test['releasename'] != '' ? $test['releasename'] : $test['revision']).'</td>
+              <td>';
+            if ($test['comment_id'] > 0) {
+              echo '<a href="'.$this->buildLink(self::MAIN_COMMENTS, null).'#comm'.$test['comment_id'].'">see comment</a>';
+            }
+            echo '</td>
               <td>';
           
           // is there a environment
@@ -349,6 +503,7 @@ class HTML_Version extends HTML
               </td>
               <td>'.CUser::getName($test['user_id']).'</td>
               <td>'.$test['created'].'</td>
+              <td>'.(Setting::hasRight('delete_tests') ? '<a href="'.$this->buildLink(null, null).'&amp;deleteReport='.$test['id'].'">delete</a>' : '').'</td>
             </tr>';
             
           $x++;
@@ -363,8 +518,7 @@ class HTML_Version extends HTML
       }
     
     echo '
-        <a href="?show=submit&amp;version='.rawurlencode($_GET['id']).'">Submit Test</a>
-      </div>';
+        <a href="?show=submit&amp;version='.rawurlencode($_GET['id']).'">Submit Test</a>';
   } // end of member function mainScreenshots
 
 
@@ -403,9 +557,7 @@ class HTML_Version extends HTML
     $stmt->bindParam('entry_id',$this->entry_id,PDO::PARAM_INT);
     $stmt->execute();
     $bugs = $stmt->fetchAll(PDO::FETCH_ASSOC);
- 
-    echo '<div id="entryMain">';
-    
+
     // show input to link bugs
     if (isset($_REQUEST['link']) && $RSDB_intern_user_id > 0) {
       echo '
@@ -433,8 +585,7 @@ class HTML_Version extends HTML
     echo '
       <br />
         <a href="http://www.reactos.org/wiki/File_Bugs">Submit new Bug</a> | 
-        '.($RSDB_intern_user_id > 0 ? '<a href="?show=version&amp;id='.$_GET['id'].'&amp;view=pref&amp;pside='.$this->side.'&amp;pmain='.self::MAIN_BUGS.'&amp;link=true">Link to existing bug</a>' : '').'
-      </div>';
+        '.($RSDB_intern_user_id > 0 ? '<a href="'.$this->buildLink(self::MAIN_BUGS, null).'&amp;link=true">Link to existing bug</a>' : '');
   } // end of member function mainScreenshots
   
   
@@ -454,13 +605,26 @@ class HTML_Version extends HTML
     $stmt->execute();
     $version = $stmt->fetchOnce(PDO::FETCH_ASSOC);
 
+    $revision_type = Setting::getPreference('revision_type');
+  
+    if (!empty($revision_type)) {
+      if ($revision_type == 'trunk') {
+        $not = '';
+      }
+      else {
+        $not = 'NOT';
+      }
+    
+      $stmt=CDBConnection::getInstance()->prepare("SELECT r.revision, v.name FROM ".CDBT_REPORTS." r LEFT JOIN ".CDBT_VERTAGS." v ON r.revision=v.revision WHERE r.entry_id=:entry_id AND v.revision IS ".$not." NULL AND works IS TRUE ORDER BY v.revision DESC");
+    }
+    else {
       $stmt=CDBConnection::getInstance()->prepare("SELECT r.revision, v.name FROM ".CDBT_REPORTS." r LEFT JOIN ".CDBT_VERTAGS." v ON r.revision=v.revision WHERE r.entry_id=:entry_id AND works IS TRUE ORDER BY v.revision DESC");
-      $stmt->bindParam('entry_id',$entry['id'],PDO::PARAM_INT);
-      $stmt->execute();
-      $report = $stmt->fetchOnce(PDO::FETCH_ASSOC);
+    }
+    $stmt->bindParam('entry_id',$entry['id'],PDO::PARAM_INT);
+    $stmt->execute();
+    $report = $stmt->fetchOnce(PDO::FETCH_ASSOC);
 
-
-      echo '    
+    echo '
       <h2>'.htmlspecialchars($entry['name']).' '.htmlspecialchars($version['version']).'</h2>
       <div id="entryDetails">
         <ul>
@@ -491,40 +655,6 @@ class HTML_Version extends HTML
 
 
 
-  private function tabNavigation()
-  {
-    echo '
-      <ul class="entryNavigation">
-        <li'.($this->main == self::MAIN_COMMENTS ? ' class="active"><span>Comments</span>' : '><a href="?show=version&amp;id='.$_GET['id'].'&amp;view=pref&amp;pside='.$this->side.'&amp;pmain='.self::MAIN_COMMENTS.'">Comments</a>').'</li>
-        <li'.($this->main == self::MAIN_TESTS ? ' class="active"><span>Tests</span>' : '><a href="?show=version&amp;id='.$_GET['id'].'&amp;view=pref&amp;pside='.$this->side.'&amp;pmain='.self::MAIN_TESTS.'">Tests</a>').'</li>
-        <li'.($this->main == self::MAIN_BUGS ? ' class="active"><span>Bugs</span>' : '><a href="?show=version&amp;id='.$_GET['id'].'&amp;view=pref&amp;pside='.$this->side.'&amp;pmain='.self::MAIN_BUGS.'">Bugs</a>').'</li>';
-    if ($this->entry_type == 'App') {
-      echo '<li'.($this->main == self::MAIN_SCREENSHOTS ? ' class="active"><span>Screenshots</span>' : '><a href="?show=version&amp;id='.$_GET['id'].'&amp;view=pref&amp;pside='.$this->side.'&amp;pmain='.self::MAIN_SCREENSHOTS.'">Screenshots</a>').'</li>';
-    }
-    echo '
-      </ul>';
-  } // end of member function screenshotShort
-  
-  
-  
-  private function tabSideNavigation()
-  {
-    echo '
-      <ul class="entryNavigation">';
-    
-    if ($this->entry_type == 'App') {
-      echo '
-        <li'.($this->side == self::SIDE_SCREENSHOTS ? ' class="active"><span>Screenshots</span>' : '><a href="?show=version&amp;id='.$_GET['id'].'&amp;view=pref&amp;pmain='.$this->main.'&amp;pside='.self::SIDE_SCREENSHOTS.'">Screenshots</a>').'</li>';
-    }
-    echo '
-        <li'.($this->side == self::SIDE_STATS ? ' class="active"><span>Statistics</span>' : '><a href="?show=version&amp;id='.$_GET['id'].'&amp;view=pref&amp;pmain='.$this->main.'&amp;pside='.self::SIDE_STATS.'">Statistics</a>').'</li>
-      </ul>';
-      
-    //         <li'.($this->side == self::SIDE_TESTS ? ' class="active"><span>Tests</span>' : '><a href="?show=version&amp;id='.$_GET['id'].'&amp;view=pref&amp;pmain='.$this->main.'&amp;pside='.self::SIDE_TESTS.'">Tests</a>').'</li>
-  } // end of member function screenshotShort
-
-
-
   private function sideScreenshots()
   {
     // hide from non app entries
@@ -536,13 +666,11 @@ class HTML_Version extends HTML
       $stmt->execute();
       $screenshots = $stmt->fetchAll(PDO::FETCH_ASSOC);
    
-      echo '
-        <div id="sideContent">';
       if (count($screenshots) > 0) {
         foreach ($screenshots as $screenshot) {
           echo '
           <div class="screenshot">
-            <a href="?show=version&amp;id='.$_GET['id'].'&amp;view=pref&amp;pside='.$this->side.'&amp;pmain='.self::MAIN_SCREENSHOTS.'&amp;scrid='.$screenshot['id'].'">
+            <a href="'.$this->buildLink(self::MAIN_SCREENSHOTS, null).'&amp;scrid='.$screenshot['id'].'">
               <img src="'.$CDB_upload_path_web.'th/'.$screenshot['file'].'" alt="screenshot" title="'.htmlspecialchars($screenshot['description']).'" />
             </a>
           </div>';
@@ -551,32 +679,11 @@ class HTML_Version extends HTML
       else {
         echo 'No screenshots uploaded yet.<br />
           <br />
-          <a href="?show=version&amp;id='.$_GET['id'].'&amp;view=pref&amp;pside='.$this->side.'&amp;pmain='.self::MAIN_SCREENSHOTS.'">Submit new screenshot</a>';
+          <a href='.$this->buildLink(self::MAIN_SCREENSHOTS, null).'">Submit new screenshot</a>';
       }
-      
-      echo '
-        </div>';
     }
   } // end of member function sideScreenshots
 
-
-
-  private function sideTests()
-  {
-    echo '<div id="sideContent">';
-    if (isset($reports) && count($reports) > 0) {
-      echo '
-        <div>
-          <ul>';
-      foreach($reports as $report) {
-        echo '<li>'.($report['works'] ? 'works' : 'doesn\'t').' &mdash; r'.$report['revision'].'</li>';
-      }
-      echo '
-          </ul>
-        </div>';
-    }
-    echo '</div>';
-  } // end of member function sideTests
 
 
 
@@ -606,7 +713,7 @@ class HTML_Version extends HTML
     $stmt=CDBConnection::getInstance()->prepare("SELECT COUNT(*) FROM bugs.bugs WHERE short_desc LIKE :entry_name OR bug_id IN(SELECT bug_id FROM ".CDBT_BUGS." WHERE entry_id=:entry_id)");
     $stmt->bindValue('entry_name', '%'.$entry_name.'%', PDO::PARAM_STR);
     $stmt->bindParam('entry_id',$this->entry_id,PDO::PARAM_INT);
-    $stmt->execute();
+    @$stmt->execute();
     $stat['Related bugs'] = $stmt->fetchColumn();
 
     if ($this->entry_type == 'App') {
@@ -618,7 +725,6 @@ class HTML_Version extends HTML
     }
 
     echo '
-      <div id="sideContent" class="statistics">
         <ul>';
 
     // output stats
@@ -630,8 +736,7 @@ class HTML_Version extends HTML
         </li>';
     }
     echo '
-        </ul>
-      </div>';
+        </ul>';
   } // end of member function sideTests
 
 

@@ -48,6 +48,11 @@ switch (@$_GET['show']) {
           new List_Filter(@$_GET['part']);
           break;
 
+        // Query listing
+        case 'querylist':
+          new List_Query(@$_GET['query']);
+          break;
+
       } // end switch get
       break;
     }
@@ -56,9 +61,14 @@ switch (@$_GET['show']) {
     new HTML_Home();
     break;
 
-  // RSDB About Page
+  // preferences
   case 'preferences': 
     new HTML_Preferences();
+    break;
+
+  // Administration
+  case 'administration': 
+    new HTML_Administration();
     break;
 
   // RSDB About Page
@@ -75,18 +85,18 @@ switch (@$_GET['show']) {
   case 'list': 
     $filter = '';
     if (isset($_GET['letter']) && $_GET['letter'] != '*') {
-      $filter .= 'n_s_'.$_GET['letter'].'|a_is_rosversion';
+      $filter .= 'n_s_'.$_GET['letter'].'|a_is_rosversion|o_asc_name';
     }
     elseif (isset($_GET['letter']) && $_GET['letter'] == '*') {
-      $filter .= 'a_is_category|a_is_rosversion';
+      $filter .= 'a_is_category|a_is_rosversion|o_asc_name';
     }
     if (isset($_GET['cat'])) {
       if ($filter !== '') $filter .= '|';
-      $filter .= 'c_is_'.$_GET['cat'].'|a_is_rosversion';
+      $filter .= 'c_is_'.$_GET['cat'].'|a_is_rosversion|o_asc_name';
     }
     if (isset($_GET['tag']) && $_GET['tag'] != '*') {
       if ($filter !== '') $filter .= '|';
-      $filter .= 't_is_'.$_GET['tag'].'|a_is_rosversion';
+      $filter .= 't_is_'.$_GET['tag'].'|a_is_rosversion|o_asc_name';
     }
     if (isset($_GET['filter']) && $_GET['filter'] == 'custom') {
       $filter = HTML_List::formToFilter();

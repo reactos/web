@@ -54,10 +54,10 @@ class HTML_Entry extends HTML
           $not = "NOT";
         }
       
-        $stmt=CDBConnection::getInstance()->prepare("SELECT v.id, version, v.created, works, IF(o.name IS NULL, CONCAT('r',r.revision),o.name) AS rosversion FROM ".CDBT_VERSIONS." v JOIN ".CDBT_REPORTS." r ON r.version_id=v.id LEFT JOIN ".CDBT_VERTAGS." o ON o.revision=r.revision WHERE v.entry_id=:entry_id AND o.revision IS ".$not." NULL AND r.id=(SELECT id FROM ".CDBT_REPORTS." WHERE entry_id=v.entry_id ORDER BY created DESC LIMIT 1) ORDER BY version");
+        $stmt=CDBConnection::getInstance()->prepare("SELECT v.id, version, v.created, works, IF(o.name IS NULL, CONCAT('r',r.revision),o.name) AS rosversion FROM ".CDBT_VERSIONS." v JOIN ".CDBT_REPORTS." r ON r.version_id=v.id LEFT JOIN ".CDBT_VERTAGS." o ON o.revision=r.revision WHERE v.entry_id=:entry_id AND o.revision IS ".$not." NULL AND r.id=(SELECT id FROM ".CDBT_REPORTS." WHERE version_id=v.id ORDER BY created DESC LIMIT 1) ORDER BY version");
       }
       else {
-        $stmt=CDBConnection::getInstance()->prepare("SELECT v.id, version, v.created, works, IF(o.name IS NULL, CONCAT('r',r.revision),o.name) AS rosversion FROM ".CDBT_VERSIONS." v JOIN ".CDBT_REPORTS." r ON r.version_id=v.id LEFT JOIN ".CDBT_VERTAGS." o ON o.revision=r.revision WHERE v.entry_id=:entry_id AND r.id=(SELECT id FROM ".CDBT_REPORTS." WHERE entry_id=v.entry_id ORDER BY created DESC LIMIT 1) ORDER BY version");
+        $stmt=CDBConnection::getInstance()->prepare("SELECT v.id, version, v.created, works, IF(o.name IS NULL, CONCAT('r',r.revision),o.name) AS rosversion FROM ".CDBT_VERSIONS." v JOIN ".CDBT_REPORTS." r ON r.version_id=v.id LEFT JOIN ".CDBT_VERTAGS." o ON o.revision=r.revision WHERE v.entry_id=:entry_id AND r.id=(SELECT id FROM ".CDBT_REPORTS." WHERE version_id=v.id ORDER BY created DESC LIMIT 1) ORDER BY version");
       }
       $stmt->bindParam('entry_id',$entry['id'],PDO::PARAM_INT);
       $stmt->execute();

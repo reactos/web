@@ -35,6 +35,14 @@ class CUser
   } // end of member function getName
 
 
+  // Get the user id from the RosCMS user table
+  public static function getByName($user_name) { 
+
+    require_once(ROSCMS_PATH.'lib/RosCMS_Autoloader.class.php');
+    return Subsystem::searchUserByName($user_name);
+  } // end of member function getName
+
+
 
   // Check if the user is an developer, admin or super admin
   public static function isAdmin($user_id) { 
