@@ -39,9 +39,26 @@ class Subsystem extends Login
   public static function getUserName( $user_id )
   {
     $stmt=&DBConnection::getInstance()->prepare("SELECT name FROM ".ROSCMST_USERS." WHERE id = :user_id");
-    $stmt->bindParam('user_id',$user_id,PDO::PARAM_STR);
+    $stmt->bindParam('user_id',$user_id,PDO::PARAM_INT);
     $stmt->execute();
     return $stmt->fetchColumn();
+  } // end of member function getUserName
+
+
+
+  /**
+   * returns the roscms user id
+   *
+   * @param int id user_name
+   * @return string
+   * @access public
+   */
+  public static function searchUserByName( $user_name )
+  {
+    $stmt=&DBConnection::getInstance()->prepare("SELECT id, name FROM ".ROSCMST_USERS." WHERE LOWER(name) LIKE LOWER(:user_name)");
+    $stmt->bindParam('user_name',$user_name,PDO::PARAM_STR);
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
   } // end of member function getUserName
 
 
