@@ -92,7 +92,7 @@ abstract class HTML
       <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
       <html lang="EN">
         <head>
-          <title>ReactOS '.$this->title.'</title>
+          <title>ReactOS compatablity database'.$this->title.'</title>
           <base href="'.$RSDB_intern_path_server.'" />
           <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
           <meta http-equiv="Pragma" content="no-cache" />
