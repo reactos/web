@@ -43,6 +43,8 @@
   border: 1px solid #D75700;
   margin-right: 10px;
 }
+#submit INPUT[type="radio"] { border: none; }
+
 #submit INPUT.normal {
   margin-right: 0px;
 }
@@ -111,6 +113,8 @@ DIV.crash, TD.crash { background-color: #FF9978;}
 /**/
 #entryMain { clear: both; border-top: 1px solid #7BA6E5; padding: 3px; }
 #entryMain #buglist .bugNumber { margin-right: 10px; }
+#entryMain .screenshot { float: left; margin:10px; }
+#entryMain .screenshot IMG {max-height: 100px; height:  auto !important; height: 100px; }
 
 #query LI { list-style-type: none; }
 #query UL { padding: 0px; margin: 0px; }

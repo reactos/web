@@ -390,15 +390,41 @@ class HTML_Version extends HTML
           echo 'To add screenshots, you need to login with your RosCMS account.<hr />';
         }
 
+        // own screenshots
         if (count($screenshots) > 0) {
           foreach ($screenshots as $screenshot) {
-          echo '
-            <div class="screenshot">
-              <a href="'.$this->buildLink(self::MAIN_SCREENSHOTS, null).'&amp;scrid='.$screenshot['id'].'">
-                <img src="'.$CDB_upload_path_web.'th/'.$screenshot['file'].'" alt="screenshot" title="'.htmlspecialchars($screenshot['description']).'" />
-              </a>
-            </div>';
-          }
+            echo '
+              <div class="screenshot">
+                <a href="'.$this->buildLink(self::MAIN_SCREENSHOTS, null).'&amp;scrid='.$screenshot['id'].'">
+                  <img src="'.$CDB_upload_path_web.'th/'.$screenshot['file'].'" alt="screenshot" title="'.htmlspecialchars($screenshot['description']).'" />
+                </a>
+              </div>';
+          } // end foreach
+        }
+        
+  
+        // we need entry name to search in bugzilla
+        $stmt=CDBConnection::getInstance()->prepare("SELECT name FROM ".CDBT_ENTRIES." WHERE id=:entry_id");
+        $stmt->bindParam('entry_id',$this->entry_id,PDO::PARAM_INT);
+        $stmt->execute();
+        $entry_name=$stmt->fetchColumn();
+
+        // bugzilla screenshots
+        $stmt=CDBConnection::getInstance()->prepare("SELECT DISTINCT a.attach_id, a.filename, a.description FROM bugs.bugs b JOIN bugs.attachments a ON a.bug_id=b.bug_id WHERE (short_desc LIKE :entry_name OR a.bug_id IN(SELECT bug_id FROM ".CDBT_BUGS." WHERE entry_id=:entry_id) OR a.description LIKE :entry_name) AND a.mimetype LIKE 'image/%' AND a.isprivate IS FALSE AND a.isobsolete IS FALSE ORDER BY a.creation_ts DESC");
+        $stmt->bindValue('entry_name', '%'.$entry_name.'%', PDO::PARAM_STR);
+        $stmt->bindParam('entry_id',$this->entry_id,PDO::PARAM_INT);
+        $stmt->execute();
+        $from_bugs = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        if (count($from_bugs) > 0) {
+          echo '<h2 style="clear: both;margin: 20px 0px 0px 0px;">From Bugzilla</h2>';
+          foreach ($from_bugs as $screenshot) {
+            echo '
+              <div class="screenshot">
+                <a href="http://www.reactos.org/bugzilla/attachment.cgi?id='.$screenshot['attach_id'].'">
+                  <img src="http://www.reactos.org/bugzilla/attachment.cgi?id='.$screenshot['attach_id'].'" alt="bugzilla screenshot" title="'.htmlspecialchars($screenshot['description']).'" />
+                </a>
+              </div>';
+          } // end foreach
         }
       }
     }
