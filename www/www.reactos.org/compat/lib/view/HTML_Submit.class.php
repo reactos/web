@@ -21,48 +21,45 @@
 class HTML_Submit extends HTML
 {
 
+  private $submit_error = false;
+  private $submit_msg = null;
+
 
   public function __construct( )
   {
     global $RSDB_intern_user_id;
 
+
+    $this->register_js('submit.js');
+    $this->register_js('compat.js');
+
     // check if user is logged in
     $RSDB_intern_user_id = Subsystem::in(Login::REQUIRED, $_SERVER["REQUEST_URI"]);
 
-    $this->register_js('submit.js');
-  
-    parent::__construct();
-  }
-
-
-  protected function build( )
-  {
+    // was a new entry submitted
     if (isset($_REQUEST['submit']) && $_REQUEST['submit'] == 'yes') {
-      $this->submit();
+      $this->submit_error = !$this->submit();
     }
 
-    if (isset($_POST['next']) && $_POST['next'] == 'entry') {
-      $entry_id = Entry::getEntryId($_POST['type'], $_POST['title']);
+    // check next action for adding new entry
+    if ($this->submit_error && isset($_POST['next']) && $_POST['next'] == 'entry') {
+      $entry_id = Entry::getEntryId($_POST['cat'], $_POST['title']);
       $version_id = Entry::getVersionId($entry_id, $_POST['version']);
       if ($entry_id !== false && $version_id !== false) {
         header('location: ?show=version&id='.$version_id);
       }
-      exit;
     }
-    elseif (isset($_POST['next']) && $_POST['next'] == 'bug') {
-      $entry_id = Entry::getEntryId($_POST['type'], $_POST['title']);
+
+    // checking next action for adding bug report
+    elseif ($this->submit_error && isset($_POST['next']) && $_POST['next'] == 'bug') {
+      $entry_id = Entry::getEntryId($_POST['cat'], $_POST['title']);
       $version_id = Entry::getVersionId($entry_id, $_POST['version']);
       if ($entry_id !== false && $version_id !== false) {
-        header('location: http://www.reactos.org/bugzilla/enter_bug.cgi?product=ReactOS');
+        header('location: http://www.reactos.org/wiki/File_Bugs');
       }
-      exit;
     }
-    
-    
-    $this->header();
-    $this->navigation();
-    $this->body();
-    $this->footer();
+
+    parent::__construct();
   }
 
 
@@ -70,60 +67,86 @@ class HTML_Submit extends HTML
   {
     // get used revision number
     if ($_POST['ver'] == 'R') {
+      // for trunk revisions
       $revision = $_POST['rev'];
     }
     else {
+      // for available release versions
       $revision = $_POST['ver'];
     }
-    
-    if (!preg_match('/^\d+$/',$revision)) {
-      echo 'No valid Revision. A valid revision only consists of digits.';
+
+    // check if revision is valid number
+    if (!preg_match('/^[1-9][0-9]*$/',$revision)) {
+      $this->submit_msg = 'No valid Revision. A valid revision only consists of digits.';
       return false;
     }
 
-    // try to insert a new entry
-    if (isset($_POST['title']) && $_POST['title'] != '' && isset($_POST['tags']) && isset($_POST['cat']) && isset($_POST['description']) && isset($_POST['version']) && $_POST['version'] != '') {
-      $ids = Entry::add($_POST['type'], $_POST['title'], $_POST['version'], $_POST['cat'], $_POST['description'], $_POST['tags']);
+    // try to insert/update a new entry
+    if (empty($_POST['title'])) {
+      $this->submit_msg = 'You need to enter a valid name.';
+      return false;
+    }
 
-      // got no error
-      if ($ids !== false) {
-        $entry_id = $ids['entry'];
-        $version_id = $ids['version'];
-      }
+    if (empty($_POST['version'])) {
+      $this->submit_msg = 'You need to enter a valid version name.';
+      return false;
     }
     
-    if (!isset($entry_id)) {
-      $entry_id = Entry::getEntryId($_POST['type'], $_POST['title']);
-      if ($entry_id !== false) {
-        $version_id = Entry::getVersionId($entry_id, $_POST['version']);
-      }
+    if (empty($_POST['cat'])) {
+      $this->submit_msg = 'You need to enter a valid category.';
+      return false;
     }
 
-    // insert new report/comment
-    if ($entry_id !== false && $version_id !== false) {
+    $ids = Entry::add($_POST['title'], $_POST['version'], $_POST['cat'], $_POST['description'], $_POST['tags']);
 
-      // insert new comment
-      if (isset($_POST['comment']) && $_POST['comment'] != '') {
-        $comment_id = Entry::addComment($entry_id, 'test of r'.$revision, $_POST['comment']);
+    // got no error
+    if ($ids !== false) {
+      $entry_id = $ids['entry'];
+      $version_id = $ids['version'];
+    }
+
+    // we need an entry and version id
+    if (empty($entry_id)) {
+      $entry_id = Entry::getEntryId($_POST['cat'], $_POST['title']);
+    }
+    if (empty($version_id)) {
+      $version_id = Entry::getVersionId($entry_id, $_POST['version']);
+    }
+
+    // check if we have an existing entry now
+    if ($entry_id === false) {
+      $this->submit_msg = 'No entry was found/could be added.';
+      return false;
+    }
+    if ($version_id === false) {
+      $this->submit_msg = 'No entry version was found/could be added.';
+      return false;
+    }
+
+    // insert new comment
+    if (isset($_POST['comment']) && $_POST['comment'] != '') {
+      $comment_id = Entry::addComment($entry_id, 'test of r'.$revision, $_POST['comment']);
+    }
+    else {
+      $comment_id = 0;
+    }
+
+    // new report
+    if (isset($_POST['status']) && ($_POST['status'] == 'full' || $_POST['status'] == 'part' ||$_POST['status'] == 'not')) {
+      if ($_POST['env'] == 'RH') {
+        $env = 'RH';
+        $env_ver = $_POST['vmver'];
       }
       else {
-        $comment_id = 0;
+        $env = $_POST['vm'];
+        $env_ver = $_POST['vmver'];
       }
 
-      // new report
-      if (isset($_POST['status']) && ($_POST['status'] == 'full' || $_POST['status'] == 'part' ||$_POST['status'] == 'not')) {
-        if ($_POST['env'] == 'RH') {
-          $env = 'RH';
-          $env_ver = $_POST['vmver'];
-        }
-        else {
-          $env = $_POST['vm'];
-          $env_ver = $_POST['vmver'];
-        }
-        
-        Entry::addReport($entry_id, $version_id, $comment_id, $revision, $env, $env_ver, $_POST['status']);
-      }
+      Entry::addReport($entry_id, $version_id, $comment_id, $revision, $env, $env_ver, $_POST['status']);
     }
+
+    $this->submit_msg = 'Submit was successful.';
+    return true;
   } // end of member function submit
 
 
@@ -131,10 +154,11 @@ class HTML_Submit extends HTML
   protected function body( )
   {
     $used_again = (isset($_POST['next']) && $_POST['next']=='again');
-    
-    // preselect step 1
+
+
+    // preselect entry (usually for new test report) step 1
     if (isset($_GET['version']) && $_GET['version'] > 0) {
-      $stmt=CDBConnection::getInstance()->prepare("SELECT e.id, e.type, e.name, v.version, e.category_id, e.description FROM ".CDBT_ENTRIES." e JOIN ".CDBT_VERSIONS." v ON v.entry_id=e.id  WHERE v.id=:version_id");
+      $stmt=CDBConnection::getInstance()->prepare("SELECT e.id, e.name, v.version, e.category_id, e.description, '' AS outcome FROM ".CDBT_ENTRIES." e JOIN ".CDBT_VERSIONS." v ON v.entry_id=e.id  WHERE v.id=:version_id");
       $stmt->bindParam('version_id',$_GET['version'],PDO::PARAM_INT);
       $stmt->execute();
       $entry = $stmt->fetchOnce(PDO::FETCH_ASSOC);
@@ -142,7 +166,6 @@ class HTML_Submit extends HTML
       // get tags
       if ($entry !== false) {
         $entry['tags'] = '';
-        
         $stmt=CDBConnection::getInstance()->prepare("SELECT name FROM ".CDBT_TAGS." t JOIN ".CDBT_TAGGED." r ON t.id=r.tag_id WHERE r.entry_id=:entry_id");
         $stmt->bindParam('entry_id',$entry['id'],PDO::PARAM_INT);
         $stmt->execute();
@@ -152,28 +175,49 @@ class HTML_Submit extends HTML
         }
       }
     }
-    
+
     // no preselection, provide standard values
     if (empty($entry)) {
       $entry = array(
-        'type' => '',
         'name' => '',
         'version' => '',
-        'category_id' => 0,
+        'category_id' => null,
         'description' => '',
-        'tags' => '');
+        'tags' => '',
+        'outcome' => '');
     }
+
+    if ($this->submit_error) {
+      $used_again = true;
+      $entry = array(
+        'name' => $_POST['title'],
+        'version' => $_POST['version'],
+        'category_id' => $_POST['cat'],
+        'description' => $_POST['description'],
+        'tags' => $_POST['tags'],
+        'outcome' => (isset($_POST['status']) ? $_POST['status'] : ''));
+    }
+
+    // set error fields
+    $error_title = empty($_POST['title']) && $this->submit_error;
+    $error_version = empty($_POST['version']) && $this->submit_error;
+    $error_cat = empty($_POST['cat']) && $this->submit_error;
+    $error_release = !empty($_POST['status']) && empty($_POST['ver']) && $this->submit_error;
+    $error_trunk = !empty($_POST['status']) && empty($_POST['rev']) && isset($_POST['ver']) && $_POST['ver'] === 'R' && $this->submit_error;
 
     // preferences
     $revision_type = Setting::getPreference('revision_type');
 
+    // get reusable values
     if ($used_again) {
       $tested_version = $_POST['ver'];
       $tested_vm = $_POST['vm'];
       $tested_env = $_POST['env'];
       $tested_env_details = $_POST['vmver'];
-      $tested_rev = $_POST['revision'];
+      $tested_rev = $_POST['rev'];
     }
+    
+    // form is not reused, for get preferences as standard values
     else {
       if ($revision_type == 'trunk') {
         $tested_version = 'R';
@@ -187,47 +231,43 @@ class HTML_Submit extends HTML
       $tested_env_details = Setting::getPreference('environment_details');
       $tested_rev = '';
     }
-  
+
     echo '
-      <form id="submit" action="?show=submit&amp;submit=yes" method="post" style="width: 700px;">
-        <div>
+      <form id="submit" action="?show=submit&amp;submit=yes" method="post" style="width: 700px;">';
+
+    // print message if 
+    if ($this->submit_msg !== null) {
+      echo '<div class="'.($this->submit_error ? 'error' : 'success').'">'.htmlspecialchars($this->submit_msg).'</div>';
+    }
+
+    echo '
+        <div style="padding-bottom:10px;">
           <h1 class="left">Step 1</h1><h1>&nbsp;Tested software</h1>
           <ul>
-            <li style="float: left;">
-              <label for="type">Type:</label><br />
-              <select name="type" id="type">
-                <option value="app"'.($entry['type'] == 'App' ? ' selected="selected"' : '').'>Application</option>
-                <option value="dll"'.($entry['type'] == 'DLL' ? ' selected="selected"' : '').'>DLL-Library</option>
-                <option value="drv"'.($entry['type'] == 'Drv' ? ' selected="selected"' : '').'>Driver</option>
-                <option value="oth"'.($entry['type'] == 'Oth' ? ' selected="selected"' : '').'>Other</option>
-              </select>
-            </li>
 
             <li style="float: left;">
-              <label for="title">Name:</label><br />
+              <label for="title"'.($error_title ? ' class="error"' : '').'>Name:</label><br />
               <input type="text" name="title" id="title" onkeyup="'."suggestName(this.value);".'" maxlength="100" value="'.htmlspecialchars($entry['name']).'"/>
               <div class="suggestion" id="suggestedNames" style="display:none;"></div>
             </li>
-
             <li style="float: left;">
-              <label for="version">Version:</label><br />
+              <label for="version"'.($error_version ? ' class="error"' : '').'>Version:</label><br />
               <input type="text" name="version" id="version" style="width: 50%;" maxlength="20" value="'.htmlspecialchars($entry['version']).'" />
               <div class="suggestion" id="suggestedVersions" style="display:none;"></div>
             </li>
-
-            <li style="clear: both;float: left;">
-              <label for="cat">Category:</label><br />
+            <li style="float: left;">
+              <label for="cat"'.($error_cat ? ' class="error"' : '').'>Category:</label><br />
               <select name="cat" id="cat" style="width: 200px;">
                 <option value="0">&nbsp;</option>
                 '.Category::showTreeAsOption($entry['category_id']).'
               </select>
             </li>
-            <li style="float:left;">
-              <label for="description">Short Description:</label><br />
-              <input type="text" name="description" id="description" value="'.htmlspecialchars($entry['description']).'" />
-            </li>
 
-            <li style="clear: both;">
+            <li style="clear: both;float:left;">
+              <label for="description">Short Description:</label><br />
+              <input type="text" style="width:350px;" name="description" id="description" value="'.htmlspecialchars($entry['description']).'" />
+            </li>
+            <li style="float: left;">
               <label for="tags">Tags: (e.g. vendor)</label><br />
               <input type="text" name="tags" id="tags" value="'.htmlspecialchars($entry['tags']).'" /> (seperate them by <em>,</em>)
             </li>
@@ -241,18 +281,18 @@ class HTML_Submit extends HTML
           <ul style="float:left;margin-right: 20px;">
             <li>
               <span class="label">Outcome:</span><br />
-              <input type="radio" class="normal" name="status" id="works" value="full" onchange="'."javascript:document.getElementById('bugreport').style.display=(this.checked ? 'none' : 'block' );".'" />
+              <input type="radio" class="normal" name="status" id="works" value="full"'.($entry['outcome']=='full' ? ' checked="checked"':'').' onchange="'."javascript:document.getElementById('bugreport').style.display=(this.checked ? 'none' : 'block' );".'" />
               <label for="works" class="stable">Running Stable</label>
               
-              <input type="radio" class="normal pworks" name="status" id="partworks" value="part" onchange="'."javascript:document.getElementById('bugreport').style.display=(this.checked ? 'block' : 'none' );".'" />
+              <input type="radio" class="normal pworks" name="status" id="partworks" value="part"'.($entry['outcome']=='part' ? ' checked="checked"':'').' onchange="'."javascript:document.getElementById('bugreport').style.display=(this.checked ? 'block' : 'none' );".'" />
               <label for="partworks" class="unstable">Minor Problems</label>
               
-              <input type="radio" class="normal crash" name="status" id="noworks" value="not" onchange="'."javascript:document.getElementById('bugreport').style.display=(this.checked ? 'block' : 'none' );".'" />
+              <input type="radio" class="normal crash" name="status" id="noworks" value="not"'.($entry['outcome']=='not' ? ' checked="checked"':'').' onchange="'."javascript:document.getElementById('bugreport').style.display=(this.checked ? 'block' : 'none' );".'" />
               <label for="noworks" class="crash">Crash</label>
               <br />
               <br />
             </li>
-            <li style="float: left;">
+            <li style="float: left;"'.($error_release ? ' class="error"' : '').'>
               <label for="ver">Tested Version</label><br />
               <select name="ver" id="ver" style="width:150px;" onchange="'."javascript:document.getElementById('directRev').style.display=(this.value=='R' ? 'block' : 'none' );".'">';
 
@@ -277,8 +317,8 @@ class HTML_Submit extends HTML
               </select>
             </li>
 
-            <li id="directRev" style="float:left;display:'.($revision_type == 'trunk' ? 'block' : 'none').';">
-              <label for="rev">Revision:</label><br />
+            <li id="directRev" style="float:left;display:'.($tested_version == 'R' ? 'block' : 'none').';">
+              <label for="rev"'.($error_trunk ? ' class="error"' : '').'>Revision:</label><br />
               <input type="text" name="rev" id="rev" maxlength="6" value="'.$tested_rev.'" />
             </li>
           </ul>
@@ -318,18 +358,15 @@ class HTML_Submit extends HTML
             </li>
             <li>
               <span class="label">Next action:</span><br />
-              <input type="radio" class="normal" name="next" id="again" value="again" '.($used_again ? 'checked="checked"' : '').' />
+              <input type="radio" class="normal" name="next" id="again" value="again" '.($used_again && !($entry['outcome'] == 'part' || $entry['outcome'] == 'not') ? 'checked="checked"' : '').' />
               <label for="again" class="normal">Insert another entry/report</label>
               <br />
-<!--          <input type="radio" class="normal" name="next" id="more" value="more"  />
-              <label for="more" class="normal">Add more information to that entry.</label>
-              <br />-->
               <div id="bugreport">
-                <input type="radio" class="normal" name="next" id="bug" value="bug"  />
+                <input type="radio" class="normal" name="next" id="bug" value="bug" '.(($entry['outcome'] == 'part' || $entry['outcome'] == 'not') ? 'checked="checked"' : '').'  />
                 <label for="bug" class="normal">Fill a bug report</label>
                 <br />
               </div>
-              <input type="radio" class="normal" name="next" id="entry" value="entry" '.(!$used_again ? 'checked="checked"' : '').' />
+              <input type="radio" class="normal" name="next" id="entry" value="entry" '.(!$used_again && !($entry['outcome'] == 'part' || $entry['outcome'] == 'not') ? 'checked="checked"' : '').' />
               <label for="entry" class="normal">Jump to inserted entry/report</label>
             </li>
           </ul>
@@ -338,12 +375,16 @@ class HTML_Submit extends HTML
           <button type="submit">Submit report</button>
         </div>
         <hr style="color: #777;" />
-      </form>
-      <script type="text/javascript">
-      //<!--'."
-        document.getElementById('bugreport').style.display='none';
-      //".'-->
-      </script>';
+      </form>';
+      
+    if ($entry['outcome'] != 'part' && $entry['outcome'] != 'not') {
+      echo '
+        <script type="text/javascript">
+        //<!--'."
+          document.getElementById('bugreport').style.display='none';
+        //".'-->
+        </script>';
+    }
 
     // hide revision field
     if ($tested_version != 'R') {

@@ -1,4 +1,5 @@
 
+
 .rtable THEAD {
   background-color:#5984C3;color:white;border-collapse: collapse;}
 
@@ -63,6 +64,9 @@
 #submit .suggestion LI A:hover {
   cursor: pointer;
 }
+#submit .error {color: red;}
+#submit .error:before {content:'>>';}
+
 
 LABEL.stable { color: #00CC00 !important; }
 LABEL.unstable { color: #FF7800 !important; }

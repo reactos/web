@@ -33,7 +33,7 @@ class Entry
    *
    * @access public
    */
-  public static function add( $type, $name, $version, $category, $description )
+  public static function add( $name, $version, $category, $description )
   {
     // search for existing entry
     $entry = self::get($type, $name);
@@ -46,7 +46,7 @@ class Entry
         echo 'Error: Invalid category';
         return false;
       }
-      
+
       // check type
       if ($type != 'app' && $type != 'dll' && $type != 'drv' && $type != 'oth') {
         echo 'Error: Invalid type';
@@ -54,7 +54,7 @@ class Entry
       }
 
       // insert
-      $stmt=CDBConnection::getInstance()->prepare("INSERT INTO ".CDBT_ENTRIES." (type, name, category_id, description, created, modified, visible) VALUES (:type, :name, :category, :description, NOW(), NOW(), TRUE)");
+      $stmt=CDBConnection::getInstance()->prepare("INSERT INTO ".CDBT_ENTRIES." (type, name, category_id, description, created, modified, visible) VALUES ((SELECT type FROM ".CDBT_CATEGORIES." WHERE id=:category_id), :name, :category, :description, NOW(), NOW(), TRUE)");
       $stmt->bindParam('type',$type,PDO::PARAM_STR);
       $stmt->bindParam('name',$name,PDO::PARAM_STR);
       $stmt->bindParam('category',$category,PDO::PARAM_INT);
@@ -63,7 +63,7 @@ class Entry
         return false;
       }
 
-      $entry = self::get($type, $name);
+      $entry = self::get($category, $name);
     }
 
     // update entry
@@ -241,12 +241,12 @@ class Entry
    *
    * @access public
    */
-  public static function get( $type, $name )
+  public static function get( $category_id, $name )
   {
     // search for existing entry
-    $stmt=CDBConnection::getInstance()->prepare("SELECT id, type, name, description, category_id FROM ".CDBT_ENTRIES." WHERE name LIKE :name AND type = :type LIMIT 1");
+    $stmt=CDBConnection::getInstance()->prepare("SELECT id, type, name, description, category_id FROM ".CDBT_ENTRIES." WHERE name LIKE :name AND type = (SELECT type FROM ".CDBT_CATEGORIES." WHERE id=:category_id) LIMIT 1");
     $stmt->bindParam('name',$name,PDO::PARAM_STR);
-    $stmt->bindParam('type',$type,PDO::PARAM_STR);
+    $stmt->bindParam('category_id',$category_id,PDO::PARAM_INT);
     $stmt->execute();
     return $stmt->fetchOnce(PDO::FETCH_ASSOC);
   } // end of member function add
@@ -258,10 +258,10 @@ class Entry
    *
    * @access public
    */
-  public static function getEntryId( $type, $name )
+  public static function getEntryId( $category_id, $name )
   {
     // search for existing entry
-    $entry = self::get($type, $name);
+    $entry = self::get($category_id, $name);
     if ($entry !== false) {
       return $entry['id'];
     }
