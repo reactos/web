@@ -36,7 +36,7 @@ class Entry
   public static function add( $name, $version, $category, $description )
   {
     // search for existing entry
-    $entry = self::get($type, $name);
+    $entry = self::get($category, $name);
 
     // insert new entry
     if ($entry === false) {
@@ -47,11 +47,11 @@ class Entry
         return false;
       }
 
-      // check type
-      if ($type != 'app' && $type != 'dll' && $type != 'drv' && $type != 'oth') {
-        echo 'Error: Invalid type';
-        return false;
-      }
+      // get type
+      $stmt=CDBConnection::getInstance()->prepare("SELECT type FROM ".CDBT_CATEGORIES." WHERE id=:category_id");
+      $stmt->bindParam('category_id',$category,PDO::PARAM_INT);
+      $stmt->execute();
+      $type=$stmt->fetchColumn();
 
       // insert
       $stmt=CDBConnection::getInstance()->prepare("INSERT INTO ".CDBT_ENTRIES." (type, name, category_id, description, created, modified, visible) VALUES ((SELECT type FROM ".CDBT_CATEGORIES." WHERE id=:category_id), :name, :category, :description, NOW(), NOW(), TRUE)");
@@ -119,7 +119,7 @@ class Entry
     $stmt->bindParam('env',$env,PDO::PARAM_STR);
     $stmt->bindParam('env_ver',$env_version,PDO::PARAM_STR);
     $stmt->bindParam('status',$status,PDO::PARAM_STR);
-    $stmt->bindParam('checked',hasRight('checked_tests'),PDO::PARAM_BOOL);
+    $stmt->bindParam('checked',Setting::hasRight('checked_tests'),PDO::PARAM_BOOL);
     return $stmt->execute();
   } // end of member function addReport
 

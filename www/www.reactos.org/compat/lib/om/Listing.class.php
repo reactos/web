@@ -323,6 +323,9 @@ class Listing
             case 'works':
               $by = 'r.works';
               break;
+            case 'report':
+              $by = 'r.created';
+              break;
             default:
             case 'name':
               $by = 'e.name';
@@ -521,8 +524,9 @@ class Listing
         $input['content'] = array();
         $input['content']['name'] = 'Name';
         $input['content']['creation'] = 'Creation';
-        $input['content']['modified'] = 'Last Modification';
+        $input['content']['modified'] = 'Last modification';
         $input['content']['works'] = 'Latest working status';
+        $input['content']['report'] = 'Last report';
         break;
     } // end switch
     
