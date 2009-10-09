@@ -2,6 +2,7 @@
     /*
     ReactOS DynamicFrontend (RDF)
     Copyright (C) 2008  Klemens Friedl <frik85@reactos.org>
+                  2009  Colin Finck <colin@reactos.org>
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -43,165 +44,139 @@ class HTML_User_Register extends HTML_User
   /**
    *
    *
-   * @access private
+   * @access protected
    */
   protected function body( )
   {
     $config = &RosCMS::getInstance();
-
-    $err_message = ''; // error message box text
-    $name_exists = false; // username already exists in the database (true = username exists)
-    $mail_exists = false; // email already exists in the database (true = email exists)
-    $safename = true; // protected username ("" = not checked; "true" = fine; "false" =  match with a db entry => protected name)
-    $safepwd = true; // unsafe password, common cracked passwords ("" = not checked; "true" = fine; "false" =  match with a db entry => protected name)
+    
+    // Think positively and don't blame the user for not supplying valid registration information if he hasn't supplied them yet :-)
+    $name_ok = true;
+    $password_ok = true;
+    $mail_ok = true;
+    $captcha_ok = true;
 
     echo_strip('
-      <h1>Register to'. $config->siteName().'</h1>
-      <p>Become a member of the '.$config->siteName().' Community, and have a single sign-on for all '.$config->siteName().' web services.</p>
+      <h1>Register to ' . $config->siteName() . '</h1>
+      <p>Become a member of the ' . $config->siteName() . ' Community, and have a single sign-on for all ' . $config->siteName() . ' web services.</p>
       <ul>
-        <li>Already a member? <a href="'.$config->pathInstance().'?page=login">Login now</a>! </li>
-        <li><a href="'.$config->pathInstance().'?page=login&amp;subpage=lost">Lost username or password?</a></li>
+        <li>Already a member? <a href="' . $config->pathInstance() . '?page=login">Login now</a>! </li>
+        <li><a href="' . $config->pathInstance() . '?page=login&amp;subpage=lost">Lost username or password?</a></li>
       </ul>
 
-      <form action="'.$config->pathInstance().'?page=register" method="post">
+      <form action="' . $config->pathInstance() . '?page=register" method="post">
         <div class="bubble">
           <div class="corner_TL">
             <div class="corner_TR"></div>
           </div>');
 
-    if (isset($_POST['registerpost']) && isset($_POST['username']) && preg_match('/^[a-z0-9_\-[:space:]\.]{'.$config->limitUserNameMin().','.$config->limitUsernameMax().'}$/i', trim($_POST['username']))) {
+    if (self::canRegister($name_ok, $password_ok, $mail_ok, $captcha_ok))
+    {
+      // user language (browser settings)
+      $userlang = Language::validate($_SERVER['HTTP_ACCEPT_LANGUAGE']);
 
-      // check if another account with the same username already exists
-      $stmt=&DBConnection::getInstance()->prepare("SELECT name FROM ".ROSCMST_USERS." WHERE LOWER(REPLACE(name, '_', ' ')) = LOWER(REPLACE(:username, '_', ' ')) LIMIT 1");
-      $stmt->bindParam('username',$_POST['username'],PDO::PARAM_STR);
+      // account activation code
+      $code_characters = 'ABCEFHJKLMNPSTUVWXYZabcdefghijkmnopqrsuvwxyz123456789';
+      $code_characters_ubound = strlen($code_characters) - 1;
+      $code_length = rand(10, 15);
+      $code = '';
+      
+      while(--$code_length >= 0)
+        $code .= $code_characters{ rand(0, $code_characters_ubound) };
+
+      // add new account
+      $stmt=&DBConnection::getInstance()->prepare("INSERT INTO ".ROSCMST_USERS." ( name, password, created, activation, email, lang_id, modified ) VALUES ( :user_name, MD5( :password ), NOW(), :activation_code, :email, :lang, NOW() )");
+      $stmt->bindValue('user_name',trim($_POST['username']),PDO::PARAM_STR);
+      $stmt->bindParam('password',$_POST['userpwd1'],PDO::PARAM_STR);
+      $stmt->bindParam('activation_code',$code,PDO::PARAM_STR);
+      $stmt->bindParam('email',$_POST['useremail'],PDO::PARAM_STR);
+      $stmt->bindParam('lang',$userlang,PDO::PARAM_INT);
       $stmt->execute();
-      $name_exists = ($stmt->fetchColumn() !== false);
 
-      // check if the username is equal to a protected name
-      $stmt=&DBConnection::getInstance()->prepare("SELECT 1 FROM ".ROSCMST_FORBIDDEN." WHERE name = :forbidden LIMIT 1");
-      $stmt->bindValue('forbidden','%'.$_POST['username'].'%',PDO::PARAM_STR);
+      $stmt=&DBConnection::getInstance()->prepare("SELECT id FROM ".ROSCMST_USERS." WHERE LOWER(name) = LOWER(:user_name)");
+      $stmt->bindParam('user_name',$_POST['username'],PDO::PARAM_INT);
+      $stmt->execute();
+      $user_id = $stmt->fetchColumn();
+
+      // give a 'user' group membership
+      $stmt=&DBConnection::getInstance()->prepare("INSERT INTO ".ROSCMST_MEMBERSHIPS." (user_id, group_id) SELECT :user_id, id FROM ".ROSCMST_GROUPS." WHERE name_short = 'user' LIMIT 1");
+      $stmt->bindParam('user_id',$user_id,PDO::PARAM_INT);
       $stmt->execute();
 
-      // name is not forbidden -> go on
-      if ($stmt->fetchColumn() === false) {
+      // add subsystem accounts
+      ROSUser::syncSubsystems($user_id);
 
-        if (isset($_POST['registerpost']) && isset($_POST['useremail']) && $_POST['useremail'] != '') {
+      // subject
+      $subject = $config->siteName()." - Account Activation";
 
-          // check if another account with the same email address already exists
-          $stmt=&DBConnection::getInstance()->prepare("SELECT email FROM ".ROSCMST_USERS." WHERE email = :email LIMIT 1");
-          $stmt->bindParam('email',$_POST['useremail'],PDO::PARAM_STR);
-          $stmt->execute();
-          
-          $mail_exists = ($stmt->fetchColumn() !== false);
-        }
+      // message
+      $message = $config->siteName()." - Account Activation\n\n\nYou have registered an account on ".$config->siteName().". The next step in order to enable the account is to activate it by using the hyperlink below.\n\nYou haven't registered an account? Oops, then someone has tried to register an account with your email address. Just ignore this email, no one can use it anyway as it is not activated and the account will get deleted soon.\n\n\nUsername: ".$_POST['username']."\nPassword: ".$_POST['userpwd1']."\n\nActivation-Hyperlink: ".$config->siteURL()."/".$config->pathInstance()."?page=login&subpage=activate&code=".$code."\n\n\nBest regards,\nThe ".$config->siteName()." Team\n\n\n(please do not reply as this is an auto generated email!)";
 
-        if (self::canRegister(true, $name_exists, $safepwd, $mail_exists)) {
-
-          // user language (browser settings)
-          $userlang = Language::validate($_SERVER['HTTP_ACCEPT_LANGUAGE']);
-
-          // account activation code
-          $activation_code = '';
-          for ($n = 0; $n < 20; ++$n) {
-            $activation_code .= chr(rand(0, 255));
-          }
-          $activation_code = base64_encode($activation_code);   // base64-set, but filter out unwanted chars
-          $activation_code = preg_replace('/[+\/=IG0ODQRtl]/i', '', $activation_code);  // strips hard to discern letters, depends on used font type
-          $activation_code = substr($activation_code, 0, rand(10, 15));
-
-          // add new account
-          $stmt=&DBConnection::getInstance()->prepare("INSERT INTO ".ROSCMST_USERS." ( name, password, created, activation, email, lang_id, modified ) VALUES ( :user_name, MD5( :password ), NOW(), :activation_code, :email, :lang, NOW() )");
-          $stmt->bindValue('user_name',trim($_POST['username']),PDO::PARAM_STR);
-          $stmt->bindParam('password',$_POST['userpwd1'],PDO::PARAM_STR);
-          $stmt->bindParam('activation_code',$activation_code,PDO::PARAM_STR);
-          $stmt->bindParam('email',$_POST['useremail'],PDO::PARAM_STR);
-          $stmt->bindParam('lang',$userlang,PDO::PARAM_INT);
-          $stmt->execute();
-
-          $stmt=&DBConnection::getInstance()->prepare("SELECT id FROM ".ROSCMST_USERS." WHERE LOWER(name) = LOWER(:user_name)");
-          $stmt->bindParam('user_name',$_POST['username'],PDO::PARAM_INT);
-          $stmt->execute();
-          $user_id = $stmt->fetchColumn();
-
-          // give a 'user' group membership
-          $stmt=&DBConnection::getInstance()->prepare("INSERT INTO ".ROSCMST_MEMBERSHIPS." (user_id, group_id) SELECT :user_id, id FROM ".ROSCMST_GROUPS." WHERE name_short = 'user' LIMIT 1");
-          $stmt->bindParam('user_id',$user_id,PDO::PARAM_INT);
-          $stmt->execute();
-
-          // add subsystem accounts
-          ROSUser::syncSubsystems($user_id);
-
-          // subject
-          $subject = $config->siteName()." - Account Activation";
-
-          // message
-          $message = $config->siteName()." - Account Activation\n\n\nYou have registered an account on ".$config->siteName().". The next step in order to enable the account is to activate it by using the hyperlink below.\n\nYou haven't registered an account? Oops, then someone has tried to register an account with your email address. Just ignore this email, no one can use it anyway as it is not activated and the account will get deleted soon.\n\n\nUsername: ".$_POST['username']."\nPassword: ".$_POST['userpwd1']."\n\nActivation-Hyperlink: ".$config->siteURL()."/".$config->pathInstance()."?page=login&subpage=activate&code=".$activation_code."\n\n\nBest regards,\nThe ".$config->siteName()." Team\n\n\n(please do not reply as this is an auto generated email!)";
-
-          // send the mail
-          if (Email::send($_POST['useremail'], $subject, $message)) {
-            echo_strip('
-              <h2>Account registered</h2>
-              <div>Check your email inbox (and spam folder) for the <strong>account activation email</strong> that contains the activation hyperlink.</div>');
-          }
-          else {
-            $err_message = 'error while trying to send E-Mail';
-          }
-
-          unset($_SESSION['rdf_security_code']);
-        } // end registration process
+      // send the mail
+      if (Email::send($_POST['useremail'], $subject, $message))
+      {
+        echo_strip('
+          <h2>Account registered</h2>
+          <div>Check your email inbox (and spam folder) for the <strong>account activation email</strong> that contains the activation hyperlink.</div>');
       }
-    }
-    else {
+      else
+      {
+        echo 'Error while trying to send E-Mail';
+      }
+
+      unset($_SESSION['rdf_security_code']);
+    } // end registration process
+    else
+    {
       echo_strip('
         <h2>Register Account</h2>
         <div class="field">
-          <label for="username"'.((isset($_POST['registerpost']) && (strlen($_POST['username']) < $config->limitUserNameMin() || strlen($_POST['username']) > $config->limitUserNameMax() || $safename === false  || substr_count($_POST['username'], ' ') >= 4 || $name_exists)) ? ' style="color:red;"' : '').'>Username</label>
-          <input type="text" name="username"  tabindex="1" id="username"'.(isset($_POST['username']) ? 'value="'.$_POST['username'].'"' : '').' maxlength="50" />
+          <label for="username"' . ($name_ok ? '' : ' style="color: red;"') . '>Username</label>
+          <input type="text" name="username" tabindex="1" id="username"' . (isset($_POST['username']) ? 'value="' . $_POST['username'] . '"' : '') . ' maxlength="' . $config->limitUsernameMax() . '" />
           <div class="detail">uppercase letters, lowercase letters, numbers, and symbols (ASCII characters)</div>');
 
-      if (isset($_POST['registerpost']) && (strlen($_POST['username']) < $config->limitUserNameMin() || $name_exists || $safename === false || strlen($_POST['username']) > $config->limitUserNameMax() || substr_count($_POST['username'], ' ') >= 4)) {
+      if (!$name_ok)
+      {
         echo_strip('
           <br />
-          <em>Please try another username with at least '.$config->limitUserNameMin().' characters.</em>');
+          <em>Please use a different username with ' . $config->limitUserNameMin() . ' to ' . $config->limitUserNameMax() . ' characters. Avoid leading and trailing spaces.</em>');
       }
 
       echo_strip('
         </div>
         <div class="field">
-          <label for="userpwd1"'.(isset($_POST['registerpost']) ? ' style="color:red;"' : '').'>Password</label>
-          <input type="password" name="userpwd1" tabindex="2" id="userpwd1" maxlength="50" />');
+          <label for="userpwd1"' . ($password_ok ? '' : ' style="color: red;"') . '>Password</label>
+          <input name="userpwd1" type="password" tabindex="2" id="userpwd1" maxlength="' . $config->limitPasswordMax() . '" />');
 
-      if ($safepwd === false || (isset($_POST['userpwd1']) && strlen($_POST['userpwd1']) > $config->limitUserNameMax())) {
+      if (!$password_ok)
+      {
         echo_strip('
           <br />
-          <em>Please use a stronger password! At least '.$config->limitPasswordMin().' characters, do not include common words or names, and combine three of these character types: uppercase letters, lowercase letters, numbers, or symbols (ASCII characters).</em>');
-      }
-      else {
-        echo_strip('
-          <div class="detail">uppercase letters, lowercase letters, numbers, and symbols (ASCII characters)</div>');
+          <em>Please use a password with ' . $config->limitPasswordMin() . ' to ' . $config->limitPasswordMax() . ' characters. Make sure that both entered passwords match.</em>');
       }
 
       echo_strip('
         </div>
         <div class="field">
-          <label for="userpwd2"'.(isset($_POST['registerpost']) ? ' style="color:red;"' : '').'>Re-type Password</label>
-          <input name="userpwd2" type="password" tabindex="3" id="userpwd2" maxlength="50" />
+          <label for="userpwd2"' . ($password_ok ? '' : ' style="color: red;"') . '>Re-type Password</label>
+          <input name="userpwd2" type="password" tabindex="3" id="userpwd2" maxlength="' . $config->limitPasswordMax() . '" />
         </div>
         <div class="field">
-          <label for="useremail"'.(isset($_POST['registerpost']) && isset($_POST['useremail']) && EMail::isValid($_POST['useremail']) ? ' style="color:red;"' : '').'>E-Mail</label>
-          <input name="useremail" type="text" class="input" tabindex="4" id="useremail"'.(isset($_POST['useremail']) ? 'value="' . $_POST['useremail'] . '"' : '').'maxlength="50" />');
+          <label for="useremail"' . ($mail_ok ? '' : ' style="color: red;"') . '>E-Mail</label>
+          <input name="useremail" type="text" class="input" tabindex="4" id="useremail"' . (isset($_POST['useremail']) ? 'value="' . $_POST['useremail'] . '"' : '') . ' />');
 
-      if (isset($_POST['registerpost']) && $mail_exists) {
+      if (!$mail_ok)
+      {
         echo_strip('
           <br />
-          <em>That email address is already with an account. Please <a href="'.$config->pathInstance().'?page=login" style="color:red !important; font-weight: bold; text-decoration:underline;">login</a>!</em>');
+          <em>Please enter a valid E-Mail address, which is not yet registered with another account.</em>');
       }
 
       echo_strip('
         </div>
         <div class="field">
-          <label for="usercaptcha"'.(isset($_POST['registerpost']) ? ' style="color:red;"' : '').'>Type the code shown</label>
-          <input name="usercaptcha" type="text" tabindex="7" id="usercaptcha" maxlength="50" />
+          <label for="usercaptcha"' . ($captcha_ok ? '' : ' style="color: red;"') . '>Type the code shown</label>
+          <input name="usercaptcha" type="text" tabindex="7" id="usercaptcha" maxlength="6" />
           <script type="text/javascript">');echo "
           <!--
             
@@ -217,12 +192,14 @@ class HTML_User_Register extends HTML_User
           
           -->";echo_strip('
           </script>
-          <img id="captcha" src="'.$config->pathInstance().'?page=captcha" style="padding-top:10px;" alt="If you cannot read this, try another one or email '.$config->emailSupport().' for help." title="Are you human?" />
+          <img id="captcha" src="' . $config->pathInstance() . '?page=captcha" style="padding-top:10px;" alt="If you cannot read this, try another one or email ' . $config->emailSupport() . ' for help." title="Are you human?" />
           <br />');
-      if (isset($_POST['registerpost'])) { 
+      
+      if (!$captcha_ok)
+      {
         echo_strip('
           <br />
-          <em>Captcha code is case insensitive. <br />If you cannot read it, try another one.</em>');
+          <em>Please enter the shown code.<br />If you cannot read it, try another one.</em>');
       }
 
       echo_strip('
@@ -230,7 +207,7 @@ class HTML_User_Register extends HTML_User
         <div class="field">
           <input name="registerpost" type="hidden" id="registerpost" value="reg" />
           <button type="submit" name="submit">Register</button>
-          <button type="button" onclick="'."window.location='".$config->pathInstance()."'".'" style="color:#777777;">Cancel</button>
+          <button type="button" onclick="window.location=\'' . $config->pathInstance() . '\';" style="color:#777777;">Cancel</button>
         </div>');
     } // end registration form
 
@@ -238,49 +215,89 @@ class HTML_User_Register extends HTML_User
         <div class="corner_BL">
           <div class="corner_BR"></div>
         </div>
-      </div>';
-
-    // print error messages
-    if ($err_message != '') {
-      echo_strip('
-        <div class="bubble message">
-          <div class="corner_TL">
-            <div class="corner_TR"></div>
-          </div>
-          <strong>');echo $err_message;echo_strip('</strong>
-          <div class="corner_BL">
-            <div class="corner_BR"></div>
-          </div>
-        </div>');
-    }
-    echo_strip('
-      </form>');
+      </div>
+      </form>';
   } // end of member function body
 
   /**
-   * helper function
+   * Checks whether an account could be registered with the supplied data from $_POST
+   *
+   * @param name_ok
+   * Reference to a variable, which will contain a boolean value whether the username is alright
+   *
+   * @param password_ok
+   * Reference to a variable, which will contain a boolean value whether the password is alright
+   *
+   * @param mail_ok
+   * Reference to a variable, which will contain a boolean value whether the E-Mail address is alright
+   *
+   * @param captcha_ok
+   * Reference to a variable, which will contain a boolean value whether the Captcha code is alright
+   *
+   * @return
+   * TRUE if the supplied data is alright and we could register a username with it, FALSE otherwise.
    *
    * @visible private
   **/
-  private function canRegister($safename, $name_exists, $safepwd, $mail_exists)
+  private function canRegister(&$name_ok, &$password_ok, &$mail_ok, &$captcha_ok)
   {
     $config = &RosCMS::getInstance();
-  
-  
-    // <form> was send
-    return (isset($_POST['registerpost'])
-
-    // username
-    && !$name_exists && $safename && isset($_POST['username']) && $_POST['username'] != '' && substr_count($_POST['username'], ' ') < 4 && strlen($_POST['username']) >= $config->limitUserNameMin() && strlen($_POST['username']) < $config->limitUserNameMax()
-
-    // password
-    && isset($_POST['userpwd1']) && $_POST['userpwd1'] != '' && isset($_POST['userpwd2']) && $_POST['userpwd2'] != '' && strlen($_POST['userpwd1']) >= $config->limitPasswordMin() && strlen($_POST['userpwd1']) < $config->limitPasswordMax() && $_POST['userpwd1'] == $_POST['userpwd2'] && $safepwd
-
-    // email
-    && isset($_POST['useremail']) && $_POST['useremail'] != '' && EMail::isValid($_POST['useremail']) && !$mail_exists
-
-    // captcha
-    && isset($_POST['usercaptcha']) && $_POST['usercaptcha'] != '' && isset($_SESSION['rdf_security_code']) && strtolower($_SESSION['rdf_security_code']) == strtolower($_POST['usercaptcha']));
+    
+    // Did the user submit any registration request at all?
+    // If he hasn't sent anything yet, don't blame him for that, so set all variable references to TRUE first.
+    $name_ok = true;
+    $password_ok = true;
+    $mail_ok = true;
+    $captcha_ok = true;
+    
+    if(!isset($_POST['registerpost']))
+      return false;
+    
+    
+    // USERNAME CHECKS
+    // Ensure that the username only contains valid characters and no leading or trailing spaces
+    $name_ok  = (isset($_POST['username']));
+    $name_ok &= ($_POST['username'] == trim($_POST['username']));
+    $name_ok &= (preg_match('/^[a-z0-9_\-[:space:]\.]{' . $config->limitUserNameMin() . ',' . $config->limitUsernameMax() . '}$/i', $_POST['username']));
+    
+    // Check if another account with the same username already exists
+    $stmt = &DBConnection::getInstance()->prepare("SELECT 1 FROM ".ROSCMST_USERS." WHERE LOWER(REPLACE(name, '_', ' ')) = LOWER(REPLACE(:username, '_', ' ')) LIMIT 1");
+    $stmt->bindParam('username', $_POST['username'], PDO::PARAM_STR);
+    $stmt->execute();
+    $name_ok &= ($stmt->fetchColumn() === false);
+    
+    // Check if the username is equal to a protected name
+    $stmt = &DBConnection::getInstance()->prepare("SELECT 1 FROM ".ROSCMST_FORBIDDEN." WHERE name LIKE :forbidden LIMIT 1");
+    $stmt->bindParam('forbidden', $_POST['username'], PDO::PARAM_STR);
+    $stmt->execute();
+    $name_ok &= ($stmt->fetchColumn() === false);
+    
+    // PASSWORD CHECKS
+    // Ensure that both passwords are equal and valid
+    $password_ok  = (isset($_POST['userpwd1']) && isset($_POST['userpwd2']));
+    $password_ok &= ($_POST['userpwd1'] == $_POST['userpwd2']);
+    $password_ok &= (strlen($_POST['userpwd1']) >= $config->limitPasswordMin() && strlen($_POST['userpwd1']) <= $config->limitPasswordMax());
+    
+    // E-MAIL ADDRESS CHECKS
+    // Ensure that the E-Mail address only contains valid characters
+    $mail_ok  = (isset($_POST['useremail']));
+    $mail_ok &= (EMail::isValid($_POST['useremail']));
+    
+    // Check if another account with the same email address already exists
+    $stmt = &DBConnection::getInstance()->prepare("SELECT 1 FROM ".ROSCMST_USERS." WHERE email = :email LIMIT 1");
+    $stmt->bindParam('email', $_POST['useremail'], PDO::PARAM_STR);
+    $stmt->execute();
+    $mail_ok &= ($stmt->fetchColumn() === false);
+    
+    // CAPTCHA CHECKS
+    // Ensure that the captcha is correct
+    $captcha_ok  = (isset($_POST['usercaptcha']) && isset($_SESSION['rdf_security_code']));
+    $captcha_ok &= (strtolower($_POST['usercaptcha']) && strtolower($_SESSION['rdf_security_code']));
+    
+    
+    // Now we have all information together and can easily check whether an account could be registered.
+    // Also the caller can get detailed information about _every_ incorrect field.
+    return ($name_ok && $password_ok && $mail_ok && $captcha_ok);
   }
 
 
