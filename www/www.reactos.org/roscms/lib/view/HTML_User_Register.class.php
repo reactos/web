@@ -213,16 +213,16 @@ class HTML_User_Register extends HTML_User
               document.getElementById('captcha').src = '".$config->pathInstance()."?page=captcha&nr=' + BypassCacheNumber;
             }
 
-            document.write('<br /><span style=\"color:#817A71; \">If you can't read this, try <a href=\"javascript:CaptchaReload()\">another one</a>.</span>');
+            document.write('<br /><span style=\"color:#817A71; \">If you cannot read this, try <a href=\"javascript:CaptchaReload()\">another one</a>.</span>');
           
           -->";echo_strip('
           </script>
-          <img id="captcha" src="'.$config->pathInstance().'?page=captcha" style="padding-top:10px;" alt="If you can\'t read this, try another one or email '.$config->emailSupport().' for help." title="Are you human?" />
+          <img id="captcha" src="'.$config->pathInstance().'?page=captcha" style="padding-top:10px;" alt="If you cannot read this, try another one or email '.$config->emailSupport().' for help." title="Are you human?" />
           <br />');
       if (isset($_POST['registerpost'])) { 
         echo_strip('
           <br />
-          <em>Captcha code is case insensitive. <br />If you can\'t read it, try another one.</em>');
+          <em>Captcha code is case insensitive. <br />If you cannot read it, try another one.</em>');
       }
 
       echo_strip('
