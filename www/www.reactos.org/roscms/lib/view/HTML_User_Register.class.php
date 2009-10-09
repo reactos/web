@@ -292,7 +292,7 @@ class HTML_User_Register extends HTML_User
     // CAPTCHA CHECKS
     // Ensure that the captcha is correct
     $captcha_ok  = (isset($_POST['usercaptcha']) && isset($_SESSION['rdf_security_code']));
-    $captcha_ok &= (strtolower($_POST['usercaptcha']) && strtolower($_SESSION['rdf_security_code']));
+    $captcha_ok &= (strtolower($_POST['usercaptcha']) == strtolower($_SESSION['rdf_security_code']));
     
     
     // Now we have all information together and can easily check whether an account could be registered.
