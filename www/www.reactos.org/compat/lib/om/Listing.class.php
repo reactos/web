@@ -39,6 +39,11 @@ class Listing
     $this->where .= ' AND ';
   }
 
+  private function addOr()
+  {
+    $this->where .= ' OR ';
+  }
+
 
 
   public function __construct($filter)
@@ -125,8 +130,13 @@ class Listing
         // tagged with
         case 't':
           ++$t;
-          
-          $this->addAnd();
+
+          // HACK OR for search
+          if ($part[1]=='o') {
+            $this->addOr();
+          } else {
+            $this->addAnd();
+          }
           $this->where .= " t".$t.".name = :tagname".$t." ";
           $this->params[] = array('tagname'.$t,$part[2],PDO::PARAM_STR);
           $this->from .= " JOIN ".CDBT_TAGGED." tr".$t." ON tr".$t.".entry_id=e.id ";

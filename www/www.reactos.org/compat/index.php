@@ -105,7 +105,10 @@ switch (@$_GET['show']) {
       $filter = $_GET['filter'];
     }
     if (isset($_GET['by']) && $_GET['by'] != '') {
-      $filter .= 'n_h_'.str_replace(Listing::DEVIDE_FILTER, '%', $_GET['by']);
+
+      // HACK OR for search
+      //$filter .= 'n_h_'.str_replace(Listing::DEVIDE_FILTER, '%', $_GET['by']);
+      $filter .= 'n_h_'.str_replace(Listing::DEVIDE_FILTER, '%', $_GET['by']).'|t_o_'.str_replace(Listing::DEVIDE_FILTER, '%', $_GET['by']);
     }
     
     new HTML_List($filter);
