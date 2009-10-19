@@ -64,10 +64,10 @@ class HTML_Home extends HTML
         <h2 style="margin-bottom: 0px;">Recent submissions</h2><small style="display: block;margin: 0px 0px 15px 5px;"> for '.$latest_version['name'].'</small>';
 
       if (!empty($revision_type)) {
-        $filter = 'a_is_user|a_is_datediff|o_desc_creation';
+        $filter = 'a_is_user|a_is_datediff|o_desc_report';
       }
       else {
-        $filter = 'a_is_user|a_is_datediff|r_eq_'.$latest_version['revision'].'|o_desc_creation';
+        $filter = 'a_is_user|a_is_datediff|r_eq_'.$latest_version['revision'].'|o_desc_report';
       }
 
 
