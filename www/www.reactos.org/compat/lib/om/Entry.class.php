@@ -130,6 +130,50 @@ class Entry
    *
    * @access public
    */
+  public static function addOrAssignTag( $entry_id, $tag )
+  {
+    global $RSDB_intern_user_id;
+
+    // check if entry exists
+    if ($entry_id === false || empty($tag)) {
+      echo 'Error: Unknown entry';
+      return false;
+    }
+
+    $stmt=CDBConnection::getInstance()->prepare("SELECT id FROM ".CDBT_TAGS." WHERE name=:tag LIMIT 1");
+    $stmt->bindParam('tag',$tag,PDO::PARAM_STR);
+    $stmt->execute();
+    $tag_id=$stmt->fetchColumn();
+
+    if ($tag_id === false) {
+      $stmt=CDBConnection::getInstance()->prepare("INSERT INTO ".CDBT_TAGS." (name, description, user_id, created, visible, disabled) VALUES (:name, '', :user_id, now(), TRUE, FALSE)");
+      $stmt->bindParam('name',$tag,PDO::PARAM_STR);
+      $stmt->bindParam('user_id',$RSDB_intern_user_id,PDO::PARAM_INT);
+      $stmt->execute();
+      $tag_id=CDBConnection::getInstance()->lastInsertId();
+    }
+    if ($tag_id === false) return false;
+
+    $stmt=CDBConnection::getInstance()->prepare("SELECT 1 FROM ".CDBT_TAGGED." WHERE entry_id=:entry_id AND tag_id=:tag_id");
+    $stmt->bindParam('entry_id',$entry_id,PDO::PARAM_INT);
+    $stmt->bindParam('tag_id',$tag_id,PDO::PARAM_INT);
+    $stmt->execute();
+    if ($stmt->fetchColumn() === false) {
+      $stmt=CDBConnection::getInstance()->prepare("INSERT INTO ".CDBT_TAGGED." (entry_id, tag_id) VALUES (:entry_id, :tag_id)");
+      $stmt->bindParam('entry_id',$entry_id,PDO::PARAM_INT);
+      $stmt->bindParam('tag_id',$tag_id,PDO::PARAM_INT);
+      return $stmt->execute();
+    }
+    return true;
+  } // end of member function addReport
+
+
+
+  /**
+   * @FILLME
+   *
+   * @access public
+   */
   public static function deleteReport( $test_id )
   {
     $stmt=CDBConnection::getInstance()->prepare("DELETE FROM ".CDBT_REPORTS." WHERE id=:test_id");

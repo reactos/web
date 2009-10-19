@@ -97,7 +97,7 @@ class HTML_Submit extends HTML
       return false;
     }
 
-    $ids = Entry::add($_POST['title'], $_POST['version'], $_POST['cat'], $_POST['description'], $_POST['tags']);
+    $ids = Entry::add($_POST['title'], $_POST['version'], $_POST['cat'], $_POST['description']);
 
     // got no error
     if ($ids !== false) {
@@ -121,6 +121,14 @@ class HTML_Submit extends HTML
     if ($version_id === false) {
       $this->submit_msg = 'No entry version was found/could be added.';
       return false;
+    }
+
+    // add tags
+    if (!empty($_POST['tags'])) {
+      $tags = explode(',', $_POST['tags']);
+      foreach ($tags as $tag) {
+        Entry::addOrAssignTag($entry_id, trim($tag));
+      }
     }
 
     // insert new comment
