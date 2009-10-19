@@ -291,7 +291,7 @@ class HTML_Version extends HTML
       echo 'To add comments, you need to login with your RosCMS account.';
     }
 
-    $stmt=CDBConnection::getInstance()->prepare("SELECT c.id, c.title, c.content, c.parent, c.created, c.user_id, r.works, IF(o.revision IS NULL,CONCAT('r',r.revision),o.name) AS rosversion FROM ".CDBT_COMMENTS." c LEFT JOIN ".CDBT_REPORTS." r ON r.comment_id=c.id LEFT JOIN ".CDBT_VERTAGS." o ON o.revision=r.revision WHERE c.entry_id=:entry_id ORDER BY c.created DESC");
+    $stmt=CDBConnection::getInstance()->prepare("SELECT c.id, c.title, c.content, c.parent, c.created, c.user_id, r.works, IF(o.revision IS NULL,CONCAT('r',r.revision),o.name) AS rosversion, v.version FROM ".CDBT_COMMENTS." c LEFT JOIN ".CDBT_REPORTS." r ON r.comment_id=c.id LEFT JOIN ".CDBT_VERTAGS." o ON o.revision=r.revision LEFT JOIN ".CDBT_VERSIONS." v ON v.id=r.version_id WHERE c.entry_id=:entry_id ORDER BY c.created DESC");
     $stmt->bindParam('entry_id',$this->entry_id,PDO::PARAM_INT);
     $stmt->execute();
     $comments=$stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -306,7 +306,7 @@ class HTML_Version extends HTML
           echo '
             <h3>
               <div style="width:1.5em;float:left;margin-right:1em;" class="'.($comment['works'] == 'full' ? 'stable' : ($comment['works'] == 'part' ? 'unstable' : 'crash')).'">&nbsp;</div>
-              '.$comment['rosversion'].'
+              '.(!empty($comment['version']) ? '['.htmlspecialchars($comment['version']).'] in ' : '').''.$comment['rosversion'].'
             </h3>';
         }
         elseif ($comment['parent'] > 0) {
