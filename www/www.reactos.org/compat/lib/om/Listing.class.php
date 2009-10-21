@@ -33,15 +33,21 @@ class Listing
   private $params = array(); // params for pdo
 
 
+  // conditions added
+  private $n=0;
 
   private function addAnd()
   {
     $this->where .= ' AND ';
+    if ($this->n==0) $this->where .= '(';
+    ++$this->n;
   }
 
   private function addOr()
   {
     $this->where .= ' OR ';
+    if ($this->n==0) $this->where .= '(';
+    ++$this->n;
   }
 
 
@@ -137,7 +143,7 @@ class Listing
           } else {
             $this->addAnd();
           }
-          $this->where .= " t".$t.".name = :tagname".$t." ";
+          $this->where .= " t".$t.".name LIKE :tagname".$t." ";
           $this->params[] = array('tagname'.$t,$part[2],PDO::PARAM_STR);
           $this->from .= " JOIN ".CDBT_TAGGED." tr".$t." ON tr".$t.".entry_id=e.id ";
           $this->from .= " JOIN ".CDBT_TAGS." t".$t." ON t".$t.".id=tr".$t.".tag_id ";
@@ -374,7 +380,7 @@ class Listing
 
   public function where()
   {
-    return $this->where;
+    return $this->where.(($this->n > 0) ? ')' : '');
   }
 
 

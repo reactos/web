@@ -121,7 +121,7 @@ class HTML_List extends HTML
 
     if (!isset($_GET['tag']) || $_GET['tag'] != '*') {
       
-      $stmt=CDBConnection::getInstance()->prepare("SELECT COUNT(*) FROM ".CDBT_ENTRIES." e JOIN ".CDBT_REPORTS." r ON r.entry_id=e.id ".$this->from." WHERE e.visible IS TRUE AND r.id=(SELECT id FROM ".CDBT_REPORTS." WHERE entry_id=e.id ORDER BY checked DESC, created DESC LIMIT 1) ".$this->where);
+      $stmt=CDBConnection::getInstance()->prepare("SELECT COUNT(DISTINCT e.id) FROM ".CDBT_ENTRIES." e JOIN ".CDBT_REPORTS." r ON r.entry_id=e.id ".$this->from." WHERE e.visible IS TRUE AND r.id=(SELECT id FROM ".CDBT_REPORTS." WHERE entry_id=e.id ORDER BY checked DESC, created DESC LIMIT 1) ".$this->where);
       foreach ($this->params as $param) {
         $stmt->bindValue($param[0],$param[1],$param[2]);
       }
@@ -147,7 +147,7 @@ class HTML_List extends HTML
             <tbody>';
 
         reset($this->params);
-        $stmt=CDBConnection::getInstance()->prepare("SELECT e.id, e.name, r.works ".$this->select." FROM ".CDBT_ENTRIES." e JOIN ".CDBT_REPORTS." r ON r.entry_id=e.id ".$this->from." WHERE e.visible IS TRUE AND r.id=(SELECT id FROM ".CDBT_REPORTS." WHERE entry_id=e.id ORDER BY created DESC LIMIT 1) ".$this->where.(!empty($this->order) ? ' ORDER BY '.$this->order : '')." LIMIT :limit OFFSET :offset");
+        $stmt=CDBConnection::getInstance()->prepare("SELECT DISTINCT e.id, e.name, r.works ".$this->select." FROM ".CDBT_ENTRIES." e JOIN ".CDBT_REPORTS." r ON r.entry_id=e.id ".$this->from." WHERE e.visible IS TRUE AND r.id=(SELECT id FROM ".CDBT_REPORTS." WHERE entry_id=e.id ORDER BY created DESC LIMIT 1) ".$this->where.(!empty($this->order) ? ' ORDER BY '.$this->order : '')." LIMIT :limit OFFSET :offset");
         foreach ($this->params as $param) {
           $stmt->bindValue($param[0],$param[1],$param[2]);
         }
