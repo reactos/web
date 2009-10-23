@@ -142,8 +142,15 @@ function GetRevNums()
 		
 		if(hyphen > 0)
 		{
-			inputbox_startrev = rev.substr(0, hyphen);
-			inputbox_endrev = rev.substr(hyphen + 1);
+			inputbox_startrev = rev.substr(0, hyphen)*1;
+			inputbox_endrev = rev.substr(hyphen + 1)*1;
+
+			// exchange start/end when wrong order was given
+			if (inputbox_startrev > inputbox_endrev) {
+				var tmp=inputbox_startrev;
+				inputbox_startrev=inputbox_endrev;
+				inputbox_endrev=tmp;
+			}
 		}
 		
 		if(hyphen <= 0 || isNaN(inputbox_startrev) || isNaN(inputbox_endrev))
