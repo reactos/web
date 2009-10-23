@@ -78,7 +78,12 @@ function CsApplyFilter(http_request, target)
       show += '<option value="'+entries[i].getAttribute('shortcut')+'">'+entries[i].firstChild.nodeValue+'</a></option>';
     }
     
-    document.getElementById(target).innerHTML+='<li id="fr'+sequ_num+'"><em>and</em> <select id="ft'+sequ_num+'" name="ft'+sequ_num+'" onchange="CsFilterDetails(this.value,\'fd'+sequ_num+'\');">'+show+'</select><span id="fd'+sequ_num+'"> </span> <a href="#" onclick="CsDeleteFilter(fr'+sequ_num+');">&mdash;</a></li>';
+    var id=document.createAttribute('id');
+    id.nodeValue='fr'+sequ_num;
+    var li=document.createElement('li');
+    li.setAttributeNode(id);
+    li.innerHTML='<em>and</em> <select id="ft'+sequ_num+'" name="ft'+sequ_num+'" onchange="CsFilterDetails(this.value,\'fd'+sequ_num+'\');">'+show+'</select><span id="fd'+sequ_num+'"> </span> <a href="#" onclick="CsDeleteFilter(fr'+sequ_num+');">&mdash;</a>';
+    document.getElementById(target).appendChild(li);
     
     CsFilterDetails(entries[0].getAttribute('shortcut'), 'fd'+sequ_num);
   }
