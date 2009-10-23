@@ -50,7 +50,7 @@ class HTML_List extends HTML
       
       // save queries
       if (!empty($_POST['savename'])) {
-        Setting::setQuery($_POST['savename'],$this->filter);
+        Setting::setQuery($_POST['savename'],$filter);
       }
     }
   
