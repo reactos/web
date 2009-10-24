@@ -12,7 +12,7 @@
 	define("TESTMAN_PATH", "");
 	
 	define("DEFAULT_SEARCH_LIMIT", 10);
-	define("DEFAULT_SEARCH_USER", "Debug-Buildslave");
+	define("DEFAULT_SEARCH_USER", "x86_(Test)");
 	define("MAX_COMPARE_RESULTS", 5);
 	define("RESULTS_PER_PAGE", 100);
 	define("VIEWVC_TRUNK", "http://svn.reactos.org/svn/reactos/trunk");

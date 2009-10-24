@@ -26,8 +26,14 @@
 	$user_id = VerifyLogin($_GET["username"], $_GET["password"]);
 	
 	// Make sure nobody runs this script multiple times for the same build
-	$stmt = $dbh->prepare("SELECT COUNT(*) FROM " . DB_TESTMAN . ".winetest_runs WHERE comment = :comment");
+	$stmt = $dbh->prepare(
+		"SELECT COUNT(*) " .
+		"FROM " . DB_TESTMAN . ".winetest_runs r " .
+		"JOIN " . DB_ROSCMS . ".roscms_accounts a ON r.user_id = a.id " .
+		"WHERE r.comment = :comment AND a.name = :username"
+	);
 	$stmt->bindValue(":comment", "Build " . $_GET["build"]);
+	$stmt->bindParam(":username", $_GET["username"]);
 	$stmt->execute() or die("SQL failed #1");
 	
 	if($stmt->fetchColumn())
