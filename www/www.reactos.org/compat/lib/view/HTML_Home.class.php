@@ -24,6 +24,12 @@ class HTML_Home extends HTML
 
 
 
+  public function __construct() {
+    $this->register_js('compat.js');
+    parent::__construct();
+  } // end of constructor
+
+
   protected function body( )
   {
     global $RSDB_intern_link_db_sec;

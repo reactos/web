@@ -33,45 +33,44 @@ class Entry
    *
    * @access public
    */
-  public static function add( $name, $version, $category, $description )
+  public static function add( $name, $version, $category_id, $description )
   {
     // search for existing entry
-    $entry = self::get($category, $name);
+    $entry = self::get($category_id, $name);
 
     // insert new entry
     if ($entry === false) {
 
       // check category type
-      if (!ctype_digit((string)$category) || $category == 0) {
+      if (!ctype_digit((string)$category_id) || $category_id <= 0) {
         echo 'Error: Invalid category';
         return false;
       }
 
       // get type
       $stmt=CDBConnection::getInstance()->prepare("SELECT type FROM ".CDBT_CATEGORIES." WHERE id=:category_id");
-      $stmt->bindParam('category_id',$category,PDO::PARAM_INT);
+      $stmt->bindParam('category_id',$category_id,PDO::PARAM_INT);
       $stmt->execute();
       $type=$stmt->fetchColumn();
 
       // insert
-      $stmt=CDBConnection::getInstance()->prepare("INSERT INTO ".CDBT_ENTRIES." (type, name, category_id, description, created, modified, visible) VALUES ((SELECT type FROM ".CDBT_CATEGORIES." WHERE id=:category_id), :name, :category, :description, NOW(), NOW(), TRUE)");
-      $stmt->bindParam('type',$type,PDO::PARAM_STR);
+      $stmt=CDBConnection::getInstance()->prepare("INSERT INTO ".CDBT_ENTRIES." (type, name, category_id, description, created, modified, visible) VALUES ((SELECT type FROM ".CDBT_CATEGORIES." WHERE id=:category_id), :name, :category_id, :description, NOW(), NOW(), TRUE)");
       $stmt->bindParam('name',$name,PDO::PARAM_STR);
-      $stmt->bindParam('category',$category,PDO::PARAM_INT);
+      $stmt->bindParam('category_id',$category_id,PDO::PARAM_INT);
       $stmt->bindParam('description',$description,PDO::PARAM_STR);
       if(!$stmt->execute()) {
         return false;
       }
 
-      $entry = self::get($category, $name);
+      $entry = self::get($category_id, $name);
     }
 
     // update entry
-    elseif ($category != $entry['category_id'] || $description != $entry['description']) {
+    elseif ($category_id != $entry['category_id'] || $description != $entry['description']) {
     
-      $stmt=CDBConnection::getInstance()->prepare("UPDATE ".CDBT_ENTRIES." SET category_id=:category, description=:description, modified=NOW() WHERE id=:entry_id");
+      $stmt=CDBConnection::getInstance()->prepare("UPDATE ".CDBT_ENTRIES." SET category_id=:category_id, description=:description, modified=NOW() WHERE id=:entry_id");
       $stmt->bindParam('entry_id',$entry['id'],PDO::PARAM_INT);
-      $stmt->bindParam('category',$category,PDO::PARAM_INT);
+      $stmt->bindParam('category_id',$category_id,PDO::PARAM_INT);
       $stmt->bindParam('description',$description,PDO::PARAM_STR);
       if(!$stmt->execute()) {
         return false;

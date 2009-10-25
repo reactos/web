@@ -40,7 +40,7 @@ class CDate
           return (date('G',$diff)+$plus).' Hours';
         }
         else {
-          $plus = date('G',$diff)*60;
+          $plus = (date('G',$diff)-1)*60;
           if (date('i',$diff)+$plus > 1) {
             return (date('i',$diff)+$plus).' Minutes';
           }
