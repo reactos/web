@@ -25,11 +25,12 @@ class List_Query
 
   public function __construct( $query )
   {
+    if (empty($query))
+      return;
     header("Content-Type: text/xml");
     $list = Listing::filterList();
     
     $query = explode(Listing::DEVIDE_FILTER, $query);
-
     echo '<ul>';
     foreach($query as $filter){
       $part = explode(Listing::DEVIDE_SETTING,$filter);

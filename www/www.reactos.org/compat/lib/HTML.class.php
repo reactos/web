@@ -206,7 +206,7 @@ abstract class HTML
           <ol>';
 
         foreach ($settings as $setting) {
-          echo '<li><a href="'.$RSDB_intern_link_db_sec.'list&amp;filter='.htmlspecialchars($setting['value']).'">'.htmlspecialchars($setting['name']).'</a></li>';
+          echo '<li><a href="'.$RSDB_intern_link_db_sec.'list&amp;filter='.htmlspecialchars($setting['value']).'" title="'.htmlspecialchars($setting['value']).'" onmouseover="loadQueryTooltip(this);">'.htmlspecialchars($setting['name']).'</a></li>';
         }
 
         if (!$show_standard) {
@@ -255,7 +255,7 @@ abstract class HTML
             <a href="http://www.reactos.org">ReactOS</a> is a registered trademark or a trademark of <a href="http://www.reactos.org/?page=foundation">ReactOS Foundation</a> in the United States and other countries.<br />
             Copyright  &copy; Klemens Friedl, Danny G&ouml;tte 2005-2009, All rights reserved.
           </address>
-
+          <div id="tooltip" style="display: none;"></div>
         </body>
       </html>';
   } // end of member function footer

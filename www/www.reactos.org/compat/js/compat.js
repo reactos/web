@@ -1,5 +1,105 @@
 var sequ_num; // sequence number for filters
 
+var mousex, mousey;
+// check for quirks / standard mode
+var IEmode = ( typeof document.compatMode != "undefined" && document.compatMode != "BackCompat") ? "documentElement" : "body";
+
+var timerTooltip, timer_tooltip_delete;
+var tooltip_row = null;
+
+
+document.onmousemove = getMousePosition;
+
+
+
+/**
+ *
+ * @param e
+ */
+function getMousePosition( e )
+{
+  // update mouse position for some browsers
+  if (e) {
+    mousex = e.pageX;
+    mousey = e.pageY;
+  }
+
+  // other browser
+  else {
+    mousex = window.event.x;
+    mousey = window.event.y;
+  }
+
+  // IE needs additional scrollbar position
+  if (document.all && !document.captureEvents) {
+    mousex    += document[docEl].scrollLeft;
+    mousex    += document[docEl].scrollTop;
+  }
+  
+  
+  if (document.getElementById('tooltip').style.display == 'block') {
+    setTooltipPosition();
+  }
+
+} // end of function getMousePosition
+
+
+
+/**
+ *
+ */
+function setTooltipPosition( )
+{
+  if (document.getElementById('tooltip').style.display == 'block') {
+    document.getElementById('tooltip').style.top=(mousey+17)+"px";
+    document.getElementById('tooltip').style.left=(mousex+17)+"px";
+  }
+
+} // end of function getMousePosition
+
+
+
+/**
+ * Requests tooltip data
+ *
+ * @param string id_set set of data & rev ids in the following format data_id|rev_id
+ */
+function loadQueryTooltip( f )
+{
+  if (f.tooltip != '' && f.title == '') f.title=f.tooltip;
+  if (f.title == '') return;
+  window.clearTimeout(timer_tooltip_delete);
+  f.onmouseout=clearTooltip;
+
+  // perform request
+  requestText('?get=querylist&query='+f.title, 'tooltip', 'query');
+  f.title='';
+} // end of function loadTooltip
+
+
+/**
+ * Disables Tooltip view
+ */
+function clearTooltip( )
+{
+  
+  window.clearTimeout(timer_tooltip_delete);
+  timer_tooltip_delete = window.setTimeout("deleteTooltip()", 300);
+} // end of function clearTooltip
+
+
+
+/**
+ * Disables Tooltip view
+ */
+function deleteTooltip( )
+{
+  document.getElementById('tooltip').style.display = 'none';
+
+  // deactivate tooltip-timer
+  window.clearTimeout(timer_tooltip_delete);
+} // end of function clearTooltip
+
 
 
 
@@ -185,6 +285,11 @@ function requestText( url, action, target )
               
             case 'viewMain':
               viewTabSetNew(http_request, 'main',target);
+              break;
+
+            case 'tooltip':
+              document.getElementById('tooltip').style.display='block';
+              document.getElementById('tooltip').innerHTML=http_request.responseText;
               break;
           }
         }

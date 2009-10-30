@@ -128,6 +128,10 @@ DIV.crash, TD.crash { background-color: #FF9978;}
 #preferences UL { padding: 0px; margin: 0px; }
 
 
+/* ### Tooltip ### */
+#tooltip { border: 1px solid #CCC; background-color: #FFC; color: #333; position: absolute; z-index: 900; padding: 3px; }
+#tooltip UL {margin: 0px;padding-left:15px;}
+
 
 body {
 	font-family: Verdana;
