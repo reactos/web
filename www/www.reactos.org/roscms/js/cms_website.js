@@ -1247,7 +1247,7 @@ function addOrReplaceDraft( did, drid )
   var poststr = getEditorTexts();
 
   if (poststr !== false) {
-    makeRequest('?page=backend&type=text&subtype=asi&data_id='+encodeURIComponent(did)+'&rev_id='+encodeURIComponent(drid)+'&lang_id='+encodeURIComponent(document.getElementById("mefrlang").innerHTML), 'asi', 'mefasi', 'html', 'POST', poststr);
+    makeRequest('?page=backend&type=text&subtype=asi&data_id='+encodeURIComponent(did)+'&rev_id='+encodeURIComponent(drid)+'&lang_id='+encodeURIComponent(document.getElementById("mefrlang").innerHTML)+'&minor_update='+encodeURIComponent(document.getElementById("minor_update").checked), 'asi', 'mefasi', 'html', 'POST', poststr);
     return true;
   }
   else {

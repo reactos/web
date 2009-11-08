@@ -74,7 +74,7 @@ class Backend_SaveDraft extends Backend
     if ($rev_id === false) {
 
       // add a new revision
-      $rev_id = Revision::add($_GET['data_id'], $_GET['lang_id']);
+      $rev_id = Revision::add($_GET['data_id'], $_GET['lang_id'], ($_GET['minor_update']=='true'));
 
       // get stable entry
       $stmt=&DBConnection::getInstance()->prepare("SELECT id FROM ".ROSCMST_REVISIONS." WHERE data_id = :data_id AND lang_id = :lang_id AND status = 'stable' AND archive IS FALSE ORDER BY datetime DESC LIMIT 1");
@@ -127,6 +127,9 @@ class Backend_SaveDraft extends Backend
       $stmt->bindParam('content',$_POST['plm'.$i],PDO::PARAM_STR);
       $stmt->execute();
     }
+
+    // finally set, if we've a minor update
+    Revision::setUpdateStatus($rev_id, $_GET['minor_update']=='true');
   } // end of member function save
 
 

@@ -452,6 +452,24 @@ class Revision
 
 
   /**
+   * @FILLME
+   *
+   * @param int rev_id
+   * @return bool
+   * @access public
+   */
+  public static function setUpdateStatus( $rev_id, $minor_update )
+  {
+    // move into archive
+    $stmt=&DBConnection::getInstance()->prepare("UPDATE ".ROSCMST_REVISIONS." SET minor_update=:minor_update WHERE id=:rev_id");
+    $stmt->bindParam('rev_id',$rev_id,PDO::PARAM_INT);
+    $stmt->bindParam('minor_update',$minor_update,PDO::PARAM_BOOL);
+    return $stmt->execute();
+  } // end of member function toArchive
+
+
+
+  /**
    * copies a revision to another language and saves it as draft
    *
    * @param int rev_id the revision id which has to be translated

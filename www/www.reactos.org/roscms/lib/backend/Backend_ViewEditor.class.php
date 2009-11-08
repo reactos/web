@@ -41,6 +41,7 @@ class Backend_ViewEditor extends Backend
   // 
   private $data_id;
   private $rev_id;
+  private $minor_update=false;
 
 
 
@@ -70,7 +71,7 @@ class Backend_ViewEditor extends Backend
    * @access protected
    */
   private function setRevision( $rev_id ) {
-    $stmt=&DBConnection::getInstance()->prepare("SELECT id, data_id FROM ".ROSCMST_REVISIONS." WHERE id=:rev_id");
+    $stmt=&DBConnection::getInstance()->prepare("SELECT id, data_id, minor_update FROM ".ROSCMST_REVISIONS." WHERE id=:rev_id");
     $stmt->bindParam('rev_id',$rev_id,PDO::PARAM_INT);
     $stmt->execute();
     $revision = $stmt->fetchOnce(PDO::FETCH_ASSOC);
@@ -78,6 +79,7 @@ class Backend_ViewEditor extends Backend
     if ($revision !== false) {
       $this->rev_id = $revision['id'];
       $this->data_id = $revision['data_id'];
+      $this->minor_update = ($revision['minor_update']==true);
     }
   } // end of member function setRevision
 
@@ -289,11 +291,15 @@ class Backend_ViewEditor extends Backend
         <input id="wraped'.$text_num.'" type="checkbox" onclick="'."toggleWordWrap(this.id, 'elm".$text_num."');".'" checked="checked" style="padding-left: 10px;" />
         <label for="wraped'.$text_num.'" class="normal">Word wrap</label>
         <textarea name="elm'.$text_num.'" cols="80" rows="15" class="mceEditor" id="elm'.$text_num.'" style="width: 100%; background-color:#FFFFFF;" >');echo htmlspecialchars($text['content']);echo_strip('</textarea>
-        <br />
         <br />');
     }
 
-    echo '<span id="elmcount" class="'.$text_num.'">&nbsp;</span>';
+    echo_strip('
+      <span id="elmcount" class="'.$text_num.'">&nbsp;</span>
+      <br />
+      <br />');
+    
+    echo '<input type="checkbox" name="minor_update" id="minor_update" value="true"'.($this->minor_update ? ' checked="checked"':'').' /><label style="display:inline;color:black;font-size:12px;font-weight:normal;margin-bottom:5px;" for="minor_update"><em title="No translation for this update is needed, e.g. spelling fixes.">minor update</em></label>';
 
     // show save button
     if (Entry::hasAccess($this->data_id, 'edit')) {
