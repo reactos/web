@@ -191,8 +191,8 @@ class Backend_ViewEntryTable extends Backend
             // we need the date of latest change, that is necessary for translations
             $stmt_transu->bindParam('data_id',$row['data_id'],PDO::PARAM_INT);
             $stmt_transu->execute();
-            $translated_entry = $stmt_transu->fetchOnce(PDO::FETCH_ASSOC);
-            if (strtotime($row['datetime']) < strtotime($translated_entry['datetime'])) {
+            $translated_time = $stmt_transu->fetchOnce(PDO::FETCH_ASSOC);
+            if (strtotime($row['datetime']) < strtotime($translated_time['datetime'])) {
               $line_status = 'transg';
             }
             else {
