@@ -71,7 +71,7 @@ class Backend_ViewEditor extends Backend
    * @access protected
    */
   private function setRevision( $rev_id ) {
-    $stmt=&DBConnection::getInstance()->prepare("SELECT id, data_id, minor_update FROM ".ROSCMST_REVISIONS." WHERE id=:rev_id");
+    $stmt=&DBConnection::getInstance()->prepare("SELECT id, data_id, minor_update, status FROM ".ROSCMST_REVISIONS." WHERE id=:rev_id");
     $stmt->bindParam('rev_id',$rev_id,PDO::PARAM_INT);
     $stmt->execute();
     $revision = $stmt->fetchOnce(PDO::FETCH_ASSOC);
@@ -79,7 +79,7 @@ class Backend_ViewEditor extends Backend
     if ($revision !== false) {
       $this->rev_id = $revision['id'];
       $this->data_id = $revision['data_id'];
-      $this->minor_update = ($revision['minor_update']==true);
+      $this->minor_update = ($revision['minor_update']==true && $revision['status'] != 'draft');
     }
   } // end of member function setRevision
 
