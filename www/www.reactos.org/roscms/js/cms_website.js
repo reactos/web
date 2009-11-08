@@ -921,23 +921,22 @@ function showEditorTabRevisions( drid )
  *
  * @param int drid revision id
  */
-function saveRevisionData( drid )
+function saveRevisionData( rev_id )
 {
   var uf_check = confirm("Please double check your changes.\n\nDo you want to continue?");
 
-  if (uf_check === true) {
-    var d_lang_str = document.getElementById('cbmentrylang').value;
-    var d_revnbr_str = document.getElementById('vernbr').value;
+  if (uf_check == true) {
+     var d_lang_str = document.getElementById('cbmentrylang').value;
     var d_usr_str = beautifystr2(document.getElementById('verusr').value);
     var d_date_str = document.getElementById('verdate').value;
     var d_time_str = document.getElementById('vertime').value;
+    var d_minor = document.getElementById('minor').checked;
 
     // remove leading space character
     if (d_usr_str.substr(0, 1) === ' ') {
       d_usr_str = d_usr_str.substr(1, d_usr_str.length-1); 
     }
-
-    makeRequest('?page=backend&type=text&subtype=mef&d_fl=alterentry&d_r_id='+drid+'&d_val='+d_lang_str+'&d_val2='+d_revnbr_str+'&d_val3='+d_usr_str+'&d_val4='+d_date_str+'&d_val5='+d_time_str, 'mef', 'editalterentry', 'html', 'GET', '');
+    makeRequest('?page=backend&type=text&subtype=mef&d_fl=alterentry&d_r_id='+rev_id+'&d_val='+d_lang_str+'&d_val3='+d_usr_str+'&d_val4='+d_date_str+'&d_val5='+d_time_str+'&d_minor='+d_minor, 'mef', 'editalterentry', 'html', 'GET', '');
   }
 } // end of function saveRevisionData
 

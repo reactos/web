@@ -154,7 +154,8 @@ class Backend_ViewEditor extends Backend
 
       // update revision details
       case 'alterentry':
-        Revision::update($_GET['d_r_id'],$_GET['d_val'],$_GET['d_val3'],$_GET['d_val4'],htmlspecialchars(@$_GET["d_val5"]));
+        Revision::update($_GET['d_r_id'],$_GET['d_val'],$_GET['d_val3'],$_GET['d_val4'],htmlspecialchars(@$_GET["d_val5"]), $_GET['d_minor']=='true');
+        $this->setRevision($_GET['d_r_id']);
         $this->show();
         break;
 
@@ -887,8 +888,7 @@ class Backend_ViewEditor extends Backend
         <img src="'.RosCMS::getInstance()->pathRosCMS().'images/add.gif" alt="" style="width:11px; height:11px; border:0px;" />&nbsp;Add
       </span>
       <br /><br /><br />
-      <button type="button" id="beditsavefields" onclick="'."saveFieldData('".$this->data_id."','".$this->rev_id."')".'">Save Changes</button> &nbsp; 
-      <button type="button" id="beditclear" onclick="'."saveFieldData(".$this->data_id.",".$this->rev_id.", '".ThisUser::getInstance()->id()."')".'">Clear</button>');
+      <button type="button" id="beditsavefields" onclick="'."saveFieldData('".$this->rev_id."')".'">Save Changes</button>');
   } // end of member function showEntryDetailsFields
 
 
@@ -901,7 +901,7 @@ class Backend_ViewEditor extends Backend
   private function showEntryDetailsRevision( )
   {
     // get revision information
-    $stmt=&DBConnection::getInstance()->prepare("SELECT d.name, d.type, DATE(r.datetime) AS date, TIME(r.datetime) AS time, r.id, r.lang_id, u.name AS user_name FROM ".ROSCMST_ENTRIES." d JOIN ".ROSCMST_REVISIONS." r ON d.id = r.data_id JOIN ".ROSCMST_USERS." u ON u.id = r.user_id WHERE r.id = :rev_id LIMIT 1");
+    $stmt=&DBConnection::getInstance()->prepare("SELECT d.name, d.type, DATE(r.datetime) AS date, TIME(r.datetime) AS time, r.id, r.lang_id, u.name AS user_name, r.minor_update FROM ".ROSCMST_ENTRIES." d JOIN ".ROSCMST_REVISIONS." r ON d.id = r.data_id JOIN ".ROSCMST_USERS." u ON u.id = r.user_id WHERE r.id = :rev_id LIMIT 1");
     $stmt->bindParam('rev_id',$this->rev_id);
     $stmt->execute();
     $revision = $stmt->fetchOnce(PDO::FETCH_ASSOC);
@@ -935,9 +935,12 @@ class Backend_ViewEditor extends Backend
       <input type="text" name="vertime" id="vertime" size="8" maxlength="8" value="'.$revision['time'].'" /> (hour:minute:second)
       <img src="'.RosCMS::getInstance()->pathRosCMS().'images/attention.gif" width="22" height="22" /><br />
       <br />
+      <label for="minor">Minor update</label>
+      <input type="checkbox" name="minor" id="minor" value="1"'.($revision['minor_update']?'checked="checked"':'').'" /> (Affects translation view)
+      <img src="'.RosCMS::getInstance()->pathRosCMS().'images/attention.gif" width="22" height="22" /><br />
       <br />
-      <button type="button" id="beditsaveentry" onclick="saveRevisionData('.$this->data_id.','.$this->rev_id.')">Save Changes</button> &nbsp;
-      <button type="button" id="beditclear" onclick="'."showEditorTabRevisions(".$this->data_id.",".$this->rev_id.", '".ThisUser::getInstance()->id()."')".'">Clear</button>');
+      <br />
+      <button type="button" id="beditsaveentry" onclick="saveRevisionData('.$this->rev_id.')">Save Changes</button>');
   } // end of member function showEntryDetailsRevision
 
 

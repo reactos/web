@@ -81,12 +81,12 @@ class Revision
    * @return bool
    * @access public
    */
-  public static function update( $rev_id, $lang_id, $user_name, $date, $time )
+  public static function update( $rev_id, $lang_id, $user_name, $date, $time, $minor=false )
   {
     $success = true;
 
     // get current state, so that we only update changed information
-    $stmt=&DBConnection::getInstance()->prepare("SELECT lang_id, version, user_id, datetime FROM ".ROSCMST_REVISIONS." WHERE rev_id = :rev_id LIMIT 1");
+    $stmt=&DBConnection::getInstance()->prepare("SELECT lang_id, version, user_id, datetime FROM ".ROSCMST_REVISIONS." WHERE id = :rev_id LIMIT 1");
     $stmt->bindParam('rev_id',$rev_id,PDO::PARAM_INT);
     $success = $success && $stmt->execute();
     $revision = $stmt->fetchOnce(PDO::FETCH_ASSOC);
@@ -138,6 +138,8 @@ class Revision
       $success = $success && $stmt->execute();
       Log::writeMedium('entry date+time changed: '.$revision['datetime'].' =&gt; '.$date.' '.$time);
     }
+    
+    $success = $success && Revision::setUpdateStatus($rev_id, $minor);
 
     // report if Database calls went right
     return $success;
