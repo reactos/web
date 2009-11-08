@@ -2149,7 +2149,7 @@ function htmlCommandBar( preset )
   // delete entries
   if (roscms_access.del_entry) {
     cmdhtml_archive = '<div class="button" onclick="changeSelectedTags(\'va\')"><img src="'+roscms_intern_webserver_roscms+'images/archive.png" alt="" /><span class="text">to <em>Archive</em</span></div>';
-    cmdhtml_archive = cmdhtml_delete_always;
+    cmdhtml_delete = cmdhtml_delete_always;
   }
 
   switch (preset) {
@@ -2193,7 +2193,6 @@ function htmlCommandBar( preset )
         + cmdhtml_preview
         + cmdhtml_ready
         + cmdhtml_stable
-        + cmdhtml_archive
         + cmdhtml_delete_always;
       break;
 
