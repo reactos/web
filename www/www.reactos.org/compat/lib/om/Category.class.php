@@ -40,9 +40,9 @@ class Category
     
     $types = array(
       'App'=>'Applications',
-      'DLL'=>'Dynamic Link Libraries',
-      'Drv'=>'Drivers',
-      'Oth'=>'Other');
+/*      'DLL'=>'Dynamic Link Libraries',*/
+      'Drv'=>'Drivers'/*,
+      'Oth'=>'Other'*/);
   
     $output = '';
 

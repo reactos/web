@@ -250,7 +250,7 @@ class HTML_Submit extends HTML
 
     echo '
         <div style="padding-bottom:10px;">
-          <h1 class="left">Step 1</h1><h1>&nbsp;Tested software</h1>
+          <h1 class="left">Step 1</h1><h1>&nbsp;Tested subject</h1>
           <ul>
 
             <li style="float: left;">
@@ -260,7 +260,7 @@ class HTML_Submit extends HTML
             </li>
             <li style="float: left;">
               <label for="version"'.($error_version ? ' class="error"' : '').'>Version:</label><br />
-              <input type="text" name="version" id="version" style="width: 50%;" maxlength="20" value="'.htmlspecialchars($entry['version']).'" />
+              <input type="text" name="version" id="version" style="width: 75%;" maxlength="100" value="'.htmlspecialchars($entry['version']).'" />
               <div class="suggestion" id="suggestedVersions" style="display:none;"></div>
             </li>
             <li style="float: left;">

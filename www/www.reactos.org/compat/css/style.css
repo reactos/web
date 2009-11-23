@@ -133,6 +133,10 @@ DIV.crash, TD.crash { background-color: #FF9978;}
 #tooltip UL {margin: 0px;padding-left:15px;}
 
 
+OPTGROUP OPTION {margin-left: 15px; }
+
+
+
 body {
 	font-family: Verdana;
 	font-size: 12px;
