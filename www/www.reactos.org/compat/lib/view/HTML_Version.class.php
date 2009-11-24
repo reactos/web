@@ -305,7 +305,7 @@ class HTML_Version extends HTML
         if (!empty($comment['works'])) {
           echo '
             <h3>
-              <div style="width:1.5em;float:left;margin-right:1em;" class="'.($comment['works'] == 'full' ? 'stable' : ($comment['works'] == 'part' ? 'unstable' : 'crash')).'">&nbsp;</div>
+              <div style="width:1.5em;float:left;margin-right:1em;" title="'.StatusUtil::getTitle($comment['works']).'" class="'.StatusUtil::getClass($comment['works']).'">&nbsp;</div>
               '.(!empty($comment['version']) ? '['.htmlspecialchars($comment['version']).'] in ' : '').''.$comment['rosversion'].'
             </h3>';
         }
@@ -482,7 +482,7 @@ class HTML_Version extends HTML
         foreach ($tests as $test) {
           echo '
             <tr class="row'.($x%2+1).'" onmouseover="highlightTableRow(this);">
-              <td class="first '.($test['works'] == 'full' ? 'stable' : ($test['works'] == 'part' ? 'unstable' : 'crash')).'">&nbsp;</td>
+              <td class="first '.StatusUtil::getClass($test['works']).'" title="'.StatusUtil::getTitle($test['works']).'">&nbsp;</td>
               <td>'.($test['releasename'] != '' ? $test['releasename'] : $test['revision']).'</td>
               <td>';
             if ($test['comment_id'] > 0) {
@@ -538,6 +538,8 @@ class HTML_Version extends HTML
         echo '
             </tbody>
           </table>';
+          
+        $this->showLegend();
       }
       else {
         echo 'There are no tests submitted yet.';

@@ -141,7 +141,7 @@ class HTML_Home extends HTML
           if (count($versions) > 0) {
             echo '
               <tr onmouseover="highlightTableRow(this);" class="row'.($x%2+1).'">
-                <th class="first"><div class="'.($entry['works'] == 'full' ? 'stable' : ($entry['works'] == 'part' ? 'unstable' : 'crash')).'">&nbsp;</div></th>
+                <th class="first" title="'.StatusUtil::getTitle($entry['works']).'"><div class="'.StatusUtil::getClass($entry['works']).'">&nbsp;</div></th>
                 <td>';
 
             // just one version stored
@@ -182,14 +182,7 @@ class HTML_Home extends HTML
         echo 'No entries found.';
       }
 
-    echo '
-      
-      <h2 style="margin: 20px 0px 5px 0px;font-size: 1.5em;">Legend</h2>
-      <div style="clear: both;margin-bottom: 10px;">
-        <div class="stable" style="float: left;width: 1.5em;margin-left: 10px;">&nbsp;</div> <span style="float: left; margin: 0px 2em 0px 3px;">works stable</span>
-        <div class="unstable" style="float: left;width: 1.5em;">&nbsp;</div> <span style="float: left; margin: 0px 2em 0px 3px;">works unstable</span>
-        <div class="crash" style="float: left;width: 1.5em;">&nbsp;</div> <span style="float: left; margin: 0px 2em 0px 3px;">Crashes sometimes</span>
-      </div>';
+    $this->showLegend();
 
     // print some login blah to guest users
     if ($RSDB_intern_user_id <= 0) {

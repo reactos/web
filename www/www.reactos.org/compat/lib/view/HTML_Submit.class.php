@@ -140,7 +140,7 @@ class HTML_Submit extends HTML
     }
 
     // new report
-    if (isset($_POST['status']) && ($_POST['status'] == 'full' || $_POST['status'] == 'part' ||$_POST['status'] == 'not')) {
+    if (isset($_POST['status']) && ($_POST['status'] == 'full' || $_POST['status'] == 'part' ||$_POST['status'] == 'crash' ||$_POST['status'] == 'not')) {
       if ($_POST['env'] == 'RH') {
         $env = 'RH';
         $env_ver = $_POST['vmver'];
@@ -288,15 +288,14 @@ class HTML_Submit extends HTML
           <h1 class="left">Step 2</h1><h1>&nbsp;Test summary</h1>
           <ul style="float:left;margin-right: 20px;">
             <li>
-              <span class="label">Outcome:</span><br />
-              <input type="radio" class="normal" name="status" id="works" value="full"'.($entry['outcome']=='full' ? ' checked="checked"':'').' onchange="'."javascript:document.getElementById('bugreport').style.display=(this.checked ? 'none' : 'block' );".'" />
-              <label for="works" class="stable">Running Stable</label>
-              
-              <input type="radio" class="normal pworks" name="status" id="partworks" value="part"'.($entry['outcome']=='part' ? ' checked="checked"':'').' onchange="'."javascript:document.getElementById('bugreport').style.display=(this.checked ? 'block' : 'none' );".'" />
-              <label for="partworks" class="unstable">Minor Problems</label>
-              
-              <input type="radio" class="normal crash" name="status" id="noworks" value="not"'.($entry['outcome']=='not' ? ' checked="checked"':'').' onchange="'."javascript:document.getElementById('bugreport').style.display=(this.checked ? 'block' : 'none' );".'" />
-              <label for="noworks" class="crash">Crash</label>
+              <label for="status">Outcome:</label><br />
+              <select name="status" id="status">
+                <option></option>
+                <option class="stable" value="full"'.($entry['outcome']=='full' ? ' selected="selected"':'').' title="runs correctly without major problems">Running stable</option>
+                <option class="unstable" value="part"'.($entry['outcome']=='part' ? ' selected="selected"':'').'>Running with problems</option>
+                <option class="nonwork" value="not"'.($entry['outcome']=='not' ? ' selected="selected"':'').' title="doesn\'t start or has no effect">Not working</option>
+                <option class="crash" value="crash"'.($entry['outcome']=='crash' ? ' selected="selected"':'').' title="Prevents ReactOS from working or initiates a BSOD">Crash</option>
+              </select>
               <br />
               <br />
             </li>
@@ -332,7 +331,7 @@ class HTML_Submit extends HTML
           </ul>
           <div style="float: left;margin-right: 10px;">
             <span class="label">Environment:</span><br />
-            <input type="radio" class="normal" name="env" id="envvm" value="VM"'.(($tested_env=='VM') ? ' checked="checked"' : '').' onchange="'."javascript:document.getElementById('vmselect').style.display=(this.checked ? 'block' : 'none' );javascript:document.getElementById('vmverlabel').innerHTML='Version:';".'" />
+            <input type="radio" class="normal" name="env" id="envvm" value="VM"'.(($tested_env=='VM') ? ' checked="checked"' : '').' onchange="'."javascript:document.getElementById('vmselect').style.display=(this.checked ? 'block' : 'none' );javascript:document.getElementById('vmverlabel').innerHTML='Version/Specs:';".'" />
             <label class="normal" for="envvm">Virtual Machine</label><br />
 
             <input type="radio" class="normal" name="env" id="envrh" value="RH"'.(($tested_env=='RH') ? ' checked="checked"' : '').' onchange="'."javascript:document.getElementById('vmselect').style.display=(this.checked ? 'none' : 'block' );javascript:document.getElementById('vmverlabel').innerHTML='Specs:';".'" />
@@ -351,8 +350,8 @@ class HTML_Submit extends HTML
               </select>
             </div>
             <br />
-            <label for="vmver" id="vmverlabel">Version:</label><br />
-            <input type="text" name="vmver" id="vmver" maxlength="100" value="'.$tested_env_details.'" />
+            <label for="vmver" id="vmverlabel">Version/Specs:</label><br />
+            <input type="text" name="vmver" id="vmver" maxlength="100" style="width: 150px;" value="'.$tested_env_details.'" />
           </div>
           <br style="clear: both;"/>
         </div>
@@ -362,7 +361,7 @@ class HTML_Submit extends HTML
           <ul>
             <li>
               <label for="comment">Comment</label><br />
-              <textarea rows="5" cols="70" name="comment" id="comment"></textarea>
+              <textarea rows="5" cols="70" name="comment" id="comment">'.((isset($_POST['comment']) && !used_again) ? $_POST['comment'] : '').'</textarea>
             </li>
             <li>
               <span class="label">Next action:</span><br />
@@ -385,7 +384,7 @@ class HTML_Submit extends HTML
         <hr style="color: #777;" />
       </form>';
       
-    if ($entry['outcome'] != 'part' && $entry['outcome'] != 'not') {
+    if ($entry['outcome'] != 'part' && $entry['outcome'] != 'crash' && $entry['outcome'] != 'not') {
       echo '
         <script type="text/javascript">
         //<!--'."

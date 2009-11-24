@@ -262,6 +262,21 @@ abstract class HTML
 
 
 
+  protected function showLegend() {
+  
+    echo '
+      
+      <h2 style="margin: 20px 0px 5px 0px;font-size: 1.5em;">Legend</h2>
+      <div style="clear: both;margin-bottom: 10px;">
+        <div title="'.StatusUtil::getTitle('full').'"><div class="stable" style="float: left;width: 1.5em;margin-left: 10px;">&nbsp;</div> <span style="float: left; margin: 0px 2em 0px 3px;">works stable</span></div>
+        <div title="'.StatusUtil::getTitle('part').'"><div class="unstable" style="float: left;width: 1.5em;">&nbsp;</div> <span style="float: left; margin: 0px 2em 0px 3px;">works unstable</span></div>
+        <div title="'.StatusUtil::getTitle('not').'"><div class="nonwork" style="float: left;width: 1.5em;">&nbsp;</div> <span style="float: left; margin: 0px 2em 0px 3px;">doesn\'t work</span></div>
+        <div title="'.StatusUtil::getTitle('crash').'"><div class="crash" style="float: left;width: 1.5em;">&nbsp;</div> <span style="float: left; margin: 0px 2em 0px 3px;">crash</span></div>
+      </div>';
+  }
+
+
+
   /**
    * register a css file to be included in the header
    *

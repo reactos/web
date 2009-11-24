@@ -67,10 +67,12 @@
 #submit .error {color: red;}
 #submit .error:before {content:'>>';}
 
-
-LABEL.stable { color: #00CC00 !important; }
-LABEL.unstable { color: #FF7800 !important; }
-LABEL.crash { color: #FF3300 !important; }
+SELECT#status SPAN {font-weight: normal !important; color: gray !important; }
+SELECT#status OPTION { font-weight: bold; background-color: #EEE;}
+OPTION.stable { color: #00CC00; }
+OPTION.unstable { color: #FF7800; }
+OPTION.nonwork { color: gray; }
+OPTION.crash { color: #FF3300; }
 
 .rtable { width: 100%; }
 
@@ -87,6 +89,7 @@ LABEL.crash { color: #FF3300 !important; }
 
 DIV.stable, TD.stable { background-color: #78E578; }
 DIV.unstable, TD.unstable { background-color: #FFE578;}
+DIV.nonwork, TD.nonwork { background-color: gray;}
 DIV.crash, TD.crash { background-color: #FF9978;}
 
 #breadcrumb { display:block; list-style-type:none; clear:both; padding-left: 0px; }
@@ -132,8 +135,6 @@ DIV.crash, TD.crash { background-color: #FF9978;}
 #tooltip { border: 1px solid #CCC; background-color: #FFC; color: #333; position: absolute; z-index: 900; padding: 3px; }
 #tooltip UL {margin: 0px;padding-left:15px;}
 
-
-OPTGROUP OPTION {margin-left: 15px; }
 
 
 

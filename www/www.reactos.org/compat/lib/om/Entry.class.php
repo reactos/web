@@ -98,7 +98,7 @@ class Entry
    *
    * @access public
    */
-  public static function addReport( $entry_id, $version_id, $comment_id, $revision, $env, $env_version, $status = 'not' )
+  public static function addReport( $entry_id, $version_id, $comment_id, $revision, $env, $env_version, $status )
   {
     global $RSDB_intern_user_id;
 

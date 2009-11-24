@@ -167,7 +167,7 @@ class HTML_List extends HTML
           if (count($versions) > 0) {
             echo '
               <tr onmouseover="highlightTableRow(this);" class="row'.($x%2+1).'">
-                <th class="first"><div class="'.($entry['works'] == 'full' ? 'stable' : ($entry['works'] == 'part' ? 'unstable' : 'crash')).'">&nbsp;</div></th>
+                <th class="first" title="'.StatusUtil::getTitle($entry['works']).'"><div class="'.StatusUtil::getClass($entry['works']).'">&nbsp;</div></th>
                 <td>';
 
             // just one version stored
@@ -235,6 +235,8 @@ class HTML_List extends HTML
           }
           echo '</div>';
         }
+        
+        $this->showLegend();
       }
       else {
         echo 'No entries found.';
@@ -561,7 +563,8 @@ class HTML_List extends HTML
   public static function formatWorkingStatus($status)
   {
     if ($status == null) return '';
-    return '<div class="'.($status == 'full' ? 'stable' : ($status == 'part' ? 'unstable' : 'crash')).'">&nbsp;</div>';
+    $output = '<div class="'.StatusUtil::getClass($status).'" title="'.StatusUtil::getTitle($status).'">&nbsp;</div>';
+    return $output;
   }
   
   

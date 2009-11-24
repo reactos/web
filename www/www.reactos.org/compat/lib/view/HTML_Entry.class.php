@@ -65,7 +65,7 @@ class HTML_Entry extends HTML
       while ($version = $stmt->fetch(PDO::FETCH_ASSOC)) {
         echo '
           <tr class="row'.($x%2+1).'">
-            <td class="first '.($version['works'] == 'full' ? 'stable' : ($version['works'] == 'part' ? 'unstable' : 'crash')).'">&nbsp;</td>
+            <td class="first '.StatusUtil::getClass($version['works']).'" title="'.StatusUtil::getTitle($version['works']).'">&nbsp;</td>
             <td><a href="?show=version&amp;id='.$version['id'].'">'.htmlspecialchars($version['version']).'</a></td>
             <td>'.htmlspecialchars($version['rosversion']).'</td>
             <td>'.$version['created'].'</td>
@@ -75,6 +75,8 @@ class HTML_Entry extends HTML
       echo '
           </tbody>
         </table>';
+        
+      $this->showLegend();
     }
     else {
       echo 'Entry not found.';
