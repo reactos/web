@@ -34,7 +34,8 @@ class EMail
   public static function isValid( $email )
   {
     // check if email is not empty and basicly a valid form of email adress
-    return preg_match('/^[^[:space:]<>"]+@[a-z0-9\-_]+\.[a-z]{2,}$/', $email);
+    // RegExp borrowed from http://www.regular-expressions.info/email.html.
+    return preg_match('#^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$#i', $email);
   } // end of member function isValid
 
 
