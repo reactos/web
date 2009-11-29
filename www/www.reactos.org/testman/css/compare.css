@@ -9,6 +9,40 @@ button {
 	font-weight: bold;
 }
 
+#healthindicator_tooltip {
+	background: #FFFFCC;
+	border: solid 1px black;
+	display: none;
+	padding: 3px;
+	position: absolute;
+	width: 400px;
+}
+
+#healthindicator_tooltip .intro {
+	margin-bottom: 1em;
+}
+
+#healthindicator_tooltip .box, #legend .box {
+	border: solid 1px black;
+	height: 15px;
+	width: 15px;
+}
+
+#healthindicator_tooltip .box {
+	clear: left;
+	float: left;
+	margin: 3px;
+}
+
+#healthindicator_tooltip .desc {
+	height: 23px;
+	padding: 3px 0 0 30px;
+}
+
+#healthindicator_tooltip .outro {
+	margin-top: 1em;
+}
+
 #legend {
 	border: solid 1px black;
 	display: inline-block;
@@ -23,14 +57,9 @@ button {
 	margin-right: 5px;
 }
 
-#legend #intro {
+#legend .intro {
 	font-weight: bold;
 	padding-right: 10px;
-}
-
-#legend .box {
-	border: solid 1px black;
-	width: 15px;
 }
 
 #legend .desc {
@@ -51,6 +80,10 @@ button {
 
 .skippedtests {
 	background-color: #CCCCCC !important;
+}
+
+.crashedcanceledtests {
+	background-color: black !important;
 }
 
 .diff_legend {
@@ -88,7 +121,7 @@ button {
 	font-weight: bold;
 }
 
-#comparetable td, #comparetable td div.box {
+#comparetable td, #comparetable td div.box, #comparetable td div.healthindicator {
 	border-right: solid 1px #BBBBBB;
 	border-bottom: solid 1px #BBBBBB;
 	padding: 3px;
@@ -114,6 +147,10 @@ button {
 
 #comparetable td div.totals {
 	width: 163.5px;
+}
+
+#comparetable td div.healthindicator {
+	clear: left;
 }
 
 #comparetable tr.separator {

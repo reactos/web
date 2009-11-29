@@ -38,7 +38,14 @@
 		// Compare page
 		"compare_title" => "Ergebnisse vergleichen",
 		"showchanged" => "Nur geänderte Ergebnisse anzeigen",
+		"showcrashed" => "Nur Crash/Canceled-Ergebnisse anzeigen",
 		"export_as" => "Exportieren als",
+		
+		"healthindicator_intro" => "Der <i>Health Indicator</i> gibt einen groben Überblick über den gesamten Testverlauf.<br />Ein Streifen stellt dabei das Ergebnis einer einzelnen Test Suite dar. Folgende Farben werden dabei verwendet:",
+		"healthindicator_test_crashedcanceled" => "Die Test Suite ist abgestürzt oder wurde abgebrochen.",
+		"healthindicator_test_succeeded" => "Die Test Suite wurde ohne Fehler abgeschlossen.",
+		"healthindicator_test_failed" => "Alle Tests der Test Suite sind fehlgeschlagen.",
+		"healthindicator_outro" => "Eine Farbe zwischen grün und rot kennzeichnet ungefähr, wie viele Tests fehlgeschlagen sind.",
 		
 		"legend" => "Legende",
 		"totaltests" => "Ausgeführte Tests",

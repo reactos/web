@@ -87,6 +87,8 @@
 		if($reader->getTestIDCount() > 1)
 			printf('<input type="checkbox" id="showchanged" onclick="ShowChangedCheckbox_OnClick(this)" /> <label for="showchanged">%s</label><br />', $testman_langres["showchanged"]);
 		
+		printf('<input type="checkbox" id="showcrashed" onclick="ShowCrashedCheckbox_OnClick(this)" /> <label for="showcrashed">%s</label><br />', $testman_langres["showcrashed"]);
+
 		echo $testman_langres["export_as"];
 	?>:
 	
@@ -94,8 +96,23 @@
 	<button onclick="window.open('export.php?f=xml&amp;ids=<?php echo $_GET["ids"]; ?>')">XML</button>
 </div><br />
 
+<div id="healthindicator_tooltip">
+	<div class="intro"><?php echo $testman_langres["healthindicator_intro"]; ?></div>
+	
+	<div class="box crashedcanceledtests"></div>
+	<div class="desc"><?php echo $testman_langres["healthindicator_test_crashedcanceled"]; ?></div>
+
+	<div class="box zero_failedtests"></div>
+	<div class="desc"><?php echo $testman_langres["healthindicator_test_succeeded"]; ?></div>
+	
+	<div class="box real_failedtests"></div>
+	<div class="desc"><?php echo $testman_langres["healthindicator_test_failed"]; ?></div>
+	
+	<div class="outro"><?php echo $testman_langres["healthindicator_outro"]; ?></div>
+</div>
+
 <div id="legend">
-	<div id="intro"><?php echo $testman_langres["legend"]; ?>:</div>
+	<div class="intro"><?php echo $testman_langres["legend"]; ?>:</div>
 	
 	<div class="box totaltests"></div>
 	<div class="desc"><?php echo $testman_langres["totaltests"]; ?></div>
@@ -152,6 +169,7 @@
 		echo '<td onmouseover="Cell_OnMouseOver(this)" onmouseout="Cell_OnMouseOut(this)">';
 		printf('<div title="%s" class="box totaltests totals">%s <span class="diff">%s</span></div>', $testman_langres["totaltests"], $row["count"], GetDifference($row, $prev_row, "count"));
 		printf('<div title="%s" class="box %s_failedtests totals">%d <span class="diff">%s</span></div>', $testman_langres["failedtests"], ($row["failures"] > 0 ? 'real' : 'zero'), $row["failures"], GetDifference($row, $prev_row, "failures"));
+		printf('<div title="%s" class="healthindicator" onmouseover="HealthIndicator_OnMouseOver()" onmouseout="HealthIndicator_OnMouseOut()"><img src="indicator.php?id=%d" /></div>', $testman_langres["healthindicator"], $row["id"]);
 		echo '</td>';
 		
 		$prev_row = $row;
@@ -179,6 +197,7 @@
 	
 	$oddeven = true;
 	$unchanged = array();
+	$uncrashed = array();
 	
 	while($suites_row = $suites_stmt->fetch(PDO::FETCH_ASSOC))
 	{
@@ -186,6 +205,7 @@
 		printf('<td onmouseover="Cell_OnMouseOver(this)" onmouseout="Cell_OnMouseOut(this)">%s:%s</td>', $suites_row["module"], $suites_row["test"]);
 		
 		$changed = false;
+		$crashed = false;
 		$prev_row = null;
 		$temp_totaltests = -1;
 		$temp_failedtests = -1;
@@ -206,6 +226,7 @@
 			CheckIfChanged($changed, $temp_totaltests, $row["count"]);
 			CheckIfChanged($changed, $temp_failedtests, $row["failures"]);
 			CheckIfChanged($changed, $temp_skippedtests, $row["skipped"]);
+			$crashed = ($crashed || $row["status"] != "ok");
 			
 			if($row["id"])
 			{
@@ -229,6 +250,9 @@
 		if(!$changed)
 			$unchanged[] = $suites_row["id"];
 		
+		if(!$crashed)
+			$uncrashed[] = $suites_row["id"];
+		
 		$oddeven = !$oddeven;
 	}
 	
@@ -237,6 +261,9 @@
 	// Prepare the array containing all "unchanged" rows
 	echo "<script type=\"text/javascript\">\n";
 	echo "//<![CDATA[\n";
+	echo "var UncrashedRows = Array(";
+	echo implode(",", $uncrashed);
+	echo ");\n";
 	echo "var UnchangedRows = Array(";
 	echo implode(",", $unchanged);
 	echo ");\n";

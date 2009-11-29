@@ -6,6 +6,7 @@
   COPYRIGHT:  Copyright 2008-2009 Colin Finck <colin@reactos.org>
   TRANSLATOR: Maciej Bialas
               Mariusz Przybylski
+              Olaf Siejka
   
   charset=utf-8 without BOM
 */
@@ -39,7 +40,14 @@
 		// Compare page
 		"compare_title" => "Porównywanie wyników",
 		"showchanged" => "Pokaż tylko zmienione wyniki",
+		"showcrashed" => "Pokaż tylko wyniki Crash/Canceled",
 		"export_as" => "Eksportuj jako",
+		
+		"healthindicator_intro" => "<i>Health Indicator</i> podaje uogólniony rezultat wszystkich zestawów testów.<br />Każdy pasek reprezentuje wynik danego zestawu. Stosuje się następujące oznaczenia:",
+		"healthindicator_test_crashedcanceled" => "Krytyczny błąd aplikacji testowej lub jej anulowanie.",
+		"healthindicator_test_succeeded" => "Zestaw testów ukończony pomyślnie.",
+		"healthindicator_test_failed" => "Wszystkie testy z zestawu zakończyły się niepowodzeniem.",
+		"healthindicator_outro" => "Barwa pomiędzy czerwoną a zieloną. Im bardziej zielona, tym więcej testów zakończyło się pomyślnie.",
 		
 		"legend" => "Legenda",
 		"totaltests" => "Wszystkie testy",

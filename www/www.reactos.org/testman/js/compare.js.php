@@ -15,6 +15,7 @@ var DragOffset;
 var MaxLeftDragBorder;
 var MaxRightDragBorder;
 var MouseX;
+var MouseY;
 var OverlappedForSwap;
 var SwapColumn;
 var TableRowEquiv;
@@ -58,6 +59,30 @@ function ShowChangedCheckbox_OnClick(checkbox)
 	// Report the size change to the parent window if "Open in new window" was disabled
 	if(parent.ResizeIFrame)
 		parent.ResizeIFrame();
+}
+
+function ShowCrashedCheckbox_OnClick(checkbox)
+{
+	var value = (checkbox.checked ? "none" : TableRowEquiv);
+	
+	for(var i = 0; i < UncrashedRows.length; i++)
+		document.getElementById("suite_" + UncrashedRows[i]).style.display = value;
+	
+	document.cookie = "showcrashed=" + (checkbox.checked ? "1" : "0");
+	
+	// Report the size change to the parent window if "Open in new window" was disabled
+	if(parent.ResizeIFrame)
+		parent.ResizeIFrame();
+}
+
+function HealthIndicator_OnMouseOver()
+{
+	document.getElementById("healthindicator_tooltip").style.display = "block";
+}
+
+function HealthIndicator_OnMouseOut()
+{
+	document.getElementById("healthindicator_tooltip").style.display = "none";
 }
 
 function GetValueForResult(td)
@@ -162,14 +187,8 @@ function GetAbsoluteOffsetTop(elem)
 	return top;
 }
 
-function Document_OnMouseMove(event)
+function DragCurrentColumn()
 {
-	// IE stores the event in window.event...
-	if(!event)
-		event = window.event;
-	
-	MouseX = event.clientX;
-	
 	// Drag if there's something to do
 	if(!DragColumn)
 		return;
@@ -227,6 +246,27 @@ function Document_OnMouseMove(event)
 	// Set the swap column to the overlap color in this case
 	if(OverlappedForSwap)
 		SwapColumn.style.background = ColumnOverlapColor;
+}
+
+function MoveHealthIndicatorTooltip()
+{
+	var tooltip = document.getElementById("healthindicator_tooltip");
+	
+	tooltip.style.left = String(MouseX + 10) + "px";
+	tooltip.style.top = String(MouseY + 10) + "px";
+}
+
+function Document_OnMouseMove(event)
+{
+	// IE stores the event in window.event...
+	if(!event)
+		event = window.event;
+	
+	MouseX = event.clientX;
+	MouseY = event.clientY;
+	
+	DragCurrentColumn();
+	MoveHealthIndicatorTooltip();
 }
 
 function SwapElements(elem1, elem2)
@@ -338,6 +378,11 @@ function Load()
 		checkbox.checked = parseInt(GetCookieValue("showchanged"));
 		ShowChangedCheckbox_OnClick(checkbox);
 	}
+	
+	// Also set the one for "showcrashed"
+	checkbox = document.getElementById("showcrashed");
+	checkbox.checked = parseInt(GetCookieValue("showcrashed"));
+	ShowCrashedCheckbox_OnClick(checkbox);
 }
 
 function Result_OnClick(id)

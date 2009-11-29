@@ -111,7 +111,7 @@
 				return "Index $i is out of range!";
 			
 			$stmt = $this->dbh->query(
-				"SELECT UNIX_TIMESTAMP(r.timestamp) timestamp, a.name, r.revision, r.platform, r.count, r.failures " .
+				"SELECT UNIX_TIMESTAMP(r.timestamp) timestamp, a.name, r.revision, r.platform, r.count, r.failures, r.id " .
 				"FROM " . DB_TESTMAN . ".winetest_runs r " .
 				"JOIN " . DB_ROSCMS . ".roscms_accounts a ON r.user_id = a.id " .
 				"WHERE r.id = " . $this->test_id_array[$i] . " " .
