@@ -1,10 +1,8 @@
-﻿/*
+/*
   PROJECT:    ReactOS Web Test Manager
   LICENSE:    GNU GPLv2 or any later version as published by the Free Software Foundation
   PURPOSE:    JavaScript file for the Result Details Page (parsed by PHP before)
   COPYRIGHT:  Copyright 2008-2009 Colin Finck <colin@reactos.org>
-
-  charset=utf-8
 */
 
 function SetRowColor(elem, color)

@@ -25,11 +25,7 @@
 	<link rel="stylesheet" type="text/css" href="../shared/css/basic.css" />
 	<link rel="stylesheet" type="text/css" href="../shared/css/reactos.css" />
 	<link rel="stylesheet" type="text/css" href="css/detail.css" />
-	<script type="text/javascript">
-	//<![CDATA[
-		<?php require_once("js/detail.js.php"); ?>
-	//]]>
-	</script>
+	<script type="text/javascript" src="js/detail.js"></script>
 </head>
 <body>
 

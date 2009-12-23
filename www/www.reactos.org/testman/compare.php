@@ -59,11 +59,7 @@
 	<link rel="stylesheet" type="text/css" href="../shared/css/reactos.css" />
 	<link rel="stylesheet" type="text/css" href="css/compare.css" />
 	<script type="text/javascript" src="js/shared.js"></script>
-	<script type="text/javascript">
-	//<![CDATA[
-		<?php require_once("js/compare.js.php"); ?>
-	//]]>
-	</script>
+	<script type="text/javascript" src="js/compare.js"></script>
 </head>
 <body onload="Load()">
 
@@ -84,10 +80,8 @@
 <div>
 	<?php
 		// Activate the option to only show the changed results between several test runs if more than one Test ID was passed.
-		if($reader->getTestIDCount() > 1)
-			printf('<input type="checkbox" id="showchanged" onclick="ShowChangedCheckbox_OnClick(this)" /> <label for="showchanged">%s</label><br />', $testman_langres["showchanged"]);
-		
-		printf('<input type="checkbox" id="showcrashed" onclick="ShowCrashedCheckbox_OnClick(this)" /> <label for="showcrashed">%s</label><br />', $testman_langres["showcrashed"]);
+		printf('<div%s><input type="checkbox" id="showchanged" name="filter" /> <label for="showchanged">%s</label></div>', ($reader->getTestIDCount() > 1 ? '' : ' style="display: none;"'), $testman_langres["showchanged"]);
+		printf('<div><input type="checkbox" id="showcrashed" name="filter" /> <label for="showcrashed">%s</label></div>', $testman_langres["showcrashed"]);
 
 		echo $testman_langres["export_as"];
 	?>:
@@ -226,10 +220,11 @@
 			CheckIfChanged($changed, $temp_totaltests, $row["count"]);
 			CheckIfChanged($changed, $temp_failedtests, $row["failures"]);
 			CheckIfChanged($changed, $temp_skippedtests, $row["skipped"]);
-			$crashed = ($crashed || $row["status"] != "ok");
 			
 			if($row["id"])
 			{
+				$crashed = ($crashed || $row["status"] != "ok");
+				
 				printf('<div title="%s" class="box totaltests">%s <span class="diff">%s</span></div>', $testman_langres["totaltests"], GetTotalTestsString($row), GetDifference($row, $prev_row, "count"));
 				printf('<div title="%s" class="box %s_failedtests">%d <span class="diff">%s</span></div>', $testman_langres["failedtests"], (($row["failures"] > 0 || $row["status"] != "ok") ? 'real' : 'zero'), $row["failures"], GetDifference($row, $prev_row, "failures"));
 				printf('<div title="%s" class="box skippedtests">%d <span class="diff">%s</span></div>', $testman_langres["skippedtests"], $row["skipped"], GetDifference($row, $prev_row, "skipped"));
@@ -247,25 +242,23 @@
 		
 		echo '</tr>';
 		
-		if(!$changed)
-			$unchanged[] = $suites_row["id"];
-		
-		if(!$crashed)
-			$uncrashed[] = $suites_row["id"];
+		if(!$changed || !$crashed)
+		{
+			$filterable_rows[] = $suites_row["id"];
+			$filterable_rows[] = (!$changed ? 1 : 0);
+			$filterable_rows[] = (!$crashed ? 1 : 0);
+		}
 		
 		$oddeven = !$oddeven;
 	}
 	
 	echo '</tbody></table>';
 	
-	// Prepare the array containing all "unchanged" rows
+	// Prepare the array containing all filterable rows
 	echo "<script type=\"text/javascript\">\n";
 	echo "//<![CDATA[\n";
-	echo "var UncrashedRows = Array(";
-	echo implode(",", $uncrashed);
-	echo ");\n";
-	echo "var UnchangedRows = Array(";
-	echo implode(",", $unchanged);
+	echo "var FilterableRows = Array(";
+	echo implode(",", $filterable_rows);
 	echo ");\n";
 	echo "//]]>\n";
 	echo "</script>";

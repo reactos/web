@@ -1,10 +1,8 @@
-﻿/*
+/*
   PROJECT:    ReactOS Web Test Manager
   LICENSE:    GNU GPLv2 or any later version as published by the Free Software Foundation
   PURPOSE:    JavaScript file for the Compare Page (parsed by PHP before)
   COPYRIGHT:  Copyright 2008-2009 Colin Finck <colin@reactos.org>
-
-  charset=utf-8
 */
 
 var CurrentLeftDragBorder;
@@ -47,28 +45,42 @@ function GetColumnIndex(th)
 			return i;
 }
 
-function ShowChangedCheckbox_OnClick(checkbox)
+function ProcessFilters()
 {
-	var value = (checkbox.checked ? "none" : TableRowEquiv);
+	// Filter the results
+	var filters = document.getElementsByName("filter");
+	var increment = 1 + filters.length;
+	var i;
 	
-	for(var i = 0; i < UnchangedRows.length; i++)
-		document.getElementById("suite_" + UnchangedRows[i]).style.display = value;
+	for(i = 0; i < FilterableRows.length; i += increment)
+	{
+		var value = TableRowEquiv;
+		
+		for(var j = 0; j < filters.length; ++j)
+		{
+			/* FilterableRows is an array holding the (virtual) structure:
+			   
+			   SuiteID,
+			   Value of Filter 1,
+			   Value of Filter 2,
+			   ...
+			   
+			   If the value of a filter is true and the corresponding filter is activated, the result is
+			   filtered.
+			*/
+			if(filters[j].checked && FilterableRows[i + 1 + j])
+			{
+				value = "none";
+				break;
+			}
+		}
+		
+		document.getElementById("suite_" + FilterableRows[i]).style.display = value;
+	}
 	
-	document.cookie = "showchanged=" + (checkbox.checked ? "1" : "0");
-	
-	// Report the size change to the parent window if "Open in new window" was disabled
-	if(parent.ResizeIFrame)
-		parent.ResizeIFrame();
-}
-
-function ShowCrashedCheckbox_OnClick(checkbox)
-{
-	var value = (checkbox.checked ? "none" : TableRowEquiv);
-	
-	for(var i = 0; i < UncrashedRows.length; i++)
-		document.getElementById("suite_" + UncrashedRows[i]).style.display = value;
-	
-	document.cookie = "showcrashed=" + (checkbox.checked ? "1" : "0");
+	// Update the cookies for the filters
+	for(i = 0; i < filters.length; ++i)
+		document.cookie = "filter" + String(i) + "=" + (filters[i].checked ? "1" : "0");
 	
 	// Report the size change to the parent window if "Open in new window" was disabled
 	if(parent.ResizeIFrame)
@@ -85,78 +97,54 @@ function HealthIndicator_OnMouseOut()
 	document.getElementById("healthindicator_tooltip").style.display = "none";
 }
 
-function GetValueForResult(td)
-{
-	// If a test crashed, return a numeric value of 0, so that the comparison is accurate
-	if(td.firstChild.data.replace(/ /g, "") == "CRASH")
-		return 0;
-	
-	return parseInt(td.firstChild.data);
-}
-
 function AddDifferenceForColumn(th)
 {
 	var Index = GetColumnIndex(th);
+	
+	// Iterate through all result rows
 	var trs = document.getElementById("comparetable").childNodes[1].childNodes;
 	
-	// Check whether this is the first real column
-	if(Index == 1)
-	{
-		// Remove all difference data in this case as there is no previous element
-		for(var i = 0; i < trs.length; i++)
-		{
-			// Ignore empty rows (like separator rows)
-			if(!trs[i].childNodes.length)
-				continue;
-			
-			var divs = trs[i].childNodes[Index].getElementsByTagName("div");
-			
-			for(var j = 0; j < divs.length; j++)
-			{
-				// \u00A0 = &nbsp;
-				divs[j].getElementsByTagName("span")[0].firstChild.data = "\u00A0";
-			}
-		}
-		
-		return;
-	}
-	
-	// No, then add the difference data accordingly
-	for(var i = 0; i < trs.length; i++)
+	for(var i = 0; i < trs.length; ++i)
 	{
 		// Ignore empty rows (like separator rows)
-		if(!trs[i].childNodes.length)
-			continue;
-		
-		// We can only add difference data if the current table and the previous one contain result data
-		if(trs[i].childNodes[Index].firstChild.nodeName != "DIV" || trs[i].childNodes[Index - 1].firstChild.nodeName != "DIV")
-			continue;
-		
-		var divs = trs[i].childNodes[Index].childNodes;
-		
-		for(var j = 0; j < divs.length; j++)
+		if(trs[i].childNodes.length)
 		{
-			var CurrentValue = divs[j].firstChild.data;
-			var PreviousValue = trs[i].childNodes[Index - 1].childNodes[j].firstChild.data;
+			// Iterate through all result values of this cell (enclosed in <div> elements)
+			var divs = trs[i].childNodes[Index].getElementsByTagName("div");
 			
-			if(CurrentValue == PreviousValue || CurrentValue == -1 || PreviousValue == -1)
+			for(var j = 0; j < divs.length; ++j)
 			{
-				var DiffString = "\u00A0";
-			}
-			else
-			{
-				// Calculate the difference
-				var Diff = CurrentValue - PreviousValue;
+				// If this is a comparable result value (and not e.g. the health indicator), the first subelement
+				// has to be a #text element containing the result value.
+				var valueElement = divs[j].firstChild;
 				
-				if(Diff > 0)
-					var DiffString = String("(+" + Diff + ")");
-				else if(Diff < 0)
-					var DiffString = String("(" + Diff + ")");
-				else
+				if(valueElement.nodeName == "#text")
+				{
+					// \u00A0 = &nbsp;
 					var DiffString = "\u00A0";
+					
+					// Check if there is a previous value to compare with
+					var PreviousDivs = trs[i].childNodes[Index - 1].getElementsByTagName("div");
+					
+					if(Index >= 2 && PreviousDivs.length)
+					{
+						// Calculate the difference between this value and the previous value.
+						// Non-numeric values (like "CRASH") are interpreted as zeros.
+						var CurrentValue = (isNaN(valueElement.data) ? 0 : parseInt(valueElement.data));
+						var PreviousValue = (isNaN(PreviousDivs[j].firstChild.data) ? 0 : parseInt(PreviousDivs[j].firstChild.data));
+						var Diff = CurrentValue - PreviousValue;
+						
+						if(Diff > 0)
+							DiffString = String("(+" + Diff + ")");
+						else if(Diff < 0)
+							DiffString = String("(" + Diff + ")");
+					}
+					
+					// As this is a comparable result value, the next sibling of the #text element has to be a
+					// <span> element, which will contain the difference value.
+					valueElement.nextSibling.firstChild.data = DiffString;
+				}
 			}
-			
-			divs[j].getElementsByTagName("span")[0].firstChild.data = DiffString;
 		}
 	}
 }
@@ -369,20 +357,16 @@ function Load()
 	else
 		TableRowEquiv = "table-row";
 	
-	// The "showchanged" checkbox will only be available if we have more than one result
-	var checkbox = document.getElementById("showchanged");
+	// Get the filter values from the cookies, apply them and associate the click handler
+	var filters = document.getElementsByName("filter");
 	
-	if(checkbox)
+	for(var i = 0; i < filters.length; ++i)
 	{
-		// Get its value from the cookie
-		checkbox.checked = parseInt(GetCookieValue("showchanged"));
-		ShowChangedCheckbox_OnClick(checkbox);
+		filters[i].checked = parseInt(GetCookieValue("filter" + String(i)));
+		filters[i].onclick = ProcessFilters;
 	}
 	
-	// Also set the one for "showcrashed"
-	checkbox = document.getElementById("showcrashed");
-	checkbox.checked = parseInt(GetCookieValue("showcrashed"));
-	ShowCrashedCheckbox_OnClick(checkbox);
+	ProcessFilters();
 }
 
 function Result_OnClick(id)
