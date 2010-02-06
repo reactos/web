@@ -10,7 +10,7 @@ echo "
 
 A problem has been detected and RosCMS has been shut down to prevent damage to your computer.<p>
 
-PAGE_FAULT_IN_NONPAGED_AREA<p>
+SECURITY_SYSTEM<p>
 
 If this is the first time you have seen this error screen,<br>
 restart your browser. If this screen appears again, follow<br>
@@ -22,7 +22,7 @@ If problems continue, drop an email to ros-web@reactos.org<p>
 
 Technical information:<p>
 
-*** STOP: 0x00000404 ($r_ip, $r_port, $s_ip, $s_port)<p></br>
+*** STOP: 0x00000403 ($r_ip, $r_port, $s_ip, $s_port)<p></br>
 
 ***&nbsp;&nbsp;&nbsp;$page - Address $server$ref, DateStamp $datestamp
 
