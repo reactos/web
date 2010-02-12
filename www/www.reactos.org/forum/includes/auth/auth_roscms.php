@@ -18,7 +18,7 @@ require_once(ROSCMS_PATH . "lib/RosCMS_Autoloader.class.php");
 /**
 * Login function
 */
-define(ROSCMS_DB_NAME, "roscms");
+define("ROSCMS_DB_NAME", "roscms");
 
 function login_roscms(&$username, &$password)
 {
