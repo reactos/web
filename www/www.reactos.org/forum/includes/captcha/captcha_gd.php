@@ -2,7 +2,7 @@
 /**
 *
 * @package VC
-* @version $Id: captcha_gd.php 9403 2009-03-20 16:34:06Z Kellanved $
+* @version $Id: captcha_gd.php 9609 2009-06-17 13:29:26Z Kellanved $
 * @copyright (c) 2006 phpBB Group
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License
 *
@@ -27,14 +27,15 @@ class captcha
 	var $width = 360;
 	var $height = 96;
 
+
 	/**
 	* Create the image containing $code with a seed of $seed
 	*/
 	function execute($code, $seed)
 	{
 		global $config;
-		srand($seed);
-		//mt_srand($seed);
+		
+		mt_srand($seed);
 
 		// Create image
 		$img = imagecreatetruecolor($this->width, $this->height);
@@ -107,7 +108,7 @@ class captcha
 		
 		if ($config['captcha_gd_3d_noise'])
 		{
-			$xoffset = rand(0,9);
+			$xoffset = mt_rand(0,9);
 			$noise_bitmaps = $this->captcha_noise_bg_bitmaps();
 			for ($i = 0; $i < $code_len; ++$i)
 			{
@@ -145,7 +146,6 @@ class captcha
 		{
 			$this->noise_line($img, 0, 0, $this->width, $this->height, $colour->get_resource('background'), $scheme, $bg_colours);
 		}
-
 		// Send image
 		header('Content-Type: image/png');
 		header('Cache-control: no-cache, no-store');

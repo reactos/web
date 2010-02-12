@@ -4,7 +4,7 @@
 * acp_styles [English]
 *
 * @package language
-* @version $Id: styles.php 9046 2008-11-02 16:19:11Z acydburn $
+* @version $Id: styles.php 10074 2009-08-31 11:25:28Z acydburn $
 * @copyright (c) 2005 phpBB Group
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License
 *
@@ -85,6 +85,7 @@ $lang = array_merge($lang, array(
 	'DELETE_THEME_EXPLAIN'		=> 'Here you can remove the selected theme from the database. Additionally, if you have permission you can elect to remove the theme from the filesystem. Please note that there is no undo capability. When the theme is deleted it is gone for good. It is recommended that you first export your theme for possible future use.',
 	'DETAILS'					=> 'Details',
 	'DIMENSIONS_EXPLAIN'		=> 'Selecting yes here will include width/height parameters.',
+
 
 	'EDIT_DETAILS_IMAGESET'				=> 'Edit imageset details',
 	'EDIT_DETAILS_IMAGESET_EXPLAIN'		=> 'Here you can edit certain imageset details such as its name.',
@@ -391,6 +392,7 @@ $lang = array_merge($lang, array(
 	'TEMPLATE_LOCATION'			=> 'Store templates in',
 	'TEMPLATE_LOCATION_EXPLAIN'	=> 'Images are always stored on the filesystem.',
 	'TEMPLATE_NAME'				=> 'Template name',
+	'TEMPLATE_FILE_NOT_WRITABLE'=> 'Unable to write to template file %s. Please check the permissions for the directory and the files.',
 	'TEMPLATE_REFRESHED'		=> 'Template refreshed successfully.',
 
 	'THEME_ADDED'				=> 'New theme added on filesystem.',

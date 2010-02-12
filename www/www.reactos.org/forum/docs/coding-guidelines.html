@@ -57,6 +57,7 @@
 		<li><a href="#editorsettings">Editor Settings</a></li>
 		<li><a href="#fileheader">File Header</a></li>
 		<li><a href="#locations">File Locations</a></li>
+		<li><a href="#constants">Special Constants</a></li>
 	</ol>
 	</li>
 	<li><a href="#code">Code Layout/Guidelines</a>
@@ -69,13 +70,27 @@
 	</ol>
 	</li>
 	<li><a href="#styling">Styling</a></li>
-	<li><a href="#templating">Templating</a></li>
+	<ol style="list-style-type: lower-roman;">
+		<li><a href="#cfgfiles">Style Config Files</a></li>
+		<li><a href="#genstyling">General Styling Rules</a></li>
+	</ol></li>
+	<li><a href="#templating">Templating</a>
+	<ol style="list-style-type: lower-roman;">
+		<li><a href="#templates">General Templating</a></li>
+		<li><a href="#inheritance">Template Inheritance</a></li>
+	</ol></li>
 	<li><a href="#charsets">Character Sets and Encodings</a></li>
 	<li><a href="#translation">Translation (<abbr title="Internationalisation">i18n</abbr>/<abbr title="Localisation">L10n</abbr>) Guidelines</a>
 	<ol style="list-style-type: lower-roman;">
 		<li><a href="#standardisation">Standardisation</a></li>
 		<li><a href="#otherconsiderations">Other considerations</a></li>
 		<li><a href="#writingstyle">Writing Style</a></li>
+	</ol>
+	</li>
+	<li><a href="#vcs">VCS Guidelines</a>
+	<ol style="list-style-type: lower-roman;">
+		<li><a href="#repostruct">Repository structure</a></li>
+		<li><a href="#commitmessage">Commit messages</a></li>
 	</ol>
 	</li>
 	<li><a href="#changes">Guidelines Changelog</a></li>
@@ -188,8 +203,7 @@ class ...
 				<li><code>/includes/db/firebird.php</code><br />Firebird/Interbase Database Abstraction Layer</li>
 				<li><code>/includes/db/msssql.php</code><br />MSSQL Database Abstraction Layer</li>
 				<li><code>/includes/db/mssql_odbc.php</code><br />MSSQL ODBC Database Abstraction Layer for MSSQL</li>
-				<li><code>/includes/db/mysql.php</code><br />MySQL Database Abstraction Layer for MySQL 3.x/4.0.x</li>
-				<li><code>/includes/db/mysql4.php</code><br />MySQL4 Database Abstraction Layer for MySQL 4.1.x/5.x</li>
+				<li><code>/includes/db/mysql.php</code><br />MySQL Database Abstraction Layer for MySQL 3.x/4.0.x/4.1.x/5.x
 				<li><code>/includes/db/mysqli.php</code><br />MySQLi Database Abstraction Layer</li>
 				<li><code>/includes/db/oracle.php</code><br />Oracle Database Abstraction Layer</li>
 				<li><code>/includes/db/postgres.php</code><br />PostgreSQL Database Abstraction Layer</li>
@@ -209,6 +223,54 @@ class ...
 		<li><strong>search</strong><br /><code>/includes/search</code>, <code>search.php</code><br />Search System</li>
 		<li><strong>styles</strong><br /><code>/styles</code>, <code>style.php</code><br />phpBB Styles/Templates/Themes/Imagesets</li>
 	</ul>
+
+	<a name="constants"></a></h3>1.iv. Special Constants</h3>
+
+	<p>There are some special constants application developers are able to utilize to bend some of phpBB's internal functionality to suit their needs.</p>
+
+	<div class="codebox"><pre>
+PHPBB_MSG_HANDLER          (overwrite message handler)
+PHPBB_DB_NEW_LINK          (overwrite new_link parameter for sql_connect)
+PHPBB_ROOT_PATH            (overwrite $phpbb_root_path)
+PHPBB_ADMIN_PATH           (overwrite $phpbb_admin_path)
+PHPBB_USE_BOARD_URL_PATH   (use generate_board_url() for image paths instead of $phpbb_root_path)
+PHPBB_DISABLE_ACP_EDITOR   (disable ACP style editor for templates)
+PHPBB_DISABLE_CONFIG_CHECK (disable ACP config.php writeable check)
+
+PHPBB_ACM_MEMCACHE_PORT     (overwrite memcached port, default is 11211)
+PHPBB_ACM_MEMCACHE_COMPRESS (overwrite memcached compress setting, default is disabled)
+PHPBB_ACM_MEMCACHE_HOST     (overwrite memcached host name, default is localhost)
+
+PHPBB_QA                   (Set board to QA-Mode, which means the updater also checks for RC-releases)
+</pre></div>
+
+<h4>PHPBB_USE_BOARD_URL_PATH</h4>
+
+<p>If the <code>PHPBB_USE_BOARD_URL_PATH</code> constant is set to true, phpBB uses generate_board_url() (this will return the boards url with the script path included) on all instances where web-accessible images are loaded. The exact locations are:</p>
+
+<ul>
+	<li>/includes/session.php - user::img()</li>
+	<li>/includes/functions_content.php - smiley_text()</li>
+</ul>
+
+<p>Path locations for the following template variables are affected by this too:</p>
+
+<ul>
+	<li>{T_THEME_PATH} - styles/xxx/theme</li>
+	<li>{T_TEMPLATE_PATH} - styles/xxx/template</li>
+	<li>{T_SUPER_TEMPLATE_PATH} - styles/xxx/template</li>
+	<li>{T_IMAGESET_PATH} - styles/xxx/imageset</li>
+	<li>{T_IMAGESET_LANG_PATH} - styles/xxx/imageset/yy</li>
+	<li>{T_IMAGES_PATH} - images/</li>
+	<li>{T_SMILIES_PATH} - $config['smilies_path']/</li>
+	<li>{T_AVATAR_PATH} - $config['avatar_path']/</li>
+	<li>{T_AVATAR_GALLERY_PATH} - $config['avatar_gallery_path']/</li>
+	<li>{T_ICONS_PATH} - $config['icons_path']/</li>
+	<li>{T_RANKS_PATH} - $config['ranks_path']/</li>
+	<li>{T_UPLOAD_PATH} - $config['upload_path']/</li>
+	<li>{T_STYLESHEET_LINK} - styles/xxx/theme/stylesheet.css (or link to style.php if css is parsed dynamically)</li>
+	<li>New template variable {BOARD_URL} for the board url + script path.</li>
+</ul>
 
 		</div>
 
@@ -518,7 +580,7 @@ switch ($mode)
 	break;
 
 	default:
-		// Always assume that the case got not catched
+		// Always assume that a case was not caught
 	break;
 }
 	</pre></div>
@@ -541,7 +603,7 @@ switch ($mode)
 
 	default:
 
-		// Always assume that the case got not catched
+		// Always assume that a case was not caught
 
 	break;
 }
@@ -569,7 +631,7 @@ switch ($mode)
 
 	default:
 
-		// Always assume that the case got not catched
+		// Always assume that a case was not caught
 
 	break;
 }
@@ -690,7 +752,29 @@ $sql = 'UPDATE ' . SOME_TABLE . '
 $db-&gt;sql_query($sql);
 	</pre></div>
 
-	<p>The <code>$db-&gt;sql_build_array()</code> function supports the following modes: <code>INSERT</code> (example above), <code>INSERT_SELECT</code> (building query for <code>INSERT INTO table (...) SELECT value, column ...</code> statements), <code>MULTI_INSERT</code> (for returning extended inserts), <code>UPDATE</code> (example above) and <code>SELECT</code> (for building WHERE statement [AND logic]).</p>
+	<p>The <code>$db-&gt;sql_build_array()</code> function supports the following modes: <code>INSERT</code> (example above), <code>INSERT_SELECT</code> (building query for <code>INSERT INTO table (...) SELECT value, column ...</code> statements), <code>UPDATE</code> (example above) and <code>SELECT</code> (for building WHERE statement [AND logic]).</p>
+
+	<h4>sql_multi_insert():</h4>
+
+	<p>If you want to insert multiple statements at once, please use the separate <code>sql_multi_insert()</code> method. An example:</p>
+
+	<div class="codebox"><pre>
+$sql_ary = array();
+
+$sql_ary[] = array(
+	'somedata'		=&gt; $my_string_1,
+	'otherdata'		=&gt; $an_int_1,
+	'moredata'		=&gt; $another_int_1,
+);
+
+$sql_ary[] = array(
+	'somedata'		=&gt; $my_string_2,
+	'otherdata'		=&gt; $an_int_2,
+	'moredata'		=&gt; $another_int_2,
+);
+
+$db->sql_multi_insert(SOME_TABLE, $sql_ary);
+	</pre></div>
 
 	<h4>sql_in_set():</h4>
 
@@ -973,8 +1057,18 @@ append_sid(&quot;{$phpbb_root_path}memberlist.$phpEx&quot;, 'mode=group&amp;amp;
 		<div class="inner"><span class="corners-top"><span></span></span>
 
 		<div class="content">
-
-<h4>General things</h4>
+	<a name="cfgfiles"></a><h3>3.i. Style Config Files</h3>
+	<p>Style cfg files are simple name-value lists with the information necessary for installing a style. Similar cfg files exist for templates, themes and imagesets. These follow the same principle and will not be introduced individually. Styles can use installed components by using the required_theme/required_template/required_imageset entries. The important part of the style configuration file is assigning an unique name.</p>
+	<div class="codebox"><pre>
+        # General Information about this style
+        name = prosilver_duplicate
+        copyright = &copy; phpBB Group, 2007
+        version = 3.0.3
+        required_template = prosilver
+        required_theme = prosilver
+        required_imageset = prosilver
+	</pre></div>
+	<a name="genstyling"></a><h3>3.2. General Styling Rules</h3>
 <p>Templates should be produced in a consistent manner. Where appropriate they should be based off an existing copy, e.g. index, viewforum or viewtopic (the combination of which implement a range of conditional and variable forms). Please also note that the intendation and coding guidelines also apply to templates where possible.</p>
 
 <p>The outer table class <code>forumline</code> has gone and is replaced with <code>tablebg</code>.</p>
@@ -1041,6 +1135,7 @@ append_sid(&quot;{$phpbb_root_path}memberlist.$phpEx&quot;, 'mode=group&amp;amp;
 		<div class="inner"><span class="corners-top"><span></span></span>
 
 		<div class="content">
+	<a name="templates"></a><h3>4.i. General Templating</h3>
 
 <h4>File naming</h4>
 <p>Firstly templates now take the suffix &quot;.html&quot; rather than &quot;.tpl&quot;. This was done simply to make the lifes of some people easier wrt syntax highlighting, etc.</p>
@@ -1070,6 +1165,29 @@ append_sid(&quot;{$phpbb_root_path}memberlist.$phpEx&quot;, 'mode=group&amp;amp;
 
 <p>You will note in the 3.0 templates the major sources start with <code>&lt;!-- INCLUDE overall_header.html --&gt;</code> or <code>&lt;!-- INCLUDE simple_header.html --&gt;</code>, etc. In 2.0.x control of &quot;which&quot; header to use was defined entirely within the code. In 3.0.x the template designer can output what they like. Note that you can introduce new templates (i.e. other than those in the default set) using this system and include them as you wish ... perhaps useful for a common &quot;menu&quot; bar or some such. No need to modify loads of files as with 2.0.x.</p>
 
+<p>Added in <strong>3.0.6</strong> is the ability to include a file using a template variable to specify the file, this functionality only works for root variables (i.e. not block variables).</p>
+<div class="codebox"><pre>
+<span class="comment">&lt;!-- INCLUDE {FILE_VAR} --&gt;</span>
+</pre></div>
+
+<p>Template defined variables can also be utilised.
+
+<div class="codebox"><pre>
+<span class="comment">&lt;!-- DEFINE $SOME_VAR = 'my_file.html' --&gt;</span>
+<span class="comment">&lt;!-- INCLUDE {$SOME_VAR} --&gt;</span>
+</pre></div>
+<!-- no longer added in 3.0.6
+<p>Also added in <strong>3.0.6</strong> is the ability to increment or decrement a variable on use. This can be used for instances like tabindexes, where the amount of entries is not statically known.
+The INC (for incrementing) and DEC (for decrementing) commands will print the <strong>current</strong> state of a defined var and then increment/decrement it by one (postincrement/postdecrement).</p>
+
+<div class="codebox"><pre>
+<span class="comment">&lt;!-- DEFINE $SOME_VAR = 1 --&gt;</span>
+<span class="comment">&lt;!-- INC $SOME_VAR --&gt;</span>
+Result: 1<br />
+<span class="comment">{$SOME_VAR}</span>
+Result: 2<br />
+</pre></div>
+//-->
 <h4>PHP</h4>
 <p>A contentious decision has seen the ability to include PHP within the template introduced. This is achieved by enclosing the PHP within relevant tags:</p>
 
@@ -1429,6 +1547,29 @@ div
 	&lt;/fieldset&gt
 &lt;/form&gt
 		</pre></div><br />
+
+	<a name="inheritance"></a><h3>4.ii. Template Inheritance</h3>
+		<p>When basing a new template on an existing one, it is not necessary to provide all template files. By declaring the template  to be &quot;<strong>inheriting</strong>&quot; in the template configuration file.</p>
+
+		<p>The limitation on this is that the base style has to be installed and complete, meaning that it is not itself inheriting.</p>
+
+		<p>The effect of doing so is that the template engine will use the files in the new template where they exist, but fall back to files in the base template otherwise. Declaring a style to be inheriting also causes it to use some of the configuration settings of the base style, notably database storage.</p>
+
+		<p>We strongly encourage the use of inheritance for styles based on the bundled styles, as it will ease the update procedure.</p>
+
+		<div class="codebox"><pre>
+        # General Information about this template
+        name = inherits
+        copyright = &copy; phpBB Group, 2007
+        version = 3.0.3
+
+        # Defining a different template bitfield
+        template_bitfield = lNg=
+
+        # Are we inheriting?
+        inherit_from = prosilver
+		</pre></div>
+
 		</div>
 
 		<div class="back2top"><a href="#wrap" class="top">Back to Top</a></div>
@@ -1450,7 +1591,7 @@ div
 
 
 <h4>What are Unicode, UCS and UTF-8?</h4>
-<p>The <a href="http://en.wikipedia.org/wiki/Universal_Character_Set">Universal Character Set (UCS)</a> described in ISO/IEC 10646 consists of a large amount of characters. Each of them has a unique name and a code point which is an integer number. <a href="http://en.wikipedia.org/wiki/Unicode">Unicode</a> - which is an industry standard - complements the Universal Character Set with further information about the characters' properties and alternative character encodings. More information on Unicode can be found on the <a href="http://www.unicode.org/">Unicode Consortium's website</a>. One of the Unicode encodings is the <a href="http://en.wikipedia.org/wiki/UTF-8">8-bit Unicode Transformation Format (UTF-8)</a>. It encodes characters with up to four bytes aiming for maximum compatability with the <a href="http://en.wikipedia.org/wiki/ASCII">American Standard Code for Information Interchange</a> which is a 7-bit encoding of a relatively small subset of the UCS.</p>
+<p>The <a href="http://en.wikipedia.org/wiki/Universal_Character_Set">Universal Character Set (UCS)</a> described in ISO/IEC 10646 consists of a large amount of characters. Each of them has a unique name and a code point which is an integer number. <a href="http://en.wikipedia.org/wiki/Unicode">Unicode</a> - which is an industry standard - complements the Universal Character Set with further information about the characters' properties and alternative character encodings. More information on Unicode can be found on the <a href="http://www.unicode.org/">Unicode Consortium's website</a>. One of the Unicode encodings is the <a href="http://en.wikipedia.org/wiki/UTF-8">8-bit Unicode Transformation Format (UTF-8)</a>. It encodes characters with up to four bytes aiming for maximum compatibility with the <a href="http://en.wikipedia.org/wiki/ASCII">American Standard Code for Information Interchange</a> which is a 7-bit encoding of a relatively small subset of the UCS.</p>
 
 <h4>phpBB's use of Unicode</h4>
 <p>Unfortunately PHP does not faciliate the use of Unicode prior to version 6. Most functions simply treat strings as sequences of bytes assuming that each character takes up exactly one byte. This behaviour still allows for storing UTF-8 encoded text in PHP strings but many operations on strings have unexpected results. To circumvent this problem we have created some alternative functions to PHP's native string operations which use code points instead of bytes. These functions can be found in <code>/includes/utf/utf_tools.php</code>. They are also covered in the <a href="http://area51.phpbb.com/docs/code/">phpBB3 Sourcecode Documentation</a>. A lot of native PHP functions still work with UTF-8 as long as you stick to certain restrictions. For example <code>explode</code> still works as long as the first and the last character of the delimiter string are ASCII characters.</p>
@@ -2189,11 +2330,85 @@ if (utf8_case_fold_nfc($string1) == utf8_case_fold_nfc($string2))
 
 	<hr />
 
-<a name="changes"></a><h2>7. Guidelines Changelog</h2>
+<a name="vcs"></a><h2>7. VCS Guidelines</h2>
+
 	<div class="paragraph">
 		<div class="inner"><span class="corners-top"><span></span></span>
 
 		<div class="content">
+
+	<p>The version control system for phpBB3 is subversion. The repository is available at <a href="http://code.phpbb.com/svn/phpbb" title="repository">http://code.phpbb.com/svn/phpbb</a>.
+
+	<a name="repostruct"></a><h3>7.i. Repository Structure</h3>
+
+	<ul>
+		<li><strong>trunk</strong><br />The latest unstable development version with new features etc. Contains the actual board in <code>/trunk/phpBB</code></li>
+		<li><strong>branches</strong><br />Development branches of stable phpBB releases. Copied from <code>/trunk</code> at the time of release.
+			<ul>
+				<li><strong>phpBB3.0</strong><code>/branches/phpBB-3_0_0/phpBB</code><br />Development branch of the stable 3.0 line. Bug fixes are applied here.</li>
+				<li><strong>phpBB2</strong><code>/branches/phpBB-2_0_0/phpBB</code><br />Old phpBB2 development branch.</li>
+			</ul>
+		</li>
+		<li><strong>tags</strong><br />Released versions. Copies of trunk or the respective branch, made at the time of release.
+			<ul>
+				<li><code>/tags/release_3_0_BX</code><br />Beta release X of the 3.0 line.</li>
+				<li><code>/tags/release_3_0_RCX</code><br />Release candidate X of the 3.0 line.</li>
+				<li><code>/tags/release_3_0_X-RCY</code><br />Release candidate Y of the stable 3.0.X release.</li>
+				<li><code>/tags/release_3_0_X</code><br />Stable <strong>3.0.X</strong> release.</li>
+				<li><code>/tags/release_2_0_X</code><br />Old stable 2.0.X release.</li>
+			</ul>
+		</li>
+	</ul>
+
+	<a name="commitmessage"></a><h3>7.ii. Commit Messages</h3>
+
+	<p>The commit message should contain a brief explanation of all changes made within the commit. Often identical to the changelog entry. A bug ticket can be referenced by specifying the ticket ID with a hash, e.g. #12345. A reference to another revision should simply be prefixed with r, e.g. r12345.</p>
+
+	<p>Junior Developers need to have their patches approved by a development team member first. The commit message must end in a line with the following format:</p>
+
+	<div class="codebox"><pre>
+Authorised by: developer1[, developer2[, ...]]
+	</pre></div>
+
+		</div>
+
+		<div class="back2top"><a href="#wrap" class="top">Back to Top</a></div>
+
+		<span class="corners-bottom"><span></span></span></div>
+	</div>
+
+	<hr />
+
+<a name="changes"></a><h2>8. Guidelines Changelog</h2>
+	<div class="paragraph">
+		<div class="inner"><span class="corners-top"><span></span></span>
+
+		<div class="content">
+<h3>Revision 10007</h3>
+
+<ul>
+	<li>Added <a href="#constants">Special Constants</a> section.</li>
+</ul>
+
+<h3>Revision 9817</h3>
+
+<ul>
+	<li>Added VCS section.</li>
+</ul>
+
+<h3>Revision 8732</h3>
+
+<ul>
+	<li>Added cfg files.</li>
+	<li>Added template <a href="#inheritance">inheritance</a>.</li>
+</ul>
+
+<h3>Revision 8596+</h3>
+
+<ul>
+	<li>Removed sql_build_array('MULTI_INSERT'... statements.</li>
+	<li>Added sql_multi_insert() explanation.</li>
+</ul>
 
 <h3>Revision 1.31</h3>
 
@@ -2252,7 +2467,7 @@ if (utf8_case_fold_nfc($string1) == utf8_case_fold_nfc($string2))
 
 	<hr />
 
-<a name="disclaimer"></a><h2>8. Copyright and disclaimer</h2>
+<a name="disclaimer"></a><h2>9. Copyright and disclaimer</h2>
 
 	<div class="paragraph">
 		<div class="inner"><span class="corners-top"><span></span></span>
@@ -2271,7 +2486,7 @@ if (utf8_case_fold_nfc($string1) == utf8_case_fold_nfc($string2))
 <!-- END DOCUMENT -->
 
 	<div id="page-footer">
-		<div class="version"> $Id: coding-guidelines.html 8479 2008-03-29 00:22:48Z naderman $ </div>
+		<div class="version"> $Id: coding-guidelines.html 10064 2009-08-30 11:15:24Z acydburn $ </div>
 	</div>
 </div></div>
 
