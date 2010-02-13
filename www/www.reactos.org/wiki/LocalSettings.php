@@ -138,8 +138,19 @@ $wgGroupPermissions['supermod']['rollback'] = true;
 # Enable external image embedding
 $wgAllowExternalImages = true;
 
+# additional namespaces
+$wgExtraNamespaces[100] = "Techwiki";
+$wgExtraNamespaces[101] = "Techwiki_talk";
+
+# modify search behaviour
+$wgEnableMWSuggest = true;
+$wgOpenSearchTemplate = false;
+$wgDefaultUserOptions['ajaxsearch']= 0;
+$wgNamespacesToBeSearchedDefault[100]=true;
+
 # Extensions
 require_once("$IP/extensions/ParserFunctions/ParserFunctions.php");
+require_once("$IP/extensions/SyntaxHighlight_GeSHi/SyntaxHighlight_GeSHi.php");
 
 # RosCMS-specific settings
 define("ROOT_PATH", "$IP/../");
