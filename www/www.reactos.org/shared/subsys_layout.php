@@ -55,6 +55,11 @@
 		setcookie("roscms_usrset_lang", $lang, time() + 31536000, "/", cookie_domain());
 	}
 	
+	function AdvertisementBox($lang)
+	{
+		readfile(ROOT_PATH . "$lang/subsys_extern_ad_adzone_left.html");
+	}
+	
 	function BasicLayout($lang)
 	{
 		readfile(ROOT_PATH . "$lang/subsys_extern_menu_top.html");
