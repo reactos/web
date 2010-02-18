@@ -3,7 +3,7 @@ require_once("$phpbb_root_path/../../www.reactos.org_config/forum-connect.php");
 
 $dbms = 'mysqli';
 $table_prefix = 'phpbb_';
-$acm_type = 'file';
+$acm_type = 'xcache';
 $load_extensions = '';
 
 @define('PHPBB_INSTALLED', true);
