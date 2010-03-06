@@ -422,14 +422,16 @@ class Generate
     // set dir to generate contents
     static $backup;
     static $first;
+    static $lang_id;
     if (empty($backup)){
       $backup = $this->base_dir;
       $first = $data_id;
       $this->base_dir = $this->cache_dir;
+      $lang_id = $this->lang_id;
     }
 
     if ($data_id === null) {
-      $stmt=&DBConnection::getInstance()->prepare("SELECT d.id AS data_id, d.type, d.name, l.id AS lang_id FROM ".ROSCMST_ENTRIES." d CROSS JOIN ".ROSCMST_LANGUAGES." l WHERE d.type = 'content' OR d.type = 'script' ORDER BY l.level DESC, l.name ASC");
+      $stmt=&DBConnection::getInstance()->prepare("SELECT d.id AS data_id, d.type, d.name, l.id AS lang_id FROM ".ROSCMST_ENTRIES." d CROSS JOIN ".ROSCMST_LANGUAGES." l WHERE d.type = 'content' OR d.type = 'script' ORDER BY l.level ASC, l.name ASC");
     }
     else {
       $stmt=&DBConnection::getInstance()->prepare("SELECT id AS data_id, type, name, :lang_id AS lang_id FROM ".ROSCMST_ENTRIES." WHERE id=:data_id AND type != 'system'");
@@ -499,6 +501,7 @@ class Generate
     if ($first == $data_id) {
       $this->base_dir = $backup;
       $backup = null;
+      $this->lang_id = $lang_id;
     }
   } // end of member function cacheFiles
 
