@@ -2,7 +2,7 @@
 /**
 *
 * @package acp
-* @version $Id: acp_icons.php 10234 2009-10-26 13:59:02Z acydburn $
+* @version $Id$
 * @copyright (c) 2005 phpBB Group
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License
 *
@@ -941,11 +941,12 @@ class acp_icons
 	{
 		global $db;
 
-		$sql = "SELECT COUNT(*) AS count
+		$sql = "SELECT COUNT(*) AS item_count
 			FROM $table";
 		$result = $db->sql_query($sql);
-		$item_count = (int) $db->sql_fetchfield('count');
+		$item_count = (int) $db->sql_fetchfield('item_count');
 		$db->sql_freeresult($result);
+
 		return $item_count;
 	}
 }

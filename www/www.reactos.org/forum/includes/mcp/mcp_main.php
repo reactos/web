@@ -2,7 +2,7 @@
 /**
 *
 * @package mcp
-* @version $Id: mcp_main.php 10196 2009-09-29 14:51:58Z acydburn $
+* @version $Id$
 * @copyright (c) 2005 phpBB Group
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License
 *
@@ -568,7 +568,7 @@ function mcp_move_topic($topic_ids)
 			{
 				$additional_msg = $user->lang['FORUM_NOT_POSTABLE'];
 			}
-			else if (!$auth->acl_get('f_post', $to_forum_id))
+			else if (!$auth->acl_get('f_post', $to_forum_id) || (!$auth->acl_get('m_approve', $to_forum_id) && !$auth->acl_get('f_noapprove', $to_forum_id)))
 			{
 				$additional_msg = $user->lang['USER_CANNOT_POST'];
 			}

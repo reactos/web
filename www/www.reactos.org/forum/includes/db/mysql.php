@@ -2,7 +2,7 @@
 /**
 *
 * @package dbal
-* @version $Id: mysql.php 9378 2009-03-16 17:08:28Z acydburn $
+* @version $Id$
 * @copyright (c) 2005 phpBB Group
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License
 *
@@ -44,7 +44,7 @@ class dbal_mysql extends dbal
 
 		$this->sql_layer = 'mysql4';
 
-		$this->db_connect_id = ($this->persistency) ? @mysql_pconnect($this->server, $this->user, $sqlpassword, $new_link) : @mysql_connect($this->server, $this->user, $sqlpassword, $new_link);
+		$this->db_connect_id = ($this->persistency) ? @mysql_pconnect($this->server, $this->user, $sqlpassword) : @mysql_connect($this->server, $this->user, $sqlpassword, $new_link);
 
 		if ($this->db_connect_id && $this->dbname != '')
 		{

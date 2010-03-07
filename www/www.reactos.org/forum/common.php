@@ -2,7 +2,7 @@
 /**
 *
 * @package phpBB3
-* @version $Id: common.php 8760 2008-08-15 19:46:51Z aptx $
+* @version $Id$
 * @copyright (c) 2005 phpBB Group
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License
 *
@@ -22,8 +22,12 @@ define("SHARED_PATH", ROOT_PATH . "shared/");
 $starttime = explode(' ', microtime());
 $starttime = $starttime[1] + $starttime[0];
 
-// Report all errors, except notices
-error_reporting(E_ALL ^ E_NOTICE);
+// Report all errors, except notices and deprecation messages
+if (!defined('E_DEPRECATED'))
+{
+	define('E_DEPRECATED', 8192);
+}
+error_reporting(E_ALL ^ E_NOTICE ^ E_DEPRECATED);
 
 /*
 * Remove variables created by register_globals from the global scope
@@ -175,7 +179,8 @@ if (defined('DEBUG_EXTRA'))
 }
 
 // Load Extensions
-if (!empty($load_extensions))
+// dl() is deprecated and disabled by default as of PHP 5.3.
+if (!empty($load_extensions) && function_exists('dl'))
 {
 	$load_extensions = explode(',', $load_extensions);
 

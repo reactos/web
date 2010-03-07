@@ -2,7 +2,7 @@
 /**
 *
 * @package acm
-* @version $Id: acm_memcache.php 10027 2009-08-20 12:14:18Z acydburn $
+* @version $Id$
 * @copyright (c) 2005, 2009 phpBB Group
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License
 *
@@ -105,7 +105,11 @@ class acm extends acm_memory
 	*/
 	function _write($var, $data, $ttl = 2592000)
 	{
-		return $this->memcache->set($this->key_prefix . $var, $data, $this->flags, $ttl);
+		if (!$this->memcache->replace($this->key_prefix . $var, $data, $this->flags, $ttl))
+		{
+			return $this->memcache->set($this->key_prefix . $var, $data, $this->flags, $ttl);
+		}
+		return true;
 	}
 
 	/**

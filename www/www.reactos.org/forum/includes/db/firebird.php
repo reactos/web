@@ -2,7 +2,7 @@
 /**
 *
 * @package dbal
-* @version $Id: firebird.php 9970 2009-08-13 15:25:20Z acydburn $
+* @version $Id$
 * @copyright (c) 2005 phpBB Group
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License
 *
@@ -449,6 +449,11 @@ class dbal_firebird extends dbal
 	function _sql_bit_and($column_name, $bit, $compare = '')
 	{
 		return 'BIN_AND(' . $column_name . ', ' . (1 << $bit) . ')' . (($compare) ? ' ' . $compare : '');
+	}
+
+	function _sql_bit_or($column_name, $bit, $compare = '')
+	{
+		return 'BIN_OR(' . $column_name . ', ' . (1 << $bit) . ')' . (($compare) ? ' ' . $compare : '');
 	}
 
 	/**

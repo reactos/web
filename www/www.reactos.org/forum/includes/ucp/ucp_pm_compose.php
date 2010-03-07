@@ -2,7 +2,7 @@
 /**
 *
 * @package ucp
-* @version $Id: ucp_pm_compose.php 10251 2009-11-03 14:40:25Z acydburn $
+* @version $Id$
 * @copyright (c) 2005 phpBB Group
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License
 *
@@ -767,7 +767,7 @@ function compose_pm($id, $mode, $action)
 			$parse_sig->bbcode_uid = $preview_signature_uid;
 			$parse_sig->bbcode_bitfield = $preview_signature_bitfield;
 
-			$parse_sig->format_display($enable_bbcode, $enable_urls, $enable_smilies);
+			$parse_sig->format_display($config['allow_sig_bbcode'], $config['allow_sig_links'], $config['allow_sig_smilies']);
 			$preview_signature = $parse_sig->message;
 			unset($parse_sig);
 		}

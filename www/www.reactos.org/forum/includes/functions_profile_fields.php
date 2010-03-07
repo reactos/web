@@ -2,7 +2,7 @@
 /**
 *
 * @package phpBB3
-* @version $Id: functions_profile_fields.php 10216 2009-10-07 14:54:10Z toonarmy $
+* @version $Id$
 * @copyright (c) 2005 phpBB Group
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License
 *
@@ -158,11 +158,11 @@ class custom_profile
 
 			case FIELD_STRING:
 			case FIELD_TEXT:
-				if (empty($field_value) && !$field_data['field_required'])
+				if (trim($field_value) === '' && !$field_data['field_required'])
 				{
 					return false;
 				}
-				else if (empty($field_value) && $field_data['field_required'])
+				else if (trim($field_value) === '' && $field_data['field_required'])
 				{
 					return 'FIELD_REQUIRED';
 				}

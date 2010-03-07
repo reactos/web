@@ -2,7 +2,7 @@
 /**
 *
 * @package ucp
-* @version $Id: ucp_register.php 10095 2009-09-03 20:06:57Z Kellanved $
+* @version $Id$
 * @copyright (c) 2005 phpBB Group
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License
 *
@@ -331,6 +331,12 @@ class ucp_register
 				if ($user_id === false)
 				{
 					trigger_error('NO_USER', E_USER_ERROR);
+				}
+
+				// Okay, captcha, your job is done.
+				if ($config['enable_confirm'] && isset($captcha))
+				{
+					$captcha->reset();
 				}
 
 				if ($coppa && $config['email_enable'])

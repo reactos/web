@@ -2,7 +2,7 @@
 /**
 *
 * @package VC
-* @version $Id: captcha_abstract.php 10085 2009-09-01 15:08:04Z acydburn $
+* @version $Id$
 * @copyright (c) 2006, 2008 phpBB Group
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License
 *
@@ -192,6 +192,11 @@ class phpbb_default_captcha
 	function validate()
 	{
 		global $config, $db, $user;
+
+		if (empty($user->lang))
+		{
+			$user->setup();
+		}
 
 		$error = '';
 		if (!$this->confirm_id)

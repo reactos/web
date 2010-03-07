@@ -2,7 +2,7 @@
 /**
 *
 * @package acp
-* @version $Id: acp_styles.php 10074 2009-08-31 11:25:28Z acydburn $
+* @version $Id$
 * @copyright (c) 2005 phpBB Group
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License
 *
@@ -643,6 +643,11 @@ parse_css_file = {PARSE_CSS_FILE}
 		{
 			while (($file = readdir($dp)) !== false)
 			{
+				if (!is_dir($phpbb_root_path . 'styles/' . $file))
+				{
+					continue;
+				}
+
 				$subpath = ($mode != 'style') ? "$mode/" : '';
 				if ($file[0] != '.' && file_exists("{$phpbb_root_path}styles/$file/$subpath$mode.cfg"))
 				{

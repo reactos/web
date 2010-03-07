@@ -2,7 +2,7 @@
 /**
 *
 * @package phpBB3
-* @version $Id: functions_compress.php 9768 2009-07-17 11:32:27Z bantu $
+* @version $Id$
 * @copyright (c) 2005 phpBB Group
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License
 *
@@ -80,6 +80,11 @@ class compress
 				}
 			}
 		}
+		else
+		{
+			// $src does not exist
+			return false;
+		}
 
 		return true;
 	}
@@ -89,6 +94,11 @@ class compress
 	*/
 	function add_custom_file($src, $filename)
 	{
+		if (!file_exists($src))
+		{
+			return false;
+		}
+
 		$this->data($filename, file_get_contents($src), false, stat($src));
 		return true;
 	}

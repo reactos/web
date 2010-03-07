@@ -2,7 +2,7 @@
 /**
 *
 * @package ucp
-* @version $Id: ucp_pm_options.php 9612 2009-06-18 10:44:38Z nickvergessen $
+* @version $Id$
 * @copyright (c) 2005 phpBB Group
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License
 *
@@ -637,12 +637,29 @@ function define_action_option($hardcoded, $action_option, $action_lang, $folder)
 function define_rule_option($hardcoded, $rule_option, $rule_lang, $check_ary)
 {
 	global $template;
+	global $module;
+
+	$exclude = array();
+
+	if (!$module->loaded('zebra', 'friends'))
+	{
+		$exclude[RULE_IS_FRIEND] = true;
+	}
+
+	if (!$module->loaded('zebra', 'foes'))
+	{
+		$exclude[RULE_IS_FOE] = true;
+	}
 
 	$s_rule_options = '';
 	if (!$hardcoded)
 	{
 		foreach ($check_ary as $value => $_check)
 		{
+			if (isset($exclude[$value]))
+			{
+				continue;
+			}
 			$s_rule_options .= '<option value="' . $value . '"' . (($value == $rule_option) ? ' selected="selected"' : '') . '>' . $rule_lang[$value] . '</option>';
 		}
 	}

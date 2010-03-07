@@ -2,7 +2,7 @@
 /**
 *
 * @package phpBB3
-* @version $Id: file.php 9905 2009-08-01 12:28:50Z acydburn $
+* @version $Id$
 * @copyright (c) 2005 phpBB Group
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License
 *
@@ -668,7 +668,7 @@ function set_modified_headers($stamp, $browser)
 	$last_load 	=  isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) ? strtotime(trim($_SERVER['HTTP_IF_MODIFIED_SINCE'])) : false;
 	if ((strpos(strtolower($browser), 'msie 6.0') === false) && (strpos(strtolower($browser), 'msie 8.0') === false))
 	{
-		if ($last_load !== false && $last_load <= $stamp)
+		if ($last_load !== false && $last_load >= $stamp)
 		{
 			if (substr(strtolower(@php_sapi_name()),0,3) === 'cgi')
 			{

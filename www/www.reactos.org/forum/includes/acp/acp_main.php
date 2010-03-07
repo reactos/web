@@ -2,7 +2,7 @@
 /**
 *
 * @package acp
-* @version $Id: acp_main.php 10081 2009-09-01 11:21:42Z acydburn $
+* @version $Id$
 * @copyright (c) 2005 phpBB Group
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License
 *
@@ -397,6 +397,14 @@ class acp_main
 
 		// Version check
 		$user->add_lang('install');
+
+		if ($auth->acl_get('a_server') && version_compare(PHP_VERSION, '5.2.0', '<'))
+		{
+			$template->assign_vars(array(
+				'S_PHP_VERSION_OLD'	=> true,
+				'L_PHP_VERSION_OLD'	=> sprintf($user->lang['PHP_VERSION_OLD'], '<a href="http://www.phpbb.com/community/viewtopic.php?f=14&amp;t=1958605">', '</a>'),
+			));
+		}
 
 		$latest_version_info = false;
 		if (($latest_version_info = obtain_latest_version_info(request_var('versioncheck_force', false))) === false)

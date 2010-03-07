@@ -2,7 +2,7 @@
 /**
 *
 * @package VC
-* @version $Id: phpbb_recaptcha_plugin.php 10177 2009-09-22 10:03:17Z acydburn $
+* @version $Id$
 * @copyright (c) 2006, 2008 phpBB Group
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License
 *
@@ -28,9 +28,16 @@ if (!class_exists('phpbb_default_captcha'))
 class phpbb_recaptcha extends phpbb_default_captcha
 {
 	var $recaptcha_server = 'http://api.recaptcha.net';
+	var $recaptcha_server_secure = 'https://api-secure.recaptcha.net'; // class constants :(
 	var $recaptcha_verify_server = 'api-verify.recaptcha.net';
 	var $challenge;
 	var $response;
+
+	// PHP4 Constructor
+	function phpbb_recaptcha()
+	{
+		$this->recaptcha_server = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ? $this->recaptcha_server_secure : $this->recaptcha_server;
+	}
 
 	function init($type)
 	{

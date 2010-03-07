@@ -2,7 +2,7 @@
 /**
 *
 * @package mcp
-* @version $Id: mcp_topic.php 10201 2009-10-03 11:35:39Z acydburn $
+* @version $Id$
 * @copyright (c) 2005 phpBB Group
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License
 *
@@ -106,7 +106,14 @@ function mcp_topic_view($id, $mode, $action)
 
 	if ($total == -1)
 	{
-		$total = $topic_info['topic_replies'] + 1;
+		if ($auth->acl_get('m_approve', $topic_info['forum_id']))
+		{
+			$total = $topic_info['topic_replies_real'] + 1;
+		}
+		else
+		{
+			$total = $topic_info['topic_replies'] + 1;
+		}
 	}
 
 	$posts_per_page = max(0, request_var('posts_per_page', intval($config['posts_per_page'])));

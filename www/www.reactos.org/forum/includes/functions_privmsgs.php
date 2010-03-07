@@ -2,7 +2,7 @@
 /**
 *
 * @package phpBB3
-* @version $Id: functions_privmsgs.php 10165 2009-09-19 12:21:39Z nickvergessen $
+* @version $Id$
 * @copyright (c) 2005 phpBB Group
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License
 *
@@ -893,6 +893,13 @@ function handle_mark_actions($user_id, $mark_action)
 		break;
 
 		case 'delete_marked':
+
+			global $auth;
+
+			if (!$auth->acl_get('u_pm_delete'))
+			{
+				trigger_error('NO_AUTH_DELETE_MESSAGE');
+			}
 
 			if (confirm_box(true))
 			{

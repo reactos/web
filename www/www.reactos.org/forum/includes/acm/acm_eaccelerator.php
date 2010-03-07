@@ -2,7 +2,7 @@
 /**
 *
 * @package acm
-* @version $Id: acm_eaccelerator.php 10027 2009-08-20 12:14:18Z acydburn $
+* @version $Id$
 * @copyright (c) 2005, 2009 phpBB Group
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License
 *
@@ -30,6 +30,7 @@ if (!class_exists('acm_memory'))
 class acm extends acm_memory
 {
 	var $extension = 'eaccelerator';
+	var $function = 'eaccelerator_get';
 
 	var $serialize_header = '#phpbb-serialized#';
 

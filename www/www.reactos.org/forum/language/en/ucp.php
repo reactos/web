@@ -4,7 +4,7 @@
 * ucp [English]
 *
 * @package language
-* @version $Id: ucp.php 10138 2009-09-11 14:38:23Z Kellanved $
+* @version $Id$
 * @copyright (c) 2005 phpBB Group
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License
 *
@@ -460,6 +460,7 @@ $lang = array_merge($lang, array(
 	'UCP_ZEBRA'						=> 'Friends &amp; Foes',
 	'UCP_ZEBRA_FOES'				=> 'Manage foes',
 	'UCP_ZEBRA_FRIENDS'				=> 'Manage friends',
+	'UNDISCLOSED_RECIPIENT'			=> 'Undisclosed Recipient',
 	'UNKNOWN_FOLDER'				=> 'Unknown folder',
 	'UNWATCH_MARKED'				=> 'Unwatch marked',
 	'UPLOAD_AVATAR_FILE'			=> 'Upload from your machine',

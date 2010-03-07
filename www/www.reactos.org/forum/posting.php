@@ -2,7 +2,7 @@
 /**
 *
 * @package phpBB3
-* @version $Id: posting.php 10253 2009-11-03 15:03:14Z acydburn $
+* @version $Id$
 * @copyright (c) 2005 phpBB Group
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License
 *
@@ -44,13 +44,6 @@ $mode		= ($delete && !$preview && !$refresh && $submit) ? 'delete' : request_var
 
 $error = $post_data = array();
 $current_time = time();
-
-if ($config['enable_post_confirm'] && !$user->data['is_registered'])
-{
-	include($phpbb_root_path . 'includes/captcha/captcha_factory.' . $phpEx);
-	$captcha =& phpbb_captcha_factory::get_instance($config['captcha_plugin']);
-	$captcha->init(CONFIRM_POST);
-}
 
 // Was cancel pressed? If so then redirect to the appropriate page
 if ($cancel || ($current_time - $lastclick < 2 && $submit))
@@ -185,6 +178,13 @@ if ($mode == 'popup')
 }
 
 $user->setup(array('posting', 'mcp', 'viewtopic'), $post_data['forum_style']);
+
+if ($config['enable_post_confirm'] && !$user->data['is_registered'])
+{
+	include($phpbb_root_path . 'includes/captcha/captcha_factory.' . $phpEx);
+	$captcha =& phpbb_captcha_factory::get_instance($config['captcha_plugin']);
+	$captcha->init(CONFIRM_POST);
+}
 
 // Use post_row values in favor of submitted ones...
 $forum_id	= (!empty($post_data['forum_id'])) ? (int) $post_data['forum_id'] : (int) $forum_id;
@@ -992,7 +992,7 @@ if ($submit || $preview || $refresh)
 					$forum_type = (int) $db->sql_fetchfield('forum_type');
 					$db->sql_freeresult($result);
 
-					if ($forum_type != FORUM_POST || !$auth->acl_get('f_post', $to_forum_id))
+					if ($forum_type != FORUM_POST || !$auth->acl_get('f_post', $to_forum_id) || (!$auth->acl_get('m_approve', $to_forum_id) && !$auth->acl_get('f_noapprove', $to_forum_id)))
 					{
 						$to_forum_id = 0;
 					}
@@ -1113,7 +1113,7 @@ if ($submit || $preview || $refresh)
 			}
 
 			// Check the permissions for post approval. Moderators are not affected.
-			if ((!$auth->acl_get('f_noapprove', $data['forum_id']) && !$auth->acl_get('m_approve', $data['forum_id'])) || !empty($post_data['force_approved_state']))
+			if ((!$auth->acl_get('f_noapprove', $data['forum_id']) && !$auth->acl_get('m_approve', $data['forum_id']) && empty($data['force_approved_state'])) || (isset($data['force_approved_state']) && !$data['force_approved_state']))
 			{
 				meta_refresh(10, $redirect_url);
 				$message = ($mode == 'edit') ? $user->lang['POST_EDITED_MOD'] : $user->lang['POST_STORED_MOD'];

@@ -2,7 +2,7 @@
 /**
 *
 * @package acp
-* @version $Id: acp_users.php 10199 2009-09-30 15:00:44Z Kellanved $
+* @version $Id$
 * @copyright (c) 2005 phpBB Group
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License
 *
@@ -1416,7 +1416,7 @@ class acp_users
 
 				$now = getdate();
 				$s_birthday_year_options = '<option value="0"' . ((!$data['bday_year']) ? ' selected="selected"' : '') . '>--</option>';
-				for ($i = $now['year'] - 100; $i < $now['year']; $i++)
+				for ($i = $now['year'] - 100; $i <= $now['year']; $i++)
 				{
 					$selected = ($i == $data['bday_year']) ? ' selected="selected"' : '';
 					$s_birthday_year_options .= "<option value=\"$i\"$selected>$i</option>";

@@ -2,7 +2,7 @@
 /**
 *
 * @package phpBB3
-* @version $Id: functions.php 10172 2009-09-20 18:50:35Z acydburn $
+* @version $Id$
 * @copyright (c) 2005 phpBB Group
 * @license http://opensource.org/licenses/gpl-license.php GNU Public License
 *
@@ -556,11 +556,11 @@ function _hash_crypt_private($password, $setting, &$itoa64)
 *
 * @param string $email		Email address
 *
-* @return string			Big Integer
+* @return string			Unsigned Big Integer
 */
 function phpbb_email_hash($email)
 {
-	return crc32(strtolower($email)) . strlen($email);
+	return sprintf('%u', crc32(strtolower($email))) . strlen($email);
 }
 
 /**
@@ -3402,7 +3402,7 @@ function msg_handler($errno, $msg_text, $errfile, $errline)
 				}
 			}
 
-			if (defined('DEBUG') || defined('IN_CRON') || defined('IMAGE_OUTPUT'))
+			if ((defined('DEBUG') || defined('IN_CRON') || defined('IMAGE_OUTPUT')) && isset($db))
 			{
 				// let's avoid loops
 				$db->sql_return_on_error(true);
@@ -3830,7 +3830,7 @@ function page_header($page_title = '', $display_online_list = true, $item_id = 0
 	$s_last_visit = ($user->data['user_id'] != ANONYMOUS) ? $user->format_date($user->data['session_last_visit']) : '';
 
 	// Get users online list ... if required
-	$l_online_users = $online_userlist = $l_online_record = '';
+	$l_online_users = $online_userlist = $l_online_record = $l_online_time = '';
 
 	if ($config['load_online'] && $config['load_online_time'] && $display_online_list)
 	{
@@ -3853,14 +3853,10 @@ function page_header($page_title = '', $display_online_list = true, $item_id = 0
 			set_config('record_online_date', time(), true);
 		}
 
-		$l_online_record = sprintf($user->lang['RECORD_ONLINE_USERS'], $config['record_online_users'], $user->format_date($config['record_online_date']));
+		$l_online_record = sprintf($user->lang['RECORD_ONLINE_USERS'], $config['record_online_users'], $user->format_date($config['record_online_date'], false, true));
 
 		$l_online_time = ($config['load_online_time'] == 1) ? 'VIEW_ONLINE_TIME' : 'VIEW_ONLINE_TIMES';
 		$l_online_time = sprintf($user->lang[$l_online_time], $config['load_online_time']);
-	}
-	else
-	{
-		$l_online_time = '';
 	}
 
 	$l_privmsgs_text = $l_privmsgs_text_unread = '';
@@ -4010,11 +4006,14 @@ function page_header($page_title = '', $display_online_list = true, $item_id = 0
 		'S_FORUM_ID'			=> $forum_id,
 		'S_TOPIC_ID'			=> $topic_id,
 
-		'S_LOGIN_ACTION'		=> (!defined('ADMIN_START')) ? append_sid("{$phpbb_root_path}ucp.$phpEx", 'mode=login') . '&amp;redirect=' . urlencode(str_replace('&amp;', '&', build_url())) : append_sid("index.$phpEx", false, true, $user->session_id) . '&amp;redirect=' . urlencode(str_replace('&amp;', '&', build_url())),
+		'S_LOGIN_ACTION'		=> ((!defined('ADMIN_START')) ? append_sid("{$phpbb_root_path}ucp.$phpEx", 'mode=login') : append_sid("index.$phpEx", false, true, $user->session_id)),
+		'S_LOGIN_REDIRECT'		=> build_hidden_fields(array('redirect' => str_replace('&amp;', '&', build_url()))),
 
 		'S_ENABLE_FEEDS'			=> ($config['feed_enable']) ? true : false,
+		'S_ENABLE_FEEDS_OVERALL'	=> ($config['feed_overall']) ? true : false,
 		'S_ENABLE_FEEDS_FORUMS'		=> ($config['feed_overall_forums']) ? true : false,
-		'S_ENABLE_FEEDS_TOPICS'		=> ($config['feed_overall_topics']) ? true : false,
+		'S_ENABLE_FEEDS_TOPICS'		=> ($config['feed_topics_new']) ? true : false,
+		'S_ENABLE_FEEDS_TOPICS_ACTIVE'	=> ($config['feed_topics_active']) ? true : false,
 		'S_ENABLE_FEEDS_NEWS'		=> ($s_feed_news) ? true : false,
 
 		'T_THEME_PATH'			=> "{$web_path}styles/" . $user->theme['theme_path'] . '/theme',
@@ -4029,7 +4028,7 @@ function page_header($page_title = '', $display_online_list = true, $item_id = 0
 		'T_ICONS_PATH'			=> "{$web_path}{$config['icons_path']}/",
 		'T_RANKS_PATH'			=> "{$web_path}{$config['ranks_path']}/",
 		'T_UPLOAD_PATH'			=> "{$web_path}{$config['upload_path']}/",
-		'T_STYLESHEET_LINK'		=> (!$user->theme['theme_storedb']) ? "{$web_path}styles/" . $user->theme['theme_path'] . '/theme/stylesheet.css' : append_sid("{$phpbb_root_path}style.$phpEx", 'id=' . $user->theme['style_id'] . '&amp;lang=' . $user->data['user_lang']),
+		'T_STYLESHEET_LINK'		=> (!$user->theme['theme_storedb']) ? "{$web_path}styles/" . $user->theme['theme_path'] . '/theme/stylesheet.css' : append_sid("{$phpbb_root_path}style.$phpEx", 'id=' . $user->theme['style_id'] . '&amp;lang=' . $user->data['user_lang'], true, $user->session_id),
 		'T_STYLESHEET_NAME'		=> $user->theme['theme_name'],
 
 		'T_THEME_NAME'			=> $user->theme['theme_path'],
