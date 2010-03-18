@@ -1,7 +1,7 @@
 <?php
 
 require "common.php";
-
+header("HTTP/1.0 503 Service Unavailable");
 echo "
 <html>
 
