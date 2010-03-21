@@ -245,7 +245,7 @@
 		if(!$changed || !$crashed)
 		{
 			$filterable_rows[] = $suites_row["id"];
-			$filterable_rows[] = (!$changed ? 1 : 0);
+			$filterable_rows[] = ((!$changed && $reader->getTestIdCount() > 1) ? 1 : 0);
 			$filterable_rows[] = (!$crashed ? 1 : 0);
 		}
 		
