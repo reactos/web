@@ -77,3 +77,12 @@ th.TestCheckbox {
 	display: none;
 	width: 100%;
 }
+
+.directlink {
+	color: gray;
+	font-size: 0.8em;
+	text-decoration: none;
+}
+.directlink:hover {
+	text-decoration: underline;
+}

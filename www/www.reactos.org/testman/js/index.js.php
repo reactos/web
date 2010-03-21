@@ -363,7 +363,7 @@ function SearchCallback(HttpRequest)
 			{
 				html += '<tr class="' + (oddeven ? "odd" : "even") + '" onmouseover="Result_OnMouseOver(this)" onmouseout="Result_OnMouseOut(this)">';
 				html += '<td><input onclick="ResultCheckbox_OnClick(this)" type="checkbox" id="test_' + GetTagData(results[i], "id") + '" \/><\/td>';
-				html += '<td onclick="ResultCell_OnClick(this)">' + GetTagData(results[i], "revision") + '<\/td>';
+				html += '<td onclick="ResultCell_OnClick(this)">' + GetTagData(results[i], "revision") + '&nbsp;<a href="#" onclick="OpenSingleTest_OnClick(' + GetTagData(results[i], "id") + ')" class="directlink">(view)</a><\/td>';
 				html += '<td onclick="ResultCell_OnClick(this)">' + GetTagData(results[i], "date") + '<\/td>';
 				html += '<td onclick="ResultCell_OnClick(this)">' + GetTagData(results[i], "count") + '<\/td>';
 				html += '<td onclick="ResultCell_OnClick(this)">' + GetTagData(results[i], "failures") + '<\/td>';
@@ -540,6 +540,13 @@ function CompareSelectedButton_OnClick()
 		return;
 	}
 	
+	OpenComparePage(IDArray);
+}
+
+function OpenSingleTest_OnClick(id)
+{
+	var IDArray = new Array();
+	IDArray.push(parseInt(id));
 	OpenComparePage(IDArray);
 }
 
