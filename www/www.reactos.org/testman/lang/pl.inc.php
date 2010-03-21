@@ -35,6 +35,7 @@
 		"status" => "%s testów wybranych do porównania",
 		
 		"noselection" => "Nie wybrałeś/aś żadnych wyników!",
+		"selectatleast" => "Musisz wybrać przynajmniej %d wyników do porównania!",
 		"maxselection" => "Możesz zaznaczyć do porównania maksymalnie %d wyników!",
 		
 		// Compare page

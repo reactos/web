@@ -534,6 +534,11 @@ function CompareSelectedButton_OnClick()
 		alert("<?php echo addslashes($testman_langres["noselection"]); ?>");
 		return;
 	}
+	else if(IDArray.length < 2)
+	{
+		alert("<?php printf(addslashes($testman_langres["selectatleast"]), 2); ?>");
+		return;
+	}
 	
 	OpenComparePage(IDArray);
 }

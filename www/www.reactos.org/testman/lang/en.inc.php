@@ -33,6 +33,7 @@
 		"status" => "%s Tests selected for comparison",
 		
 		"noselection" => "You did not select any results!",
+		"selectatleast" => "You must select at least %d results for comparison!",
 		"maxselection" => "You may only select up to %d results for comparison!",
 		
 		// Compare page
