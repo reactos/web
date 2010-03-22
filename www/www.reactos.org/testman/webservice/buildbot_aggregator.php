@@ -128,7 +128,7 @@
 		
 		// If an error occured, $return will contain the error message
 		if($return != "OK")
-			die($return);
+			die("submit($test_id, $suite_id, ...) - $return");
 	}
 	
 	// If we have a Test ID, finish this test run and terminate with the return message from that function

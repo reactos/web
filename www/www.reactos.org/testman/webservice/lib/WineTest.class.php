@@ -3,7 +3,7 @@
   PROJECT:    ReactOS Web Test Manager
   LICENSE:    GNU GPLv2 or any later version as published by the Free Software Foundation
   PURPOSE:    Class for submitting Wine Test results
-  COPYRIGHT:  Copyright 2008-2009 Colin Finck <colin@reactos.org>
+  COPYRIGHT:  Copyright 2008-2010 Colin Finck <colin@reactos.org>
 */
 
 	class WineTest implements Test
@@ -61,7 +61,7 @@
 			if(!isset($test_id) || !isset($suite_id) || !isset($log))
 				return "Necessary sub-information not specified!";
 			
-			// Make sure we may add information to the test with this Test ID
+			// Make sure that we may add information to the test with this Test ID
 			$stmt = $dbh->prepare("SELECT COUNT(*) FROM " . DB_TESTMAN . ".winetest_runs WHERE id = :testid AND finished = 0 AND user_id = :userid");
 			$stmt->bindParam(":testid", $test_id);
 			$stmt->bindParam(":userid", $user_id);
@@ -70,10 +70,19 @@
 			if(!$stmt->fetchColumn())
 				return "No such test or no permissions!";
 			
+			// Make sure that this test run does not yet have a result for this test suite
+			$stmt = $dbh->prepare("SELECT COUNT(*) FROM " . DB_TESTMAN . ".winetest_results WHERE test_id = :testid AND suite_id = :suiteid");
+			$stmt->bindParam(":testid", $test_id);
+			$stmt->bindParam(":suiteid", $suite_id);
+			$stmt->execute() or die("Submit(): SQL failed #2");
+			
+			if($stmt->fetchColumn())
+				return "We already have a result for this test suite in this test run!";
+			
 			// Get the test name
 			$stmt = $dbh->prepare("SELECT test FROM " . DB_TESTMAN . ".winetest_suites WHERE id = :id");
 			$stmt->bindParam(":id", $suite_id);
-			$stmt->execute() or die("Submit(): SQL failed #2");
+			$stmt->execute() or die("Submit(): SQL failed #3");
 			$test = $stmt->fetchColumn();
 			
 			// Get all summary lines belonging to this test in the whole log (a test may have multiple summary lines)
@@ -114,12 +123,12 @@
 			$stmt->bindParam(":count", $count);
 			$stmt->bindParam(":failures", $failures);
 			$stmt->bindParam(":skipped", $skipped);
-			$stmt->execute() or die("Submit(): SQL failed #3");
+			$stmt->execute() or die("Submit(): SQL failed #4");
 			
 			$stmt = $dbh->prepare("INSERT INTO " . DB_TESTMAN . ".winetest_logs (id, log) VALUES (:id, COMPRESS(:log))");
 			$stmt->bindValue(":id", (int)$dbh->lastInsertId());
 			$stmt->bindParam(":log", $log);
-			$stmt->execute() or die("Submit(): SQL failed #4");
+			$stmt->execute() or die("Submit(): SQL failed #5");
 			
 			return "OK";
 		}

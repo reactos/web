@@ -20,6 +20,7 @@ CREATE TABLE `winetest_results` (
   `failures` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Number of failed tests',
   `skipped` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Number of skipped tests',
   PRIMARY KEY  (`id`),
+  UNIQUE KEY `test_and_suite` (`test_id`,`suite_id`),
   KEY `suite_id` (`suite_id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=latin1 COLLATE=latin1_general_ci;
 
