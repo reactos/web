@@ -1,0 +1,205 @@
+=Release Notes=
+
+==v1.1 - 7th July 2009==
+
+* [#1]  - Add safety check that you're not on a really old release of MediaWiki
+* [#4]  - Add support for inline of totals, e.g. E,W,R = {{#bugzilla:columns=+estimated,+work,+remaining|total=estimated,work,remaining|hide=true|headers=hide|format=inline}}
+* [#4]  - Totals are reported as zero if no rows found (as opposed to blank, with no tickets found message)
+* [#8]  - Add a format to inline a bug report, e.g. {{#bugzilla:debug=1|id=661|status=*|format=inline}}
+* [#13] - Added support for created filters, e.g. {{#bugzilla:created=-1m|createdformat=date}}
+* [#13] - Added support for filters on status change, e.g. {{#bugzilla:assigned=2009-05-01:2009-05-31}}, 
+  {{#bugzilla:resolved=2009-05-01:2009-05-31}}, {{#bugzilla:verified=2009-05-01:2009-05-31}},
+  {{#bugzilla:closed=2009-05-01:2009-05-31}}, {{#bugzilla:reopened=2009-05-01:2009-05-31}}
+* [#18] - Add support for attachments, e.g. {{#bugzilla:sort=attachments|order=desc|status=*}}
+* [#21] - Added support for reports on hardware and os, e.g.   {{#bugzilla:columns=+hardware,os}}
+  {{#bugzilla:columns=+hardware,os|os=Linux}}, {{#bugzilla:columns=+hardware,os|hardware=Macintosh}}
+* [#25] - Sortable set to true by default, if you want to disable the sortable links then set "sortable=0". Sorting now works for all columns even if details row is displayed, but sorting disabled when grouping is enabled
+* BUG : [#3]  - Task repeated in report for tasks with multiple keywords when keywords displayed in report
+* BUG : [#5]  - deadline (or any date) range matches did not work, e.g. deadline=2008-12-01:2008-12-31
+* BUG : [#6]  - bugzilla query link not generated correctly for id matches, e.g. {{#bugzilla:status=*|id=1,2,3}}
+* BUG : [#11] - Support html in comments for last comment rendering, e.g. <table>
+* BUG : [#12] - "worked_hours" field will be multiplied by the number of keywords you have, e.g. {{#bugzilla:debug=1|columns=+work,+keywords|status=*|keywords=analytics|sort=id|total=work}}
+* BUG : [#17] - Support lastcomment in bugzilla 2.22 as well as 3.x
+* BUG : [#19] - bzurl wrong when using "blocks" criteria
+* BUG : [#20] - Fails to compute trigraph when name contains only one word 
+* BUG : [#22] - support wiki style equals in comments without affecting the page TOC
+* BUG : [#24] - support "-" in database names by enclosing database name in backticks in generated SQL
+
+==v1.0 - 12th February 2009==
+
+* Style class for severity set for the the tr element (row element) containing the bug details, so that (if you want) you can style based on severity.  Style classes used are the exactly the same name as the severity value, e.g. "enhancement", "normal", "major", etc
+* Support for parameter "zeroasblank=false" to display numbers as "0" if it is actually 0.  The default setting is to hide 0s
+* You can now set default parameters in the $wgBugzillaReports array defined in the LocalSettings.php for the whole wiki.  This is great if you don't like the defaults out-of-the-box and you want to override, e.g. 'default'       => "debug=1|zeroasblank=false|lastcomment=1".  Note that if the parameter is set in the function call (i.e. on the wiki page) then this will override the default setting in the LocalSettings.php
+* Slight performance increase by switching to explode instead of split where appropriate
+* Support two modes for handling of custom field naming; (1) implicitcustom=false (default) - custom fields must start with a given prefix, as defined by customprefix (which defaults to "cf_") or defined in the comma separated list of defined in the parameter customfields - note that nowadays Bugzilla enforces that custom fields start with "cf_".  E.g "columns=+cf_mycustom:MyCustom" (2) implicitcustom=true - if a column/field is referenced that is not in the supported parameter list then it is assumed to a custom field.  The supported parameter list is the list of all parameters that this extension accepts - note that their is a risk of future conflicts if you use a custom field name of parameter that is later used as a parameter for this extension.  e.g. "columns=+mycustom:MyCustom|implicitcustom=true".   This setting can be applied in your global LocalSettings file by including "implicitcustom=true" in the in the "default" parameter of the $wgBugzillaReports array.  This will set this mode across your whole wiki.
+* Make list format honour columns settings for "to" and "deadline", e.g. {#bugzilla:format=list|columns=+to}} to include to column and {{#bugzilla:format=list|columns=-to}} to not display it.  Note that there is a change to default behaviour in that the "to" field is not displayed by default with {{#bugzilla:format=list}}
+* BUG : Support for setting title and custom fields in explicit columns list, e.g. columns=id:MYID,modified,cf_mycustom:MyCustom explicitly defines the columns that only should be displayed where the id column should have a title "MYID" and the cf_mycustom field should have the title "MyCustom"
+* BUG : milestone=--- matched as Special match.  This is fixed so you can now filter on "---"
+* BUG : Correct the help link
+* BUG : Correct implicitcustom="true" mode where column name is not in supported parameter list giving summary not a valid field
+* BUG : {{#bugzilla:columns=work|lastcomment=1}} didn't work - giving error Not unique table/alias: 'longdescs'
+
+==v0.9.9 - 21st December 2008 ==
+
+* BUG : Warnings in log files - "Missing argument 2 for BugzillaReport::getProperty()" and "Undefined variable: where in" - warnings resolved
+* BUG : "depends" and "blocks" query fields were not working - now they do.
+
+==v0.9.8 - 3rd December 2008==
+
+* Add support for resolution field, e.g. {{#bugzilla:debug=1|columns=+resolution|resolution=fixed,invalid}}
+* Provide wildcard support {{#bugzilla:version=1.%}} to match for any version like 1.% and {{#bugzilla:version=!1.%}} to match for any version not like 1.%
+* Allow filtering by custom fields using the generic "filters" argument, e.g. {{#bugzilla:filters=cf_application_server%3DTomcat%}} will search for all bugs for which the cf_application_server is like 'Tomcat%'.  Note that %3D is URL encoding for '='. Multiple filters can be applied by separating each filter by a '%26' (i.e. URL encoded '&'), e.g. {{#bugzilla:filters=cf_mycustomfield%3Dmyvalue%26cf_application_server%3DTomcat%}}
+* BZ enforces and encourages all custom fields to start with "cf_" however if you start the custom fields with an alternative prefix you can override this with customprefix.
+* The parameter 'disablecache' can now be set to "1" in the $wgBugzillaReports LocalSettings.php configuration to disable the cache for all BugzillaReports pages - please note that this will affect performance of the pages, but will dynamically update the bug information for the page each time the page is accessed.  e.g $wgBugzillaReports = array(...other parameters ... , 'disablecache' => "1" );
+* Allow alternative bugzilla instances to be used by setting the "instance" parameter, e.g. {{#bugzilla:instance=instance1}}.  These alternative instances are configured in the $wgBugzillaReports LocalSettings.php configuration using the appropriate namespaced parameters for the instance, e.g. $wgBugzillaReports = array(...other parameters ... , 'instance1:host' => "localhost",'instance1:database' => "myotherbugs",'instance1:user' => "bugs").  If no parameter exists for the given instance then the default values (i.e. those without a namespace) are used
+* Support comparisons in filter fields, e.g. {{#bugzilla:priority=<P4}} to search for all bugs higher than P4 and {{#bugzilla:version=>0.9}} to search for all bugs higher than version 0.9.  Note that this is a simple SQL greater than or less than execution and hence follows the SQL comparison logic.
+* BUG : Sorting wasn't using the same naming as the field naming, it does now, e.g. you can use {{#bugzilla:product=live|columns=+to|sort=to}} now, previously you had to use {{#bugzilla:product=live|columns=+to|sort=assignedto}} for this
+
+==v0.9.7 - 21st October 2008==
+
+* Allow column names to be set by, e.g. columns=+field:myfieldname, where "field" is the column name and "myfieldname" is the name of the column
+* Support custom fields in the columns and sort parameter, e.g. columns=+cf_customer and sort=+cf_customer.  This can be used in conjunction with the column name feature above to include the column with, e.g., columns=+cf_customer:Customer.  Note that custom fields MUST start with "cf_" as enforced in recent Bugzilla version by Bugzilla console.
+* Support for url-style decoding of fields (with SQL injection safety check - e.g. you can't do quotes) so product=%21MyProduct will search for bugs against product "!MyProduct".  Note that product=!MyProduct will search for bugs not against product "MyProduct" hence the need to encode
+* Support multiple nested grouping levels, e.g. group=status,severity,priority,version
+* Support disabling of mediawiki cache for page so that report is dynamically generated from bugzilla database each page refresh, this is a performance hit so this caching is enabled by default, but this gives you the control to choose.
+* BUG : Some characters were showing as ?.  Support has now been provided to control the db encoding - set $wgBugzillaReports = array( ... 'dbencoding' => "utf8" ...) in LocalSettings to set db encoding.  Default is "utf8", so if your database is using UTF-8 then you don't need to use this setting.
+* BUG : Fix issues with some characters either corrupting the mediawiki page or not rendering the report at all.
+* BUG : Fix bug where ! in field string caused failure
+
+==v0.9.6 - 9th October 2008==
+
+* Support relative date searches, e.g. deadline=+1w (anything with a deadline in less than a week), modified=-1m (anything modified in the last month), deadline=-5d:+5d (anything with deadline in the past 5 days or in the next 5 days)
+* Support for qa field - e.g. {{#bugzilla:columns=+qa}} or 
+{{#bugzilla:debug=1|qa=whoever@bemoko.com}}
+* Include keywords bubble inside lastcomments bubble.  By default each keywords is clickable through to a wiki page called "keyword mykeyword" (where mykeyword is the given keyword)
+* Support for format=count to display count of bugs
+* If number field is 0 then render number as empty string, e.g. if number of votes is 0 then it render as blank
+* Support link attribute to define which column value (or group heading) should link through to a wiki page, e.g. link=milestone~myproduct,component, will link the milestone column to [[myproduct 0.1|0.1]] (if milestone value is "0.1") and link the component column to [[ui]] (if the component value is "ui").  The ~ acts a separator to allow you to define a prefix of the linked page.
+* Setting parameter "sortable=1" provides client side sorting of table.  This uses alphabetic sorting and not Bugzilla sort orders, nor numeric sorting.  It is not supported alongside groups and barcharts.
+* Setting parameter "debug=2" generates more verbose debugging, including full dump of HTML report output
+* BUG : More accurately calculate bug count value for format=count
+
+==v0.9.5 - 25th August 2008==
+
+* Support for range comparisons on modified, e.g. "columns=+modified|modified=2008-07-01:2008-08-01|modifiedformat=date|sort=modified" for everything modified in july and format modified as date (as opposed to the default relative symbols)
+* BUG: Correct missing ?php at the beginning of BugzillaQueryRenderer which was leading to php script not processing on some platforms
+
+==v0.9.4 - 23rd August 2008==
+
+* Support usage of BugzillaReports outside of MediaWiki install and in any PHP application of your choice
+* Separate out query renderer from query execution in preparation for mobile rendering
+* BUG: Support spaces in field values in the bugzilla link.  Note that this link can be turned off by setting bzurl=hide
+
+==v0.9.3 - 22nd August 2008==
+
+* Added link to take you to the query in Bugzilla - link appears as a double arrow to the right of the summary column.  Note that wgBugzillaReports property bzserver must be set to enable this functionality.
+* Support for search on keywords, i.e. keywords=php - courtesy of Gary Helmling of meetup.com
+* BUG: If you explicitly truncate table with maxrows in the parser function call then the warning "Report truncated" is now not displayed
+* BUG: Fixed combination of explicit id and lastcomment not working , e.g. id=47,256|lastcomment=1
+* BUG: Addressed warning mysql_free_result(): supplied argument is not a valid MySQL result which was coming about from incorrect db access checking.  Note that this bug was not having any known functional side affects other that the warning log message.
+
+==v0.9.1 - 14th August 2008==
+
+* Support comma separated sort, e.g. sort=status,priority
+* Add status in grey font at end of depends / blocks row
+* Added support for "estimated", "remaining" and "work" field
+* Added support for totals of rows, e.g. "total=estimate, remaining" provides a total summary at end of row.  This can be used in conjunction with group to display sub-totals, e.g. "|total=estimate,work remaining|group=milestone|hide=true" would create a report of the estimated time, worked time and remaining time for each milestone.
+* Implement hide function to hide rows from the display (useful in conjunction with the total function to display just totals)
+* Set default sort to priority,status
+* Support for dependsstatus=...  to specify criteria for display depends (and blocks rows) e.g. dependsstatus=!(CLOSED,VERIFIED) will not display CLOSED and VERIFIED tickets in dependency or blocks report.  It defaults to !(CLOSED,VERIFIED,RESOLVED)
+* BUG: allow query fields with "-" and "/" in
+* BUG: fix issue with search query not working
+* BUG: allow query fields with "-" in
+* BUG: Fix Undefined index - BSQLQuery.php on line 121
+* BUG: Support use of the bugzilla connection being the same as the mediawiki connection 
+
+==v0.9 - 21st July 2008==
+
+* Support for postgres wgBugzillaReports in LocalSettings.php
+*: 'dbdriver'	=> "pg" (note defaults to mysql)
+* Format modified column with relative dates
+*: +++ => modfied in last hour
+*: ++ => modfied in last day
+*: + => modified in last two days
+*: - => modified in last three days
+*: . => modified in last 4 days
+*:: text description, e.g. < 1 day, pops up on roll over.
+* Don't display column headings if there's explicitly one task, i.e. explicitly set single id or alias
+* Support grouporder for ordering of grouping (desc or asc), also implicitly sort modified grouping with desc
+* Use autoloading of classes
+* BUG: Display column if field match set to any, e.g. status=*
+
+==v0.8 - 13th July 2008==
+
+* Support heading which includes the heading (as an H1) above the report (only if there is content)
+* Support for empty noresultsmessage, if it's set to nothing then no no-results message will be displayed
+* Support for milestone search query and column name
+* Refactoring to improve supportability and future extensions
+* Support for "allow_call_time_pass_reference = Off" in php.ini without warnings
+* Clear up all warnings with "error_reporting  =  E_ALL" set in php.ini
+* Display tasks which a task is dependent on with "depends=*" and anything which blocks with "blocks=*" - assignee and status displayed on roll over (in the td title)
+* By default the real name is display for cc,to, from , etc names.  If you want the login name to be displayed set "nameformat=login"
+* Support for name format as a succinct three letter acronym, e.g. Joe Blogs would be JBL and Jane Doe would be JDO, set "nameformat=tla" to enable this
+* Provided a simple list format configured by setting "format=list" which generates a list of tasks handy for cutting and pasting into an email
+* Support for alias in column and query
+* A little faint "+" appears next to any value if there's extra info when you roll over the value, for example if an alias is set then you see a little "+" and see the alias name when you roll over
+
+==v0.7 - 4th July 2008 ==
+
+* Regression Warning : There were some inconsistencies and bugs relating to the naming fields in query field parameters, sort parameters and column parameters.  This naming has been simplified and made consistent, however it does mean that the use of functions should be adjusted inline with this release.  Naming is now as follows:
+*: status (instead of bug_status), severity (instead of bug_severity), id (instead of bug_id), summary (instead of short_desc)
+* Warnings now output to page to make troubleshooting easier
+* Implicitly add column to provide url associated with task.  Column doesn't have a header so if no rows have urls then nothing shows up.
+* Provide support for last modified with the parameter, modified=+ or sort=modified|order=desc
+* Added group feature, e.g. group=product to group the report into different products, including groupformat=radar to render headers for dates as today, tomorrow, this week etc ...
+* Added experimental bar chart feature - e.g. bar=priority groups all rows into a bar chart of different priorities.  I say experimental, since doesn't look great yet, but it's functional.
+
+==v0.6 - 1st July 2008 ==
+
+* Fix setting of implicit sorting when some query fields set
+* Fix bug relating to array_fill_keys mandating two parameters
+
+==v0.5 - 1st July 2008 ==
+
+* Optimise SQL to only do joins when needed
+* Support search on component name, component=mycomponent
+* Support for vote reporting, columns=+votes to include votes column and votes=+ to display only tickets with votes against them 
+* Significant refactoring to make extension easier to maintain and to allow further DB integrations to be developed (including abstractions from mediawiki) - I expect to do be doing a vTiger MediaWiki extension in the coming months, and I've had feedback that people would like to run this functionality outside of mediawiki.
+* Implicit sort and ordering based on query parameters if no explit sort and ordering set, for example if you say you want to list all rows with deadline set, then sorting will be on deadline (unless explicitly set otherwise)
+* Support for "from","to" and "cc" meaning respectively who raised the ticket, who's it assigned to and who's cc'd
+** Renamed column and query field login_name to "to" (requires changes to any function calls which make reference to login_name)
+** Support for reporter query field and column, e.g. from=me@bemoko.com and columns=+from
+** Support for query field on cc, but note that comma separated and not operators are not supported for this field.
+* Implicity remove columns if query set for a single value, i.e. all values in the column would be the same
+* Implicity add columns if query set for not null, e.g. votes=+ or deadline=+ would implicitly add the deadline and votes column
+* Support query for flagged tasks, e.g. flag=+me@bemoko.com
+* Make sort on deadline put earliest date first and nulls at end
+
+==v0.4 - 30th June 2008==
+
+* Fix query for free text match - using '''search''' parameter
+* Changed default status to !CLOSED
+* Default maxrows changed to 100
+* Support maxrows as parameter into function call (as well as server config max) - note function call value can't be higher than server config value
+* Support spaces in comma separated query list
+* Default columns changed to "bug_id,priority,bug_status,bug_severity,version,name,short_desc" with login_name removed
+* Support adding and removing columns from the default by using "column=+deadline" or "column=-name", or "column=+deadline,-name"
+* Support sort, e.g "sort=deadline" and ordering "order=desc"
+* Support search for deadline set "deadline=+" and deadline not set "deadline=-"
+* Change "name" column to "product" to make it more obvious and consistent
+
+==v0.3 - 26th June 2008==
+
+* Improve UI rendering of lastcomment bubbles
+* Fix the css to get tables rendered better
+* Improved error handling of mysql_query
+
+==v0.2 - 26th June 2008==
+
+* Render last comment for a bug in jQuery bubble - use the '''lastcomment''' parameter
+* Support for negation of query fields
+* Installation download bundle provided
+
+==v0.1 - 25th June 2008==
+
+* Baseline reporting functionality

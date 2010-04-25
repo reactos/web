@@ -60,6 +60,8 @@ $wgEnotifWatchlist = true; # UPO
 $wgEmailAuthentication = false;
 
 require_once("$IP/../../www.reactos.org_config/wiki-connect.php");
+#BugzillaReports extension
+require_once("$IP/../../www.reactos.org_config/bugzilla-config.php");
 
 # MySQL specific settings
 $wgDBprefix         = "";
@@ -141,6 +143,8 @@ $wgAllowExternalImages = true;
 # additional namespaces
 $wgExtraNamespaces[100] = "Techwiki";
 $wgExtraNamespaces[101] = "Techwiki_talk";
+$wgExtraNamespaces[102] = "Website";
+$wgExtraNamespaces[103] = "Website_talk";
 
 # modify search behaviour
 $wgEnableMWSuggest = true;
@@ -151,6 +155,14 @@ $wgNamespacesToBeSearchedDefault[100]=true;
 # Extensions
 require_once("$IP/extensions/ParserFunctions/ParserFunctions.php");
 require_once("$IP/extensions/SyntaxHighlight_GeSHi/SyntaxHighlight_GeSHi.php");
+require_once("$IP/extensions/BugzillaReports/BugzillaReports.php");
+$wgBugzillaReports = array(
+  'host'        => $dbbug_host, 
+  'database'    => $dbbug_name,
+  'user'        => $dbbug_user,
+  'password'    => $dbbug_pass,
+  'bzserver'    => "http://www.reactos.org/bugzilla/");
+unset($dbbug_host,$dbbug_name,$dbbug_user,$dbbug_user,$dbbug_pass);
 
 # RosCMS-specific settings
 define("ROOT_PATH", "$IP/../");
