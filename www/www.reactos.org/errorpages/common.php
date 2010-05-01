@@ -1,62 +1,55 @@
 <?php
-
-function dec2hex($dec, $digits=false) {
-
-        $hex =  '';
-        $sign = $dec < 0 ? false : true;
-
-        // Converts the decimal number into hexadecimal ignoring the sign for now.
-        while ($dec) {
-            // Calculates the modulus, converts it to hexadecimal and adds it to the result.
-            $hex .= dechex(abs(bcmod($dec, '16')));
-            // Divises the decimal number by 16 and loop.
-            $dec = bcdiv($dec, '16', 0);
-        }
-
-        // Adds some padding to get the required number of digits if specified.
-        if ($digits) {
-            while (strlen($hex) < $digits) { $hex .= '0'; }
-        }
-
-        // If the decimal number was positive, we're done.
-        if ($sign) {
-            // The result has to be reversed because of the way it was computed.
-            return strrev($hex);
-        }
-
-        // The decimal number was negative so first we need to flip each digit individually.
-        for ($i = 0; isset($hex[$i]); $i++) { $hex[$i] = dechex(15 - hexdec($hex[$i])); }
-
-        // Now we need to add 1 to the result.
-        // This handles the carry so 'f' becomes '0' until we reach a digit that isn't 'f'.
-        for ($i = 0; isset($hex[$i]) && $hex[$i] == 'f'; $i++) { $hex[$i] = '0'; }
-        // Finally unless all the digits were f's, we add one to the latest digit that wasn't.
-        if (isset($hex[$i])) { $hex[$i] = dechex(hexdec($hex[$i]) + 1); }
-
-        // All done! Again, we need to reverse the result.
-        return strrev($hex);
-
-    } 
-
-function ip_address_to_number($IPaddress) 
-{ 
-    if ($IPaddress == "") { 
-        return 0; 
-    } else { 
-        $ips = split ("\.", "$IPaddress"); 
-        return ($ips[3] + $ips[2] * 256 + $ips[1] * 256 * 256 + $ips[0] * 256 * 256 * 256); 
-    } 
-}
-
-$url .= "http://" . $_SERVER["SERVER_NAME"] . $_SERVER["REQUEST_URI"];
-$page .= $_SERVER["REQUEST_URI"];
-$server .= $_SERVER["SERVER_NAME"];
-if ($_SERVER["HTTP_REFERER"] != "")
-  $ref .= " base at " . $_SERVER["HTTP_REFERER"];
-$datestamp = dec2hex(date("U"), 8);
-$r_port = "0x" . dec2hex($_SERVER["REMOTE_PORT"], 8);
-$r_ip = "0x" . dec2hex(ip_address_to_number($_SERVER["REMOTE_ADDR"]),8);
-$s_port = "0x" . dec2hex($_SERVER["SERVER_PORT"], 8);
-$s_ip = "0x" . dec2hex(ip_address_to_number($_SERVER["SERVER_ADDR"]),8);
-
+	function ip_address_to_number($address) 
+	{
+		$ips = explode('.', $address);
+		return ($ips[3] + $ips[2] * 256 + $ips[1] * 256 * 256 + $ips[0] * 256 * 256 * 256);
+	}
+	
+	function bsod($http_error, $code)
+	{
+		$url = 'http://' . $_SERVER["SERVER_NAME"] . $_SERVER["REQUEST_URI"];
+		
+		$address = $_SERVER["SERVER_NAME"];
+		if(array_key_exists('HTTP_REFERER', $_SERVER))
+  		$address .= ' base at ' . $_SERVER["HTTP_REFERER"];
+  	
 ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+	<title><?php echo $http_error; ?> - <?php echo $code; ?></title>
+	<style type="text/css">
+		body
+		{
+			background: #000099;
+			color: white;
+			font-family: Lucida Console;
+			font-size: 10pt;
+		}
+	</style>
+</head>
+<body>
+	<p>A problem has been detected and RosCMS has been shut down to prevent damage to your computer.</p>
+
+	<p><?php echo $code; ?></p>
+
+	<p>If this is the first time you have seen this error screen,<br />
+	restart your browser. If this screen appears again, follow<br />
+	these steps:</p>
+
+	<p>Make sure that the page you requested is spelled properly.<br />
+	If this is the case, press F5 for advanced reload options.</p>
+
+	<p>If problems continue, drop an email to ros-web@reactos.org</p>
+
+	<p>Technical information:</p>
+
+	<p><?php printf('*** STOP: 0x00000%u (0x%08x, 0x%08x, 0x%08x, 0x%08x)', $http_error, ip_address_to_number($_SERVER["REMOTE_ADDR"]), $_SERVER["REMOTE_PORT"], ip_address_to_number($_SERVER["SERVER_ADDR"]), $_SERVER["SERVER_PORT"]); ?></p>
+
+
+	<p><br />***&nbsp;&nbsp;&nbsp;<?php printf('%s - Address %s, DateStamp %08x', $_SERVER["REQUEST_URI"], $address, date("U")); ?></p>
+</body>
+</html>
+<?php
+	}
