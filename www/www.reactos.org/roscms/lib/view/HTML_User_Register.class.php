@@ -256,9 +256,9 @@ class HTML_User_Register extends HTML_User
     
     // USERNAME CHECKS
     // Ensure that the username only contains valid characters and no leading or trailing spaces
-    $name_ok  = (isset($_POST['username']));
-    $name_ok &= ($_POST['username'] == trim($_POST['username']));
-    $name_ok &= (preg_match('/^[a-z0-9_\-[:space:]\.]{' . $config->limitUserNameMin() . ',' . $config->limitUsernameMax() . '}$/i', $_POST['username']));
+    $name_ok = isset($_POST['username']) &&
+               $_POST['username'] == trim($_POST['username']) &&
+               preg_match('/^[a-z0-9_\-[:space:]\.]{' . $config->limitUserNameMin() . ',' . $config->limitUsernameMax() . '}$/i', $_POST['username']);
     
     // Check if another account with the same username already exists
     $stmt = &DBConnection::getInstance()->prepare("SELECT 1 FROM ".ROSCMST_USERS." WHERE LOWER(REPLACE(name, '_', ' ')) = LOWER(REPLACE(:username, '_', ' ')) LIMIT 1");
@@ -274,14 +274,14 @@ class HTML_User_Register extends HTML_User
     
     // PASSWORD CHECKS
     // Ensure that both passwords are equal and valid
-    $password_ok  = (isset($_POST['userpwd1']) && isset($_POST['userpwd2']));
-    $password_ok &= ($_POST['userpwd1'] == $_POST['userpwd2']);
-    $password_ok &= (strlen($_POST['userpwd1']) >= $config->limitPasswordMin() && strlen($_POST['userpwd1']) <= $config->limitPasswordMax());
+    $password_ok = isset($_POST['userpwd1']) && isset($_POST['userpwd2']) &&
+                   $_POST['userpwd1'] == $_POST['userpwd2'] &&
+                   strlen($_POST['userpwd1']) >= $config->limitPasswordMin() && strlen($_POST['userpwd1']) <= $config->limitPasswordMax();
     
     // E-MAIL ADDRESS CHECKS
     // Ensure that the E-Mail address only contains valid characters
-    $mail_ok  = (isset($_POST['useremail']));
-    $mail_ok &= (EMail::isValid($_POST['useremail']));
+    $mail_ok  = isset($_POST['useremail']) &&
+                EMail::isValid($_POST['useremail']);
     
     // Check if another account with the same email address already exists
     $stmt = &DBConnection::getInstance()->prepare("SELECT 1 FROM ".ROSCMST_USERS." WHERE email = :email LIMIT 1");
@@ -291,8 +291,8 @@ class HTML_User_Register extends HTML_User
     
     // CAPTCHA CHECKS
     // Ensure that the captcha is correct
-    $captcha_ok  = (isset($_POST['usercaptcha']) && isset($_SESSION['rdf_security_code']));
-    $captcha_ok &= (strtolower($_POST['usercaptcha']) == strtolower($_SESSION['rdf_security_code']));
+    $captcha_ok = isset($_POST['usercaptcha']) && isset($_SESSION['rdf_security_code']) &&
+                  strtolower($_POST['usercaptcha']) == strtolower($_SESSION['rdf_security_code']);
     
     
     // Now we have all information together and can easily check whether an account could be registered.
