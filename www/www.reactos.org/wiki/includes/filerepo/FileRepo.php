@@ -15,6 +15,7 @@ abstract class FileRepo {
 	var $thumbScriptUrl, $transformVia404;
 	var $descBaseUrl, $scriptDirUrl, $articleUrl, $fetchDescription, $initialCapital;
 	var $pathDisclosureProtection = 'paranoid';
+	var $descriptionCacheExpiry, $apiThumbCacheExpiry, $hashLevels;
 
 	/**
 	 * Factory functions for creating new files
@@ -30,7 +31,8 @@ abstract class FileRepo {
 		// Optional settings
 		$this->initialCapital = true; // by default
 		foreach ( array( 'descBaseUrl', 'scriptDirUrl', 'articleUrl', 'fetchDescription',
-			'thumbScriptUrl', 'initialCapital', 'pathDisclosureProtection', 'descriptionCacheExpiry' ) as $var )
+			'thumbScriptUrl', 'initialCapital', 'pathDisclosureProtection', 
+			'descriptionCacheExpiry', 'apiThumbCacheExpiry', 'hashLevels' ) as $var )
 		{
 			if ( isset( $info[$var] ) ) {
 				$this->$var = $info[$var];
@@ -57,7 +59,7 @@ abstract class FileRepo {
 	 */
 	function newFile( $title, $time = false ) {
 		if ( !($title instanceof Title) ) {
-			$title = Title::makeTitleSafe( NS_IMAGE, $title );
+			$title = Title::makeTitleSafe( NS_FILE, $title );
 			if ( !is_object( $title ) ) {
 				return null;
 			}
@@ -83,7 +85,7 @@ abstract class FileRepo {
 	 */
 	function findFile( $title, $time = false, $flags = 0 ) {
 		if ( !($title instanceof Title) ) {
-			$title = Title::makeTitleSafe( NS_IMAGE, $title );
+			$title = Title::makeTitleSafe( NS_FILE, $title );
 			if ( !is_object( $title ) ) {
 				return false;
 			}
@@ -99,7 +101,7 @@ abstract class FileRepo {
 		# Now try an old version of the file
 		if ( $time !== false ) {
 			$img = $this->newFile( $title, $time );
-			if ( $img->exists() ) {
+			if ( $img && $img->exists() ) {
 				if ( !$img->isDeleted(File::DELETED_FILE) ) {
 					return $img;
 				} else if ( ($flags & FileRepo::FIND_PRIVATE) && $img->userCan(File::DELETED_FILE) ) {
@@ -113,7 +115,7 @@ abstract class FileRepo {
 			return false;
 		}
 		$redir = $this->checkRedirect( $title );		
-		if( $redir && $redir->getNamespace() == NS_IMAGE) {
+		if( $redir && $redir->getNamespace() == NS_FILE) {
 			$img = $this->newFile( $redir );
 			if( !$img ) {
 				return false;
@@ -129,12 +131,12 @@ abstract class FileRepo {
 	/*
 	 * Find many files at once. 
 	 * @param array $titles, an array of titles
-	 * @param int $flags
+	 * @todo Think of a good way to optionally pass timestamps to this function.
 	 */
-	function findFiles( $titles, $flags ) {
+	function findFiles( $titles ) {
 		$result = array();
 		foreach ( $titles as $index => $title ) {
-			$file = $this->findFile( $title, $flags );
+			$file = $this->findFile( $title );
 			if ( $file )
 				$result[$file->getTitle()->getDBkey()] = $file;
 		}
@@ -236,31 +238,20 @@ abstract class FileRepo {
 			return $path;
 		}
 	}
+	
+	/**
+	 * Get a relative path including trailing slash, e.g. f/fa/
+	 * If the repo is not hashed, returns an empty string
+	 */
+	function getHashPath( $name ) {
+		return self::getHashPathForLevel( $name, $this->hashLevels );
+	}
 
 	/**
 	 * Get the name of this repository, as specified by $info['name]' to the constructor
 	 */
 	function getName() {
 		return $this->name;
-	}
-
-	/**
-	 * Get the file description page base URL, or false if there isn't one.
-	 * @private
-	 */
-	function getDescBaseUrl() {
-		if ( is_null( $this->descBaseUrl ) ) {
-			if ( !is_null( $this->articleUrl ) ) {
-				$this->descBaseUrl = str_replace( '$1',
-					wfUrlencode( MWNamespace::getCanonicalName( NS_IMAGE ) ) . ':', $this->articleUrl );
-			} elseif ( !is_null( $this->scriptDirUrl ) ) {
-				$this->descBaseUrl = $this->scriptDirUrl . '/index.php?title=' .
-					wfUrlencode( MWNamespace::getCanonicalName( NS_IMAGE ) ) . ':';
-			} else {
-				$this->descBaseUrl = false;
-			}
-		}
-		return $this->descBaseUrl;
 	}
 
 	/**
@@ -273,12 +264,29 @@ abstract class FileRepo {
 	 * constructor, whereas local repositories use the local Title functions.
 	 */
 	function getDescriptionUrl( $name ) {
-		$base = $this->getDescBaseUrl();
-		if ( $base ) {
-			return $base . wfUrlencode( $name );
-		} else {
-			return false;
+		$encName = wfUrlencode( $name );
+		if ( !is_null( $this->descBaseUrl ) ) {
+			# "http://example.com/wiki/Image:"
+			return $this->descBaseUrl . $encName;
 		}
+		if ( !is_null( $this->articleUrl ) ) {
+			# "http://example.com/wiki/$1"
+			#
+			# We use "Image:" as the canonical namespace for
+			# compatibility across all MediaWiki versions.
+			return str_replace( '$1',
+				"Image:$encName", $this->articleUrl );
+		}
+		if ( !is_null( $this->scriptDirUrl ) ) {
+			# "http://example.com/w"
+			#
+			# We use "Image:" as the canonical namespace for
+			# compatibility across all MediaWiki versions,
+			# and just sort of hope index.php is right. ;)
+			return $this->scriptDirUrl .
+				"/index.php?title=Image:$encName";
+		}
+		return false;
 	}
 
 	/**
@@ -286,16 +294,22 @@ abstract class FileRepo {
 	 * MediaWiki this means action=render. This should only be called by the
 	 * repository's file class, since it may return invalid results. User code
 	 * should use File::getDescriptionText().
+	 * @param string $name Name of image to fetch
+	 * @param string $lang Language to fetch it in, if any.
 	 */
-	function getDescriptionRenderUrl( $name ) {
+	function getDescriptionRenderUrl( $name, $lang = null ) {
+		$query = 'action=render';
+		if ( !is_null( $lang ) ) {
+			$query .= '&uselang=' . $lang;
+		}
 		if ( isset( $this->scriptDirUrl ) ) {
 			return $this->scriptDirUrl . '/index.php?title=' .
-				wfUrlencode( MWNamespace::getCanonicalName( NS_IMAGE ) . ':' . $name ) .
-				'&action=render';
+				wfUrlencode( 'Image:' . $name ) .
+				"&$query";
 		} else {
-			$descBase = $this->getDescBaseUrl();
-			if ( $descBase ) {
-				return wfAppendQuery( $descBase . wfUrlencode( $name ), 'action=render' );
+			$descUrl = $this->getDescriptionUrl( $name );
+			if ( $descUrl ) {
+				return wfAppendQuery( $descUrl, $query );
 			} else {
 				return false;
 			}
@@ -503,7 +517,8 @@ abstract class FileRepo {
 	function cleanupDeletedBatch( $storageKeys ) {}
 
 	/**
-	 * Checks if there is a redirect named as $title
+	 * Checks if there is a redirect named as $title. If there is, return the
+	 * title object. If not, return false.
 	 * STUB
 	 *
 	 * @param Title $title Title of image
@@ -514,14 +529,44 @@ abstract class FileRepo {
 
 	/**
 	 * Invalidates image redirect cache related to that image
-	 * STUB
 	 *
 	 * @param Title $title Title of image
-	 */
+	 */	
 	function invalidateImageRedirect( $title ) {
+		global $wgMemc;
+		$memcKey = $this->getMemcKey( "image_redirect:" . md5( $title->getPrefixedDBkey() ) );
+		$wgMemc->delete( $memcKey );
 	}
 	
 	function findBySha1( $hash ) {
 		return array();
+	}
+	
+	/**
+	 * Get the human-readable name of the repo. 
+	 * @return string
+	 */
+	public function getDisplayName() {
+		// We don't name our own repo, return nothing
+		if ( $this->name == 'local' ) {
+			return null;
+		}
+		$repoName = wfMsg( 'shared-repo-name-' . $this->name );
+		if ( !wfEmptyMsg( 'shared-repo-name-' . $this->name, $repoName ) ) {
+			return $repoName;
+		}
+		return wfMsg( 'shared-repo' ); 
+	}
+	
+	function getSlaveDB() {
+		return wfGetDB( DB_SLAVE );
+	}
+
+	function getMasterDB() {
+		return wfGetDB( DB_MASTER );
+	}
+	
+	function getMemcKey( $key ) {
+		return wfWikiID( $this->getSlaveDB() ) . ":{$key}";
 	}
 }

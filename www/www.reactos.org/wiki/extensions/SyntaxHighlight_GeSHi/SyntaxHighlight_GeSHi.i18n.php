@@ -135,12 +135,8 @@ $messages['bn'] = array(
  * @author Fulup
  */
 $messages['br'] = array(
-	'syntaxhighlight-desc' => 'Talvezout a ra da lakaat an ereadur war wel dre ar valizenn <tt><nowiki><source></nowiki></tt> en ur ober gant [http://qbnz.com/highlighter/ GeSHi Highlighter]',
 	'syntaxhighlight-specify' => "Ret eo deoc'h spisaat ur yezh evel-henn :",
-	'syntaxhighlight-supported' => 'Yezhoù skoret evit al livadur ereadurel :',
-	'syntaxhighlight-err-loading' => '(fazi en ur gargañ roll ar yezhoù skoret)',
 	'syntaxhighlight-err-language' => 'Yezh direizh.',
-	'geshi.css' => "/* Talvezout a raio ar c'hod CSS lakaet amañ d'al livadur ereadurel GeSHi */",
 );
 
 /** Bosnian (Bosanski)
@@ -157,7 +153,6 @@ $messages['bs'] = array(
 
 /** Catalan (Català)
  * @author SMP
- * @author Solde
  */
 $messages['ca'] = array(
 	'syntaxhighlight-desc' => "Proveeix de ressaltat sintàctic amb l'etiqueta <tt><nowiki><source></nowiki></tt> usant el programa [http://qbnz.com/highlighter/ GeSHi]",
@@ -165,7 +160,6 @@ $messages['ca'] = array(
 	'syntaxhighlight-supported' => 'Llenguatges admesos per al ressaltament sintàctic:',
 	'syntaxhighlight-err-loading' => '(error en carregar la llista de llenguatges)',
 	'syntaxhighlight-err-language' => 'Llenguatge invàlid.',
-	'geshi.css' => '/* El CSS ubicat aquí serà aplicat al ressaltat de sintaxi de GeSHi */',
 );
 
 /** Czech (Česky)
@@ -191,18 +185,6 @@ $messages['de'] = array(
 	'syntaxhighlight-err-loading' => '(Fehler beim Laden der Sprachenliste)',
 	'syntaxhighlight-err-language' => 'Ungültige Sprache.',
 	'geshi.css' => '/* CSS in dieser MediaWiki-Systemnachricht wird auf die GeSHi-Syntaxhervorhebung angewendet */',
-);
-
-/** Zazaki (Zazaki)
- * @author Aspar
- */
-$messages['diq'] = array(
-	'syntaxhighlight-desc' => 'pê şuxulnayişê [http://qbnz.com/highlighter/ GeSHi Highlighter] i rêza <tt><nowiki><source></nowiki></tt> i işaret beno',
-	'syntaxhighlight-specify' => 'zey ıni yew zıwan bıvıcinê:',
-	'syntaxhighlight-supported' => 'zıwanê ke rêzvateyê eyi destek beni',
-	'syntaxhighlight-err-loading' => '(zıwanê ke destek geni, wexata bar biyene xeta da)',
-	'syntaxhighlight-err-language' => 'zıwano nemeqbul',
-	'geshi.css' => 'CSS o ke tiya /* de yo, işaretê rêzvateyê GeSHi tetbiq beno */',
 );
 
 /** Lower Sorbian (Dolnoserbski)
@@ -233,12 +215,11 @@ $messages['el'] = array(
 );
 
 /** Esperanto (Esperanto)
- * @author Michawiki
  * @author Yekrats
  */
 $messages['eo'] = array(
 	'syntaxhighlight-desc' => 'Provizas kolorigado de sintakso <tt><nowiki><source></nowiki></tt> per [http://qbnz.com/highlighter/ GeSHi Kolorigilo de Sintakso]',
-	'syntaxhighlight-specify' => 'Vi nepre specifu lingvon kiel ĉi tiu:',
+	'syntaxhighlight-specify' => 'Vi nepre specifigu lingvon ĉi tiel:',
 	'syntaxhighlight-supported' => 'Subtenaj lingvoj por sintaksa emfazo',
 	'syntaxhighlight-err-loading' => '(eraro ŝarĝante subtenitan lingvo-liston)',
 	'syntaxhighlight-err-language' => 'Nevalida lingvo.',
@@ -261,11 +242,9 @@ $messages['es'] = array(
 );
 
 /** Estonian (Eesti)
- * @author Pikne
  * @author [[et:Kasutaja:M2s17]]
  */
 $messages['et'] = array(
-	'syntaxhighlight-desc' => 'Võimaldab [http://qbnz.com/highlighter/ GeSHi] abil <tt><nowiki><source></nowiki></tt>-märgendit kasutades süntaksit esile tõsta.',
 	'syntaxhighlight-specify' => 'Sa pead täpsustama keelt nõnda:',
 	'syntaxhighlight-supported' => 'Süntaksi esiletoomise on toetatud järgnevates keeltes:',
 	'syntaxhighlight-err-loading' => '(toetatud keelte loetelu laadimisel esines viga)',
@@ -320,12 +299,12 @@ $messages['fr'] = array(
  * @author ChrisPtDe
  */
 $messages['frp'] = array(
-	'syntaxhighlight-desc' => 'Balye la misa en èvidence de la sintaxa per la balisa <tt><nowiki><source></nowiki></tt> en utilisent [http://qbnz.com/highlighter/ la coloracion sintaxica GeSHi].',
+	'syntaxhighlight-desc' => 'Fornét la misa en relièf de la sintaxa per la balisa <tt><nowiki><source></nowiki></tt> en utilisent [http://qbnz.com/highlighter/ la coloracion sintaxica GeSHi].',
 	'syntaxhighlight-specify' => 'Vos dête spècefiar un lengâjo d’ense :',
-	'syntaxhighlight-supported' => 'Lengâjos recognus por la coloracion sintaxica :',
-	'syntaxhighlight-err-loading' => '(èrror en chargient la lista des lengâjos recognus)',
-	'syntaxhighlight-err-language' => 'Lengâjo envalido.',
-	'geshi.css' => '/* Lo code CSS betâ ique serat aplicâ a la coloracion sintaxica GeSHi. */',
+	'syntaxhighlight-supported' => 'Lengâjos sotegnus por la coloracion sintaxica :',
+	'syntaxhighlight-err-loading' => '(èrror en chargient la lista des lengâjos sotegnus)',
+	'syntaxhighlight-err-language' => 'Lengâjo envalido',
+	'geshi.css' => '/* Lo CSS placiê ique serat aplicâ per GeSHi por la coloracion sintaxica. */',
 );
 
 /** Friulian (Furlan)
@@ -372,15 +351,6 @@ $messages['gsw'] = array(
 	'syntaxhighlight-err-loading' => '(Fehler bim Lade vu dr Sprochelischt)',
 	'syntaxhighlight-err-language' => 'Nit giltigi Sproch.',
 	'geshi.css' => '/* CSS in däre MediaWiki-Syschtemnochricht wird uf s GeSHi-Syntax-Firihebe aagwändet */',
-);
-
-/** Gujarati (ગુજરાતી)
- * @author Ashok modhvadia
- */
-$messages['gu'] = array(
-	'syntaxhighlight-supported' => 'વાક્યરચના સ્પષ્ટીકરણ માટે સહાયક ભાષાઓ:',
-	'syntaxhighlight-err-loading' => '(સહાયક ભાષા યાદી લાદણમાં ત્રુટિ)',
-	'syntaxhighlight-err-language' => 'અમાન્ય ભાષા.',
 );
 
 /** Hebrew (עברית)
@@ -449,12 +419,12 @@ $messages['hu'] = array(
  * @author McDutchie
  */
 $messages['ia'] = array(
-	'syntaxhighlight-desc' => 'Forni le coloration syntactic in <tt><nowiki><source></nowiki></tt> per medio de [http://qbnz.com/highlighter/ GeSHi Highlighter]',
+	'syntaxhighlight-desc' => 'Forni le emphase visual syntactic in <tt><nowiki><source></nowiki></tt> per medio de [http://qbnz.com/highlighter/ GeSHi Highlighter]',
 	'syntaxhighlight-specify' => 'Tu debe specificar un linguage in iste modo:',
-	'syntaxhighlight-supported' => 'Linguages supportate pro le coloration syntactic:',
+	'syntaxhighlight-supported' => 'Linguages supportate pro le emphase visual syntactic:',
 	'syntaxhighlight-err-loading' => '(error durante le cargamento del lista de linguages supportate)',
 	'syntaxhighlight-err-language' => 'Linguage invalide.',
-	'geshi.css' => '/* Omne CSS inserite hic se applicara al coloration syntactic con GeSHi */',
+	'geshi.css' => '/* Omne CSS inserite hic se applicara al emphase visual syntactic con GeSHi */',
 );
 
 /** Indonesian (Bahasa Indonesia)
@@ -489,7 +459,6 @@ $messages['it'] = array(
 );
 
 /** Japanese (日本語)
- * @author Aotake
  * @author Fryed-peach
  * @author JtFuruhata
  */
@@ -497,7 +466,7 @@ $messages['ja'] = array(
 	'syntaxhighlight-desc' => '[http://qbnz.com/highlighter/ GeSHi 構文ハイライト機能] を利用したタグ <tt><nowiki><source></nowiki></tt> を提供する',
 	'syntaxhighlight-specify' => '以下のように言語を指定する必要があります:',
 	'syntaxhighlight-supported' => '構文ハイライト機能に対応している言語は以下の通りです:',
-	'syntaxhighlight-err-loading' => '(対応言語一覧の読み込み時にエラーが発生しました)',
+	'syntaxhighlight-err-loading' => '(対応言語の読み込み時にエラーが発生しました)',
 	'syntaxhighlight-err-language' => '不正な言語名です。',
 	'geshi.css' => '/* ここへ、GeShi 構文ハイライト機能に適用する CSS を記述してください */',
 );
@@ -525,18 +494,6 @@ $messages['jv'] = array(
 	'syntaxhighlight-err-loading' => '(ana kaluputan ngunggahaké daftar basa sing disengkuyung)',
 	'syntaxhighlight-err-language' => 'Basané ora absah.',
 	'geshi.css' => '/* CSS ing kéné bakal ditrapaké kanggo panyorotan sintaksis GeSHi */',
-);
-
-/** Georgian (ქართული)
- * @author გიორგიმელა
- */
-$messages['ka'] = array(
-	'syntaxhighlight-desc' => 'გაძლევთ ნებართვას ფამოიყენოთ თეგი <tt><nowiki><source></nowiki></tt> სინტაქსის გასანათებლად[http://qbnz.com/highlighter/ GeSHi Highlighter-ის] მეშვეობით',
-	'syntaxhighlight-specify' => 'თქვენ უნდა წარადგინოთ სახელი შემდეგი სახით:',
-	'syntaxhighlight-supported' => 'მხარდამჭერი ახელები',
-	'syntaxhighlight-err-loading' => '(შეუძებელია მხარდამჭერი ენების სიის ატვირთვა)',
-	'syntaxhighlight-err-language' => 'მოთხოვნილია მხარდაჭერის არმქონე ენა',
-	'geshi.css' => '/* აქ წარმოდგენილი CSS-კოდი, გამოიყენება GeSHI სნტაქსის გასანათებლად*/',
 );
 
 /** Kazakh (Arabic script) (‫قازاقشا (تٴوتە)‬)
@@ -606,14 +563,13 @@ $messages['ksh'] = array(
 );
 
 /** Luxembourgish (Lëtzebuergesch)
- * @author Les Meloures
  * @author Robby
  */
 $messages['lb'] = array(
 	'syntaxhighlight-desc' => "Syntax-Ervirhiewung <tt><nowiki><source></nowiki></tt> mat Hellëf vu [http://qbnz.com/highlighter/ 'GeSHi Highlighter']",
 	'syntaxhighlight-specify' => 'Déi gewënschte Sprooch muss esou definéiert ginn:',
-	'syntaxhighlight-supported' => "Ënnerstëtzte Sprooche fir d'Syntax faarweg ze markéieren",
-	'syntaxhighlight-err-loading' => '(Feeler beim Luede vun der Lëscht vun den ënnerstëtzte Sproochen)',
+	'syntaxhighlight-supported' => "Ënnerstetzte Sproochen fir d'Syntax faarweg ze markéieren",
+	'syntaxhighlight-err-loading' => '(Feeler beim Luede vun der Lëscht vun den ënnerstetzte Sproochen)',
 	'syntaxhighlight-err-language' => 'Ongëlteg Sprooch',
 	'geshi.css' => "/* Den CSS deen hei steet gëtt benotzt fir d'GeSHi Syntax faarweg ze markéieren. /*",
 );
@@ -632,16 +588,13 @@ $messages['li'] = array(
 
 /** Lithuanian (Lietuvių)
  * @author Garas
- * @author Homo
  * @author Matasg
  */
 $messages['lt'] = array(
-	'syntaxhighlight-desc' => 'Teikia sintaksės paryškinimus <tt><nowiki><source></nowiki></tt> naudojant [http://qbnz.com/highlighter/ GeSHi Highlighter]',
 	'syntaxhighlight-specify' => 'Jums reikia nurodyti kalbą kaip čia:',
 	'syntaxhighlight-supported' => 'Palaikomos kalbos sintaksės paryškinimui:',
 	'syntaxhighlight-err-loading' => '(klaida įkeliant palaikomų kalbų sąrašą)',
 	'syntaxhighlight-err-language' => 'Neleistina kalba.',
-	'geshi.css' => '/* Čia pateiktas CSS bus taikomas GeSHi sintaksės paryškinimams */',
 );
 
 /** Malagasy (Malagasy)
@@ -652,29 +605,14 @@ $messages['mg'] = array(
 	'syntaxhighlight-err-language' => 'Diso fiteny',
 );
 
-/** Macedonian (Македонски)
- * @author Bjankuloski06
- */
-$messages['mk'] = array(
-	'syntaxhighlight-desc' => 'Овозможува потцртување на синтакса <tt><nowiki><source></nowiki></tt> со помош на [http://qbnz.com/highlighter/ GeSHi Highlighter]',
-	'syntaxhighlight-specify' => 'Треба да назначите јазик на следниов начин:',
-	'syntaxhighlight-supported' => 'Поддржани јазици за синтаксно потцртување:',
-	'syntaxhighlight-err-loading' => '(грешка при вчитувањето на листата на поддржани јазици)',
-	'syntaxhighlight-err-language' => 'Неважечки јазик.',
-	'geshi.css' => '/* Тука поставениот CSS-код ќе биде применет во GeSHi потцртување на синтаксата */',
-);
-
 /** Malayalam (മലയാളം)
- * @author Praveenp
  * @author Shijualex
  */
 $messages['ml'] = array(
-	'syntaxhighlight-desc' => '[http://qbnz.com/highlighter/ GeSHi പ്രമുഖമാക്കൽ ഉപകരണമുപയോഗിച്ച്] <tt><nowiki><source></nowiki></tt> വിന്യാസം പ്രമുഖമാക്കിക്കാട്ടാൻ സഹായിക്കുന്നു',
 	'syntaxhighlight-specify' => 'താങ്കള്‍ ഇപ്രകാരം ഒരു ഭാഷ തിരഞ്ഞെടുക്കണം:',
 	'syntaxhighlight-supported' => 'സിറ്റാക്സ് ഹൈലൈറ്റിങ്ങ് അനുകൂലിക്കുന്ന ഭാഷകള്‍:',
 	'syntaxhighlight-err-loading' => '(ഭാഷകളുടെ പട്ടിക ലോഡ് ചെയ്യുന്നതില്‍ പിശക്)',
 	'syntaxhighlight-err-language' => 'അസാധുവായ ഭാഷ.',
-	'geshi.css' => '/* ഇവിടെ നൽകുന്ന സി.എസ്.എസ്.  GeSHi വിന്യാസം പ്രമുഖമാക്കിക്കാട്ടലിനു ബാധകമായിത്തീരും */',
 );
 
 /** Marathi (मराठी)
@@ -719,13 +657,6 @@ $messages['nds'] = array(
 	'syntaxhighlight-err-loading' => '(Fehler bi dat Laden vun de Sprakenlist)',
 	'syntaxhighlight-err-language' => 'Spraak gellt nich.',
 	'geshi.css' => '/* CSS in disse MediaWiki-Systemnaricht warrt för dat GeSHi-Syntaxrutheven bruukt */',
-);
-
-/** Nedersaksisch (Nedersaksisch)
- * @author Servien
- */
-$messages['nds-nl'] = array(
-	'syntaxhighlight-err-language' => 'Neet de juuste taal.',
 );
 
 /** Dutch (Nederlands)
@@ -784,13 +715,6 @@ $messages['os'] = array(
 	'syntaxhighlight-err-language' => 'Раст æвзаг нæу.',
 );
 
-/** Deitsch (Deitsch)
- * @author Xqt
- */
-$messages['pdc'] = array(
-	'syntaxhighlight-err-language' => 'Falsch Schprooch',
-);
-
 /** Polish (Polski)
  * @author Derbeth
  * @author Sp5uhe
@@ -806,10 +730,8 @@ $messages['pl'] = array(
 
 /** Piedmontese (Piemontèis)
  * @author Bèrto 'd Sèra
- * @author Dragonòt
  */
 $messages['pms'] = array(
-	'syntaxhighlight-desc' => 'A evidensia la sintassi <tt><nowiki><source></nowiki></tt>an dovrand [http://qbnz.com/highlighter/ GeSHi Highlighter]',
 	'syntaxhighlight-specify' => 'A venta specifiché na lenga coma:',
 	'syntaxhighlight-supported' => "Lenghe dont as peul fé l'evidensiassion dla sintassi:",
 	'syntaxhighlight-err-loading' => '(eror ën cariand la lista dle lenghe dont sintassi as peul evidensié)',
@@ -826,12 +748,11 @@ $messages['ps'] = array(
 );
 
 /** Portuguese (Português)
- * @author Hamilton Abreu
  * @author Malafaya
  */
 $messages['pt'] = array(
-	'syntaxhighlight-desc' => 'Permite o realce sintáctico de código fonte, através da marca <tt><nowiki><source></nowiki></tt>, usando o [http://qbnz.com/highlighter/ GeSHi Highlighter]',
-	'syntaxhighlight-specify' => 'Precisa de especificar uma linguagem assim:',
+	'syntaxhighlight-desc' => 'Providencia <tt><nowiki><source></nowiki></tt> de sinalização de sintaxe  através do [http://qbnz.com/highlighter/ GeSHi Highlighter]',
+	'syntaxhighlight-specify' => 'Você precisa especificar uma linguagem, tal como:',
 	'syntaxhighlight-supported' => 'Linguagens suportadas no realce de sintaxe:',
 	'syntaxhighlight-err-loading' => '(erro ao carregar a lista de linguagens suportadas)',
 	'syntaxhighlight-err-language' => 'Linguagem inválida.',
@@ -863,18 +784,6 @@ $messages['qu'] = array(
 $messages['ro'] = array(
 	'syntaxhighlight-specify' => 'Trebuie să specificaţi o limbă în acest mod:',
 	'syntaxhighlight-err-language' => 'Limbă incorectă.',
-);
-
-/** Tarandíne (Tarandíne)
- * @author Joetaras
- */
-$messages['roa-tara'] = array(
-	'syntaxhighlight-desc' => "Dè 'na sindasse evidenziate <tt><nowiki><source></nowiki></tt> ausanne [http://qbnz.com/highlighter/ GeSHi l'Evidenziatore]",
-	'syntaxhighlight-specify' => "Tu, abbesogne de 'na lènga specifiche cumme a queste:",
-	'syntaxhighlight-supported' => 'Linguagge supportate pa sindasse evidenziate:',
-	'syntaxhighlight-err-loading' => "(errore carecanne 'a liste de linguagge supportate)",
-	'syntaxhighlight-err-language' => 'Lénghe invalide.',
-	'geshi.css' => "/* CSS mise aqquà avène applicate 'a sindasse GeSHi evidenziate */",
 );
 
 /** Russian (Русский)
@@ -922,7 +831,7 @@ $messages['sl'] = array(
 	'syntaxhighlight-err-language' => 'Neveljaven jezik.',
 );
 
-/** Serbian Cyrillic ekavian (Српски (ћирилица))
+/** Serbian Cyrillic ekavian (ћирилица)
  * @author Millosh
  * @author Sasa Stefanovic
  */
@@ -933,18 +842,6 @@ $messages['sr-ec'] = array(
 	'syntaxhighlight-err-loading' => '(грешка при учитавању подржаних језика)',
 	'syntaxhighlight-err-language' => 'Неподобан језик',
 	'geshi.css' => '/* CSS постављен овде биће примењен на визуелно означавање синтксе GeSHi */',
-);
-
-/** Serbian Latin ekavian (Srpski (latinica))
- * @author Michaello
- */
-$messages['sr-el'] = array(
-	'syntaxhighlight-desc' => 'Omogućava vizuelno označavanje sintakse <tt><nowiki><source></nowiki></tt> korišćenjem [<a href="http://qbnz.com/highlighter/">http://qbnz.com/highlighter/</a> GeSHi hajlajtera].',
-	'syntaxhighlight-specify' => 'Potrebno je odrediti jezik kao ovaj:',
-	'syntaxhighlight-supported' => 'Podržani jezici u vizuelom označavanju sintakse:',
-	'syntaxhighlight-err-loading' => '(greška pri učitavanju podržanih jezika)',
-	'syntaxhighlight-err-language' => 'Nepodoban jezik',
-	'geshi.css' => '/* CSS postavljen ovde biće primenjen na vizuelno označavanje sintkse GeSHi */',
 );
 
 /** Seeltersk (Seeltersk)
@@ -1053,13 +950,6 @@ $messages['vec'] = array(
 	'geshi.css' => "/* I stili CSS inserìi qua i se àplica a l'evidenziazion de sintassi con GeSHi */",
 );
 
-/** Veps (Vepsan kel')
- * @author Игорь Бродский
- */
-$messages['vep'] = array(
-	'syntaxhighlight-err-language' => "Vär kel'",
-);
-
 /** Vietnamese (Tiếng Việt)
  * @author Minh Nguyen
  */
@@ -1109,7 +999,7 @@ $messages['zh-hans'] = array(
 	'syntaxhighlight-desc' => '使用[http://qbnz.com/highlighter/ GeSHi Highlighter]以<tt><nowiki><source></nowiki></tt>提供高亮',
 	'syntaxhighlight-specify' => '您需要指定一种语言，像这样:',
 	'syntaxhighlight-supported' => '语法高亮所支持的语言:',
-	'syntaxhighlight-err-loading' => '（支持语言列表载入错误）',
+	'syntaxhighlight-err-loading' => '(支持语言列表载入错误)',
 	'syntaxhighlight-err-language' => '无效的语言。',
 	'geshi.css' => '/* 放在这里的CSS会以GeSHi语法高亮方式显示 */',
 );
@@ -1121,7 +1011,7 @@ $messages['zh-hant'] = array(
 	'syntaxhighlight-desc' => '使用[http://qbnz.com/highlighter/ GeSHi Highlighter]以<tt><nowiki><source></nowiki></tt>提供醒目提示',
 	'syntaxhighlight-specify' => '您需要指定一種語言，像這樣:',
 	'syntaxhighlight-supported' => '語法醒目標示所支援的語言:',
-	'syntaxhighlight-err-loading' => '（支援語言清單載入錯誤）',
+	'syntaxhighlight-err-loading' => '(支援語言清單載入錯誤)',
 	'syntaxhighlight-err-language' => '無效的語言。',
 	'geshi.css' => '/* 放在這裏的CSS會以GeSHi語法醒目提示方式顯示 */',
 );

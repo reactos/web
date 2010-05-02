@@ -1,6 +1,9 @@
 <?php
 /** Toki Pona (Toki Pona)
  *
+ * See MessagesQqq.php for message documentation incl. usage of parameters
+ * To improve a translation please visit http://translatewiki.net
+ *
  * @ingroup Language
  * @file
  *
@@ -89,7 +92,7 @@ $messages = array(
 'userlogout' => 'mi o tawa',
 
 # Edit pages
-'summary'          => 'ante li seme',
+'summary'          => 'ante li seme:',
 'minoredit'        => 'ante ni li lili taso',
 'watchthis'        => 'mi wile sona e ante ale pi lipu ni lon tenpo kama',
 'savearticle'      => 'o awen',
@@ -97,9 +100,9 @@ $messages = array(
 'showpreview'      => 'mi wile lukin taso e ante',
 'editing'          => 'mi ante e: $1',
 'editingcomment'   => 'mi ante e lipu $1 (wan sin)',
-'copyrightwarning' => 'o sona e ni: ken $2 (o lukin e $1) li lawa tawa ante ali lon {{SITENAME}} li. jan li ken ante e toki sina li ken pana e ona tawa jan ante. sina wile ala e ni la, o sitelen ala lon lipu ni.<br />
+'copyrightwarning' => "o sona e ni: ken $2 (o lukin e $1) li lawa tawa ante ali lon {{SITENAME}} li. jan li ken ante e toki sina li ken pana e ona tawa jan ante. sina wile ala e ni la, o sitelen ala lon lipu ni.<br />
 kin la sina toki e ni: toki sina ni li tan sina taso anu lipu pi ken ali.
-<strong>SINA KEN ALA LA, O PANA ALA E TOKI PI KEN LILI TAWA LIPU NI!</strong>',
+'''SINA KEN ALA LA, O PANA ALA E TOKI PI KEN LILI TAWA LIPU NI!'''",
 'templatesused'    => 'lipu ni li kepeken e lipu mama ni:',
 
 # History pages
@@ -109,7 +112,7 @@ kin la sina toki e ni: toki sina ni li tan sina taso anu lipu pi ken ali.
 # Search results
 'prevn'        => 'nanpa $1 pini',
 'nextn'        => 'nanpa $1 kama',
-'viewprevnext' => 'o lukin e ($1) ($2) ($3).',
+'viewprevnext' => 'o lukin e ($1 {{int:pipe-separator}} $2) ($3).',
 
 # Preferences page
 'preferences' => 'seme li pona tawa mi',

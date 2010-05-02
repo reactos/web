@@ -1,10 +1,14 @@
 <?php
 /** Maithili (मैथिली)
  *
+ * See MessagesQqq.php for message documentation incl. usage of parameters
+ * To improve a translation please visit http://translatewiki.net
+ *
  * @ingroup Language
  * @file
  *
  * @author Ggajendra
+ * @author Meno25
  */
 
 $fallback = 'hi';
@@ -82,7 +86,7 @@ $messages = array(
 'mytalk'    => 'हमर वार्त्ता',
 
 'errorpagetitle'   => 'गलती',
-'tagline'          => 'कतयसँ {{वेबसाइटक नाम}}',
+'tagline'          => 'कतयसँ {{SITENAME}}',
 'help'             => 'मदति',
 'search'           => 'ताकू',
 'searchbutton'     => 'ताकू',
@@ -104,7 +108,7 @@ $messages = array(
 'jumptosearch'     => 'ताकू',
 
 # All link text and link target definitions of links into project namespace that get used by other message strings, with the exception of user group pages (see grouppage) and the disambiguation template definition (see disambiguations).
-'aboutsite'            => 'विषयमे {{वेब्साइटक नाम}}',
+'aboutsite'            => 'विषयमे {{SITENAME}}',
 'aboutpage'            => 'Project:विवरण',
 'copyrightpage'        => '{{ns:project}}:सर्वाधिकार',
 'disclaimers'          => 'अनाधिकार घोषणा',
@@ -112,9 +116,14 @@ $messages = array(
 'edithelp'             => 'संपादन सहयोग',
 'edithelppage'         => 'Help:संपादन',
 'mainpage'             => 'सम्मुख पन्ना',
-'mainpage-description' => 'सम्मुख पन्ना',
+'mainpage-description' => 'सम्मुख पृष्ठ',
+'policy-url'           => 'कार्य-भार :निअम',
+'portal'               => 'सामाजिक कोण',
+'portal-url'           => 'कार्य-भार : समूह कोण',
 'privacy'              => 'गोपनीयताक नियम',
 'privacypage'          => 'Project:गोपनीयता नियम',
+
+'badaccess' => 'आज्ञा गल्ती',
 
 'retrievedfrom'   => 'प्राप्ति स्थल "$1"',
 'editsection'     => 'संपादन करू',
@@ -124,6 +133,11 @@ $messages = array(
 'hidetoc'         => 'नुकाऊ',
 'site-rss-feed'   => '$1 आरएसएस फीड',
 'site-atom-feed'  => '$1 अणु फीड',
+'red-link-title'  => 'पृष्ठ उपलब्ध नहि अछि',
+
+# Short words for each namespace, by default used in the namespace tab in monobook
+'nstab-main' => 'पृष्ठ',
+'nstab-user' => 'उपयोगकर्ताक पृष्ठ',
 
 # Login and logout pages
 'nav-login-createaccount' => 'सदस्य लॉग इन',
@@ -151,13 +165,13 @@ $messages = array(
 'hr_tip'          => 'अक्षांशीय पंक्ति (अल्प उपयोग)',
 
 # Edit pages
-'summary'              => 'सारांश',
-'subject'              => 'विषय/मुख्यपंक्ति',
+'summary'              => 'सारांश:',
+'subject'              => 'विषय/मुख्यपंक्ति:',
 'minoredit'            => 'अल्प संपादन',
 'watchthis'            => 'एहि पृष्ठकेँ देखू',
 'showpreview'          => 'पूर्वप्रदर्शन',
 'showdiff'             => 'परिवर्त्तन देखाऊ',
-'copyrightwarning'     => 'कृपा कय बुझू जे सभटा योगदान {{वेबसाइटक नाम}} ई बुझि कय देल जा रहल अछि जे ई निम्नांकितक अंतर्गत अछि $2 (देखू $1 जनकारीक हेतु). जौँ अहाँ चाहैत छी जी अहाँक रचना बिना रोकटोकक संपादित नहि हो किंवा बाँटल नहि जाय, तँ एकर योगदान एतय नहि करू। <br />
+'copyrightwarning'     => 'कृपा कय बुझू जे सभटा योगदान {{SITENAME}} ई बुझि कय देल जा रहल अछि जे ई निम्नांकितक अंतर्गत अछि $2 (देखू $1 जनकारीक हेतु). जौँ अहाँ चाहैत छी जी अहाँक रचना बिना रोकटोकक संपादित नहि हो किंवा बाँटल नहि जाय, तँ एकर योगदान एतय नहि करू। <br />
 एतय अहाँ ईहो सप्पत खाइत छी जी ई अहाँक अपन रचना छी आकि अहाँ एकरा कोनो सार्वजनिक डोमेन किंवा ओह्ने कोनो मँगनीक संदर्भ-स्थलसँ कॉपी कएने छी। 
 < दृढ़> सर्वाधिकार सुरक्षित कार्य एतय नहि दी।!</दृढ़>',
 'templatesusedpreview' => 'एहि पूर्वप्रदर्शनमे प्रयुक्त मास्टरफाइल:',
@@ -202,7 +216,7 @@ $messages = array(
 'uploadbtn'     => 'फाइल अपलोड',
 'uploadedimage' => 'अपलोड भेल "[[$1]]"',
 
-# Image description page
+# File description page
 'filehist'   => 'फाइल इतिहास',
 'imagelinks' => 'लिंक्स',
 
@@ -220,17 +234,17 @@ $messages = array(
 'alphaindexline' => '$1 to $2',
 
 # Watchlist
-'mywatchlist'         => 'हमर साकांक्ष-सूची',
-'watch'               => 'ताकिमे',
-'unwatch'             => 'छोड़ू',
-'watchlist-hide-bots' => 'नुकाऊ संपादित बॉट-नमगर',
+'mywatchlist' => 'हमर साकांक्ष-सूची',
+'watch'       => 'ताकिमे',
+'unwatch'     => 'छोड़ू',
 
 # Displayed when you click the "watch" button and it is in the process of watching
 'watching'   => 'ताकिमे...',
 'unwatching' => 'छोड़ल ...',
 
-# Delete/protect/revert
+# Protect
 'protectlogpage' => 'सुरक्षा लॉग',
+'prot_1movedto2' => '[[$1]] गेल एतय [[$2]]',
 
 # Namespace form on various pages
 'blanknamespace' => '(मुख्य)',
@@ -265,7 +279,7 @@ $messages = array(
 'tooltip-pt-logout'       => 'फेर आयब',
 'tooltip-ca-talk'         => 'विषयसूचीक पन्नाक संबंधमे वर्त्तालाप',
 'tooltip-ca-edit'         => 'अहाँ एहि पन्नाकेँ संपादित कए सकैत छी। कृपया सुरक्षित करबासँ पहिने पूर्वप्रदर्शन बटम उपयोग करू।',
-'tooltip-search'          => 'ताकू {{वेबसाइटक नाम}}',
+'tooltip-search'          => 'ताकू {{SITENAME}}',
 'tooltip-n-mainpage'      => 'मुख्य-पृष्ठ केँ देखू',
 'tooltip-n-portal'        => 'प्रोजेक्टक विषयमे,अहाँ की कए सकैत छी,वस्तु प्राप्ति स्थल',
 'tooltip-n-currentevents' => 'लगक घटनाक विषयमे आधार सूचना प्राप्त करू।',

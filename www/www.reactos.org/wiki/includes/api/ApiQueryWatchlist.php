@@ -59,12 +59,11 @@ class ApiQueryWatchlist extends ApiQueryGeneratorBase {
 		if (!$wgUser->isLoggedIn())
 			$this->dieUsage('You must be logged-in to have a watchlist', 'notloggedin');
 
-		$allrev = $start = $end = $namespace = $dir = $limit = $prop = $show = null;
-		extract($this->extractRequestParams());
+		$params = $this->extractRequestParams();
 
-		if (!is_null($prop) && is_null($resultPageSet)) {
+		if (!is_null($params['prop']) && is_null($resultPageSet)) {
 
-			$prop = array_flip($prop);
+			$prop = array_flip($params['prop']);
 
 			$this->fld_ids = isset($prop['ids']);
 			$this->fld_title = isset($prop['title']);
@@ -76,8 +75,8 @@ class ApiQueryWatchlist extends ApiQueryGeneratorBase {
 			$this->fld_patrol = isset($prop['patrol']);
 
 			if ($this->fld_patrol) {
-				global $wgUseRCPatrol, $wgUser;
-				if (!$wgUseRCPatrol || !$wgUser->isAllowed('patrol'))
+				global $wgUser;
+				if (!$wgUser->useRCPatrol() && !$wgUser->useNPPatrol())
 					$this->dieUsage('patrol property is not available', 'patrol');
 			}
 		}
@@ -93,6 +92,7 @@ class ApiQueryWatchlist extends ApiQueryGeneratorBase {
 
 			$this->addFieldsIf('rc_new', $this->fld_flags);
 			$this->addFieldsIf('rc_minor', $this->fld_flags);
+			$this->addFieldsIf('rc_bot', $this->fld_flags);
 			$this->addFieldsIf('rc_user', $this->fld_user);
 			$this->addFieldsIf('rc_user_text', $this->fld_user);
 			$this->addFieldsIf('rc_comment', $this->fld_comment);
@@ -100,7 +100,7 @@ class ApiQueryWatchlist extends ApiQueryGeneratorBase {
 			$this->addFieldsIf('rc_old_len', $this->fld_sizes);
 			$this->addFieldsIf('rc_new_len', $this->fld_sizes);
 		}
-		elseif ($allrev) {
+		elseif ($params['allrev']) {
 			$this->addFields(array (
 				'rc_this_oldid',
 				'rc_namespace',
@@ -131,20 +131,26 @@ class ApiQueryWatchlist extends ApiQueryGeneratorBase {
 			'rc_deleted' => 0,
 		));
 
-		$this->addWhereRange('rc_timestamp', $dir, $start, $end);
-		$this->addWhereFld('wl_namespace', $namespace);
-		$this->addWhereIf('rc_this_oldid=page_latest', !$allrev);
+		$this->addWhereRange('rc_timestamp', $params['dir'], $params['start'], $params['end']);
+		$this->addWhereFld('wl_namespace', $params['namespace']);
+		$this->addWhereIf('rc_this_oldid=page_latest', !$params['allrev']);
 
-		if (!is_null($show)) {
-			$show = array_flip($show);
+		if (!is_null($params['show'])) {
+			$show = array_flip($params['show']);
 
 			/* Check for conflicting parameters. */
 			if ((isset ($show['minor']) && isset ($show['!minor']))
 					|| (isset ($show['bot']) && isset ($show['!bot']))
-					|| (isset ($show['anon']) && isset ($show['!anon']))) {
+					|| (isset ($show['anon']) && isset ($show['!anon']))
+					|| (isset ($show['patrolled']) && isset ($show['!patrolled']))) {
 
 				$this->dieUsage("Incorrect parameter - mutually exclusive values may not be supplied", 'show');
 			}
+			
+			// Check permissions
+			global $wgUser;
+			if((isset($show['patrolled']) || isset($show['!patrolled'])) && !$wgUser->useRCPatrol() && !$wgUser->useNPPatrol())
+				$this->dieUsage("You need the patrol right to request the patrolled flag", 'permissiondenied');
 
 			/* Add additional conditions to query depending upon parameters. */
 			$this->addWhereIf('rc_minor = 0', isset ($show['!minor']));
@@ -153,21 +159,23 @@ class ApiQueryWatchlist extends ApiQueryGeneratorBase {
 			$this->addWhereIf('rc_bot != 0', isset ($show['bot']));
 			$this->addWhereIf('rc_user = 0', isset ($show['anon']));
 			$this->addWhereIf('rc_user != 0', isset ($show['!anon']));
+			$this->addWhereIf('rc_patrolled = 0', isset($show['!patrolled']));
+			$this->addWhereIf('rc_patrolled != 0', isset($show['patrolled']));			
 		}
 
 
 		# This is an index optimization for mysql, as done in the Special:Watchlist page
-		$this->addWhereIf("rc_timestamp > ''", !isset ($start) && !isset ($end) && $wgDBtype == 'mysql');
+		$this->addWhereIf("rc_timestamp > ''", !isset ($params['start']) && !isset ($params['end']) && $wgDBtype == 'mysql');
 
-		$this->addOption('LIMIT', $limit +1);
+		$this->addOption('LIMIT', $params['limit'] +1);
 
-		$data = array ();
+		$ids = array ();
 		$count = 0;
 		$res = $this->select(__METHOD__);
 
 		$db = $this->getDB();
 		while ($row = $db->fetchObject($res)) {
-			if (++ $count > $limit) {
+			if (++ $count > $params['limit']) {
 				// We've reached the one extra which shows that there are additional pages to be had. Stop here...
 				$this->setContinueEnumParameter('start', wfTimestamp(TS_ISO_8601, $row->rc_timestamp));
 				break;
@@ -175,13 +183,18 @@ class ApiQueryWatchlist extends ApiQueryGeneratorBase {
 
 			if (is_null($resultPageSet)) {
 				$vals = $this->extractRowInfo($row);
-				if ($vals)
-					$data[] = $vals;
+				$fit = $this->getResult()->addValue(array('query', $this->getModuleName()), null, $vals);
+				if(!$fit)
+				{
+					$this->setContinueEnumParameter('start',
+							wfTimestamp(TS_ISO_8601, $row->rc_timestamp));
+					break;
+				}
 			} else {
-				if ($allrev) {
-					$data[] = intval($row->rc_this_oldid);
+				if ($params['allrev']) {
+					$ids[] = intval($row->rc_this_oldid);
 				} else {
-					$data[] = intval($row->rc_cur_id);
+					$ids[] = intval($row->rc_cur_id);
 				}
 			}
 		}
@@ -189,13 +202,12 @@ class ApiQueryWatchlist extends ApiQueryGeneratorBase {
 		$db->freeResult($res);
 
 		if (is_null($resultPageSet)) {
-			$this->getResult()->setIndexedTagName($data, 'item');
-			$this->getResult()->addValue('query', $this->getModuleName(), $data);
+			$this->getResult()->setIndexedTagName_internal(array('query', $this->getModuleName()), 'item');
 		}
-		elseif ($allrev) {
-			$resultPageSet->populateFromRevisionIDs($data);
+		elseif ($params['allrev']) {
+			$resultPageSet->populateFromRevisionIDs($ids);
 		} else {
-			$resultPageSet->populateFromPageIDs($data);
+			$resultPageSet->populateFromPageIDs($ids);
 		}
 	}
 
@@ -222,6 +234,8 @@ class ApiQueryWatchlist extends ApiQueryGeneratorBase {
 				$vals['new'] = '';
 			if ($row->rc_minor)
 				$vals['minor'] = '';
+			if ($row->rc_bot)
+				$vals['bot'] = '';
 		}
 
 		if ($this->fld_patrol && isset($row->rc_patrolled))
@@ -230,14 +244,12 @@ class ApiQueryWatchlist extends ApiQueryGeneratorBase {
 		if ($this->fld_timestamp)
 			$vals['timestamp'] = wfTimestamp(TS_ISO_8601, $row->rc_timestamp);
 
-			$this->addFieldsIf('rc_new_len', $this->fld_sizes);
-
 		if ($this->fld_sizes) {
 			$vals['oldlen'] = intval($row->rc_old_len);
 			$vals['newlen'] = intval($row->rc_new_len);
 		}
 
-		if ($this->fld_comment && !empty ($row->rc_comment))
+		if ($this->fld_comment && isset( $row->rc_comment ))
 			$vals['comment'] = $row->rc_comment;
 
 		return $vals;
@@ -292,7 +304,9 @@ class ApiQueryWatchlist extends ApiQueryGeneratorBase {
 					'bot',
 					'!bot',
 					'anon',
-					'!anon'
+					'!anon',
+					'patrolled',
+					'!patrolled',
 				)
 			)
 		);
@@ -329,6 +343,6 @@ class ApiQueryWatchlist extends ApiQueryGeneratorBase {
 	}
 
 	public function getVersion() {
-		return __CLASS__ . ': $Id: ApiQueryWatchlist.php 37909 2008-07-22 13:26:15Z catrope $';
+		return __CLASS__ . ': $Id: ApiQueryWatchlist.php 47865 2009-02-27 16:03:01Z catrope $';
 	}
 }

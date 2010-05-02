@@ -56,17 +56,30 @@ class ApiQueryAllCategories extends ApiQueryGeneratorBase {
 		$this->addTables('category');
 		$this->addFields('cat_title');
 
-		if (!is_null($params['from']))
-			$this->addWhere('cat_title>=' . $db->addQuotes($this->titleToKey($params['from'])));
+		$dir = ($params['dir'] == 'descending' ? 'older' : 'newer');
+		$from = (is_null($params['from']) ? null : $this->titlePartToKey($params['from']));
+		$this->addWhereRange('cat_title', $dir, $from, null);
 		if (isset ($params['prefix']))
-			$this->addWhere("cat_title LIKE '" . $db->escapeLike($this->titleToKey($params['prefix'])) . "%'");
+			$this->addWhere("cat_title LIKE '" . $db->escapeLike($this->titlePartToKey($params['prefix'])) . "%'");
 
 		$this->addOption('LIMIT', $params['limit']+1);
 		$this->addOption('ORDER BY', 'cat_title' . ($params['dir'] == 'descending' ? ' DESC' : ''));
 
 		$prop = array_flip($params['prop']);
 		$this->addFieldsIf( array( 'cat_pages', 'cat_subcats', 'cat_files' ), isset($prop['size']) );
-		$this->addFieldsIf( 'cat_hidden', isset($prop['hidden']) );
+		if(isset($prop['hidden']))
+		{
+			$this->addTables(array('page', 'page_props'));
+			$this->addJoinConds(array(
+				'page' => array('LEFT JOIN', array(
+					'page_namespace' => NS_CATEGORY,
+					'page_title=cat_title')),
+				'page_props' => array('LEFT JOIN', array(
+					'pp_page=page_id',
+					'pp_propname' => 'hiddencat')),
+			));
+			$this->addFields('pp_propname AS cat_hidden');
+		}
 
 		$res = $this->select(__METHOD__);
 
@@ -90,21 +103,25 @@ class ApiQueryAllCategories extends ApiQueryGeneratorBase {
 				$item = array();
 				$result->setContent( $item, $titleObj->getText() );
 				if( isset( $prop['size'] ) ) {
-					$item['size'] = $row->cat_pages;
+					$item['size'] = intval($row->cat_pages);
 					$item['pages'] = $row->cat_pages - $row->cat_subcats - $row->cat_files;
-					$item['files'] = $row->cat_files;
-					$item['subcats'] = $row->cat_subcats;
+					$item['files'] = intval($row->cat_files);
+					$item['subcats'] = intval($row->cat_subcats);
 				}
 				if( isset( $prop['hidden'] ) && $row->cat_hidden )
 					$item['hidden'] = '';
-				$categories[] = $item;
+				$fit = $result->addValue(array('query', $this->getModuleName()), null, $item);
+				if(!$fit)
+				{
+					$this->setContinueEnumParameter('from', $this->keyToTitle($row->cat_title));
+					break;
+				}
 			}
 		}
 		$db->freeResult($res);
 
 		if (is_null($resultPageSet)) {
-			$result->setIndexedTagName($categories, 'c');
-			$result->addValue('query', $this->getModuleName(), $categories);
+			$result->setIndexedTagName_internal(array('query', $this->getModuleName()), 'c');
 		} else {
 			$resultPageSet->populateFromTitles($pages);
 		}
@@ -158,6 +175,6 @@ class ApiQueryAllCategories extends ApiQueryGeneratorBase {
 	}
 
 	public function getVersion() {
-		return __CLASS__ . ': $Id: ApiQueryAllCategories.php 36790 2008-06-29 22:26:23Z catrope $';
+		return __CLASS__ . ': $Id: ApiQueryAllCategories.php 47865 2009-02-27 16:03:01Z catrope $';
 	}
 }

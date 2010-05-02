@@ -95,7 +95,7 @@ class StubObject {
 			if ( ++$recursionLevel > 2 ) {
 				throw new MWException( "Unstub loop detected on call of \${$this->mGlobal}->$name from $caller\n" );
 			}
-			wfDebug( "Unstubbing \${$this->mGlobal} on call of \${$this->mGlobal}->$name from $caller\n" );
+			wfDebug( "Unstubbing \${$this->mGlobal} on call of \${$this->mGlobal}::$name from $caller\n" );
 			$GLOBALS[$this->mGlobal] = $this->_newObject();
 			--$recursionLevel;
 			wfProfileOut( $fname );
@@ -154,7 +154,7 @@ class StubUserLang extends StubObject {
 		}
 
 		# Validate $code
-		if( empty( $code ) || !preg_match( '/^[a-z-]+$/', $code ) ) {
+		if( empty( $code ) || !preg_match( '/^[a-z-]+$/', $code ) || ( $code === 'qqq' ) ) {
 			wfDebug( "Invalid user language code\n" );
 			$code = $wgContLanguageCode;
 		}

@@ -1,10 +1,14 @@
 <?php
 /** British English (British English)
  *
+ * See MessagesQqq.php for message documentation incl. usage of parameters
+ * To improve a translation please visit http://translatewiki.net
+ *
  * @ingroup Language
  * @file
  *
  * @author Jon Harald Søby
+ * @author Reedy
  */
 
 $specialPageAliases = array(
@@ -24,7 +28,7 @@ $messages = array(
 'uncategorizedimages'     => 'Uncategorised files',
 'uncategorizedtemplates'  => 'Uncategorised templates',
 
-# Delete/protect/revert
+# Rollback
 'sessionfailure' => 'There seems to be a problem with your login session;
 this action has been cancelled as a precaution against session hijacking.
 Please hit "back" and reload the page you came from, then try again.',
@@ -41,6 +45,7 @@ If the file has been modified from its original state, some details may not full
 # EXIF tags
 'exif-ycbcrcoefficients'   => 'Colour space transformation matrix coefficients',
 'exif-colorspace'          => 'Colour space',
+'exif-datetimedigitized'   => 'Date and time of digitising',
 'exif-subsectimedigitized' => 'DateTimeDigitised subseconds',
 'exif-exposureprogram'     => 'Exposure programme',
 
@@ -48,11 +53,16 @@ If the file has been modified from its original state, some details may not full
 'exif-exposureprogram-5' => 'Creative programme (biased toward depth of field)',
 'exif-exposureprogram-6' => 'Action programme (biased toward fast shutter speed)',
 
+'exif-subjectdistance-value' => '$1 metres',
+
 'exif-sensingmethod-2' => 'One-chip colour area sensor',
 'exif-sensingmethod-3' => 'Two-chip colour area sensor',
 'exif-sensingmethod-4' => 'Three-chip colour area sensor',
 'exif-sensingmethod-5' => 'Colour sequential area sensor',
 'exif-sensingmethod-8' => 'Colour sequential linear sensor',
+
+# Pseudotags used for GPSSpeedRef and GPSDestDistanceRef
+'exif-gpsspeed-k' => 'Kilometres per hour',
 
 # E-mail address confirmation
 'confirmemail_invalidated' => 'E-mail address confirmation cancelled',

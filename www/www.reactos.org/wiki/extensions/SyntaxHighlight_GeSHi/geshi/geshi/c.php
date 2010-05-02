@@ -5,17 +5,14 @@
  * Author: Nigel McNie (nigel@geshi.org)
  * Contributors:
  *  - Jack Lloyd (lloyd@randombit.net)
- *  - Michael Mol (mikemol@gmail.com)
  * Copyright: (c) 2004 Nigel McNie (http://qbnz.com/highlighter/)
- * Release Version: 1.0.8.4
+ * Release Version: 1.0.7.22
  * Date Started: 2004/06/04
  *
  * C language file for GeSHi.
  *
  * CHANGES
  * -------
- * 2009/01/22 (1.0.8.3)
- *   -  Made keywords case-sensitive.
  * 2008/05/23 (1.0.7.22)
  *   -  Added description of extra language features (SF#1970248)
  * 2004/XX/XX (1.0.4)
@@ -29,7 +26,7 @@
  * 2004/07/14 (1.0.0)
  *   -  First Release
  *
- * TODO (updated 2009/02/08)
+ * TODO (updated 2004/11/27)
  * -------------------------
  *  -  Get a list of inbuilt functions to add (and explore C more
  *     to complete this rather bare language file
@@ -58,31 +55,11 @@ $language_data = array (
     'LANG_NAME' => 'C',
     'COMMENT_SINGLE' => array(1 => '//', 2 => '#'),
     'COMMENT_MULTI' => array('/*' => '*/'),
-    'COMMENT_REGEXP' => array(
-        //Multiline-continued single-line comments
-        1 => '/\/\/(?:\\\\\\\\|\\\\\\n|.)*$/m',
-        //Multiline-continued preprocessor define
-        2 => '/#(?:\\\\\\\\|\\\\\\n|.)*$/m'
-        ),
+    //Multiline-continued single-line comments
+    'COMMENT_REGEXP' => array(1 => '/\/\/(?:\\\\\\\\|\\\\\\n|.)*$/m'),
     'CASE_KEYWORDS' => GESHI_CAPS_NO_CHANGE,
     'QUOTEMARKS' => array("'", '"'),
-    'ESCAPE_CHAR' => '',
-    'ESCAPE_REGEXP' => array(
-        //Simple Single Char Escapes
-        1 => "#\\\\[\\\\abfnrtv\'\"?\n]#i",
-        //Hexadecimal Char Specs
-        2 => "#\\\\x[\da-fA-F]{2}#",
-        //Hexadecimal Char Specs
-        3 => "#\\\\u[\da-fA-F]{4}#",
-        //Hexadecimal Char Specs
-        4 => "#\\\\U[\da-fA-F]{8}#",
-        //Octal Char Specs
-        5 => "#\\\\[0-7]{1,3}#"
-        ),
-    'NUMBERS' =>
-        GESHI_NUMBER_INT_BASIC | GESHI_NUMBER_INT_CSTYLE | GESHI_NUMBER_BIN_PREFIX_0B |
-        GESHI_NUMBER_OCT_PREFIX | GESHI_NUMBER_HEX_PREFIX | GESHI_NUMBER_FLT_NONSCI |
-        GESHI_NUMBER_FLT_NONSCI_F | GESHI_NUMBER_FLT_SCI_SHORT | GESHI_NUMBER_FLT_SCI_ZERO,
+    'ESCAPE_CHAR' => '\\',
     'KEYWORDS' => array(
         1 => array(
             'if', 'return', 'while', 'case', 'continue', 'default',
@@ -110,10 +87,10 @@ $language_data = array (
         ),
     'CASE_SENSITIVE' => array(
         GESHI_COMMENTS => false,
-        1 => true,
-        2 => true,
-        3 => true,
-        4 => true,
+        1 => false,
+        2 => false,
+        3 => false,
+        4 => false,
         ),
     'STYLES' => array(
         'KEYWORDS' => array(
@@ -128,13 +105,7 @@ $language_data = array (
             'MULTI' => 'color: #808080; font-style: italic;'
             ),
         'ESCAPE_CHAR' => array(
-            0 => 'color: #000099; font-weight: bold;',
-            1 => 'color: #000099; font-weight: bold;',
-            2 => 'color: #660099; font-weight: bold;',
-            3 => 'color: #660099; font-weight: bold;',
-            4 => 'color: #660099; font-weight: bold;',
-            5 => 'color: #006699; font-weight: bold;',
-            'HARD' => '',
+            0 => 'color: #000099; font-weight: bold;'
             ),
         'BRACKETS' => array(
             0 => 'color: #009900;'
@@ -143,14 +114,7 @@ $language_data = array (
             0 => 'color: #ff0000;'
             ),
         'NUMBERS' => array(
-            0 => 'color: #0000dd;',
-            GESHI_NUMBER_BIN_PREFIX_0B => 'color: #208080;',
-            GESHI_NUMBER_OCT_PREFIX => 'color: #208080;',
-            GESHI_NUMBER_HEX_PREFIX => 'color: #208080;',
-            GESHI_NUMBER_FLT_SCI_SHORT => 'color:#800080;',
-            GESHI_NUMBER_FLT_SCI_ZERO => 'color:#800080;',
-            GESHI_NUMBER_FLT_NONSCI_F => 'color:#800080;',
-            GESHI_NUMBER_FLT_NONSCI => 'color:#800080;'
+            0 => 'color: #cc66cc;'
             ),
         'METHODS' => array(
             1 => 'color: #202020;',

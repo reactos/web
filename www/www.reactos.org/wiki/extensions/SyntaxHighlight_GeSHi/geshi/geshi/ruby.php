@@ -4,10 +4,10 @@
  * --------
  * Author: Moises Deniz
  * Copyright: (c) 2007 Moises Deniz
- * Release Version: 1.0.8.4
+ * Release Version: 1.0.7.22
  * Date Started: 2007/03/21
  *
- * Ruby language file for GeSHi.
+ * Ruby language file for GeSHi
  *
  * CHANGES
  * -------
@@ -120,9 +120,10 @@ $language_data = array (
                 'Zlib::NeedDict', 'Zlib::StreamEnd', 'Zlib::StreamError',
                 'Zlib::VersionError',
                 'Zlib::ZStream',
+                'Enumerable',
                 'HTML::Selector', 'HashWithIndifferentAccess', 'Inflector',
                 'Inflector::Inflections', 'Mime', 'Mime::Type',
-                'OCI8AutoRecover', 'TimeZone', 'XmlSimple'
+                'OCI8AutoRecover', 'Symbol', 'TimeZone', 'XmlSimple'
             ),
         ),
     'SYMBOLS' => array(
@@ -180,8 +181,7 @@ $language_data = array (
     'URLS' => array(
         1 => '',
         2 => '',
-        3 => '',
-        4 => ''
+        3 => ''
         ),
     'OOLANG' => true,
     'OBJECT_SPLITTERS' => array(

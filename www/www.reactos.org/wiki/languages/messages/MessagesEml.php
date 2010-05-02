@@ -1,6 +1,9 @@
 <?php
 /** Emiliano-Romagnolo (Emiliàn e rumagnòl)
  *
+ * See MessagesQqq.php for message documentation incl. usage of parameters
+ * To improve a translation please visit http://translatewiki.net
+ *
  * @ingroup Language
  * @file
  *
@@ -60,21 +63,23 @@ $messages = array(
 'nstab-template' => 'Modèl',
 
 # Login and logout pages
-'logouttext'           => "<strong>Adèsa s'et discunnês.</strong><br />
-Putiv cuntinuèr ad usèr {{SITENAME}} anonimamèint, o putiv cunnètterv dòp cun al stèss nàmm o cun un èter. Nutêv ca alcuni pàgini i putrèbber cuntinuèr a cràdder ca vueter a-sîv discunnès, finchè non purghê la cache dal vòster browser.",
+'logouttext'           => "'''Adèsa s'et discunnês.'''
+
+Putiv cuntinuèr ad usèr {{SITENAME}} anonimamèint, o putiv cunnètterv dòp cun al stèss nàmm o cun un èter.
+Nutêv ca alcuni pàgini i putrèbber cuntinuèr a cràdder ca vueter a-sîv discunnès, finchè non purghê la cache dal vòster browser.",
 'userlogin'            => 'Entrèr / Argistrères',
 'logout'               => 'va fôra',
 'userlogout'           => 'Va fôra',
 'userexists'           => "Al nòmm ch'èt scélt l'è stê bèle usê: càten un èter, per piasêr.",
 'yourrealname'         => 'Al tô vér nàmm:',
 'yourlanguage'         => 'Léngua:',
-'loginsuccess'         => "'''Adèsa sèt cunês in d'la Wikipedia {{SITENAME}} cun al nàmm d'utèint \"\$1\".'''",
+'loginsuccess'         => "'''Adèsa sèt cunês in {{SITENAME}} cun al nàmm d'utèint \"\$1\".'''",
 'wrongpassword'        => "La password ch'et méss l'è sbajèda. Pròva ancàrra.",
 'blocked-mailpassword' => "Al tô indirézz IP l'an pôl più feèr di cambiamèint, e l'en brisa abilitê par user la funziòun ed recópper ed password par evitèr di abûs.",
 'accountcreated'       => 'Et criê un nôv account',
 
 # Edit pages
-'summary'          => "Mutîv d'al cambiamèint",
+'summary'          => "Mutîv d'al cambiamèint:",
 'minoredit'        => "Còst cambiamèint ché l'é un gnînt in tót",
 'watchthis'        => "Tîn a drê a c'la pàgina chè",
 'savearticle'      => 'Salva',
@@ -85,6 +90,9 @@ Putiv cuntinuèr ad usèr {{SITENAME}} anonimamèint, o putiv cunnètterv dòp c
 'editing'          => 'Cambiamèint ed $1',
 'yourdiff'         => 'Differèinzi',
 'templatesused'    => 'Modêl usèdi in sta pàgina:',
+
+# Search results
+'searchhelp-url' => 'Help:Introduzione',
 
 # Preferences page
 'mypreferences' => 'AL mê preferèinzi',
@@ -102,8 +110,8 @@ Putiv cuntinuèr ad usèr {{SITENAME}} anonimamèint, o putiv cunnètterv dòp c
 'filedesc'          => "Ugêt d'al cambiamèint",
 'fileuploadsummary' => "Ugêt d'al cambiamèint:",
 
-# Special:ImageList
-'imagelist_size' => 'Dimensiòun (bytes)',
+# Special:ListFiles
+'listfiles_size' => 'Dimensiòun (bytes)',
 
 # Random page
 'randompage' => 'Una pàgina a chès',
@@ -117,12 +125,16 @@ Putiv cuntinuèr ad usèr {{SITENAME}} anonimamèint, o putiv cunnètterv dòp c
 # Special:AllPages
 'allpages' => 'Tôt al pàgin',
 
+# Special:Log/newusers
+'newuserlogpage'          => 'Regestér di nōv utèint',
+'newuserlog-create-entry' => 'Un utèint nōv',
+
 # Watchlist
 'watchlist'     => 'Al còsi ca guèrd',
 'watch'         => 'Tîn a drê',
 'watchthispage' => "Tîn a drê a c'la pàgina chè",
 
-# Delete/protect/revert
+# Delete
 'excontent'         => "al cointgnû l'éra: '$1'",
 'excontentauthor'   => "al cointgnû l'éra: '$1' (e l'ónic cuntribudôr l'éra '[[Special:Contributions/$2|$2]]')",
 'confirmdeletetext' => "Stèt per scanzlèr 'na pàgina o n'imàgin, insìmma a tòt la sô crunolugî dal database.
@@ -147,7 +159,7 @@ Guèrda $2 par vèdder la lésta d\'al pàgin ch\'i sun stèdi scanzlèdi di rec
 '1movedto2'   => "[[$1]] l'è stê mòs a [[$2]]",
 'movelogpage' => 'Regestér di muvimèint',
 
-# Special:NewImages
+# Special:NewFiles
 'ilsubmit' => 'Zerca',
 
 # Special:SpecialPages

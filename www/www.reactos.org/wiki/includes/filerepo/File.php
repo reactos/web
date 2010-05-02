@@ -264,7 +264,14 @@ abstract class File {
 	 * Overridden by LocalFile, UnregisteredLocalFile
 	 * STUB
 	 */
-	function getMetadata() { return false; }
+	public function getMetadata() { return false; }
+
+	/**
+	 * Return the bit depth of the file
+	 * Overridden by LocalFile
+	 * STUB
+	 */
+	public function getBitDepth() { return 0; }
 
 	/**
 	 * Return the size of the image file, in bytes
@@ -499,8 +506,7 @@ abstract class File {
 	 *
 	 * @param integer $width	maximum width of the generated thumbnail
 	 * @param integer $height	maximum height of the image (optional)
-	 * @param boolean $render	True to render the thumbnail if it doesn't exist,
-	 *                       	false to just return the URL
+	 * @param boolean $render	Deprecated
 	 *
 	 * @return ThumbnailImage or null on failure
 	 *
@@ -511,8 +517,7 @@ abstract class File {
 		if ( $height != -1 ) {
 			$params['height'] = $height;
 		}
-		$flags = $render ? self::RENDER_NOW : 0;
-		return $this->transform( $params, $flags );
+		return $this->transform( $params, 0 );
 	}
 
 	/**
@@ -575,13 +580,13 @@ abstract class File {
 			// Purge. Useful in the event of Core -> Squid connection failure or squid 
 			// purge collisions from elsewhere during failure. Don't keep triggering for 
 			// "thumbs" which have the main image URL though (bug 13776)
-			if ( $wgUseSquid && ($thumb->isError() || $thumb->getUrl() != $this->getURL()) ) {
+			if ( $wgUseSquid && ( !$thumb || $thumb->isError() || $thumb->getUrl() != $this->getURL()) ) {
 				SquidUpdate::purge( array( $thumbUrl ) );
 			}
 		} while (false);
 
 		wfProfileOut( __METHOD__ );
-		return $thumb;
+		return is_object( $thumb ) ? $thumb : false;
 	}
 
 	/**
@@ -678,8 +683,9 @@ abstract class File {
 	 * @param $limit integer Limit of rows to return
 	 * @param $start timestamp Only revisions older than $start will be returned
 	 * @param $end timestamp Only revisions newer than $end will be returned
+	 * @param $inc bool Include the endpoints of the time range
 	 */
-	function getHistory($limit = null, $start = null, $end = null) {
+	function getHistory($limit = null, $start = null, $end = null, $inc=true) {
 		return array();
 	}
 
@@ -859,22 +865,23 @@ abstract class File {
 	 *
 	 * @deprecated Use HTMLCacheUpdate, this function uses too much memory
 	 */
-	function getLinksTo( $options = '' ) {
+	function getLinksTo( $options = array() ) {
 		wfProfileIn( __METHOD__ );
 
 		// Note: use local DB not repo DB, we want to know local links
-		if ( $options ) {
+		if ( count( $options ) > 0 ) {
 			$db = wfGetDB( DB_MASTER );
 		} else {
 			$db = wfGetDB( DB_SLAVE );
 		}
 		$linkCache = LinkCache::singleton();
 
-		list( $page, $imagelinks ) = $db->tableNamesN( 'page', 'imagelinks' );
 		$encName = $db->addQuotes( $this->getName() );
-		$sql = "SELECT page_namespace,page_title,page_id,page_len,page_is_redirect,
-			FROM $page,$imagelinks WHERE page_id=il_from AND il_to=$encName $options";
-		$res = $db->query( $sql, __METHOD__ );
+		$res = $db->select( array( 'page', 'imagelinks'), 
+							array( 'page_namespace', 'page_title', 'page_id', 'page_len', 'page_is_redirect' ),
+							array( 'page_id' => 'il_from', 'il_to' => $encName ),
+							__METHOD__,
+							$options );
 
 		$retVal = array();
 		if ( $db->numRows( $res ) ) {
@@ -944,7 +951,7 @@ abstract class File {
 	 */
 	function wasDeleted() {
 		$title = $this->getTitle();
-		return $title && $title->isDeleted() > 0;
+		return $title && $title->isDeletedQuick();
 	}
 
 	/**
@@ -1062,15 +1069,16 @@ abstract class File {
 	 * Get the HTML text of the description page, if available
 	 */
 	function getDescriptionText() {
-		global $wgMemc;
+		global $wgMemc, $wgContLang;
 		if ( !$this->repo->fetchDescription ) {
 			return false;
 		}
-		$renderUrl = $this->repo->getDescriptionRenderUrl( $this->getName() );
+		$renderUrl = $this->repo->getDescriptionRenderUrl( $this->getName(), $wgContLang->getCode() );
 		if ( $renderUrl ) {
 			if ( $this->repo->descriptionCacheExpiry > 0 ) {
 				wfDebug("Attempting to get the description from cache...");
-				$key = wfMemcKey( 'RemoteFileDescription', 'url', md5($renderUrl) );
+				$key = wfMemcKey( 'RemoteFileDescription', 'url', $wgContLang->getCode(), 
+									$this->getName() );
 				$obj = $wgMemc->get($key);
 				if ($obj) {
 					wfDebug("success!\n");
@@ -1080,7 +1088,9 @@ abstract class File {
 			}
 			wfDebug( "Fetching shared description from $renderUrl\n" );
 			$res = Http::get( $renderUrl );
-			if ( $res && $this->repo->descriptionCacheExpiry > 0 ) $wgMemc->set( $key, $res, $this->repo->descriptionCacheExpiry );
+			if ( $res && $this->repo->descriptionCacheExpiry > 0 ) {
+				$wgMemc->set( $key, $res, $this->repo->descriptionCacheExpiry );
+			}
 			return $res;
 		} else {
 			return false;
@@ -1212,7 +1222,7 @@ abstract class File {
 		if ( $handler ) {
 			return $handler->getLongDesc( $this );
 		} else {
-			return MediaHandler::getLongDesc( $this );
+			return MediaHandler::getGeneralLongDesc( $this );
 		}
 	}
 
@@ -1221,7 +1231,7 @@ abstract class File {
 		if ( $handler ) {
 			return $handler->getShortDesc( $this );
 		} else {
-			return MediaHandler::getShortDesc( $this );
+			return MediaHandler::getGeneralShortDesc( $this );
 		}
 	}
 
@@ -1241,7 +1251,7 @@ abstract class File {
 	function getRedirectedTitle() {
 		if ( $this->redirected ) {
 			if ( !$this->redirectTitle )
-				$this->redirectTitle = Title::makeTitle( NS_IMAGE, $this->redirected );
+				$this->redirectTitle = Title::makeTitle( NS_FILE, $this->redirected );
 			return $this->redirectTitle;
 		}
 	}

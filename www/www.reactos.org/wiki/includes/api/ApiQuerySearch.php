@@ -53,7 +53,8 @@ class ApiQuerySearch extends ApiQueryGeneratorBase {
 
 		$limit = $params['limit'];
 		$query = $params['search'];
-		if (is_null($query) || empty($query))
+		$what = $params['what'];
+		if (strval($query) === '')
 			$this->dieUsage("empty search string is not allowed", 'param-search');
 
 		$search = SearchEngine::create();
@@ -61,15 +62,32 @@ class ApiQuerySearch extends ApiQueryGeneratorBase {
 		$search->setNamespaces( $params['namespace'] );
 		$search->showRedirects = $params['redirects'];
 
-		if ($params['what'] == 'text')
+		if ($what == 'text') {
 			$matches = $search->searchText( $query );
-		else
+		} elseif( $what == 'title' ) {
 			$matches = $search->searchTitle( $query );
+		} else {
+			// We default to title searches; this is a terrible legacy
+			// of the way we initially set up the MySQL fulltext-based
+			// search engine with separate title and text fields.
+			// In the future, the default should be for a combined index.
+			$what = 'title';
+			$matches = $search->searchTitle( $query );
+			
+			// Not all search engines support a separate title search,
+			// for instance the Lucene-based engine we use on Wikipedia.
+			// In this case, fall back to full-text search (which will
+			// include titles in it!)
+			if( is_null( $matches ) ) {
+				$what = 'text';
+				$matches = $search->searchText( $query );
+			}
+		}
 		if (is_null($matches))
-			$this->dieUsage("{$params['what']} search is disabled",
-					"search-{$params['what']}-disabled");
+			$this->dieUsage("{$what} search is disabled",
+					"search-{$what}-disabled");
 
-		$data = array ();
+		$titles = array ();
 		$count = 0;
 		while( $result = $matches->next() ) {
 			if (++ $count > $limit) {
@@ -78,25 +96,29 @@ class ApiQuerySearch extends ApiQueryGeneratorBase {
 				break;
 			}
 
-			// Silently skip broken titles
-			if ($result->isBrokenTitle()) continue;
+			// Silently skip broken and missing titles
+			if ($result->isBrokenTitle() || $result->isMissingRevision())
+				continue;
 			
 			$title = $result->getTitle();
 			if (is_null($resultPageSet)) {
-				$data[] = array(
-					'ns' => intval($title->getNamespace()),
-					'title' => $title->getPrefixedText());
+				$vals = array();
+				ApiQueryBase::addTitleInfo($vals, $title);
+				$fit = $this->getResult()->addValue(array('query', $this->getModuleName()), null, $vals);
+				if(!$fit)
+				{
+					$this->setContinueEnumParameter('offset', $params['offset'] + $count - 1);
+					break;
+				}
 			} else {
-				$data[] = $title;
+				$titles[] = $title;
 			}
 		}
 
 		if (is_null($resultPageSet)) {
-			$result = $this->getResult();
-			$result->setIndexedTagName($data, 'p');
-			$result->addValue('query', $this->getModuleName(), $data);
+			$this->getResult()->setIndexedTagName_internal(array('query', $this->getModuleName()), 'p');
 		} else {
-			$resultPageSet->populateFromTitles($data);
+			$resultPageSet->populateFromTitles($titles);
 		}
 	}
 
@@ -109,7 +131,7 @@ class ApiQuerySearch extends ApiQueryGeneratorBase {
 				ApiBase :: PARAM_ISMULTI => true,
 			),
 			'what' => array (
-				ApiBase :: PARAM_DFLT => 'title',
+				ApiBase :: PARAM_DFLT => null,
 				ApiBase :: PARAM_TYPE => array (
 					'title',
 					'text',
@@ -151,6 +173,6 @@ class ApiQuerySearch extends ApiQueryGeneratorBase {
 	}
 
 	public function getVersion() {
-		return __CLASS__ . ': $Id: ApiQuerySearch.php 35098 2008-05-20 17:13:28Z ialex $';
+		return __CLASS__ . ': $Id: ApiQuerySearch.php 47865 2009-02-27 16:03:01Z catrope $';
 	}
 }

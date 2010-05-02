@@ -4,7 +4,7 @@
  * --------
  * Author: Duncan Lock (dunc@dflock.co.uk)
  * Copyright: (c) 2006 Duncan Lock (http://dflock.co.uk/), Nigel McNie (http://qbnz.com/highlighter)
- * Release Version: 1.0.8.4
+ * Release Version: 1.0.7.22
  * Date Started: 2005/11/22
  *
  * T-SQL language file for GeSHi.
@@ -92,14 +92,14 @@ $language_data = array (
 
             //Configuration Functions
             '@@DATEFIRST','@@OPTIONS','@@DBTS','@@REMSERVER','@@LANGID','@@SERVERNAME',
-            '@@LANGUAGE','@@SERVICENAME','@@LOCK_TIMEOUT','@@SPID','@@MAX_CONNECTIONS',
-            '@@TEXTSIZE','@@MAX_PRECISION','@@VERSION','@@NESTLEVEL',
+            '@@LANGUAGE','@@SERVICENAME','@@LOCK_TIMEOUT','@@SPID','@@MAX_CONNECTIONS','@@TEXTSIZE',
+            '@@MAX_PRECISION','@@VERSION','@@NESTLEVEL',
 
             //Cursor Functions
             '@@CURSOR_ROWS','@@FETCH_STATUS',
 
             //Date and Time Functions
-            'DATEADD','DATEDIFF','DATENAME','DATEPART','GETDATE','GETUTCDATE',
+            'DATEADD','DATEDIFF','DATENAME','DATEPART','DAY','GETDATE','GETUTCDATE','MONTH','YEAR',
 
             //Mathematical Functions
             'ABS','DEGREES','RAND','ACOS','EXP','ROUND','ASIN','FLOOR','SIGN',
@@ -107,7 +107,7 @@ $language_data = array (
             'POWER','TAN','COT','RADIANS',
 
             //Meta Data Functions
-            'COL_LENGTH','COL_NAME','FULLTEXTCATALOGPROPERTY',
+            'COL_LENGTH','fn_listextendedproperty','COL_NAME','FULLTEXTCATALOGPROPERTY',
             'COLUMNPROPERTY','FULLTEXTSERVICEPROPERTY','DATABASEPROPERTY','INDEX_COL',
             'DATABASEPROPERTYEX','INDEXKEY_PROPERTY','DB_ID','INDEXPROPERTY','DB_NAME',
             'OBJECT_ID','FILE_ID','OBJECT_NAME','FILE_NAME','OBJECTPROPERTY','FILEGROUP_ID',
@@ -115,16 +115,19 @@ $language_data = array (
             'TYPEPROPERTY','FILEPROPERTY',
 
             //Security Functions
-            'IS_SRVROLEMEMBER','SUSER_SID','SUSER_SNAME','USER_ID',
-            'HAS_DBACCESS','IS_MEMBER',
+            'fn_trace_geteventinfo','IS_SRVROLEMEMBER','fn_trace_getfilterinfo','SUSER_SID',
+            'fn_trace_getinfo','SUSER_SNAME','fn_trace_gettable','USER_ID','HAS_DBACCESS',
+            'IS_MEMBER',
 
             //String Functions
-            'ASCII','SOUNDEX','PATINDEX','CHARINDEX','REPLACE','STR',
-            'DIFFERENCE','QUOTENAME','STUFF','REPLICATE','SUBSTRING','LEN',
-            'REVERSE','UNICODE','LOWER','UPPER','LTRIM','RTRIM',
+            'ASCII','NCHAR','SOUNDEX','CHAR','PATINDEX','SPACE','CHARINDEX',
+            'REPLACE','STR','DIFFERENCE','QUOTENAME','STUFF','LEFT','REPLICATE',
+            'SUBSTRING','LEN','REVERSE','UNICODE','LOWER','RIGHT','UPPER','LTRIM',
+            'RTRIM',
 
             //System Functions
-            'APP_NAME','COLLATIONPROPERTY','@@ERROR','FORMATMESSAGE',
+            'APP_NAME','COLLATIONPROPERTY','@@ERROR','fn_helpcollations',
+            'fn_servershareddrives','fn_virtualfilestats','FORMATMESSAGE',
             'GETANSINULL','HOST_ID','HOST_NAME','IDENT_CURRENT','IDENT_INCR',
             'IDENT_SEED','@@IDENTITY','ISDATE','ISNUMERIC','PARSENAME','PERMISSIONS',
             '@@ROWCOUNT','ROWCOUNT_BIG','SCOPE_IDENTITY','SERVERPROPERTY','SESSIONPROPERTY',
@@ -132,7 +135,7 @@ $language_data = array (
 
             //System Statistical Functions
             '@@CONNECTIONS','@@PACK_RECEIVED','@@CPU_BUSY','@@PACK_SENT',
-            '@@TIMETICKS','@@IDLE','@@TOTAL_ERRORS','@@IO_BUSY',
+            'fn_virtualfilestats','@@TIMETICKS','@@IDLE','@@TOTAL_ERRORS','@@IO_BUSY',
             '@@TOTAL_READ','@@PACKET_ERRORS','@@TOTAL_WRITE',
 
             //Text and Image Functions
@@ -140,7 +143,7 @@ $language_data = array (
 
             //Aggregate functions
             'AVG', 'MAX', 'BINARY_CHECKSUM', 'MIN', 'CHECKSUM', 'SUM', 'CHECKSUM_AGG',
-            'STDEV', 'COUNT', 'STDEVP', 'COUNT_BIG', 'VAR', 'VARP'
+            'STDEV', 'COUNT', 'STDEVP', 'COUNT_BIG', 'VAR', 'GROUPING', 'VARP'
             ),
         3 => array(
             /*
@@ -166,8 +169,8 @@ $language_data = array (
 
             //Distributed Queries Procedures
             'sp_addlinkedserver', 'sp_indexes', 'sp_addlinkedsrvlogin', 'sp_linkedservers', 'sp_catalogs',
-            'sp_primarykeys', 'sp_column_privileges_ex', 'sp_columns_ex',
-            'sp_table_privileges_ex', 'sp_tables_ex', 'sp_foreignkeys',
+            'sp_primarykeys', 'sp_column_privileges_ex', 'sp_serveroption', 'sp_columns_ex',
+            'sp_table_privileges_ex', 'sp_droplinkedsrvlogin', 'sp_tables_ex', 'sp_foreignkeys',
 
             //Full-Text Search Procedures
             'sp_fulltext_catalog', 'sp_help_fulltext_catalogs_cursor', 'sp_fulltext_column',
@@ -233,7 +236,7 @@ $language_data = array (
 
             //Security Procedures
             'sp_addalias', 'sp_droprolemember', 'sp_addapprole', 'sp_dropserver', 'sp_addgroup', 'sp_dropsrvrolemember',
-            'sp_dropuser', 'sp_addlogin', 'sp_grantdbaccess', 'sp_addremotelogin',
+            'sp_addlinkedsrvlogin', 'sp_dropuser', 'sp_addlogin', 'sp_grantdbaccess', 'sp_addremotelogin',
             'sp_grantlogin', 'sp_addrole', 'sp_helpdbfixedrole', 'sp_addrolemember', 'sp_helpgroup',
             'sp_addserver', 'sp_helplinkedsrvlogin', 'sp_addsrvrolemember', 'sp_helplogins', 'sp_adduser',
             'sp_helpntgroup', 'sp_approlepassword', 'sp_helpremotelogin', 'sp_changedbowner', 'sp_helprole',
@@ -303,7 +306,7 @@ $language_data = array (
             //Function/sp's higlighted brown.
             'fn_helpcollations', 'fn_listextendedproperty ', 'fn_servershareddrives',
             'fn_trace_geteventinfo', 'fn_trace_getfilterinfo', 'fn_trace_getinfo',
-            'fn_trace_gettable', 'fn_virtualfilestats','fn_listextendedproperty',
+            'fn_trace_gettable', 'fn_virtualfilestats',
             ),
         ),
     'SYMBOLS' => array(

@@ -173,6 +173,7 @@ CREATE TABLE templatelinks (
   tl_title      TEXT     NOT NULL
 );
 CREATE UNIQUE INDEX templatelinks_unique ON templatelinks (tl_namespace,tl_title,tl_from);
+CREATE INDEX templatelinks_from          ON templatelinks (tl_from);
 
 CREATE TABLE imagelinks (
   il_from  INTEGER  NOT NULL  REFERENCES page(page_id) ON DELETE CASCADE,
@@ -210,9 +211,10 @@ CREATE TABLE site_stats (
   ss_row_id         INTEGER  NOT NULL  UNIQUE,
   ss_total_views    INTEGER            DEFAULT 0,
   ss_total_edits    INTEGER            DEFAULT 0,
-  ss_good_articles  INTEGER             DEFAULT 0,
+  ss_good_articles  INTEGER            DEFAULT 0,
   ss_total_pages    INTEGER            DEFAULT -1,
   ss_users          INTEGER            DEFAULT -1,
+  ss_active_users   INTEGER            DEFAULT -1,
   ss_admins         INTEGER            DEFAULT -1,
   ss_images         INTEGER            DEFAULT 0
 );
@@ -239,7 +241,9 @@ CREATE TABLE ipblocks (
   ipb_range_start       TEXT,
   ipb_range_end         TEXT,
   ipb_deleted           SMALLINT     NOT NULL  DEFAULT 0,
-  ipb_block_email       SMALLINT     NOT NULL  DEFAULT 0
+  ipb_block_email       SMALLINT     NOT NULL  DEFAULT 0,
+  ipb_allow_usertalk    SMALLINT     NOT NULL  DEFAULT 0
+
 );
 CREATE UNIQUE INDEX ipb_address_unique ON ipblocks (ipb_address,ipb_user,ipb_auto,ipb_anon_only);
 CREATE INDEX ipb_user    ON ipblocks (ipb_user);
@@ -272,15 +276,15 @@ CREATE TABLE oldimage (
   oi_size          INTEGER      NOT NULL,
   oi_width         INTEGER      NOT NULL,
   oi_height        INTEGER      NOT NULL,
-  oi_bits          SMALLINT     NOT NULL,
+  oi_bits          SMALLINT         NULL,
   oi_description   TEXT,
   oi_user          INTEGER          NULL  REFERENCES mwuser(user_id) ON DELETE SET NULL,
   oi_user_text     TEXT         NOT NULL,
-  oi_timestamp     TIMESTAMPTZ  NOT NULL,
+  oi_timestamp     TIMESTAMPTZ      NULL,
   oi_metadata      BYTEA        NOT NULL DEFAULT '',
   oi_media_type    TEXT             NULL,
-  oi_major_mime    TEXT         NOT NULL DEFAULT 'unknown',
-  oi_minor_mime    TEXT         NOT NULL DEFAULT 'unknown',
+  oi_major_mime    TEXT             NULL DEFAULT 'unknown',
+  oi_minor_mime    TEXT             NULL DEFAULT 'unknown',
   oi_deleted       SMALLINT     NOT NULL DEFAULT 0,
   oi_sha1          TEXT         NOT NULL DEFAULT ''
 );
@@ -350,6 +354,7 @@ CREATE TABLE recentchanges (
   rc_params          TEXT
 );
 CREATE INDEX rc_timestamp       ON recentchanges (rc_timestamp);
+CREATE INDEX rc_timestamp_bot   ON recentchanges (rc_timestamp) WHERE rc_bot = 0;
 CREATE INDEX rc_namespace_title ON recentchanges (rc_namespace, rc_title);
 CREATE INDEX rc_cur_id          ON recentchanges (rc_cur_id);
 CREATE INDEX new_name_timestamp ON recentchanges (rc_new, rc_namespace, rc_timestamp);
@@ -363,7 +368,7 @@ CREATE TABLE watchlist (
   wl_notificationtimestamp  TIMESTAMPTZ
 );
 CREATE UNIQUE INDEX wl_user_namespace_title ON watchlist (wl_namespace, wl_title, wl_user);
-
+CREATE INDEX wl_user ON watchlist (wl_user);
 
 CREATE TABLE math (
   math_inputhash              BYTEA     NOT NULL  UNIQUE,
@@ -549,6 +554,32 @@ CREATE TABLE category (
 CREATE UNIQUE INDEX category_title ON category(cat_title);
 CREATE INDEX category_pages ON category(cat_pages);
 
+CREATE TABLE change_tag (
+  ct_rc_id   INTEGER      NULL,
+  ct_log_id  INTEGER      NULL,
+  ct_rev_id  INTEGER      NULL,
+  ct_tag     TEXT     NOT NULL,
+  ct_params  TEXT         NULL
+);
+CREATE UNIQUE INDEX change_tag_rc_tag ON change_tag(ct_rc_id,ct_tag);
+CREATE UNIQUE INDEX change_tag_log_tag ON change_tag(ct_log_id,ct_tag);
+CREATE UNIQUE INDEX change_tag_rev_tag ON change_tag(ct_rev_id,ct_tag);
+CREATE INDEX change_tag_tag_id ON change_tag(ct_tag,ct_rc_id,ct_rev_id,ct_log_id);
+
+CREATE TABLE tag_summary (
+  ts_rc_id   INTEGER     NULL,
+  ts_log_id  INTEGER     NULL,
+  ts_rev_id  INTEGER     NULL,
+  ts_tags    TEXT    NOT NULL
+);
+CREATE UNIQUE INDEX tag_summary_rc_id ON tag_summary(ts_rc_id);
+CREATE UNIQUE INDEX tag_summary_log_id ON tag_summary(ts_log_id);
+CREATE UNIQUE INDEX tag_summary_rev_id ON tag_summary(ts_rev_id);
+
+CREATE TABLE valid_tag (
+  vt_tag TEXT NOT NULL PRIMARY KEY
+);
+
 CREATE TABLE mediawiki_version (
   type         TEXT         NOT NULL,
   mw_version   TEXT         NOT NULL,
@@ -568,5 +599,5 @@ CREATE TABLE mediawiki_version (
 );
 
 INSERT INTO mediawiki_version (type,mw_version,sql_version,sql_date)
-  VALUES ('Creation','??','$LastChangedRevision: 40517 $','$LastChangedDate: 2008-09-06 07:14:20 +0000 (Sat, 06 Sep 2008) $');
+  VALUES ('Creation','??','$LastChangedRevision: 48615 $','$LastChangedDate: 2009-03-20 12:15:41 +1100 (Fri, 20 Mar 2009) $');
 

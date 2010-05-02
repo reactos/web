@@ -41,6 +41,7 @@ class ApiParamInfo extends ApiBase {
 		// Get parameters
 		$params = $this->extractRequestParams();
 		$result = $this->getResult();
+		$queryObj = new ApiQuery($this->getMain(), 'query');
 		$r = array();
 		if(is_array($params['modules']))
 		{
@@ -61,7 +62,6 @@ class ApiParamInfo extends ApiBase {
 		}
 		if(is_array($params['querymodules']))
 		{
-			$queryObj = new ApiQuery($this->getMain(), 'query');
 			$qmodArr = $queryObj->getModules();
 			foreach($params['querymodules'] as $qm)
 			{
@@ -77,6 +77,13 @@ class ApiParamInfo extends ApiBase {
 			}
 			$result->setIndexedTagName($r['querymodules'], 'module');
 		}
+		if($params['mainmodule'])
+			$r['mainmodule'] = $this->getClassInfo($this->getMain());
+		if($params['pagesetmodule'])
+		{
+			$pageSet = new ApiPageSet($queryObj);
+			$r['pagesetmodule'] = $this->getClassInfo($pageSet);
+		}
 		$result->addValue(null, $this->getModuleName(), $r);
 	}
 
@@ -86,12 +93,18 @@ class ApiParamInfo extends ApiBase {
 		$retval['classname'] = get_class($obj);
 		$retval['description'] = (is_array($obj->getDescription()) ? implode("\n", $obj->getDescription()) : $obj->getDescription());
 		$retval['prefix'] = $obj->getModulePrefix();
-		$allowedParams = $obj->getAllowedParams();
+		if($obj->isReadMode())
+			$retval['readrights'] = '';
+		if($obj->isWriteMode())
+			$retval['writerights'] = '';
+		if($obj->mustBePosted())
+			$retval['mustbeposted'] = '';
+		$allowedParams = $obj->getFinalParams();
 		if(!is_array($allowedParams))
 			return $retval;
 		$retval['parameters'] = array();
-		$paramDesc = $obj->getParamDescription();
-		foreach($obj->getAllowedParams() as $n => $p)
+		$paramDesc = $obj->getFinalParamDescription();
+		foreach($allowedParams as $n => $p)
 		{
 			$a = array('name' => $n);
 			if(!is_array($p))
@@ -111,7 +124,15 @@ class ApiParamInfo extends ApiBase {
 				$a['default'] = $p[ApiBase::PARAM_DFLT];
 			if(isset($p[ApiBase::PARAM_ISMULTI]))
 				if($p[ApiBase::PARAM_ISMULTI])
+				{
 					$a['multi'] = '';
+					$a['limit'] = $this->getMain()->canApiHighLimits() ?
+							ApiBase::LIMIT_SML2 :
+							ApiBase::LIMIT_SML1;
+				}
+			if(isset($p[ApiBase::PARAM_ALLOW_DUPLICATES]))
+				if($p[ApiBase::PARAM_ALLOW_DUPLICATES])
+					$a['allowsduplicates'] = '';
 			if(isset($p[ApiBase::PARAM_TYPE]))
 			{
 				$a['type'] = $p[ApiBase::PARAM_TYPE];
@@ -132,6 +153,10 @@ class ApiParamInfo extends ApiBase {
 		return $retval;
 	}
 
+	public function isReadMode() {
+		return false;
+	}
+
 	public function getAllowedParams() {
 		return array (
 			'modules' => array(
@@ -139,7 +164,9 @@ class ApiParamInfo extends ApiBase {
 			),
 			'querymodules' => array(
 				ApiBase :: PARAM_ISMULTI => true
-			)
+			),
+			'mainmodule' => false,
+			'pagesetmodule' => false,
 		);
 	}
 
@@ -147,6 +174,8 @@ class ApiParamInfo extends ApiBase {
 		return array (
 			'modules' => 'List of module names (value of the action= parameter)',
 			'querymodules' => 'List of query module names (value of prop=, meta= or list= parameter)',
+			'mainmodule' => 'Get information about the main (top-level) module as well',
+			'pagesetmodule' => 'Get information about the pageset module (providing titles= and friends) as well',
 		);
 	}
 
@@ -161,6 +190,6 @@ class ApiParamInfo extends ApiBase {
 	}
 
 	public function getVersion() {
-		return __CLASS__ . ': $Id: ApiParamInfo.php 35098 2008-05-20 17:13:28Z ialex $';
+		return __CLASS__ . ': $Id: ApiParamInfo.php 48091 2009-03-06 13:49:44Z catrope $';
 	}
 }

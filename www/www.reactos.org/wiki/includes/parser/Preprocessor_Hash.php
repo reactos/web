@@ -8,6 +8,8 @@
  */
 class Preprocessor_Hash implements Preprocessor {
 	var $parser;
+	
+	const CACHE_VERSION = 1;
 
 	function __construct( $parser ) {
 		$this->parser = $parser;
@@ -45,6 +47,31 @@ class Preprocessor_Hash implements Preprocessor {
 	 */
 	function preprocessToObj( $text, $flags = 0 ) {
 		wfProfileIn( __METHOD__ );
+	
+	
+		// Check cache.
+		global $wgMemc, $wgPreprocessorCacheThreshold;
+		
+		$cacheable = strlen( $text ) > $wgPreprocessorCacheThreshold;
+		if ( $cacheable ) {
+			wfProfileIn( __METHOD__.'-cacheable' );
+
+			$cacheKey = wfMemcKey( 'preprocess-hash', md5($text), $flags );
+			$cacheValue = $wgMemc->get( $cacheKey );
+			if ( $cacheValue ) {
+				$version = substr( $cacheValue, 0, 8 );
+				if ( intval( $version ) == self::CACHE_VERSION ) {
+					$hash = unserialize( substr( $cacheValue, 8 ) );
+					// From the cache
+					wfDebugLog( "Preprocessor",
+						"Loaded preprocessor hash from memcached (key $cacheKey)" );
+					wfProfileOut( __METHOD__.'-cacheable' );
+					wfProfileOut( __METHOD__ );
+					return $hash;
+				}
+			}
+			wfProfileIn( __METHOD__.'-cache-miss' );
+		}
 
 		$rules = array(
 			'{' => array(
@@ -288,7 +315,9 @@ class Preprocessor_Hash implements Preprocessor {
 				} else {
 					$attrEnd = $tagEndPos;
 					// Find closing tag
-					if ( preg_match( "/<\/$name\s*>/i", $text, $matches, PREG_OFFSET_CAPTURE, $tagEndPos + 1 ) ) {
+					if ( preg_match( "/<\/" . preg_quote( $name, '/' ) . "\s*>/i", 
+							$text, $matches, PREG_OFFSET_CAPTURE, $tagEndPos + 1 ) ) 
+					{
 						$inner = substr( $text, $tagEndPos + 1, $matches[0][1] - $tagEndPos - 1 );
 						$i = $matches[0][1] + strlen( $matches[0][0] );
 						$close = $matches[0][0];
@@ -615,6 +644,16 @@ class Preprocessor_Hash implements Preprocessor {
 		$rootNode = new PPNode_Hash_Tree( 'root' );
 		$rootNode->firstChild = $stack->rootAccum->firstNode;
 		$rootNode->lastChild = $stack->rootAccum->lastNode;
+		
+		// Cache
+		if ($cacheable) {
+			$cacheValue = sprintf( "%08d", self::CACHE_VERSION ) . serialize( $rootNode );;
+			$wgMemc->set( $cacheKey, $cacheValue, 86400 );
+			wfProfileOut( __METHOD__.'-cache-miss' );
+			wfProfileOut( __METHOD__.'-cacheable' );
+			wfDebugLog( "Preprocessor", "Saved preprocessor Hash to memcached (key $cacheKey)" );
+		}
+		
 		wfProfileOut( __METHOD__ );
 		return $rootNode;
 	}
@@ -758,6 +797,7 @@ class PPFrame_Hash implements PPFrame {
 
 	/**
 	 * Recursion depth of this frame, top = 0
+	 * Note that this is NOT the same as expansion depth in expand()
 	 */
 	var $depth;
 
@@ -810,6 +850,7 @@ class PPFrame_Hash implements PPFrame {
 	}
 
 	function expand( $root, $flags = 0 ) {
+		static $expansionDepth = 0;
 		if ( is_string( $root ) ) {
 			return $root;
 		}
@@ -818,10 +859,10 @@ class PPFrame_Hash implements PPFrame {
 		{
 			return '<span class="error">Node-count limit exceeded</span>';
 		}
-		if ( $this->depth > $this->parser->mOptions->mMaxPPExpandDepth ) {
+		if ( $expansionDepth > $this->parser->mOptions->mMaxPPExpandDepth ) {
 			return '<span class="error">Expansion depth limit exceeded</span>';
 		}
-		++$this->depth;
+		++$expansionDepth;
 
 		$outStack = array( '', '' );
 		$iteratorStack = array( false, $root );
@@ -974,7 +1015,7 @@ class PPFrame_Hash implements PPFrame {
 				}
 			}
 		}
-		--$this->depth;
+		--$expansionDepth;
 		return $outStack[0];
 	}
 
@@ -1173,6 +1214,32 @@ class PPTemplateFrame_Hash extends PPFrame_Hash {
 		return !count( $this->numberedArgs ) && !count( $this->namedArgs );
 	}
 
+	function getArguments() {
+		$arguments = array();
+		foreach ( array_merge(
+				array_keys($this->numberedArgs),
+				array_keys($this->namedArgs)) as $key ) {
+			$arguments[$key] = $this->getArgument($key);
+		}
+		return $arguments;
+	}
+	
+	function getNumberedArguments() {
+		$arguments = array();
+		foreach ( array_keys($this->numberedArgs) as $key ) {
+			$arguments[$key] = $this->getArgument($key);
+		}
+		return $arguments;
+	}
+	
+	function getNamedArguments() {
+		$arguments = array();
+		foreach ( array_keys($this->namedArgs) as $key ) {
+			$arguments[$key] = $this->getArgument($key);
+		}
+		return $arguments;
+	}
+
 	function getNumberedArgument( $index ) {
 		if ( !isset( $this->numberedArgs[$index] ) ) {
 			return false;
@@ -1246,6 +1313,9 @@ class PPCustomFrame_Hash extends PPFrame_Hash {
 	}
 
 	function getArgument( $index ) {
+		if ( !isset( $this->args[$index] ) ) {
+			return false;
+		}
 		return $this->args[$index];
 	}
 }

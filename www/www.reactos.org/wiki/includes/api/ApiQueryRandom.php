@@ -48,13 +48,13 @@ if (!defined('MEDIAWIKI')) {
 		$this->run($resultPageSet);
 	}
 
-	protected function prepareQuery($randstr, $limit, $namespace, &$resultPageSet) {
+	protected function prepareQuery($randstr, $limit, $namespace, &$resultPageSet, $redirect) {
 		$this->resetQueryParams();
 		$this->addTables('page');
 		$this->addOption('LIMIT', $limit);
 		$this->addWhereFld('page_namespace', $namespace);
 		$this->addWhereRange('page_random', 'newer', $randstr, null);
-		$this->addWhere(array('page_is_redirect' => 0));
+		$this->addWhereFld('page_is_redirect', $redirect);
 		$this->addOption('USE INDEX', 'page_random');
 		if(is_null($resultPageSet))
 			$this->addFields(array('page_id', 'page_title', 'page_namespace'));
@@ -62,7 +62,7 @@ if (!defined('MEDIAWIKI')) {
 			$this->addFields($resultPageSet->getPageTableFields());
 	}
 
-	protected function runQuery(&$data, &$resultPageSet) {
+	protected function runQuery(&$resultPageSet) {
 		$db = $this->getDB();
 		$res = $this->select(__METHOD__);
 		$count = 0;
@@ -73,7 +73,14 @@ if (!defined('MEDIAWIKI')) {
 				// Prevent duplicates
 				if(!in_array($row->page_id, $this->pageIDs))
 				{
-					$data[] = $this->extractRowInfo($row);
+					$fit = $this->getResult()->addValue(
+							array('query', $this->getModuleName()),
+							null, $this->extractRowInfo($row));
+					if(!$fit)
+						# We can't really query-continue a random list.
+						# Return an insanely high value so
+						# $count < $limit is false
+						return 1E9;
 					$this->pageIDs[] = $row->page_id;
 				}
 			}
@@ -87,32 +94,30 @@ if (!defined('MEDIAWIKI')) {
 	public function run($resultPageSet = null) {
 		$params = $this->extractRequestParams();
 		$result = $this->getResult();
-		$data = array();
 		$this->pageIDs = array();
-		$this->prepareQuery(wfRandom(), $params['limit'], $params['namespace'], $resultPageSet);
-		$count = $this->runQuery($data, $resultPageSet);
+		
+		$this->prepareQuery(wfRandom(), $params['limit'], $params['namespace'], $resultPageSet, $params['redirect']);
+		$count = $this->runQuery($resultPageSet);
 		if($count < $params['limit'])
 		{
 			/* We got too few pages, we probably picked a high value
 			 * for page_random. We'll just take the lowest ones, see
 			 * also the comment in Title::getRandomTitle()
 			 */
-			 $this->prepareQuery(0, $params['limit'] - $count, $params['namespace'], $resultPageSet);
-			 $this->runQuery($data, $resultPageSet);
+			 $this->prepareQuery(0, $params['limit'] - $count, $params['namespace'], $resultPageSet, $params['redirect']);
+			 $this->runQuery($resultPageSet);
 		}
 
 		if(is_null($resultPageSet)) {
-			$result->setIndexedTagName($data, 'page');
-			$result->addValue('query', $this->getModuleName(), $data);
+			$result->setIndexedTagName_internal(array('query', $this->getModuleName()), 'page');
 		}
 	}
 
 	private function extractRowInfo($row) {
 		$title = Title::makeTitle($row->page_namespace, $row->page_title);
 		$vals = array();
-		$vals['title'] = $title->getPrefixedText();
-		$vals['ns'] = $row->page_namespace;
-		$vals['id'] = $row->page_id;
+		$vals['id'] = intval($row->page_id);
+		ApiQueryBase::addTitleInfo($vals, $title);
 		return $vals;
 	}
 
@@ -129,13 +134,15 @@ if (!defined('MEDIAWIKI')) {
 				ApiBase :: PARAM_MAX => 10,
 				ApiBase :: PARAM_MAX2 => 20
 			),
+			'redirect' => false,
 		);
 	}
 
 	public function getParamDescription() {
 		return array (
 			'namespace' => 'Return pages in these namespaces only',
-			'limit' => 'Limit how many random pages will be returned'
+			'limit' => 'Limit how many random pages will be returned',
+			'redirect' => 'Load a random redirect instead of a random page'
 		);
 	}
 

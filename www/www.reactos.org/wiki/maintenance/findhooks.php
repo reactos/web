@@ -21,8 +21,7 @@
  */
 
 /** This is a command line script*/
-include('commandLine.inc');
-
+require('commandLine.inc');
 # GLOBALS
 
 $doc = $IP . '/docs/hooks.txt';
@@ -31,6 +30,7 @@ $pathinc = array(
 	$IP.'/includes/',
 	$IP.'/includes/api/',
 	$IP.'/includes/db/',
+	$IP.'/includes/diff/',
 	$IP.'/includes/filerepo/',
 	$IP.'/includes/parser/',
 	$IP.'/includes/specials/',

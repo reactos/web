@@ -78,8 +78,8 @@ class Profiler {
 	 * @param $functionname string
 	 */
 	function profileIn( $functionname ) {
-		global $wgDebugFunctionEntry;
-
+		global $wgDebugFunctionEntry, $wgProfiling;
+		if( !$wgProfiling ) return;
 		if( $wgDebugFunctionEntry ){
 			$this->debug( str_repeat( ' ', count( $this->mWorkStack ) ) . 'Entering ' . $functionname . "\n" );
 		}
@@ -92,8 +92,8 @@ class Profiler {
 	 * @param $functionname string
 	 */
 	function profileOut($functionname) {
-		global $wgDebugFunctionEntry;
-
+		global $wgDebugFunctionEntry, $wgProfiling;
+		if( !$wgProfiling ) return;
 		$memory = memory_get_usage();
 		$time = $this->getTime();
 
@@ -145,7 +145,12 @@ class Profiler {
 		}
 		$this->close();
 
-		if( $wgProfileCallTree ){
+		if( $wgProfileCallTree ) {
+			global $wgProfileToDatabase;
+			# XXX: We must call $this->getFunctionReport() to log to the DB
+			if( $wgProfileToDatabase ) {
+				$this->getFunctionReport();
+			}
 			return $this->getCallTree();
 		} else {
 			return $this->getFunctionReport();
@@ -202,16 +207,13 @@ class Profiler {
 	/**
 	 * Callback to get a formatted line for the call tree
 	 */
-	function getCallTreeLine($entry) {
+	function getCallTreeLine( $entry ) {
 		list( $fname, $level, $start, /* $x */, $end)  = $entry;
 		$delta = $end - $start;
 		$space = str_repeat(' ', $level);
-
 		# The ugly double sprintf is to work around a PHP bug,
 		# which has been fixed in recent releases.
-		return sprintf( "%10s %s %s\n",
-			trim( sprintf( "%7.3f", $delta * 1000.0 ) ),
-			$space, $fname );
+		return sprintf( "%10s %s %s\n", trim( sprintf( "%7.3f", $delta * 1000.0 ) ), $space, $fname );
 	}
 
 	function getTime() {
@@ -316,8 +318,8 @@ class Profiler {
 			$percent = $total ? 100. * $elapsed / $total : 0;
 			$memory = $this->mMemory[$fname];
 			$prof .= sprintf($format, substr($fname, 0, $nameWidth), $calls, (float) ($elapsed * 1000), (float) ($elapsed * 1000) / $calls, $percent, $memory, ($this->mMin[$fname] * 1000.0), ($this->mMax[$fname] * 1000.0), $this->mOverhead[$fname]);
-
-			if( $wgProfileToDatabase ){
+			# Log to the DB
+			if( $wgProfileToDatabase ) {
 				self::logToDB($fname, (float) ($elapsed * 1000), $calls, (float) ($memory) );
 			}
 		}
@@ -355,8 +357,7 @@ class Profiler {
 		# Do not log anything if database is readonly (bug 5375)
 		if( wfReadOnly() ) { return; }
 
-		# Warning: $wguname is a live patch, it should be moved to Setup.php
-		global $wguname, $wgProfilePerHost;
+		global $wgProfilePerHost;
 
 		$dbw = wfGetDB( DB_MASTER );
 		if( !is_object( $dbw ) )
@@ -366,7 +367,7 @@ class Profiler {
 		$name = substr($name, 0, 255);
 
 		if( $wgProfilePerHost ){
-			$pfhost = $wguname['nodename'];
+			$pfhost = wfHostname();
 		} else {
 			$pfhost = '';
 		}

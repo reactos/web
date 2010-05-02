@@ -154,6 +154,26 @@ abstract class IndexPager implements Pager {
 
 		wfProfileOut( $fname );
 	}
+	
+	/**
+	 * Return the result wrapper.
+	 */
+	function getResult() {
+		return $this->mResult;
+	}
+	
+	/**
+	 * Set the offset from an other source than $wgRequest
+	 */
+	function setOffset( $offset ) {
+		$this->mOffset = $offset;
+	}
+	/**
+	 * Set the limit from an other source than $wgRequest
+	 */
+	function setLimit( $limit ) {
+		$this->mLimit = $limit;
+	}
 
 	/**
 	 * Extract some useful data from the result object for use by
@@ -284,17 +304,18 @@ abstract class IndexPager implements Pager {
 		if ( $query === null ) {
 			return $text;
 		}
-		if( $type == 'prev' || $type == 'next' ) {
-			$attrs = "rel=\"$type\"";
-		} elseif( $type == 'first' ) {
-			$attrs = "rel=\"start\"";
-		} else {
-			# HTML 4 has no rel="end" . . .
-			$attrs = '';
+
+		$attrs = array();
+		if( in_array( $type, array( 'first', 'prev', 'next', 'last' ) ) ) {
+			# HTML5 rel attributes
+			$attrs['rel'] = $type;
 		}
-		return $this->getSkin()->makeKnownLinkObj( $this->getTitle(), $text,
-				wfArrayToCGI( $query, $this->getDefaultQuery() ), '', '',
-				$attrs );
+
+		if( $type ) {
+			$attrs['class'] = "mw-{$type}link";
+		}
+		return $this->getSkin()->link( $this->getTitle(), $text,
+			$attrs, $query + $this->getDefaultQuery(), array('noclasses','known') );
 	}
 
 	/**
@@ -352,6 +373,8 @@ abstract class IndexPager implements Pager {
 			unset( $this->mDefaultQuery['offset'] );
 			unset( $this->mDefaultQuery['limit'] );
 			unset( $this->mDefaultQuery['order'] );
+			unset( $this->mDefaultQuery['month'] );
+			unset( $this->mDefaultQuery['year'] );
 		}
 		return $this->mDefaultQuery;
 	}
@@ -425,7 +448,7 @@ abstract class IndexPager implements Pager {
 		}
 		foreach ( $this->mLimitsShown as $limit ) {
 			$links[] = $this->makeLink( $wgLang->formatNum( $limit ),
-				array( 'offset' => $offset, 'limit' => $limit ) );
+				array( 'offset' => $offset, 'limit' => $limit ), 'num' );
 		}
 		return $links;
 	}
@@ -507,10 +530,10 @@ abstract class AlphabeticPager extends IndexPager {
 
 		$pagingLinks = $this->getPagingLinks( $linkTexts );
 		$limitLinks = $this->getLimitLinks();
-		$limits = implode( ' | ', $limitLinks );
+		$limits = $wgLang->pipeList( $limitLinks );
 
 		$this->mNavigationBar =
-			"({$pagingLinks['first']} | {$pagingLinks['last']}) " .
+			"(" . $wgLang->pipeList( array( $pagingLinks['first'], $pagingLinks['last'] ) ) . ") " .
 			wfMsgHtml( 'viewprevnext', $pagingLinks['prev'],
 			$pagingLinks['next'], $limits );
 
@@ -526,7 +549,7 @@ abstract class AlphabeticPager extends IndexPager {
 			if( $first ) {
 				$first = false;
 			} else {
-				$extra .= ' | ';
+				$extra .= wfMsgExt( 'pipe-separator' , 'escapenoentities' );
 			}
 
 			if( $order == $this->mOrderType ) {
@@ -564,6 +587,8 @@ abstract class AlphabeticPager extends IndexPager {
  */
 abstract class ReverseChronologicalPager extends IndexPager {
 	public $mDefaultDirection = true;
+	public $mYear;
+	public $mMonth;
 
 	function __construct() {
 		parent::__construct();
@@ -585,11 +610,58 @@ abstract class ReverseChronologicalPager extends IndexPager {
 
 		$pagingLinks = $this->getPagingLinks( $linkTexts );
 		$limitLinks = $this->getLimitLinks();
-		$limits = implode( ' | ', $limitLinks );
+		$limits = $wgLang->pipeList( $limitLinks );
 
-		$this->mNavigationBar = "({$pagingLinks['first']} | {$pagingLinks['last']}) " .
+		$this->mNavigationBar = "({$pagingLinks['first']}" . wfMsgExt( 'pipe-separator' , 'escapenoentities' ) . "{$pagingLinks['last']}) " .
 			wfMsgHtml("viewprevnext", $pagingLinks['prev'], $pagingLinks['next'], $limits);
 		return $this->mNavigationBar;
+	}
+	
+	function getDateCond( $year, $month ) {
+		$year = intval($year);
+		$month = intval($month);
+		// Basic validity checks
+		$this->mYear = $year > 0 ? $year : false;
+		$this->mMonth = ($month > 0 && $month < 13) ? $month : false;
+		// Given an optional year and month, we need to generate a timestamp
+		// to use as "WHERE rev_timestamp <= result"
+		// Examples: year = 2006 equals < 20070101 (+000000)
+		// year=2005, month=1    equals < 20050201
+		// year=2005, month=12   equals < 20060101
+		if ( !$this->mYear && !$this->mMonth ) {
+			return;
+		}
+		if ( $this->mYear ) {
+			$year = $this->mYear;
+		} else {
+			// If no year given, assume the current one
+			$year = gmdate( 'Y' );
+			// If this month hasn't happened yet this year, go back to last year's month
+			if( $this->mMonth > gmdate( 'n' ) ) {
+				$year--;
+			}
+		}
+		if ( $this->mMonth ) {
+			$month = $this->mMonth + 1;
+			// For December, we want January 1 of the next year
+			if ($month > 12) {
+				$month = 1;
+				$year++;
+			}
+		} else {
+			// No month implies we want up to the end of the year in question
+			$month = 1;
+			$year++;
+		}
+		// Y2K38 bug
+		if ( $year > 2032 ) {
+			$year = 2032;
+		}
+		$ymd = (int)sprintf( "%04d%02d01", $year, $month );
+		if ( $ymd > 20320101 ) {
+			$ymd = 20320101;
+		}
+		$this->mOffset = $this->mDb->timestamp( "${ymd}000000" );
 	}
 }
 
@@ -673,7 +745,8 @@ abstract class TablePager extends IndexPager {
 	}
 
 	function formatRow( $row ) {
-		$s = "<tr>\n";
+		$rowClass = $this->getRowClass( $row );
+		$s = "<tr class=\"$rowClass\">\n";
 		$fieldNames = $this->getFieldNames();
 		$this->mCurrentRow = $row;  # In case formatValue needs to know
 		foreach ( $fieldNames as $field => $name ) {
@@ -687,6 +760,10 @@ abstract class TablePager extends IndexPager {
 		}
 		$s .= "</tr>\n";
 		return $s;
+	}
+
+	function getRowClass($row) {
+		return '';
 	}
 
 	function getIndexField() {
@@ -795,7 +872,7 @@ abstract class TablePager extends IndexPager {
 			"<form method=\"get\" action=\"$url\">" .
 			wfMsgHtml( 'table_pager_limit', $this->getLimitSelect() ) .
 			"\n<input type=\"submit\" value=\"$msgSubmit\"/>\n" .
-			$this->getHiddenFields( 'limit' ) .
+			$this->getHiddenFields( array('limit','title') ) .
 			"</form>\n";
 	}
 

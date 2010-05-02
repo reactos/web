@@ -66,7 +66,7 @@ class ApiQueryImages extends ApiQueryGeneratorBase {
 				$this->dieUsage("Invalid continue param. You should pass the " .
 					"original value returned by the previous query", "_badcontinue");
 			$ilfrom = intval($cont[0]);
-			$ilto = $this->getDb()->strencode($this->titleToKey($cont[1]));
+			$ilto = $this->getDB()->strencode($this->titleToKey($cont[1]));
 			$this->addWhere("il_from > $ilfrom OR ".
 					"(il_from = $ilfrom AND ".
 					"il_to >= '$ilto')");
@@ -82,9 +82,6 @@ class ApiQueryImages extends ApiQueryGeneratorBase {
 		$res = $this->select(__METHOD__);
 
 		if (is_null($resultPageSet)) {
-
-			$data = array();
-			$lastId = 0;	// database has no ID 0
 			$count = 0;
 			while ($row = $db->fetchObject($res)) {
 				if (++$count > $params['limit']) {
@@ -94,23 +91,16 @@ class ApiQueryImages extends ApiQueryGeneratorBase {
 							'|' . $this->keyToTitle($row->il_to));
 					break;
 				}
-				if ($lastId != $row->il_from) {
-					if($lastId != 0) {
-						$this->addPageSubItems($lastId, $data);
-						$data = array();
-					}
-					$lastId = $row->il_from;
-				}
-
 				$vals = array();
-				ApiQueryBase :: addTitleInfo($vals, Title :: makeTitle(NS_IMAGE, $row->il_to));
-				$data[] = $vals;
+				ApiQueryBase :: addTitleInfo($vals, Title :: makeTitle(NS_FILE, $row->il_to));
+				$fit = $this->addPageSubItem($row->il_from, $vals);
+				if(!$fit)
+				{
+					$this->setContinueEnumParameter('continue', $row->il_from .
+							'|' . $this->keyToTitle($row->il_to));
+					break;
+				}
 			}
-
-			if($lastId != 0) {
-				$this->addPageSubItems($lastId, $data);
-			}
-
 		} else {
 
 			$titles = array();
@@ -123,7 +113,7 @@ class ApiQueryImages extends ApiQueryGeneratorBase {
 							'|' . $this->keyToTitle($row->il_to));
 					break;
 				}
-				$titles[] = Title :: makeTitle(NS_IMAGE, $row->il_to);
+				$titles[] = Title :: makeTitle(NS_FILE, $row->il_to);
 			}
 			$resultPageSet->populateFromTitles($titles);
 		}
@@ -165,6 +155,6 @@ class ApiQueryImages extends ApiQueryGeneratorBase {
 	}
 
 	public function getVersion() {
-		return __CLASS__ . ': $Id: ApiQueryImages.php 37535 2008-07-10 21:20:43Z catrope $';
+		return __CLASS__ . ': $Id: ApiQueryImages.php 46845 2009-02-05 14:30:59Z catrope $';
 	}
 }

@@ -1,6 +1,9 @@
 <?php
 /** Samoan (Gagana Samoa)
  *
+ * See MessagesQqq.php for message documentation incl. usage of parameters
+ * To improve a translation please visit http://translatewiki.net
+ *
  * @ingroup Language
  * @file
  *
@@ -118,7 +121,7 @@ $messages = array(
 'email'             => "'Imeli",
 
 # Edit pages
-'summary'      => "'Oto'otoga",
+'summary'      => "'Oto'otoga:",
 'minoredit'    => "'O se teuteuga la'itiiti lenei",
 'watchthis'    => 'Matau lenei itulau',
 'savearticle'  => 'Sefe le itulau',
@@ -193,6 +196,7 @@ $messages = array(
 # Move page
 'move-page-legend' => "Si'i le itulau",
 'movearticle'      => "Si'i le itulau",
+'movenologin'      => "Le'i fa'aolaina",
 'newtitle'         => "'I le ulutala fou",
 'move-watch'       => 'Matau lenei itulau',
 'movepagebtn'      => "Si'i le itulau",
@@ -202,7 +206,7 @@ $messages = array(
 # Namespace 8 related
 'allmessagesname' => 'Igoa',
 
-# Special:NewImages
+# Special:NewFiles
 'ilsubmit' => "Su'e",
 
 # 'all' in various places, this might be different for inflected languages

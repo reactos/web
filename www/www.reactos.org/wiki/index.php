@@ -13,7 +13,7 @@
  *
  * ----------
  *
- * Copyright (C) 2001-2008 Magnus Manske, Brion Vibber, Lee Daniel Crocker,
+ * Copyright (C) 2001-2009 Magnus Manske, Brion Vibber, Lee Daniel Crocker,
  * Tim Starling, Erik Möller, Gabriel Wicke, Ævar Arnfjörð Bjarmason,
  * Niklas Laxström, Domas Mituzas, Rob Church, Yuri Astrakhan, Aryeh Gregor,
  * Aaron Schulz and others.
@@ -32,6 +32,8 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  * http://www.gnu.org/copyleft/gpl.html
+ *
+ * @file
  */
 
 
@@ -47,10 +49,8 @@ wfProfileIn( 'main-misc-setup' );
 OutputPage::setEncodings(); # Not really used yet
 
 $maxLag = $wgRequest->getVal( 'maxlag' );
-if ( !is_null( $maxLag ) ) {
-	if ( !$mediaWiki->checkMaxLag( $maxLag ) ) {
-		exit;
-	}
+if( !is_null( $maxLag ) && !$mediaWiki->checkMaxLag( $maxLag ) ) {
+	exit;
 }
 
 # Query string fields
@@ -58,7 +58,7 @@ $action = $wgRequest->getVal( 'action', 'view' );
 $title = $wgRequest->getVal( 'title' );
 
 $wgTitle = $mediaWiki->checkInitialQueries( $title, $action );
-if ($wgTitle == NULL) {
+if( $wgTitle === NULL ) {
 	unset( $wgTitle );
 }
 
@@ -67,13 +67,36 @@ wfProfileOut( 'main-misc-setup' );
 #
 # Send Ajax requests to the Ajax dispatcher.
 #
-if ( $wgUseAjax && $action == 'ajax' ) {
+if( $wgUseAjax && $action == 'ajax' ) {
 	require_once( $IP . '/includes/AjaxDispatcher.php' );
-
 	$dispatcher = new AjaxDispatcher();
 	$dispatcher->performAction();
 	$mediaWiki->restInPeace();
 	exit;
+}
+
+if( $wgUseFileCache && isset( $wgTitle ) ) {
+	wfProfileIn( 'main-try-filecache' );
+	// Raw pages should handle cache control on their own,
+	// even when using file cache. This reduces hits from clients.
+	if( $action != 'raw' && HTMLFileCache::useFileCache() ) {
+		/* Try low-level file cache hit */
+		$cache = new HTMLFileCache( $wgTitle, $action );
+		if( $cache->isFileCacheGood( /* Assume up to date */ ) ) {
+			/* Check incoming headers to see if client has this cached */
+			if( !$wgOut->checkLastModified( $cache->fileCacheTime() ) ) {
+				$cache->loadFromFileCache();
+			}
+			# Do any stats increment/watchlist stuff
+			$wgArticle = MediaWiki::articleFromTitle( $wgTitle );
+			$wgArticle->viewUpdates();
+			# Tell $wgOut that output is taken care of
+			wfProfileOut( 'main-try-filecache' );
+			$mediaWiki->restInPeace();
+			exit;
+		}
+	}
+	wfProfileOut( 'main-try-filecache' );
 }
 
 # Setting global variables in mediaWiki
@@ -91,7 +114,7 @@ $mediaWiki->setVal( 'UseExternalEditor', $wgUseExternalEditor );
 $mediaWiki->setVal( 'UsePathInfo', $wgUsePathInfo );
 
 $mediaWiki->initialize( $wgTitle, $wgArticle, $wgOut, $wgUser, $wgRequest );
-$mediaWiki->finalCleanup ( $wgDeferredUpdateList, $wgOut );
+$mediaWiki->finalCleanup( $wgDeferredUpdateList, $wgOut );
 
 # Not sure when $wgPostCommitUpdateList gets set, so I keep this separate from finalCleanup
 $mediaWiki->doUpdates( $wgPostCommitUpdateList );

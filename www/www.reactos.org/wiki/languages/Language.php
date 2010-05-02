@@ -39,7 +39,7 @@ class FakeConverter {
 	function parserConvert($t, $p) {return $t;}
 	function getVariants() { return array( $this->mLang->getCode() ); }
 	function getPreferredVariant() {return $this->mLang->getCode(); }
-	function findVariantLink(&$l, &$n) {}
+	function findVariantLink(&$l, &$n, $ignoreOtherCond = false) {}
 	function getExtraHashOptions() {return '';}
 	function getParsedTitle() {return '';}
 	function markNoConversion($text, $noParse=false) {return $text;}
@@ -56,9 +56,9 @@ class Language {
 	var $mConverter, $mVariants, $mCode, $mLoaded = false;
 	var $mMagicExtensions = array(), $mMagicHookDone = false;
 
-	static public $mLocalisationKeys = array( 'fallback', 'namespaceNames',
-		'skinNames', 'mathNames',
-		'bookstoreList', 'magicWords', 'messages', 'rtl', 'digitTransformTable',
+	static public $mLocalisationKeys = array(
+		'fallback', 'namespaceNames', 'mathNames', 'bookstoreList',
+		'magicWords', 'messages', 'rtl', 'digitTransformTable',
 		'separatorTransformTable', 'fallback8bitEncoding', 'linkPrefixExtension',
 		'defaultUserOptionOverrides', 'linkTrail', 'namespaceAliases',
 		'dateFormats', 'datePreferences', 'datePreferenceMigrationMap',
@@ -74,6 +74,7 @@ class Language {
 	static public $mMergeableAliasListKeys = array( 'specialPageAliases' );
 
 	static public $mLocalisationCache = array();
+	static public $mLangObjCache = array();
 
 	static public $mWeekdayMsgs = array(
 		'sunday', 'monday', 'tuesday', 'wednesday', 'thursday',
@@ -130,12 +131,25 @@ class Language {
 	);
 
 	/**
-	 * Create a language object for a given language code
+	 * Get a cached language object for a given language code
 	 */
 	static function factory( $code ) {
+		if ( !isset( self::$mLangObjCache[$code] ) ) {
+			if( count( self::$mLangObjCache ) > 10 ) {
+				// Don't keep a billion objects around, that's stupid.
+				self::$mLangObjCache = array();
+			}
+			self::$mLangObjCache[$code] = self::newFromCode( $code );
+		}
+		return self::$mLangObjCache[$code];
+	}
+
+	/**
+	 * Create a language object for a given language code
+	 */
+	protected static function newFromCode( $code ) {
 		global $IP;
 		static $recursionLevel = 0;
-
 		if ( $code == 'en' ) {
 			$class = 'Language';
 		} else {
@@ -156,13 +170,12 @@ class Language {
 		if( ! class_exists( $class ) ) {
 			$fallback = Language::getFallbackFor( $code );
 			++$recursionLevel;
-			$lang = Language::factory( $fallback );
+			$lang = Language::newFromCode( $fallback );
 			--$recursionLevel;
 			$lang->setCode( $code );
 		} else {
 			$lang = new $class;
 		}
-
 		return $lang;
 	}
 
@@ -173,6 +186,15 @@ class Language {
 			$this->mCode = 'en';
 		} else {
 			$this->mCode = str_replace( '_', '-', strtolower( substr( get_class( $this ), 8 ) ) );
+		}
+	}
+
+	/**
+	 * Reduce memory usage
+	 */
+	function __destruct() {
+		foreach ( $this as $name => $value ) {
+			unset( $this->$name );
 		}
 	}
 
@@ -298,7 +320,7 @@ class Language {
 		if ( isset( $aliases[$name][0] ) ) {
 			$name = $aliases[$name][0];
 		}
-		return $this->getNsText(NS_SPECIAL) . ':' . $name;
+		return $this->getNsText( NS_SPECIAL ) . ':' . $name;
 	}
 
 	function getQuickbarSettings() {
@@ -309,11 +331,6 @@ class Language {
 			$this->getMessage( 'qbsettings-floatingleft' ),
 			$this->getMessage( 'qbsettings-floatingright' )
 		);
-	}
-
-	function getSkinNames() {
-		$this->load();
-		return $this->skinNames;
 	}
 
 	function getMathNames() {
@@ -393,21 +410,13 @@ class Language {
 	}
 
 	/**
-	 * Ugly hack to get a message maybe from the MediaWiki namespace, if this
-	 * language object is the content or user language.
+	 * Get a message from the MediaWiki namespace.
+	 *
+	 * @param $msg String: message name
+	 * @return string
 	 */
 	function getMessageFromDB( $msg ) {
-		global $wgContLang, $wgLang;
-		if ( $wgContLang->getCode() == $this->getCode() ) {
-			# Content language
-			return wfMsgForContent( $msg );
-		} elseif ( $wgLang->getCode() == $this->getCode() ) {
-			# User language
-			return wfMsg( $msg );
-		} else {
-			# Neither, get from localisation
-			return $this->getMessage( $msg );
-		}
+		return wfMsgExt( $msg, array( 'parsemag', 'language' => $this ) );
 	}
 
 	function getLanguageName( $code ) {
@@ -465,39 +474,50 @@ class Language {
 	function userAdjust( $ts, $tz = false )	{
 		global $wgUser, $wgLocalTZoffset;
 
-		if (!$tz) {
+		if ( $tz === false ) {
 			$tz = $wgUser->getOption( 'timecorrection' );
 		}
 
-		# minutes and hours differences:
-		$minDiff = 0;
-		$hrDiff  = 0;
+		$data = explode( '|', $tz, 3 );
 
-		if ( $tz === '' ) {
-			# Global offset in minutes.
-			if( isset($wgLocalTZoffset) ) {
-				if( $wgLocalTZoffset >= 0 ) {
-					$hrDiff = floor($wgLocalTZoffset / 60);
-				} else {
-					$hrDiff = ceil($wgLocalTZoffset / 60);
-				}
-				$minDiff = $wgLocalTZoffset % 60;
+		if ( $data[0] == 'ZoneInfo' ) {
+			if ( function_exists( 'timezone_open' ) && @timezone_open( $data[2] ) !== false ) {
+				$date = date_create( $ts, timezone_open( 'UTC' ) );
+				date_timezone_set( $date, timezone_open( $data[2] ) );
+				$date = date_format( $date, 'YmdHis' );
+				return $date;
 			}
-		} elseif ( strpos( $tz, ':' ) !== false ) {
-			$tzArray = explode( ':', $tz );
-			$hrDiff = intval($tzArray[0]);
-			$minDiff = intval($hrDiff < 0 ? -$tzArray[1] : $tzArray[1]);
+			# Unrecognized timezone, default to 'Offset' with the stored offset.
+			$data[0] = 'Offset';
+		}
+
+		$minDiff = 0;
+		if ( $data[0] == 'System' || $tz == '' ) {
+			# Global offset in minutes.
+			if( isset($wgLocalTZoffset) ) $minDiff = $wgLocalTZoffset;
+		} else if ( $data[0] == 'Offset' ) {
+			$minDiff = intval( $data[1] );
 		} else {
-			$hrDiff = intval( $tz );
+			$data = explode( ':', $tz );
+			if( count( $data ) == 2 ) {
+				$data[0] = intval( $data[0] );
+				$data[1] = intval( $data[1] );
+				$minDiff = abs( $data[0] ) * 60 + $data[1];
+				if ( $data[0] < 0 ) $minDiff = -$minDiff;
+			} else {
+				$minDiff = intval( $data[0] ) * 60;
+			}
 		}
 
 		# No difference ? Return time unchanged
-		if ( 0 == $hrDiff && 0 == $minDiff ) { return $ts; }
+		if ( 0 == $minDiff ) return $ts;
 
 		wfSuppressWarnings(); // E_STRICT system time bitching
-		# Generate an adjusted date
+		# Generate an adjusted date; take advantage of the fact that mktime
+		# will normalize out-of-range values so we don't have to split $minDiff 
+		# into hours and minutes.
 		$t = mktime( (
-		  (int)substr( $ts, 8, 2) ) + $hrDiff, # Hours
+		  (int)substr( $ts, 8, 2) ), # Hours
 		  (int)substr( $ts, 10, 2 ) + $minDiff, # Minutes
 		  (int)substr( $ts, 12, 2 ), # Seconds
 		  (int)substr( $ts, 4, 2 ), # Month
@@ -515,9 +535,10 @@ class Language {
 	 * internationalisation, a reduced set of format characters, and a better 
 	 * escaping format.
 	 *
-	 * Supported format characters are dDjlNwzWFmMntLYyaAgGhHiscrU. See the 
-	 * PHP manual for definitions. There are a number of extensions, which 
-	 * start with "x":
+	 * Supported format characters are dDjlNwzWFmMntLoYyaAgGhHiscrU. See the 
+	 * PHP manual for definitions. "o" format character is supported since
+	 * PHP 5.1.0, previous versions return literal o.
+	 * There are a number of extensions, which start with "x":
 	 *
 	 *    xn   Do not translate digits of the next numeric format character
 	 *    xN   Toggle raw digit (xn) flag, stays set until explicitly unset
@@ -538,10 +559,10 @@ class Language {
 	 *    xjn  n (month number) in Hebrew calendar
 	 *    xjY  Y (full year) in Hebrew calendar
 	 *
-	 *   xmj  j (day number) in Hijri calendar
-	 *   xmF  F (month name) in Hijri calendar
-	 *   xmn  n (month number) in Hijri calendar
-	 *   xmY  Y (full year) in Hijri calendar
+	 *    xmj  j (day number) in Hijri calendar
+	 *    xmF  F (month name) in Hijri calendar
+	 *    xmn  n (month number) in Hijri calendar
+	 *    xmY  Y (full year) in Hijri calendar
 	 *
 	 *    xkY  Y (full year) in Thai solar calendar. Months and days are
 	 *                       identical to the Gregorian calendar
@@ -562,6 +583,8 @@ class Language {
 	 * @param $ts String: 14-character timestamp
 	 *      YYYYMMDDHHMMSS
 	 *      01234567890123
+	 * @todo emulation of "o" format character for PHP pre 5.1.0
+	 * @todo handling of "o" format character for Iranian, Hebrew, Hijri & Thai?
 	 */
 	function sprintfDate( $format, $ts ) {
 		$s = '';
@@ -698,6 +721,16 @@ class Language {
 				case 'L':
 					if ( !$unix ) $unix = wfTimestamp( TS_UNIX, $ts );
 					$num = gmdate( 'L', $unix );
+					break;
+				# 'o' is supported since PHP 5.1.0
+				# return literal if not supported
+				# TODO: emulation for pre 5.1.0 versions
+				case 'o':
+					if ( !$unix ) $unix = wfTimestamp( TS_UNIX, $ts );
+					if ( version_compare(PHP_VERSION, '5.1.0') === 1 )
+						$num = date( 'o', $unix );
+					else
+						$s .= 'o';
 					break;
 				case 'Y':
 					$num = substr( $ts, 0, 4 );
@@ -911,6 +944,9 @@ class Language {
 	 * (abu-mami@kaluach.net, http://www.kaluach.net), who permitted
 	 * to translate the relevant functions into PHP and release them under
 	 * GNU GPL.
+	 *
+	 * The months are counted from Tishrei = 1. In a leap year, Adar I is 13
+	 * and Adar II is 14. In a non-leap year, Adar is 6.
 	 */
 	private static function tsToHebrew( $ts ) {
 		# Parse date
@@ -1510,24 +1546,71 @@ class Language {
 			return $string;
 		}
 
-		# MySQL fulltext index doesn't grok utf-8, so we
-		# need to fold cases and convert to hex
 
 		wfProfileIn( __METHOD__ );
-		if( function_exists( 'mb_strtolower' ) ) {
+		
+		// MySQL fulltext index doesn't grok utf-8, so we
+		// need to fold cases and convert to hex
+		$out = preg_replace_callback(
+			"/([\\xc0-\\xff][\\x80-\\xbf]*)/",
+			array( $this, 'stripForSearchCallback' ),
+			$this->lc( $string ) );
+		
+		// And to add insult to injury, the default indexing
+		// ignores short words... Pad them so we can pass them
+		// through without reconfiguring the server...
+		$minLength = $this->minSearchLength();
+		if( $minLength > 1 ) {
+			$n = $minLength-1;
 			$out = preg_replace(
-				"/([\\xc0-\\xff][\\x80-\\xbf]*)/e",
-				"'U8' . bin2hex( \"$1\" )",
-				mb_strtolower( $string ) );
-		} else {
-			list( , $wikiLowerChars ) = self::getCaseMaps();
-			$out = preg_replace(
-				"/([\\xc0-\\xff][\\x80-\\xbf]*)/e",
-				"'U8' . bin2hex( strtr( \"\$1\", \$wikiLowerChars ) )",
-				$string );
+				"/\b(\w{1,$n})\b/",
+				"$1u800",
+				$out );
 		}
+		
+		// Periods within things like hostnames and IP addresses
+		// are also important -- we want a search for "example.com"
+		// or "192.168.1.1" to work sanely.
+		//
+		// MySQL's search seems to ignore them, so you'd match on
+		// "example.wikipedia.com" and "192.168.83.1" as well.
+		$out = preg_replace(
+			"/(\w)\.(\w|\*)/u",
+			"$1u82e$2",
+			$out );
+		
 		wfProfileOut( __METHOD__ );
 		return $out;
+	}
+	
+	/**
+	 * Armor a case-folded UTF-8 string to get through MySQL's
+	 * fulltext search without being mucked up by funny charset
+	 * settings or anything else of the sort.
+	 */
+	protected function stripForSearchCallback( $matches ) {
+		return 'u8' . bin2hex( $matches[1] );
+	}
+	
+	/**
+	 * Check MySQL server's ft_min_word_len setting so we know
+	 * if we need to pad short words...
+	 */
+	protected function minSearchLength() {
+		if( !isset( $this->minSearchLength ) ) {
+			$sql = "show global variables like 'ft\\_min\\_word\\_len'";
+			$dbr = wfGetDB( DB_SLAVE );
+			$result = $dbr->query( $sql );
+			$row = $result->fetchObject();
+			$result->free();
+			
+			if( $row && $row->Variable_name == 'ft_min_word_len' ) {
+				$this->minSearchLength = intval( $row->Value );
+			} else {
+				$this->minSearchLength = 0;
+			}
+		}
+		return $this->minSearchLength;
 	}
 
 	function convertForSearchResult( $termsArray ) {
@@ -1686,7 +1769,9 @@ class Language {
 			} else {
 				# Fall back to English if local list is incomplete
 				$magicWords =& Language::getMagicWords();
-				if ( !isset($magicWords[$mw->mId]) ) { throw new MWException("Magic word not found" ); }
+				if ( !isset($magicWords[$mw->mId]) ) {
+					throw new MWException("Magic word '{$mw->mId}' not found" ); 
+				}
 				$rawEntry = $magicWords[$mw->mId];
 			}
 		}
@@ -1738,14 +1823,14 @@ class Language {
 
 				// Fail fast
 				if ( !file_exists($file) )
-					throw new MWException( 'Aliases file does not exist' );
+					throw new MWException( "Aliases file does not exist: $file" );
 
 				$aliases = array();
 				require($file);
 
 				// Check the availability of aliases
 				if ( !isset($aliases['en']) )
-					throw new MWException( 'Malformed aliases file' );
+					throw new MWException( "Malformed aliases file: $file" );
 
 				// Merge all aliases in fallback chain
 				$code = $this->getCode();
@@ -1755,7 +1840,7 @@ class Language {
 					$aliases[$code] = $this->fixSpecialPageAliases( $aliases[$code] );
 					/* Merge the aliases, THIS will break if there is special page name
 					* which looks like a numerical key, thanks to PHP...
-					* See the comments for wfArrayMerge in GlobalSettings.php. */
+					* See the array_merge_recursive manual entry */
 					$this->mExtendedSpecialPageAliases = array_merge_recursive(
 						$this->mExtendedSpecialPageAliases, $aliases[$code] );
 
@@ -1807,10 +1892,11 @@ class Language {
 	  * </code>
 	  *
 	  * See LanguageGu.php for the Gujarati implementation and
-	  * LanguageIs.php for the , => . and . => , implementation.
+	  * $separatorTransformTable on MessageIs.php for
+	  * the , => . and . => , implementation.
 	  *
 	  * @todo check if it's viable to use localeconv() for the decimal
-	  *       seperator thing.
+	  *       separator thing.
 	  * @param $number Mixed: the string to be formatted, should be an integer
 	  *        or a floating point number.
 	  * @param $nocommafy Bool: set to true for special numbers like dates
@@ -1821,12 +1907,12 @@ class Language {
 		if (!$nocommafy) {
 			$number = $this->commafy($number);
 			$s = $this->separatorTransformTable();
-			if (!is_null($s)) { $number = strtr($number, $s); }
+			if ($s) { $number = strtr($number, $s); }
 		}
 
 		if ($wgTranslateNumerals) {
 			$s = $this->digitTransformTable();
-			if (!is_null($s)) { $number = strtr($number, $s); }
+			if ($s) { $number = strtr($number, $s); }
 		}
 
 		return $number;
@@ -1834,10 +1920,10 @@ class Language {
 
 	function parseFormattedNumber( $number ) {
 		$s = $this->digitTransformTable();
-		if (!is_null($s)) { $number = strtr($number, array_flip($s)); }
+		if ($s) { $number = strtr($number, array_flip($s)); }
 
 		$s = $this->separatorTransformTable();
-		if (!is_null($s)) { $number = strtr($number, array_flip($s)); }
+		if ($s) { $number = strtr($number, array_flip($s)); }
 
 		$number = strtr( $number, array (',' => '') );
 		return $number;
@@ -1865,24 +1951,66 @@ class Language {
 
 
 	/**
-	 * For the credit list in includes/Credits.php (action=credits)
+	 * Take a list of strings and build a locale-friendly comma-separated
+	 * list, using the local comma-separator message.
+	 * The last two strings are chained with an "and".
 	 *
 	 * @param $l Array
 	 * @return string
 	 */
 	function listToText( $l ) {
 		$s = '';
-		$m = count($l) - 1;
-		for ($i = $m; $i >= 0; $i--) {
-			if ($i == $m) {
-				$s = $l[$i];
-			} else if ($i == $m - 1) {
-				$s = $l[$i] . ' ' . $this->getMessageFromDB( 'and' ) . ' ' . $s;
-			} else {
-				$s = $l[$i] . ', ' . $s;
-			}
+		$m = count( $l ) - 1;
+		if( $m == 1 ) {
+			return $l[0] . $this->getMessageFromDB( 'and' ) . $this->getMessageFromDB( 'word-separator' ) . $l[1];
 		}
-		return $s;
+		else {
+			for ( $i = $m; $i >= 0; $i-- ) {
+				if ( $i == $m ) {
+					$s = $l[$i];
+				} else if( $i == $m - 1 ) {
+					$s = $l[$i] . $this->getMessageFromDB( 'and' ) . $this->getMessageFromDB( 'word-separator' ) . $s;
+				} else {
+					$s = $l[$i] . $this->getMessageFromDB( 'comma-separator' ) . $s;
+				}
+			}
+			return $s;
+		}
+	}
+
+	/**
+	 * Take a list of strings and build a locale-friendly comma-separated
+	 * list, using the local comma-separator message.
+	 * @param $list array of strings to put in a comma list
+	 * @return string
+	 */
+	function commaList( $list ) {
+		return implode(
+			$list,
+			wfMsgExt( 'comma-separator', array( 'escapenoentities', 'language' => $this ) ) );
+	}
+
+	/**
+	 * Take a list of strings and build a locale-friendly semicolon-separated
+	 * list, using the local semicolon-separator message.
+	 * @param $list array of strings to put in a semicolon list
+	 * @return string
+	 */
+	function semicolonList( $list ) {
+		return implode(
+			$list,
+			wfMsgExt( 'semicolon-separator', array( 'escapenoentities', 'language' => $this ) ) );
+	}
+
+	/**
+	 * Same as commaList, but separate it with the pipe instead.
+	 * @param $list array of strings to put in a pipe list
+	 * @return string
+	 */
+	function pipeList( $list ) {
+		return implode(
+			$list,
+			wfMsgExt( 'pipe-separator', array( 'escapenoentities', 'language' => $this ) ) );
 	}
 
 	/**
@@ -1900,7 +2028,12 @@ class Language {
 	 * @param $ellipsis String to append to the truncated text
 	 * @return string
 	 */
-	function truncate( $string, $length, $ellipsis = "" ) {
+	function truncate( $string, $length, $ellipsis = '...' ) {
+		# Use the localized ellipsis character
+		if( $ellipsis == '...' ) {
+			$ellipsis = wfMsgExt( 'ellipsis', array( 'escapenoentities', 'language' => $this ) );
+		}
+
 		if( $length == 0 ) {
 			return $ellipsis;
 		}
@@ -1917,7 +2050,7 @@ class Language {
 			} elseif( $char >= 0x80 &&
 			          preg_match( '/^(.*)(?:[\xe0-\xef][\x80-\xbf]|' .
 			                      '[\xf0-\xf7][\x80-\xbf]{1,2})$/', $string, $m ) ) {
-			    # We chopped in the middle of a character; remove it
+				# We chopped in the middle of a character; remove it
 				$string = $m[1];
 			}
 			return $string . $ellipsis;
@@ -1949,6 +2082,22 @@ class Language {
 	}
 
 	/**
+	 * Provides an alternative text depending on specified gender.
+	 * Usage {{gender:username|masculine|feminine|neutral}}.
+	 * username is optional, in which case the gender of current user is used,
+	 * but only in (some) interface messages; otherwise default gender is used.
+	 * If second or third parameter are not specified, masculine is used.
+	 * These details may be overriden per language.
+	 */
+	function gender( $gender, $forms ) {
+		if ( !count($forms) ) { return ''; }
+		$forms = $this->preConvertPlural( $forms, 2 );
+		if ( $gender === 'male' ) return $forms[0];
+		if ( $gender === 'female' ) return $forms[1];
+		return isset($forms[2]) ? $forms[2] : $forms[0];
+	}
+
+	/**
 	 * Plural form transformations, needed for some languages.
 	 * For example, there are 3 form of plural in Russian and Polish,
 	 * depending on "count mod 10". See [[w:Plural]]
@@ -1967,7 +2116,7 @@ class Language {
 		if ( !count($forms) ) { return ''; }
 		$forms = $this->preConvertPlural( $forms, 2 );
 
-		return ( abs($count) == 1 ) ? $forms[0] : $forms[1];
+		return ( $count == 1 ) ? $forms[0] : $forms[1];
 	}
 
 	/**
@@ -2091,10 +2240,12 @@ class Language {
 	 *
 	 * @param $link String: the name of the link
 	 * @param $nt Mixed: the title object of the link
+	 * @param boolean $ignoreOtherCond: to disable other conditions when
+	 *      we need to transclude a template or update a category's link
 	 * @return null the input parameters may be modified upon return
 	 */
-	function findVariantLink( &$link, &$nt ) {
-		$this->mConverter->findVariantLink($link, $nt);
+	function findVariantLink( &$link, &$nt, $ignoreOtherCond = false ) {
+		$this->mConverter->findVariantLink( $link, $nt, $ignoreOtherCond );
 	}
 
 	/**
@@ -2102,7 +2253,6 @@ class Language {
 	 * into an array of all possible variants of the text:
 	 *  'variant' => text in that variant
 	 */
-
 	function convertLinkToAllVariants($text){
 		return $this->mConverter->convertLinkToAllVariants($text);
 	}
@@ -2193,7 +2343,7 @@ class Language {
 	 */
 	static function loadLocalisation( $code, $disableCache = false ) {
 		static $recursionGuard = array();
-		global $wgMemc, $wgCheckSerialized;
+		global $wgMemc, $wgEnableSerializedMessages, $wgCheckSerialized;
 
 		if ( !$code ) {
 			throw new MWException( "Invalid language code requested" );
@@ -2208,16 +2358,18 @@ class Language {
 			wfProfileIn( __METHOD__ );
 
 			# Try the serialized directory
-			$cache = wfGetPrecompiledData( self::getFileName( "Messages", $code, '.ser' ) );
-			if ( $cache ) {
-				if ( $wgCheckSerialized && self::isLocalisationOutOfDate( $cache ) ) {
-					$cache = false;
-					wfDebug( "Language::loadLocalisation(): precompiled data file for $code is out of date\n" );
-				} else {
-					self::$mLocalisationCache[$code] = $cache;
-					wfDebug( "Language::loadLocalisation(): got localisation for $code from precompiled data file\n" );
-					wfProfileOut( __METHOD__ );
-					return self::$mLocalisationCache[$code]['deps'];
+			if( $wgEnableSerializedMessages ) {
+				$cache = wfGetPrecompiledData( self::getFileName( "Messages", $code, '.ser' ) );
+				if ( $cache ) {
+					if ( $wgCheckSerialized && self::isLocalisationOutOfDate( $cache ) ) {
+						$cache = false;
+						wfDebug( "Language::loadLocalisation(): precompiled data file for $code is out of date\n" );
+					} else {
+						self::$mLocalisationCache[$code] = $cache;
+						wfDebug( "Language::loadLocalisation(): got localisation for $code from precompiled data file\n" );
+						wfProfileOut( __METHOD__ );
+						return self::$mLocalisationCache[$code]['deps'];
+					}
 				}
 			}
 
@@ -2261,6 +2413,12 @@ class Language {
 			$cache = compact( self::$mLocalisationKeys );
 			wfDebug( "Language::loadLocalisation(): got localisation for $code from source\n" );
 		}
+		
+		# Load magic word source file
+		global $IP;
+		$filename = "$IP/includes/MagicWord.php";
+		$newDeps = array( $filename => filemtime( $filename ) );
+		$deps = array_merge( $deps, $newDeps );
 
 		if ( !empty( $fallback ) ) {
 			# Load the fallback localisation, with a circular reference guard
@@ -2336,6 +2494,10 @@ class Language {
 		if ( !is_array( $cache ) ) {
 			self::loadLocalisation( $cache );
 			$cache = self::$mLocalisationCache[$cache];
+		}
+		// At least one language file and the MagicWord file needed
+		if( count($cache['deps']) < 2 ) {
+			return true;
 		}
 		$expired = false;
 		foreach ( $cache['deps'] as $file => $mtime ) {
@@ -2431,16 +2593,8 @@ class Language {
 			$this->namespaceNames[NS_PROJECT_TALK] = $wgMetaNamespaceTalk;
 		} else {
 			$talk = $this->namespaceNames[NS_PROJECT_TALK];
-			$talk = str_replace( '$1', $wgMetaNamespace, $talk );
-
-			# Allow grammar transformations
-			# Allowing full message-style parsing would make simple requests 
-			# such as action=raw much more expensive than they need to be. 
-			# This will hopefully cover most cases.
-			$talk = preg_replace_callback( '/{{grammar:(.*?)\|(.*?)}}/i', 
-				array( &$this, 'replaceGrammarInNamespace' ), $talk );
-			$talk = str_replace( ' ', '_', $talk );
-			$this->namespaceNames[NS_PROJECT_TALK] = $talk;
+			$this->namespaceNames[NS_PROJECT_TALK] =
+				$this->fixVariableInNamespace( $talk );
 		}
 		
 		# The above mixing may leave namespaces out of canonical order.
@@ -2457,6 +2611,11 @@ class Language {
 		}
 		if ( $this->namespaceAliases ) {
 			foreach ( $this->namespaceAliases as $name => $index ) {
+				if ( $index === NS_PROJECT_TALK ) {
+					unset( $this->namespaceAliases[$name] );
+					$name = $this->fixVariableInNamespace( $name );
+					$this->namespaceAliases[$name] = $index;
+				}
 				$this->mNamespaceIds[$this->lc($name)] = $index;
 			}
 		}
@@ -2470,6 +2629,21 @@ class Language {
 			$this->defaultDateFormat = $wgAmericanDates ? 'mdy' : 'dmy';
 		}
 		wfProfileOut( __METHOD__ );
+	}
+
+	function fixVariableInNamespace( $talk ) {
+		if ( strpos( $talk, '$1' ) === false ) return $talk;
+
+		global $wgMetaNamespace;
+		$talk = str_replace( '$1', $wgMetaNamespace, $talk );
+
+		# Allow grammar transformations
+		# Allowing full message-style parsing would make simple requests 
+		# such as action=raw much more expensive than they need to be. 
+		# This will hopefully cover most cases.
+		$talk = preg_replace_callback( '/{{grammar:(.*?)\|(.*?)}}/i', 
+			array( &$this, 'replaceGrammarInNamespace' ), $talk );
+		return str_replace( ' ', '_', $talk );
 	}
 
 	function replaceGrammarInNamespace( $m ) {

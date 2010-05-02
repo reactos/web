@@ -9,7 +9,9 @@ if( !defined( 'MEDIAWIKI' ) ) {
 }
 
 /**
- * @todo document
+ * Handle responses for Ajax requests (send headers, print
+ * content, that sort of thing)
+ * 
  * @ingroup Ajax
  */
 class AjaxResponse {
@@ -20,7 +22,7 @@ class AjaxResponse {
 	/** HTTP header Content-Type */
 	private $mContentType;
 
-	/** @todo document */
+	/** Disables output. Can be set by calling $AjaxResponse->disable() */
 	private $mDisabled;
 
 	/** Date for the HTTP header Last-modified */
@@ -43,7 +45,7 @@ class AjaxResponse {
 		$this->mText = '';
 		$this->mResponseCode = '200 OK';
 		$this->mLastModified = false;
-		$this->mContentType= 'text/html; charset=utf-8';
+		$this->mContentType= 'application/x-wiki';
 
 		if ( $text ) {
 			$this->addText( $text );
@@ -176,6 +178,7 @@ class AjaxResponse {
 			wfDebug( "$fname: -- client send If-Modified-Since: " . $modsince . "\n", false );
 			wfDebug( "$fname: --  we might send Last-Modified : $lastmod\n", false );
 			if( ($ismodsince >= $timestamp ) && $wgUser->validateCache( $ismodsince ) && $ismodsince >= $wgCacheEpoch ) {
+				ini_set('zlib.output_compression', 0);
 				$this->setResponseCode( "304 Not Modified" );
 				$this->disable();
 				$this->mLastModified = $lastmod;

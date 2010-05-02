@@ -1,11 +1,17 @@
 <?php
 /** Tarifit (Tarifit)
  *
+ * See MessagesQqq.php for message documentation incl. usage of parameters
+ * To improve a translation please visit http://translatewiki.net
+ *
  * @ingroup Language
  * @file
  *
  * @author Agzennay
+ * @author Aryaz
+ * @author Dalinanir
  * @author Jose77
+ * @author Urhixidur
  */
 
 $messages = array(
@@ -17,151 +23,155 @@ $messages = array(
 'thu'           => 'Akwas',
 'fri'           => 'Asimwas',
 'sat'           => 'Asiḍyas',
-'january'       => 'Yannayer',
-'february'      => 'Yebrayer',
+'january'       => 'Ynnayr',
+'february'      => 'Ybrayr',
 'march'         => 'Mars',
-'april'         => 'Yebrir',
-'may_long'      => 'Mayu',
+'april'         => 'Ibrir',
+'may_long'      => 'May',
 'june'          => 'Yunyu',
-'july'          => 'Yulyu',
-'august'        => 'ɣuct',
+'july'          => 'Yulyuz',
+'august'        => 'Ghuct',
 'september'     => 'Cutanbir',
-'october'       => 'Ktubr',
+'october'       => 'Ktubar',
 'november'      => 'Nuwanbir',
 'december'      => 'Dujanbir',
-'january-gen'   => 'Yannayer',
-'february-gen'  => 'Yebrayer',
+'january-gen'   => 'Ynnayr',
+'february-gen'  => 'Ybrayr',
 'march-gen'     => 'Mars',
-'april-gen'     => 'Yebrir',
-'may-gen'       => 'Mayu',
+'april-gen'     => 'Ibrir',
+'may-gen'       => 'May',
 'june-gen'      => 'Yunyu',
-'july-gen'      => 'Yulyu',
-'august-gen'    => 'ɣuct',
+'july-gen'      => 'Yulyuz',
+'august-gen'    => 'Ghuct',
 'september-gen' => 'Cutanbir',
-'october-gen'   => 'Ktubr',
+'october-gen'   => 'Ktubar',
 'november-gen'  => 'Nuwanbir',
 'december-gen'  => 'Dujanbir',
-'jan'           => 'Yannayer',
-'feb'           => 'Yebrayer',
+'jan'           => 'Ynnayr',
+'feb'           => 'Ybrayr',
 'mar'           => 'Mars',
-'apr'           => 'Yebrir',
-'may'           => 'Mayu',
+'apr'           => 'Ybrir',
+'may'           => 'May',
 'jun'           => 'Yunyu',
-'jul'           => 'Yulyu',
-'aug'           => 'ɣuct',
+'jul'           => 'Yulyuz',
+'aug'           => 'Ghuct',
 'sep'           => 'Cutanbir',
-'oct'           => 'Ktubr',
+'oct'           => 'Ktubar',
 'nov'           => 'Nuwanbir',
 'dec'           => 'Dujanbir',
 
 # Categories related messages
-'category_header'        => 'Tasna di Taggayt "$1"',
+'category_header'        => 'Tasniwin di taggayt "$1"',
 'subcategories'          => 'Tadu-ggayin',
 'category-media-header'  => 'Media di category "$1"',
 'category-empty'         => "''Taggayt a war dags bu ca n Tasna niɣ ca n umedia.''",
-'listingcontinuesabbrev' => 'Amesedfar.',
+'listingcontinuesabbrev' => 'arni-d.',
 
 'about'          => 'Xef',
 'newwindow'      => '(Areẓm di tburjet d-tamaynut)',
-'cancel'         => 'ur tegg ca',
-'qbfind'         => 'Aff',
+'cancel'         => 'Sbdd',
+'qbfind'         => 'Af',
 'qbedit'         => 'Ẓṛeg',
 'qbspecialpages' => 'Tudmawin Special',
-'mytalk'         => 'Asiwl inu',
-'navigation'     => 'Asari',
+'mytalk'         => 'Amsawal inu',
+'navigation'     => 'Tagriwa',
 
 'errorpagetitle'   => 'Anezri',
-'returnto'         => 'Dwal ɣar $1.',
+'returnto'         => 'Dwl ghar $1.',
 'tagline'          => 'Zi {{SITENAME}}',
 'help'             => 'Tallalt',
-'search'           => 'Tarezzut',
-'searchbutton'     => 'Tarezzut',
+'search'           => 'Tarzzut',
+'searchbutton'     => 'Rzu',
 'go'               => 'Raḥ ɣa',
-'searcharticle'    => 'Raḥ',
+'searcharticle'    => 'Uyur',
 'history'          => 'Amzruy n Tasna',
 'history_short'    => 'Amzruy',
-'printableversion' => 'Tunɣilt n usiggez',
-'permalink'        => 'Tazdayt war tbeddil',
-'edit'             => 'Ẓṛeg',
-'editthispage'     => 'Ẓṛeg Tasna ya',
-'delete'           => 'Kkes',
-'protect'          => 'ẓarq',
+'printableversion' => 'Tanghlt n usiggz',
+'permalink'        => 'Tamghunt iqqimn',
+'edit'             => 'Ẓṛg',
+'create'           => 'Egg',
+'editthispage'     => 'Ẓṛg tasna ya',
+'delete'           => 'Kks',
+'protect'          => 'Mstn',
 'newpage'          => 'Tasna d-tamaynut',
-'talkpage'         => 'siwl x Tasna ya',
+'talkpage'         => 'Siwl xf tasna ya',
 'talkpagelinktext' => 'Awal',
-'personaltools'    => 'imassen inu',
-'talk'             => 'Asiwl',
-'views'            => 'Tiẓritin',
-'toolbox'          => 'imassen',
-'redirectedfrom'   => '(i twassek-ad zi $1)',
+'personaltools'    => 'Imassn inu',
+'talk'             => 'siwl',
+'views'            => 'Timmẓṛa',
+'toolbox'          => 'Tanakat n imassn',
+'otherlanguages'   => 'S tutlayin nnḍni',
+'redirectedfrom'   => '(Itwasnnmd-d zi $1)',
 'redirectpagesub'  => 'Tasna n (Redirect)',
-'jumpto'           => 'Ndu ɣar:',
-'jumptonavigation' => 'Asari',
-'jumptosearch'     => 'tarezzut',
+'jumpto'           => 'Nḍu ghar:',
+'jumptonavigation' => 'tagriwa',
+'jumptosearch'     => 'tarzzut',
 
 # All link text and link target definitions of links into project namespace that get used by other message strings, with the exception of user group pages (see grouppage) and the disambiguation template definition (see disambiguations).
-'aboutsite'            => 'Xef {{SITENAME}}',
-'aboutpage'            => 'Project:Xef',
-'bugreports'           => 'ina-neɣ x ca n (Bug)',
-'bugreportspage'       => 'Project:ina-neɣ x ca n (Bug)',
+'aboutsite'            => 'Awal xf {{SITENAME}}',
+'aboutpage'            => 'Project:Awal xf',
 'copyrightpage'        => '{{ns:project}}:izrefan ussenɣel',
 'currentevents'        => 'Mayn itemsaren rux',
 'currentevents-url'    => 'Project:mayn itmesaren ruxa',
-'disclaimers'          => 'ismigilen',
-'disclaimerpage'       => 'Project:Asmigl n umatu',
+'disclaimers'          => 'Ismigiln',
+'disclaimerpage'       => 'Project:Asmigl amatu',
 'edithelp'             => 'Tallalt deg uẓareg',
 'edithelppage'         => 'Help:Aẓareg',
-'helppage'             => 'Help:Contents',
+'helppage'             => 'Help:tallalt',
 'mainpage'             => 'Tasna Tamzwarut',
 'mainpage-description' => 'Tasna Tamzwarut',
 'portal'               => 'Tawwart n timetti',
 'portal-url'           => 'Project:tawwart n timetti',
-'privacy'              => 'Tasertit taslgant',
-'privacypage'          => 'Project:Tasertit taslgant',
+'privacy'              => 'Tasrtit n tusligi',
+'privacypage'          => 'Project:Tasrtit n tusligi',
 
-'retrievedfrom'       => 'itwar-d zi "$1"',
-'youhavenewmessages'  => 'ɣak $1 ($2).',
+'retrievedfrom'       => 'Itwarr-d zi "$1"',
+'youhavenewmessages'  => 'Ghar-k / Ghar-m $1 ($2).',
 'newmessageslink'     => 'tibratin timaynutin',
 'newmessagesdifflink' => 'Taẓṛigt tanggarut',
-'editsection'         => 'Ẓṛeg',
+'editsection'         => 'Ẓṛg',
 'editold'             => 'ẓṛeg',
-'editsectionhint'     => 'Ẓṛeg tigezmi: $1',
-'toc'                 => 'Contents',
-'showtoc'             => 'Ẓar',
+'editlink'            => 'ẓṛg',
+'viewsourcelink'      => 'ẓṛ aghbalu',
+'editsectionhint'     => 'Ẓṛg tigzmi: $1',
+'toc'                 => 'Iktturn',
+'showtoc'             => 'sskn-d',
 'hidetoc'             => 'snuffar',
-'site-rss-feed'       => 'Asudem n RSS n $1',
-'site-atom-feed'      => 'Asudem n Atom n $1',
+'site-rss-feed'       => 'Tilgha n RSS n $1',
+'site-atom-feed'      => 'Talghut n Atom n $1',
 'page-rss-feed'       => 'Asudem n RSS n "$1"',
+'red-link-title'      => '$1 (tasna ur tlli)',
 
 # Short words for each namespace, by default used in the namespace tab in monobook
+'nstab-main'     => 'Tasna',
 'nstab-user'     => 'Tasna n User',
 'nstab-project'  => 'Tasna usenfar',
-'nstab-image'    => 'Afaylu',
-'nstab-template' => 'Tamudemt',
+'nstab-image'    => 'Asatul',
+'nstab-template' => 'Tamudmt',
 'nstab-category' => 'Taggayt(category)',
 
 # General errors
 'badtitle'       => 'isem war icni ca',
 'badtitletext'   => 'Isem n Tasna itexised war icni ca, ixwa, niɣ  isem n ajar-tutlayt niɣ ajar-wiki war icni ca.
 teqqad ad yilli days ca n usekkil war itwagg deg isem .',
-'viewsource'     => 'Ẓar aɣbal',
+'viewsource'     => 'Ẓṛ aghbalu',
 'viewsourcefor'  => 'i $1',
 'viewsourcetext' => 'Tzemred a tẓerd u atsneɣled aɣbal n Tasna ya :',
 
 # Login and logout pages
-'yourname'                => 'isem useqdac:',
-'yourpassword'            => 'Taguri n wadaf:',
+'yourname'                => 'Izwl-usqdac:',
+'yourpassword'            => 'Tawalt n wadaf:',
 'remembermypassword'      => 'ejj (login) inu deg uselkim a',
-'login'                   => 'Adeff',
-'nav-login-createaccount' => 'Adeff / egg amiḍan',
-'loginprompt'             => "itxessa ad-teṭfed (''cookies'') bac [[Special:UserLogin|ad tadfed ɣar {{SITENAME}}]].",
-'userlogin'               => 'Adeff / egg amiḍan',
-'logout'                  => 'Ffeɣ',
-'userlogout'              => 'Ffeɣ',
-'nologin'                 => 'war ɣark login? $1.',
+'login'                   => 'Adf',
+'nav-login-createaccount' => 'Adf / egg amiḍan',
+'loginprompt'             => "itxessa ad-teṭfed (''cookies'') bac ad tadfed ɣar {{SITENAME}}.",
+'userlogin'               => 'Adf / egg amiḍan',
+'logout'                  => 'Ufugh',
+'userlogout'              => 'Ufugh',
+'nologin'                 => "war ɣark login? '''$1'''.",
 'nologinlink'             => 'Egg amiḍan',
 'createaccount'           => 'Egg amiḍan',
-'gotaccount'              => 'ɣark  amiḍan? $1.',
+'gotaccount'              => "ɣark  amiḍan? '''$1'''.",
 'gotaccountlink'          => 'Adeff',
 'yourrealname'            => 'isem n deṣṣaḥ :',
 'prefs-help-realname'     => 'isem inec n deṣṣaḥ mala txesad waha .
@@ -183,7 +193,7 @@ itxessat ad di-s tili {{PLURAL:$1|1 usekkil|$1 isekkilen}} u ad tili temṣebda 
 inna neɣ ada-s-ad nesekk Taguri n wadaf tamaynut i {{SITENAME}} ($4).
 Taguri n wadaf n useqdac "$2" ruxa d "$3".
 ixessa ad tadeffed bac ad tbeddeled ruxa.
-
+ɣar {{PLURAL:$5|one day|$5 days}} at sala taguri n wadaf tamaynut .
 mala war illi d cekk ur tawi x manaya , qim sexdam Taguri n wadaf inecc taqburt.',
 'noemail'                 => 'War illi ca n e-mail ɣar useqdac a "$1".',
 'passwordsent'            => 'Taguri n wadaf tamaynut twassekked i e-mail  "$1".
@@ -191,11 +201,14 @@ adeff-d xmi ɣa teṭfed.',
 'eauthentsent'            => 'ijj n e-mail itwasekked ɣar e-mail nni.
 zzat ma ca n e-mail nniḍen ma ad itwasekk ɣar umiḍan , ixessa ad tegged manayenni di e-mail, bac ad nessen ila qa amiḍan a inec.',
 
+# Password reset dialog
+'retypenew' => 'Ɛawd arri Taguri n wadaf tamaynut:',
+
 # Edit page toolbar
 'bold_sample'     => 'Tirra tizurarin',
-'bold_tip'        => 'Tirra tizurarin',
+'bold_tip'        => 'Tira tizurarin',
 'italic_sample'   => 'Tirra titalyanin',
-'italic_tip'      => 'Tirra titalyanin',
+'italic_tip'      => 'Tira ifrghn.',
 'link_sample'     => 'isem n tzedayt',
 'link_tip'        => 'Tazdayt n dixl',
 'extlink_sample'  => 'http://www.example.com isem n tezdayt',
@@ -212,17 +225,17 @@ zzat ma ca n e-mail nniḍen ma ad itwasekk ɣar umiḍan , ixessa ad tegged man
 'hr_tip'          => 'Acariḍ aglawan',
 
 # Edit pages
-'summary'                => 'Tagḍwit',
-'subject'                => 'Subject/headline',
+'summary'                => 'Tagḍwit:',
+'subject'                => 'Abatu/izwl:',
 'minoredit'              => 'Ta d taẓrigt d-tamẓeyant',
-'watchthis'              => 'Ẓar Tasna ya',
-'savearticle'            => 'Ḥaḍ Tasna',
+'watchthis'              => 'Ḥḍa tasna ya',
+'savearticle'            => 'Xmml tasna',
 'preview'                => 'Azar-ascan',
 'showpreview'            => 'Ẓar Azar-ascan',
 'showdiff'               => 'Ẓar mayn teẓṛegd.',
 'anoneditwarning'        => "'''ɣark:''' war tudifd ca s isem inec.
 Tansa n IP inac ad-teqqim deg umezruy n teẓṛigin n Tasna ya .",
-'summary-preview'        => 'Azar-ascan n Tegḍwit',
+'summary-preview'        => 'Azar-ascan n Tegḍwit:',
 'blockedtext'            => "<big>'''Isem useqdac niɣ tansa IP inecc tewabluca  .'''</big>
 
 iblocat  $1.
@@ -240,19 +253,22 @@ maṛṛa manaya deg ujenna eggit di tabrat i ɣ-ad tsekked.",
 'newarticletext'         => "Tdefar-d tazdayt n Tasna εad war telli .
 bac ad tegged , arri di taflwit a swadday (xemm i [[{{MediaWiki:Helppage}}| Tasna n Tallalt]] i ineɣmisen ifruryen).
 mala qacek da s ɣalaṭ waha, tecca di tbutunt n '''deffar''' di (browser) inec .",
-'noarticletext'          => 'walu tirra di Tasna ya , tzemred [[Special:Search/{{PAGENAME}}|a tarzud isem n Tasna ya]] di Tasniwin nniḍn niɣ [{{fullurl:{{FULLPAGENAME}}|action=edit}} egg Tasna ya cek].',
-'previewnote'            => '<strong>Wa d Azar-ascan waha;
-tiẓṛigin εad war twaḥḍent!</strong>',
+'noarticletext'          => 'Rxxu ur din llint ca tira di tasna ya.
+Tzmmard [[Special:Search/{{PAGENAME}}|rzu xf yizwl n tasna ya]] di tasniwin nnḍni,
+<span class="plainlinks">[{{fullurl:{{#Special:Log}}|page={{FULLPAGENAMEE}}}} search the related logs],
+nigh [{{fullurl:{{FULLPAGENAME}}|action=edit}} edit this page]</span>.',
+'previewnote'            => "'''Wa d Azar-ascan waha;
+tiẓṛigin εad war twaḥḍent!'''",
 'editing'                => 'Aẓṛag di $1',
 'editingsection'         => 'Aẓrag  di $1 (tigezmi)',
-'copyrightwarning'       => 'Maṛṛa tirra di {{SITENAME}} twaggent swadday i $2 (ẓar da $1).
+'copyrightwarning'       => "Maṛṛa tirra di {{SITENAME}} twaggent swadday i $2 (ẓar da $1).
 mala war texsed tirra inac ad twaẓṛegent , ad twamsebḍant .
 Ur ten-teg ca da.<br />
 tjadjid-anɣ Ɛawt ila qa d cekk ig yuran manaya, niɣ tesneɣlet-id zi ca n uɣbal nniḍn d alelli.
-<strong>UR SADDAF CA TIRRA ƔARSENT COPYRIGHTE BLA MA AD-IXES BAB-INES !</strong>',
-'longpagewarning'        => '<strong>WARNING: Tasna ya dag-s $1 kilobyte ;
-ca n imsuṭṭuyen(browsers) war zemren ca ad ẓṛegen tasniwin dag-sent 32kb niɣ ktar.
-ixessa ad ten tebḍid ɣar tigezmin(sections) d timeẓyanin.</strong>',
+'''UR SADDAF CA TIRRA ƔARSENT COPYRIGHTE BLA MA AD-IXES BAB-INES !'''",
+'longpagewarning'        => "'''WARNING: Tasna ya dag-s $1 kilobyte ;
+ca n imsuṭṭuyen(browsers) war zemren ca ad ẓṛegen tasniwin dag-sent 32 kb niɣ ktar.
+ixessa ad ten tebḍid ɣar tigezmin(sections) d timeẓyanin.'''",
 'templatesused'          => 'Timudmiwin itwaggen di Tasna ya:',
 'templatesusedpreview'   => 'Timudmiwin igg itwasxdemen dg uzar-ascan a :',
 'template-protected'     => '(twaḥḍa)',
@@ -264,56 +280,70 @@ tzemred addewred ɣar deffar, niɣ [[Special:UserLogin|Adeff niɣ egg amiḍan]]
 Ẓar aɣmis n umzruy n usfad n Tasna ya bac ad tsenad ma mliḥ ad tkemled aẓṛag.",
 
 # History pages
-'viewpagelogs'        => 'Ẓar aɣmis n Tasna ya',
-'currentrev'          => 'Afegged n ruxa',
-'revisionasof'        => 'Affegged am $1',
-'revision-info'       => 'Afegged am $1 s $2',
-'previousrevision'    => '←Affegged n zik/zic',
-'nextrevision'        => 'Afegged d amaynu→',
-'currentrevisionlink' => 'Afegged n rux',
-'cur'                 => 'N ruxa',
-'last'                => 'anggaru',
-'page_first'          => 'amzwaru',
-'page_last'           => 'anggaru',
-'histlegend'          => 'imṣebḍiyen: Sti(ixter) tibuttonin a ɣar wadday n tunɣilin n Tasna bac ad tsmzazal(compare).<br />
+'viewpagelogs'           => 'Ẓar aɣmis n Tasna ya',
+'currentrev'             => 'Afegged n ruxa',
+'revisionasof'           => 'Affegged am $1',
+'revision-info'          => 'Afegged am $1 s $2', # Additionally available: $3: revision id
+'previousrevision'       => '←Affegged n zik/zic',
+'nextrevision'           => 'Afegged d amaynu→',
+'currentrevisionlink'    => 'Afegged n rux',
+'cur'                    => '',
+'last'                   => 'anggaru',
+'page_first'             => 'amzwaru',
+'page_last'              => 'anggaru',
+'histlegend'             => 'imṣebḍiyen: Sti(ixter) tibuttonin a ɣar wadday n tunɣilin n Tasna bac ad tsmzazal(compare).<br />
 Tasarut: (cur) = imṣebḍiyen ag tunɣilt n ruxa,
 (last) = imṣebḍiyen ag tunɣilt n zik, M = taẓrigt d-tamẓeyant.',
-'histfirst'           => 'Amzwaru qaε',
-'histlast'            => 'Anggaru qaε',
+'history-fieldset-title' => 'Amzruy n min tẓṛid',
+'histfirst'              => 'Amzwaru n marra',
+'histlast'               => 'Anggaru n marra',
 
 # Revision feed
 'history-feed-item-nocomment' => '$1 ɣar $2', # user at time
+
+# Revision deletion
+'rev-delundel' => 'skn/ffr',
 
 # Diffs
 'history-title'           => 'Amezruy n ufegged n "$1"',
 'difference'              => '(Amsebḍi jar ifeggiden)',
 'lineno'                  => 'Tabrit $1:',
 'compareselectedversions' => 'Smequdda tunɣilin a',
-'editundo'                => 'Dwel',
+'editundo'                => 'kks min ggigh',
 'diff-multi'              => '({{PLURAL:$1|ijj n ufegged|$1 ifeggiden}} war ad twamlen ca.)',
 
 # Search results
-'noexactmatch' => "'''war telli ca n Tasna qarn-as \"\$1\".'''
+'searchresults'             => 'Tifllawin n tarzzut',
+'searchresults-title'       => 'Tifllawin n tarzzut xf "$1"',
+'searchsubtitle'            => 'Trzud xf \'\'\'[[:$1]]\'\'\' ([[Special:Prefixindex/$1|marra tasniwin issntan s "$1"]]{{int:pipe-separator}}[[Special:WhatLinksHere/$1|marra tasniwin itqqnen ghar "$1"]])',
+'noexactmatch'              => "'''war telli ca n Tasna qarn-as \"\$1\".'''
 tzemred ad [[:\$1|tarnid cek]].",
-'prevn'        => 'zzat $1',
-'nextn'        => 'deffar $1',
-'viewprevnext' => 'Ẓar ($1) ($2) ($3)',
-'searchall'    => 'maṛṛa',
-'powersearch'  => 'Tarezzut cwa-cway',
+'prevn'                     => 'zzat $1',
+'nextn'                     => 'deffar $1',
+'viewprevnext'              => 'Ẓar ($1) ($2) ($3)',
+'search-result-size'        => '$1 ({{PLURAL:$2|1 tawalt|$2 tiwalin}})',
+'search-suggest'            => 'Ttugha txsd a tinid: $1',
+'search-interwiki-caption'  => 'Awmatn n usnfar',
+'search-interwiki-more'     => '(ujar)',
+'search-mwsuggest-enabled'  => 's isumurn',
+'search-mwsuggest-disabled' => 'walu isumurn',
+'searchall'                 => 'maṛṛa',
+'powersearch'               => 'Tarzzut tanmhazt',
+'powersearch-legend'        => 'Tarzzut tanmhazt',
 
 # Preferences page
-'preferences'       => 'Isemyifiyen',
+'preferences'       => 'Ismyifiyn',
 'mypreferences'     => 'Isemyifiyen inu',
-'retypenew'         => 'Ɛawd arri Taguri n wadaf tamaynut:',
 'searchresultshead' => 'Tarzzut',
 
 # Groups
-'group-all' => '(maṛṛa)',
+'group-sysop' => 'Indbaln',
+'group-all'   => '(maṛṛa)',
 
 'grouppage-sysop' => '{{ns:project}}:inedbalen',
 
 # User rights log
-'rightslog' => 'Aɣmis n izerfan n useqdac',
+'rightslog' => 'Aghmis n talghut n izrfan n usqdac',
 
 # Recent changes
 'nchanges'                       => '$1 {{PLURAL:$1|tiẓṛegt|tiẓṛigin}}',
@@ -330,7 +360,7 @@ tzemred ad [[:\$1|tarnid cek]].",
 'rcshowhidemine'                 => '$1 tiẓṛigin inu',
 'rclinks'                        => 'Ẓar $1 tiẓṛigin tinggura di $2 n ussan inggura <br />$3',
 'diff'                           => 'imṣebḍan',
-'hist'                           => 'Amezruy',
+'hist'                           => 'Amzruy',
 'hide'                           => 'Snuffar',
 'show'                           => 'smmel-ad',
 'minoreditletter'                => 'm',
@@ -338,14 +368,15 @@ tzemred ad [[:\$1|tarnid cek]].",
 'boteditletter'                  => 'b',
 
 # Recent changes linked
-'recentchangeslinked'          => 'Tiẓṛigin ag ta',
+'recentchangeslinked'          => 'Isnfiln udsn wa',
 'recentchangeslinked-title'    => 'Tiẓṛigin ssaɣant-id ɣar "$1"',
 'recentchangeslinked-noresult' => 'War llint ca n tiẓṛigin di Tasna ya di lwaqt id-tucid .',
-'recentchangeslinked-summary'  => "Ta d Tabdart n tirra itwaggen εad mamk di Tasna id-izedyen zeg ijjen n Tasna nniḍn (niɣ iwdan zi category nniḍn).
-Tasniwin di [[Special:Watchlist|Tabdart uḥṭṭu inec]] d '''tizurarin'''.",
+'recentchangeslinked-summary'  => "Ta d tabdart n isnfiln itwaggn drus zggwami di tasniwin id-iqqnen zg ict tasna nniḍn (nigh iqqnen ghar iwdan zi ca n taggayt).
+Tasniwin di [[Special:Watchlist|your watchlist]] d '''tizurarin'''.",
+'recentchangeslinked-page'     => 'Izwl n tasna:',
 
 # Upload
-'upload'            => 'Zdem-d afaylu',
+'upload'            => 'Zdm-d asatul',
 'uploadbtn'         => 'Zdem-d afaylu',
 'uploadlogpage'     => 'Zdem-d aɣmis',
 'filedesc'          => 'Asgbr',
@@ -353,15 +384,15 @@ Tasniwin di [[Special:Watchlist|Tabdart uḥṭṭu inec]] d '''tizurarin'''.",
 'uploadedimage'     => 'itwazdem-d "[[$1]]"',
 'watchthisupload'   => 'Xm tasbtirt a',
 
-# Special:ImageList
-'imagelist' => 'Tabdart n ifayluten',
+# Special:ListFiles
+'listfiles' => 'Tabdart n ifayluten',
 
-# Image description page
-'filehist'                  => 'Amzruy n ufaylu',
+# File description page
+'filehist'                  => 'Amzruy n usatul',
 'filehist-help'             => 'Tka di date/time bac ad tẓerd afaylu mamec ja d-itban di Lwaqt a .',
 'filehist-deleteone'        => 'sfaḍ',
-'filehist-current'          => 'Lux a',
-'filehist-datetime'         => 'Azemz/Akud',
+'filehist-current'          => 'aturaw',
+'filehist-datetime'         => 'Azmz/Akud',
 'filehist-user'             => 'Aseqdac',
 'filehist-dimensions'       => 'Tisektiwin',
 'filehist-filesize'         => 'Tiddi n ufaylu',
@@ -369,9 +400,9 @@ Tasniwin di [[Special:Watchlist|Tabdart uḥṭṭu inec]] d '''tizurarin'''.",
 'imagelinks'                => 'Tizdayin',
 'linkstoimage'              => '{{PLURAL:$1|Tasna ya teqn-ad|$1 Tasniwin a qnent-id}} ɣa ufaylu ya :',
 'nolinkstoimage'            => 'war telli ca n Tasna teqqen-d ɣa ufaylu ya.',
-'sharedupload'              => 'Wa d ijj ufaylu itwacrec jar aṭṭas n isenfaren(projects).',
+'sharedupload'              => 'Wa d ijj ufaylu itwacrec jar aṭṭas n isenfaren(projects).', # $1 is the repo name, $2 is shareduploadwiki(-desc)
 'noimage'                   => 'war illi ca n ufaylu s isem a , tzemred ad $1.',
-'noimage-linktext'          => 'Zdem-it-id',
+'noimage-linktext'          => 'Zdem d ijj',
 'uploadnewversion-linktext' => 'Zdem-d tunɣilt d-tamaynut n ufaylu a',
 
 # File deletion
@@ -435,32 +466,36 @@ Tasniwin di [[Special:Watchlist|Tabdart uḥṭṭu inec]] d '''tizurarin'''.",
 'listusers'               => 'Tabdart n iseqdacen',
 'newpages'                => 'Tasniwin timaynutin',
 'ancientpages'            => 'Tasniwin n zik qqaε',
-'move'                    => 'Snaql',
-'movethispage'            => 'snaql Tasna ya',
+'move'                    => 'Smutti',
+'movethispage'            => 'Smutti tasna ya',
+'pager-newer-n'           => '{{PLURAL:$1|amynu 1|amynu $1}}',
+'pager-older-n'           => '{{PLURAL:$1|aqbur 1|aqbur $1}}',
 
 # Book sources
-'booksources'    => 'iɣbalen n udlis',
-'booksources-go' => 'Raḥ ɣa',
+'booksources'    => 'Ighbula n udlis',
+'booksources-go' => 'Uyur',
 
 # Special:Log
 'specialloguserlabel'  => 'Aseqdac:',
 'speciallogtitlelabel' => 'isem:',
 'log'                  => 'Aɣmis',
 'all-logs-page'        => 'Maṛṛa iɣmisen',
-'log-search-submit'    => 'Raḥ ɣa',
 
 # Special:AllPages
-'allpages'       => 'Maṛṛa Tasniwin',
+'allpages'       => 'Marra tasniwin',
 'alphaindexline' => '$1 ɣa $2',
 'nextpage'       => 'Tasna zzat ($1)',
 'prevpage'       => 'Tasna zzat ($1)',
 'allpagesfrom'   => 'Scan-d Tasniwin beddant zi:',
-'allarticles'    => 'Maṛṛa Tasniwin',
-'allpagessubmit' => 'Raḥ ɣa',
+'allarticles'    => 'Marra tasniwin',
+'allpagessubmit' => 'Uyur',
 'allpagesprefix' => 'Ẓar Tasniwin s usekkil amzwaru:',
 
 # Special:Categories
 'categories' => 'Taggayin',
+
+# Special:LinkSearch
+'linksearch-ok' => 'Tarzzut',
 
 # Special:ListUsers
 'listusers-submit' => 'Smmrad',
@@ -469,53 +504,55 @@ Tasniwin di [[Special:Watchlist|Tabdart uḥṭṭu inec]] d '''tizurarin'''.",
 'emailuser' => 'Ssek E-mail i bnadm a',
 
 # Watchlist
-'watchlist'            => 'Tabdart uḥṭṭu inu',
-'mywatchlist'          => 'Tabdart uḥṭṭu inu',
-'watchlistfor'         => "(i '''$1''')",
-'addedwatch'           => 'Temmarni ɣar Tabdart uḥṭṭu',
-'addedwatchtext'       => 'Tasna "[[:$1]]" Temmarni ɣar [[Special:Watchlist|Tabdart uḥṭṭu]].',
-'removedwatch'         => 'twakkes zi Tabdart uḥṭṭu',
-'removedwatchtext'     => 'Tasna "[[:$1]]" twakkes zi [[Special:Watchlist|Tabdart uḥṭṭu inec]].',
-'watch'                => 'Ẓar',
-'watchthispage'        => 'Ẓar Tasna ya',
-'unwatch'              => 'War-twaẓer',
-'watchlist-details'    => '{{PLURAL:$1|$1 n Tasniwin|$1 n Tasniwin}} Twaẓrent bla Tasniwin n usiwl.',
-'wlshowlast'           => 'Sseml-ad $1 tisεεatin $2 ussan $3 inggura',
-'watchlist-hide-bots'  => 'Snuffar tiẓṛigin n urobot',
-'watchlist-hide-own'   => 'Snuffar tiẓṛigin inu',
-'watchlist-hide-minor' => 'Snuffar tiẓṛigin timeẓyanin',
+'watchlist'         => 'Tabdart uḥṭṭu inu',
+'mywatchlist'       => 'Tabdart uḥṭṭu inu',
+'watchlistfor'      => "(i '''$1''')",
+'addedwatch'        => 'Temmarni ɣar Tabdart uḥṭṭu',
+'addedwatchtext'    => 'Tasna "[[:$1]]" Temmarni ɣar [[Special:Watchlist|Tabdart uḥṭṭu]].',
+'removedwatch'      => 'twakkes zi Tabdart uḥṭṭu',
+'removedwatchtext'  => 'Tasna "[[:$1]]" twakkes zi [[Special:Watchlist|Tabdart uḥṭṭu inec]].',
+'watch'             => 'Ḥḍa',
+'watchthispage'     => 'Ḥḍa tasna ya',
+'unwatch'           => 'Ur ḥṭṭa',
+'watchlist-details' => '{{PLURAL:$1|$1 n Tasniwin|$1 n Tasniwin}} Twaẓrent bla Tasniwin n usiwl.',
+'wlshowlast'        => 'Sseml-ad $1 tisεεatin $2 ussan $3 inggura',
 
 # Displayed when you click the "watch" button and it is in the process of watching
-'watching'   => 'Twaxmim...',
-'unwatching' => 'War-twaxmim...',
+'watching'   => 'Ḥṭṭigh...',
+'unwatching' => 'Ur ḥṭṭigh...',
 
-# Delete/protect/revert
-'deletepage'                  => 'kkes Tasna',
-'delete-legend'               => 'Sfaḍ',
-'historywarning'              => 'ɣark: Tasna i txisd atekesd ɣars amzruy :',
-'confirmdeletetext'           => 'Ɛlayn ad-tsfded Tasna ag maṛṛa amzruy ines.
-Ma nican txisd ad tekkesd, ma tesned mayn tegged, u tegget am mamec teqqar  [[{{MediaWiki:Policy-url}}|tasretit]].',
-'actioncomplete'              => 'Tiggawt tsala',
-'deletedtext'                 => '"<nowiki>$1</nowiki>" Twakkes.
+# Delete
+'deletepage'            => 'Kks tasna',
+'delete-legend'         => 'Sfaḍ',
+'historywarning'        => 'ɣark: Tasna i txisd atekesd ɣars amzruy :',
+'confirmdeletetext'     => 'Ur d ac iqqim walu a tsfḍed ict tasna ak marra amzruy nns.
+Ma nican txsd a tggd manaya? Ma tssnd min ttggd? Ma ttggd manaya amc teqqaṛ  [[{{MediaWiki:Policy-url}}|tasrtit n Wiki]] ?',
+'actioncomplete'        => 'Tiggawt tsala',
+'deletedtext'           => '"<nowiki>$1</nowiki>" Twakkes.
 Xemm $2 i tikkas timaynutin.',
-'deletedarticle'              => 'twakkes "[[$1]]"',
-'dellogpage'                  => 'Aɣmis n uṣfaḍ',
-'deletecomment'               => 'Mayemmi ɣa tteksed:',
-'deleteotherreason'           => 'Ca n ssebba nniḍn:',
-'deletereasonotherlist'       => 'Ssebba nniḍn',
-'rollbacklink'                => 'Ar-ad',
-'protectlogpage'              => 'Aɣmis n uẓarq',
+'deletedarticle'        => 'twakkes "[[$1]]"',
+'dellogpage'            => 'Aɣmis n uṣfaḍ',
+'deletecomment'         => 'Maymmi gha itwakks:',
+'deleteotherreason'     => 'Ca n ssebba nniḍn:',
+'deletereasonotherlist' => 'Ssebba nniḍn',
+
+# Rollback
+'rollbacklink' => 'Sdwl ghar dffar',
+
+# Protect
+'protectlogpage'              => 'Aghmis n umstn',
+'prot_1movedto2'              => '[[$1]] twaneql ɣa [[$2]]',
 'protectcomment'              => 'Tinit:',
-'protectexpiry'               => 'itsala:',
-'protect_expiry_invalid'      => 'Akud n usali war icni ca.',
-'protect_expiry_old'          => 'Akud usali yeεda.',
+'protectexpiry'               => 'Itsala:',
+'protect_expiry_invalid'      => 'Akud n usali ur illi nican.',
+'protect_expiry_old'          => 'Akud usali izri, idwl d amzruy.',
 'protect-unchain'             => 'Arzem turagin n usnaqel',
-'protect-text'                => 'tzemred ad teẓṛed u atbedeld aswir n uḥeṭṭu n Tasna ya da <strong><nowiki>$1</nowiki></strong>.',
-'protect-locked-access'       => 'Amiḍan inecc war ɣars turagt bac ad ibeddel aswir n uḥeṭṭu n Tasna .
-Aqa (settings) n Tasna <strong>$1</strong>:',
+'protect-text'                => "tzemred ad teẓṛed u atbedeld aswir n uḥeṭṭu n Tasna ya da '''<nowiki>$1</nowiki>'''.",
+'protect-locked-access'       => "Amiḍan inecc war ɣars turagt bac ad ibeddel aswir n uḥeṭṭu n Tasna .
+Aqa (settings) n Tasna '''$1''':",
 'protect-cascadeon'           => 'Tasna ya tẓarq ruxa mayenzi tudef di {{PLURAL:$1|Tasna, iɣa illa|Tasniwin, iɣa illa}} aḥeṭṭu n usmuzzar(cascading protection).
 Tezemred ad tbedeld aswir n uḥeṭṭu n Tasna ya, maca war itegg walu i uḥeṭṭu n usmuzzar(cascading protection).',
-'protect-default'             => '(amzwar)',
+'protect-default'             => 'Ejj marra isqdacn.',
 'protect-fallback'            => 'itxessat turagt n "$1"',
 'protect-level-autoconfirmed' => 'Bluka iseqdacen war ɣasen ca amiḍan',
 'protect-level-sysop'         => 'inedbalen waha',
@@ -523,8 +560,9 @@ Tezemred ad tbedeld aswir n uḥeṭṭu n Tasna ya, maca war itegg walu i uḥe
 'protect-expiring'            => 'itsala deg $1 (UTC)',
 'protect-cascade'             => 'Ḥḍa Tasniwin i yudfen di Tasna ya (cascading protection)',
 'protect-cantedit'            => 'war tezemred ca ad tbedeld iswiren n uḥeṭṭu n Tasna ya, mayenzi war ɣark turagt bac ad tẓṛegd.',
-'restriction-type'            => 'turagt:',
-'restriction-level'           => 'Aswir usekref:',
+'protect-expiry-options'      => '2 tasεεat:2 hours,1 ass:1 day,3 ussan:3 days,1 amalass:1 week,2 imallasen:2 weeks,1 ayur:1 month,3 iyuren:3 months,6 iyuren:6 months,1 asggas:1 year,infinite:infinite', # display1:time1,display2:time2,...
+'restriction-type'            => 'Turagt:',
+'restriction-level'           => 'Aswir uskref:',
 
 # Restrictions (nouns)
 'restriction-edit' => 'Arri',
@@ -536,42 +574,48 @@ Tezemred ad tbedeld aswir n uḥeṭṭu n Tasna ya, maca war itegg walu i uḥe
 # Namespace form on various pages
 'namespace'      => 'Raq n isem:',
 'invert'         => 'Dren mayn testid (tixtard)',
-'blanknamespace' => '(Amenzaw)',
+'blanknamespace' => '(Amzwaru)',
 
 # Contributions
 'contributions' => 'Tiggawin n useqdac',
 'mycontris'     => 'Tiggawin inu',
 'contribsub2'   => 'i $1 ($2)',
-'uctop'         => '(ajnna)',
-'month'         => 'Zeg ayur (ar amzwaru):',
-'year'          => 'Zi asgg°as (d zik):',
+'uctop'         => '(snnj)',
+'month'         => 'Zg wayur (d zik):',
+'year'          => 'Zg usggwas (d zik):',
 
+'sp-contributions-newbies'     => 'Ẓar Tabdart n tiggawin n useqdac a deg umiḍan amaynu waha',
 'sp-contributions-newbies-sub' => 'i imiḍan imaynuten',
-'sp-contributions-blocklog'    => 'Aɣmis n iẓariqqen',
+'sp-contributions-blocklog'    => 'sbdd tabdart n talghut',
+'sp-contributions-search'      => 'Arzu x tiggawin',
+'sp-contributions-username'    => 'Tansa IP d isem useqdac:',
 'sp-contributions-submit'      => 'Tarzzut',
 
 # What links here
-'whatlinkshere'       => 'Mayn id-izedyen da',
-'whatlinkshere-title' => 'Tasniwin id-izedyen ɣar "$1"',
-'linklistsub'         => '(Tabdart n tizdayin)',
-'linkshere'           => "Tasna ya tzedi ɣa '''[[:$1]]''':",
-'nolinkshere'         => "war tlli ca n Tasna tqqen-d da '''[[:$1]]'''.",
-'isredirect'          => 'Tasna n (redirect)',
-'istemplate'          => 'Asidef',
-'whatlinkshere-prev'  => '{{PLURAL:$1|deffar|deffar $1}}',
-'whatlinkshere-next'  => '{{PLURAL:$1|zzat|zzat $1}}',
-'whatlinkshere-links' => '← tizdayin',
+'whatlinkshere'           => 'Min itqqnen ghar da',
+'whatlinkshere-title'     => 'Tasniwin id-izedyen ɣar "$1"',
+'whatlinkshere-page'      => 'Tasna:',
+'linkshere'               => "Tasna ya tzedi ɣa '''[[:$1]]''':",
+'nolinkshere'             => "war tlli ca n Tasna tqqen-d da '''[[:$1]]'''.",
+'isredirect'              => 'Tasna n (redirect)',
+'istemplate'              => 'Asidef',
+'isimage'                 => 'amaqqan n tugna',
+'whatlinkshere-prev'      => '{{PLURAL:$1|deffar|deffar $1}}',
+'whatlinkshere-next'      => '{{PLURAL:$1|zzat|zzat $1}}',
+'whatlinkshere-links'     => '← tizdayin',
+'whatlinkshere-hidelinks' => '$1 timqqan',
 
 # Block/unblock
-'blockip'            => 'Bluka aseqdac a',
-'ipboptions'         => '2 tasεεat:2 hours,1 ass:1 day,3 ussan:3 days,1 amalass:1 week,2 imallasen:2 weeks,1 ayur:1 month,3 iyuren:3 months,6 iyuren:6 months,1 asggas:1 year,infinite:infinite', # display1:time1,display2:time2,...
-'ipblocklist'        => 'Tabdart n tansiwin IP d isemawen n iseqdacen ig iteblukan',
-'ipblocklist-submit' => 'Tarzzut',
-'blocklink'          => 'Ẓareqq',
-'unblocklink'        => 'Arzem',
-'contribslink'       => 'Tiggawin',
-'blocklogpage'       => 'Ẓareqq aɣmis',
-'blocklogentry'      => 'ibloka [[$1]] ar $2 $3',
+'blockip'                  => 'Sbdd asqdac a',
+'ipboptions'               => '2 n timirin:2 hours,1 n wass:1 day,3 n wussan:3 days,1 imalass:1 week,2 imallassn:2 weeks,1 wayur:1 month,3 wayurn:3 months,6 wayurn:6 months,1 asggwas:1 year,tartalla:infinite', # display1:time1,display2:time2,...
+'ipblocklist'              => 'Tabdart n tansiwin IP d isemawen n iseqdacen ig iteblukan',
+'ipblocklist-submit'       => 'Tarzzut',
+'blocklink'                => 'Ẓareqq',
+'unblocklink'              => 'Ṛẓm',
+'contribslink'             => 'Tiggawin',
+'blocklogpage'             => 'Ẓareqq aɣmis',
+'blocklogentry'            => 'ibloka [[$1]] ar $2 $3',
+'block-log-flags-nocreate' => 'timggit n imiḍanen imaynutn ttwasbdd',
 
 # Move page
 'movepagetext'     => "mala tesxedmed taseddast(form) a swadday, ad tessenaqled maṛṛa amzruy ines ɣar isem amaynu.
@@ -590,22 +634,22 @@ manaya itebeddal Tasniwin, ixessa ad tesned mliḥ man tegged zzat ma ad tkemled
 *Mala war tixtard tabelludt a swadday.
 
 mala amya, itxessa cekk ad tesnaqled s ufus mala txisd.",
-'movearticle'      => 'Snaqel Tasna:',
-'newtitle'         => 'ɣar isem amaynu:',
+'movearticle'      => 'Smutti tasna:',
+'newtitle'         => 'Ghar yizwl amaynu:',
 'move-watch'       => 'Ẓar Tasna ya',
 'movepagebtn'      => 'Snaqel Tasna',
-'pagemovedsub'     => 'Asnaqel itwagg',
+'pagemovedsub'     => 'Asmutti itwagg',
 'movepage-moved'   => '<big>\'\'\'"$1" twanql ɣar "$2"\'\'\'</big>', # The two titles are passed in plain text as $3 and $4 to allow additional goodies in the message.
 'articleexists'    => 'Tasna s isem a tella da, niɣ isem itucid war icni.
 ixdar isem nniḍn.',
 'talkexists'       => "'''Tasna twanql , maca Tasna n usiwl ins war twanqel ca maymmi qaddin ict nninḍ.
 snaqlitent s ufus.'''",
-'movedto'          => 'snaql ɣa',
+'movedto'          => 'smutti ghar',
 'movetalk'         => 'Snaqel Tasniwin n usiwl igg illan akid-s',
 '1movedto2'        => '[[$1]] twaneql ɣa [[$2]]',
 'movelogpage'      => 'Snaql aɣmis',
 'movereason'       => 'Ssebba:',
-'revertmove'       => 'war tegg ca',
+'revertmove'       => 'sdwl',
 
 # Export
 'export' => 'Sekk tasniwin',
@@ -614,7 +658,7 @@ snaqlitent s ufus.'''",
 'allmessages' => 'inzan n unagraw',
 
 # Thumbnails
-'thumbnail-more'  => 'Semɣar',
+'thumbnail-more'  => 'Smghar',
 'thumbnail_error' => 'Error creating thumbnail: $1',
 
 # Import log
@@ -626,39 +670,45 @@ snaqlitent s ufus.'''",
 'tooltip-pt-preferences'          => 'Isemyifiyen inu',
 'tooltip-pt-watchlist'            => 'Tabdart n Tasniwin umi txmamd bac ad-ten teẓṛegd',
 'tooltip-pt-mycontris'            => 'Tabdart n tiggawin inu',
-'tooltip-pt-login'                => 'Neqqar-ac adeff, macca war illi bessif .',
-'tooltip-pt-logout'               => 'Ffeɣ',
-'tooltip-ca-talk'                 => 'Asiwl x mayn dag-s di Tasna',
-'tooltip-ca-edit'                 => 'Tzemred ad tẓerged Tasna ya. Tca x tabutunt n Azar-ascan ẓẓat ma ad teḥḥaḍed .',
+'tooltip-pt-login'                => 'Nqqar ac adf s umiḍan nnk; maca malla txsd waha',
+'tooltip-pt-logout'               => 'Ufugh',
+'tooltip-ca-talk'                 => 'Amsawal xf tasna n ukttur',
+'tooltip-ca-edit'                 => 'Tzmmard a tẓṛgd tasna ya.
+Bbẓ x ufskar n uzar-timẓṛi zzat i gha txmmld min turid',
 'tooltip-ca-addsection'           => 'Arni tinit deg usiwl a.',
 'tooltip-ca-viewsource'           => 'Tasna ya tẓarq. tzemred atẓred aɣbal ines.',
+'tooltip-ca-history'              => 'Isughuln izrin n tasna ya.',
 'tooltip-ca-protect'              => 'Ẓarq Tasna ya',
-'tooltip-ca-delete'               => 'Kkes Tasna ya',
+'tooltip-ca-delete'               => 'Kks Tasna ya',
 'tooltip-ca-move'                 => 'Snaql Tasna a',
-'tooltip-ca-watch'                => 'Arni Tasna ya ɣar Tebdart uḥṭṭu inec',
+'tooltip-ca-watch'                => 'Arni tasna ya ghar tbdart uḥṭṭu nnc',
 'tooltip-ca-unwatch'              => 'Kkes Tasna ya zi Tabdart uḥṭṭu inec',
-'tooltip-search'                  => 'Tarezzut {{SITENAME}}',
+'tooltip-search'                  => 'Rzu {{SITENAME}}',
+'tooltip-search-go'               => 'Uyur ghar tasna s yizwl a s imant nns malla tlla',
+'tooltip-search-fulltext'         => 'Rzu di tasniwin x waḍṛis a',
 'tooltip-p-logo'                  => 'Tasbtirt Tamzwarut',
-'tooltip-n-mainpage'              => 'Raḥ ɣar Tasna Tamzwarut',
-'tooltip-n-portal'                => 'Xef usenfar, mayn tezmerd ad tegged, mani ɣa tafed tiɣawsiwin',
-'tooltip-n-currentevents'         => 'Aff tilɣa(informations) x manaya',
-'tooltip-n-recentchanges'         => 'Tabdart n teẓṛigin timaynutin di wiki.',
-'tooltip-n-randompage'            => 'Ẓar Tasna zi ṭṭarf',
-'tooltip-n-help'                  => 'Mani ɣar tafd.',
-'tooltip-t-whatlinkshere'         => 'Tabdart n maṛṛa Tasniwin n wiki id-iqnen da',
+'tooltip-n-mainpage'              => 'Adf ghar tasna tamzwarut',
+'tooltip-n-portal'                => 'Xf usnfar, mayn tzmrd a tggd, mani gha tafd tighawsiwin',
+'tooltip-n-currentevents'         => 'Af tilgha n ugilal xf tmsarin titurawin',
+'tooltip-n-recentchanges'         => 'Tabdart n isnfiln imaynutn di Wiki.',
+'tooltip-n-randompage'            => 'Zdm ict tasna d tagacurant',
+'tooltip-n-help'                  => 'Mani gha tafd',
+'tooltip-t-whatlinkshere'         => 'Tabdart n marra tasniwin n Wiki i d-itqqnen da',
 'tooltip-t-contributions'         => 'Ẓar Tabdart n tiggawin n useqdac a',
 'tooltip-t-emailuser'             => 'Sekk e-mail i bnadem a',
-'tooltip-t-upload'                => 'Zdem-d ifayluten',
-'tooltip-t-specialpages'          => 'Tabdart n maṛṛa Tasniwin timeẓlayin',
+'tooltip-t-upload'                => 'Zdm-d isatuln',
+'tooltip-t-specialpages'          => 'Tabdart n marra tasniwin tinmmzrayin',
+'tooltip-t-print'                 => 'Tanghlt usiggz n tasna ya',
+'tooltip-ca-nstab-main'           => 'Ẓṛ tasna n ukttur',
 'tooltip-ca-nstab-user'           => 'Ẓar Tasna n user',
-'tooltip-ca-nstab-project'        => 'Ẓar Tasna n usenfar',
+'tooltip-ca-nstab-project'        => 'Ẓṛ tasna n usnfar',
 'tooltip-ca-nstab-image'          => 'Ẓar Tasna n ufaylu',
-'tooltip-ca-nstab-template'       => 'Ẓar Tamudemt',
+'tooltip-ca-nstab-template'       => 'Ẓṛ tamudmt',
 'tooltip-ca-nstab-help'           => 'Ẓar Tasna n tallalt',
-'tooltip-ca-nstab-category'       => 'Ẓar Tasna n taggayt(category)',
+'tooltip-ca-nstab-category'       => 'Ẓṛ tasna n taggayt',
 'tooltip-minoredit'               => 'egg-itt d taẓṛigt tamẓyant',
-'tooltip-save'                    => 'Ḥaḍ-itt',
-'tooltip-preview'                 => 'Ẓar mayn turid, zzat ma ad teḥḥaḍed!',
+'tooltip-save'                    => 'Xmml isnfiln nnk',
+'tooltip-preview'                 => 'Ẓṛ mayn turid, zzat i t gha txmmld!',
 'tooltip-diff'                    => 'Ẓar tiẓṛigin i teggid deg uḍṛiṣ a.',
 'tooltip-compareselectedversions' => 'Ẓar imsebeḍiyen jar tunɣilin n Tasna ya.',
 'tooltip-watch'                   => 'Arni Tasna ya ɣa Tabdart uḥṭṭu inec',
@@ -674,7 +724,7 @@ snaqlitent s ufus.'''",
 'show-big-image'       => 'Resolution ameqran',
 'show-big-image-thumb' => '<small>Tiddi n uzar-ascan: $1 × $2 pixel </small>',
 
-# Special:NewImages
+# Special:NewFiles
 'newimages' => 'Amewlaf n ifayluten imaynuten',
 'ilsubmit'  => 'Tarzzut',
 
@@ -690,26 +740,27 @@ kur tazdayt tdeffad a tmekkas .',
 'metadata-help'     => 'Afaylu a ɣar-s tilɣa(informations) nniḍn, teqqad ad tili tarnitent camera niɣ scanner i tiggin.
 mala afaylu a itwabeddel x mamec ja illa g umezwaru, ca n tilɣa teqqad ad ilint msebḍant x ufaylu amezwaru.',
 'metadata-expand'   => 'Sicen-d tilɣa nnumɣarent',
-'metadata-collapse' => 'Senuffar tilɣa innumɣarent',
-'metadata-fields'   => 'Tilɣa(informations)n EXIF ig illan di Tasna ya ad banent di Tasna n tewlaft xmi ɣar twassemɣar taflwit(table) n metadata.
-mayn nniḍn ad itwasenfar.
+'metadata-collapse' => 'Snuffar tilgha innumgharn',
+'metadata-fields'   => 'Igran n EXIF metadata i yllan di tbrat a ad adfn di tasna n twlaft xmnni d-gha twḍa  tflwit n metadata.
+Innḍni ad twaffrn dg umzwar.
 * make
 * model
 * datetimeoriginal
 * exposuretime
 * fnumber
+* isospeedratings
 * focallength', # Do not translate list items
 
 # External editor support
 'edit-externally'      => 'Ẓṛeg afaylu a s usnas zi baṛṛa',
-'edit-externally-help' => 'Xemm [http://www.mediawiki.org/wiki/Manual:External_editors setup instructions] i bezzaf n tilɣa(informations).',
+'edit-externally-help' => 'Xemm [http://www.mediawiki.org/wiki/Manual:External_editors setup instructions] i ktar n tilɣa(informations).',
 
 # 'all' in various places, this might be different for inflected languages
 'recentchangesall' => 'maṛṛa',
 'imagelistall'     => 'maṛṛa',
-'watchlistall2'    => 'maṛṛa',
-'namespacesall'    => 'maṛṛa',
-'monthsall'        => 'maṛṛa',
+'watchlistall2'    => 'marra',
+'namespacesall'    => 'marra',
+'monthsall'        => 'marra',
 
 # Multipage image navigation
 'imgmultigo' => 'Raḥ ɣa!',
@@ -730,6 +781,6 @@ mayn nniḍn ad itwasenfar.
 'fileduplicatesearch-submit' => 'Tarzzut',
 
 # Special:SpecialPages
-'specialpages' => 'Tasniwin timeẓlayin',
+'specialpages' => 'Tasniwin tinmmzrayin',
 
 );

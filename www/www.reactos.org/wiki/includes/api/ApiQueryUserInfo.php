@@ -57,7 +57,7 @@ class ApiQueryUserInfo extends ApiQueryBase {
 		global $wgUser;
 		$result = $this->getResult();
 		$vals = array();
-		$vals['id'] = $wgUser->getId();
+		$vals['id'] = intval($wgUser->getId());
 		$vals['name'] = $wgUser->getName();
 
 		if($wgUser->isAnon())
@@ -76,17 +76,27 @@ class ApiQueryUserInfo extends ApiQueryBase {
 			$result->setIndexedTagName($vals['groups'], 'g');	// even if empty
 		}
 		if (isset($this->prop['rights'])) {
-			$vals['rights'] = $wgUser->getRights();
+			// User::getRights() may return duplicate values, strip them
+			$vals['rights'] = array_values(array_unique($wgUser->getRights()));
 			$result->setIndexedTagName($vals['rights'], 'r');	// even if empty
 		}
 		if (isset($this->prop['options'])) {
 			$vals['options'] = (is_null($wgUser->mOptions) ? User::getDefaultOptions() : $wgUser->mOptions);
 		}
+		if (isset($this->prop['preferencestoken']) && is_null($this->getMain()->getRequest()->getVal('callback'))) {
+			$vals['preferencestoken'] = $wgUser->editToken();
+		}
 		if (isset($this->prop['editcount'])) {
-			$vals['editcount'] = $wgUser->getEditCount();
+			$vals['editcount'] = intval($wgUser->getEditCount());
 		}
 		if (isset($this->prop['ratelimits'])) {
 			$vals['ratelimits'] = $this->getRateLimits();
+		}
+		if (isset($this->prop['email'])) {
+			$vals['email'] = $wgUser->getEmail();
+			$auth = $wgUser->getEmailAuthenticationTimestamp();
+			if(!is_null($auth))
+				$vals['emailauthenticated'] = wfTimestamp(TS_ISO_8601, $auth);
 		}
 		return $vals;
 	}
@@ -110,6 +120,7 @@ class ApiQueryUserInfo extends ApiQueryBase {
 			if(!$wgUser->isAnon())
 				$categories[] = 'newbie';
 		}
+		$categories = array_merge($categories, $wgUser->getGroups());
 
 		// Now get the actual limits
 		$retval = array();
@@ -117,8 +128,8 @@ class ApiQueryUserInfo extends ApiQueryBase {
 			foreach($categories as $cat)
 				if(isset($limits[$cat]) && !is_null($limits[$cat]))
 				{
-					$retval[$action][$cat]['hits'] = $limits[$cat][0];
-					$retval[$action][$cat]['seconds'] = $limits[$cat][1];
+					$retval[$action][$cat]['hits'] = intval($limits[$cat][0]);
+					$retval[$action][$cat]['seconds'] = intval($limits[$cat][1]);
 				}
 		return $retval;
 	}
@@ -134,8 +145,10 @@ class ApiQueryUserInfo extends ApiQueryBase {
 					'groups',
 					'rights',
 					'options',
+					'preferencestoken',
 					'editcount',
-					'ratelimits'
+					'ratelimits',
+					'email',
 				)
 			)
 		);
@@ -168,6 +181,6 @@ class ApiQueryUserInfo extends ApiQueryBase {
 	}
 
 	public function getVersion() {
-		return __CLASS__ . ': $Id: ApiQueryUserInfo.php 35186 2008-05-22 16:39:43Z brion $';
+		return __CLASS__ . ': $Id: ApiQueryUserInfo.php 47865 2009-02-27 16:03:01Z catrope $';
 	}
 }

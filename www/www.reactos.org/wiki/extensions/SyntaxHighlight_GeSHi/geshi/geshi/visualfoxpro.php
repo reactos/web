@@ -4,7 +4,7 @@
  * ----------------
  * Author: Roberto Armellin (r.armellin@tin.it)
  * Copyright: (c) 2004 Roberto Armellin, Nigel McNie (http://qbnz.com/highlighter/)
- * Release Version: 1.0.8.4
+ * Release Version: 1.0.7.22
  * Date Started: 2004/09/17
  *
  * Visual FoxPro language file for GeSHi.
@@ -49,17 +49,18 @@ $language_data = array (
     'QUOTEMARKS' => array('"'),
     'ESCAPE_CHAR' => '\\',
     'KEYWORDS' => array(
-        1 => array(
-            'Case', 'Else', '#Else', 'Then',
+        1 => array('Case', 'Else', '#Else', 'Then',
             'Endcase', 'Enddefine', 'Enddo', 'Endfor', 'Endfunc', 'Endif', 'Endprintjob',
             'Endproc', 'Endscan', 'Endtext', 'Endwith', '#Endif',
-            '#Elif','#Define','#If','#Include',
+            '#Elif','#Else','#Endif','#Define','#If','#Include',
             '#Itsexpression','#Readclauses','#Region','#Section','#Undef','#Wname',
-            'Define','Do',
-            'For','Function','Hidden',
+            'Case','Define','Do','Else','Endcase','Enddefine',
+            'Enddo','Endfor','Endfunc','Endif','Endprintjob','Endproc',
+            'Endscan','Endtext','Endwith','For','Function','Hidden',
             'If','Local','Lparameter','Lparameters','Next','Otherwise',
             'Parameters','Printjob','Procedure','Protected','Public','Scan',
-            'Text','While','With','Abs','Accept','Access','Aclass','Acopy',
+            'Text','Then','While','With','?','??',
+            '???','Abs','Accept','Access','Aclass','Acopy',
             'Acos','Adatabases','Adbobjects','Addbs','Addrelationtoenv','Addtabletoenv',
             'Adel','Adir','Aelement','Aerror','Afields','Afont',
             'Agetclass','Agetfileversion','Ains','Ainstance','Alen','Align',
@@ -384,14 +385,7 @@ $language_data = array (
             'Relation','Session','Shape','Spinner','TextBox' ,'Toolbar'
             ),
         ),
-    'SYMBOLS' => array(
-        "!", "@", "$", "%",
-        "(", ")", "{", "}", "[", "]",
-        "-", "+", "*", "/",
-        "=", "<", ">",
-        ":", ";", ",", ".", "&",
-        "?", "??", "???"
-        ),
+    'SYMBOLS' => array("!", "@", "$", "%", "(", ")", "-", "+", "=", "/", "{", "}", "[", "]", ":", ";", ",", ".", "*", "&"),
     'CASE_SENSITIVE' => array(
         GESHI_COMMENTS => false,
         1 => false,
@@ -433,12 +427,6 @@ $language_data = array (
             ),
         'SCRIPT' => array(
             )
-        ),
-    'URLS' => array(
-        1 => '',
-        2 => '',
-        3 => '',
-        4 => ''
         ),
     'OOLANG' => true,
     'OBJECT_SPLITTERS' => array(

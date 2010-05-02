@@ -59,18 +59,21 @@ class ApiQueryLogEvents extends ApiQueryBase {
 			$this->addWhere($hideLogs);
 
 		// Order is significant here
-		$this->addTables(array('user', 'page', 'logging'));
+		$this->addTables(array('logging', 'user', 'page'));
+		$this->addOption('STRAIGHT_JOIN');
 		$this->addJoinConds(array(
+			'user' => array('JOIN',
+				'user_id=log_user'),
 			'page' => array('LEFT JOIN',
 				array(	'log_namespace=page_namespace',
 					'log_title=page_title'))));
-		$this->addWhere('user_id=log_user');
-		$this->addOption('USE INDEX', array('logging' => 'times')); // default, may change
+		$index = 'times'; // default, may change
 
 		$this->addFields(array (
 			'log_type',
 			'log_action',
 			'log_timestamp',
+			'log_deleted',
 		));
 
 		$this->addFieldsIf('log_id', $this->fld_ids);
@@ -81,12 +84,10 @@ class ApiQueryLogEvents extends ApiQueryBase {
 		$this->addFieldsIf('log_title', $this->fld_title);
 		$this->addFieldsIf('log_comment', $this->fld_comment);
 		$this->addFieldsIf('log_params', $this->fld_details);
-
-		$this->addWhereFld('log_deleted', 0);
 		
 		if( !is_null($params['type']) ) {
 			$this->addWhereFld('log_type', $params['type']);
-			$this->addOption('USE INDEX', array('logging' => array('type_time')));
+			$index = 'type_time';
 		}
 		
 		$this->addWhereRange('log_timestamp', $params['dir'], $params['start'], $params['end']);
@@ -96,13 +97,11 @@ class ApiQueryLogEvents extends ApiQueryBase {
 
 		$user = $params['user'];
 		if (!is_null($user)) {
-			$userid = $db->selectField('user', 'user_id', array (
-				'user_name' => $user
-			));
+			$userid = User::idFromName($user);
 			if (!$userid)
 				$this->dieUsage("User name $user not found", 'param_user');
 			$this->addWhereFld('log_user', $userid);
-			$this->addOption('USE INDEX', array('logging' => array('user_time','page_time')));
+			$index = 'user_time';
 		}
 
 		$title = $params['title'];
@@ -112,10 +111,21 @@ class ApiQueryLogEvents extends ApiQueryBase {
 				$this->dieUsage("Bad title value '$title'", 'param_title');
 			$this->addWhereFld('log_namespace', $titleObj->getNamespace());
 			$this->addWhereFld('log_title', $titleObj->getDBkey());
-			$this->addOption('USE INDEX', array('logging' => array('user_time','page_time')));
+
+			// Use the title index in preference to the user index if there is a conflict
+			$index = is_null($user) ? 'page_time' : array('page_time','user_time');
 		}
 
-		$data = array ();
+		$this->addOption( 'USE INDEX', array( 'logging' => $index ) );
+
+		// Paranoia: avoid brute force searches (bug 17342)
+		if (!is_null($title)) {
+			$this->addWhere('log_deleted & ' . LogPage::DELETED_ACTION . ' = 0');
+		}
+		if (!is_null($user)) {
+			$this->addWhere('log_deleted & ' . LogPage::DELETED_USER . ' = 0');
+		}
+
 		$count = 0;
 		$res = $this->select(__METHOD__);
 		while ($row = $db->fetchObject($res)) {
@@ -126,13 +136,63 @@ class ApiQueryLogEvents extends ApiQueryBase {
 			}
 
 			$vals = $this->extractRowInfo($row);
-			if($vals)
-				$data[] = $vals;
+			if(!$vals)
+				continue;
+			$fit = $this->getResult()->addValue(array('query', $this->getModuleName()), null, $vals);
+			if(!$fit)
+			{
+				$this->setContinueEnumParameter('start', wfTimestamp(TS_ISO_8601, $row->log_timestamp));
+				break;
+			}
 		}
 		$db->freeResult($res);
 
-		$this->getResult()->setIndexedTagName($data, 'item');
-		$this->getResult()->addValue('query', $this->getModuleName(), $data);
+		$this->getResult()->setIndexedTagName_internal(array('query', $this->getModuleName()), 'item');
+	}
+	
+	public static function addLogParams($result, &$vals, $params, $type, $ts) {
+		$params = explode("\n", $params);
+		switch ($type) {
+			case 'move':
+				if (isset ($params[0])) {
+					$title = Title :: newFromText($params[0]);
+					if ($title) {
+						$vals2 = array();
+						ApiQueryBase :: addTitleInfo($vals2, $title, "new_");
+						$vals[$type] = $vals2;
+					}
+				}
+				if (isset ($params[1]) && $params[1]) {
+					$vals[$type]['suppressedredirect'] = '';
+				} 
+				$params = null;
+				break;
+			case 'patrol':
+				$vals2 = array();
+				list( $vals2['cur'], $vals2['prev'], $vals2['auto'] ) = $params;
+				$vals[$type] = $vals2;
+				$params = null;
+				break;
+			case 'rights':
+				$vals2 = array();
+				list( $vals2['old'], $vals2['new'] ) = $params;
+				$vals[$type] = $vals2;
+				$params = null;
+				break;
+			case 'block':
+				$vals2 = array();
+				list( $vals2['duration'], $vals2['flags'] ) = $params;
+				$vals2['expiry'] = wfTimestamp(TS_ISO_8601,
+						strtotime($params[0], wfTimestamp(TS_UNIX, $ts)));
+				$vals[$type] = $vals2;
+				$params = null;
+				break;
+		}
+		if (!is_null($params)) {
+			$result->setIndexedTagName($params, 'param');
+			$vals = array_merge($vals, $params);
+		}
+		return $vals;
 	}
 
 	private function extractRowInfo($row) {
@@ -144,8 +204,12 @@ class ApiQueryLogEvents extends ApiQueryBase {
 		}
 
 		if ($this->fld_title) {
-			$title = Title :: makeTitle($row->log_namespace, $row->log_title);
-			ApiQueryBase :: addTitleInfo($vals, $title);
+			if (LogEventsList::isDeleted($row, LogPage::DELETED_ACTION)) {
+				$vals['actionhidden'] = '';
+			} else {
+				$title = Title :: makeTitle($row->log_namespace, $row->log_title);
+				ApiQueryBase :: addTitleInfo($vals, $title);
+			}
 		}
 
 		if ($this->fld_type) {
@@ -154,55 +218,33 @@ class ApiQueryLogEvents extends ApiQueryBase {
 		}
 
 		if ($this->fld_details && $row->log_params !== '') {
-			$params = explode("\n", $row->log_params);
-			switch ($row->log_type) {
-				case 'move':
-					if (isset ($params[0])) {
-						$title = Title :: newFromText($params[0]);
-						if ($title) {
-							$vals2 = array();
-							ApiQueryBase :: addTitleInfo($vals2, $title, "new_");
-							$vals[$row->log_type] = $vals2;
-							$params = null;
-						}
-					}
-					break;
-				case 'patrol':
-					$vals2 = array();
-					list( $vals2['cur'], $vals2['prev'], $vals2['auto'] ) = $params;
-					$vals[$row->log_type] = $vals2;
-					$params = null;
-					break;
-				case 'rights':
-					$vals2 = array();
-					list( $vals2['old'], $vals2['new'] ) = $params;
-					$vals[$row->log_type] = $vals2;
-					$params = null;
-					break;
-				case 'block':
-					$vals2 = array();
-					list( $vals2['duration'], $vals2['flags'] ) = $params;
-					$vals[$row->log_type] = $vals2;
-					$params = null;
-					break;
-			}
-
-			if (isset($params)) {
-				$this->getResult()->setIndexedTagName($params, 'param');
-				$vals = array_merge($vals, $params);
+			if (LogEventsList::isDeleted($row, LogPage::DELETED_ACTION)) {
+				$vals['actionhidden'] = '';
+			} else {
+				self::addLogParams($this->getResult(), $vals,
+					$row->log_params, $row->log_type,
+					$row->log_timestamp);
 			}
 		}
 
 		if ($this->fld_user) {
-			$vals['user'] = $row->user_name;
-			if(!$row->log_user)
-				$vals['anon'] = '';
+			if (LogEventsList::isDeleted($row, LogPage::DELETED_USER)) {
+				$vals['userhidden'] = '';
+			} else {
+				$vals['user'] = $row->user_name;
+				if(!$row->log_user)
+					$vals['anon'] = '';
+			}
 		}
 		if ($this->fld_timestamp) {
 			$vals['timestamp'] = wfTimestamp(TS_ISO_8601, $row->log_timestamp);
 		}
-		if ($this->fld_comment && !empty ($row->log_comment)) {
-			$vals['comment'] = $row->log_comment;
+		if ($this->fld_comment && isset($row->log_comment)) {
+			if (LogEventsList::isDeleted($row, LogPage::DELETED_COMMENT)) {
+				$vals['commenthidden'] = '';
+			} else {
+				$vals['comment'] = $row->log_comment;
+			}
 		}
 
 		return $vals;
@@ -277,6 +319,6 @@ class ApiQueryLogEvents extends ApiQueryBase {
 	}
 
 	public function getVersion() {
-		return __CLASS__ . ': $Id: ApiQueryLogEvents.php 35098 2008-05-20 17:13:28Z ialex $';
+		return __CLASS__ . ': $Id: ApiQueryLogEvents.php 47904 2009-03-01 11:02:49Z catrope $';
 	}
 }

@@ -1,6 +1,9 @@
 <?php
 /** Лакку (Лакку)
  *
+ * See MessagesQqq.php for message documentation incl. usage of parameters
+ * To improve a translation please visit http://translatewiki.net
+ *
  * @ingroup Language
  * @file
  *
@@ -25,8 +28,8 @@ $namespaceNames = array(
 	NS_USER_TALK        => 'Гьуртту_хьуминнал_ихтилат', 
 	#NS_PROJECT set by $wgMetaNamespace
 	NS_PROJECT_TALK     => '$1лиясса_ихтилат',
-	NS_IMAGE            => 'Сурат',
-	NS_IMAGE_TALK       => 'Суратраясса_ихтилат',
+	NS_FILE             => 'Сурат',
+	NS_FILE_TALK        => 'Суратраясса_ихтилат',
 	NS_MEDIAWIKI        => 'MediaWiki',
 	NS_MEDIAWIKI_TALK   => 'MediaWikiлиясса_ихтилат',
 	NS_TEMPLATE         => 'Шаблон',
@@ -69,7 +72,7 @@ $messages = array(
 # Recent changes
 'recentchanges' => 'Махъсса дахханашивурту',
 
-# Image description page
+# File description page
 'filehist-user' => 'Гьурттучув',
 
 # Miscellaneous special pages

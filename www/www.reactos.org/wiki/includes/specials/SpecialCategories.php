@@ -14,11 +14,13 @@ function wfSpecialCategories( $par=null ) {
 	}
 	$cap = new CategoryPager( $from );
 	$wgOut->addHTML(
+		XML::openElement( 'div', array('class' => 'mw-spcontent') ) .
 		wfMsgExt( 'categoriespagetext', array( 'parse' ) ) .
 		$cap->getStartForm( $from ) .
 		$cap->getNavigationBar() .
 		'<ul>' . $cap->getBody() . '</ul>' .
-		$cap->getNavigationBar()
+		$cap->getNavigationBar() .
+		XML::closeElement( 'div' )
 	);
 }
 
@@ -42,7 +44,6 @@ class CategoryPager extends AlphabeticPager {
 	}
 	
 	function getQueryInfo() {
-		global $wgRequest;
 		return array(
 			'tables' => array( 'category' ),
 			'fields' => array( 'cat_title','cat_pages' ),
@@ -59,6 +60,7 @@ class CategoryPager extends AlphabeticPager {
 	function getDefaultQuery() {
 		parent::getDefaultQuery();
 		unset( $this->mDefaultQuery['from'] );
+		return $this->mDefaultQuery;
 	}
 #	protected function getOrderTypeMessages() {
 #		return array( 'abc' => 'special-categories-sort-abc',

@@ -6,7 +6,7 @@
  */
 
 /**
- * @todo document
+ * Handles purging appropriate Squid URLs given a title (or titles)
  * @ingroup Cache
  */
 class SquidUpdate {
@@ -52,13 +52,17 @@ class SquidUpdate {
 		return new SquidUpdate( $blurlArr );
 	}
 
-	static function newFromTitles( &$titles, $urlArr = array() ) {
+	/**
+	 * Create a SquidUpdate from an array of Title objects, or a TitleArray object
+	 */
+	static function newFromTitles( $titles, $urlArr = array() ) {
 		global $wgMaxSquidPurgeTitles;
-		if ( count( $titles ) > $wgMaxSquidPurgeTitles ) {
-			$titles = array_slice( $titles, 0, $wgMaxSquidPurgeTitles );
-		}
+		$i = 0;
 		foreach ( $titles as $title ) {
 			$urlArr[] = $title->getInternalURL();
+			if ( $i++ > $wgMaxSquidPurgeTitles ) {
+				break;
+			}
 		}
 		return new SquidUpdate( $urlArr );
 	}

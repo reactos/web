@@ -39,14 +39,11 @@ class ApiMove extends ApiBase {
 
 	public function execute() {
 		global $wgUser;
-		$this->getMain()->requestWriteMode();
 		$params = $this->extractRequestParams();
 		if(is_null($params['reason']))
 			$params['reason'] = '';
 
-		$titleObj = NULL;
-		if(!isset($params['from']))
-			$this->dieUsageMsg(array('missingparam', 'from'));
+		$this->requireOnlyOneParameter($params, 'from', 'fromid');
 		if(!isset($params['to']))
 			$this->dieUsageMsg(array('missingparam', 'to'));
 		if(!isset($params['token']))
@@ -54,9 +51,18 @@ class ApiMove extends ApiBase {
 		if(!$wgUser->matchEditToken($params['token']))
 			$this->dieUsageMsg(array('sessionfailure'));
 
-		$fromTitle = Title::newFromText($params['from']);
-		if(!$fromTitle)
-			$this->dieUsageMsg(array('invalidtitle', $params['from']));
+		if(isset($params['from']))
+		{
+			$fromTitle = Title::newFromText($params['from']);
+			if(!$fromTitle)
+				$this->dieUsageMsg(array('invalidtitle', $params['from']));
+		}
+		else if(isset($params['fromid']))
+		{
+			$fromTitle = Title::newFromID($params['fromid']);
+			if(!$fromTitle)
+				$this->dieUsageMsg(array('nosuchpageid', $params['fromid']));
+		}
 		if(!$fromTitle->exists())
 			$this->dieUsageMsg(array('notanarticle'));
 		$fromTalk = $fromTitle->getTalkPage();
@@ -66,36 +72,19 @@ class ApiMove extends ApiBase {
 			$this->dieUsageMsg(array('invalidtitle', $params['to']));
 		$toTalk = $toTitle->getTalkPage();
 
-		// Run getUserPermissionsErrors() here so we get message arguments too,
-		// rather than just a message key. The latter is troublesome for messages
-		// that use arguments.
-		// FIXME: moveTo() should really return an array, requires some
-		//	  refactoring of other code, though (mainly SpecialMovepage.php)
-		$errors = array_merge($fromTitle->getUserPermissionsErrors('move', $wgUser),
-					$fromTitle->getUserPermissionsErrors('edit', $wgUser),
-					$toTitle->getUserPermissionsErrors('move', $wgUser),
-					$toTitle->getUserPermissionsErrors('edit', $wgUser));
-		if(!empty($errors))
-			// We don't care about multiple errors, just report one of them
-			$this->dieUsageMsg(current($errors));
-
+		# Move the page
 		$hookErr = null;
-
 		$retval = $fromTitle->moveTo($toTitle, true, $params['reason'], !$params['noredirect']);
 		if($retval !== true)
-		{
-			# FIXME: Title::moveTo() sometimes returns a string
 			$this->dieUsageMsg(reset($retval));
-		}
 
 		$r = array('from' => $fromTitle->getPrefixedText(), 'to' => $toTitle->getPrefixedText(), 'reason' => $params['reason']);
 		if(!$params['noredirect'] || !$wgUser->isAllowed('suppressredirect'))
 			$r['redirectcreated'] = '';
 
+		# Move the talk page
 		if($params['movetalk'] && $fromTalk->exists() && !$fromTitle->isTalkPage())
 		{
-			// We need to move the talk page as well
-			$toTalk = $toTitle->getTalkPage();
 			$retval = $fromTalk->moveTo($toTalk, true, $params['reason'], !$params['noredirect']);
 			if($retval === true)
 			{
@@ -105,8 +94,23 @@ class ApiMove extends ApiBase {
 			// We're not gonna dieUsage() on failure, since we already changed something
 			else
 			{
-				$r['talkmove-error-code'] = ApiBase::$messageMap[$retval]['code'];
-				$r['talkmove-error-info'] = ApiBase::$messageMap[$retval]['info'];
+				$parsed = $this->parseMsg(reset($retval));
+				$r['talkmove-error-code'] = $parsed['code'];
+				$r['talkmove-error-info'] = $parsed['info'];
+			}
+		}
+
+		# Move subpages
+		if($params['movesubpages'])
+		{
+			$r['subpages'] = $this->moveSubpages($fromTitle, $toTitle,
+					$params['reason'], $params['noredirect']);
+			$this->getResult()->setIndexedTagName($r['subpages'], 'subpage');
+			if($params['movetalk'])
+			{
+				$r['subpages-talk'] = $this->moveSubpages($fromTalk, $toTalk,
+					$params['reason'], $params['noredirect']);
+				$this->getResult()->setIndexedTagName($r['subpages-talk'], 'subpage');
 			}
 		}
 
@@ -123,16 +127,48 @@ class ApiMove extends ApiBase {
 		}
 		$this->getResult()->addValue(null, $this->getModuleName(), $r);
 	}
+	
+	public function moveSubpages($fromTitle, $toTitle, $reason, $noredirect)
+	{
+		$retval = array();
+		$success = $fromTitle->moveSubpages($toTitle, true, $reason, !$noredirect);
+		if(isset($success[0]))
+			return array('error' => $this->parseMsg($success));
+		else
+		{
+			// At least some pages could be moved
+			// Report each of them separately
+			foreach($success as $oldTitle => $newTitle)
+			{
+				$r = array('from' => $oldTitle);
+				if(is_array($newTitle))
+					$r['error'] = $this->parseMsg(reset($newTitle));
+				else
+					// Success
+					$r['to'] = $newTitle;
+				$retval[] = $r;
+			}
+		}
+		return $retval;
+	}
 
 	public function mustBePosted() { return true; }
+
+	public function isWriteMode() {
+		return true;
+	}
 
 	public function getAllowedParams() {
 		return array (
 			'from' => null,
+			'fromid' => array(
+				ApiBase::PARAM_TYPE => 'integer'
+			),
 			'to' => null,
 			'token' => null,
 			'reason' => null,
 			'movetalk' => false,
+			'movesubpages' => false,
 			'noredirect' => false,
 			'watch' => false,
 			'unwatch' => false
@@ -141,11 +177,13 @@ class ApiMove extends ApiBase {
 
 	public function getParamDescription() {
 		return array (
-			'from' => 'Title of the page you want to move.',
+			'from' => 'Title of the page you want to move. Cannot be used together with fromid.',
+			'fromid' => 'Page ID of the page you want to move. Cannot be used together with from.',
 			'to' => 'Title you want to rename the page to.',
 			'token' => 'A move token previously retrieved through prop=info',
 			'reason' => 'Reason for the move (optional).',
 			'movetalk' => 'Move the talk page, if it exists.',
+			'movesubpages' => 'Move subpages, if applicable',
 			'noredirect' => 'Don\'t create a redirect',
 			'watch' => 'Add the page and the redirect to your watchlist',
 			'unwatch' => 'Remove the page and the redirect from your watchlist'
@@ -154,7 +192,7 @@ class ApiMove extends ApiBase {
 
 	public function getDescription() {
 		return array(
-			'Moves a page.'
+			'Move a page.'
 		);
 	}
 
@@ -165,6 +203,6 @@ class ApiMove extends ApiBase {
 	}
 
 	public function getVersion() {
-		return __CLASS__ . ': $Id: ApiMove.php 35619 2008-05-30 19:59:47Z btongminh $';
+		return __CLASS__ . ': $Id: ApiMove.php 48091 2009-03-06 13:49:44Z catrope $';
 	}
 }

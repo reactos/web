@@ -4,10 +4,10 @@
  * -------------
  * Author: Nigel McNie (nigel@geshi.org)
  * Copyright: (c) 2004 Nigel McNie (http://qbnz.com/highlighter/)
- * Release Version: 1.0.8.4
+ * Release Version: 1.0.7.22
  * Date Started: 2004/06/02
  *
- * PHP (brief version) language file for GeSHi.
+ * PHP language file for GeSHi (brief version).
  *
  * CHANGES
  * -------
@@ -56,11 +56,6 @@ $language_data = array (
     'CASE_KEYWORDS' => GESHI_CAPS_NO_CHANGE,
     'QUOTEMARKS' => array("'", '"'),
     'ESCAPE_CHAR' => '\\',
-    'HARDQUOTE' => array("'", "'"),
-    'HARDESCAPE' => array("\'"),
-    'NUMBERS' =>
-        GESHI_NUMBER_INT_BASIC |  GESHI_NUMBER_OCT_PREFIX | GESHI_NUMBER_HEX_PREFIX |
-        GESHI_NUMBER_FLT_SCI_ZERO,
     'KEYWORDS' => array(
         1 => array(
             'include', 'require', 'include_once', 'require_once',
@@ -69,7 +64,7 @@ $language_data = array (
             ),
         2 => array(
             'null', '__LINE__', '__FILE__',
-            'false', '&lt;?php',
+            'false', '&lt;?php', '?&gt;',
             'true', 'var', 'default',
             'function', 'class', 'new', '&amp;new', 'public', 'private', 'interface', 'extends',
             'const', 'self'
@@ -91,16 +86,11 @@ $language_data = array (
             )
         ),
     'SYMBOLS' => array(
-        1 => array(
-            '<%', '<%=', '%>', '<?', '<?=', '?>'
-            ),
-        0 => array(
-            '(', ')', '[', ']', '{', '}',
-            '!', '@', '%', '&', '|', '/',
-            '<', '>',
-            '=', '-', '+', '*',
-            '.', ':', ',', ';'
-            )
+        '(', ')', '[', ']', '{', '}',
+        '!', '@', '%', '&', '|', '/',
+        '<', '>',
+        '=', '-', '+', '*',
+        '.', ':', ',', ';'
         ),
     'CASE_SENSITIVE' => array(
         GESHI_COMMENTS => false,
@@ -121,29 +111,23 @@ $language_data = array (
             'MULTI' => 'color: #666666; font-style: italic;'
             ),
         'ESCAPE_CHAR' => array(
-            0 => 'color: #000099; font-weight: bold;',
-            'HARD' => 'color: #000099; font-weight: bold;'
+            0 => 'color: #000099; font-weight: bold;'
             ),
         'BRACKETS' => array(
             0 => 'color: #009900;'
             ),
         'STRINGS' => array(
-            0 => 'color: #0000ff;',
-            'HARD' => 'color: #0000ff;'
+            0 => 'color: #0000ff;'
             ),
         'NUMBERS' => array(
-            0 => 'color: #cc66cc;',
-            GESHI_NUMBER_OCT_PREFIX => 'color: #208080;',
-            GESHI_NUMBER_HEX_PREFIX => 'color: #208080;',
-            GESHI_NUMBER_FLT_SCI_ZERO => 'color:#800080;',
+            0 => 'color: #cc66cc;'
             ),
         'METHODS' => array(
             1 => 'color: #004000;',
             2 => 'color: #004000;'
             ),
         'SYMBOLS' => array(
-            0 => 'color: #339933;',
-            1 => 'color: #000000; font-weight: bold;'
+            0 => 'color: #339933;'
             ),
         'REGEXPS' => array(
             0 => 'color: #0000ff;'
@@ -152,15 +136,14 @@ $language_data = array (
             0 => '',
             1 => '',
             2 => '',
-            3 => '',
-            4 => '',
-            5 => ''
+            3 => ''
             )
         ),
     'URLS' => array(
         1 => '',
         2 => '',
-        3 => 'http://www.php.net/{FNAMEL}'
+        3 => 'http://www.php.net/{FNAMEL}',
+        4 => ''
         ),
     'OOLANG' => true,
     'OBJECT_SPLITTERS' => array(
@@ -173,48 +156,16 @@ $language_data = array (
         ),
     'STRICT_MODE_APPLIES' => GESHI_MAYBE,
     'SCRIPT_DELIMITERS' => array(
-        0 => array(
-            '<?php' => '?>'
-            ),
-        1 => array(
-            '<?' => '?>'
-            ),
-        2 => array(
-            '<%' => '%>'
-            ),
-        3 => array(
-            '<script language="php">' => '</script>'
-            ),
-        4 => "/(?<start><\\?(?>php\b)?)(?:".
-            "(?>[^\"'?\\/<]+)|".
-            "\\?(?!>)|".
-            "(?>'(?>[^'\\\\]|\\\\'|\\\\\\\|\\\\)*')|".
-            "(?>\"(?>[^\"\\\\]|\\\\\"|\\\\\\\\|\\\\)*\")|".
-            "(?>\\/\\*(?>[^\\*]|(?!\\*\\/)\\*)*\\*\\/)|".
-            "\\/\\/(?>.*?$)|".
-            "\\/(?=[^*\\/])|".
-            "<(?!<<)|".
-            "<<<(?<phpdoc>\w+)\s.*?\s\k<phpdoc>".
-            ")*(?<end>\\?>|\Z)/sm",
-        5 => "/(?<start><%)(?:".
-            "(?>[^\"'%\\/<]+)|".
-            "%(?!>)|".
-            "(?>'(?>[^'\\\\]|\\\\'|\\\\\\\|\\\\)*')|".
-            "(?>\"(?>[^\\\"\\\\]|\\\\\"|\\\\\\\\|\\\\)*\")|".
-            "(?>\\/\\*(?>[^\\*]|(?!\\*\\/)\\*)*\\*\\/)|".
-            "\\/\\/(?>.*?$)|".
-            "\\/(?=[^*\\/])|".
-            "<(?!<<)|".
-            "<<<(?<phpdoc>\w+)\s.*?\s\k<phpdoc>".
-            ")*(?<end>%>)/sm"
+        '<?php' => '?>',
+        '<?' => '?>',
+        '<%' => '%>',
+        '<script language="php">' => '</script>'
         ),
     'HIGHLIGHT_STRICT_BLOCK' => array(
         0 => true,
         1 => true,
         2 => true,
-        3 => true,
-        4 => true,
-        5 => true
+        3 => true
         ),
     'TAB_WIDTH' => 4
 );

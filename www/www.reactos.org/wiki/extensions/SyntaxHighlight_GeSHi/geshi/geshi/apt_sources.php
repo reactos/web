@@ -4,10 +4,10 @@
  * ----------
  * Author: Milian Wolff (mail@milianw.de)
  * Copyright: (c) 2008 Milian Wolff (http://milianw.de)
- * Release Version: 1.0.8.4
+ * Release Version: 1.0.8
  * Date Started: 2008/06/17
  *
- * Apt sources.list language file for GeSHi.
+ * Apt sources.list highlighter
  *
  * CHANGES
  * -------
@@ -51,8 +51,7 @@ $language_data = array (
             'stable', 'old-stable', 'testing', 'testing-proposed-updates',
             'unstable', 'unstable-proposed-updates', 'experimental',
             'non-US', 'security', 'volatile', 'volatile-sloppy',
-            'apt-build',
-            'stable/updates',
+            'main', 'restricted', 'preview', 'apt-build',
             //Debian
             'buzz', 'rex', 'bo', 'hamm', 'slink', 'potato', 'woody', 'sarge',
             'etch', 'lenny', 'sid',
@@ -62,15 +61,12 @@ $language_data = array (
             'breezy', 'breezy-updates', 'breezy-security', 'breezy-proposed', 'breezy-backports',
             'dapper', 'dapper-updates', 'dapper-security', 'dapper-proposed', 'dapper-backports',
             'edgy', 'edgy-updates', 'edgy-security', 'edgy-proposed', 'edgy-backports',
-            'feisty', 'feisty-updates', 'feisty-security', 'feisty-proposed', 'feisty-backports',
+            'feisty', 'feisty-updates', 'feisty-security', 'feisty-proposed', 'gutsy-backports',
             'gutsy', 'gutsy-updates', 'gutsy-security', 'gutsy-proposed', 'gutsy-backports',
             'hardy', 'hardy-updates', 'hardy-security', 'hardy-proposed', 'hardy-backports',
-            'intrepid', 'intrepid-updates', 'intrepid-security', 'intrepid-proposed', 'intrepid-backports'
-            ),
-        3 => array(
-            'main', 'restricted', 'preview', 'contrib', 'non-free',
+            'intrepid', 'intrepid-updates', 'intrepid-security', 'intrepid-proposed', 'intrepid-backports',
             'commercial', 'universe', 'multiverse'
-            )
+            ),
     ),
     'REGEXPS' => array(
         0 => "(((http|ftp):\/\/|file:\/)[^\s]+)|(cdrom:\[[^\]]*\][^\s]*)",
@@ -80,14 +76,12 @@ $language_data = array (
     'CASE_SENSITIVE' => array(
         GESHI_COMMENTS => false,
         1 => false,
-        2 => true,
-        3 => true
+        2 => false
         ),
     'STYLES' => array(
         'KEYWORDS' => array(
             1 => 'color: #00007f;',
-            2 => 'color: #b1b100;',
-            3 => 'color: #b16000;'
+            2 => 'color: #b1b100;'
             ),
         'COMMENTS' => array(
             1 => 'color: #adadad; font-style: italic;',
@@ -111,9 +105,7 @@ $language_data = array (
             )
         ),
     'URLS' => array(
-        1 => '',
-        2 => '',
-        3 => ''
+        1 => ''
         ),
     'OOLANG' => false,
     'OBJECT_SPLITTERS' => array(
@@ -134,8 +126,8 @@ $language_data = array (
             'STRINGS' => GESHI_NEVER,
         ),
         'KEYWORDS' => array(
-            'DISALLOWED_BEFORE' => '(?<![a-zA-Z0-9\$_\|\#;>|^\/])',
-            'DISALLOWED_AFTER' => '(?![a-zA-Z0-9_\|%\\-&\.])'
+            'DISALLOWED_BEFORE' => 'a-zA-Z0-9\$_\|\#;>|^\/',
+            'DISALLOWED_AFTER' => 'a-zA-Z0-9_\|%\\-&\.'
         )
     ),
     'TAB_WIDTH' => 4

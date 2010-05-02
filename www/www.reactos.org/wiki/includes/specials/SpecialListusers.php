@@ -35,10 +35,26 @@
  */
 class UsersPager extends AlphabeticPager {
 
-	function __construct($group=null) {
+	function __construct( $par=null ) {
 		global $wgRequest;
-		$this->requestedGroup = $group != "" ? $group : $wgRequest->getVal( 'group' );
-		$un = $wgRequest->getText( 'username' );
+		$parms = explode( '/', ($par = ( $par !== null ) ? $par : '' ) );
+		$symsForAll = array( '*', 'user' );
+		if ( $parms[0] != '' && ( in_array( $par, User::getAllGroups() ) || in_array( $par, $symsForAll ) ) ) {
+			$this->requestedGroup = $par;
+			$un = $wgRequest->getText( 'username' );
+		} else if ( count( $parms ) == 2 ) {
+			$this->requestedGroup = $parms[0];
+			$un = $parms[1];
+		} else {
+			$this->requestedGroup = $wgRequest->getVal( 'group' );
+			$un = ( $par != '' ) ? $par : $wgRequest->getText( 'username' );
+		}
+		if ( in_array( $this->requestedGroup, $symsForAll ) ) {
+			$this->requestedGroup = '';
+		}
+		$this->editsOnly = $wgRequest->getBool( 'editsOnly' );
+		$this->creationSort = $wgRequest->getBool( 'creationSort' );
+
 		$this->requestedUser = '';
 		if ( $un != '' ) {
 			$username = Title::makeTitleSafe( NS_USER, $un );
@@ -51,22 +67,30 @@ class UsersPager extends AlphabeticPager {
 
 
 	function getIndexField() {
-		return 'user_name';
+		return $this->creationSort ? 'user_id' : 'user_name';
 	}
 
 	function getQueryInfo() {
 		$dbr = wfGetDB( DB_SLAVE );
-		$conds=array();
-		// don't show hidden names
-		$conds[]='ipb_deleted IS NULL OR ipb_deleted = 0';
-		if ($this->requestedGroup != "") {
+		$conds = array();
+		// Don't show hidden names
+		$conds[] = 'ipb_deleted IS NULL OR ipb_deleted = 0';
+		if( $this->requestedGroup != '' ) {
 			$conds['ug_group'] = $this->requestedGroup;
 			$useIndex = '';
 		} else {
-			$useIndex = $dbr->useIndexClause('user_name');
+			$useIndex = $dbr->useIndexClause( $this->creationSort ? 'PRIMARY' : 'user_name');
 		}
-		if ($this->requestedUser != "") {
-			$conds[] = 'user_name >= ' . $dbr->addQuotes( $this->requestedUser );
+		if( $this->requestedUser != '' ) {
+			# Sorted either by account creation or name
+			if( $this->creationSort ) {
+				$conds[] = 'user_id >= ' . User::idFromName( $this->requestedUser );
+			} else {
+				$conds[] = 'user_name >= ' . $dbr->addQuotes( $this->requestedUser );
+			}
+		}
+		if( $this->editsOnly ) {
+			$conds[] = 'user_editcount > 0';
 		}
 
 		list ($user,$user_groups,$ipblocks) = $dbr->tableNamesN('user','user_groups','ipblocks');
@@ -74,11 +98,14 @@ class UsersPager extends AlphabeticPager {
 		$query = array(
 			'tables' => " $user $useIndex LEFT JOIN $user_groups ON user_id=ug_user
 				LEFT JOIN $ipblocks ON user_id=ipb_user AND ipb_auto=0 ",
-			'fields' => array('user_name',
-				'MAX(user_id) AS user_id',
+			'fields' => array(
+				$this->creationSort ? 'MAX(user_name) AS user_name' : 'user_name',
+				$this->creationSort ? 'user_id' : 'MAX(user_id) AS user_id',
+				'MAX(user_editcount) AS edits',
 				'COUNT(ug_group) AS numgroups',
-				'MAX(ug_group) AS singlegroup'),
-			'options' => array('GROUP BY' => 'user_name'),
+				'MAX(ug_group) AS singlegroup',
+				'MIN(user_registration) AS creation'),
+			'options' => array('GROUP BY' => $this->creationSort ? 'user_id' : 'user_name'),
 			'conds' => $conds
 		);
 
@@ -87,6 +114,8 @@ class UsersPager extends AlphabeticPager {
 	}
 
 	function formatRow( $row ) {
+		global $wgLang;
+
 		$userPage = Title::makeTitle( NS_USER, $row->user_name );
 		$name = $this->getSkin()->makeLinkObj( $userPage, htmlspecialchars( $userPage->getText() ) );
 
@@ -94,7 +123,7 @@ class UsersPager extends AlphabeticPager {
 			$list = array();
 			foreach( self::getGroups( $row->user_id ) as $group )
 				$list[] = self::buildGroupLink( $group );
-			$groups = implode( ', ', $list );
+			$groups = $wgLang->commaList( $list );
 		} elseif( $row->numgroups == 1 ) {
 			$groups = self::buildGroupLink( $row->singlegroup );
 		} else {
@@ -102,18 +131,33 @@ class UsersPager extends AlphabeticPager {
 		}
 
 		$item = wfSpecialList( $name, $groups );
+
+		global $wgEdititis;
+		if ( $wgEdititis ) {
+			$editCount = $wgLang->formatNum( $row->edits );
+			$edits = ' [' . wfMsgExt( 'usereditcount', 'parsemag', $editCount ) . ']';
+		} else {
+			$edits = '';
+		}
+
+		$created = '';
+		# Some rows may be NULL
+		if( $row->creation ) {
+			$d = $wgLang->date( wfTimestamp( TS_MW, $row->creation ), true );
+			$t = $wgLang->time( wfTimestamp( TS_MW, $row->creation ), true );
+			$created = ' (' . wfMsgHtml( 'usercreated', $d, $t ) . ')';
+		}
+
 		wfRunHooks( 'SpecialListusersFormatRow', array( &$item, $row ) );
-		return "<li>{$item}</li>";
+		return "<li>{$item}{$edits}{$created}</li>";
 	}
 
 	function getBody() {
-		if (!$this->mQueryDone) {
+		if( !$this->mQueryDone ) {
 			$this->doQuery();
 		}
-		$batch = new LinkBatch;
-
 		$this->mResult->rewind();
-
+		$batch = new LinkBatch;
 		while ( $row = $this->mResult->fetchObject() ) {
 			$batch->addObj( Title::makeTitleSafe( NS_USER, $row->user_name ) );
 		}
@@ -127,10 +171,9 @@ class UsersPager extends AlphabeticPager {
 		$self = $this->getTitle();
 
 		# Form tag
-		$out  = Xml::openElement( 'form', array( 'method' => 'get', 'action' => $wgScript ) ) .
-			'<fieldset>' .
-			Xml::element( 'legend', array(), wfMsg( 'listusers' ) );
-		$out .= Xml::hidden( 'title', $self->getPrefixedDbKey() );
+		$out  = Xml::openElement( 'form', array( 'method' => 'get', 'action' => $wgScript, 'id' => 'mw-listusers-form' ) ) .
+			Xml::fieldset( wfMsg( 'listusers' ) ) .
+			Xml::hidden( 'title', $self->getPrefixedDbKey() );
 
 		# Username field
 		$out .= Xml::label( wfMsg( 'listusersfrom' ), 'offset' ) . ' ' .
@@ -142,26 +185,34 @@ class UsersPager extends AlphabeticPager {
 			Xml::option( wfMsg( 'group-all' ), '' );
 		foreach( $this->getAllGroups() as $group => $groupText )
 			$out .= Xml::option( $groupText, $group, $group == $this->requestedGroup );
-		$out .= Xml::closeElement( 'select' ) . ' ';
+		$out .= Xml::closeElement( 'select' ) . '<br/>';
+		$out .= Xml::checkLabel( wfMsg('listusers-editsonly'), 'editsOnly', 'editsOnly', $this->editsOnly );
+		$out .= '&nbsp;';
+		$out .= Xml::checkLabel( wfMsg('listusers-creationsort'), 'creationSort', 'creationSort', $this->creationSort );
+		$out .= '<br/>';
 
 		wfRunHooks( 'SpecialListusersHeaderForm', array( $this, &$out ) );
 
 		# Submit button and form bottom
-		if( $this->mLimit )
-			$out .= Xml::hidden( 'limit', $this->mLimit );
+		$out .= Xml::hidden( 'limit', $this->mLimit );
 		$out .= Xml::submitButton( wfMsg( 'allpagessubmit' ) );
 		wfRunHooks( 'SpecialListusersHeader', array( $this, &$out ) );
-		$out .= '</fieldset>' .
+		$out .= Xml::closeElement( 'fieldset' ) .
 			Xml::closeElement( 'form' );
 
 		return $out;
 	}
 
+	/**
+	 * Get a list of all explicit groups
+	 * @return array
+	 */
 	function getAllGroups() {
 		$result = array();
 		foreach( User::getAllGroups() as $group ) {
 			$result[$group] = User::getGroupName( $group );
 		}
+		asort( $result );
 		return $result;
 	}
 
@@ -186,14 +237,8 @@ class UsersPager extends AlphabeticPager {
 	 * @return array
 	 */
 	protected static function getGroups( $uid ) {
-		$dbr = wfGetDB( DB_SLAVE );
-		$groups = array();
-		$res = $dbr->select( 'user_groups', 'ug_group', array( 'ug_user' => $uid ), __METHOD__ );
-		if( $res && $dbr->numRows( $res ) > 0 ) {
-			while( $row = $dbr->fetchObject( $res ) )
-				$groups[] = $row->ug_group;
-			$dbr->freeResult( $res );
-		}
+		$user = User::newFromId( $uid );
+		$groups = array_diff( $user->getEffectiveGroups(), $user->getImplicitGroups() );
 		return $groups;
 	}
 
@@ -222,7 +267,8 @@ function wfSpecialListusers( $par = null ) {
 
 	# getBody() first to check, if empty
 	$usersbody = $up->getBody();
-	$s = $up->getPageHeader();
+	$s = XML::openElement( 'div', array('class' => 'mw-spcontent') );
+	$s .= $up->getPageHeader();
 	if( $usersbody ) {
 		$s .=	$up->getNavigationBar();
 		$s .=	'<ul>' . $usersbody . '</ul>';
@@ -230,6 +276,6 @@ function wfSpecialListusers( $par = null ) {
 	} else {
 		$s .=	'<p>' . wfMsgHTML('listusers-noresult') . '</p>';
 	};
-
+	$s .= XML::closeElement( 'div' );
 	$wgOut->addHTML( $s );
 }

@@ -13,6 +13,7 @@ class ParserOptions
 	var $mInterwikiMagic;            # Interlanguage links are removed and returned in an array
 	var $mAllowExternalImages;       # Allow external images inline
 	var $mAllowExternalImagesFrom;   # If not, any exception?
+	var $mEnableImageWhitelist;      # If not or it doesn't match, should we check an on-wiki whitelist?
 	var $mSkin;                      # Reference to the preferred skin
 	var $mDateFormat;                # Date format index
 	var $mEditSection;               # Create "edit section" links
@@ -29,14 +30,19 @@ class ParserOptions
 	var $mTemplateCallback;          # Callback for template fetching
 	var $mEnableLimitReport;         # Enable limit report in an HTML comment on output
 	var $mTimestamp;                 # Timestamp used for {{CURRENTDAY}} etc.
+	var $mExternalLinkTarget;        # Target attribute for external links
 
 	var $mUser;                      # Stored user object, just used to initialise the skin
-
+	var $mIsPreview;                 # Parsing the page for a "preview" operation
+	var $mIsSectionPreview;          # Parsing the page for a "preview" operation on a single section
+	var $mIsPrintable;                     # Parsing the printable version of the page
+	
 	function getUseTeX()                        { return $this->mUseTeX; }
 	function getUseDynamicDates()               { return $this->mUseDynamicDates; }
 	function getInterwikiMagic()                { return $this->mInterwikiMagic; }
 	function getAllowExternalImages()           { return $this->mAllowExternalImages; }
 	function getAllowExternalImagesFrom()       { return $this->mAllowExternalImagesFrom; }
+	function getEnableImageWhitelist()          { return $this->mEnableImageWhitelist; }
 	function getEditSection()                   { return $this->mEditSection; }
 	function getNumberHeadings()                { return $this->mNumberHeadings; }
 	function getAllowSpecialInclusion()         { return $this->mAllowSpecialInclusion; }
@@ -49,7 +55,12 @@ class ParserOptions
 	function getRemoveComments()                { return $this->mRemoveComments; }
 	function getTemplateCallback()              { return $this->mTemplateCallback; }
 	function getEnableLimitReport()             { return $this->mEnableLimitReport; }
-
+	function getCleanSignatures()               { return $this->mCleanSignatures; }
+	function getExternalLinkTarget()            { return $this->mExternalLinkTarget; }
+	function getIsPreview()                     { return $this->mIsPreview; }
+	function getIsSectionPreview()              { return $this->mIsSectionPreview; }
+  function getIsPrintable()            { return $this->mIsPrintable; }
+  
 	function getSkin() {
 		if ( !isset( $this->mSkin ) ) {
 			$this->mSkin = $this->mUser->getSkin();
@@ -76,6 +87,7 @@ class ParserOptions
 	function setInterwikiMagic( $x )            { return wfSetVar( $this->mInterwikiMagic, $x ); }
 	function setAllowExternalImages( $x )       { return wfSetVar( $this->mAllowExternalImages, $x ); }
 	function setAllowExternalImagesFrom( $x )   { return wfSetVar( $this->mAllowExternalImagesFrom, $x ); }
+	function setEnableImageWhitelist( $x )      { return wfSetVar( $this->mEnableImageWhitelist, $x ); }
 	function setDateFormat( $x )                { return wfSetVar( $this->mDateFormat, $x ); }
 	function setEditSection( $x )               { return wfSetVar( $this->mEditSection, $x ); }
 	function setNumberHeadings( $x )            { return wfSetVar( $this->mNumberHeadings, $x ); }
@@ -91,7 +103,12 @@ class ParserOptions
 	function setTemplateCallback( $x )          { return wfSetVar( $this->mTemplateCallback, $x ); }
 	function enableLimitReport( $x = true )     { return wfSetVar( $this->mEnableLimitReport, $x ); }
 	function setTimestamp( $x )                 { return wfSetVar( $this->mTimestamp, $x ); }
-
+	function setCleanSignatures( $x )           { return wfSetVar( $this->mCleanSignatures, $x ); }
+	function setExternalLinkTarget( $x )        { return wfSetVar( $this->mExternalLinkTarget, $x ); }
+	function setIsPreview( $x )                 { return wfSetVar( $this->mIsPreview, $x ); }
+	function setIsSectionPreview( $x )          { return wfSetVar( $this->mIsSectionPreview, $x ); }
+  function setIsPrintable( $x )        { return wfSetVar( $this->mIsPrintable, $x ); }
+  
 	function __construct( $user = null ) {
 		$this->initialiseFromUser( $user );
 	}
@@ -107,8 +124,9 @@ class ParserOptions
 	/** Get user options */
 	function initialiseFromUser( $userInput ) {
 		global $wgUseTeX, $wgUseDynamicDates, $wgInterwikiMagic, $wgAllowExternalImages;
-		global $wgAllowExternalImagesFrom, $wgAllowSpecialInclusion, $wgMaxArticleSize;
-		global $wgMaxPPNodeCount, $wgMaxTemplateDepth, $wgMaxPPExpandDepth;
+		global $wgAllowExternalImagesFrom, $wgEnableImageWhitelist, $wgAllowSpecialInclusion, $wgMaxArticleSize;
+		global $wgMaxPPNodeCount, $wgMaxTemplateDepth, $wgMaxPPExpandDepth, $wgCleanSignatures;
+		global $wgExternalLinkTarget;
 		$fname = 'ParserOptions::initialiseFromUser';
 		wfProfileIn( $fname );
 		if ( !$userInput ) {
@@ -129,6 +147,7 @@ class ParserOptions
 		$this->mInterwikiMagic = $wgInterwikiMagic;
 		$this->mAllowExternalImages = $wgAllowExternalImages;
 		$this->mAllowExternalImagesFrom = $wgAllowExternalImagesFrom;
+		$this->mEnableImageWhitelist = $wgEnableImageWhitelist;
 		$this->mSkin = null; # Deferred
 		$this->mDateFormat = null; # Deferred
 		$this->mEditSection = true;
@@ -144,6 +163,10 @@ class ParserOptions
 		$this->mRemoveComments = true;
 		$this->mTemplateCallback = array( 'Parser', 'statelessFetchTemplate' );
 		$this->mEnableLimitReport = false;
+		$this->mCleanSignatures = $wgCleanSignatures;
+		$this->mExternalLinkTarget = $wgExternalLinkTarget;
+		$this->mIsPreview = false;
+		$this->mIsSectionPreview = false;
 		wfProfileOut( $fname );
 	}
 }

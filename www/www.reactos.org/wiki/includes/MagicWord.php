@@ -78,6 +78,7 @@ class MagicWord {
 		'revisionmonth',
 		'revisionyear',
 		'revisiontimestamp',
+		'revisionuser',
 		'subpagename',
 		'subpagenamee',
 		'displaytitle',
@@ -90,7 +91,9 @@ class MagicWord {
 		'subjectpagename',
 		'subjectpagenamee',
 		'numberofusers',
+		'numberofactiveusers',
 		'newsectionlink',
+		'nonewsectionlink',
 		'numberofpages',
 		'currentversion',
 		'basepagename',
@@ -103,8 +106,12 @@ class MagicWord {
 		'contentlanguage',
 		'pagesinnamespace',
 		'numberofadmins',
+		'numberofviews',
 		'defaultsort',
 		'pagesincategory',
+		'index',
+		'noindex',
+		'numberingroup',
 	);
 
 	/* Array of caching hints for ParserCache */
@@ -137,12 +144,15 @@ class MagicWord {
 		'localweek' => 3600,
 		'localdow' => 3600,
 		'numberofusers' => 3600,
+		'numberofactiveusers' => 3600,
 		'numberofpages' => 3600,
 		'currentversion' => 86400,
 		'currenttimestamp' => 3600,
 		'localtimestamp' => 3600,
 		'pagesinnamespace' => 3600,
 		'numberofadmins' => 3600,
+		'numberofviews' => 3600,
+		'numberingroup' => 3600,
 		);
 
 	static public $mDoubleUnderscoreIDs = array(
@@ -152,7 +162,10 @@ class MagicWord {
 		'toc',
 		'noeditsection',
 		'newsectionlink',
+		'nonewsectionlink',
 		'hiddencat',
+		'index',
+		'noindex',
 		'staticredirect',
 	);
 

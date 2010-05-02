@@ -58,7 +58,7 @@ class ApiQueryLangLinks extends ApiQueryBase {
 				$this->dieUsage("Invalid continue param. You should pass the " .
 					"original value returned by the previous query", "_badcontinue");
 			$llfrom = intval($cont[0]);
-			$lllang = $this->getDb()->strencode($cont[1]);
+			$lllang = $this->getDB()->strencode($cont[1]);
 			$this->addWhere("ll_from > $llfrom OR ".
 					"(ll_from = $llfrom AND ".
 					"ll_lang >= '$lllang')");
@@ -71,8 +71,6 @@ class ApiQueryLangLinks extends ApiQueryBase {
 		$this->addOption('LIMIT', $params['limit'] + 1);
 		$res = $this->select(__METHOD__);
 
-		$data = array();
-		$lastId = 0;	// database has no ID 0
 		$count = 0;
 		$db = $this->getDB();
 		while ($row = $db->fetchObject($res)) {
@@ -82,23 +80,15 @@ class ApiQueryLangLinks extends ApiQueryBase {
 				$this->setContinueEnumParameter('continue', "{$row->ll_from}|{$row->ll_lang}");
 				break;
 			}
-			if ($lastId != $row->ll_from) {
-				if($lastId != 0) {
-					$this->addPageSubItems($lastId, $data);
-					$data = array();
-				}
-				$lastId = $row->ll_from;
-			}
-
 			$entry = array('lang' => $row->ll_lang);
 			ApiResult :: setContent($entry, $row->ll_title);
-			$data[] = $entry;
+			$fit = $this->addPageSubItem($row->ll_from, $entry);
+			if(!$fit)
+			{
+				$this->setContinueEnumParameter('continue', "{$row->ll_from}|{$row->ll_lang}");
+				break;
+			}
 		}
-
-		if($lastId != 0) {
-			$this->addPageSubItems($lastId, $data);
-		}
-
 		$db->freeResult($res);
 	}
 
@@ -134,6 +124,6 @@ class ApiQueryLangLinks extends ApiQueryBase {
 	}
 
 	public function getVersion() {
-		return __CLASS__ . ': $Id: ApiQueryLangLinks.php 37534 2008-07-10 21:08:37Z brion $';
+		return __CLASS__ . ': $Id: ApiQueryLangLinks.php 46845 2009-02-05 14:30:59Z catrope $';
 	}
 }

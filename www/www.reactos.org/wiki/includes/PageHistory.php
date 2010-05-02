@@ -22,8 +22,9 @@ class PageHistory {
 	var $mArticle, $mTitle, $mSkin;
 	var $lastdate;
 	var $linesonpage;
-	var $mNotificationTimestamp;
 	var $mLatestId = null;
+	
+	private $mOldIdChecked = 0;
 
 	/**
 	 * Construct a new PageHistory.
@@ -31,12 +32,10 @@ class PageHistory {
 	 * @param Article $article
 	 * @returns nothing
 	 */
-	function __construct($article) {
+	function __construct( $article ) {
 		global $wgUser;
-
 		$this->mArticle =& $article;
 		$this->mTitle =& $article->mTitle;
-		$this->mNotificationTimestamp = NULL;
 		$this->mSkin = $wgUser->getSkin();
 		$this->preCacheMessages();
 	}
@@ -44,7 +43,7 @@ class PageHistory {
 	function getArticle() {
 		return $this->mArticle;
 	}
-	
+
 	function getTitle() {
 		return $this->mTitle;
 	}
@@ -68,15 +67,13 @@ class PageHistory {
 	 * @returns nothing
 	 */
 	function history() {
-		global $wgOut, $wgRequest, $wgTitle;
+		global $wgOut, $wgRequest, $wgTitle, $wgScript;
 
 		/*
 		 * Allow client caching.
 		 */
-
 		if( $wgOut->checkLastModified( $this->mArticle->getTouched() ) )
-			/* Client cache fresh and headers sent, nothing more to do. */
-			return;
+			return; // Client cache fresh and headers sent, nothing more to do.
 
 		wfProfileIn( __METHOD__ );
 
@@ -87,13 +84,14 @@ class PageHistory {
 		$wgOut->setPageTitleActionText( wfMsg( 'history_short' ) );
 		$wgOut->setArticleFlag( false );
 		$wgOut->setArticleRelated( true );
-		$wgOut->setRobotpolicy( 'noindex,nofollow' );
+		$wgOut->setRobotPolicy( 'noindex,nofollow' );
 		$wgOut->setSyndicated( true );
 		$wgOut->setFeedAppendQuery( 'action=history' );
 		$wgOut->addScriptFile( 'history.js' );
 
 		$logPage = SpecialPage::getTitleFor( 'Log' );
-		$logLink = $this->mSkin->makeKnownLinkObj( $logPage, wfMsgHtml( 'viewpagelogs' ), 'page=' . $this->mTitle->getPrefixedUrl() );
+		$logLink = $this->mSkin->makeKnownLinkObj( $logPage, wfMsgHtml( 'viewpagelogs' ),
+			'page=' . $this->mTitle->getPrefixedUrl() );
 		$wgOut->setSubtitle( $logLink );
 
 		$feedType = $wgRequest->getVal( 'feed' );
@@ -111,26 +109,32 @@ class PageHistory {
 			return;
 		}
 
-		/*
-		 * "go=first" means to jump to the last (earliest) history page.
-		 * This is deprecated, it no longer appears in the user interface
+		/**
+		 * Add date selector to quickly get to a certain time
 		 */
-		if ( $wgRequest->getText("go") == 'first' ) {
-			$limit = $wgRequest->getInt( 'limit', 50 );
-			global $wgFeedLimit;
-			if( $limit > $wgFeedLimit ) {
-				$limit = $wgFeedLimit;
-			}
-			$wgOut->redirect( $wgTitle->getLocalURL( "action=history&limit={$limit}&dir=prev" ) );
-			return;
-		}
+		$year = $wgRequest->getInt( 'year' );
+		$month = $wgRequest->getInt( 'month' );
+		$tagFilter = $wgRequest->getVal( 'tagfilter' );
+		$tagSelector = ChangeTags::buildTagFilterSelector( $tagFilter );
+
+		$action = htmlspecialchars( $wgScript );
+		$wgOut->addHTML(
+			"<form action=\"$action\" method=\"get\" id=\"mw-history-searchform\">" .
+			Xml::fieldset( wfMsg( 'history-fieldset-title' ), false, array( 'id' => 'mw-history-search' ) ) .
+			Xml::hidden( 'title', $this->mTitle->getPrefixedDBKey() ) . "\n" .
+			Xml::hidden( 'action', 'history' ) . "\n" .
+			xml::dateMenu( $year, $month ) . '&nbsp;' .
+			( $tagSelector ? ( implode( '&nbsp;', $tagSelector ) . '&nbsp;' ) : '' ) .
+			Xml::submitButton( wfMsg( 'allpagessubmit' ) ) . "\n" .
+			'</fieldset></form>'
+		);
 
 		wfRunHooks( 'PageHistoryBeforeList', array( &$this->mArticle ) );
 
 		/**
 		 * Do the list
 		 */
-		$pager = new PageHistoryPager( $this );
+		$pager = new PageHistoryPager( $this, $year, $month, $tagFilter );
 		$this->linesonpage = $pager->getNumRows();
 		$wgOut->addHTML(
 			$pager->getNavigationBar() .
@@ -139,6 +143,7 @@ class PageHistory {
 			$this->endHistoryList() .
 			$pager->getNavigationBar()
 		);
+
 		wfProfileOut( __METHOD__ );
 	}
 
@@ -148,12 +153,36 @@ class PageHistory {
 	 * @return string HTML output
 	 */
 	function beginHistoryList() {
-		global $wgTitle, $wgScript;
+		global $wgTitle, $wgScript, $wgEnableHtmlDiff;
 		$this->lastdate = '';
 		$s = wfMsgExt( 'histlegend', array( 'parse') );
-		$s .= Xml::openElement( 'form', array( 'action' => $wgScript ) );
+		$s .= Xml::openElement( 'form', array( 'action' => $wgScript, 'id' => 'mw-history-compare' ) );
 		$s .= Xml::hidden( 'title', $wgTitle->getPrefixedDbKey() );
-		$s .= $this->submitButton();
+		if( $wgEnableHtmlDiff ) {
+			$s .= $this->submitButton( wfMsg( 'visualcomparison'),
+				array(
+						'name' => 'htmldiff',
+						'class'     => 'historysubmit',
+						'accesskey' => wfMsg( 'accesskey-visualcomparison' ),
+						'title'     => wfMsg( 'tooltip-compareselectedversions' ),
+				)
+			);
+			$s .= $this->submitButton( wfMsg( 'wikicodecomparison'),
+				array(
+						'class'     => 'historysubmit',
+						'accesskey' => wfMsg( 'accesskey-compareselectedversions' ),
+						'title'     => wfMsg( 'tooltip-compareselectedversions' ),
+				)
+			);
+		} else {
+			$s .= $this->submitButton( wfMsg( 'compareselectedversions'),
+				array(
+						'class'     => 'historysubmit',
+						'accesskey' => wfMsg( 'accesskey-compareselectedversions' ),
+						'title'     => wfMsg( 'tooltip-compareselectedversions' ),
+				)
+			);
+		}
 		$s .= '<ul id="pagehistory">' . "\n";
 		return $s;
 	}
@@ -164,8 +193,33 @@ class PageHistory {
 	 * @return string HTML output
 	 */
 	function endHistoryList() {
+		global $wgEnableHtmlDiff;
 		$s = '</ul>';
-		$s .= $this->submitButton( array( 'id' => 'historysubmit' ) );
+		if( $wgEnableHtmlDiff ) {
+			$s .= $this->submitButton( wfMsg( 'visualcomparison'),
+				array(
+						'name' => 'htmldiff',
+						'class'     => 'historysubmit',
+						'accesskey' => wfMsg( 'accesskey-visualcomparison' ),
+						'title'     => wfMsg( 'tooltip-compareselectedversions' ),
+				)
+			);
+			$s .= $this->submitButton( wfMsg( 'wikicodecomparison'),
+				array(
+						'class'     => 'historysubmit',
+						'accesskey' => wfMsg( 'accesskey-compareselectedversions' ),
+						'title'     => wfMsg( 'tooltip-compareselectedversions' ),
+				)
+			);
+		} else {
+			$s .= $this->submitButton( wfMsg( 'compareselectedversions'),
+				array(
+						'class'     => 'historysubmit',
+						'accesskey' => wfMsg( 'accesskey-compareselectedversions' ),
+						'title'     => wfMsg( 'tooltip-compareselectedversions' ),
+				)
+			);
+		}
 		$s .= '</form>';
 		return $s;
 	}
@@ -173,19 +227,13 @@ class PageHistory {
 	/**
 	 * Creates a submit button
 	 *
-	 * @param array $bits optional CSS ID
+	 * @param array $attributes attributes
 	 * @return string HTML output for the submit button
 	 */
-	function submitButton( $bits = array() ) {
+	function submitButton($message, $attributes = array() ) {
 		# Disable submit button if history has 1 revision only
-		if ( $this->linesonpage > 1 ) {
-			return Xml::submitButton( wfMsg( 'compareselectedversions' ),
-				$bits + array(
-					'class'     => 'historysubmit',
-					'accesskey' => wfMsg( 'accesskey-compareselectedversions' ),
-					'title'     => wfMsg( 'tooltip-compareselectedversions' ),
-					)
-				);
+		if( $this->linesonpage > 1 ) {
+			return Xml::submitButton( $message , $attributes );
 		} else {
 			return '';
 		}
@@ -209,132 +257,130 @@ class PageHistory {
 		$rev = new Revision( $row );
 		$rev->setTitle( $this->mTitle );
 
-		$s = '';
 		$curlink = $this->curLink( $rev, $latest );
 		$lastlink = $this->lastLink( $rev, $next, $counter );
 		$arbitrary = $this->diffButtons( $rev, $firstInList, $counter );
 		$link = $this->revLink( $rev );
+		$classes = array();
 
-		$s .= "($curlink) ($lastlink) $arbitrary";
+		$s = "($curlink) ($lastlink) $arbitrary";
 
 		if( $wgUser->isAllowed( 'deleterevision' ) ) {
-			$revdel = SpecialPage::getTitleFor( 'Revisiondelete' );
-			if( $firstInList ) {
-			// We don't currently handle well changing the top revision's settings
-				$del = $this->message['rev-delundel'];
+			if( $latest ) {
+				// We don't currently handle well changing the top revision's settings
+				$del = Xml::tags( 'span', array( 'class'=>'mw-revdelundel-link' ), '('.$this->message['rev-delundel'].')' );
 			} else if( !$rev->userCan( Revision::DELETED_RESTRICTED ) ) {
-			// If revision was hidden from sysops
-				$del = $this->message['rev-delundel'];
+				// If revision was hidden from sysops
+				$del = Xml::tags( 'span', array( 'class'=>'mw-revdelundel-link' ), '('.$this->message['rev-delundel'].')' );
 			} else {
-				$del = $this->mSkin->makeKnownLinkObj( $revdel,
-					$this->message['rev-delundel'],
-					'target=' . urlencode( $this->mTitle->getPrefixedDbkey() ) .
-					'&oldid=' . urlencode( $rev->getId() ) );
-				// Bolden oversighted content
-				if( $rev->isDeleted( Revision::DELETED_RESTRICTED ) )
-					$del = "<strong>$del</strong>";
+				$query = array( 'target' => $this->mTitle->getPrefixedDbkey(),
+					'oldid' => $rev->getId()
+				);
+				$del = $this->mSkin->revDeleteLink( $query, $rev->isDeleted( Revision::DELETED_RESTRICTED ) );
 			}
-			$s .= " <tt>(<small>$del</small>)</tt> ";
+			$s .= " $del ";
 		}
 
 		$s .= " $link";
 		$s .= " <span class='history-user'>" . $this->mSkin->revUserTools( $rev, true ) . "</span>";
 
-		if( $row->rev_minor_edit ) {
+		if( $rev->isMinor() ) {
 			$s .= ' ' . Xml::element( 'span', array( 'class' => 'minor' ), wfMsg( 'minoreditletter') );
 		}
 
-		if ( !is_null( $size = $rev->getSize() ) && $rev->userCan( Revision::DELETED_TEXT ) ) {
+		if( !is_null( $size = $rev->getSize() ) && !$rev->isDeleted( Revision::DELETED_TEXT ) ) {
 			$s .= ' ' . $this->mSkin->formatRevisionSize( $size );
 		}
 
 		$s .= $this->mSkin->revComment( $rev, false, true );
 
-		if ($notificationtimestamp && ($row->rev_timestamp >= $notificationtimestamp)) {
+		if( $notificationtimestamp && ($row->rev_timestamp >= $notificationtimestamp) ) {
 			$s .= ' <span class="updatedmarker">' .  wfMsgHtml( 'updatedmarker' ) . '</span>';
 		}
-		#add blurb about text having been deleted
 		if( $rev->isDeleted( Revision::DELETED_TEXT ) ) {
 			$s .= ' <tt>' . wfMsgHtml( 'deletedrev' ) . '</tt>';
 		}
 
 		$tools = array();
 
-		if ( !is_null( $next ) && is_object( $next ) ) {
-			if( !$this->mTitle->getUserPermissionsErrors( 'rollback', $wgUser )
-			&& !$this->mTitle->getUserPermissionsErrors( 'edit', $wgUser )
-			&& $latest ) {
-				$tools[] = '<span class="mw-rollback-link">'
-					. $this->mSkin->buildRollbackLink( $rev )
-					. '</span>';
+		if( !is_null( $next ) && is_object( $next ) ) {
+			if( $latest && $this->mTitle->userCan( 'rollback' ) && $this->mTitle->userCan( 'edit' ) ) {
+				$tools[] = '<span class="mw-rollback-link">'.$this->mSkin->buildRollbackLink( $rev ).'</span>';
 			}
 
-			if( $this->mTitle->quickUserCan( 'edit' ) &&
-				!$rev->isDeleted( Revision::DELETED_TEXT ) &&
-				!$next->rev_deleted & Revision::DELETED_TEXT ) {
-				$undolink = $this->mSkin->makeKnownLinkObj(
+			if( $this->mTitle->quickUserCan( 'edit' ) && !$rev->isDeleted( Revision::DELETED_TEXT ) &&
+				!$next->rev_deleted & Revision::DELETED_TEXT )
+			{
+				# Create undo tooltip for the first (=latest) line only
+				$undoTooltip = $latest
+					? array( 'title' => wfMsg( 'tooltip-undo' ) )
+					: array();
+				$undolink = $this->mSkin->link(
 					$this->mTitle,
 					wfMsgHtml( 'editundo' ),
-					'action=edit&undoafter=' . $next->rev_id . '&undo=' . $rev->getId()
+					$undoTooltip,
+					array( 'action' => 'edit', 'undoafter' => $next->rev_id, 'undo' => $rev->getId() ),
+					array( 'known', 'noclasses' )
 				);
 				$tools[] = "<span class=\"mw-history-undo\">{$undolink}</span>";
 			}
 		}
 
 		if( $tools ) {
-			$s .= ' (' . implode( ' | ', $tools ) . ')';
+			$s .= ' (' . $wgLang->pipeList( $tools ) . ')';
 		}
+
+		# Tags
+		list($tagSummary, $newClasses) = ChangeTags::formatSummaryRow( $row->ts_tags, 'history' );
+		$classes = array_merge( $classes, $newClasses );
+		$s .= " $tagSummary";
 
 		wfRunHooks( 'PageHistoryLineEnding', array( $this, &$row , &$s ) );
 
-		return "<li>$s</li>\n";
+		$classes = implode( ' ', $classes );
+
+		return "<li class=\"$classes\">$s</li>\n";
 	}
 
 	/**
-	* Create a link to view this revision of the page
-	* @param Revision $rev
-	* @returns string
-	*/
+	 * Create a link to view this revision of the page
+	 * @param Revision $rev
+	 * @returns string
+	 */
 	function revLink( $rev ) {
 		global $wgLang;
 		$date = $wgLang->timeanddate( wfTimestamp(TS_MW, $rev->getTimestamp()), true );
-		if( $rev->userCan( Revision::DELETED_TEXT ) ) {
-			$link = $this->mSkin->makeKnownLinkObj(
-				$this->mTitle, $date, "oldid=" . $rev->getId() );
+		if( !$rev->isDeleted( Revision::DELETED_TEXT ) ) {
+			$link = $this->mSkin->makeKnownLinkObj( $this->mTitle, $date, "oldid=" . $rev->getId() );
 		} else {
-			$link = $date;
-		}
-		if( $rev->isDeleted( Revision::DELETED_TEXT ) ) {
-			return '<span class="history-deleted">' . $link . '</span>';
+			$link = '<span class="history-deleted">' . $date . '</span>';
 		}
 		return $link;
 	}
 
 	/**
-	* Create a diff-to-current link for this revision for this page
-	* @param Revision $rev
-	* @param Bool $latest, this is the latest revision of the page?
-	* @returns string
-	*/
+	 * Create a diff-to-current link for this revision for this page
+	 * @param Revision $rev
+	 * @param Bool $latest, this is the latest revision of the page?
+	 * @returns string
+	 */
 	function curLink( $rev, $latest ) {
 		$cur = $this->message['cur'];
-		if( $latest || !$rev->userCan( Revision::DELETED_TEXT ) ) {
+		if( $latest || $rev->isDeleted( Revision::DELETED_TEXT ) ) {
 			return $cur;
 		} else {
-			return $this->mSkin->makeKnownLinkObj(
-				$this->mTitle, $cur,
-				'diff=' . $this->getLatestID() .
-				"&oldid=" . $rev->getId() );
+			return $this->mSkin->makeKnownLinkObj( $this->mTitle, $cur,
+				'diff=' . $this->mTitle->getLatestRevID() . "&oldid=" . $rev->getId() );
 		}
 	}
 
 	/**
-	* Create a diff-to-previous link for this revision for this page.
-	* @param Revision $prevRev, the previous revision
-	* @param mixed $next, the newer revision
-	* @param int $counter, what row on the history list this is
-	* @returns string
-	*/
+	 * Create a diff-to-previous link for this revision for this page.
+	 * @param Revision $prevRev, the previous revision
+	 * @param mixed $next, the newer revision
+	 * @param int $counter, what row on the history list this is
+	 * @returns string
+	 */
 	function lastLink( $prevRev, $next, $counter ) {
 		$last = $this->message['last'];
 		# $next may either be a Row, null, or "unkown"
@@ -344,21 +390,13 @@ class PageHistory {
 			return $last;
 		} elseif( $next === 'unknown' ) {
 			# Next row probably exists but is unknown, use an oldid=prev link
-			return $this->mSkin->makeKnownLinkObj(
-				$this->mTitle,
-				$last,
+			return $this->mSkin->makeKnownLinkObj( $this->mTitle, $last,
 				"diff=" . $prevRev->getId() . "&oldid=prev" );
-		} elseif( !$prevRev->userCan(Revision::DELETED_TEXT) || !$nextRev->userCan(Revision::DELETED_TEXT) ) {
+		} elseif( $prevRev->isDeleted(Revision::DELETED_TEXT) || $nextRev->isDeleted(Revision::DELETED_TEXT) ) {
 			return $last;
 		} else {
-			return $this->mSkin->makeKnownLinkObj(
-				$this->mTitle,
-				$last,
-				"diff=" . $prevRev->getId() . "&oldid={$next->rev_id}"
-				/*,
-				'',
-				'',
-				"tabindex={$counter}"*/ );
+			return $this->mSkin->makeKnownLinkObj( $this->mTitle, $last,
+				"diff=" . $prevRev->getId() . "&oldid={$next->rev_id}" );
 		}
 	}
 
@@ -371,57 +409,33 @@ class PageHistory {
 	 * @return string HTML output for the radio buttons
 	 */
 	function diffButtons( $rev, $firstInList, $counter ) {
-		if( $this->linesonpage > 1) {
-			$radio = array(
-				'type'  => 'radio',
-				'value' => $rev->getId(),
-			);
-
-			if( !$rev->userCan( Revision::DELETED_TEXT ) ) {
-				$radio['disabled'] = 'disabled';
-			}
-
+		if( $this->linesonpage > 1 ) {
+			$radio = array( 'type'  => 'radio', 'value' => $rev->getId() );
 			/** @todo: move title texts to javascript */
-			if ( $firstInList ) {
-				$first = Xml::element( 'input', array_merge(
-					$radio,
-					array(
-						'style' => 'visibility:hidden',
-						'name'  => 'oldid' ) ) );
+			if( $firstInList ) {
+				$first = Xml::element( 'input', 
+					array_merge( $radio, array( 'style' => 'visibility:hidden', 'name'  => 'oldid' ) )
+				);
 				$checkmark = array( 'checked' => 'checked' );
 			} else {
-				if( $counter == 2 ) {
+				# Check visibility of old revisions
+				if( $rev->isDeleted( Revision::DELETED_TEXT ) ) {
+					$radio['disabled'] = 'disabled';
+					$checkmark = array(); // We will check the next possible one
+				} else if( $counter == 2 || !$this->mOldIdChecked ) {
 					$checkmark = array( 'checked' => 'checked' );
+					$this->mOldIdChecked = $rev->getId();
 				} else {
 					$checkmark = array();
 				}
-				$first = Xml::element( 'input', array_merge(
-					$radio,
-					$checkmark,
-					array( 'name'  => 'oldid' ) ) );
+				$first = Xml::element( 'input', array_merge( $radio, $checkmark, array( 'name'  => 'oldid' ) ) );
 				$checkmark = array();
 			}
-			$second = Xml::element( 'input', array_merge(
-				$radio,
-				$checkmark,
-				array( 'name'  => 'diff' ) ) );
+			$second = Xml::element( 'input', array_merge( $radio, $checkmark, array( 'name'  => 'diff' ) ) );
 			return $first . $second;
 		} else {
 			return '';
 		}
-	}
-
-	/** @todo document */
-	function getLatestId() {
-		if( is_null( $this->mLatestId ) ) {
-			$id = $this->mTitle->getArticleID();
-			$db = wfGetDB( DB_SLAVE );
-			$this->mLatestId = $db->selectField( 'page',
-				"page_latest",
-				array( 'page_id' => $id ),
-				__METHOD__ );
-		}
-		return $this->mLatestId;
 	}
 
 	/**
@@ -432,61 +446,25 @@ class PageHistory {
 	function fetchRevisions($limit, $offset, $direction) {
 		$dbr = wfGetDB( DB_SLAVE );
 
-		if ($direction == PageHistory::DIR_PREV)
+		if( $direction == PageHistory::DIR_PREV )
 			list($dirs, $oper) = array("ASC", ">=");
 		else /* $direction == PageHistory::DIR_NEXT */
 			list($dirs, $oper) = array("DESC", "<=");
 
-		if ($offset)
+		if( $offset )
 			$offsets = array("rev_timestamp $oper '$offset'");
 		else
 			$offsets = array();
 
 		$page_id = $this->mTitle->getArticleID();
 
-		$res = $dbr->select(
-			'revision',
+		return $dbr->select( 'revision',
 			Revision::selectFields(),
 			array_merge(array("rev_page=$page_id"), $offsets),
 			__METHOD__,
-			array('ORDER BY' => "rev_timestamp $dirs",
+			array( 'ORDER BY' => "rev_timestamp $dirs", 
 				'USE INDEX' => 'page_timestamp', 'LIMIT' => $limit)
-			);
-
-		$result = array();
-		while (($obj = $dbr->fetchObject($res)) != NULL)
-			$result[] = $obj;
-
-		return $result;
-	}
-
-	/** @todo document */
-	function getNotificationTimestamp() {
-		global $wgUser, $wgShowUpdatedMarker;
-
-		if ($this->mNotificationTimestamp !== NULL)
-			return $this->mNotificationTimestamp;
-
-		if ($wgUser->isAnon() || !$wgShowUpdatedMarker)
-			return $this->mNotificationTimestamp = false;
-
-		$dbr = wfGetDB(DB_SLAVE);
-
-		$this->mNotificationTimestamp = $dbr->selectField(
-			'watchlist',
-			'wl_notificationtimestamp',
-			array(	'wl_namespace' => $this->mTitle->getNamespace(),
-				'wl_title' => $this->mTitle->getDBkey(),
-				'wl_user' => $wgUser->getId()
-			),
-			__METHOD__ );
-
-		// Don't use the special value reserved for telling whether the field is filled
-		if ( is_null( $this->mNotificationTimestamp ) ) {
-			$this->mNotificationTimestamp = false;
-		}
-
-		return $this->mNotificationTimestamp;
+		);
 	}
 
 	/**
@@ -495,15 +473,15 @@ class PageHistory {
 	 */
 	function feed( $type ) {
 		global $wgFeedClasses, $wgRequest, $wgFeedLimit;
-		if ( !FeedUtils::checkFeedOutput($type) ) {
+		if( !FeedUtils::checkFeedOutput($type) ) {
 			return;
 		}
 
 		$feed = new $wgFeedClasses[$type](
-			$this->mTitle->getPrefixedText() . ' - ' .
-				wfMsgForContent( 'history-feed-title' ),
-			wfMsgForContent( 'history-feed-description' ),
-			$this->mTitle->getFullUrl( 'action=history' ) );
+		$this->mTitle->getPrefixedText() . ' - ' .
+		wfMsgForContent( 'history-feed-title' ),
+		wfMsgForContent( 'history-feed-description' ),
+		$this->mTitle->getFullUrl( 'action=history' ) );
 
 		// Get a limit on number of feed entries. Provide a sane default
 		// of 10 if none is defined (but limit to $wgFeedLimit max)
@@ -511,7 +489,7 @@ class PageHistory {
 		if( $limit > $wgFeedLimit || $limit < 1 ) {
 			$limit = 10;
 		}
- 		$items = $this->fetchRevisions($limit, 0, PageHistory::DIR_NEXT);
+		$items = $this->fetchRevisions($limit, 0, PageHistory::DIR_NEXT);
 
 		$feed->outHeader();
 		if( $items ) {
@@ -531,7 +509,7 @@ class PageHistory {
 			$wgOut->parse( wfMsgForContent( 'history-feed-empty' ) ),
 			$this->mTitle->getFullUrl(),
 			wfTimestamp( TS_MW ),
-			'',
+				'',
 			$this->mTitle->getTalkPage()->getFullUrl() );
 	}
 
@@ -547,18 +525,18 @@ class PageHistory {
 		$rev = new Revision( $row );
 		$rev->setTitle( $this->mTitle );
 		$text = FeedUtils::formatDiffRow( $this->mTitle,
-			$this->mTitle->getPreviousRevisionID( $rev->getId() ),
-			$rev->getId(),
-			$rev->getTimestamp(),
-			$rev->getComment() );
+		$this->mTitle->getPreviousRevisionID( $rev->getId() ),
+		$rev->getId(),
+		$rev->getTimestamp(),
+		$rev->getComment() );
 
 		if( $rev->getComment() == '' ) {
 			global $wgContLang;
 			$title = wfMsgForContent( 'history-feed-item-nocomment',
-				$rev->getUserText(),
-				$wgContLang->timeanddate( $rev->getTimestamp() ) );
+			$rev->getUserText(),
+			$wgContLang->timeanddate( $rev->getTimestamp() ) );
 		} else {
-			$title = $rev->getUserText() . ": " . $this->stripComment( $rev->getComment() );
+			$title = $rev->getUserText() . wfMsgForContent( 'colon-separator' ) . FeedItem::stripComment( $rev->getComment() );
 		}
 
 		return new FeedItem(
@@ -569,13 +547,6 @@ class PageHistory {
 			$rev->getUserText(),
 			$this->mTitle->getTalkPage()->getFullUrl() );
 	}
-
-	/**
-	 * Quickie hack... strip out wikilinks to more legible form from the comment.
-	 */
-	function stripComment( $text ) {
-		return preg_replace( '/\[\[([^]]*\|)?([^]]+)\]\]/', '\2', $text );
-	}
 }
 
 
@@ -583,20 +554,30 @@ class PageHistory {
  * @ingroup Pager
  */
 class PageHistoryPager extends ReverseChronologicalPager {
-	public $mLastRow = false, $mPageHistory;
+	public $mLastRow = false, $mPageHistory, $mTitle;
 
-	function __construct( $pageHistory ) {
+	function __construct( $pageHistory, $year='', $month='', $tagFilter = '' ) {
 		parent::__construct();
 		$this->mPageHistory = $pageHistory;
+		$this->mTitle =& $this->mPageHistory->mTitle;
+		$this->tagFilter = $tagFilter;
+		$this->getDateCond( $year, $month );
 	}
 
 	function getQueryInfo() {
 		$queryInfo = array(
 			'tables'  => array('revision'),
-			'fields'  => Revision::selectFields(),
+			'fields'  => array_merge( Revision::selectFields(), array('ts_tags') ),
 			'conds'   => array('rev_page' => $this->mPageHistory->mTitle->getArticleID() ),
-			'options' => array( 'USE INDEX' => array('revision' => 'page_timestamp') )
+			'options' => array( 'USE INDEX' => array('revision' => 'page_timestamp') ),
+			'join_conds' => array( 'tag_summary' => array( 'LEFT JOIN', 'ts_rev_id=rev_id' ) ),
 		);
+		ChangeTags::modifyDisplayQuery( $queryInfo['tables'],
+										$queryInfo['fields'],
+										$queryInfo['conds'],
+										$queryInfo['join_conds'],
+										$queryInfo['options'],
+										$this->tagFilter );
 		wfRunHooks( 'PageHistoryPager::getQueryInfo', array( &$this, &$queryInfo ) );
 		return $queryInfo;
 	}
@@ -606,11 +587,11 @@ class PageHistoryPager extends ReverseChronologicalPager {
 	}
 
 	function formatRow( $row ) {
-		if ( $this->mLastRow ) {
+		if( $this->mLastRow ) {
 			$latest = $this->mCounter == 1 && $this->mIsFirst;
 			$firstInList = $this->mCounter == 1;
 			$s = $this->mPageHistory->historyLine( $this->mLastRow, $row, $this->mCounter++,
-				$this->mPageHistory->getNotificationTimestamp(), $latest, $firstInList );
+				$this->mTitle->getNotificationTimestamp(), $latest, $firstInList );
 		} else {
 			$s = '';
 		}
@@ -625,12 +606,12 @@ class PageHistoryPager extends ReverseChronologicalPager {
 	}
 
 	function getEndBody() {
-		if ( $this->mLastRow ) {
+		if( $this->mLastRow ) {
 			$latest = $this->mCounter == 1 && $this->mIsFirst;
 			$firstInList = $this->mCounter == 1;
-			if ( $this->mIsBackwards ) {
+			if( $this->mIsBackwards ) {
 				# Next row is unknown, but for UI reasons, probably exists if an offset has been specified
-				if ( $this->mOffset == '' ) {
+				if( $this->mOffset == '' ) {
 					$next = null;
 				} else {
 					$next = 'unknown';
@@ -640,7 +621,7 @@ class PageHistoryPager extends ReverseChronologicalPager {
 				$next = $this->mPastTheEndRow;
 			}
 			$s = $this->mPageHistory->historyLine( $this->mLastRow, $next, $this->mCounter++,
-				$this->mPageHistory->getNotificationTimestamp(), $latest, $firstInList );
+				$this->mTitle->getNotificationTimestamp(), $latest, $firstInList );
 		} else {
 			$s = '';
 		}

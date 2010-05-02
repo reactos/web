@@ -1,6 +1,9 @@
 <?php
 /** Moldavian (Молдовеняскэ)
  *
+ * See MessagesQqq.php for message documentation incl. usage of parameters
+ * To improve a translation please visit http://translatewiki.net
+ *
  * @ingroup Language
  * @file
  *
@@ -9,6 +12,12 @@
  */
 
 $fallback = 'ro';
+
+$specialPageAliases = array(
+	'CreateAccount'             => array( 'КреареКонт' ),
+	'Preferences'               => array( 'Преферинце' ),
+	'Recentchanges'             => array( 'Модификэрьреченте' ),
+);
 
 $messages = array(
 # Dates
@@ -83,7 +92,7 @@ $messages = array(
 'userlogout' => 'Ынкиде сесиуня',
 
 # Edit pages
-'summary'     => 'Резумат',
+'summary'     => 'Резумат:',
 'watchthis'   => 'Привеште ачастэ паӂинэ',
 'showpreview' => 'Аратэ превизуализаре',
 
@@ -112,7 +121,7 @@ $messages = array(
 # Upload
 'upload' => 'Тримите фишиер',
 
-# Image description page
+# File description page
 'filehist'      => 'Историкул фишиерулуй',
 'filehist-user' => 'Утилизатор',
 'imagelinks'    => 'Легэтурь',

@@ -29,7 +29,7 @@ if (!defined('MEDIAWIKI')) {
 }
 
 /**
- * This query adds <categories> subelement to all pages with the list of images embedded into those pages.
+ * This query adds the <categories> subelement to all pages with the list of categories the page is in
  *
  * @ingroup API
  */
@@ -39,11 +39,13 @@ class ApiQueryCategoryInfo extends ApiQueryBase {
 		parent :: __construct($query, $moduleName, 'ci');
 	}
 
-	public function execute() {			
+	public function execute() {
+		$params = $this->extractRequestParams();
 		$alltitles = $this->getPageSet()->getAllTitlesByNamespace();
-		$categories = $alltitles[NS_CATEGORY];
-		if(empty($categories))
+		if ( empty( $alltitles[NS_CATEGORY] ) ) {
 			return;
+		}
+		$categories = $alltitles[NS_CATEGORY];
 
 		$titles = $this->getPageSet()->getGoodTitles() +
 					$this->getPageSet()->getMissingTitles();
@@ -51,30 +53,60 @@ class ApiQueryCategoryInfo extends ApiQueryBase {
 		foreach($categories as $c)
 		{
 			$t = $titles[$c];
-			$cattitles[$c] = $t->getDbKey();
+			$cattitles[$c] = $t->getDBKey();
 		}
 
-		$this->addTables('category');
-		$this->addFields(array('cat_title', 'cat_pages', 'cat_subcats', 'cat_files', 'cat_hidden'));
-		$this->addWhere(array('cat_title' => $cattitles));			
+		$this->addTables(array('category', 'page', 'page_props'));
+		$this->addJoinConds(array(
+			'page' => array('LEFT JOIN', array(
+				'page_namespace' => NS_CATEGORY,
+				'page_title=cat_title')),
+			'page_props' => array('LEFT JOIN', array(
+				'pp_page=page_id',
+				'pp_propname' => 'hiddencat')),
+		));
+		$this->addFields(array('cat_title', 'cat_pages', 'cat_subcats', 'cat_files', 'pp_propname AS cat_hidden'));
+		$this->addWhere(array('cat_title' => $cattitles));
+		if(!is_null($params['continue']))
+		{
+			$title = $this->getDB()->addQuotes($params['continue']);
+			$this->addWhere("cat_title >= $title");
+		} 
+		$this->addOption('ORDER BY', 'cat_title');
 
 		$db = $this->getDB();
 		$res = $this->select(__METHOD__);
 
-		$data = array();
 		$catids = array_flip($cattitles);
 		while($row = $db->fetchObject($res))
 		{
 			$vals = array();
-			$vals['size'] = $row->cat_pages;
+			$vals['size'] = intval($row->cat_pages);
 			$vals['pages'] = $row->cat_pages - $row->cat_subcats - $row->cat_files;
-			$vals['files'] = $row->cat_files;
-			$vals['subcats'] = $row->cat_subcats;
+			$vals['files'] = intval($row->cat_files);
+			$vals['subcats'] = intval($row->cat_subcats);
 			if($row->cat_hidden)
 				$vals['hidden'] = '';
-			$this->addPageSubItems($catids[$row->cat_title], $vals);
+			$fit = $this->addPageSubItems($catids[$row->cat_title], $vals);
+			if(!$fit)
+			{
+				$this->setContinueEnumParameter('continue', $row->cat_title);
+				break;
+			}
 		}
 		$db->freeResult($res);
+	}
+
+	public function getAllowedParams() {
+		return array (
+			'continue' => null,
+		);
+	}
+
+	public function getParamDescription() {
+		return array (
+			'continue' => 'When more results are available, use this to continue',
+		);
 	}
 
 	public function getDescription() {
@@ -86,6 +118,6 @@ class ApiQueryCategoryInfo extends ApiQueryBase {
 	}
 
 	public function getVersion() {
-		return __CLASS__ . ': $Id: ApiQueryCategoryInfo.php 37504 2008-07-10 14:28:09Z catrope $';
+		return __CLASS__ . ': $Id: ApiQueryCategoryInfo.php 47865 2009-02-27 16:03:01Z catrope $';
 	}
 }

@@ -11,6 +11,22 @@
 define('MM_WELL_KNOWN_MIME_TYPES',<<<END_STRING
 application/ogg ogg ogm ogv
 application/pdf pdf
+application/vnd.oasis.opendocument.chart odc
+application/vnd.oasis.opendocument.chart-template otc
+application/vnd.oasis.opendocument.formula odf
+application/vnd.oasis.opendocument.formula-template otf
+application/vnd.oasis.opendocument.graphics odg
+application/vnd.oasis.opendocument.graphics-template otg
+application/vnd.oasis.opendocument.image odi
+application/vnd.oasis.opendocument.image-template oti
+application/vnd.oasis.opendocument.presentation odp
+application/vnd.oasis.opendocument.presentation-template otp
+application/vnd.oasis.opendocument.spreadsheet ods
+application/vnd.oasis.opendocument.spreadsheet-template ots
+application/vnd.oasis.opendocument.text odt
+application/vnd.oasis.opendocument.text-template ott
+application/vnd.oasis.opendocument.text-master otm
+application/vnd.oasis.opendocument.text-web oth
 application/x-javascript js
 application/x-shockwave-flash swf
 audio/midi mid midi kar
@@ -41,6 +57,22 @@ END_STRING
  */
 define('MM_WELL_KNOWN_MIME_INFO', <<<END_STRING
 application/pdf [OFFICE]
+application/vnd.oasis.opendocument.chart [OFFICE]
+application/vnd.oasis.opendocument.chart-template [OFFICE]
+application/vnd.oasis.opendocument.formula [OFFICE]
+application/vnd.oasis.opendocument.formula-template [OFFICE]
+application/vnd.oasis.opendocument.graphics [OFFICE]
+application/vnd.oasis.opendocument.graphics-template [OFFICE]
+application/vnd.oasis.opendocument.image [OFFICE]
+application/vnd.oasis.opendocument.image-template [OFFICE]
+application/vnd.oasis.opendocument.presentation [OFFICE]
+application/vnd.oasis.opendocument.presentation-template [OFFICE]
+application/vnd.oasis.opendocument.spreadsheet [OFFICE]
+application/vnd.oasis.opendocument.spreadsheet-template [OFFICE]
+application/vnd.oasis.opendocument.text [OFFICE]
+application/vnd.oasis.opendocument.text-template [OFFICE]
+application/vnd.oasis.opendocument.text-master [OFFICE]
+application/vnd.oasis.opendocument.text-web [OFFICE]
 text/javascript application/x-javascript [EXECUTABLE]
 application/x-shockwave-flash [MULTIMEDIA]
 audio/midi [AUDIO]
@@ -99,6 +131,10 @@ class MimeMagic {
 	/** map of file extensions types to mime types (as a space seprarated list)
 	*/
 	var $mExtToMime= NULL;
+
+	/** IEContentAnalyzer instance
+	 */
+	var $mIEAnalyzer;
 
 	/** The singleton instance
 	 */
@@ -402,6 +438,8 @@ class MimeMagic {
 		wfRestoreWarnings();
 		if( !$f ) return "unknown/unknown";
 		$head = fread( $f, 1024 );
+		fseek( $f, -65558, SEEK_END );
+		$tail = fread( $f, 65558 ); // 65558 = maximum size of a zip EOCDR
 		fclose( $f );
 
 		// Hardcode a few magic number checks...
@@ -458,8 +496,8 @@ class MimeMagic {
 		$xml = new XmlTypeCheck( $file );
 		if( $xml->wellFormed ) {
 			global $wgXMLMimeTypes;
-			if( isset( $wgXMLMimeTypes[$xml->rootElement] ) ) {
-				return $wgXMLMimeTypes[$xml->rootElement];
+			if( isset( $wgXMLMimeTypes[$xml->getRootElement()] ) ) {
+				return $wgXMLMimeTypes[$xml->getRootElement()];
 			} else {
 				return 'application/xml';
 			}
@@ -505,6 +543,12 @@ class MimeMagic {
 			}
 		}
 
+		// Check for ZIP (before getimagesize)
+		if ( strpos( $tail, "PK\x05\x06" ) !== false ) {
+			wfDebug( __METHOD__.": ZIP header present at end of $file\n" );
+			return $this->detectZipType( $head );
+		}
+
 		wfSuppressWarnings();
 		$gis = getimagesize( $file );
 		wfRestoreWarnings();
@@ -513,8 +557,6 @@ class MimeMagic {
 			$mime = $gis['mime'];
 			wfDebug( __METHOD__.": getimagesize detected $file as $mime\n" );
 			return $mime;
-		} else {
-			return false;
 		}
 
 		// Also test DjVu
@@ -522,6 +564,50 @@ class MimeMagic {
 		if( $deja->isValid() ) {
 			wfDebug( __METHOD__.": detected $file as image/vnd.djvu\n" );
 			return 'image/vnd.djvu';
+		}
+
+		return false;
+	}
+	
+	/**
+	 * Detect application-specific file type of a given ZIP file from its
+	 * header data.  Currently works for OpenDocument types...
+	 * If can't tell, returns 'application/zip'.
+	 *
+	 * @param string $header Some reasonably-sized chunk of file header
+	 * @return string
+	 */
+	function detectZipType( $header ) {
+		$opendocTypes = array(
+			'chart-template',
+			'chart',
+			'formula-template',
+			'formula',
+			'graphics-template',
+			'graphics',
+			'image-template',
+			'image',
+			'presentation-template',
+			'presentation',
+			'spreadsheet-template',
+			'spreadsheet',
+			'text-template',
+			'text-master',
+			'text-web',
+			'text' );
+
+		// http://lists.oasis-open.org/archives/office/200505/msg00006.html
+		$types = '(?:' . implode( '|', $opendocTypes ) . ')';
+		$opendocRegex = "/^mimetype(application\/vnd\.oasis\.opendocument\.$types)/";
+		wfDebug( __METHOD__.": $opendocRegex\n" );
+		
+		if( preg_match( $opendocRegex, substr( $header, 30 ), $matches ) ) {
+			$mime = $matches[1];
+			wfDebug( __METHOD__.": detected $mime from ZIP archive\n" );
+			return $mime;
+		} else {
+			wfDebug( __METHOD__.": unable to identify type of ZIP archive\n" );
+			return 'application/zip';
 		}
 	}
 
@@ -725,5 +811,28 @@ class MimeMagic {
 		}
 
 		return MEDIATYPE_UNKNOWN;
+	}
+
+	/**
+	 * Get the MIME types that various versions of Internet Explorer would 
+	 * detect from a chunk of the content.
+	 *
+	 * @param string $fileName The file name (unused at present)
+	 * @param string $chunk The first 256 bytes of the file
+	 * @param string $proposed The MIME type proposed by the server
+	 */
+	public function getIEMimeTypes( $fileName, $chunk, $proposed ) {
+		$ca = $this->getIEContentAnalyzer();
+		return $ca->getRealMimesFromData( $fileName, $chunk, $proposed );
+	}
+
+	/**
+	 * Get a cached instance of IEContentAnalyzer
+	 */
+	protected function getIEContentAnalyzer() {
+		if ( is_null( $this->mIEAnalyzer ) ) {
+			$this->mIEAnalyzer = new IEContentAnalyzer;
+		}
+		return $this->mIEAnalyzer;
 	}
 }

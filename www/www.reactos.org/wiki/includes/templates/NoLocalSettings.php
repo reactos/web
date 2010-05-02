@@ -4,24 +4,40 @@
  * @ingroup Templates
  */
 
-# Prevent XSS
-if ( isset( $wgVersion ) ) {
-	$wgVersion = htmlspecialchars( $wgVersion );
-} else {
+if ( !isset( $wgVersion ) ) {
 	$wgVersion = 'VERSION';
 }
-# Set the path in case we hit a page such as /index.php/Main_Page
-# Could use <base href> but then we have to worry about http[s]/port #/etc.
-$ext = strpos( $_SERVER['SCRIPT_NAME'], 'index.php5' ) === false ? 'php' : 'php5';
+
+$scriptName = $_SERVER['SCRIPT_NAME'];
+$ext = substr( $scriptName, strrpos( $scriptName, "." ) + 1 );
 $path = '';
-if( isset( $_SERVER['SCRIPT_NAME'] )) {
-	$path = htmlspecialchars( preg_replace('/index.php5?/', '', $_SERVER['SCRIPT_NAME']) );
+# Add any directories in the main folder that could contain an entrypoint (even possibly).
+# We cannot just do a dir listing here, as we do not know where it is yet
+# These must not also be the names of subfolders that may contain an entrypoint
+$topdirs = array( 'extensions', 'includes' );
+foreach( $topdirs as $dir ){
+	# Check whether a directory by this name is in the path
+	if( strrpos( $scriptName, "/" . $dir . "/" ) ){
+		# If so, check whether it is the right folder
+		# First, get the number of directories up it is (to generate path)
+		$numToGoUp = substr_count( substr( $scriptName, strrpos( $scriptName, "/" . $dir . "/" ) + 1 ), "/" );
+		# And generate the path using ..'s
+		for( $i = 0; $i < $numToGoUp; $i++ ){
+			$realPath = "../" . $realPath;
+		}
+		# Checking existance (using the image here as it is something not likely to change, and to always be here)
+		if( file_exists( $realPath . "skins/common/images/mediawiki.png" ) ) {
+			# If so, get the path that we can use in this file, and stop looking
+			$path = substr( $scriptName, 0, strrpos( $scriptName, "/" . $dir . "/" ) + 1 );
+			break;
+		}
+	}
 }
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns='http://www.w3.org/1999/xhtml' xml:lang='en' lang='en'>
 	<head>
-		<title>MediaWiki <?php echo $wgVersion ?></title>
+		<title>MediaWiki <?php echo htmlspecialchars( $wgVersion ) ?></title>
 		<meta http-equiv='Content-Type' content='text/html; charset=utf-8' />
 		<style type='text/css' media='screen, projection'>
 			html, body {
@@ -37,15 +53,15 @@ if( isset( $_SERVER['SCRIPT_NAME'] )) {
 		</style>
 	</head>
 	<body>
-		<img src="<?php echo $path ?>skins/common/images/mediawiki.png" alt='The MediaWiki logo' />
+		<img src="<?php echo htmlspecialchars( $path ) ?>skins/common/images/mediawiki.png" alt='The MediaWiki logo' />
 
-		<h1>MediaWiki <?php echo $wgVersion ?></h1>
+		<h1>MediaWiki <?php echo htmlspecialchars( $wgVersion ) ?></h1>
 		<div class='error'>
 		<?php
 		if ( file_exists( 'config/LocalSettings.php' ) ) {
 			echo( 'To complete the installation, move <tt>config/LocalSettings.php</tt> to the parent directory.' );
 		} else {
-			echo( "Please <a href=\"${path}config/index.{$ext}\" title='setup'> set up the wiki</a> first." );
+			echo( "Please <a href=\"" . htmlspecialchars( $path ) . "config/index." . htmlspecialchars( $ext ) . "\" title='setup'> set up the wiki</a> first." );
 		}
 		?>
 

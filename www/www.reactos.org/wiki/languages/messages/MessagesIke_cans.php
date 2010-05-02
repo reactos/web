@@ -1,10 +1,12 @@
 <?php
 /** Eastern Canadian (Unified Canadian Aboriginal Syllabics) (ᐃᓄᒃᑎᑐᑦ)
  *
+ * See MessagesQqq.php for message documentation incl. usage of parameters
+ * To improve a translation please visit http://translatewiki.net
+ *
  * @ingroup Language
  * @file
  *
- * @author Max sonnelid
  */
 
 $messages = array(
@@ -70,7 +72,7 @@ $messages = array(
 'mypage'         => 'ᐊᒥ ᒪᑉᐱᑕᖅ',
 'mytalk'         => 'ᐊᓪᓚᖁᑎᒃᑲ',
 'navigation'     => 'ᒥᐊᓂᕆᕚ',
-'and'            => 'ᐊᒻᒪ',
+'and'            => '&#32;ᐊᒻᒪ',
 
 'errorpagetitle'    => 'ᑕᒻᒪᓇᖅᑐᖅ',
 'help'              => 'ᖃᔭᓕᑉᐹ',
@@ -150,7 +152,7 @@ $messages = array(
 'userlogin'          => 'ᐊᑯᓐᓇᐳᖅ / ᐱᕐᖄᐹ ᑮᓇᐅᔭᒃᑯᕕᖕᒥ ᑐᖅᑯᖅᓯᕕᒃ',
 'logout'             => 'ᐊᓂᕝᕕᒃ',
 'userlogout'         => 'ᐊᓂᕝᕕᒃ',
-'nologin'            => 'ᐊᔪᐃᓐᓈᖅ ᐃᓄᖁᑎ? $1.',
+'nologin'            => "ᐊᔪᐃᓐᓈᖅ ᐃᓄᖁᑎ? '''$1'''.",
 'nologinlink'        => 'ᐱᕐᖄᐹ ᑮᓇᐅᔭᒃᑯᕕᖕᒥ ᑐᖅᑯᖅᓯᕕᒃ',
 'gotaccountlink'     => 'ᐊᑯᓐᓇᐳᖅ',
 'youremail'          => 'ᑭᒍᑎᐅᑉ ᓯᑎᓂᖅᐹᖓ:',
@@ -165,14 +167,14 @@ $messages = array(
 'bold_tip'    => 'ᐃᔾᔪᔪᒡ ᑕᖅᓴᓕᖅᐹ',
 
 # Edit pages
-'summary'         => 'ᓱᕕᑦ',
+'summary'         => 'ᓱᕕᑦ:',
 'minoredit'       => 'ᐅᑭᐅᑭᓗᐊᖅᑐᖅ ᐊᓯᐊᙳᑐᖅ',
 'watchthis'       => 'ᐅᕝᕙ',
 'savearticle'     => 'ᐅᖃᐅᓯᓪᓚᕆᖏᑕ ᑎᑎᕋᖅᑕᐅᓂᖏᑦ',
 'preview'         => 'ᐅᕝᕙ ᖃᖓᓵᖑᓕᖅᑐᖅ',
 'showpreview'     => 'ᓱᖁᓯᖅᐹ ᐊᓚᒃᑲᐅᑎᕗᖅ ᓯᕗᓕᐅᖅᐹ ᐅᖃᐅᓯᓪᓚᕆᖏᑕ ᑎᑎᕋᖅᑕᐅᓂᖏᑦ',
 'showdiff'        => 'ᐊᓚᒃᑲᑎᑉᐹ ᐊᓯᐊᙳᑐᖅ',
-'summary-preview' => 'ᓱᕕᑦ',
+'summary-preview' => 'ᓱᕕᑦ:',
 'blockedtitle'    => 'ᐋᖅᑭᒃᓱᐃᔨ ᐅᒥᙵᓯᓯᔪᖅ',
 'loginreqlink'    => 'ᐊᑯᓐᓇᐳᖅ',
 'newarticle'      => '(ᐱᒋᕗᖅ)',
@@ -243,8 +245,8 @@ $messages = array(
 'randomredirect' => 'ᓇᑭᑐᐃᓐᓇᖅ ᖃᐅᔨᓴᕐᓂᖅ ᖃᓂᖓᓂ ᑲᒪᒋᔭᖅ ᐋᓯᑦ ᓇᑭᑦ',
 
 # Statistics
-'statistics' => 'ᑭᓯᑦᓯᓯᖕᖑᕐᓗᒋᑦ ᐹᓯᔅᓱᑎᔅᓴᑦ',
-'userstats'  => 'ᖃᑕᙳᑎ ᑭᓯᑦᓯᓯᖕᖑᕐᓗᒋᑦ ᐹᓯᔅᓱᑎᔅᓴᑦ',
+'statistics'              => 'ᑭᓯᑦᓯᓯᖕᖑᕐᓗᒋᑦ ᐹᓯᔅᓱᑎᔅᓴᑦ',
+'statistics-header-users' => 'ᖃᑕᙳᑎ ᑭᓯᑦᓯᓯᖕᖑᕐᓗᒋᑦ ᐹᓯᔅᓱᑎᔅᓴᑦ',
 
 'doubleredirects' => 'ᑕᐱᕐᖃᓕᒃ ᖃᓂᖓᓂ ᑲᒪᒋᔭᖅ ᐋᓯᑦ ᓇᑭᑦ',
 
@@ -260,9 +262,6 @@ $messages = array(
 
 # Book sources
 'booksources-go' => 'ᐊᐃᕗᖅ',
-
-# Special:Log
-'log-search-submit' => 'ᐊᐃᕗᖅ',
 
 # Special:AllPages
 'allpages'       => 'ᓱᓇᒥᑦᑐᖅ ᒪᑉᐱᑕᖅ',
@@ -290,9 +289,12 @@ $messages = array(
 'enotif_impersonal_salutation' => '{{SITENAME}} ᖃᑕᙳᑎ',
 'created'                      => 'ᒪᑉᐱᑕᖅ ᐊᓂᕗᖅ',
 
-# Delete/protect/revert
-'dellogpage'          => 'ᓂᐸᖅ ᓂᐱ',
-'deletionlog'         => 'ᓂᐸᖅ ᓂᐱ',
+# Delete
+'dellogpage'  => 'ᓂᐸᖅ ᓂᐱ',
+'deletionlog' => 'ᓂᐸᖅ ᓂᐱ',
+
+# Protect
+'prot_1movedto2'      => '[[$1]] ᓱᕐᕋᒪᔪᖅ [[$2]]',
 'protect-legend'      => 'ᐸᑎᒻᒥᕚ ᓴᐳᒻᒥᕚ',
 'protect-level-sysop' => 'ᓯᕐᓚᒃ ᑎᑎᕋᖅᓯᒪᔪᓂᒃ ᑐᖅᑯᖅᑎᕆᔨ',
 
@@ -365,7 +367,7 @@ $messages = array(
 'previousdiff' => '← ᑐᓄᓪᓕᐹᖅ ᐊᓯᐊᙳᑐᖅ',
 'nextdiff'     => 'ᑕᒡᒐ ᐊᓯᐊᙳᑐᖅ ᒪᑉᐱᑕᖅ →',
 
-# Special:NewImages
+# Special:NewFiles
 'ilsubmit' => 'ᐃᕚᖅᐳᖅ',
 'bydate'   => 'ᐱᑖᕈᑦᑐᖅ ᐃᓅᓕᕐᕕᒃ',
 
@@ -380,9 +382,6 @@ $messages = array(
 
 # 'all' in various places, this might be different for inflected languages
 'monthsall' => 'ᓱᓇᒥᑦᑐᖅ',
-
-# HTML dump
-'redirectingto' => 'ᖃᓂᖓᓂ ᑲᒪᒋᔭᖅ ᐋᓯᑦ ᓇᑭᑦ [[:$1]]...',
 
 # action=purge
 'confirm_purge_button' => 'ᐊᑲᐅᔪᖅ',

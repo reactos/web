@@ -76,17 +76,9 @@ class ApiQueryCategoryMembers extends ApiQueryGeneratorBase {
 		$this->addTables(array('page','categorylinks'));	// must be in this order for 'USE INDEX'
 									// Not needed after bug 10280 is applied to servers
 		if($params['sort'] == 'timestamp')
-		{
 			$this->addOption('USE INDEX', 'cl_timestamp');
-			// cl_timestamp will be added by addWhereRange() later
-			$this->addOption('ORDER BY', 'cl_to');
-		}
 		else
-		{
-			$dir = ($params['dir'] == 'desc' ? ' DESC' : '');
 			$this->addOption('USE INDEX', 'cl_sortkey');
-			$this->addOption('ORDER BY', 'cl_to, cl_sortkey' . $dir . ', cl_from' . $dir);
-		}
 
 		$this->addWhere('cl_from=page_id');
 		$this->setContinuation($params['continue'], $params['dir']);
@@ -94,6 +86,11 @@ class ApiQueryCategoryMembers extends ApiQueryGeneratorBase {
 		$this->addWhereFld('page_namespace', $params['namespace']);
 		if($params['sort'] == 'timestamp')
 			$this->addWhereRange('cl_timestamp', ($params['dir'] == 'asc' ? 'newer' : 'older'), $params['start'], $params['end']);
+		else
+		{
+			$this->addWhereRange('cl_sortkey', ($params['dir'] == 'asc' ? 'newer' : 'older'), $params['startsortkey'], $params['endsortkey']);
+			$this->addWhereRange('cl_from', ($params['dir'] == 'asc' ? 'newer' : 'older'), null, null);
+		}
 
 		$limit = $params['limit'];
 		$this->addOption('LIMIT', $limit +1);
@@ -115,31 +112,38 @@ class ApiQueryCategoryMembers extends ApiQueryGeneratorBase {
 				break;
 			}
 
-			$lastSortKey = $row->cl_sortkey;	// detect duplicate sortkeys
-
 			if (is_null($resultPageSet)) {
 				$vals = array();
 				if ($fld_ids)
 					$vals['pageid'] = intval($row->page_id);
 				if ($fld_title) {
 					$title = Title :: makeTitle($row->page_namespace, $row->page_title);
-					$vals['ns'] = intval($title->getNamespace());
-					$vals['title'] = $title->getPrefixedText();
+					ApiQueryBase::addTitleInfo($vals, $title);
 				}
 				if ($fld_sortkey)
 					$vals['sortkey'] = $row->cl_sortkey;
 				if ($fld_timestamp)
 					$vals['timestamp'] = wfTimestamp(TS_ISO_8601, $row->cl_timestamp);
-				$data[] = $vals;
+				$fit = $this->getResult()->addValue(array('query', $this->getModuleName()),
+						null, $vals);
+				if(!$fit)
+				{
+					if ($params['sort'] == 'timestamp')
+						$this->setContinueEnumParameter('start', wfTimestamp(TS_ISO_8601, $row->cl_timestamp));
+					else
+						$this->setContinueEnumParameter('continue', $this->getContinueStr($row, $lastSortKey));
+					break;
+				}
 			} else {
 				$resultPageSet->processDbRow($row);
 			}
+			$lastSortKey = $row->cl_sortkey;	// detect duplicate sortkeys
 		}
 		$db->freeResult($res);
 
 		if (is_null($resultPageSet)) {
-			$this->getResult()->setIndexedTagName($data, 'cm');
-			$this->getResult()->addValue('query', $this->getModuleName(), $data);
+			$this->getResult()->setIndexedTagName_internal(
+					 array('query', $this->getModuleName()), 'cm');
 		}
 	}
 
@@ -157,18 +161,15 @@ class ApiQueryCategoryMembers extends ApiQueryGeneratorBase {
 		if (is_null($continue))
 			return;	// This is not a continuation request
 
-		$continueList = explode('|', $continue);
-		$hasError = count($continueList) != 2;
-		$from = 0;
-		if (!$hasError && strlen($continueList[1]) > 0) {
-			$from = intval($continueList[1]);
-			$hasError = ($from == 0);
-		}
+		$pos = strrpos($continue, '|');
+		$sortkey = substr($continue, 0, $pos);
+		$fromstr = substr($continue, $pos + 1);
+		$from = intval($fromstr);
 
-		if ($hasError)
+		if ($from == 0 && strlen($fromstr) > 0)
 			$this->dieUsage("Invalid continue param. You should pass the original value returned by the previous query", "badcontinue");
 
-		$encSortKey = $this->getDB()->addQuotes($continueList[0]);
+		$encSortKey = $this->getDB()->addQuotes($sortkey);
 		$encFrom = $this->getDB()->addQuotes($from);
 		
 		$op = ($dir == 'desc' ? '<' : '>');
@@ -225,7 +226,9 @@ class ApiQueryCategoryMembers extends ApiQueryGeneratorBase {
 			),
 			'end' => array(
 				ApiBase :: PARAM_TYPE => 'timestamp'
-			)
+			),
+			'startsortkey' => null,
+			'endsortkey' => null,
 		);
 	}
 
@@ -238,6 +241,8 @@ class ApiQueryCategoryMembers extends ApiQueryGeneratorBase {
 			'dir' => 'In which direction to sort',
 			'start' => 'Timestamp to start listing from. Can only be used with cmsort=timestamp',
 			'end' => 'Timestamp to end listing at. Can only be used with cmsort=timestamp',
+			'startsortkey' => 'Sortkey to start listing from. Can only be used with cmsort=sortkey',
+			'endsortkey' => 'Sortkey to end listing at. Can only be used with cmsort=sortkey',
 			'continue' => 'For large categories, give the value retured from previous query',
 			'limit' => 'The maximum number of pages to return.',
 		);
@@ -257,6 +262,6 @@ class ApiQueryCategoryMembers extends ApiQueryGeneratorBase {
 	}
 
 	public function getVersion() {
-		return __CLASS__ . ': $Id: ApiQueryCategoryMembers.php 35098 2008-05-20 17:13:28Z ialex $';
+		return __CLASS__ . ': $Id: ApiQueryCategoryMembers.php 47865 2009-02-27 16:03:01Z catrope $';
 	}
 }

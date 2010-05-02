@@ -1,6 +1,9 @@
 <?php
 /** Shona (chiShona)
  *
+ * See MessagesQqq.php for message documentation incl. usage of parameters
+ * To improve a translation please visit http://translatewiki.net
+ *
  * @ingroup Language
  * @file
  *
@@ -83,9 +86,9 @@ $messages = array(
 'viewsource' => 'Wona mabviro',
 
 # Login and logout pages
-'welcomecreation'    => '= Tigashire, $1! == 
-
-Akaunzi yako yagadzirwa. Usakanganwe kuchinga mapreferences ako eWikipedia.',
+'welcomecreation'    => '== Tigashire, $1! == 
+Akaunzi yako yagadzirwa.
+Usakanganwe kuchinga [[Special:Preferences|mapreferences ako {{SITENAME}}]].',
 'yourname'           => 'Zita:',
 'yourpassword'       => 'Password:',
 'yourpasswordagain'  => 'Nyorazve password:',
@@ -100,7 +103,7 @@ Akaunzi yako yagadzirwa. Usakanganwe kuchinga mapreferences ako eWikipedia.',
 'username'           => 'Zita:',
 
 # Edit pages
-'summary'     => 'Muchidimbu',
+'summary'     => 'Muchidimbu:',
 'minoredit'   => 'Uku kushandurwa kudiki',
 'watchthis'   => 'Ringa peji rino',
 'savearticle' => 'Kotsa peji',
@@ -141,6 +144,9 @@ Akaunzi yako yagadzirwa. Usakanganwe kuchinga mapreferences ako eWikipedia.',
 'watch'         => 'Rinda',
 'watchthispage' => 'Ringa peji rino',
 
+# Protect
+'prot_1movedto2' => '[[$1]] rachichinurwa ku [[$2]]',
+
 # Restrictions (nouns)
 'restriction-edit' => 'Chinja',
 'restriction-move' => 'Chichinura',
@@ -174,7 +180,7 @@ Akaunzi yako yagadzirwa. Usakanganwe kuchinga mapreferences ako eWikipedia.',
 'tooltip-p-logo'         => 'Peji Rekutanga',
 
 # Trackbacks
-'trackbackremove' => ' ([$1 Delete])',
+'trackbackremove' => '([$1 Delete])',
 
 # Table pager
 'table_pager_limit_submit' => 'Enda',

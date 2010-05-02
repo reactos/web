@@ -39,9 +39,11 @@ class ApiEmailUser extends ApiBase {
 
 	public function execute() {
 		global $wgUser;
-		$this->getMain()->requestWriteMode();
+		// Check whether email is enabled
+		if ( !EmailUserForm::userEmailEnabled() )
+			$this->dieUsageMsg( array( 'usermaildisabled' ) );
+
 		$params = $this->extractRequestParams();
-		
 		// Check required parameters
 		if ( !isset( $params['target'] ) )
 			$this->dieUsageMsg( array( 'missingparam', 'target' ) );
@@ -53,12 +55,12 @@ class ApiEmailUser extends ApiBase {
 		// Validate target 
 		$targetUser = EmailUserForm::validateEmailTarget( $params['target'] );
 		if ( !( $targetUser instanceof User ) )
-			$this->dieUsageMsg( array( $targetUser[0] ) );
+			$this->dieUsageMsg( array( $targetUser ) );
 		
 		// Check permissions
 		$error = EmailUserForm::getPermissionsError( $wgUser, $params['token'] );
 		if ( $error )
-			$this->dieUsageMsg( array( $error[0] ) );
+			$this->dieUsageMsg( array( $error ) );
 		
 			
 		$form = new EmailUserForm( $targetUser, $params['text'], $params['subject'], $params['ccme'] );
@@ -73,6 +75,10 @@ class ApiEmailUser extends ApiBase {
 	}
 	
 	public function mustBePosted() { return true; }
+
+	public function isWriteMode() {
+		return true;
+	}
 
 	public function getAllowedParams() {
 		return array (
@@ -89,7 +95,6 @@ class ApiEmailUser extends ApiBase {
 			'target' => 'User to send email to',
 			'subject' => 'Subject header',
 			'text' => 'Mail body',
-			// FIXME: How to properly get a token?
 			'token' => 'A token previously acquired via prop=info',
 			'ccme' => 'Send a copy of this mail to me',
 		);
@@ -97,7 +102,7 @@ class ApiEmailUser extends ApiBase {
 
 	public function getDescription() {
 		return array(
-			'Emails a user.'
+			'Email a user.'
 		);
 	}
 
@@ -108,7 +113,7 @@ class ApiEmailUser extends ApiBase {
 	}
 
 	public function getVersion() {
-		return __CLASS__ . ': $Id: $';
+		return __CLASS__ . ': $Id: ApiEmailUser.php 48091 2009-03-06 13:49:44Z catrope $';
 	}
 }	
 	

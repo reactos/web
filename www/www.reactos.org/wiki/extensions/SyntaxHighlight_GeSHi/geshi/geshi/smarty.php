@@ -4,7 +4,7 @@
  * ----------
  * Author: Alan Juden (alan@judenware.org)
  * Copyright: (c) 2004 Alan Juden, Nigel McNie (http://qbnz.com/highlighter/)
- * Release Version: 1.0.8.4
+ * Release Version: 1.0.7.22
  * Date Started: 2004/07/10
  *
  * Smarty template language file for GeSHi.
@@ -47,16 +47,16 @@ $language_data = array (
     'KEYWORDS' => array(
         1 => array(
             '$smarty', 'now', 'const', 'capture', 'config', 'section', 'foreach', 'template', 'version', 'ldelim', 'rdelim',
-            'foreachelse', 'include', 'include_php', 'insert', 'if', 'elseif', 'else', 'php',
-            'sectionelse', 'is_cached',
+            'config_load', 'foreachelse', 'include', 'include_php', 'insert', 'if', 'elseif', 'else', 'php',
+            'sectionelse', 'clear_all_cache', 'clear_cache', 'is_cached',
             ),
         2 => array(
             'capitalize', 'count_characters', 'cat', 'count_paragraphs', 'count_sentences', 'count_words', 'date_format',
             'default', 'escape', 'indent', 'lower', 'nl2br', 'regex_replace', 'replace', 'spacify', 'string_format',
-            'strip', 'strip_tags', 'truncate', 'upper', 'wordwrap',
+            'strip', 'strip_tags', 'truncate', 'upper', 'wordwrap'
             ),
         3 => array(
-            'counter', 'cycle', 'debug', 'eval', 'html_checkboxes', 'html_image', 'html_options',
+            'assign', 'counter', 'cycle', 'debug', 'eval', 'fetch', 'html_checkboxes', 'html_image', 'html_options',
             'html_radios', 'html_select_date', 'html_select_time', 'html_table', 'math', 'mailto', 'popup_init',
             'popup', 'textformat'
             ),
@@ -72,7 +72,7 @@ $language_data = array (
         5 => array(
             'append', 'append_by_ref', 'assign', 'assign_by_ref', 'clear_all_assign', 'clear_all_cache',
             'clear_assign', 'clear_cache', 'clear_compiled_tpl', 'clear_config', 'config_load', 'display',
-            'fetch', 'get_config_vars', 'get_registered_object', 'get_template_vars',
+            'fetch', 'get_config_vars', 'get_registered_object', 'get_template_vars', 'is_cached',
             'load_filter', 'register_block', 'register_compiler_function', 'register_function',
             'register_modifier', 'register_object', 'register_outputfilter', 'register_postfilter',
             'register_prefilter', 'register_resource', 'trigger_error', 'template_exists', 'unregister_block',
@@ -80,16 +80,12 @@ $language_data = array (
             'unregister_outputfilter', 'unregister_postfilter', 'unregister_prefilter', 'unregister_resource'
             ),
         6 => array(
-            'name', 'file', 'scope', 'global', 'key', 'once', 'script',
+            'name', 'assign', 'file', 'scope', 'global', 'key', 'once', 'script',
             'loop', 'start', 'step', 'max', 'show', 'values', 'value', 'from', 'item'
             ),
         7 => array(
             'eq', 'neq', 'ne', 'lte', 'gte', 'ge', 'le', 'not', 'mod'
             ),
-        8 => array(
-            // some common php functions
-            'isset', 'is_array', 'empty', 'count', 'sizeof'
-            )
         ),
     'SYMBOLS' => array(
         '/', '=', '==', '!=', '>', '<', '>=', '<=', '!', '%'
@@ -103,7 +99,6 @@ $language_data = array (
         5 => false,
         6 => false,
         7 => false,
-        8 => false
         ),
     'STYLES' => array(
         'KEYWORDS' => array(
@@ -113,8 +108,7 @@ $language_data = array (
             4 => 'color: #804040;',        //Variables
             5 => 'color: #008000;',        //Methods
             6 => 'color: #6A0A0A;',        //Attributes
-            7 => 'color: #D36900;',        //Text-based symbols
-            8 => 'color: #0600FF;'        //php functions
+            7 => 'color: #D36900;'        //Text-based symbols
             ),
         'COMMENTS' => array(
             'MULTI' => 'color: #008080; font-style: italic;'
@@ -138,12 +132,9 @@ $language_data = array (
             0 => 'color: #D36900;'
             ),
         'SCRIPT' => array(
-            0 => '',
-            1 => 'color: #808080; font-style: italic;',
-            2 => 'color: #009000;'
+            0 => ''
             ),
         'REGEXPS' => array(
-            0 => 'color: #00aaff;'
             )
         ),
     'URLS' => array(
@@ -153,38 +144,27 @@ $language_data = array (
         4 => 'http://smarty.php.net/{FNAMEL}',
         5 => 'http://smarty.php.net/{FNAMEL}',
         6 => '',
-        7 => 'http://smarty.php.net/{FNAMEL}',
-        8 => ''
+        7 => 'http://smarty.php.net/{FNAMEL}'
         ),
     'OOLANG' => true,
     'OBJECT_SPLITTERS' => array(
         1 => '.'
         ),
     'REGEXPS' => array(
-        // variables
-        0 => '\$[a-zA-Z][a-zA-Z0-9_]*'
         ),
     'STRICT_MODE_APPLIES' => GESHI_ALWAYS,
     'SCRIPT_DELIMITERS' => array(
         0 => array(
             '{' => '}'
-            ),
-        1 => array(
-            '<!--' => '-->',
-        ),
-        2 => array(
-            '<' => '>'
             )
     ),
     'HIGHLIGHT_STRICT_BLOCK' => array(
-        0 => true,
-        1 => false,
-        2 => false
+        0 => true
     ),
     'PARSER_CONTROL' => array(
         'KEYWORDS' => array(
-            'DISALLOWED_BEFORE' => "(?<![a-zA-Z0-9\$_\|\#;>|^])",
-            'DISALLOWED_AFTER' => "(?![a-zA-Z0-9_<\|%\\-&])"
+            'DISALLOWED_BEFORE' => "a-zA-Z0-9\$_\|\#;>|^",
+            'DISALLOWED_AFTER' => "a-zA-Z0-9_<\|%\\-&"
         )
     )
 );

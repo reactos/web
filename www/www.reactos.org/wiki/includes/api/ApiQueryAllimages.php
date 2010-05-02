@@ -61,10 +61,11 @@ class ApiQueryAllimages extends ApiQueryGeneratorBase {
 		$params = $this->extractRequestParams();
 
 		// Image filters
-		if (!is_null($params['from']))
-			$this->addWhere('img_name>=' . $db->addQuotes($this->titleToKey($params['from'])));
+		$dir = ($params['dir'] == 'descending' ? 'older' : 'newer');
+		$from = (is_null($params['from']) ? null : $this->titlePartToKey($params['from']));
+		$this->addWhereRange('img_name', $dir, $from, null);
 		if (isset ($params['prefix']))
-			$this->addWhere("img_name LIKE '" . $db->escapeLike($this->titleToKey($params['prefix'])) . "%'");
+			$this->addWhere("img_name LIKE '" . $db->escapeLike($this->titlePartToKey($params['prefix'])) . "%'");
 
 		if (isset ($params['minsize'])) {
 			$this->addWhere('img_size>=' . intval($params['minsize']));
@@ -96,7 +97,7 @@ class ApiQueryAllimages extends ApiQueryGeneratorBase {
 
 		$res = $this->select(__METHOD__);
 
-		$data = array ();
+		$titles = array();
 		$count = 0;
 		$result = $this->getResult();
 		while ($row = $db->fetchObject($res)) {
@@ -109,20 +110,23 @@ class ApiQueryAllimages extends ApiQueryGeneratorBase {
 
 			if (is_null($resultPageSet)) {
 				$file = $repo->newFileFromRow( $row );
-
-				$data[] = ApiQueryImageInfo::getInfo( $file, $prop, $result );
+				$info = array_merge(array('name' => $row->img_name),
+					ApiQueryImageInfo::getInfo($file, $prop, $result));
+				$fit = $result->addValue(array('query', $this->getModuleName()), null, $info);
+				if( !$fit ) {
+					$this->setContinueEnumParameter('from', $this->keyToTitle($row->img_name));
+					break;
+				}
 			} else {
-				$data[] = Title::makeTitle( NS_IMAGE, $row->img_name );
+				$titles[] = Title::makeTitle(NS_IMAGE, $row->img_name);
 			}
 		}
 		$db->freeResult($res);
 
 		if (is_null($resultPageSet)) {
-			$result = $this->getResult();
-			$result->setIndexedTagName($data, 'img');
-			$result->addValue('query', $this->getModuleName(), $data);
+			$result->setIndexedTagName_internal(array('query', $this->getModuleName()), 'img');
 		} else {
-			$resultPageSet->populateFromTitles( $data );
+			$resultPageSet->populateFromTitles($titles);
 		}
 	}
 
@@ -162,7 +166,8 @@ class ApiQueryAllimages extends ApiQueryGeneratorBase {
 					'dimensions', // Obsolete
 					'mime',
 					'sha1',
-					'metadata'
+					'metadata',
+					'bitdepth',
 				),
 				ApiBase :: PARAM_DFLT => 'timestamp|url',
 				ApiBase :: PARAM_ISMULTI => true
@@ -200,6 +205,6 @@ class ApiQueryAllimages extends ApiQueryGeneratorBase {
 	}
 
 	public function getVersion() {
-		return __CLASS__ . ': $Id: ApiQueryAllimages.php 37909 2008-07-22 13:26:15Z catrope $';
+		return __CLASS__ . ': $Id: ApiQueryAllimages.php 46845 2009-02-05 14:30:59Z catrope $';
 	}
 }

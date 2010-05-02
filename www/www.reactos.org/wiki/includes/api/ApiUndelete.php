@@ -38,7 +38,6 @@ class ApiUndelete extends ApiBase {
 
 	public function execute() {
 		global $wgUser;
-		$this->getMain()->requestWriteMode();
 		$params = $this->extractRequestParams();
 
 		$titleObj = NULL;
@@ -51,8 +50,6 @@ class ApiUndelete extends ApiBase {
 			$this->dieUsageMsg(array('permdenied-undelete'));
 		if($wgUser->isBlocked())
 			$this->dieUsageMsg(array('blockedtext'));
-		if(wfReadOnly())
-			$this->dieUsageMsg(array('readonlytext'));
 		if(!$wgUser->matchEditToken($params['token']))
 			$this->dieUsageMsg(array('sessionfailure'));
 
@@ -69,7 +66,7 @@ class ApiUndelete extends ApiBase {
 			$params['timestamps'][$i] = wfTimestamp(TS_MW, $ts);
 
 		$pa = new PageArchive($titleObj);
-		$dbw = wfGetDb(DB_MASTER);
+		$dbw = wfGetDB(DB_MASTER);
 		$dbw->begin();
 		$retval = $pa->undelete((isset($params['timestamps']) ? $params['timestamps'] : array()), $params['reason']);
 		if(!is_array($retval))
@@ -80,13 +77,17 @@ class ApiUndelete extends ApiBase {
 				array($titleObj, array(), $wgUser, $params['reason']) );
 
 		$info['title'] = $titleObj->getPrefixedText();
-		$info['revisions'] = $retval[0];
-		$info['fileversions'] = $retval[1];
-		$info['reason'] = $retval[2];
+		$info['revisions'] = intval($retval[0]);
+		$info['fileversions'] = intval($retval[1]);
+		$info['reason'] = intval($retval[2]);
 		$this->getResult()->addValue(null, $this->getModuleName(), $info);
 	}
 
 	public function mustBePosted() { return true; }
+
+	public function isWriteMode() {
+		return true;
+	}
 
 	public function getAllowedParams() {
 		return array (
@@ -123,6 +124,6 @@ class ApiUndelete extends ApiBase {
 	}
 
 	public function getVersion() {
-		return __CLASS__ . ': $Id: ApiUndelete.php 35348 2008-05-26 10:51:31Z catrope $';
+		return __CLASS__ . ': $Id: ApiUndelete.php 48091 2009-03-06 13:49:44Z catrope $';
 	}
 }

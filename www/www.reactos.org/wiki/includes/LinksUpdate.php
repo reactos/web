@@ -67,6 +67,7 @@ class LinksUpdate {
 		}
 
 		$this->mRecursive = $recursive;
+		$this->mTouchTmplLinks = false;
 
 		wfRunHooks( 'LinksUpdateConstructed', array( &$this ) );
 	}
@@ -74,7 +75,7 @@ class LinksUpdate {
 	/**
 	 * Update link tables with outgoing links from an updated article
 	 */
-	function doUpdate() {
+	public function doUpdate() {
 		global $wgUseDumbLinkUpdate;
 
 		wfRunHooks( 'LinksUpdate', array( &$this ) );
@@ -84,10 +85,9 @@ class LinksUpdate {
 			$this->doIncrementalUpdate();
 		}
 		wfRunHooks( 'LinksUpdateComplete', array( &$this ) );
-
 	}
 
-	function doIncrementalUpdate() {
+	protected function doIncrementalUpdate() {
 		wfProfileIn( __METHOD__ );
 
 		# Page links
@@ -158,7 +158,7 @@ class LinksUpdate {
 	 * May be slower or faster depending on level of lock contention and write speed of DB
 	 * Also useful where link table corruption needs to be repaired, e.g. in refreshLinks.php
 	 */
-	function doDumbUpdate() {
+	protected function doDumbUpdate() {
 		wfProfileIn( __METHOD__ );
 
 		# Refresh category pages and image description pages
@@ -193,34 +193,26 @@ class LinksUpdate {
 	}
 
 	function queueRecursiveJobs() {
+		global $wgUpdateRowsPerJob;
 		wfProfileIn( __METHOD__ );
 
-		$batchSize = 100;
-		$dbr = wfGetDB( DB_SLAVE );
-		$res = $dbr->select( array( 'templatelinks', 'page' ),
-			array( 'page_namespace', 'page_title' ),
-			array(
-				'page_id=tl_from',
-				'tl_namespace' => $this->mTitle->getNamespace(),
-				'tl_title' => $this->mTitle->getDBkey()
-			), __METHOD__
-		);
-
-		$done = false;
-		while ( !$done ) {
-			$jobs = array();
-			for ( $i = 0; $i < $batchSize; $i++ ) {
-				$row = $dbr->fetchObject( $res );
-				if ( !$row ) {
-					$done = true;
-					break;
-				}
-				$title = Title::makeTitle( $row->page_namespace, $row->page_title );
-				$jobs[] = new RefreshLinksJob( $title, '' );
-			}
-			Job::batchInsert( $jobs );
+		$cache = $this->mTitle->getBacklinkCache();
+		$batches = $cache->partition( 'templatelinks', $wgUpdateRowsPerJob );
+		if ( !$batches ) {
+			wfProfileOut( __METHOD__ );
+			return;
 		}
-		$dbr->freeResult( $res );
+		$jobs = array();
+		foreach ( $batches as $batch ) {
+			list( $start, $end ) = $batch;
+			$params = array(
+				'start' => $start,
+				'end' => $end,
+			);
+			$jobs[] = new RefreshLinksJob2( $this->mTitle, $params );
+		}
+		Job::batchInsert( $jobs );
+
 		wfProfileOut( __METHOD__ );
 	}
 
@@ -286,7 +278,7 @@ class LinksUpdate {
 	}
 
 	function invalidateImageDescriptions( $images ) {
-		$this->invalidatePages( NS_IMAGE, array_keys( $images ) );
+		$this->invalidatePages( NS_FILE, array_keys( $images ) );
 	}
 
 	function dumbTableUpdate( $table, $insertions, $fromField ) {
@@ -434,9 +426,12 @@ class LinksUpdate {
 	 * @private
 	 */
 	function getCategoryInsertions( $existing = array() ) {
+		global $wgContLang;
 		$diffs = array_diff_assoc( $this->mCategories, $existing );
 		$arr = array();
 		foreach ( $diffs as $name => $sortkey ) {
+			$nt = Title::makeTitleSafe( NS_CATEGORY, $name );
+			$wgContLang->findVariantLink( $name, $nt, true );
 			$arr[] = array(
 				'cl_from'    => $this->mId,
 				'cl_to'      => $name,

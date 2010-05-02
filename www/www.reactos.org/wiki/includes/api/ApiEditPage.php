@@ -29,8 +29,10 @@ if (!defined('MEDIAWIKI')) {
 }
 
 /**
- * A query module to list all external URLs found on a given set of pages.
+ * A module that allows for editing and creating pages.
  *
+ * Currently, this wraps around the EditPage class in an ugly way,
+ * EditPage.php should be rewritten to provide a cleaner interface
  * @ingroup API
  */
 class ApiEditPage extends ApiBase {
@@ -41,12 +43,12 @@ class ApiEditPage extends ApiBase {
 
 	public function execute() {
 		global $wgUser;
-		$this->getMain()->requestWriteMode();
-
 		$params = $this->extractRequestParams();
 		if(is_null($params['title']))
 			$this->dieUsageMsg(array('missingparam', 'title'));
-		if(is_null($params['text']) && is_null($params['appendtext']) && is_null($params['prependtext']))
+		if(is_null($params['text']) && is_null($params['appendtext']) &&
+				is_null($params['prependtext']) &&
+				$params['undo'] == 0)
 			$this->dieUsageMsg(array('missingtext'));
 		if(is_null($params['token']))
 			$this->dieUsageMsg(array('missingparam', 'token'));
@@ -56,6 +58,9 @@ class ApiEditPage extends ApiBase {
 		$titleObj = Title::newFromText($params['title']);
 		if(!$titleObj)
 			$this->dieUsageMsg(array('invalidtitle', $params['title']));
+		// Some functions depend on $wgTitle == $ep->mTitle
+		global $wgTitle;
+		$wgTitle = $titleObj;
 
 		if($params['createonly'] && $titleObj->exists())
 			$this->dieUsageMsg(array('createonly-exists'));
@@ -66,20 +71,57 @@ class ApiEditPage extends ApiBase {
 		$errors = $titleObj->getUserPermissionsErrors('edit', $wgUser);
 		if(!$titleObj->exists())
 			$errors = array_merge($errors, $titleObj->getUserPermissionsErrors('create', $wgUser));
-		if(!empty($errors))
+		if(count($errors))
 			$this->dieUsageMsg($errors[0]);
 
 		$articleObj = new Article($titleObj);
 		$toMD5 = $params['text'];
 		if(!is_null($params['appendtext']) || !is_null($params['prependtext']))
 		{
-			$content = $articleObj->getContent();
+			// For non-existent pages, Article::getContent()
+			// returns an interface message rather than ''
+			// We do want getContent()'s behavior for non-existent
+			// MediaWiki: pages, though
+			if($articleObj->getID() == 0 && $titleObj->getNamespace() != NS_MEDIAWIKI)
+				$content = '';
+			else
+				$content = $articleObj->getContent();
 			$params['text'] = $params['prependtext'] . $content . $params['appendtext'];
 			$toMD5 = $params['prependtext'] . $params['appendtext'];
 		}
+		
+		if($params['undo'] > 0)
+		{
+			if($params['undoafter'] > 0)
+			{
+				if($params['undo'] < $params['undoafter'])
+					list($params['undo'], $params['undoafter']) =
+					array($params['undoafter'], $params['undo']);
+				$undoafterRev = Revision::newFromID($params['undoafter']);
+			}
+			$undoRev = Revision::newFromID($params['undo']);
+			if(is_null($undoRev) || $undoRev->isDeleted(Revision::DELETED_TEXT))
+				$this->dieUsageMsg(array('nosuchrevid', $params['undo']));
+			if($params['undoafter'] == 0)
+				$undoafterRev = $undoRev->getPrevious();
+			if(is_null($undoafterRev) || $undoafterRev->isDeleted(Revision::DELETED_TEXT))
+				$this->dieUsageMsg(array('nosuchrevid', $params['undoafter']));
+			if($undoRev->getPage() != $articleObj->getID())
+				$this->dieUsageMsg(array('revwrongpage', $undoRev->getID(), $titleObj->getPrefixedText()));
+			if($undoafterRev->getPage() != $articleObj->getID())
+				$this->dieUsageMsg(array('revwrongpage', $undoafterRev->getID(), $titleObj->getPrefixedText()));
+			$newtext = $articleObj->getUndoText($undoRev, $undoafterRev);
+			if($newtext === false)
+				$this->dieUsageMsg(array('undo-failure'));
+			$params['text'] = $newtext;
+			// If no summary was given and we only undid one rev,
+			// use an autosummary
+			if(is_null($params['summary']) && $titleObj->getNextRevisionID($undoafterRev->getID()) == $params['undo'])
+				$params['summary'] = wfMsgForContent('undo-summary', $params['undo'], $undoRev->getUserText());
+		}
 
 		# See if the MD5 hash checks out
-		if(isset($params['md5']))
+		if(!is_null($params['md5']))
 			if(md5($toMD5) !== $params['md5'])
 				$this->dieUsageMsg(array('hashcheckfailed'));
 		
@@ -98,8 +140,11 @@ class ApiEditPage extends ApiBase {
 			$reqArr['wpEdittime'] = wfTimestamp(TS_MW, $params['basetimestamp']);
 		else
 			$reqArr['wpEdittime'] = $articleObj->getTimestamp();
-		# Fake wpStartime
-		$reqArr['wpStarttime'] = $reqArr['wpEdittime'];
+		if(!is_null($params['starttimestamp']) && $params['starttimestamp'] != '')
+			$reqArr['wpStarttime'] = wfTimestamp(TS_MW, $params['starttimestamp']);
+		else
+			# Fake wpStartime
+			$reqArr['wpStarttime'] = $reqArr['wpEdittime'];
 		if($params['minor'] || (!$params['notminor'] && $wgUser->getOption('minordefault')))
 			$reqArr['wpMinoredit'] = '';
 		if($params['recreate'])
@@ -111,6 +156,8 @@ class ApiEditPage extends ApiBase {
 				$this->dieUsage("The section parameter must be set to an integer or 'new'", "invalidsection");
 			$reqArr['wpSection'] = $params['section'];
 		}
+		else
+			$reqArr['wpSection'] = '';
 
 		if($params['watch'])
 			$watch = true;
@@ -133,14 +180,14 @@ class ApiEditPage extends ApiBase {
 		# Run hooks
 		# Handle CAPTCHA parameters
 		global $wgRequest;
-		if(isset($params['captchaid']))
-			$wgRequest->data['wpCaptchaId'] = $params['captchaid'];
-		if(isset($params['captchaword']))
-			$wgRequest->data['wpCaptchaWord'] = $params['captchaword'];
+		if(!is_null($params['captchaid']))
+			$wgRequest->setVal( 'wpCaptchaId', $params['captchaid'] );
+		if(!is_null($params['captchaword']))
+			$wgRequest->setVal( 'wpCaptchaWord', $params['captchaword'] );
 		$r = array();
 		if(!wfRunHooks('APIEditBeforeSave', array(&$ep, $ep->textbox1, &$r)))
 		{
-			if(!empty($r))
+			if(count($r))
 			{
 				$r['result'] = "Failure";
 				$this->getResult()->addValue(null, $this->getModuleName(), $r);
@@ -153,10 +200,6 @@ class ApiEditPage extends ApiBase {
 		# Do the actual save
 		$oldRevId = $articleObj->getRevIdFetched();
 		$result = null;
-		# *Something* is setting $wgTitle to a title corresponding to "Msg",
-		# but that breaks API mode detection through is_null($wgTitle)
-		global $wgTitle;
-		$wgTitle = null;
 		# Fake $wgRequest for some hooks inside EditPage
 		# FIXME: This interface SUCKS
 		$oldRequest = $wgRequest;
@@ -200,24 +243,30 @@ class ApiEditPage extends ApiBase {
 			case EditPage::AS_CONFLICT_DETECTED:
 				$this->dieUsageMsg(array('editconflict'));
 			#case EditPage::AS_SUMMARY_NEEDED: Can't happen since we set wpIgnoreBlankSummary
-			#case EditPage::AS_TEXTBOX_EMPTY: Can't happen since we don't do sections
+			case EditPage::AS_TEXTBOX_EMPTY:
+				$this->dieUsageMsg(array('emptynewsection'));
 			case EditPage::AS_END:
 				# This usually means some kind of race condition
 				# or DB weirdness occurred. Throw an unknown error here.
-				$this->dieUsageMsg(array('unknownerror', 'AS_END'));
+				$this->dieUsageMsg(array('unknownerror'));
 			case EditPage::AS_SUCCESS_NEW_ARTICLE:
 				$r['new'] = '';
 			case EditPage::AS_SUCCESS_UPDATE:
 				$r['result'] = "Success";
-				$r['pageid'] = $titleObj->getArticleID();
+				$r['pageid'] = intval($titleObj->getArticleID());
 				$r['title'] = $titleObj->getPrefixedText();
-				$newRevId = $titleObj->getLatestRevId();
+				# HACK: We create a new Article object here because getRevIdFetched()
+				# refuses to be run twice, and because Title::getLatestRevId()
+				# won't fetch from the master unless we select for update, which we
+				# don't want to do.
+				$newArticle = new Article($titleObj);
+				$newRevId = $newArticle->getRevIdFetched();
 				if($newRevId == $oldRevId)
 					$r['nochange'] = '';
 				else
 				{
-					$r['oldrevid'] = $oldRevId;
-					$r['newrevid'] = $newRevId;
+					$r['oldrevid'] = intval($oldRevId);
+					$r['newrevid'] = intval($newRevId);
 				}
 				break;
 			default:
@@ -227,6 +276,10 @@ class ApiEditPage extends ApiBase {
 	}
 
 	public function mustBePosted() {
+		return true;
+	}
+
+	public function isWriteMode() {
 		return true;
 	}
 
@@ -245,6 +298,7 @@ class ApiEditPage extends ApiBase {
 			'notminor' => false,
 			'bot' => false,
 			'basetimestamp' => null,
+			'starttimestamp' => null,
 			'recreate' => false,
 			'createonly' => false,
 			'nocreate' => false,
@@ -255,6 +309,12 @@ class ApiEditPage extends ApiBase {
 			'md5' => null,
 			'prependtext' => null,
 			'appendtext' => null,
+			'undo' => array(
+				ApiBase :: PARAM_TYPE => 'integer'
+			),
+			'undoafter' => array(
+				ApiBase :: PARAM_TYPE => 'integer'
+			),
 		);
 	}
 
@@ -271,6 +331,9 @@ class ApiEditPage extends ApiBase {
 			'basetimestamp' => array('Timestamp of the base revision (gotten through prop=revisions&rvprop=timestamp).',
 						'Used to detect edit conflicts; leave unset to ignore conflicts.'
 			),
+			'starttimestamp' => array('Timestamp when you obtained the edit token.',
+						'Used to detect edit conflicts; leave unset to ignore conflicts.'
+			),
 			'recreate' => 'Override any errors about the article having been deleted in the meantime',
 			'createonly' => 'Don\'t edit the page if it exists already',
 			'nocreate' => 'Throw an error if the page doesn\'t exist',
@@ -283,17 +346,23 @@ class ApiEditPage extends ApiBase {
 			'prependtext' => array( 'Add this text to the beginning of the page. Overrides text.',
 						'Don\'t use together with section: that won\'t do what you expect.'),
 			'appendtext' => 'Add this text to the end of the page. Overrides text',
+			'undo' => 'Undo this revision. Overrides text, prependtext and appendtext',
+			'undoafter' => 'Undo all revisions from undo to this one. If not set, just undo one revision',
 		);
 	}
 
 	protected function getExamples() {
 		return array (
 			"Edit a page (anonymous user):",
-			"    api.php?action=edit&title=Test&summary=test%20summary&text=article%20content&basetimestamp=20070824123454&token=%2B\\"
+			"    api.php?action=edit&title=Test&summary=test%20summary&text=article%20content&basetimestamp=20070824123454&token=%2B\\",
+			"Prepend __NOTOC__ to a page (anonymous user):",
+			"    api.php?action=edit&title=Test&summary=NOTOC&minor&prependtext=__NOTOC__%0A&basetimestamp=20070824123454&token=%2B\\",
+			"Undo r13579 through r13585 with autosummary(anonymous user):",
+			"    api.php?action=edit&title=Test&undo=13585&undoafter=13579&basetimestamp=20070824123454&token=%2B\\",
 		);
 	}
 
 	public function getVersion() {
-		return __CLASS__ . ': $Id: ApiEditPage.php 36309 2008-06-15 20:37:28Z catrope $';
+		return __CLASS__ . ': $Id: ApiEditPage.php 50220 2009-05-05 14:07:59Z tstarling $';
 	}
 }

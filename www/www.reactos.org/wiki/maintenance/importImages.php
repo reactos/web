@@ -9,7 +9,7 @@
  * @author Rob Church <robchur@gmail.com>
  */
 
-$optionsWithArguments = array( 'extensions', 'overwrite' );
+$optionsWithArgs = array( 'extensions', 'comment', 'comment-file', 'comment-ext', 'user', 'license' );
 require_once( 'commandLine.inc' );
 require_once( 'importImages.inc.php' );
 $added = $skipped = $overwritten = 0;
@@ -20,6 +20,13 @@ echo( "Import Images\n\n" );
 if( count( $args ) > 0 ) {
 
 	$dir = $args[0];
+
+	# Check Protection
+	if (isset($options['protect']) && isset($options['unprotect']))
+			die("Cannot specify both protect and unprotect.  Only 1 is allowed.\n");
+
+	if ($options['protect'] == 1)
+			die("You must specify a protection option.\n");
 
 	# Prepare the list of allowed extensions
 	global $wgFileExtensions;
@@ -39,9 +46,19 @@ if( count( $args ) > 0 ) {
 	$wgUser = $user;
 
 	# Get the upload comment
-	$comment = isset( $options['comment'] )
-		? $options['comment']
-		: 'Importing image file';
+	$comment = 'Importing image file';
+
+	if ( isset( $options['comment-file'] ) ) {
+		$comment =  file_get_contents( $options['comment-file'] );
+		if ( $comment === false || $comment === NULL ) {
+			die( "failed to read comment file: {$options['comment-file']}\n" );
+		}
+	}
+	else if ( isset( $options['comment'] ) ) {
+		$comment =  $options['comment'];
+	}
+
+	$commentExt = isset( $options['comment-ext'] ) ? $options['comment-ext'] : false;
 
 	# Get the license specifier
 	$license = isset( $options['license'] ) ? $options['license'] : '';
@@ -53,7 +70,7 @@ if( count( $args ) > 0 ) {
 			$base = wfBaseName( $file );
 	
 			# Validate a title
-			$title = Title::makeTitleSafe( NS_IMAGE, $base );
+			$title = Title::makeTitleSafe( NS_FILE, $base );
 			if( !is_object( $title ) ) {
 				echo( "{$base} could not be imported; a valid title cannot be produced\n" );
 				continue;
@@ -75,17 +92,76 @@ if( count( $args ) > 0 ) {
 				$svar = 'added';
 			}
 
-			# Import the file	
-			$archive = $image->publish( $file );
-			if( WikiError::isError( $archive ) || !$archive->isGood() ) {
-				echo( "failed.\n" );
-				continue;
+			# Find comment text
+			$commentText = false;
+
+			if ( $commentExt ) {
+				$f = findAuxFile( $file, $commentExt );
+				if ( !$f ) {
+					echo( " No comment file with extension {$commentExt} found for {$file}, using default comment. " );
+				} else {
+					$commentText = file_get_contents( $f );
+					if ( !$f ) {
+						echo( " Failed to load comment file {$f}, using default comment. " );
+					}
+				}
 			}
 
+			if ( !$commentText ) {
+				$commentText = $comment;
+			}
+
+			# Import the file	
+			if ( isset( $options['dry'] ) ) {
+				echo( " publishing {$file}... " );
+			} else {
+				$archive = $image->publish( $file );
+				if( WikiError::isError( $archive ) || !$archive->isGood() ) {
+					echo( "failed.\n" );
+					continue;
+				}
+			}
+			
+			$doProtect = false;
+			$restrictions = array();
+			
+			global $wgRestrictionLevels;
+			
+			$protectLevel = isset($options['protect']) ? $options['protect'] : null;
+			
+			if ( $protectLevel && in_array( $protectLevel, $wgRestrictionLevels ) ) {
+					$restrictions['move'] = $protectLevel;
+					$restrictions['edit'] = $protectLevel;
+					$doProtect = true;
+			}
+			if (isset($options['unprotect'])) {
+					$restrictions['move'] = '';
+					$restrictions['edit'] = '';
+					$doProtect = true;
+			}
+
+
 			$$svar++;
-			if ( $image->recordUpload( $archive->value, $comment, $license ) ) {
+			if ( isset( $options['dry'] ) ) {
+				echo( "done.\n" );
+			} else if ( $image->recordUpload( $archive->value, $commentText, $license ) ) {
 				# We're done!
 				echo( "done.\n" );
+				if ($doProtect) {
+						# Protect the file
+						$article = new Article( $title );
+						echo "\nWaiting for slaves...\n";
+						// Wait for slaves.
+						sleep(2.0);
+						wfWaitForSlaves( 1.0 );
+						
+						echo( "\nSetting image restrictions ... " );
+						if ( $article->updateRestrictions($restrictions) )
+								echo( "done.\n" );
+						else
+								echo( "failed.\n" );
+				}
+
 			} else {
 				echo( "failed.\n" );
 			}
@@ -123,10 +199,16 @@ USAGE: php importImages.php [options] <dir>
 
 Options:
 --extensions=<exts>	Comma-separated list of allowable extensions, defaults to \$wgFileExtensions
---overwrite			Overwrite existing images if a conflicting-named image is found
+--overwrite		Overwrite existing images if a conflicting-named image is found
 --user=<username> 	Set username of uploader, default 'Maintenance script'
 --comment=<text>  	Set upload summary comment, default 'Importing image file'
+--comment-file=<file>  	Set upload summary comment the the content of <file>.
+--comment-ext=<ext>  	Causes the comment for each file to be loaded from a file with the same name
+			but the extension <ext>.
 --license=<code>  	Use an optional license template
+--dry			Dry run, don't import anything
+--protect=<protect>     Specify the protect value (autoconfirmed,sysop)
+--unprotect             Unprotects all uploaded images
 
 END;
 	exit();

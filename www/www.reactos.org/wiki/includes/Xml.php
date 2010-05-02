@@ -112,11 +112,11 @@ class Xml {
 	 *
 	 * @param $selected Mixed: Namespace which should be pre-selected
 	 * @param $all Mixed: Value of an item denoting all namespaces, or null to omit
-	 * @param $hidden Mixed: Include hidden namespaces? [WTF? --RC]
 	 * @param $element_name String: value of the "name" attribute of the select tag
+	 * @param $label String: optional label to add to the field
 	 * @return string
 	 */
-	public static function namespaceSelector( $selected = '', $all = null, $hidden = false, $element_name = 'namespace' ) {
+	public static function namespaceSelector( $selected = '', $all = null, $element_name = 'namespace', $label = null ) {
 		global $wgContLang;
 		$namespaces = $wgContLang->getFormattedNamespaces();
 		$options = array();
@@ -139,12 +139,16 @@ class Xml {
 			$options[] = self::option( $name, $index, $index === $selected );
 		}
 
-		return Xml::openElement( 'select', array( 'id' => 'namespace', 'name' => $element_name,
+		$ret = Xml::openElement( 'select', array( 'id' => 'namespace', 'name' => $element_name,
 			'class' => 'namespaceselector' ) )
 			. "\n"
 			. implode( "\n", $options )
 			. "\n"
 			. Xml::closeElement( 'select' );
+		if ( !is_null( $label ) ) {
+			$ret = Xml::label( $label, $element_name ) . '&nbsp;' . $ret;
+		}
+		return $ret;
 	}
 
 	/**
@@ -167,6 +171,36 @@ class Xml {
 		return self::openElement( 'select', array( 'id' => $id, 'name' => 'month', 'class' => 'mw-month-selector' ) )
 			. implode( "\n", $options )
 			. self::closeElement( 'select' );
+	}
+	
+	/**
+	 * @param $year Integer
+	 * @param $month Integer
+	 * @return string Formatted HTML
+	 */
+	public static function dateMenu( $year, $month ) {
+		# Offset overrides year/month selection
+		if( $month && $month !== -1 ) {
+			$encMonth = intval( $month );
+		} else {
+			$encMonth = '';
+		}
+		if( $year ) {
+			$encYear = intval( $year );
+		} else if( $encMonth ) {
+			$thisMonth = intval( gmdate( 'n' ) );
+			$thisYear = intval( gmdate( 'Y' ) );
+			if( intval($encMonth) > $thisMonth ) {
+				$thisYear--;
+			}
+			$encYear = $thisYear;
+		} else {
+			$encYear = '';
+		}
+		return Xml::label( wfMsg( 'year' ), 'year' ) . ' '.
+			Xml::input( 'year', 4, $encYear, array('id' => 'year', 'maxlength' => 4) ) . ' '.
+			Xml::label( wfMsg( 'month' ), 'month' ) . ' '.
+			Xml::monthSelector( $encMonth, -1 );
 	}
 
 	/**
@@ -637,20 +671,64 @@ class Xml {
 	
 		foreach( $fields as $labelmsg => $input ) {
 			$id = "mw-$labelmsg";
-			
 			$form .= Xml::openElement( 'tr', array( 'id' => $id ) );
 			$form .= Xml::tags( 'td', array('class' => 'mw-label'), wfMsgExt( $labelmsg, array('parseinline') ) );
-			$form .= Xml::openElement( 'td' ) . $input . Xml::closeElement( 'td' );
+			$form .= Xml::openElement( 'td', array( 'class' => 'mw-input' ) ) . $input . Xml::closeElement( 'td' );
+			$form .= Xml::closeElement( 'tr' );
+		}
+
+		if( $submitLabel ) {
+			$form .= Xml::openElement( 'tr' );
+			$form .= Xml::tags( 'td', array(), '' );
+			$form .= Xml::openElement( 'td', array( 'class' => 'mw-submit' ) ) . Xml::submitButton( wfMsg( $submitLabel ) ) . Xml::closeElement( 'td' );
 			$form .= Xml::closeElement( 'tr' );
 		}
 	
 		$form .= "</tbody></table>";
-		
-		if ($submitLabel) {	
-			$form .= Xml::submitButton( wfMsg($submitLabel) );
-		}
+
 	
 		return $form;
+	}
+	
+	/**
+	 * Build a table of data
+	 * @param array $rows An array of arrays of strings, each to be a row in a table
+	 * @param array $attribs Attributes to apply to the table tag [optional]
+	 * @param array $headers An array of strings to use as table headers [optional]
+	 * @return string
+	 */
+	public static function buildTable( $rows, $attribs = array(), $headers = null ) {
+		$s = Xml::openElement( 'table', $attribs );
+		if ( is_array( $headers ) ) {
+			foreach( $headers as $id => $header ) {
+				$attribs = array();
+				if ( is_string( $id ) ) $attribs['id'] = $id;
+				$s .= Xml::element( 'th', $attribs, $header );
+			}
+		}
+		foreach( $rows as $id => $row ) {
+			$attribs = array();
+			if ( is_string( $id ) ) $attribs['id'] = $id;
+			$s .= Xml::buildTableRow( $attribs, $row );
+		}
+		$s .= Xml::closeElement( 'table' );
+		return $s;
+	}
+	
+	/**
+	 * Build a row for a table
+	 * @param array $cells An array of strings to put in <td>
+	 * @return string
+	 */
+	public static function buildTableRow( $attribs, $cells ) {
+		$s = Xml::openElement( 'tr', $attribs );
+		foreach( $cells as $id => $cell ) {
+			$attribs = array();
+			if ( is_string( $id ) ) $attribs['id'] = $id;
+			$s .= Xml::element( 'td', $attribs, $cell );
+		}
+		$s .= Xml::closeElement( 'tr' );
+		return $s;
 	}
 }
 
@@ -674,7 +752,8 @@ class XmlSelect {
 	}
 
 	public function addOption( $name, $value = false ) {
-		$value = $value ? $value : $name;
+		// Stab stab stab
+		$value = ($value !== false) ? $value : $name;
 		$this->options[] = Xml::option( $name, $value, $value === $this->default );
 	}
 

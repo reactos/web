@@ -1,6 +1,9 @@
 <?php
 /** Kirghiz (Кыргызча)
  *
+ * See MessagesQqq.php for message documentation incl. usage of parameters
+ * To improve a translation please visit http://translatewiki.net
+ *
  * @ingroup Language
  * @file
  *
@@ -55,7 +58,7 @@ $messages = array(
 'mypage'        => 'Барагым',
 'mytalk'        => 'Маегим',
 'navigation'    => 'Багыттоо',
-'and'           => 'жана',
+'and'           => '&#32;жана',
 
 'errorpagetitle'   => 'Жаңылыш',
 'tagline'          => '{{SITENAME}} дан',
@@ -140,8 +143,12 @@ $messages = array(
 'accountcreated'     => 'Катталды',
 'loginlanguagelabel' => 'Тил: $1',
 
+# Password reset dialog
+'oldpassword' => 'Эски сырсөз:',
+'newpassword' => 'Жаңы сырсөз:',
+
 # Edit pages
-'summary'            => 'Кыска түшүндүрүү',
+'summary'            => 'Кыска түшүндүрүү:',
 'savearticle'        => 'Баракты сактап кой',
 'whitelistedittitle' => 'Оңдоо үчүн катоодон өтүү зарыл',
 'accmailtitle'       => 'Сырсөз жөнөтүлдү.',
@@ -171,8 +178,6 @@ $messages = array(
 'prefs-rc'           => 'Соңку өзгөрүүлөр',
 'prefs-watchlist'    => 'Байкоо тизме',
 'saveprefs'          => 'Сактап кой',
-'oldpassword'        => 'Эски сырсөз:',
-'newpassword'        => 'Жаңы сырсөз:',
 'textboxsize'        => 'Оңдоо',
 'searchresultshead'  => 'Издөө',
 'localtime'          => 'Жергиликтүү убакыт',
@@ -203,10 +208,10 @@ $messages = array(
 
 'license' => 'Лицензиялоо:',
 
-# Special:ImageList
-'imagelist' => 'Файлдар тизмеси',
+# Special:ListFiles
+'listfiles' => 'Файлдар тизмеси',
 
-# Image description page
+# File description page
 'imagelinks' => 'Шилтемелер',
 
 # Unused templates
@@ -217,8 +222,8 @@ $messages = array(
 'randompage' => 'Тушкелди макала',
 
 # Statistics
-'statistics' => 'Статистика',
-'userstats'  => 'Колдонуучулардын статистикасы',
+'statistics'              => 'Статистика',
+'statistics-header-users' => 'Колдонуучулардын статистикасы',
 
 # Miscellaneous special pages
 'unusedcategories' => 'Колдонулбаган категориялар',
@@ -259,7 +264,7 @@ $messages = array(
 'changed' => 'өзгөртүлдү',
 'created' => 'түзүлдү',
 
-# Delete/protect/revert
+# Delete
 'deletepage'     => 'Баракты өчүрүп кой',
 'confirm'        => 'Ырастоо',
 'actioncomplete' => 'Иш-аракет жыйынтыкталды',
@@ -302,7 +307,7 @@ $messages = array(
 # Browsing diffs
 'nextdiff' => 'Кийинки айырма →',
 
-# Special:NewImages
+# Special:NewFiles
 'newimages' => 'Жаңы файлдардын галлереясы',
 'ilsubmit'  => 'Издөө',
 'bydate'    => 'Күнү боюнча',

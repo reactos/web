@@ -7,13 +7,15 @@
 class SpecialRecentchangeslinked extends SpecialRecentchanges {
 
 	function __construct(){
-		SpecialPage::SpecialPage( 'Recentchangeslinked' );	
+		SpecialPage::SpecialPage( 'Recentchangeslinked' );
+		$this->includable( true );
 	}
 
 	public function getDefaultOptions() {
 		$opts = parent::getDefaultOptions();
 		$opts->add( 'target', '' );
 		$opts->add( 'showlinkedto', false );
+		$opts->add( 'tagfilter', '' );
 		return $opts;
 	}
 
@@ -21,9 +23,10 @@ class SpecialRecentchangeslinked extends SpecialRecentchanges {
 		$opts['target'] = $par;
 	}
 
-	public function feedSetup(){
+	public function feedSetup() {
 		global $wgRequest;
 		$opts = parent::feedSetup();
+		# Feed is cached on limit,hideminor,target; other params would randomly not work
 		$opts['target'] = $wgRequest->getVal( 'target' );
 		return $opts;
 	}
@@ -73,6 +76,7 @@ class SpecialRecentchangeslinked extends SpecialRecentchanges {
 		$tables = array( 'recentchanges' );
 		$select = array( $dbr->tableName( 'recentchanges' ) . '.*' );
 		$join_conds = array();
+		$query_options = array();
 
 		// left join with watchlist table to highlight watched rows
 		if( $uid = $wgUser->getId() ) {
@@ -80,6 +84,9 @@ class SpecialRecentchangeslinked extends SpecialRecentchanges {
 			$select[] = 'wl_user';
 			$join_conds['watchlist'] = array( 'LEFT JOIN', "wl_user={$uid} AND wl_title=rc_title AND wl_namespace=rc_namespace" );
 		}
+
+		ChangeTags::modifyDisplayQuery( $tables, $select, $conds, $join_conds,
+			$query_options, $opts['tagfilter'] );
 
 		// XXX: parent class does this, should we too?
 		// wfRunHooks('SpecialRecentChangesQuery', array( &$conds, &$tables, &$join_conds, $opts ) );
@@ -92,9 +99,12 @@ class SpecialRecentchangeslinked extends SpecialRecentchanges {
 		} else {
 			// for now, always join on these tables; really should be configurable as in whatlinkshere
 			$link_tables = array( 'pagelinks', 'templatelinks' );
-			// imagelinks only contains links to pages in NS_IMAGE
-			if( $ns == NS_IMAGE || !$showlinkedto ) $link_tables[] = 'imagelinks';
+			// imagelinks only contains links to pages in NS_FILE
+			if( $ns == NS_FILE || !$showlinkedto ) $link_tables[] = 'imagelinks';
 		}
+
+		if( $id == 0 && !$showlinkedto )
+			return false; // nonexistent pages can't link to any pages
 
 		// field name prefixes for all the various tables we might want to join with
 		$prefix = array( 'pagelinks' => 'pl', 'templatelinks' => 'tl', 'categorylinks' => 'cl', 'imagelinks' => 'il' );
@@ -105,7 +115,7 @@ class SpecialRecentchangeslinked extends SpecialRecentchanges {
 			$pfx = $prefix[$link_table];
 
 			// imagelinks and categorylinks tables have no xx_namespace field, and have xx_to instead of xx_title
-			if( $link_table == 'imagelinks' ) $link_ns = NS_IMAGE;
+			if( $link_table == 'imagelinks' ) $link_ns = NS_FILE;
 			else if( $link_table == 'categorylinks' ) $link_ns = NS_CATEGORY;
 			else $link_ns = 0;
 
@@ -129,9 +139,14 @@ class SpecialRecentchangeslinked extends SpecialRecentchanges {
 				}
 			}
 
-			$subsql[] = $dbr->selectSQLText( array_merge( $tables, array( $link_table ) ), $select, $conds + $subconds,
-							 __METHOD__, array( 'ORDER BY' => 'rc_timestamp DESC', 'LIMIT' => $limit ),
-							 $join_conds + array( $link_table => array( 'INNER JOIN', $subjoin ) ) );
+			$subsql[] = $dbr->selectSQLText( 
+				array_merge( $tables, array( $link_table ) ), 
+				$select, 
+				$conds + $subconds,
+				__METHOD__, 
+				array( 'ORDER BY' => 'rc_timestamp DESC', 'LIMIT' => $limit ) + $query_options,
+				$join_conds + array( $link_table => array( 'INNER JOIN', $subjoin ) )
+			);
 		}
 
 		if( count($subsql) == 0 )
@@ -145,7 +160,7 @@ class SpecialRecentchangeslinked extends SpecialRecentchanges {
 
 		$res = $dbr->query( $sql, __METHOD__ );
 
-		if( $dbr->numRows( $res ) == 0 )
+		if( $res->numRows() == 0 )
 			$this->mResultEmpty = true;
 
 		return $res;
@@ -159,17 +174,24 @@ class SpecialRecentchangeslinked extends SpecialRecentchanges {
 			Xml::input( 'target', 40, str_replace('_',' ',$opts['target']) ) .
 			Xml::check( 'showlinkedto', $opts['showlinkedto'], array('id' => 'showlinkedto') ) . ' ' .
 			Xml::label( wfMsg("recentchangeslinked-to"), 'showlinkedto' ) );
-		$extraOpts['submit'] = Xml::submitbutton( wfMsg('allpagessubmit') );
+		$tagFilter = ChangeTags::buildTagFilterSelector( $opts['tagfilter'] );
+		if ($tagFilter)
+			$extraOpts['tagfilter'] = $tagFilter;
 		return $extraOpts;
 	}
-	
-	function setTopText( &$out, $opts ){}
-	
-	function setBottomText( &$out, $opts ){
+
+	function setTopText( OutputPage $out, FormOptions $opts ) {
+		global $wgUser;
+		$skin = $wgUser->getSkin();
+		if( isset( $this->mTargetTitle ) && is_object( $this->mTargetTitle ) )
+			$out->setSubtitle( wfMsg( 'recentchangeslinked-backlink', $skin->link( $this->mTargetTitle,
+				$this->mTargetTitle->getPrefixedText(), array(), array( 'redirect' => 'no'  ) ) ) );
+	}
+
+	function setBottomText( OutputPage $out, FormOptions $opts ){
 		if( isset( $this->mTargetTitle ) && is_object( $this->mTargetTitle ) ){
 			global $wgUser;
 			$out->setFeedAppendQuery( "target=" . urlencode( $this->mTargetTitle->getPrefixedDBkey() ) );
-			$out->addHTML("&lt; ".$wgUser->getSkin()->makeLinkObj( $this->mTargetTitle, "", "redirect=no" )."<hr />\n");
 		}
 		if( isset( $this->mResultEmpty ) && $this->mResultEmpty ){
 			$out->addWikiMsg( 'recentchangeslinked-noresult' );	

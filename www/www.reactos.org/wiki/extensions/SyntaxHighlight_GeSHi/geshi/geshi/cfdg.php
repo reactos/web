@@ -4,7 +4,7 @@
  * --------
  * Author: John Horigan <john@glyphic.com>
  * Copyright: (c) 2006 John Horigan http://www.ozonehouse.com/john/
- * Release Version: 1.0.8.4
+ * Release Version: 1.0.7.22
  * Date Started: 2006/03/11
  *
  * CFDG language file for GeSHi.
@@ -108,10 +108,11 @@ $language_data = array (
     'URLS' => array(
         1 => '',
         2 => '',
-        3 => ''
+        3 => '',
+        4 => ''
         ),
     'OOLANG' => false,
-    'OBJECT_SPLITTERS' => array(),
+    'OBJECT_SPLITTERS' => '',
     'REGEXPS' => array(
         ),
     'STRICT_MODE_APPLIES' => GESHI_NEVER,

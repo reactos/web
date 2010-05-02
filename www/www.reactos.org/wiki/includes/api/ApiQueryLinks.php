@@ -76,9 +76,9 @@ class ApiQueryLinks extends ApiQueryGeneratorBase {
 		$params = $this->extractRequestParams();
 
 		$this->addFields(array (
-			$this->prefix . '_from pl_from',
-			$this->prefix . '_namespace pl_namespace',
-			$this->prefix . '_title pl_title'
+			$this->prefix . '_from AS pl_from',
+			$this->prefix . '_namespace AS pl_namespace',
+			$this->prefix . '_title AS pl_title'
 		));
 
 		$this->addTables($this->table);
@@ -92,7 +92,7 @@ class ApiQueryLinks extends ApiQueryGeneratorBase {
 					"original value returned by the previous query", "_badcontinue");
 			$plfrom = intval($cont[0]);
 			$plns = intval($cont[1]);
-			$pltitle = $this->getDb()->strencode($this->titleToKey($cont[2]));
+			$pltitle = $this->getDB()->strencode($this->titleToKey($cont[2]));
 			$this->addWhere("{$this->prefix}_from > $plfrom OR ".
 					"({$this->prefix}_from = $plfrom AND ".
 					"({$this->prefix}_namespace > $plns OR ".
@@ -119,9 +119,6 @@ class ApiQueryLinks extends ApiQueryGeneratorBase {
 		$res = $this->select(__METHOD__);
 
 		if (is_null($resultPageSet)) {
-
-			$data = array();
-			$lastId = 0;	// database has no ID 0
 			$count = 0;
 			while ($row = $db->fetchObject($res)) {
 				if(++$count > $params['limit']) {
@@ -132,23 +129,17 @@ class ApiQueryLinks extends ApiQueryGeneratorBase {
 						$this->keyToTitle($row->pl_title));
 					break;
 				}
-				if ($lastId != $row->pl_from) {
-					if($lastId != 0) {
-						$this->addPageSubItems($lastId, $data);
-						$data = array();
-					}
-					$lastId = $row->pl_from;
-				}
-
 				$vals = array();
 				ApiQueryBase :: addTitleInfo($vals, Title :: makeTitle($row->pl_namespace, $row->pl_title));
-				$data[] = $vals;
+				$fit = $this->addPageSubItem($row->pl_from, $vals);
+				if(!$fit)
+				{
+					$this->setContinueEnumParameter('continue',
+						"{$row->pl_from}|{$row->pl_namespace}|" .
+						$this->keyToTitle($row->pl_title));
+					break;
+				}
 			}
-
-			if($lastId != 0) {
-				$this->addPageSubItems($lastId, $data);
-			}
-
 		} else {
 
 			$titles = array();
@@ -213,6 +204,6 @@ class ApiQueryLinks extends ApiQueryGeneratorBase {
 	}
 
 	public function getVersion() {
-		return __CLASS__ . ': $Id: ApiQueryLinks.php 37909 2008-07-22 13:26:15Z catrope $';
+		return __CLASS__ . ': $Id: ApiQueryLinks.php 46845 2009-02-05 14:30:59Z catrope $';
 	}
 }

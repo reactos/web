@@ -44,7 +44,6 @@ class ApiUnblock extends ApiBase {
 	 */
 	public function execute() {
 		global $wgUser;
-		$this->getMain()->requestWriteMode();
 		$params = $this->extractRequestParams();
 
 		if($params['gettoken'])
@@ -64,23 +63,25 @@ class ApiUnblock extends ApiBase {
 			$this->dieUsageMsg(array('sessionfailure'));
 		if(!$wgUser->isAllowed('block'))
 			$this->dieUsageMsg(array('cantunblock'));
-		if(wfReadOnly())
-			$this->dieUsageMsg(array('readonlytext'));
 
 		$id = $params['id'];
 		$user = $params['user'];
 		$reason = (is_null($params['reason']) ? '' : $params['reason']);
 		$retval = IPUnblockForm::doUnblock($id, $user, $reason, $range);
-		if(!empty($retval))
+		if($retval)
 			$this->dieUsageMsg($retval);
 
-		$res['id'] = $id;
+		$res['id'] = intval($id);
 		$res['user'] = $user;
 		$res['reason'] = $reason;
 		$this->getResult()->addValue(null, $this->getModuleName(), $res);
 	}
 
 	public function mustBePosted() { return true; }
+
+	public function isWriteMode() {
+		return true;
+	}
 
 	public function getAllowedParams() {
 		return array (
@@ -96,7 +97,7 @@ class ApiUnblock extends ApiBase {
 		return array (
 			'id' => 'ID of the block you want to unblock (obtained through list=blocks). Cannot be used together with user',
 			'user' => 'Username, IP address or IP range you want to unblock. Cannot be used together with id',
-			'token' => 'An unblock token previously obtained through the gettoken parameter',
+			'token' => 'An unblock token previously obtained through the gettoken parameter or prop=info',
 			'gettoken' => 'If set, an unblock token will be returned, and no other action will be taken',
 			'reason' => 'Reason for unblock (optional)',
 		);
@@ -116,6 +117,6 @@ class ApiUnblock extends ApiBase {
 	}
 
 	public function getVersion() {
-		return __CLASS__ . ': $Id: ApiUnblock.php 35098 2008-05-20 17:13:28Z ialex $';
+		return __CLASS__ . ': $Id: ApiUnblock.php 48091 2009-03-06 13:49:44Z catrope $';
 	}
 }

@@ -23,14 +23,35 @@ require_once(SHARED_PATH . "subsys_layout.php");
  */
 class SkinRosCMS extends SkinTemplate {
 	/** Using roscms. */
-	function initPage( &$out ) {
-		SkinTemplate::initPage( $out );
+	function initPage( OutputPage $out ) {
+		parent::initPage( $out );
 		$this->skinname  = 'roscms';
 		$this->stylename = 'roscms';
 		$this->template  = 'RosCMSTemplate';
-		# Bug 14520: skins that just include this file shouldn't load nonexis-
-		# tent CSS fix files.
-		$this->cssfiles = array( 'IE', 'IE60', 'IE70', 'rtl' );
+
+	}
+
+	function setupSkinUserCss( OutputPage $out ) {
+		global $wgHandheldStyle;
+
+		parent::setupSkinUserCss( $out );
+
+		// ReactOS Website Design
+		$out->addStyle('/shared/css/menu.css', 'screen');
+		
+		// Append to the default screen common & print styles...
+		$out->addStyle( 'roscms/main.css', 'screen' );
+		if( $wgHandheldStyle ) {
+			// Currently in testing... try 'chick/main.css'
+			$out->addStyle( $wgHandheldStyle, 'handheld' );
+		}
+
+		$out->addStyle( 'roscms/IE50Fixes.css', 'screen', 'lt IE 5.5000' );
+		$out->addStyle( 'roscms/IE55Fixes.css', 'screen', 'IE 5.5000' );
+		$out->addStyle( 'roscms/IE60Fixes.css', 'screen', 'IE 6' );
+		$out->addStyle( 'roscms/IE70Fixes.css', 'screen', 'IE 7' );
+
+		$out->addStyle( 'roscms/rtl.css', 'screen', '', 'rtl' );
 	}
 }
 
@@ -57,7 +78,7 @@ class RosCMSTemplate extends QuickTemplate {
 		wfSuppressWarnings();
 
 ?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="<?php $this->text('xhtmldefaultnamespace') ?>" <?php 
+<html xmlns="<?php $this->text('xhtmldefaultnamespace') ?>" <?php
 	foreach($this->data['xhtmlnamespaces'] as $tag => $ns) {
 		?>xmlns:<?php echo "{$tag}=\"{$ns}\" ";
 	} ?>xml:lang="<?php $this->text('lang') ?>" lang="<?php $this->text('lang') ?>" dir="<?php $this->text('dir') ?>">
@@ -65,21 +86,13 @@ class RosCMSTemplate extends QuickTemplate {
 		<meta http-equiv="Content-Type" content="<?php $this->text('mimetype') ?>; charset=<?php $this->text('charset') ?>" />
 		<?php $this->html('headlinks') ?>
 		<title><?php $this->text('pagetitle') ?></title>
-		<link href="/shared/css/menu.css" type="text/css" rel="stylesheet" />
-		<style type="text/css" media="screen, projection">/*<![CDATA[*/
-			@import "<?php $this->text('stylepath') ?>/common/shared.css?<?php echo $GLOBALS['wgStyleVersion'] ?>";
-			@import "<?php $this->text('stylepath') ?>/<?php $this->text('stylename') ?>/main.css?<?php echo $GLOBALS['wgStyleVersion'] ?>";
-		/*]]>*/</style>
-		<link rel="stylesheet" type="text/css" <?php if(empty($this->data['printable']) ) { ?>media="print"<?php } ?> href="<?php $this->text('printcss') ?>?<?php echo $GLOBALS['wgStyleVersion'] ?>" />
-		<?php if( in_array( 'IE50', $skin->cssfiles ) ) { ?><!--[if lt IE 5.5000]><style type="text/css">@import "<?php $this->text('stylepath') ?>/<?php $this->text('stylename') ?>/IE50Fixes.css?<?php echo $GLOBALS['wgStyleVersion'] ?>";</style><![endif]-->
-		<?php } if( in_array( 'IE55', $skin->cssfiles ) ) { ?><!--[if IE 5.5000]><style type="text/css">@import "<?php $this->text('stylepath') ?>/<?php $this->text('stylename') ?>/IE55Fixes.css?<?php echo $GLOBALS['wgStyleVersion'] ?>";</style><![endif]-->
-		<?php } if( in_array( 'IE60', $skin->cssfiles ) ) { ?><!--[if IE 6]><style type="text/css">@import "<?php $this->text('stylepath') ?>/<?php $this->text('stylename') ?>/IE60Fixes.css?<?php echo $GLOBALS['wgStyleVersion'] ?>";</style><![endif]-->
-		<?php } if( in_array( 'IE70', $skin->cssfiles ) ) { ?><!--[if IE 7]><style type="text/css">@import "<?php $this->text('stylepath') ?>/<?php $this->text('stylename') ?>/IE70Fixes.css?<?php echo $GLOBALS['wgStyleVersion'] ?>";</style><![endif]-->
-		<?php } ?><!--[if lt IE 7]><?php if( in_array( 'IE', $skin->cssfiles ) ) { ?><script type="<?php $this->text('jsmimetype') ?>" src="<?php $this->text('stylepath') ?>/common/IEFixes.js?<?php echo $GLOBALS['wgStyleVersion'] ?>"></script>
-		<?php } ?><meta http-equiv="imagetoolbar" content="no" /><![endif]-->
-		
+		<?php $this->html('csslinks') ?>
+
+		<!--[if lt IE 7]><script type="<?php $this->text('jsmimetype') ?>" src="<?php $this->text('stylepath') ?>/common/IEFixes.js?<?php echo $GLOBALS['wgStyleVersion'] ?>"></script>
+		<meta http-equiv="imagetoolbar" content="no" /><![endif]-->
+
 		<?php print Skin::makeGlobalVariablesScript( $this->data ); ?>
-                
+
 		<script type="<?php $this->text('jsmimetype') ?>" src="<?php $this->text('stylepath' ) ?>/common/wikibits.js?<?php echo $GLOBALS['wgStyleVersion'] ?>"><!-- wikibits js --></script>
 		<!-- Head Scripts -->
 <?php $this->html('headscripts') ?>
@@ -102,7 +115,7 @@ class RosCMSTemplate extends QuickTemplate {
 	</head>
 <body<?php if($this->data['body_ondblclick']) { ?> ondblclick="<?php $this->text('body_ondblclick') ?>"<?php } ?>
 <?php if($this->data['body_onload']) { ?> onload="<?php $this->text('body_onload') ?>"<?php } ?>
- class="mediawiki <?php $this->text('nsclass') ?> <?php $this->text('dir') ?> <?php $this->text('pageclass') ?>">
+ class="mediawiki <?php $this->text('dir') ?> <?php $this->text('pageclass') ?> <?php $this->text('skinnameclass') ?>">
 
 <?php
 	$userlang = $_COOKIE["roscms_usrset_lang"];
@@ -148,7 +161,7 @@ class RosCMSTemplate extends QuickTemplate {
 <?php			} ?>
 		</ol>
 	</div>
-			
+
 			<?php AdvertisementBox($userlang); ?>
 		</td>
 		<td>
@@ -160,7 +173,7 @@ class RosCMSTemplate extends QuickTemplate {
 	<div id="content">
 		<a name="top" id="top"></a>
 		<?php if($this->data['sitenotice']) { ?><div id="siteNotice"><?php $this->html('sitenotice') ?></div><?php } ?>
-		<h1 class="firstHeading"><?php $this->data['displaytitle']!=""?$this->html('title'):$this->text('title') ?></h1>
+		<h1 id="firstHeading" class="firstHeading"><?php $this->data['displaytitle']!=""?$this->html('title'):$this->text('title') ?></h1>
 		<div id="bodyContent">
 			<h3 id="siteSub"><?php $this->msg('tagline') ?></h3>
 			<div id="contentSub"><?php $this->html('subtitle') ?></div>
@@ -171,6 +184,7 @@ class RosCMSTemplate extends QuickTemplate {
 			<?php $this->html('bodytext') ?>
 			<?php if($this->data['catlinks']) { $this->html('catlinks'); } ?>
 			<!-- end content -->
+			<?php if($this->data['dataAfterContent']) { $this->html ('dataAfterContent'); } ?>
 			<div class="visualClear"></div>
 		</div>
 	</div>
@@ -182,7 +196,7 @@ class RosCMSTemplate extends QuickTemplate {
 			<ul>
 	<?php		foreach($this->data['content_actions'] as $key => $tab) {
 					echo '
-				 <li id="ca-' . Sanitizer::escapeId($key).'"';
+				 <li id="' . Sanitizer::escapeId( "ca-$key" ) . '"';
 					if( $tab['class'] ) {
 						echo ' class="'.htmlspecialchars($tab['class']).'"';
 					}
@@ -215,20 +229,28 @@ class RosCMSTemplate extends QuickTemplate {
 <?php	}
 
 		// Generate additional footer links
-?>
-			<ul id="f-list">
-<?php
 		$footerlinks = array(
 			'lastmod', 'viewcount', 'numberofwatchingusers', 'credits', 'copyright',
 			'privacy', 'about', 'disclaimer', 'tagline',
 		);
+		$validFooterLinks = array();
 		foreach( $footerlinks as $aLink ) {
 			if( isset( $this->data[$aLink] ) && $this->data[$aLink] ) {
-?>				<li id="<?php echo$aLink?>"><?php $this->html($aLink) ?></li>
-<?php 		}
+				$validFooterLinks[] = $aLink;
+			}
 		}
+		if ( count( $validFooterLinks ) > 0 ) {
+?>			<ul id="f-list">
+<?php
+			foreach( $validFooterLinks as $aLink ) {
+				if( isset( $this->data[$aLink] ) && $this->data[$aLink] ) {
+?>					<li id="<?php echo$aLink?>"><?php $this->html($aLink) ?></li>
+<?php 			}
+			}
 ?>
 			</ul>
+<?php	}
+?>
 		</div>
 </div>
 <?php $this->html('bottomscripts'); /* JS call to runBodyOnloadHook */ ?>
@@ -258,16 +280,20 @@ pageTracker._trackPageview();
 
 	/*************************************************************************************************/
 	function searchBox() {
+		global $wgUseTwoButtonsSearchForm;
 ?>
-	<form action="<?php $this->text('searchaction') ?>" id="searchform">
+	<form action="<?php $this->text('wgScript') ?>" id="searchform">
 	<div id="p-search" class="portlet">
 		<div class="navTitle"><?php $this->msg('search'); ?></div> 
 		<div id="searchBody" class="navBox">
+				<input type='hidden' name="title" value="<?php $this->text('searchtitle') ?>"/>
 				<input id="searchInput" name="search" type="text"<?php echo $this->skin->tooltipAndAccesskey('search');
 					if( isset( $this->data['search'] ) ) {
 						?> value="<?php $this->text('search') ?>"<?php } ?> />
-				<input type='submit' name="go" class="searchButton" id="searchGoButton"	value="<?php $this->msg('searcharticle') ?>"<?php echo $this->skin->tooltipAndAccesskey( 'search-go' ); ?> />&nbsp;
-				<input type='submit' name="fulltext" class="searchButton" id="mw-searchButton" value="<?php $this->msg('searchbutton') ?>"<?php echo $this->skin->tooltipAndAccesskey( 'search-fulltext' ); ?> />
+				<input type='submit' name="go" class="searchButton" id="searchGoButton"	value="<?php $this->msg('searcharticle') ?>"<?php echo $this->skin->tooltipAndAccesskey( 'search-go' ); ?> /><?php if ($wgUseTwoButtonsSearchForm) { ?>&nbsp;
+				<input type='submit' name="fulltext" class="searchButton" id="mw-searchButton" value="<?php $this->msg('searchbutton') ?>"<?php echo $this->skin->tooltipAndAccesskey( 'search-fulltext' ); ?> /><?php } else { ?>
+
+				<div><a href="<?php $this->text('searchaction') ?>" rel="search"><?php $this->msg('powersearch-legend') ?></a></div><?php } ?>
 		</div>
 	</div>
 	</form>
@@ -299,8 +325,8 @@ pageTracker._trackPageview();
 <?php 	}
 		if($this->data['feeds']) { ?>
 			<?php foreach($this->data['feeds'] as $key => $feed) {
-					?><li id="feed-<?php echo Sanitizer::escapeId($key) ?>"><a href="<?php
-					echo htmlspecialchars($feed['href']) ?>"<?php echo $this->skin->tooltipAndAccesskey('feed-'.$key) ?>><?php echo htmlspecialchars($feed['text'])?></a>
+					?><li id="<?php echo Sanitizer::escapeId( "feed-$key" ) ?>"><a href="<?php
+					echo htmlspecialchars($feed['href']) ?>" rel="alternate" type="application/<?php echo $key ?>+xml" <?php echo $this->skin->tooltipAndAccesskey('feed-'.$key) ?>><?php echo htmlspecialchars($feed['text'])?></a>
 					<?php } ?></li><?php
 		}
 
@@ -314,7 +340,7 @@ pageTracker._trackPageview();
 
 		if(!empty($this->data['nav_urls']['print']['href'])) { ?>
 				<li id="t-print"><a href="<?php echo htmlspecialchars($this->data['nav_urls']['print']['href'])
-				?>"<?php echo $this->skin->tooltipAndAccesskey('t-print') ?>><?php $this->msg('printableversion') ?></a></li><?php
+				?>" rel="alternate"<?php echo $this->skin->tooltipAndAccesskey('t-print') ?>><?php $this->msg('printableversion') ?></a></li><?php
 		}
 
 		if(!empty($this->data['nav_urls']['permalink']['href'])) { ?>
@@ -334,7 +360,7 @@ pageTracker._trackPageview();
 
 	/*************************************************************************************************/
 	function languageBox() {
-		if( $this->data['language_urls'] ) { 
+		if( $this->data['language_urls'] ) {
 ?>
 	<div id="p-lang" class="portlet">
 		<div class="navTitle"><?php $this->msg('otherlanguages'); ?></div> 
@@ -352,7 +378,7 @@ pageTracker._trackPageview();
 	/*************************************************************************************************/
 	function customBox( $bar, $cont ) {
 ?>
-	<div class='generated-sidebar portlet' id='p-<?php echo Sanitizer::escapeId($bar) ?>'<?php echo $this->skin->tooltip('p-'.$bar) ?>>
+	<div class='generated-sidebar portlet' id='<?php echo Sanitizer::escapeId( "p-$bar" ) ?>'<?php echo $this->skin->tooltip('p-'.$bar) ?>>
 		<div class="navTitle"><?php $out = wfMsg( $bar ); if (wfEmptyMsg($bar, $out)) echo $bar; else echo $out; ?></div> 
 <?php   if ( is_array( $cont ) ) { ?>
 		<ol>

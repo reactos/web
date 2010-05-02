@@ -80,8 +80,8 @@ class GenerateSitemap {
 		NS_USER_TALK		=> '0.1',
 		NS_PROJECT		=> '0.5',
 		NS_PROJECT_TALK		=> '0.1',
-		NS_IMAGE		=> '0.5',
-		NS_IMAGE_TALK		=> '0.1',
+		NS_FILE			=> '0.5',
+		NS_FILE_TALK		=> '0.1',
 		NS_MEDIAWIKI		=> '0.0',
 		NS_MEDIAWIKI_TALK	=> '0.1',
 		NS_TEMPLATE		=> '0.0',
@@ -424,7 +424,7 @@ class GenerateSitemap {
 	 *
 	 * @static
 	 *
-	 * @param string $url An RFC 2396 compilant URL
+	 * @param string $url An RFC 2396 compliant URL
 	 * @param string $date A ISO 8601 date
 	 * @param string $priority A priority indicator, 0.0 - 1.0 inclusive with a 0.1 stepsize
 	 *
@@ -476,6 +476,7 @@ Usage: php generateSitemap.php [options]
 	--help			show this message
 
 	--fspath=<path>		The file system path to save to, e.g /tmp/sitemap
+	                    Saves to current directory if not given.
 
 	--server=<server>	The protocol and server name to use in URLs, e.g.
 		http://en.wikipedia.org. This is sometimes necessary because

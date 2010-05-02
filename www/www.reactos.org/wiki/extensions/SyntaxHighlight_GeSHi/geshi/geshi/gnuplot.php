@@ -4,10 +4,10 @@
  * ----------
  * Author: Milian Wolff (mail@milianw.de)
  * Copyright: (c) 2008 Milian Wolff (http://milianw.de)
- * Release Version: 1.0.8.4
+ * Release Version: 1.0.8
  * Date Started: 2008/07/07
  *
- * Gnuplot script language file for GeSHi.
+ * Gnuplot script highlighter
  *
  * CHANGES
  * -------
@@ -41,11 +41,6 @@ $language_data = array (
     'CASE_KEYWORDS' => GESHI_CAPS_NO_CHANGE,
     'QUOTEMARKS' => array('`', '"', "'"),
     'ESCAPE_CHAR' => '\\',
-    'NUMBERS' =>
-        GESHI_NUMBER_INT_BASIC |
-        GESHI_NUMBER_FLT_NONSCI |
-        GESHI_NUMBER_FLT_SCI_SHORT |
-        GESHI_NUMBER_FLT_SCI_ZERO,
     'KEYWORDS' => array(
         // copy output of help command, indent properly and use this replace regexp:
         // ([a-z0-9_\-]+)(( )+|$)          =>     '\1',\3
@@ -60,7 +55,7 @@ $language_data = array (
             'save', 'set', 'shell', 'show',
             'splot', 'system', 'test', 'unset',
             'update'
-            ),
+          ),
         2 => array(
             // set commands as returned by `help set`
             'angles', 'arrow', 'autoscale', 'bars',
@@ -69,7 +64,7 @@ $language_data = array (
             'cbtics', 'clabel', 'clip', 'cntrparam',
             'colorbox', 'contour', 'datafile', 'date_specifiers',
             'decimalsign', 'dgrid3d', 'dummy', 'encoding',
-            'fontpath', 'format', 'grid',
+            'fit', 'fontpath', 'format', 'grid',
             'hidden3d', 'historysize', 'isosamples', 'key',
             'label', 'lmargin', 'loadpath', 'locale',
             'log', 'logscale', 'macros', 'mapping',
@@ -77,12 +72,12 @@ $language_data = array (
             'mx2tics', 'mxtics', 'my2tics', 'mytics',
             'mztics', 'object', 'offsets', 'origin',
             'output', 'palette', 'parametric', 'pm3d',
-            'pointsize', 'polar', 'rmargin',
+            'pointsize', 'polar', 'print', 'rmargin',
             'rrange', 'samples', 'size', 'style',
             'surface', 'table', 'term', 'terminal',
             'termoption', 'tics', 'ticscale', 'ticslevel',
             'time_specifiers', 'timefmt', 'timestamp', 'title',
-            'trange', 'urange', 'view',
+            'tmargin', 'trange', 'urange', 'view',
             'vrange', 'x2data', 'x2dtics', 'x2label',
             'x2mtics', 'x2range', 'x2tics', 'x2zeroaxis',
             'xdata', 'xdtics', 'xlabel', 'xmtics',
@@ -124,7 +119,7 @@ $language_data = array (
             'noytics', 'noyzeroaxis', 'nozdata', 'nozdtics',
             'nozero', 'nozeroaxis', 'nozlabel', 'nozmtics',
             'nozrange', 'noztics', 'nozzeroaxis',
-            ),
+          ),
         3 => array(
             // predefined variables
             'pi', 'NaN', 'GNUTERM',
@@ -133,7 +128,7 @@ $language_data = array (
             'GPVAL_VERSION', 'GPVAL_PATcHLEVEL', 'GPVAL_COMPILE_OPTIONS',
             'MOUSE_KEY', 'MOUSE_X', 'MOUSE_X2', 'MOUSE_Y', 'MOUSE_Y2',
             'MOUSE_BUTTON', 'MOUSE_SHIFT', 'MOUSE_ALT', 'MOUSE_CTRL'
-            ),
+          ),
         4 => array(
             // predefined functions `help functions`
             'abs', 'acos', 'acosh', 'arg',
@@ -144,24 +139,24 @@ $language_data = array (
             'exists', 'exp', 'floor', 'gamma',
             'gprintf', 'ibeta', 'igamma', 'imag',
             'int', 'inverf', 'invnorm', 'lambertw',
-            'lgamma', 'log10', 'norm',
+            'lgamma', 'log', 'log10', 'norm',
             'rand', 'random', 'real', 'sgn',
             'sin', 'sinh', 'sprintf', 'sqrt',
             'stringcolumn', 'strlen', 'strstrt', 'substr',
-            'tan', 'tanh', 'timecolumn',
+            'system', 'tan', 'tanh', 'timecolumn',
             'tm_hour', 'tm_mday', 'tm_min', 'tm_mon',
             'tm_sec', 'tm_wday', 'tm_yday', 'tm_year',
             'valid', 'word', 'words',
-            ),
+        ),
         5 => array(
             // mixed arguments
             // there is no sane way to get these ones easily...
-            'autofreq', 'x', 'y', 'z',
+            'notitle', 'autofreq', 'x', 'y', 'z',
             'lt', 'linetype', 'lw', 'linewidth', 'ls', 'linestyle',
             'out', 'rotate by', 'screen',
             'enhanced', 'via',
             // `help set key`
-            'on', 'off', 'default', 'inside', 'outside', 'tmargin',
+            'on', 'off', 'default', 'inside', 'outside', 'lmargin', 'rmargin', 'tmargin', 'bmargin',
             'at', 'left', 'right', 'center', 'top', 'bottom', 'vertical', 'horizontal', 'Left', 'Right',
             'noreverse', 'reverse', 'noinvert', 'invert', 'samplen', 'spacing', 'width', 'height',
             'noautotitle', 'autotitle', 'noenhanced', 'nobox', 'box',
@@ -170,7 +165,7 @@ $language_data = array (
             'landscape', 'portrait', 'eps', 'defaultplex', 'simplex', 'duplex',
             'fontfile', 'add', 'delete', 'nofontfiles', 'level1', 'leveldefault',
             'color', 'colour', 'monochrome', 'solid', 'dashed', 'dashlength', 'dl',
-            'rounded', 'butt', 'palfuncparam', 'blacktext', 'colortext', 'colourtext',
+            'rounded', 'butt', 'palfuncparam', 'size', 'blacktext', 'colortext', 'colourtext',
             'font',
 
             // help set terminal png
@@ -180,10 +175,10 @@ $language_data = array (
 
             // `help plot`
             'acsplines', 'bezier', 'binary', 'csplines',
-            'every',
+            'datafile', 'every',
             'example', 'frequency', 'index', 'matrix',
-            'ranges', 'sbezier', 'smooth',
-            'special-filenames', 'thru',
+            'parametric', 'ranges', 'sbezier', 'smooth',
+            'special-filenames', 'style', 'thru', 'title',
             'unique', 'using', 'with',
 
             // `help plotting styles`
@@ -212,11 +207,12 @@ $language_data = array (
             'svg', 'tandy-60dpi', 'tek40xx', 'tek410x',
             'texdraw', 'tgif', 'tkcanvas', 'tpic',
             'vttek', 'x11', 'xlib',
-            )
-        ),
+
+        )
+    ),
     'REGEXPS' => array(
         //Variable assignment
-        0 => "(?<![?;>\w])([a-zA-Z_][a-zA-Z0-9_]*)\s*=",
+        0 => "([a-zA-Z_][a-zA-Z0-9_]*)\s*=",
         //Numbers with unit
         1 => "(?<=^|\s)([0-9]*\.?[0-9]+\s*cm)"
         ),
@@ -269,11 +265,7 @@ $language_data = array (
             )
         ),
     'URLS' => array(
-        1 => '',
-        2 => 'http://www.google.com/search?q=%22set+{FNAME}%22+site%3Ahttp%3A%2F%2Fwww.gnuplot.info%2Fdocs%2F&amp;btnI=lucky',
-        3 => '',
-        4 => '',
-        5 => ''
+        2 => 'http://www.google.com/search?q=%22set+{FNAME}%22+site%3Ahttp%3A%2F%2Fwww.gnuplot.info%2Fdocs%2F&btnI=lucky',
         ),
     'OOLANG' => false,
     'OBJECT_SPLITTERS' => array(
@@ -286,7 +278,7 @@ $language_data = array (
     'PARSER_CONTROL' => array(
         'KEYWORDS' => array(
             4 => array(
-                'DISALLOWED_AFTER' =>  "(?![\.\-a-zA-Z0-9_%])"
+                'DISALLOWED_AFTER' =>  "\.\-a-zA-Z0-9_%"
             )
         )
     ),

@@ -4,7 +4,7 @@
  * ---------
  * Author: Alan Juden (alan@judenware.org)
  * Copyright: (c) 2004 Alan Juden, Nigel McNie (http://qbnz.com/highlighter)
- * Release Version: 1.0.8.4
+ * Release Version: 1.0.7.22
  * Date Started: 2004/06/04
  *
  * VB.NET language file for GeSHi.
@@ -37,7 +37,7 @@
  *
  ************************************************************************************/
 
-$language_data = array (
+ $language_data = array (
     'LANG_NAME' => 'vb.net',
     'COMMENT_SINGLE' => array(1 => "'"),
     'COMMENT_MULTI' => array(),
@@ -59,7 +59,7 @@ $language_data = array (
             'MSGBOXRTLREADING', 'MSGBOXSETFOREGROUND', 'NARROW', 'NEWLINE', 'NO', 'NORMAL',
             'NORMALFOCUS', 'NORMALNOFOCUS', 'NULLSTRING', 'OBJECTERROR', 'OK', 'OKCANCEL', 'OKONLY',
             'PROPERCASE', 'QUESTION', 'RAMDISK', 'READONLY', 'RED', 'REMOTE', 'REMOVABLE', 'RETRY',
-            'RETRYCANCEL', 'SCROLLBARS', 'SYSTEMFOLDER', 'SYSTEMMODAL', 'TEMPORARYFOLDER',
+            'RETRYCANCEL', 'SCROLLBARS', 'SYSTEMFOLDER', 'SYSTEMMODAL', 'TAB', 'TEMPORARYFOLDER',
             'TEXTCOMPARE', 'TITLEBARTEXT', 'TRUE', 'UNICODE', 'UNKNOWN', 'UPPERCASE', 'VERTICALTAB',
             'VOLUME', 'WHITE', 'WIDE', 'WIN16', 'WIN32', 'WINDOWBACKGROUND', 'WINDOWFRAME',
             'WINDOWSFOLDER', 'WINDOWTEXT', 'YELLOW', 'YES', 'YESNO', 'YESNOCANCEL'
@@ -67,9 +67,9 @@ $language_data = array (
         2 => array(
             'AndAlso', 'As', 'ADDHANDLER', 'ASSEMBLY', 'AUTO', 'Binary', 'ByRef', 'ByVal', 'BEGINEPILOGUE',
             'Else', 'ElseIf', 'Empty', 'Error', 'ENDPROLOGUE', 'EXTERNALSOURCE', 'ENVIRON', 'For',
-            'Friend', 'GET', 'HANDLES', 'Input', 'Is', 'IsNot', 'Len', 'Lock', 'Me', 'Mid', 'MUSTINHERIT', 'MustOverride',
+            'Friend', 'GET', 'HANDLES', 'Input', 'Is', 'IsNot', 'Len', 'Lock', 'Me', 'Mid', 'MUSTINHERIT',
             'MYBASE', 'MYCLASS', 'New', 'Next', 'Nothing', 'Null', 'NOTINHERITABLE',
-            'NOTOVERRIDABLE', 'OFF', 'On', 'Option', 'Optional', 'Overloads', 'OVERRIDABLE', 'Overrides', 'ParamArray',
+            'NOTOVERRIDABLE', 'OFF', 'On', 'Option', 'Optional', 'Overloads', 'OVERRIDABLE', 'ParamArray',
             'Print', 'Private', 'Property', 'Public', 'Resume', 'Return', 'Seek', 'Static', 'Step',
             'String', 'SHELL', 'SENDKEYS', 'SET', 'Shared', 'Then', 'Time', 'To', 'THROW', 'WithEvents'
             ),
@@ -89,10 +89,10 @@ $language_data = array (
             'APPACTIVATE', 'BEEP', 'CALL', 'CHDIR', 'CHDRIVE', 'CLASS', 'CASE', 'CATCH', 'CONST',
             'DECLARE', 'DELEGATE', 'DELETESETTING', 'DIM', 'DO', 'DOEVENTS', 'END', 'ENUM',
             'EVENT', 'EXIT', 'EACH', 'FUNCTION', 'FINALLY', 'IF', 'IMPORTS', 'INHERITS',
-            'INTERFACE', 'IMPLEMENTS', 'KILL', 'LOOP', 'NAMESPACE', 'OPEN', 'PUT',
+            'INTERFACE', 'IMPLEMENTS', 'KILL', 'LOOP', 'MIDB', 'NAMESPACE', 'OPEN', 'PUT',
             'RAISEEVENT', 'RANDOMIZE', 'REDIM', 'REM', 'RESET', 'SAVESETTING', 'SELECT',
             'SETATTR', 'STOP', 'SUB', 'SYNCLOCK', 'STRUCTURE', 'SHADOWS', 'SWITCH',
-            'TRY', 'WIDTH', 'WITH', 'WRITE', 'WHILE'
+            'TIMEOFDAY', 'TODAY', 'TRY', 'WIDTH', 'WITH', 'WRITE', 'WHILE'
             ),
         7 => array(
             'ABS', 'ARRAY', 'ASC', 'ASCB', 'ASCW', 'CALLBYNAME', 'CBOOL', 'CBYTE', 'CCHAR',
@@ -179,11 +179,7 @@ $language_data = array (
         1 => '',
         2 => '',
         3 => 'http://www.google.com/search?q={FNAMEU}+site:msdn.microsoft.com',
-        4 => '',
-        5 => '',
-        6 => '',
-        7 => '',
-        8 => ''
+        4 => ''
         ),
     'OOLANG' => true,
     'OBJECT_SPLITTERS' => array(

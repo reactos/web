@@ -39,7 +39,8 @@ if ( !function_exists( '__autoload' ) ) {
  * not create a second WebRequest object; make a FauxRequest object if
  * you want to pass arbitrary data to some function in place of the web
  * input.
- *
+ * 
+ * @ingroup HTTP
  */
 class WebRequest {
 	var $data = array();
@@ -54,7 +55,7 @@ class WebRequest {
 
 		// POST overrides GET data
 		// We don't use $_REQUEST here to avoid interference from cookies...
-		$this->data = wfArrayMerge( $_GET, $_POST );
+		$this->data = $_POST + $_GET;
 	}
 
 	/**
@@ -230,6 +231,7 @@ class WebRequest {
 			$data = $this->normalizeUnicode( $data );
 			return $data;
 		} else {
+			taint( $default );
 			return $default;
 		}
 	}
@@ -250,10 +252,22 @@ class WebRequest {
 			$val = $default;
 		}
 		if( is_null( $val ) ) {
-			return null;
+			return $val;
 		} else {
 			return (string)$val;
 		}
+	}
+	
+	/**
+	 * Set an aribtrary value into our get/post data.
+	 * @param $key string Key name to use
+	 * @param $value mixed Value to set
+	 * @return mixed old value if one was present, null otherwise
+	 */
+	function setVal( $key, $value ) {
+		$ret = isset( $this->data[$key] ) ? $this->data[$key] : null;
+		$this->data[$key] = $value;
+		return $ret;
 	}
 
 	/**
@@ -507,7 +521,7 @@ class WebRequest {
 		unset( $newquery['title'] );
 		$newquery = array_merge( $newquery, $array );
 		$query = wfArrayToCGI( $newquery );
-		return $onlyquery ? $query : $wgTitle->getLocalURL( $basequery );
+		return $onlyquery ? $query : $wgTitle->getLocalURL( $query );
 	}
 
 	/**
@@ -636,11 +650,24 @@ class WebRequest {
 			}
 		}
 	}
+	
+	/*
+	 * Get data from $_SESSION
+	 */
+	function getSessionData( $key ) {
+		if( !isset( $_SESSION[$key] ) )
+			return null;
+		return $_SESSION[$key];
+	}
+	function setSessionData( $key, $data ) {
+		$_SESSION[$key] = $data;
+	}
 }
 
 /**
  * WebRequest clone which takes values from a provided array.
  *
+ * @ingroup HTTP
  */
 class FauxRequest extends WebRequest {
 	var $wasPosted = false;
@@ -650,7 +677,7 @@ class FauxRequest extends WebRequest {
 	 *   fake GET/POST values
 	 * @param $wasPosted Bool: whether to treat the data as POST
 	 */
-	function FauxRequest( $data, $wasPosted = false ) {
+	function FauxRequest( $data, $wasPosted = false, $session = null ) {
 		if( is_array( $data ) ) {
 			$this->data = $data;
 		} else {
@@ -658,6 +685,11 @@ class FauxRequest extends WebRequest {
 		}
 		$this->wasPosted = $wasPosted;
 		$this->headers = array();
+		$this->session = $session ? $session : array();
+	}
+	
+	function notImplemented( $method ) {
+		throw new MWException( "{$method}() not implemented" );
 	}
 
 	function getText( $name, $default = '' ) {
@@ -678,15 +710,24 @@ class FauxRequest extends WebRequest {
 	}
 
 	function getRequestURL() {
-		throw new MWException( 'FauxRequest::getRequestURL() not implemented' );
+		$this->notImplemented( __METHOD__ );
 	}
 
 	function appendQuery( $query ) {
-		throw new MWException( 'FauxRequest::appendQuery() not implemented' );
+		$this->notImplemented( __METHOD__ );
 	}
 
 	function getHeader( $name ) {
 		return isset( $this->headers[$name] ) ? $this->headers[$name] : false;
+	}
+
+	function getSessionData( $key ) {
+		if( !isset( $this->session[$key] ) )
+			return null;
+		return $this->session[$key];
+	}
+	function setSessionData( $key, $data ) {
+		$this->notImplemented( __METHOD__ );
 	}
 
 }

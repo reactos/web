@@ -1,6 +1,9 @@
 <?php
 /** Bambara (Bamanankan)
  *
+ * See MessagesQqq.php for message documentation incl. usage of parameters
+ * To improve a translation please visit http://translatewiki.net
+ *
  * @ingroup Language
  * @file
  *
@@ -34,7 +37,7 @@ $messages = array(
 'qbspecialpages' => 'Nyɛw kɛrɛnkɛrɛnnen',
 'mypage'         => "N'ka nyɛ",
 'mytalk'         => "N'ka baronyɛ",
-'and'            => 'ani',
+'and'            => '&#32;ani',
 
 'help'           => 'Dɛmɛ',
 'search'         => 'Nyini',
@@ -121,7 +124,7 @@ $messages = array(
 # Attribution
 'others' => 'wɛrɛ',
 
-# Special:NewImages
+# Special:NewFiles
 'ilsubmit' => 'Nyini',
 
 # Special:SpecialPages

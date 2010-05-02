@@ -51,78 +51,91 @@ if (!defined('MEDIAWIKI')) {
 			$this->prop = array();
 		}
 
-		if(is_array($params['users'])) {
-			$r = $this->getOtherUsersInfo($params['users']);
-			$result->setIndexedTagName($r, 'user');
-		}
-		$result->addValue("query", $this->getModuleName(), $r);
-	}
-
-	protected function getOtherUsersInfo($users) {
-		$goodNames = $retval = array();
+		$users = (array)$params['users'];
+		$goodNames = $done = array();
+		$result = $this->getResult();
 		// Canonicalize user names
 		foreach($users as $u) {
 			$n = User::getCanonicalName($u);
 			if($n === false || $n === '')
-				$retval[] = array('name' => $u, 'invalid' => '');
+			{
+				$vals = array('name' => $u, 'invalid' => '');
+				$fit = $result->addValue(array('query', $this->getModuleName()),
+						null, $vals);
+				if(!$fit)
+				{
+					$this->setContinueEnumParameter('users',
+							implode('|', array_diff($users, $done)));
+					$goodNames = array();
+					break;
+				}
+				$done[] = $u;
+			}
 			 else
 				$goodNames[] = $n;
 		}
-		if(empty($goodNames))
-			return $retval;
+		if(count($goodNames))
+		{
+			$db = $this->getDb();
+			$this->addTables('user', 'u1');
+			$this->addFields('u1.*');
+			$this->addWhereFld('u1.user_name', $goodNames);
 
-		$db = $this->getDb();
-		$this->addTables('user', 'u1');
-		$this->addFields('u1.user_name');
-		$this->addWhereFld('u1.user_name', $goodNames);
-		$this->addFieldsIf('u1.user_editcount', isset($this->prop['editcount']));
-		$this->addFieldsIf('u1.user_registration', isset($this->prop['registration']));
+			if(isset($this->prop['groups'])) {
+				$this->addTables('user_groups');
+				$this->addJoinConds(array('user_groups' => array('LEFT JOIN', 'ug_user=u1.user_id')));
+				$this->addFields('ug_group');
+			}
+			if(isset($this->prop['blockinfo'])) {
+				$this->addTables('ipblocks');
+				$this->addTables('user', 'u2');
+				$u2 = $this->getAliasedName('user', 'u2');
+				$this->addJoinConds(array(
+					'ipblocks' => array('LEFT JOIN', 'ipb_user=u1.user_id'),
+					$u2 => array('LEFT JOIN', 'ipb_by=u2.user_id')));
+				$this->addFields(array('ipb_reason', 'u2.user_name AS blocker_name'));
+			}
 
-		if(isset($this->prop['groups'])) {
-			$this->addTables('user_groups');
-			$this->addJoinConds(array('user_groups' => array('LEFT JOIN', 'ug_user=u1.user_id')));
-			$this->addFields('ug_group');
-		}
-		if(isset($this->prop['blockinfo'])) {
-			$this->addTables('ipblocks');
-			$this->addTables('user', 'u2');
-			$u2 = $this->getAliasedName('user', 'u2');
-			$this->addJoinConds(array(
-				'ipblocks' => array('LEFT JOIN', 'ipb_user=u1.user_id'),
-				$u2 => array('LEFT JOIN', 'ipb_by=u2.user_id')));
-			$this->addFields(array('ipb_reason', 'u2.user_name blocker_name'));
-		}
-
-		$data = array();
-		$res = $this->select(__METHOD__);
-		while(($r = $db->fetchObject($res))) {
-			$data[$r->user_name]['name'] = $r->user_name;
-			if(isset($this->prop['editcount']))
-				$data[$r->user_name]['editcount'] = $r->user_editcount;
-			if(isset($this->prop['registration']))
-				$data[$r->user_name]['registration'] = wfTimestampOrNull(TS_ISO_8601, $r->user_registration);
-			if(isset($this->prop['groups']))
-				// This row contains only one group, others will be added from other rows
-				if(!is_null($r->ug_group))
-					$data[$r->user_name]['groups'][] = $r->ug_group;
-			if(isset($this->prop['blockinfo']))
-				if(!is_null($r->blocker_name)) {
-					$data[$r->user_name]['blockedby'] = $r->blocker_name;
-					$data[$r->user_name]['blockreason'] = $r->ipb_reason;
+			$data = array();
+			$res = $this->select(__METHOD__);
+			while(($r = $db->fetchObject($res))) {
+				$user = User::newFromRow($r);
+				$name = $user->getName();
+				$data[$name]['name'] = $name;
+				if(isset($this->prop['editcount']))
+					$data[$name]['editcount'] = intval($user->getEditCount());
+				if(isset($this->prop['registration']))
+					$data[$name]['registration'] = wfTimestampOrNull(TS_ISO_8601, $user->getRegistration());
+				if(isset($this->prop['groups']) && !is_null($r->ug_group))
+					// This row contains only one group, others will be added from other rows
+					$data[$name]['groups'][] = $r->ug_group;
+				if(isset($this->prop['blockinfo']) && !is_null($r->blocker_name)) {
+					$data[$name]['blockedby'] = $r->blocker_name;
+					$data[$name]['blockreason'] = $r->ipb_reason;
 				}
+				if(isset($this->prop['emailable']) && $user->canReceiveEmail())
+					$data[$name]['emailable'] = '';
+			}
 		}
-
 		// Second pass: add result data to $retval
 		foreach($goodNames as $u) {
 			if(!isset($data[$u]))
-				$retval[] = array('name' => $u, 'missing' => '');
+				$data[$u] = array('name' => $u, 'missing' => '');
 			else {
 				if(isset($this->prop['groups']) && isset($data[$u]['groups']))
 					$this->getResult()->setIndexedTagName($data[$u]['groups'], 'g');
-				$retval[] = $data[$u];
 			}
+			$fit = $result->addValue(array('query', $this->getModuleName()),
+					null, $data[$u]);
+			if(!$fit)
+			{
+				$this->setContinueEnumParameter('users',
+						implode('|', array_diff($users, $done)));
+				break;
+			}
+			$done[] = $u;
 		}
-		return $retval;
+		return $this->getResult()->setIndexedTagName_internal(array('query', $this->getModuleName()), 'user');
 	}
 
 	public function getAllowedParams() {
@@ -134,7 +147,8 @@ if (!defined('MEDIAWIKI')) {
 					'blockinfo',
 					'groups',
 					'editcount',
-					'registration'
+					'registration',
+					'emailable',
 				)
 			),
 			'users' => array(
@@ -147,9 +161,11 @@ if (!defined('MEDIAWIKI')) {
 		return array (
 			'prop' => array(
 				'What pieces of information to include',
-				'  blockinfo - tags if the user is blocked, by whom, and for what reason',
-				'  groups    - lists all the groups the user belongs to',
-				'  editcount - adds the user\'s edit count'
+				'  blockinfo    - tags if the user is blocked, by whom, and for what reason',
+				'  groups       - lists all the groups the user belongs to',
+				'  editcount    - adds the user\'s edit count',
+				'  registration - adds the user\'s registration timestamp',
+				'  emailable    - tags if the user can and wants to receive e-mail through [[Special:Emailuser]]',
 			),
 			'users' => 'A list of users to obtain the same information for'
 		);
@@ -164,6 +180,6 @@ if (!defined('MEDIAWIKI')) {
 	}
 
 	public function getVersion() {
-		return __CLASS__ . ': $Id: ApiQueryUsers.php 38183 2008-07-29 12:58:04Z rotem $';
+		return __CLASS__ . ': $Id: ApiQueryUsers.php 50094 2009-05-01 06:24:09Z tstarling $';
 	}
 }

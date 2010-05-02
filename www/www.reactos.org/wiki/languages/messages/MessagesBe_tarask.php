@@ -1,6 +1,9 @@
 <?php
 /** Belarusian (Taraškievica orthography) (Беларуская (тарашкевіца))
  *
+ * See MessagesQqq.php for message documentation incl. usage of parameters
+ * To improve a translation please visit http://translatewiki.net
+ *
  * @ingroup Language
  * @file
  *
@@ -8,18 +11,8 @@
  * @author EugeneZelenko
  * @author Jim-by
  * @author Red Winged Duck
+ * @author Zedlik
  */
-
-$skinNames = array(
-	'standard'    => 'Клясычнае',
-	'nostalgia'   => 'Настальгія',
-	'cologneblue' => 'Кёльнскі смутак',
-	'monobook'    => 'Монакніга',
-	'myskin'      => 'MySkin',
-	'chick'       => 'Цыпа',
-	'simple'      => 'Простае',
-	'modern'      => 'Сучаснае',
-);
 
 $bookstoreList = array(
 	'OZ.by' => 'http://oz.by/search.phtml?what=books&isbn=$1',
@@ -41,141 +34,147 @@ $dateFormats = array(
 );
 
 $magicWords = array(
-	'redirect'               => array( 0,    '#перанакіраваньне', '#redirect' ),
-	'notoc'                  => array( 0,    '__NOTOC__', '__БЯЗЬ_ЗЬМЕСТУ__' ),
-	'nogallery'              => array( 0,    '__NOGALLERY__', '__БЕЗ_ГАЛЕРЭІ__' ),
-	'forcetoc'               => array( 0,    '__FORCETOC__', '__ЗЬМЕСТ_ПРЫМУСАМ__' ),
-	'toc'                    => array( 0,    '__TOC__', '__ЗЬМЕСТ__' ),
-	'noeditsection'          => array( 0,    '__NOEDITSECTION__', '__БЕЗ_РЭДАГАВАНЬНЯ_СЭКЦЫІ__' ),
-	'currentmonth'           => array( 1,    'CURRENTMONTH', 'БЯГУЧЫ_МЕСЯЦ' ),
-	'currentmonthname'       => array( 1,    'CURRENTMONTHNAME', 'НАЗВА_БЯГУЧАГА_МЕСЯЦА' ),
-	'currentmonthnamegen'    => array( 1,    'CURRENTMONTHNAMEGEN', 'НАЗВА_БЯГУЧАГА_МЕСЯЦА_Ў_РОДНЫМ_СКЛОНЕ' ),
-	'currentmonthabbrev'     => array( 1,    'CURRENTMONTHABBREV', 'СКАРОЧАНАЯ_НАЗВА_БЯГУЧАГА_МЕСЯЦА' ),
-	'currentday'             => array( 1,    'CURRENTDAY', 'БЯГУЧЫ_ДЗЕНЬ' ),
-	'currentday2'            => array( 1,    'CURRENTDAY2', 'БЯГУЧЫ_ДЗЕНЬ_2' ),
-	'currentdayname'         => array( 1,    'CURRENTDAYNAME', 'НАЗВА_БЯГУЧАГА_ДНЯ' ),
-	'currentyear'            => array( 1,    'CURRENTYEAR', 'БЯГУЧЫ_ГОД' ),
-	'currenttime'            => array( 1,    'CURRENTTIME', 'БЯГУЧЫ_ЧАС' ),
-	'currenthour'            => array( 1,    'CURRENTHOUR', 'БЯГУЧАЯ_ГАДЗІНА' ),
-	'localmonth'             => array( 1,    'LOCALMONTH', 'ЛЯКАЛЬНЫ_МЕСЯЦ' ),
-	'localmonthname'         => array( 1,    'LOCALMONTHNAME', 'НАЗВА_ЛЯКАЛЬНАГА_МЕСЯЦА' ),
-	'localmonthnamegen'      => array( 1,    'LOCALMONTHNAMEGEN', 'НАЗВА_ЛЯКАЛЬНАГА_МЕСЯЦА_Ў_РОДНЫМ_СКЛОНЕ' ),
-	'localmonthabbrev'       => array( 1,    'LOCALMONTHABBREV', 'СКАРОЧАНАЯ_НАЗВА_ЛЯКАЛЬНАГА_МЕСЯЦА' ),
-	'localday'               => array( 1,    'LOCALDAY', 'ЛЯКАЛЬНЫ_ДЗЕНЬ' ),
-	'localday2'              => array( 1,    'LOCALDAY2', 'ЛЯКАЛЬНЫ_ДЗЕНЬ_2' ),
-	'localdayname'           => array( 1,    'LOCALDAYNAME', 'НАЗВА_ЛЯКАЛЬНАГА_ДНЯ' ),
-	'localyear'              => array( 1,    'LOCALYEAR', 'ЛЯКАЛЬНЫ_ГОД' ),
-	'localtime'              => array( 1,    'LOCALTIME', 'ЛЯКАЛЬНЫ_ЧАС' ),
-	'localhour'              => array( 1,    'LOCALHOUR', 'ЛЯКАЛЬНАЯ_ГАДЗІНА' ),
-	'numberofpages'          => array( 1,    'NUMBEROFPAGES', 'КОЛЬКАСЬЦЬ_СТАРОНАК' ),
-	'numberofarticles'       => array( 1,    'NUMBEROFARTICLES', 'КОЛЬКАСЬЦЬ_АРТЫКУЛАЎ' ),
-	'numberoffiles'          => array( 1,    'NUMBEROFFILES', 'КОЛЬКАСЬЦЬ_ФАЙЛАЎ' ),
-	'numberofusers'          => array( 1,    'NUMBEROFUSERS', 'КОЛЬКАСЬЦЬ_УДЗЕЛЬНІКАЎ' ),
-	'numberofedits'          => array( 1,    'NUMBEROFEDITS', 'КОЛЬКАСЬЦЬ_РЭДАГАВАНЬНЯЎ' ),
-	'pagename'               => array( 1,    'PAGENAME', 'НАЗВА_СТАРОНКІ' ),
-	'pagenamee'              => array( 1,    'PAGENAMEE', 'НАЗВА_СТАРОНКІ_2' ),
-	'namespace'              => array( 1,    'NAMESPACE', 'ПРАСТОРА_НАЗВАЎ' ),
-	'namespacee'             => array( 1,    'NAMESPACEE', 'ПРАСТОРА_НАЗВАЎ_2' ),
-	'talkspace'              => array( 1,    'TALKSPACE', 'ПРАСТОРА_НАЗВАЎ_АБМЕРКАВАНЬНЯ' ),
-	'talkspacee'             => array( 1,    'TALKSPACEE', 'ПРАСТОРА_НАЗВАЎ_АБМЕРКАВАНЬНЯ_2' ),
-	'subjectspace'           => array( 1,    'SUBJECTSPACE', 'ARTICLESPACE', 'ПРАСТОРА_НАЗВАЎ_ПРАДМЕТУ', 'ПРАСТОРА_НАЗВАЎ_АРТЫКУЛА' ),
-	'subjectspacee'          => array( 1,    'SUBJECTSPACEE', 'ARTICLESPACEE', 'ПРАСТОРА_НАЗВАЎ_ПРАДМЕТУ_2', 'ПРАСТОРА_НАЗВАЎ_АРТЫКУЛА_2' ),
-	'fullpagename'           => array( 1,    'FULLPAGENAME', 'ПОЎНАЯ_НАЗВА_СТАРОНКІ' ),
-	'fullpagenamee'          => array( 1,    'FULLPAGENAMEE', 'ПОЎНАЯ_НАЗВА_СТАРОНКІ_2' ),
-	'subpagename'            => array( 1,    'SUBPAGENAME', 'НАЗВА_ПАДСТАРОНКІ' ),
-	'subpagenamee'           => array( 1,    'SUBPAGENAMEE', 'НАЗВА_ПАДСТАРОНКІ_2' ),
-	'basepagename'           => array( 1,    'BASEPAGENAME', 'НАЗВА_БАЗАВАЙ_СТАРОНКІ' ),
-	'basepagenamee'          => array( 1,    'BASEPAGENAMEE', 'НАЗВА_БАЗАВАЙ_СТАРОНКІ_2' ),
-	'talkpagename'           => array( 1,    'TALKPAGENAME', 'НАЗВА_СТАРОНКІ_АБМЕРКАВАНЬНЯ' ),
-	'talkpagenamee'          => array( 1,    'TALKPAGENAMEE', 'НАЗВА_СТАРОНКІ_АБМЕРКАВАНЬНЯ_2' ),
-	'subjectpagename'        => array( 1,    'SUBJECTPAGENAME', 'ARTICLEPAGENAME', 'НАЗВА_СТАРОНКІ_ПРАДМЕТУ', 'НАЗВА_СТАРОНКІ_АРТЫКУЛА' ),
-	'subjectpagenamee'       => array( 1,    'SUBJECTPAGENAMEE', 'ARTICLEPAGENAMEE', 'НАЗВА_СТАРОНКІ_ПРАДМЕТУ_2', 'НАЗВА_СТАРОНКІ_АРТЫКУЛА_2' ),
-	'msg'                    => array( 0,    'MSG:', 'ПАВЕДАМЛЕНЬНЕ:' ),
-	'subst'                  => array( 0,    'SUBST:', 'ПАДСТАНОЎКА:' ),
-	'msgnw'                  => array( 0,    'MSGNW:', 'ПАВЕДАМЛЕНЬНЕ_БЯЗЬ_ВІКІ:' ),
-	'img_thumbnail'          => array( 1,    'thumbnail', 'thumb', 'значак', 'міні' ),
-	'img_manualthumb'        => array( 1,    'thumbnail=$1', 'thumb=$1', 'значак=$1', 'міні=$1' ),
-	'img_right'              => array( 1,    'right', 'справа' ),
-	'img_left'               => array( 1,    'left', 'зьлева' ),
-	'img_none'               => array( 1,    'none', 'няма' ),
-	'img_width'              => array( 1,    '$1px', '$1пкс' ),
-	'img_center'             => array( 1,    'center', 'centre', 'цэнтар' ),
-	'img_framed'             => array( 1,    'framed', 'enframed', 'frame', 'рамка' ),
-	'img_page'               => array( 1,    'page=$1', 'page $1', 'старонка=$1', 'старонка $1' ),
-	'img_top'                => array( 1,    'top', 'зьверху' ),
-	'img_middle'             => array( 1,    'middle', 'пасярэдзіне' ),
-	'img_bottom'             => array( 1,    'bottom', 'зьнізу' ),
-	'sitename'               => array( 1,    'SITENAME', 'НАЗВА_САЙТУ' ),
-	'ns'                     => array( 0,    'NS:', 'ПН:' ),
-	'localurl'               => array( 0,    'LOCALURL:', 'ЛЯКАЛЬНЫ_АДРАС:' ),
-	'localurle'              => array( 0,    'LOCALURLE:', 'ЛЯКАЛЬНЫ_АДРАС_2:' ),
-	'server'                 => array( 0,    'SERVER', 'СЭРВЭР' ),
-	'servername'             => array( 0,    'SERVERNAME', 'НАЗВА_СЭРВЭРА' ),
-	'scriptpath'             => array( 0,    'SCRIPTPATH', 'ШЛЯХ_ДА_СКРЫПТА' ),
-	'grammar'                => array( 0,    'GRAMMAR:', 'ГРАМАТЫКА:' ),
-	'notitleconvert'         => array( 0,    '__NOTITLECONVERT__', '__NOTC__', '__НЕ_КАНВЭРТАВАЦЬ_НАЗВУ__' ),
-	'nocontentconvert'       => array( 0,    '__NOCONTENTCONVERT__', '__NOCC__', '__НЕ_КАНВЭРТАВАЦЬ_ТЭКСТ__' ),
-	'currentweek'            => array( 1,    'CURRENTWEEK', 'БЯГУЧЫ_ТЫДЗЕНЬ' ),
-	'currentdow'             => array( 1,    'CURRENTDOW', 'БЯГУЧЫ_ДЗЕНЬ_ТЫДНЯ' ),
-	'localweek'              => array( 1,    'LOCALWEEK', 'ЛЯКАЛЬНЫ_ТЫДЗЕНЬ' ),
-	'localdow'               => array( 1,    'LOCALDOW', 'ЛЯКАЛЬНЫ_ДЗЕНЬ_ТЫДНЯ' ),
-	'revisionid'             => array( 1,    'REVISIONID', 'ID_ВЭРСІІ' ),
-	'revisionday'            => array( 1,    'REVISIONDAY', 'ДЗЕНЬ_ВЭРСІІ' ),
-	'revisionday2'           => array( 1,    'REVISIONDAY2', 'ДЗЕНЬ_ВЭРСІІ_2' ),
-	'revisionmonth'          => array( 1,    'REVISIONMONTH', 'МЕСЯЦ_ВЭРСІІ' ),
-	'revisionyear'           => array( 1,    'REVISIONYEAR', 'ГОД_ВЭРСІІ' ),
-	'revisiontimestamp'      => array( 1,    'REVISIONTIMESTAMP', 'МОМАНТ_ЧАСУ_ВЭРСІІ' ),
-	'plural'                 => array( 0,    'PLURAL:', 'МНОЖНЫ_ЛІК:'),
-	'fullurl'                => array( 0,    'FULLURL:', 'ПОЎНЫ_АДРАС:' ),
-	'fullurle'               => array( 0,    'FULLURLE:', 'ПОЎНЫ_АДРАС_2:' ),
-	'lcfirst'                => array( 0,    'LCFIRST:', 'ПЕРШАЯ_ЛІТАРА_МАЛАЯ:' ),
-	'ucfirst'                => array( 0,    'UCFIRST:', 'ПЕРШАЯ_ЛІТАРА_ВЯЛІКАЯ:' ),
-	'lc'                     => array( 0,    'LC:', 'МАЛЫМІ_ЛІТАРАМІ:' ),
-	'uc'                     => array( 0,    'UC:', 'ВЯЛІКІМІ_ЛІТАРАМІ:' ),
-	'raw'                    => array( 0,    'RAW:', 'НЕАПРАЦАВАНЫ:' ),
-	'displaytitle'           => array( 1,    'DISPLAYTITLE', 'ПАКАЗВАЦЬ_НАЗВУ' ),
-	'rawsuffix'              => array( 1,    'R', 'Н' ),
-	'newsectionlink'         => array( 1,    '__NEWSECTIONLINK__', '__СПАСЫЛКА_НА_НОВУЮ_СЭКЦЫЮ__' ),
-	'currentversion'         => array( 1,    'CURRENTVERSION', 'БЯГУЧАЯ_ВЭРСІЯ' ),
-	'currenttimestamp'       => array( 1,    'CURRENTTIMESTAMP', 'МОМАНТ_ЧАСУ' ),
-	'localtimestamp'         => array( 1,    'LOCALTIMESTAMP', 'ЛЯКАЛЬНЫ_МОМАНТ_ЧАСУ' ),
-	'directionmark'          => array( 1,    'DIRECTIONMARK', 'DIRMARK', 'СЫМБАЛЬ_НАПРАМКУ_ПІСЬМА' ),
-	'language'               => array( 0,    '#LANGUAGE:', '#МОВА:' ),
-	'contentlanguage'        => array( 1,    'CONTENTLANGUAGE', 'CONTENTLANG', 'МОВА_ЗЬМЕСТУ' ),
-	'pagesinnamespace'       => array( 1,    'PAGESINNAMESPACE:', 'PAGESINNS:', 'КОЛЬКАСЬЦЬ_СТАРОНАК_У_ПРАСТОРЫ_НАЗВАЎ:' ),
-	'numberofadmins'         => array( 1,    'NUMBEROFADMINS', 'КОЛЬКАСЬЦЬ_АДМІНІСТРАТАРАЎ' ),
-	'formatnum'              => array( 0,    'FORMATNUM', 'ФАРМАТАВАЦЬ_ЛІК' ),
-	'defaultsort'            => array( 1,    'DEFAULTSORT:', 'DEFAULTSORTKEY:', 'DEFAULTCATEGORYSORT:',
-	                                         'САРТЫРОЎКА_ПА_ЗМОЎЧВАНЬНІ:', 'КЛЮЧ_САРТЫРОЎКІ_ПА_ЗМОЎЧВАНЬНІ:',
-	                                         'САРТЫРОЎКА_Ў_КАТЭГОРЫІ_ПА_ЗМОЎЧВАНЬНІ:' ),
-	'filepath'               => array( 0,    'FILEPATH:', 'ШЛЯХ_ДА_ФАЙЛА:' ),
-	'tag'                    => array( 0,    'tag', 'тэг' ),
+	'redirect'              => array( '0', '#перанакіраваньне', '#REDIRECT' ),
+	'notoc'                 => array( '0', '__БЯЗЬ_ЗЬМЕСТУ__', '__NOTOC__' ),
+	'nogallery'             => array( '0', '__БЕЗ_ГАЛЕРЭІ__', '__NOGALLERY__' ),
+	'forcetoc'              => array( '0', '__ЗЬМЕСТ_ПРЫМУСАМ__', '__FORCETOC__' ),
+	'toc'                   => array( '0', '__ЗЬМЕСТ__', '__TOC__' ),
+	'noeditsection'         => array( '0', '__БЕЗ_РЭДАГАВАНЬНЯ_СЭКЦЫІ__', '__NOEDITSECTION__' ),
+	'currentmonth'          => array( '1', 'БЯГУЧЫ_МЕСЯЦ', 'CURRENTMONTH' ),
+	'currentmonthname'      => array( '1', 'НАЗВА_БЯГУЧАГА_МЕСЯЦА', 'CURRENTMONTHNAME' ),
+	'currentmonthnamegen'   => array( '1', 'НАЗВА_БЯГУЧАГА_МЕСЯЦА_Ў_РОДНЫМ_СКЛОНЕ', 'CURRENTMONTHNAMEGEN' ),
+	'currentmonthabbrev'    => array( '1', 'СКАРОЧАНАЯ_НАЗВА_БЯГУЧАГА_МЕСЯЦА', 'CURRENTMONTHABBREV' ),
+	'currentday'            => array( '1', 'БЯГУЧЫ_ДЗЕНЬ', 'CURRENTDAY' ),
+	'currentday2'           => array( '1', 'БЯГУЧЫ_ДЗЕНЬ_2', 'CURRENTDAY2' ),
+	'currentdayname'        => array( '1', 'НАЗВА_БЯГУЧАГА_ДНЯ', 'CURRENTDAYNAME' ),
+	'currentyear'           => array( '1', 'БЯГУЧЫ_ГОД', 'CURRENTYEAR' ),
+	'currenttime'           => array( '1', 'БЯГУЧЫ_ЧАС', 'CURRENTTIME' ),
+	'currenthour'           => array( '1', 'БЯГУЧАЯ_ГАДЗІНА', 'CURRENTHOUR' ),
+	'localmonth'            => array( '1', 'ЛЯКАЛЬНЫ_МЕСЯЦ', 'LOCALMONTH' ),
+	'localmonthname'        => array( '1', 'НАЗВА_ЛЯКАЛЬНАГА_МЕСЯЦА', 'LOCALMONTHNAME' ),
+	'localmonthnamegen'     => array( '1', 'НАЗВА_ЛЯКАЛЬНАГА_МЕСЯЦА_Ў_РОДНЫМ_СКЛОНЕ', 'LOCALMONTHNAMEGEN' ),
+	'localmonthabbrev'      => array( '1', 'СКАРОЧАНАЯ_НАЗВА_ЛЯКАЛЬНАГА_МЕСЯЦА', 'LOCALMONTHABBREV' ),
+	'localday'              => array( '1', 'ЛЯКАЛЬНЫ_ДЗЕНЬ', 'LOCALDAY' ),
+	'localday2'             => array( '1', 'ЛЯКАЛЬНЫ_ДЗЕНЬ_2', 'LOCALDAY2' ),
+	'localdayname'          => array( '1', 'НАЗВА_ЛЯКАЛЬНАГА_ДНЯ', 'LOCALDAYNAME' ),
+	'localyear'             => array( '1', 'ЛЯКАЛЬНЫ_ГОД', 'LOCALYEAR' ),
+	'localtime'             => array( '1', 'ЛЯКАЛЬНЫ_ЧАС', 'LOCALTIME' ),
+	'localhour'             => array( '1', 'ЛЯКАЛЬНАЯ_ГАДЗІНА', 'LOCALHOUR' ),
+	'numberofpages'         => array( '1', 'КОЛЬКАСЬЦЬ_СТАРОНАК', 'NUMBEROFPAGES' ),
+	'numberofarticles'      => array( '1', 'КОЛЬКАСЬЦЬ_АРТЫКУЛАЎ', 'NUMBEROFARTICLES' ),
+	'numberoffiles'         => array( '1', 'КОЛЬКАСЬЦЬ_ФАЙЛАЎ', 'NUMBEROFFILES' ),
+	'numberofusers'         => array( '1', 'КОЛЬКАСЬЦЬ_УДЗЕЛЬНІКАЎ', 'NUMBEROFUSERS' ),
+	'numberofactiveusers'   => array( '1', 'КОЛЬКАСЬЦЬ_АКТЫЎНЫХ_УДЗЕЛЬНІКАЎ', 'NUMBEROFACTIVEUSERS' ),
+	'numberofedits'         => array( '1', 'КОЛЬКАСЬЦЬ_РЭДАГАВАНЬНЯЎ', 'NUMBEROFEDITS' ),
+	'numberofviews'         => array( '1', 'КОЛЬКАСЬЦЬ_ПРАГЛЯДАЎ', 'NUMBEROFVIEWS' ),
+	'pagename'              => array( '1', 'НАЗВА_СТАРОНКІ', 'PAGENAME' ),
+	'pagenamee'             => array( '1', 'НАЗВА_СТАРОНКІ_2', 'PAGENAMEE' ),
+	'namespace'             => array( '1', 'ПРАСТОРА_НАЗВАЎ', 'NAMESPACE' ),
+	'namespacee'            => array( '1', 'ПРАСТОРА_НАЗВАЎ_2', 'NAMESPACEE' ),
+	'talkspace'             => array( '1', 'ПРАСТОРА_НАЗВАЎ_АБМЕРКАВАНЬНЯ', 'TALKSPACE' ),
+	'talkspacee'            => array( '1', 'ПРАСТОРА_НАЗВАЎ_АБМЕРКАВАНЬНЯ_2', 'TALKSPACEE' ),
+	'subjectspace'          => array( '1', 'ПРАСТОРА_НАЗВАЎ_ПРАДМЕТУ', 'ПРАСТОРА_НАЗВАЎ_АРТЫКУЛА', 'SUBJECTSPACE', 'ARTICLESPACE' ),
+	'subjectspacee'         => array( '1', 'ПРАСТОРА_НАЗВАЎ_ПРАДМЕТУ_2', 'ПРАСТОРА_НАЗВАЎ_АРТЫКУЛА_2', 'SUBJECTSPACEE', 'ARTICLESPACEE' ),
+	'fullpagename'          => array( '1', 'ПОЎНАЯ_НАЗВА_СТАРОНКІ', 'FULLPAGENAME' ),
+	'fullpagenamee'         => array( '1', 'ПОЎНАЯ_НАЗВА_СТАРОНКІ_2', 'FULLPAGENAMEE' ),
+	'subpagename'           => array( '1', 'НАЗВА_ПАДСТАРОНКІ', 'SUBPAGENAME' ),
+	'subpagenamee'          => array( '1', 'НАЗВА_ПАДСТАРОНКІ_2', 'SUBPAGENAMEE' ),
+	'basepagename'          => array( '1', 'НАЗВА_БАЗАВАЙ_СТАРОНКІ', 'BASEPAGENAME' ),
+	'basepagenamee'         => array( '1', 'НАЗВА_БАЗАВАЙ_СТАРОНКІ_2', 'BASEPAGENAMEE' ),
+	'talkpagename'          => array( '1', 'НАЗВА_СТАРОНКІ_АБМЕРКАВАНЬНЯ', 'TALKPAGENAME' ),
+	'talkpagenamee'         => array( '1', 'НАЗВА_СТАРОНКІ_АБМЕРКАВАНЬНЯ_2', 'TALKPAGENAMEE' ),
+	'subjectpagename'       => array( '1', 'НАЗВА_СТАРОНКІ_ПРАДМЕТУ', 'НАЗВА_СТАРОНКІ_АРТЫКУЛА', 'SUBJECTPAGENAME', 'ARTICLEPAGENAME' ),
+	'subjectpagenamee'      => array( '1', 'НАЗВА_СТАРОНКІ_ПРАДМЕТУ_2', 'НАЗВА_СТАРОНКІ_АРТЫКУЛА_2', 'SUBJECTPAGENAMEE', 'ARTICLEPAGENAMEE' ),
+	'msg'                   => array( '0', 'ПАВЕДАМЛЕНЬНЕ:', 'MSG:' ),
+	'subst'                 => array( '0', 'ПАДСТАНОЎКА:', 'SUBST:' ),
+	'msgnw'                 => array( '0', 'ПАВЕДАМЛЕНЬНЕ_БЯЗЬ_ВІКІ:', 'MSGNW:' ),
+	'img_thumbnail'         => array( '1', 'значак', 'міні', 'thumbnail', 'thumb' ),
+	'img_manualthumb'       => array( '1', 'значак=$1', 'міні=$1', 'thumbnail=$1', 'thumb=$1' ),
+	'img_right'             => array( '1', 'справа', 'right' ),
+	'img_left'              => array( '1', 'зьлева', 'left' ),
+	'img_none'              => array( '1', 'няма', 'none' ),
+	'img_width'             => array( '1', '$1пкс', '$1px' ),
+	'img_center'            => array( '1', 'цэнтар', 'center', 'centre' ),
+	'img_framed'            => array( '1', 'рамка', 'framed', 'enframed', 'frame' ),
+	'img_page'              => array( '1', 'старонка=$1', 'старонка $1', 'page=$1', 'page $1' ),
+	'img_top'               => array( '1', 'зьверху', 'top' ),
+	'img_middle'            => array( '1', 'пасярэдзіне', 'middle' ),
+	'img_bottom'            => array( '1', 'зьнізу', 'bottom' ),
+	'img_link'              => array( '1', 'спасылка=$1', 'link=$1' ),
+	'sitename'              => array( '1', 'НАЗВА_САЙТУ', 'SITENAME' ),
+	'ns'                    => array( '0', 'ПН:', 'NS:' ),
+	'localurl'              => array( '0', 'ЛЯКАЛЬНЫ_АДРАС:', 'LOCALURL:' ),
+	'localurle'             => array( '0', 'ЛЯКАЛЬНЫ_АДРАС_2:', 'LOCALURLE:' ),
+	'server'                => array( '0', 'СЭРВЭР', 'SERVER' ),
+	'servername'            => array( '0', 'НАЗВА_СЭРВЭРА', 'SERVERNAME' ),
+	'scriptpath'            => array( '0', 'ШЛЯХ_ДА_СКРЫПТА', 'SCRIPTPATH' ),
+	'grammar'               => array( '0', 'ГРАМАТЫКА:', 'GRAMMAR:' ),
+	'gender'                => array( '0', 'ПОЛ:', 'GENDER:' ),
+	'notitleconvert'        => array( '0', '__НЕ_КАНВЭРТАВАЦЬ_НАЗВУ__', '__NOTITLECONVERT__', '__NOTC__' ),
+	'nocontentconvert'      => array( '0', '__НЕ_КАНВЭРТАВАЦЬ_ТЭКСТ__', '__NOCONTENTCONVERT__', '__NOCC__' ),
+	'currentweek'           => array( '1', 'БЯГУЧЫ_ТЫДЗЕНЬ', 'CURRENTWEEK' ),
+	'currentdow'            => array( '1', 'БЯГУЧЫ_ДЗЕНЬ_ТЫДНЯ', 'CURRENTDOW' ),
+	'localweek'             => array( '1', 'ЛЯКАЛЬНЫ_ТЫДЗЕНЬ', 'LOCALWEEK' ),
+	'localdow'              => array( '1', 'ЛЯКАЛЬНЫ_ДЗЕНЬ_ТЫДНЯ', 'LOCALDOW' ),
+	'revisionid'            => array( '1', 'ID_ВЭРСІІ', 'REVISIONID' ),
+	'revisionday'           => array( '1', 'ДЗЕНЬ_ВЭРСІІ', 'REVISIONDAY' ),
+	'revisionday2'          => array( '1', 'ДЗЕНЬ_ВЭРСІІ_2', 'REVISIONDAY2' ),
+	'revisionmonth'         => array( '1', 'МЕСЯЦ_ВЭРСІІ', 'REVISIONMONTH' ),
+	'revisionyear'          => array( '1', 'ГОД_ВЭРСІІ', 'REVISIONYEAR' ),
+	'revisiontimestamp'     => array( '1', 'МОМАНТ_ЧАСУ_ВЭРСІІ', 'REVISIONTIMESTAMP' ),
+	'plural'                => array( '0', 'МНОЖНЫ_ЛІК:', 'PLURAL:' ),
+	'fullurl'               => array( '0', 'ПОЎНЫ_АДРАС:', 'FULLURL:' ),
+	'fullurle'              => array( '0', 'ПОЎНЫ_АДРАС_2:', 'FULLURLE:' ),
+	'lcfirst'               => array( '0', 'ПЕРШАЯ_ЛІТАРА_МАЛАЯ:', 'LCFIRST:' ),
+	'ucfirst'               => array( '0', 'ПЕРШАЯ_ЛІТАРА_ВЯЛІКАЯ:', 'UCFIRST:' ),
+	'lc'                    => array( '0', 'МАЛЫМІ_ЛІТАРАМІ:', 'LC:' ),
+	'uc'                    => array( '0', 'ВЯЛІКІМІ_ЛІТАРАМІ:', 'UC:' ),
+	'raw'                   => array( '0', 'НЕАПРАЦАВАНЫ:', 'RAW:' ),
+	'displaytitle'          => array( '1', 'ПАКАЗВАЦЬ_НАЗВУ', 'DISPLAYTITLE' ),
+	'rawsuffix'             => array( '1', 'Н', 'R' ),
+	'newsectionlink'        => array( '1', '__СПАСЫЛКА_НА_НОВУЮ_СЭКЦЫЮ__', '__NEWSECTIONLINK__' ),
+	'currentversion'        => array( '1', 'БЯГУЧАЯ_ВЭРСІЯ', 'CURRENTVERSION' ),
+	'currenttimestamp'      => array( '1', 'МОМАНТ_ЧАСУ', 'CURRENTTIMESTAMP' ),
+	'localtimestamp'        => array( '1', 'ЛЯКАЛЬНЫ_МОМАНТ_ЧАСУ', 'LOCALTIMESTAMP' ),
+	'directionmark'         => array( '1', 'СЫМБАЛЬ_НАПРАМКУ_ПІСЬМА', 'DIRECTIONMARK', 'DIRMARK' ),
+	'language'              => array( '0', '#МОВА:', '#LANGUAGE:' ),
+	'contentlanguage'       => array( '1', 'МОВА_ЗЬМЕСТУ', 'CONTENTLANGUAGE', 'CONTENTLANG' ),
+	'pagesinnamespace'      => array( '1', 'КОЛЬКАСЬЦЬ_СТАРОНАК_У_ПРАСТОРЫ_НАЗВАЎ:', 'PAGESINNAMESPACE:', 'PAGESINNS:' ),
+	'numberofadmins'        => array( '1', 'КОЛЬКАСЬЦЬ_АДМІНІСТРАТАРАЎ', 'NUMBEROFADMINS' ),
+	'formatnum'             => array( '0', 'ФАРМАТАВАЦЬ_ЛІК', 'FORMATNUM' ),
+	'defaultsort'           => array( '1', 'САРТЫРОЎКА_ПА_ЗМОЎЧВАНЬНІ:', 'КЛЮЧ_САРТЫРОЎКІ_ПА_ЗМОЎЧВАНЬНІ:', 'САРТЫРОЎКА_Ў_КАТЭГОРЫІ_ПА_ЗМОЎЧВАНЬНІ:', 'DEFAULTSORT:', 'DEFAULTSORTKEY:', 'DEFAULTCATEGORYSORT:' ),
+	'filepath'              => array( '0', 'ШЛЯХ_ДА_ФАЙЛА:', 'FILEPATH:' ),
+	'tag'                   => array( '0', 'тэг', 'tag' ),
+	'hiddencat'             => array( '1', '__СХАВАЦЬ_КАТЭГОРЫЮ__', '__HIDDENCAT__' ),
+	'pagesincategory'       => array( '1', 'КОЛЬКАСЬЦЬ_СТАРОНАК_У_КАТЭГОРЫІ', 'PAGESINCATEGORY', 'PAGESINCAT' ),
+	'pagesize'              => array( '1', 'ПАМЕР_СТАРОНКІ', 'PAGESIZE' ),
+	'staticredirect'        => array( '1', '__СТАТЫЧНАЕ_ПЕРАНАКІРАВАНЬНЕ__', '__STATICREDIRECT__' ),
 );
 
 $namespaceNames = array(
-	NS_MEDIA          => 'Мэдыя',
-	NS_SPECIAL        => 'Спэцыяльныя',
-	NS_MAIN           => '',
-	NS_TALK           => 'Абмеркаваньне',
-	NS_USER           => 'Удзельнік',
-	NS_USER_TALK      => 'Гутаркі_ўдзельніка',
-	# NS_PROJECT set by $wgMetaNamespace
-	NS_PROJECT_TALK   => 'Абмеркаваньне_$1',
-	NS_IMAGE          => 'Выява',
-	NS_IMAGE_TALK     => 'Абмеркаваньне_выявы',
-	NS_MEDIAWIKI      => 'MediaWiki',
-	NS_MEDIAWIKI_TALK => 'Абмеркаваньне_MediaWiki',
-	NS_TEMPLATE       => 'Шаблён',
-	NS_TEMPLATE_TALK  => 'Абмеркаваньне_шаблёну',
-	NS_HELP           => 'Дапамога',
-	NS_HELP_TALK      => 'Абмеркаваньне_дапамогі',
-	NS_CATEGORY       => 'Катэгорыя',
-	NS_CATEGORY_TALK  => 'Абмеркаваньне_катэгорыі'
+	NS_MEDIA            => 'Мэдыя',
+	NS_SPECIAL          => 'Спэцыяльныя',
+	NS_TALK             => 'Абмеркаваньне',
+	NS_USER             => 'Удзельнік',
+	NS_USER_TALK        => 'Гутаркі_ўдзельніка',
+	NS_PROJECT_TALK     => 'Абмеркаваньне_$1',
+	NS_FILE             => 'Файл',
+	NS_FILE_TALK        => 'Абмеркаваньне_файла',
+	NS_MEDIAWIKI        => 'MediaWiki',
+	NS_MEDIAWIKI_TALK   => 'Абмеркаваньне_MediaWiki',
+	NS_TEMPLATE         => 'Шаблён',
+	NS_TEMPLATE_TALK    => 'Абмеркаваньне_шаблёну',
+	NS_HELP             => 'Дапамога',
+	NS_HELP_TALK        => 'Абмеркаваньне_дапамогі',
+	NS_CATEGORY         => 'Катэгорыя',
+	NS_CATEGORY_TALK    => 'Абмеркаваньне_катэгорыі',
 );
 
 $namespaceAliases = array(
-	'Удзельніца'          => NS_USER,
-	'Гутаркі_ўдзельніцы'  => NS_USER_TALK,
+	'Удзельніца' => NS_USER,
+	'Гутаркі ўдзельніцы' => NS_USER_TALK,
+	'Выява' => NS_FILE,
+	'Абмеркаваньне выявы' => NS_FILE_TALK,
 );
 
 $specialPageAliases = array(
@@ -186,7 +185,7 @@ $specialPageAliases = array(
 	'Watchlist'                 => array( 'Сьпіс_назіраньня' ),
 	'Recentchanges'             => array( 'Апошнія_зьмены' ),
 	'Upload'                    => array( 'Загрузка' ),
-	'Imagelist'                 => array( 'Сьпіс_файлаў' ),
+	'Listfiles'                 => array( 'Сьпіс_файлаў' ),
 	'Newimages'                 => array( 'Новыя_файлы' ),
 	'Listusers'                 => array( 'Сьпіс_удзельнікаў' ),
 	'Statistics'                => array( 'Статыстыка' ),
@@ -198,6 +197,8 @@ $specialPageAliases = array(
 	'Uncategorizedtemplates'    => array( 'Некатэгарызаваныя_шаблёны' ),
 	'Wantedpages'               => array( 'Запатрабаваныя_старонкі', 'Некарэктныя_спасылкі' ),
 	'Wantedcategories'          => array( 'Запатрабаваныя_катэгорыі' ),
+	'Wantedfiles'               => array( 'Запатрабаваныя_файлы' ),
+	'Wantedtemplates'           => array( 'Запатрабаваныя_шаблёны' ),
 	'Shortpages'                => array( 'Кароткія_старонкі' ),
 	'Longpages'                 => array( 'Доўгія_старонкі' ),
 	'Newpages'                  => array( 'Новыя_старонкі' ),
@@ -226,8 +227,11 @@ $specialPageAliases = array(
 	'Listbots'                  => array( 'Сьпіс_робатаў' ),
 	'Popularpages'              => array( 'Папулярныя_старонкі' ),
 	'Search'                    => array( 'Пошук' ),
+	'Resetpass'                 => array( 'Зьмяніць_пароль', 'Ачысьціць_пароль' ),
 	'MergeHistory'              => array( 'Гісторыя_аб\'яднаньняў' ),
 	'Filepath'                  => array( 'Шлях_да_файла' ),
+	'LinkSearch'                => array( 'Пошук_вонкавых_спасылак' ),
+	'DeletedContributions'      => array( 'Выдалены_ўнёсак' ),
 );
 
 $separatorTransformTable = array(',' => '.', '.' => ',' );
@@ -246,8 +250,10 @@ $messages = array(
 'tog-highlightbroken'         => 'Фарматаваць няісныя спасылкі <a href="" class="new">такім чынам</a> (інакш: такім чынам<a href="" class="internal">?</a>).',
 'tog-justify'                 => 'Выраўноўваць тэкст па шырыні старонкі',
 'tog-hideminor'               => 'Хаваць дробныя зьмены ў сьпісе апошніх зьменаў',
-'tog-extendwatchlist'         => 'Пашырыць сьпіс назіраньня, каб ён паказваў усе адпаведныя зьмены',
-'tog-usenewrc'                => 'Удасканалены сьпіс апошніх зьменаў (патрабуе JavaScript)',
+'tog-hidepatrolled'           => 'Хаваць патруляваныя зьмены ў сьпісе апошніх зьменаў',
+'tog-newpageshidepatrolled'   => 'Хаваць правераныя старонкі ў сьпісе новых старонак',
+'tog-extendwatchlist'         => 'Пашырыць сьпіс назіраньня, каб ён паказваў усе зьмены, а ня толькі апошнія',
+'tog-usenewrc'                => 'Выкарыстоўваць удасканалены сьпіс апошніх зьменаў (патрабуе JavaScript)',
 'tog-numberheadings'          => 'Аўтаматычная нумарацыя загалоўкаў',
 'tog-showtoolbar'             => 'Паказваць панэль інструмэнтаў рэдагаваньня (патрабуе JavaScript)',
 'tog-editondblclick'          => 'Рэдагаваць старонкі па падвойным шчоўканьні (JavaScript)',
@@ -255,21 +261,21 @@ $messages = array(
 'tog-editsectiononrightclick' => 'Рэдагаваць сэкцыі па правым шчоўканьні мышкай на загалоўку (JavaScript)',
 'tog-showtoc'                 => 'Паказваць зьмест (для старонак з колькасьцю сэкцый болей за 3)',
 'tog-rememberpassword'        => 'Запомніць мяне на гэтым кампутары',
-'tog-editwidth'               => 'Поле рэдагаваньня ў поўную шырыню',
+'tog-editwidth'               => 'Пашыраць поле рэдагаваньня ў поўную шырыню экрана',
 'tog-watchcreations'          => 'Дадаваць у мой сьпіс назіраньня старонкі, якія я буду ствараць',
 'tog-watchdefault'            => 'Дадаваць у мой сьпіс назіраньня старонкі, якія я буду рэдагаваць',
 'tog-watchmoves'              => 'Дадаваць у мой сьпіс назіраньня старонкі, якія я буду пераносіць',
 'tog-watchdeletion'           => 'Дадаваць у мой сьпіс назіраньня старонкі, якія я буду выдаляць',
 'tog-minordefault'            => 'Па змоўчаньні пазначаць усе зьмены дробнымі',
-'tog-previewontop'            => 'Паказваць папярэдні прагляд артыкула над полем рэдагаваньня',
+'tog-previewontop'            => 'Паказваць папярэдні прагляд старонкі над полем рэдагаваньня',
 'tog-previewonfirst'          => 'Папярэдні прагляд пры першым рэдагаваньні',
 'tog-nocache'                 => 'Адключыць кэшаваньне старонак',
 'tog-enotifwatchlistpages'    => 'Паведамляць праз электронную пошту пра зьмены старонак ў маім сьпісе назіраньня',
-'tog-enotifusertalkpages'     => 'Паведамляць праз электронную пошту пра зьмены маёй старонкі размоваў',
+'tog-enotifusertalkpages'     => 'Паведамляць праз электронную пошту пра зьмены маёй старонкі гутарак',
 'tog-enotifminoredits'        => 'Паведамляць праз электронную пошту таксама пра дробныя зьмены старонак',
 'tog-enotifrevealaddr'        => 'Не хаваць мой адрас электроннай пошты ў паведамленьнях',
 'tog-shownumberswatching'     => 'Паказваць колькасьць назіральнікаў',
-'tog-fancysig'                => 'Просты подпіс (без аўтаматычнай спасылкі)',
+'tog-fancysig'                => 'Апрацоўваць подпіс як вікі-тэкст (без аўтаматычнай спасылкі)',
 'tog-externaleditor'          => 'Па змоўчаньні выкарыстоўваць вонкавы рэдактар (толькі для адмыслоўцаў, патрэбуе спэцыяльных наладак на вашым кампутары)',
 'tog-externaldiff'            => 'Выкарыстоўваць па змоўчаньні вонкавую праграму параўнаньня вэрсіяў (толькі для адмыслоўцаў, патрэбуе спэцыяльных наладак на вашым кампутары)',
 'tog-showjumplinks'           => 'Актываваць дапаможныя спасылкі «перайсьці да»',
@@ -278,15 +284,17 @@ $messages = array(
 'tog-watchlisthideown'        => 'Хаваць мае праўкі ў сьпісе назіраньня',
 'tog-watchlisthidebots'       => 'Хаваць праўкі робатаў у сьпісе назіраньня',
 'tog-watchlisthideminor'      => 'Хаваць дробныя праўкі ў сьпісе назіраньня',
+'tog-watchlisthideliu'        => 'Хаваць праўкі зарэгістраваных удзельнікаў і ўдзельніц у сьпісе назіраньня',
+'tog-watchlisthideanons'      => 'Хаваць праўкі ананімаў у сьпісе назіраньня',
+'tog-watchlisthidepatrolled'  => 'Хаваць патруляваныя праўкі ў сьпісе назіраньня',
 'tog-ccmeonemails'            => 'Дасылаць мне копіі лістоў, якія я дасылаю іншым удзельнікам і ўдзельніцам',
 'tog-diffonly'                => 'Не паказваць зьмест старонкі пад параўнаньнем зьменаў',
 'tog-showhiddencats'          => 'Паказваць схаваныя катэгорыі',
+'tog-norollbackdiff'          => 'Не паказваць зьмены пасьля выкарыстаньня функцыі адкату',
 
 'underline-always'  => 'Заўсёды',
 'underline-never'   => 'Ніколі',
 'underline-default' => 'Як у браўзэры',
-
-'skinpreview' => '(Прагляд)',
 
 # Dates
 'sunday'        => 'нядзеля',
@@ -362,11 +370,11 @@ $messages = array(
 == З чаго пачаць ==
 * [http://www.mediawiki.org/wiki/Manual:Configuration_settings Сьпіс парамэтраў канфігурацыі]
 * [http://www.mediawiki.org/wiki/Manual:FAQ Частыя пытаньні MediaWiki]
-* [http://lists.wikimedia.org/mailman/listinfo//mediawiki-announce Рассылка паведамленьняў пра зьяўленьне новых вэрсіяў MediaWiki]',
+* [https://lists.wikimedia.org/mailman/listinfo/mediawiki-announce Рассылка паведамленьняў пра зьяўленьне новых вэрсіяў MediaWiki]',
 
 'about'          => 'Пра',
-'article'        => 'Артыкул',
-'newwindow'      => '(адчыняецца ў новым акне)',
+'article'        => 'Старонка зьместу',
+'newwindow'      => '(адкрываецца ў новым акне)',
 'cancel'         => 'Адмяніць',
 'qbfind'         => 'Знайсьці',
 'qbbrowse'       => 'Праглядзець',
@@ -377,16 +385,16 @@ $messages = array(
 'qbspecialpages' => 'Спэцыяльныя старонкі',
 'moredotdotdot'  => 'Далей…',
 'mypage'         => 'Мая старонка',
-'mytalk'         => 'Мае размовы',
+'mytalk'         => 'Мае гутаркі',
 'anontalk'       => 'Гутаркі для гэтага IP-адрасу',
 'navigation'     => 'Навігацыя',
-'and'            => 'і',
+'and'            => '&#32;і',
 
 # Metadata in edit box
 'metadata_help' => 'Мэтазьвесткі:',
 
 'errorpagetitle'    => 'Памылка',
-'returnto'          => 'Вярнуцца да $1.',
+'returnto'          => 'Вярнуцца да старонкі $1.',
 'tagline'           => 'Зьвесткі зь {{GRAMMAR:родны|{{SITENAME}}}}',
 'help'              => 'Дапамога',
 'search'            => 'Пошук',
@@ -417,14 +425,14 @@ $messages = array(
 'talkpagelinktext'  => 'гутаркі',
 'specialpage'       => 'Спэцыяльная старонка',
 'personaltools'     => 'Асабістыя прылады',
-'postcomment'       => 'Пракамэнтаваць',
-'articlepage'       => 'Паказаць артыкул',
-'talk'              => 'Гутаркі',
+'postcomment'       => 'Новая сэкцыя',
+'articlepage'       => 'Паказаць старонку зьместу',
+'talk'              => 'Абмеркаваньне',
 'views'             => 'Прагляды',
 'toolbox'           => 'Інструмэнты',
 'userpage'          => 'Паказаць старонку ўдзельніка',
 'projectpage'       => 'Паказаць старонку праекту',
-'imagepage'         => 'Паказаць старонку мэдыя-файла',
+'imagepage'         => 'Паказаць старонку файла',
 'mediawikipage'     => 'Паказаць старонку паведамленьня',
 'templatepage'      => 'Паказаць старонку шаблёну',
 'viewhelppage'      => 'Паказаць старонку дапамогі',
@@ -433,7 +441,7 @@ $messages = array(
 'otherlanguages'    => 'На іншых мовах',
 'redirectedfrom'    => '(Перанакіраваная з $1)',
 'redirectpagesub'   => 'Старонка-перанакіраваньне',
-'lastmodifiedat'    => 'Гэтая старонка апошні раз рэдагавалася $2, $1.', # $1 date, $2 time
+'lastmodifiedat'    => 'Гэтая старонка апошні раз рэдагавалася $1 году ў $2.', # $1 date, $2 time
 'viewcount'         => 'Гэтую старонку праглядалі $1 {{PLURAL:$1|раз|разы|разоў}}.',
 'protectedpage'     => 'Абароненая старонка',
 'jumpto'            => 'Перайсьці да:',
@@ -443,8 +451,6 @@ $messages = array(
 # All link text and link target definitions of links into project namespace that get used by other message strings, with the exception of user group pages (see grouppage) and the disambiguation template definition (see disambiguations).
 'aboutsite'            => 'Пра {{GRAMMAR:вінавальны|{{SITENAME}}}}',
 'aboutpage'            => 'Project:Пра {{GRAMMAR:вінавальны|{{SITENAME}}}}',
-'bugreports'           => 'Паведамленьні пра памылкі',
-'bugreportspage'       => 'Project:Паведамленьні пра памылкі',
 'copyright'            => 'Зьмест старонкі падпадае пад ліцэнзію $1.',
 'copyrightpagename'    => 'Аўтарскія правы {{GRAMMAR:родны|{{SITENAME}}}}',
 'copyrightpage'        => '{{ns:project}}:Аўтарскія правы',
@@ -467,9 +473,7 @@ $messages = array(
 
 'badaccess'        => 'Памылка: не адпаведны ўзровень правоў',
 'badaccess-group0' => 'Вам не дазволена выканаць запытанае Вамі дзеяньне.',
-'badaccess-group1' => 'Запытанае Вамі дзеяньне дазволенае толькі ўдзельнікам з групы $1.',
-'badaccess-group2' => 'Запытанае Вамі дзеяньне дазволенае толькі ўдзельнікам адной з групаў $1.',
-'badaccess-groups' => 'Запытанае Вамі дзеяньне дазволенае толькі ўдзельнікам адной з групаў $1.',
+'badaccess-groups' => 'Запытанае Вамі дзеяньне дазволенае толькі ўдзельнікам {{PLURAL:$2|з групы|адной з групаў}}: $1.',
 
 'versionrequired'     => 'Патрабуецца MediaWiki вэрсіі $1',
 'versionrequiredtext' => 'Для карыстаньня гэтай старонкай патрабуецца MediaWiki вэрсіі $1. Глядзіце [[Special:Version|інфармацыю пра вэрсію]].',
@@ -484,6 +488,8 @@ $messages = array(
 'editsection'             => 'рэдагаваць',
 'editold'                 => 'рэдагаваць',
 'viewsourceold'           => 'паказаць крыніцу',
+'editlink'                => 'рэдагаваць',
+'viewsourcelink'          => 'паказаць крыніцу',
 'editsectionhint'         => 'Рэдагаваць сэкцыю «$1»',
 'toc'                     => 'Зьмест',
 'showtoc'                 => 'паказаць',
@@ -498,13 +504,13 @@ $messages = array(
 'site-atom-feed'          => '$1 — Atom-стужка',
 'page-rss-feed'           => '«$1» — RSS-стужка',
 'page-atom-feed'          => '«$1» — Atom-стужка',
-'red-link-title'          => '$1 (яшчэ не напісаны)',
+'red-link-title'          => '$1 (старонка не існуе)',
 
 # Short words for each namespace, by default used in the namespace tab in monobook
 'nstab-main'      => 'Старонка',
 'nstab-user'      => 'Старонка ўдзельніка/ўдзельніцы',
 'nstab-media'     => 'Мэдыя',
-'nstab-special'   => 'Спэцыяльная',
+'nstab-special'   => 'Спэцыяльная старонка',
 'nstab-project'   => 'Старонка праекту',
 'nstab-image'     => 'Файл',
 'nstab-mediawiki' => 'Паведамленьне',
@@ -514,11 +520,13 @@ $messages = array(
 
 # Main script and global functions
 'nosuchaction'      => 'Няма такога дзеяньня',
-'nosuchactiontext'  => 'Дзеяньне, пазначанае ў радку URL, не распазнанае праграмным забесьпячэньнем {{GRAMMAR:родны|{{SITENAME}}}}',
+'nosuchactiontext'  => 'Дзеяньне, пазначанае праз URL, зьяўляецца няслушным.
+Магчыма Вы ўвялі няслушны URL, ці перайшлі па няслушнай спасылцы.
+Гэта можа быць і памылкай у праграмным забесьпячэньні {{GRAMMAR:родны|{{SITENAME}}}}.',
 'nosuchspecialpage' => 'Такой спэцыяльнай старонкі не існуе',
-'nospecialpagetext' => "<big>'''Вы зьвярнуліся на няслушную спэцыяльную старонку.'''</big>
+'nospecialpagetext' => '<strong>Вы зьвярнуліся на няслушную спэцыяльную старонку.</strong>
 
-Сьпіс дзейных спэцыяльных старонак ёсьць на [[Special:SpecialPages|{{int:specialpages}}]].",
+Сьпіс дзейных спэцыяльных старонак ёсьць на [[Special:SpecialPages|{{int:specialpages}}]].',
 
 # General errors
 'error'                => 'Памылка',
@@ -528,12 +536,12 @@ $messages = array(
 Апошні запыт да базы:
 <blockquote><tt>$1</tt></blockquote>
 адбыўся з функцыі «<tt>$2</tt>».
-MySQL вярнуў памылку «<tt>$3: $4</tt>».',
+База зьвестак вярнула памылку «<tt>$3: $4</tt>».',
 'dberrortextcl'        => 'Выяўлена памылка сынтаксісу ў звароце да базы зьвестак.
 Апошні запыт да базы:
 «$1»
 адбыўся з функцыі «$2».
-MySQL вярнуў памылку «$3: $4»',
+База зьвестак вярнула памылку «$3: $4»',
 'noconnect'            => '{{SITENAME}} мае тэхнічныя цяжкасьці і ня можа далучыцца да сэрвэра базы зьвестак.<br />
 $1',
 'nodb'                 => 'Немагчыма выбраць базу зьвестак $1',
@@ -566,8 +574,7 @@ $1',
 'badarticleerror'      => 'Гэтае дзеяньне немагчыма выканаць на гэтай старонцы.',
 'cannotdelete'         => 'Немагчыма выдаліць указаную старонку альбо выяву. (Магчыма, яна ўжо выдаленая кімсьці іншым.)',
 'badtitle'             => 'Некарэктная назва',
-'badtitletext'         => 'Запытаная назва старонкі няслушная ці пустая, альбо няслушна ўказаная міжмоўная ці міжвікі назва. Яна можа ўтрымліваць сымбалі, якія нельга ўжываць у назвах.',
-'perfdisabled'         => 'Прабачце! Гэтая магчымасьць часова заблякаваная, у сувязі зь перагружанасьцю сэрвэра {{GRAMMAR:родны|{{SITENAME}}}}.',
+'badtitletext'         => 'Запытаная назва старонкі няслушная ці пустая, альбо няслушна ўказаная міжмоўная ці міжвікі-назва. Яна можа ўтрымліваць сымбалі, якія нельга ўжываць у назвах.',
 'perfcached'           => 'Наступныя зьвесткі кэшаваныя і могуць быць састарэлымі.',
 'perfcachedts'         => 'Наступныя зьвесткі кэшаваныя і апошні раз былі абноўленыя $1.',
 'querypage-no-updates' => 'Абнаўленьні гэтай старонкі цяпер адключаныя. Зьвесткі ня будуць абнаўляцца.',
@@ -583,7 +590,7 @@ $1',
 'protectedinterface'   => 'Гэтая старонка ўтрымлівае інтэрфэйснае паведамленьне праграмнага забесьпячэньня, і яе зьмена забаронена.',
 'editinginterface'     => "'''Увага:''' Вы рэдагуеце старонку, якая ўтрымлівае сыстэмнае паведамленьне MediaWiki.
 Яе зьмена паўплывае на вонкавы выгляд інтэрфэйсу іншых удзельнікаў.
-Калі ласка, выкарыстоўвайце [http://translatewiki.net/wiki/Main_Page?setlang=be-tarask Betawiki] — праект для лякалізацыі MediaWiki.",
+Калі ласка, выкарыстоўвайце [http://translatewiki.net/wiki/Main_Page?setlang=be-tarask translatewiki.net] — праект для лякалізацыі MediaWiki.",
 'sqlhidden'            => '(SQL-запыт схаваны)',
 'cascadeprotected'     => 'Гэтая старонка абароненая ад рэдагаваньня, таму што яна ўключаная ў {{PLURAL:$1|наступную $1 старонку, якая была абароненая|наступныя $1 старонкі, якія былі абароненыя|наступныя $1 старонкі, якія былі абароненыя}} з актывізаванай «каскаднай» опцыяй:
 $2',
@@ -594,16 +601,16 @@ $2',
 Прычына забароны: ''$2''.",
 
 # Virus scanner
-'virus-badscanner'     => 'Няслушная канфігурацыя: невядомы антывірусны сканэр: <i>$1</i>',
+'virus-badscanner'     => "Няслушная канфігурацыя: невядомы антывірусны сканэр: ''$1''",
 'virus-scanfailed'     => 'памылка сканаваньня (код $1)',
 'virus-unknownscanner' => 'невядомы антывірус:',
 
 # Login and logout pages
 'logouttitle'                => 'Выхад з сыстэмы',
-'logouttext'                 => '<strong>Вы выйшлі з сыстэмы.</strong>
+'logouttext'                 => "'''Вы выйшлі з сыстэмы.'''
 
 Вы можаце працягваць працу ў {{GRAMMAR:месны|{{SITENAME}}}} ананімна, альбо можаце [[Special:UserLogin|ўвайсьці ў сыстэму]] як той жа альбо іншы ўдзельнік.
-Але некаторыя старонкі могуць адлюстроўвацца як быццам Вы ўсё яшчэ ў сыстэме. Каб гэтага пазьбегнуць трэба ачысьціць кэш браўзэра.',
+Але некаторыя старонкі могуць адлюстроўвацца як быццам Вы ўсё яшчэ ў сыстэме. Каб гэтага пазьбегнуць трэба ачысьціць кэш браўзэра.",
 'welcomecreation'            => '== Вітаем, $1! ==
 Ваш рахунак быў створаны.
 Не забудзьце зьмяніць Вашыя [[Special:Preferences|ўстаноўкі ў {{GRAMMAR:месны|{{SITENAME}}}}]].',
@@ -614,18 +621,17 @@ $2',
 'remembermypassword'         => 'Запомніць мяне на гэтым кампутары',
 'yourdomainname'             => 'Ваш дамэн:',
 'externaldberror'            => 'Магчыма, адбылася памылка аўтэнтыфікацыі з дапамогай вонкавай базы зьвестак, ці Вам недазволена абнаўляць свой рахунак.',
-'loginproblem'               => '<b>Узьнікла праблема пры ўваходзе ў сыстэму.</b><br />Паспрабуйце яшчэ раз!',
 'login'                      => 'Увайсьці',
 'nav-login-createaccount'    => 'Уваход / стварэньне рахунку',
 'loginprompt'                => 'Вы павінны дазволіць cookie для ўваходу ў {{GRAMMAR:вінавальны|{{SITENAME}}}}.',
-'userlogin'                  => 'Стварэньне рахунку ці ўваход',
+'userlogin'                  => 'Увайсьці ў сыстэму',
 'logout'                     => 'Выйсьці',
 'userlogout'                 => 'Выйсьці',
 'notloggedin'                => 'Вы не ўвайшлі ў сыстэму',
-'nologin'                    => 'Ня маеце рахунку? $1.',
+'nologin'                    => "Ня маеце рахунку? '''$1'''.",
 'nologinlink'                => 'Стварыце рахунак',
 'createaccount'              => 'Стварыць новы рахунак',
-'gotaccount'                 => 'Ужо маеце рахунак? $1.',
+'gotaccount'                 => "Ужо маеце рахунак? '''$1'''.",
 'gotaccountlink'             => 'Увайдзіце',
 'createaccountmail'          => 'па электроннай пошце',
 'badretype'                  => 'Уведзеныя Вамі паролі не супадаюць.',
@@ -638,8 +644,13 @@ $2',
 'yourlanguage'               => 'Мова інтэрфэйсу:',
 'yournick'                   => 'Подпіс:',
 'badsig'                     => 'Няслушны неапрацаваны подпіс; праверце HTML-тэгі.',
-'badsiglength'               => 'Подпіс занадта доўгі.
-Мусіць быць не даўжэй за $1 {{PLURAL:$1|сымбаль|сымбалі|сымбаляў}}.',
+'badsiglength'               => 'Ваш подпіс занадта доўгі.
+Подпіс мусіць быць не даўжэй за $1 {{PLURAL:$1|сымбаль|сымбалі|сымбаляў}}.',
+'yourgender'                 => 'Пол:',
+'gender-unknown'             => 'не пазначаны',
+'gender-male'                => 'мужчынскі',
+'gender-female'              => 'жаночы',
+'prefs-help-gender'          => 'Неабавязковая: выкарыстоўваецца ў паведамленьнях праграмнага забесьпячэньня, якія  залежаць ад полу ўдзельніка/ўдзельніцы. Гэта інфармацыя будзе агульнадаступнай.',
 'email'                      => 'Электронная пошта',
 'prefs-help-realname'        => 'Сапраўднае імя паведамляць неабавязкова.
 Калі Вы яго пазначыце, яно будзе выкарыстоўвацца для пазначэньня Вашай працы.',
@@ -657,7 +668,8 @@ $2',
 'loginsuccesstitle'          => 'Пасьпяховы ўваход у сыстэму',
 'loginsuccess'               => "'''Цяпер Вы ўвайшлі ў {{GRAMMAR:вінавальны|{{SITENAME}}}} як «$1».'''",
 'nosuchuser'                 => 'Не існуе ўдзельніка ці ўдзельніцы «$1».
-Праверце напісаньне альбо [[Special:Userlogin/signup|стварыце новы рахунак]].',
+Вялікія і малыя літары адрозьніваюцца ў імёнах удзельнікаў.
+Праверце напісаньне альбо [[Special:UserLogin/signup|стварыце новы рахунак]].',
 'nosuchusershort'            => 'Не існуе ўдзельніка ці ўдзельніцы «<nowiki>$1</nowiki>». Праверце напісаньне.',
 'nouserspecified'            => 'Вы мусіце пазначыць імя ўдзельніка.',
 'wrongpassword'              => 'Уведзены няслушны пароль. Калі ласка, паспрабуйце яшчэ раз.',
@@ -666,23 +678,24 @@ $2',
 Ён павінен утрымліваць ня меней за $1 {{PLURAL:$1|сымбаль|сымбалі|сымбаляў}} і адрозьнівацца ад імя ўдзельніка.',
 'mailmypassword'             => 'Даслаць новы пароль па электроннай пошце',
 'passwordremindertitle'      => 'Новы часовы пароль для {{GRAMMAR:родны|{{SITENAME}}}}',
-'passwordremindertext'       => 'Нехта (магчыма Вы, з IP-адрасу $1) запытаў нас даслаць новы пароль для {{GRAMMAR:родны|{{SITENAME}}}} ($4). Для ўдзельніка «$2» быў створаны часовы пароль і ён цяпер «$3». Калі гэта была Вашая ініцыятыва, Вам трэба ўвайсьці ў сыстэму і адразу зьмяніць пароль.
+'passwordremindertext'       => 'Нехта (магчыма Вы, з IP-адрасу $1) запытаў нас даслаць новы пароль для {{GRAMMAR:родны|{{SITENAME}}}} ($4). Для ўдзельніка «$2» быў створаны часовы пароль і ён цяпер «$3». Калі гэта была Вашая ініцыятыва, Вам трэба ўвайсьці ў сыстэму і адразу зьмяніць пароль. Тэрмін дзеяньня Вашага часовага паролю — $5 {{PLURAL:$5|дзень|дні|дзён}}.
 
 Калі гэты запыт адправіў нехта іншы, альбо Вы ўспомнілі свой пароль і ўжо не жадаеце яго зьмяніць, Вы можаце праігнараваць гэты ліст і працягваць карыстацца старым паролем.',
-'noemail'                    => 'Удзельнік «$1» не пазначыў ніякага адрасу электроннай пошты.',
+'noemail'                    => '{{GENDER:$1|Удзельнік «$1» не пазначыў|Удзельніца «$1» не пазначыла}} ніякага адрасу электроннай пошты.',
 'passwordsent'               => 'Новы пароль быў дасланы на адрас электроннай пошты ўдзельніка «$1».
 Калі ласка, увайдзіце ў сыстэму пасьля яго атрыманьня.',
-'blocked-mailpassword'       => 'З Вашага IP-адрасу забароненыя рэдагаваньні, а таму таксама не даступная функцыя аднаўленьня паролю дзеля прадухіленьня шкоды.',
+'blocked-mailpassword'       => 'З Вашага IP-адрасу забароненыя рэдагаваньні, а таму таксама не даступная функцыя аднаўленьня паролю для прадухіленьня шкоды.',
 'eauthentsent'               => 'Пацьверджаньне было дасланае на пазначаны адрас электроннай пошты.
 У лісьце ўтрымліваюцца інструкцыі, па выкананьні якіх, Вы зможаце пацьвердзіць, што адрас сапраўды належыць Вам, і на гэты адрас будзе дасылацца пошта адсюль.',
 'throttled-mailpassword'     => 'Напамін паролю ўжо быў дасланы на працягу {{PLURAL:$1|апошняй $1 гадзіны|апошніх $1 гадзінаў|апошніх $1 гадзінаў}}.
 Для прадухіленьня злоўжываньняў, напамін будзе дасылацца не часьцей аднаго разу за $1 {{PLURAL:$1|гадзіну|гадзіны|гадзінаў}}.',
 'mailerror'                  => 'Памылка пры адпраўцы электроннай пошты: $1',
-'acct_creation_throttle_hit' => 'На жаль, Вы ўжо стварылі $1 {{PLURAL:$1|рахунак|рахункі|рахункаў}}. Болей нельга.',
-'emailauthenticated'         => 'Ваш адрас электроннай пошты быў пацьверджаны $1.',
+'acct_creation_throttle_hit' => 'Наведвальнікі гэтай вікі, якія карысталіся Вашым ІР-адрасам, ужо стварылі $1 {{PLURAL:$1|рахунак у|рахункі ў|рахункаў у}} апошнія дні, што перавышае максымальную дазволеную колькасьць за гэты пэрыяд.
+У выніку, наведвальнікі, якія карыстаюцца гэтым ІР-адрасам, ня могуць стварыць зараз болей рахункаў.',
+'emailauthenticated'         => 'Ваш адрас электроннай пошты быў пацьверджаны $2 у $3.',
 'emailnotauthenticated'      => 'Ваш адрас электроннай пошты яшчэ не пацьверджаны.
 Электронная пошта для наступных магчымасьцяў дасылацца не будзе.',
-'noemailprefs'               => 'Вы павінны пазначыць адрас электроннай пошты, каб актывізаваць гэтыя магчымасьці.',
+'noemailprefs'               => 'Вы павінны пазначыць адрас электроннай пошты ў Вашых устаноўках, каб актывізаваць гэтыя магчымасьці.',
 'emailconfirmlink'           => 'Пацьвердзіць Ваш адрас электроннай пошты',
 'invalidemailaddress'        => 'Уведзены адрас электроннай пошты не адпавядае фармату адрасоў электроннай пошты.
 Увядзіце слушны адрас электроннай пошты ці ачысьціце гэтае поле.',
@@ -692,19 +705,32 @@ $2',
 'createaccount-text'         => 'Нехта стварыў рахунак «$2» у {{GRAMMAR:месны|{{SITENAME}}}} ($4) для Вашага адрасу электроннай пошты. Пароль для гэтага рахунку — «$3». Вам трэба ўвайсьці і зьмяніць Ваш пароль зараз.
 
 Вы можаце праігнараваць гэты ліст, калі гэты рахунак быў створаны памылкова.',
+'login-throttled'            => 'Вы зрабілі занадта шмат спробаў уваходу ў сыстэму.
+Калі ласка, пачакайце, перад тым, як паспрабаваць ізноў.',
 'loginlanguagelabel'         => 'Мова: $1',
 
 # Password reset dialog
-'resetpass'               => 'Выдаліць пароль рахунку',
-'resetpass_announce'      => 'Вы ўвайшлі з дапамогай часовага паролю, дасланага праз электронную пошту.
+'resetpass'                 => 'Зьмяніць пароль',
+'resetpass_announce'        => 'Вы ўвайшлі з дапамогай часовага паролю, дасланага праз электронную пошту.
 Для завяршэньня ўваходу ў сыстэму Вы мусіце ўвесьці тут новы пароль:',
-'resetpass_header'        => 'Сьцерці пароль',
-'resetpass_submit'        => 'Наставіць пароль і увайсьці',
-'resetpass_success'       => 'Ваш пароль быў пасьпяхова зьменены! Выконваецца ўваход у сыстэму…',
-'resetpass_bad_temporary' => 'Няслушны часовы пароль.
+'resetpass_header'          => 'Зьмяніць пароль рахунку',
+'oldpassword'               => 'Стары пароль:',
+'newpassword'               => 'Новы пароль:',
+'retypenew'                 => 'Паўтарыце новы пароль:',
+'resetpass_submit'          => 'Наставіць пароль і увайсьці',
+'resetpass_success'         => 'Ваш пароль быў пасьпяхова зьменены! Выконваецца ўваход у сыстэму…',
+'resetpass_bad_temporary'   => 'Няслушны часовы пароль.
 Магчыма Вы ўжо зьмянілі пароль альбо запыталі новы часовы пароль.',
-'resetpass_forbidden'     => 'Пароль ня можа быць зьменены',
-'resetpass_missing'       => 'Няма зьвестак ў форме.',
+'resetpass_forbidden'       => 'Пароль ня можа быць зьменены',
+'resetpass-no-info'         => 'Для непасрэднага доступу да гэтай старонкі Вам неабходна ўвайсьці ў сыстэму.',
+'resetpass-submit-loggedin' => 'Зьмяніць пароль',
+'resetpass-wrong-oldpass'   => 'Няслушны часовы альбо цяперашні пароль.
+Магчыма Вы ўжо пасьпяхова зьмянілі Ваш пароль альбо запыталі новы часовы пароль.',
+'resetpass-temp-password'   => 'Часовы пароль:',
+'resetpass-log'             => 'Журнал ачыстак пароляў',
+'resetpass-logtext'         => 'Ніжэй пададзены сьпіс удзельнікаў, паролі якіх былі ачышчаныя адміністратарамі.',
+'resetpass-logentry'        => 'зьменены пароль $1',
+'resetpass-comment'         => 'Прычына ачысткі паролю:',
 
 # Edit page toolbar
 'bold_sample'     => 'Тлусты тэкст',
@@ -719,7 +745,7 @@ $2',
 'headline_tip'    => 'Загаловак 2-га ўзроўню',
 'math_sample'     => 'Зьмясьціце тут формулу',
 'math_tip'        => 'Матэматычная формула (LaTeX)',
-'nowiki_sample'   => 'Пішыце сюды нефарматаваны тэкст',
+'nowiki_sample'   => 'Устаўце сюды нефарматаваны тэкст',
 'nowiki_tip'      => 'Ігнараваць вікі-фарматаваньне',
 'image_sample'    => 'Прыклад.jpg',
 'image_tip'       => 'Укладзены файл',
@@ -729,12 +755,12 @@ $2',
 'hr_tip'          => 'Гарызантальная лінія (не выкарыстоўвайце часта)',
 
 # Edit pages
-'summary'                          => 'Кароткае апісаньне зьменаў',
-'subject'                          => 'Тэма/назва',
+'summary'                          => 'Кароткае апісаньне зьменаў:',
+'subject'                          => 'Тэма/назва:',
 'minoredit'                        => 'Гэта дробная праўка',
 'watchthis'                        => 'Назіраць за гэтай старонкай',
 'savearticle'                      => 'Захаваць старонку',
-'preview'                          => 'Прагляд',
+'preview'                          => 'Папярэдні прагляд',
 'showpreview'                      => 'Праглядзець',
 'showlivepreview'                  => 'Хуткі папярэдні прагляд',
 'showdiff'                         => 'Паказаць зьмены',
@@ -744,8 +770,8 @@ $2',
 'missingcommenttext'               => 'Калі ласка, увядзіце камэнтар ніжэй.',
 'missingcommentheader'             => "'''Напамін:''' Вы не пазначылі тэмы гэтага камэнтара.
 Калі Вы націсьніце кнопку «Захаваць» яшчэ раз, Ваш камэнтар захаваецца бяз тэмы.",
-'summary-preview'                  => 'Папярэдні прагляд апісаньня',
-'subject-preview'                  => 'Папярэдні прагляд загалоўку',
+'summary-preview'                  => 'Папярэдні прагляд апісаньня:',
+'subject-preview'                  => 'Папярэдні прагляд загалоўку:',
 'blockedtitle'                     => 'Удзельнік заблякаваны',
 'blockedtext'                      => "<big>'''Ваш рахунак ўдзельніка ці IP-адрас быў заблякаваны.'''</big>
 
@@ -756,7 +782,7 @@ $2',
 * Сканчэньне блякаваньня: $6
 * Быў заблякаваны: $7
 
-Вы можаце скантактавацца з $1 ці адным зь іншых [[{{MediaWiki:Grouppage-sysop}}|адміністратараў]], каб абмеркаваць блякаваньне. Заўважце, што Вы ня зможаце ўжыць мажлівасьць «даслаць ліст па электроннай пошце», пакуль не пазначыце сапраўдны адрас электроннай пошты ў Вашых [[Special:Preferences|устаноўках]], і калі гэта Вам не было забаронена.
+Вы можаце скантактавацца з $1 ці адным зь іншых [[{{MediaWiki:Grouppage-sysop}}|адміністратараў]], каб абмеркаваць блякаваньне. Заўважце, што Вы ня зможаце ўжыць магчымасьць «даслаць ліст па электроннай пошце», пакуль не пазначыце сапраўдны адрас электроннай пошты ў Вашых [[Special:Preferences|устаноўках]], і калі гэта Вам не было забаронена.
 Ваш IP-адрас — $3, ідэнтыфікатар блякаваньня — #$5.
 Калі ласка, улучайце ўсю вышэйпададзеную інфармацыю ва ўсе запыты, што Вы будзеце рабіць.",
 'autoblockedtext'                  => "Ваш IP-адрас быў аўтаматычна заблякаваны, таму што ён ужываўся іншым удзельнікам, які быў заблякаваны $1.
@@ -770,57 +796,59 @@ $2',
 
 Вы можаце скантактавацца з $1 ці з адным зь іншых [[{{MediaWiki:Grouppage-sysop}}|адміністратараў]], каб абмеркаваць блякаваньне.
 
-Заўважце, што Вы ня зможаце ужываць мажлівасьць «даслаць ліст праз электронную пошту», пакуль ня будзе пазначаны дзейны адрас электроннай пошты ў Вашых [[Special:Preferences|устаноўках удзельніка]], і калі гэта Вам не было забаронена.
+Заўважце, што Вы ня зможаце ужываць магчымасьць «даслаць ліст праз электронную пошту», пакуль ня будзе пазначаны дзейны адрас электроннай пошты ў Вашых [[Special:Preferences|устаноўках удзельніка]], і калі гэта Вам не было забаронена.
 
 Ваш цяперашні IP-адрас — $3, ідэнтыфікатар блякаваньня — #$5.
 Калі ласка, улучайце ўсю вышэйпададзеную інфармацыю ва ўсе запыты, што Вы будзеце рабіць.",
-'blockednoreason'                  => 'прычына не пададзена',
+'blockednoreason'                  => 'прычына не пазначана',
 'blockedoriginalsource'            => "Крыніца '''$1''' паказана ніжэй:",
 'blockededitsource'                => "Тэкст '''Вашых зьменаў''' у '''$1''' паказаны ніжэй:",
 'whitelistedittitle'               => 'Для рэдагаваньня патрабуецца ўваход у сыстэму',
 'whitelistedittext'                => 'Вам трэба $1, каб рэдагаваць старонкі.',
 'confirmedittitle'                 => 'Для рэдагаваньня патрэбнае пацьверджаньне адрасу электроннай пошты',
 'confirmedittext'                  => 'Вы мусіце пацьвердзіць Ваш адрас электроннай пошты перад рэдагаваньнем старонак. Калі ласка, пазначце і пацьвердзіце адрас электроннай пошты праз Вашы [[Special:Preferences|ўстаноўкі]].',
-'nosuchsectiontitle'               => 'Такой сэкцыі не існуе',
+'nosuchsectiontitle'               => 'Немагчыма знайсьці сэкцыю',
 'nosuchsectiontext'                => 'Вы спрабуеце рэдагаваць сэкцыю, якой не існуе.
-Паколькі сэкцыі $1 не існуе, няма куды захоўваць Вашыя рэдагаваньні.',
+Яна магла быць перанесена, альбо выдалена пад час Вашага прагляду старонкі.',
 'loginreqtitle'                    => 'Патрабуецца ўваход у сыстэму',
 'loginreqlink'                     => 'ўвайсьці',
 'loginreqpagetext'                 => 'Вы мусіце $1, каб праглядаць іншыя старонкі.',
 'accmailtitle'                     => 'Пароль адасланы.',
-'accmailtext'                      => 'Пароль для «$1» быў адасланы на адрас $2.',
-'newarticle'                       => '(Новы)',
-'newarticletext'                   => "Вы прыйшлі па спасылцы на старонку, якая яшчэ не існуе.
-Каб стварыць яе, напішыце тэкст у полі ніжэй (глядзіце [[{{MediaWiki:Helppage}}|старонку дапамогі]] дзеля дадатковай інфармацыі).
-Калі Вы трапілі сюды памылкова, націсьніце '''назад''' у вашым браўзэры.",
-'anontalkpagetext'                 => "----''Гэта старонка гутарак ананімнага ўдзельніка, які яшчэ не стварыў сабе рахунак ці не ўжывае яго. Таму мы вымушаныя ўжываць лічбавы IP-адрас дзеля ягонай ідэнтыфікацыі. Адзін IP-адрас можа выкарыстоўвацца некалькімі ўдзельнікамі. Калі Вы — ананімны ўдзельнік і лічыце, што атрымалі не прызначаныя Вам камэнтары, калі ласка, [[Special:UserLogin|зарэгіструйцеся ці ўвайдзіце ў сыстэму]], каб у будучыні пазьбегнуць магчымай блытаніны зь іншымі ананімнымі ўдзельнікамі.''
+'accmailtext'                      => "Выпадкова створаны пароль для [[User talk:$1|$1]] быў адасланы па адрасе $2.
 
-''This is the discussion page for an anonymous user who has not created an account yet or who does not use it. We therefore have to use the numerical IP address to identify him/her. Such an IP address can be shared by several users. If you are an anonymous user and feel that irrelevant comments have been directed at you, please [[Special:UserLogin|create an account or log in]] to avoid future confusion with other anonymous users.''",
-'noarticletext'                    => 'Зараз тэкст на гэтай старонцы адсутнічае. Вы можаце [[Special:Search/{{PAGENAME}}|пашукаць гэтую назву]] ў іншых старонках альбо [{{fullurl:{{NAMESPACE}}:{{PAGENAME}}|action=edit}} рэдагаваць гэтую старонку].',
+Пароль для гэтага новага рахунку можа быць зьменены на старонцы ''[[Special:ChangePassword|зьмены паролю]]'' пасьля ўваходу.",
+'newarticle'                       => '(Новая)',
+'newarticletext'                   => "Вы прыйшлі па спасылцы на старонку, якая яшчэ не існуе.
+Каб стварыць яе, напішыце тэкст у полі ніжэй (глядзіце [[{{MediaWiki:Helppage}}|старонку дапамогі]] для дадатковай інфармацыі).
+Калі Вы трапілі сюды памылкова, націсьніце '''назад''' у вашым браўзэры.",
+'anontalkpagetext'                 => "----''Гэта старонка гутарак ананімнага ўдзельніка, які яшчэ не стварыў сабе рахунак альбо не ўжывае яго. Таму мы вымушаныя ўжываць лічбавы IP-адрас дзеля ягонай ідэнтыфікацыі. Адзін IP-адрас можа выкарыстоўвацца некалькімі ўдзельнікамі. Калі Вы — ананімны ўдзельнік і лічыце, што атрымалі не прызначаныя Вам камэнтары, калі ласка, [[Special:UserLogin/signup|стварыце рахунак]] альбо [[Special:UserLogin|увайдзіце ў сыстэму]], каб у будучыні пазьбегнуць магчымай блытаніны зь іншымі ананімнымі ўдзельнікамі.''",
+'noarticletext'                    => 'Цяпер тэкст на гэтай старонцы адсутнічае.
+Вы можаце [[Special:Search/{{PAGENAME}}|пашукаць гэтую назву]] ў іншых старонках, <span class="plainlinks">[{{fullurl:{{#Special:Log}}|page={{FULLPAGENAMEE}}}} пашукаць у адпаведных журналах падзеяў]
+альбо [{{fullurl:{{NAMESPACE}}:{{PAGENAME}}|action=edit}} рэдагаваць гэтую старонку]</span>.',
 'userpage-userdoesnotexist'        => 'Рахунак удзельніка «$1» не зарэгістраваны. Калі ласка, удакладніце, ці жадаеце Вы стварыць/рэдагаваць гэтую старонку.',
 'clearyourcache'                   => "'''Заўвага:''' Каб пабачыць зьмены пасьля захаваньня, Вам можа спатрэбіцца ацысьціць кэш Вашага браўзэра. '''Mozilla / Firefox / Safari:''' трымайце ''Shift'' і націсьніце ''Reload'', ці націсьніце ''Ctrl-Shift-R'' (''Cmd-Shift-R'' на Apple Mac); '''IE:''' трымайце ''Ctrl'' і націсьніце ''Refresh'', ці націсьніце ''Ctrl-F5''; '''Konqueror:''': проста націсьніце кнопку ''Reload'', ці націсьніце ''F5''; карыстальнікам '''Opera''' можа спатрэбіцца цалкам ачысьціць кэш праз ''Tools→Preferences''.",
-'usercssjsyoucanpreview'           => '<strong>Падказка:</strong> выкарыстоўвайце кнопку «Папярэдні прагляд», каб паспрабаваць новы код CSS/JS перад тым як яго запісаць.',
+'usercssjsyoucanpreview'           => "'''Падказка:''' выкарыстоўвайце кнопку «Папярэдні прагляд», каб паспрабаваць новы код CSS/JS перад тым як яго запісаць.",
 'usercsspreview'                   => "'''Памятайце, што гэта толькі папярэдні прагляд Вашага CSS. Ён яшчэ не запісаны!'''",
 'userjspreview'                    => "'''Памятайце, што гэта толькі папярэдні прагляд Вашага JavaScript, ён яшчэ не запісаны!'''",
 'userinvalidcssjstitle'            => "'''Увага:''' няма тэмы афармленьня «$1».
 Памятайце, што ўласныя старонкі .css і .js павінны мець назву, якая складаецца з малых літараў, напрыклад, {{ns:user}}:Хтосьці/monobook.css, а не {{ns:user}}:Хтосьці/Monobook.css.",
 'updated'                          => '(Абноўлена)',
-'note'                             => '<strong>Заўвага: </strong>',
-'previewnote'                      => '<strong>Гэта толькі папярэдні прагляд і зьмены яшчэ не былі захаваныя!</strong>',
+'note'                             => "'''Заўвага: '''",
+'previewnote'                      => "'''Гэта толькі папярэдні прагляд і зьмены яшчэ не былі захаваныя!'''",
 'previewconflict'                  => 'Гэта папярэдні прагляд тэксту зь верхняга вакна рэдагаваньня, так ён будзе выглядаць, калі Вы вырашыце яго захаваць.',
-'session_fail_preview'             => '<strong>Не атрымалася захаваць Вашую праўку праз тое, што былі страчаныя зьвесткі пра сэсію.
-Калі ласка, паспрабуйце яшчэ раз. Калі памылка ня зьнікне, паспрабуйце [[Special:UserLogout|выйсьці з сыстэмы]] і ўвайсьці ізноў.</strong>',
-'session_fail_preview_html'        => "<strong>Не атрымалася захаваць Вашую праўку праз тое, што былі страчаныя зьвесткі пра сэсію.</strong>
+'session_fail_preview'             => "'''Не атрымалася захаваць Вашую праўку праз тое, што былі страчаныя зьвесткі пра сэсію.
+Калі ласка, паспрабуйце яшчэ раз. Калі памылка ня зьнікне, паспрабуйце [[Special:UserLogout|выйсьці з сыстэмы]] і ўвайсьці ізноў.'''",
+'session_fail_preview_html'        => "'''Не атрымалася захаваць Вашую праўку праз тое, што былі страчаныя зьвесткі пра сэсію.'''
 
 ''Таму што ў {{GRAMMAR:месны|{{SITENAME}}}} дазволена выкарыстоўваць чысты HTML, папярэдні прагляд быў адключаны для засьцярогі ад атакаў праз JavaScript.''
 
-<strong>Калі гэта сапраўдная спроба рэдагаваньня, калі ласка, паспрабуйце яшчэ раз. Калі гэта не дапамагае, паспрабуйце [[Special:UserLogout|выйсьці з сыстэмы]] і ўвайсьці ізноў.</strong>",
-'token_suffix_mismatch'            => '<strong>Вашае рэдагаваньне было адхіленае, таму што Ваш кліент ня можа апрацоўваць знакі пунктуацыі ў акне рэдагаваньня.
+'''Калі гэта сапраўдная спроба рэдагаваньня, калі ласка, паспрабуйце яшчэ раз. Калі гэта не дапамагае, паспрабуйце [[Special:UserLogout|выйсьці з сыстэмы]] і ўвайсьці ізноў.'''",
+'token_suffix_mismatch'            => "'''Вашае рэдагаваньне было адхіленае, таму што Ваш кліент ня можа апрацоўваць знакі пунктуацыі ў акне рэдагаваньня.
 Рэдагаваньне было скасаванае для таго, каб пазьбегнуць зьнішчэньня тэксту старонкі.
-Такія памылкі здараюцца, калі Вы выкарыстоўваеце ананімны проксі-сэрвэр, які ўтрымлівае памылкі.</strong>',
+Такія памылкі здараюцца, калі Вы выкарыстоўваеце ананімны проксі-сэрвэр, які ўтрымлівае памылкі.'''",
 'editing'                          => 'Рэдагаваньне: $1',
 'editingsection'                   => 'Рэдагаваньне: $1 (сэкцыя)',
-'editingcomment'                   => 'Рэдагаваньне: $1 (камэнтар)',
+'editingcomment'                   => 'Рэдагаваньне: $1 (новая сэкцыя)',
 'editconflict'                     => 'Канфлікт рэдагаваньня: $1',
 'explainconflict'                  => "Нехта зьмяніў старонку падчас Вашага рэдагаваньня.
 У верхнім тэкставым акне знаходзіцца цяперашні зьмест старонкі.
@@ -829,29 +857,30 @@ $2',
 Калі Вы націсьніце «Захаваць зьмены», будзе захаваны '''толькі''' тэкст верхняга вакна.",
 'yourtext'                         => 'Ваш тэкст',
 'storedversion'                    => 'Захаваная вэрсія',
-'nonunicodebrowser'                => '<strong>ПАПЯРЭДЖАНЬНЕ: Ваш браўзэр не працуе з кадаваньнем UTF-8 (Unicode).
-У выніку гэтага ўсе сымбалі ня ўключаныя ў ASCII будуць замененыя на іх шаснаццаткавыя коды.</strong>',
-'editingold'                       => '<strong>ПАПЯРЭДЖАНЬНЕ: Вы рэдагуеце састарэлую вэрсію гэтай старонкі.
-Калі Вы паспрабуеце захаваць яе, любыя зьмены, зробленыя пасьля гэтай вэрсіі, будуць страчаныя.</strong>',
+'nonunicodebrowser'                => "'''ПАПЯРЭДЖАНЬНЕ: Ваш браўзэр не працуе з кадаваньнем UTF-8 (Unicode).
+У выніку гэтага ўсе сымбалі ня ўключаныя ў ASCII будуць замененыя на іх шаснаццаткавыя коды.'''",
+'editingold'                       => "'''ПАПЯРЭДЖАНЬНЕ: Вы рэдагуеце састарэлую вэрсію гэтай старонкі.
+Калі Вы паспрабуеце захаваць яе, любыя зьмены, зробленыя пасьля гэтай вэрсіі, будуць страчаныя.'''",
 'yourdiff'                         => 'Адрозьненьні',
-'copyrightwarning'                 => 'Калі ласка, зьвярніце ўвагу на тое, што ўсе дадаткі і зьмены ў {{GRAMMAR:месны|{{SITENAME}}}} разглядаюцца як выдадзеныя ў адпаведнасьці з умовамі ліцэнзіі $2 (глядзіце падрабязнасьці на $1). Калі Вы супраць таго, каб Вашыя матэрыялы неабмежавана рэдагавалася і распаўсюджвалася, не дадавайце іх.<br />
+'copyrightwarning'                 => "Калі ласка, зьвярніце ўвагу на тое, што ўсе дадаткі і зьмены ў {{GRAMMAR:месны|{{SITENAME}}}} разглядаюцца як выдадзеныя ў адпаведнасьці з умовамі ліцэнзіі $2 (глядзіце падрабязнасьці на $1). Калі Вы супраць таго, каб Вашыя матэрыялы неабмежавана рэдагавалася і распаўсюджвалася, не дадавайце іх.<br />
 Вы таксама абавязуецеся, што Ваш матэрыял напісаны асабіста Вамі або ўзяты з грамадзкай уласнасьці альбо падобных вольных крыніцаў.
-<strong>НЕЛЬГА БЕЗ ДАЗВОЛУ ДАДАВАЦЬ МАТЭРЫЯЛЫ, АБАРОНЕНЫЯ АЎТАРСКІМ ПРАВАМ!</strong>',
-'copyrightwarning2'                => 'Калі ласка, заўважце, што ўвесь унёсак ў {{GRAMMAR:вінавальны|{{SITENAME}}}} можа рэдагавацца, зьмяняцца і выдаляцца іншымі ўдзельнікамі.
+'''НЕЛЬГА БЕЗ ДАЗВОЛУ ДАДАВАЦЬ МАТЭРЫЯЛЫ, АБАРОНЕНЫЯ АЎТАРСКІМ ПРАВАМ!'''",
+'copyrightwarning2'                => "Калі ласка, заўважце, што ўвесь унёсак ў {{GRAMMAR:вінавальны|{{SITENAME}}}} можа рэдагавацца, зьмяняцца і выдаляцца іншымі ўдзельнікамі.
 Калі Вы з гэтым ня згодныя, калі ласка, не зьмяшчайце сюды Вашыя тэксты.<br />
 Разьмяшчэньнем тут тэкстаў, Вы дэкляруеце, што Вы зьяўляецеся іх аўтарам, ці Вы скапіявалі іх з крыніцы, якая дазваляе вольнае выкарыстаньне сваіх тэкстаў (дзеля падрабязнасьцяў глядзіце $1).
 
-<strong>КАЛІ ЛАСКА, НЕ ЗЬМЯШЧАЙЦЕ ТУТ БЕЗ ДАЗВОЛУ МАТЭРЫЯЛЫ, ЯКІЯ АХОЎВАЮЦЦА АЎТАРСКІМ ПРАВАМ!</strong>',
-'longpagewarning'                  => "<strong>ПАПЯРЭДЖАНЬНЕ: Гэтая старонка ўтрымлівае $1 {{PLURAL:$1|кілябайт|кілябайты|кілябайтаў}}; некаторыя браўзэры могуць мець праблемы пры адлюстраваньні старонак аб'ёмам болей за 32кб.
-Калі гэта магчыма, паспрабуйце падзяліць зьмест старонкі на больш дробныя часткі.</strong>",
-'longpageerror'                    => "<strong>ПАМЫЛКА: Аб'ём тэксту, які Вы спрабуеце запісаць складае $1 {{PLURAL:$1|кілябайт|кілябайты|кілябайтаў}}. Аб'ём старонкі ня можа перавышаць $2 {{PLURAL:$2|кілябайт|кілябайты|кілябайтаў}}. Старонка ня можа быць захаваная.</strong>",
-'readonlywarning'                  => '<strong>ПАПЯРЭДЖАНЬНЕ: База зьвестак была заблякаваная для тэхнічнага абслугоўваньня, таму немагчыма зараз захаваць Вашыя зьмены.
+'''КАЛІ ЛАСКА, НЕ ЗЬМЯШЧАЙЦЕ ТУТ БЕЗ ДАЗВОЛУ МАТЭРЫЯЛЫ, ЯКІЯ АХОЎВАЮЦЦА АЎТАРСКІМ ПРАВАМ!'''",
+'longpagewarning'                  => "'''ПАПЯРЭДЖАНЬНЕ: Гэтая старонка ўтрымлівае $1 {{PLURAL:$1|кілябайт|кілябайты|кілябайтаў}}; некаторыя браўзэры могуць мець праблемы пры адлюстраваньні старонак аб'ёмам болей за 32 кб.
+Калі гэта магчыма, паспрабуйце падзяліць зьмест старонкі на больш дробныя часткі.'''",
+'longpageerror'                    => "'''ПАМЫЛКА: Аб'ём тэксту, які Вы спрабуеце запісаць складае $1 {{PLURAL:$1|кілябайт|кілябайты|кілябайтаў}}. Аб'ём старонкі ня можа перавышаць $2 {{PLURAL:$2|кілябайт|кілябайты|кілябайтаў}}. Старонка ня можа быць захаваная.'''",
+'readonlywarning'                  => "'''ПАПЯРЭДЖАНЬНЕ: База зьвестак была заблякаваная для тэхнічнага абслугоўваньня, таму немагчыма зараз захаваць Вашыя зьмены.
+Вы можаце скапіяваць тэкст у файл на Вашым кампутары, а пазьней захаваць сюды.'''
 
-Паспрабуйце захаваць тэкст на Вашым кампутары, а потым захаваць сюды.</strong>',
-'protectedpagewarning'             => '<strong>ПАПЯРЭДЖАНЬНЕ: Гэтая старонка была абароненая, таму толькі адміністратары могуць рэдагаваць яе.</strong>',
-'semiprotectedpagewarning'         => "'''Заўвага:''' Гэтая старонка была абароненая і рэдагаваць яе могуць толькі зарэгістраваныя ўдзельнікі.",
+Адміністратар, які заблякаваў базу зьвестак, прапанаваў наступнае тлумачэньне: $1",
+'protectedpagewarning'             => "'''ПАПЯРЭДЖАНЬНЕ: Гэтая старонка была абароненая, таму толькі адміністратары могуць рэдагаваць яе.'''",
+'semiprotectedpagewarning'         => "'''Заўвага:''' Гэтая старонка была абароненая, і рэдагаваць яе могуць толькі зарэгістраваныя ўдзельнікі.",
 'cascadeprotectedwarning'          => "'''Папярэджаньне:''' Гэтая старонка абароненая, толькі ўдзельнікі з правамі адміністратараў могуць рэдагаваць яе, таму што яна ўключаная ў {{PLURAL:$1|наступную каскадна-абароненую старонку|наступныя каскадна-абароненыя старонкі}}:",
-'titleprotectedwarning'            => '<strong>ПАПЯРЭДЖАНЬНЕ: Гэтая старонка была абароненая і стварыць яе могуць толькі зарэгістраваныя ўдзельнікі.</strong>',
+'titleprotectedwarning'            => "'''ПАПЯРЭДЖАНЬНЕ: гэтая старонка была абароненая і для яе стварэньня патрабуюцца [[Special:ListGroupRights|адпаведныя правы]].'''",
 'templatesused'                    => 'На гэтай старонцы выкарыстаныя наступныя шаблёны:',
 'templatesusedpreview'             => 'У гэтым праглядзе выкарыстаныя наступныя шаблёны:',
 'templatesusedsection'             => 'У гэтай сэкцыі выкарыстаныя наступныя шаблёны:',
@@ -869,11 +898,21 @@ $2',
 
 Упэўніцеся, што стварэньне гэтай старонкі неабходнае.
 Ніжэй знаходзіцца журнал выдаленьняў гэтай старонкі:",
+'deleted-notice'                   => 'Гэта старонка была выдаленая. Журнал выдаленьняў для гэтай старонкі пададзены ніжэй.',
+'deletelog-fulllog'                => 'Паказаць журнал цалкам',
+'edit-hook-aborted'                => 'Рэдагаваньне скасаванае працэдурай-перахопнікам.
+Тлумачэньняў не было.',
+'edit-gone-missing'                => 'Немагчыма абнавіць старонку.
+Падобна, што яна была выдаленая.',
+'edit-conflict'                    => 'Канфлікт рэдагаваньняў.',
+'edit-no-change'                   => 'Вашае рэдагаваньне было праігнараванае, таму што ў тэкст не былі ўнесеныя зьмены.',
+'edit-already-exists'              => 'Немагчыма стварыць новую старонку.
+Яна ўжо існуе.',
 
 # Parser/template warnings
-'expensive-parserfunction-warning'        => 'Папярэджаньне: Гэтая старонка ўтрымлівае зашмат працаёмістых зваротаў да функцыяў парсэра.
+'expensive-parserfunction-warning'        => 'Папярэджаньне: гэтая старонка ўтрымлівае зашмат працаёмістых зваротаў да функцыяў парсэра.
 
-Іх павінна быць ня болей за $2, а цяпер ўтрымліваецца $1.',
+Павінна быць ня болей за $2 {{PLURAL:$2|зварот|звароты|зваротаў}}, а цяпер ўтрымліваецца {{PLURAL:$1|$1 зварот|$1 звароты|$1 зваротаў}}.',
 'expensive-parserfunction-category'       => 'Старонкі, якія ўтрымліваюць зашмат працаёмістых зваротаў да функцыяў парсэра',
 'post-expand-template-inclusion-warning'  => 'Папярэджаньне: Памер уключаемых шаблёнаў занадта вялікі.
 Некаторыя шаблёны ня будуць уключаныя.',
@@ -881,6 +920,8 @@ $2',
 'post-expand-template-argument-warning'   => 'Увага: Гэтая старонка ўтрымлівае прынамсі адзін парамэтар шаблёна, які мае занадта вялікі выгляд у разгорнутым выглядзе.
 Гэтыя парамэтры былі прапушчаныя.',
 'post-expand-template-argument-category'  => 'Старонкі, у якіх прапушчаныя парамэтры шаблёнаў',
+'parser-template-loop-warning'            => 'Выяўлены цыкль у шаблёнах: [[$1]]',
+'parser-template-recursion-depth-warning' => 'Перавышана мяжа глыбіні рэкурсіі шаблёнаў ($1)',
 
 # "Undo" feature
 'undo-success' => 'Рэдагаваньне можа быць адмененае. Калі ласка, параўнайце адрозьненьні паміж вэрсіямі, каб упэўніцца, што гэта адпаведныя зьмены, а потым запішыце зьмены для сканчэньня рэдагаваньня.',
@@ -895,28 +936,28 @@ $2',
 Прычына блякаваньня пададзеная $3: ''$2''",
 
 # History pages
-'viewpagelogs'        => 'Паказаць журналы падзей для гэтай старонкі',
-'nohistory'           => 'Гісторыя зьменаў для гэтай старонкі адсутнічае.',
-'revnotfound'         => 'Вэрсія ня знойдзеная',
-'revnotfoundtext'     => 'Ранейшая вэрсія гэтай старонкі ня знойдзеная. Праверце спасылку, празь якую Вы спрабавалі перайсьці на гэтую старонку.',
-'currentrev'          => 'Цяперашняя вэрсія',
-'revisionasof'        => 'Вэрсія ад $1',
-'revision-info'       => 'Вэрсія ад $1, аўтар $2',
-'previousrevision'    => '←Папярэдняя вэрсія',
-'nextrevision'        => 'Наступная вэрсія→',
-'currentrevisionlink' => 'Цяперашняя вэрсія',
-'cur'                 => 'цяп',
-'next'                => 'наступная',
-'last'                => 'папярэдняя',
-'page_first'          => 'першая',
-'page_last'           => 'апошняя',
-'histlegend'          => 'Параўнаньне: пазначце кропкамі дзьве вэрсіі для параўнаньня і націсьніце enter альбо кнопку ўнізе.<br />
+'viewpagelogs'           => 'Паказаць журналы падзеяў для гэтай старонкі',
+'nohistory'              => 'Гісторыя зьменаў для гэтай старонкі адсутнічае.',
+'currentrev'             => 'Цяперашняя вэрсія',
+'currentrev-asof'        => 'Цяперашняя вэрсія на $1',
+'revisionasof'           => 'Вэрсія ад $1',
+'revision-info'          => 'Вэрсія ад $1, аўтар $2', # Additionally available: $3: revision id
+'previousrevision'       => '← Папярэдняя вэрсія',
+'nextrevision'           => 'Наступная вэрсія →',
+'currentrevisionlink'    => 'Цяперашняя вэрсія',
+'cur'                    => 'цяп',
+'next'                   => 'наступная',
+'last'                   => 'папярэдняя',
+'page_first'             => 'першая',
+'page_last'              => 'апошняя',
+'histlegend'             => 'Параўнаньне: пазначце кропкамі дзьве вэрсіі для параўнаньня і націсьніце enter альбо кнопку ўнізе.<br />
 Тлумачэньне: (цяп) = адрозьненьні ад цяперашняй вэрсіі, (папярэдняя) = адрозьненьні ад папярэдняй вэрсіі, д = дробная праўка.',
-'deletedrev'          => '[выдаленая]',
-'histfirst'           => 'найстарэйшыя',
-'histlast'            => 'найнавейшыя',
-'historysize'         => '($1 {{PLURAL:$1|байт|байты|байтаў}})',
-'historyempty'        => '(пуста)',
+'history-fieldset-title' => 'Пошук у гісторыі',
+'deletedrev'             => '[выдаленая]',
+'histfirst'              => 'найстарэйшыя',
+'histlast'               => 'найнавейшыя',
+'historysize'            => '($1 {{PLURAL:$1|байт|байты|байтаў}})',
+'historyempty'           => '(пуста)',
 
 # Revision feed
 'history-feed-title'          => 'Гісторыя зьменаў',
@@ -927,52 +968,65 @@ $2',
 Паспрабуйце [[Special:Search|пашукаць]] падобныя старонкі.',
 
 # Revision deletion
-'rev-deleted-comment'         => '(камэнтар выдалены)',
-'rev-deleted-user'            => '(імя ўдзельніка выдаленае)',
-'rev-deleted-event'           => '(запіс з журнала падзеяў выдалены)',
-'rev-deleted-text-permission' => '<div class="mw-warning plainlinks">
-Гэтая вэрсія старонкі была выдаленая з агульнадаступных архіваў.
-Магчыма, падрабязнасьці могуць быць знойдзеныя ў [{{fullurl:Special:Log/delete|page={{FULLPAGENAMEE}}}} журнале выдаленьняў].</div>',
-'rev-deleted-text-view'       => '<div class="mw-warning plainlinks">
-Гэтая вэрсія старонкі была выдаленая з агульнадаступных архіваў.
-Вы маеце магчымасьць яе прагляду, таму што зьяўляецеся адміністратарам {{GRAMMAR:родны|{{SITENAME}}}}.
-Магчыма, падрабязнасьці могуць быць знойдзеныя ў [{{fullurl:Special:Log/delete|page={{FULLPAGENAMEE}}}} журнале выдаленьняў].</div>',
-'rev-delundel'                => 'паказаць/схаваць',
-'revisiondelete'              => 'Выдаліць/аднавіць вэрсіі',
-'revdelete-nooldid-title'     => 'Ня выбрана мэтавая вэрсія',
-'revdelete-nooldid-text'      => 'Вы ня выбралі мэтавую вэрсію (ці вэрсіі) для выкананьня гэтай функцыі, выбранай вэрсіі не існуе альбо Вы спрабуеце схаваць цяперашнюю вэрсію.',
-'revdelete-selected'          => '{{PLURAL:$2|Выбраная вэрсія|Выбраныя вэрсіі}} старонкі [[:$1]]:',
-'logdelete-selected'          => '{{PLURAL:$1|Выбраны запіс|Выбраныя запісы}} журнала падзеяў:',
-'revdelete-text'              => 'Выдаленыя вэрсіі і падзеі будуць адлюстроўвацца ў гісторыі старонкі і журналах, але частка іх зьместу ня будзе даступная для звычайных удзельнікаў.
+'rev-deleted-comment'            => '(камэнтар выдалены)',
+'rev-deleted-user'               => '(імя ўдзельніка выдаленае)',
+'rev-deleted-event'              => '(запіс з журнала падзеяў выдалены)',
+'rev-deleted-text-permission'    => "Гэтая вэрсія старонкі была '''выдаленая'''.
+Магчыма, падрабязнасьці могуць быць знойдзеныя ў [{{fullurl:Special:Log/delete|page={{FULLPAGENAMEE}}}} журнале выдаленьняў].",
+'rev-deleted-text-view'          => "Гэтая вэрсія старонкі была '''выдаленая'''.
+Як адміністратар, Вы можаце праглядзець яе.
+Магчыма, падрабязнасьці могуць быць знойдзеныя ў [{{fullurl:Special:Log/delete|page={{FULLPAGENAMEE}}}} журнале выдаленьняў].",
+'rev-deleted-no-diff'            => "Вы ня можаце праглядаць гэтую розьніцу паміж вэрсіямі, таму што адна з вэрсіяў была '''выдалена'''.
+Магчыма, падрабязнасьці могуць быць знойдзеныя ў [{{fullurl:Special:Log/delete|page={{FULLPAGENAMEE}}}} журнале выдаленьняў].",
+'rev-deleted-unhide-diff'        => "Адна з вэрсіяў гэтай старонкі была '''выдалена'''.
+Магчыма, падрабязнасьці могуць быць знойдзеныя ў [{{fullurl:Special:Log/delete|page={{FULLPAGENAMEE}}}} журнале выдаленьняў].
+Як адміністратар, Вы можаце праглядзець [$1 адрозьненьні паміж вэрсіямі].",
+'rev-delundel'                   => 'паказаць/схаваць',
+'revisiondelete'                 => 'Выдаліць/аднавіць вэрсіі',
+'revdelete-nooldid-title'        => 'Ня выбрана мэтавая вэрсія',
+'revdelete-nooldid-text'         => 'Вы ня выбралі мэтавую вэрсію (ці вэрсіі) для выкананьня гэтай функцыі, выбранай вэрсіі не існуе альбо Вы спрабуеце схаваць цяперашнюю вэрсію.',
+'revdelete-nologtype-title'      => 'Ня ўказаны тып журнала',
+'revdelete-nologtype-text'       => 'Вы не пазначылі тып журнала, у якім будзе выконвацца гэта дзеяньне.',
+'revdelete-toomanytargets-title' => 'Зашмат мэтаў',
+'revdelete-toomanytargets-text'  => 'Вы пазначылі зашмат тыпаў мэтаў, для якіх будзе выконвацца гэта дзеяньне.',
+'revdelete-nologid-title'        => 'Няслушны запіс у журнале',
+'revdelete-nologid-text'         => 'Вы не пазначылі запіс у журнале для выкананьня гэтай функцыі, альбо выбраны запіс не існуе.',
+'revdelete-selected'             => "'''{{PLURAL:$2|Выбраная вэрсія|Выбраныя вэрсіі}} старонкі [[:$1]]:'''",
+'logdelete-selected'             => "'''{{PLURAL:$1|Выбраны запіс|Выбраныя запісы}} журнала падзеяў:'''",
+'revdelete-text'                 => "'''Выдаленыя вэрсіі і падзеі будуць адлюстроўвацца ў гісторыі старонкі і журналах, але частка іх зьместу ня будзе даступная для звычайных удзельнікаў.'''
 
-Іншыя адміністратары {{GRAMMAR:родны|{{SITENAME}}}} будуць мець магчымасьць прагляду зьместу і аднаўленьня старонкі праз гэты інтэрфэйс, калі ня будуць ўведзеныя дадатковыя абмежаваньні.',
-'revdelete-legend'            => 'Усталяваць абмежаваньні бачнасьці',
-'revdelete-hide-text'         => 'Схаваць тэкст вэрсіі',
-'revdelete-hide-name'         => 'Схаваць дзеяньне і мэту',
-'revdelete-hide-comment'      => 'Схаваць кароткае апісаньне зьменаў',
-'revdelete-hide-user'         => 'Схаваць імя/IP-адрас удзельніка',
-'revdelete-hide-restricted'   => 'Увесьці гэтыя абмежаваньні для адміністратараў і заблякаваць гэты інтэрфэйс',
-'revdelete-suppress'          => 'Схаваць зьвесткі ад адміністратараў як і ад іншых удзельнікаў',
-'revdelete-hide-image'        => 'Схаваць зьмест файла',
-'revdelete-unsuppress'        => 'Зьняць абмежаваньні з адноўленых вэрсіяў',
-'revdelete-log'               => 'Камэнтар:',
-'revdelete-submit'            => 'Ужыць для выбранай вэрсіі',
-'revdelete-logentry'          => 'зьмененая бачнасьць вэрсіі старонкі [[$1]]',
-'logdelete-logentry'          => 'зьмененая бачнасьць падзеі старонкі [[$1]]',
-'revdelete-success'           => "'''Бачнасьць вэрсіі пасьпяхова зьмененая.'''",
-'logdelete-success'           => "'''Бачнасьць падзеі пасьпяхова зьмененая.'''",
-'revdel-restore'              => 'Зьмяніць бачнасьць',
-'pagehist'                    => 'Гісторыя старонкі',
-'deletedhist'                 => 'Выдаленая гісторыя',
-'revdelete-content'           => 'зьмест',
-'revdelete-summary'           => 'кароткае апісаньне зьменаў',
-'revdelete-uname'             => 'імя ўдзельніка',
-'revdelete-restricted'        => 'ужыць абмежаваньні для адміністратараў',
-'revdelete-unrestricted'      => 'зьнятыя абмежаваньні для адміністратараў',
-'revdelete-hid'               => 'схаваць $1',
-'revdelete-unhid'             => 'не хаваць $1',
-'revdelete-log-message'       => '$1 для $2 {{PLURAL:$2|вэрсіі|вэрсій|вэрсій}}',
-'logdelete-log-message'       => '$1 для $2 {{PLURAL:$2|падзеі|падзеяў|падзеяў}}',
+Іншыя адміністратары {{GRAMMAR:родны|{{SITENAME}}}} будуць мець магчымасьць прагляду зьместу і аднаўленьня старонкі праз гэты інтэрфэйс, калі ня будуць ўведзеныя дадатковыя абмежаваньні.
+Калі ласка, пацьвердзіце, што Вы сапраўды жадаеце зрабіць гэта, разумееце наступствы і робіце гэта ў адпаведнасьці з [[{{MediaWiki:Policy-url}}|правіламі]].",
+'revdelete-suppress-text'        => "Схаваньні могуць выкарыстоўвацца '''толькі''' ў наступных выпадках:
+* Раскрыцьцё асабістых зьвестак
+*: ''хатнія адрасы, тэлефонныя нумары, нумары пашпартоў і г.д.''",
+'revdelete-legend'               => 'Усталяваць абмежаваньні бачнасьці',
+'revdelete-hide-text'            => 'Схаваць тэкст вэрсіі',
+'revdelete-hide-name'            => 'Схаваць дзеяньне і мэту',
+'revdelete-hide-comment'         => 'Схаваць кароткае апісаньне зьменаў',
+'revdelete-hide-user'            => 'Схаваць імя/IP-адрас удзельніка',
+'revdelete-hide-restricted'      => 'Ужываць гэтыя абмежаваньні таксама і для адміністратараў',
+'revdelete-suppress'             => 'Схаваць зьвесткі ад адміністратараў як і ад іншых удзельнікаў',
+'revdelete-hide-image'           => 'Схаваць зьмест файла',
+'revdelete-unsuppress'           => 'Зьняць абмежаваньні з адноўленых вэрсіяў',
+'revdelete-log'                  => 'Прычына выдаленьня:',
+'revdelete-submit'               => 'Ужыць для выбранай вэрсіі',
+'revdelete-logentry'             => 'зьмененая бачнасьць вэрсіі старонкі [[$1]]',
+'logdelete-logentry'             => 'зьмененая бачнасьць падзеі старонкі [[$1]]',
+'revdelete-success'              => "'''Бачнасьць вэрсіі пасьпяхова абноўленая.'''",
+'logdelete-success'              => "'''Бачнасьць падзеі пасьпяхова зьмененая.'''",
+'revdel-restore'                 => 'Зьмяніць бачнасьць',
+'pagehist'                       => 'Гісторыя старонкі',
+'deletedhist'                    => 'Выдаленая гісторыя',
+'revdelete-content'              => 'зьмест',
+'revdelete-summary'              => 'кароткае апісаньне зьменаў',
+'revdelete-uname'                => 'імя ўдзельніка',
+'revdelete-restricted'           => 'ужыць абмежаваньні для адміністратараў',
+'revdelete-unrestricted'         => 'зьнятыя абмежаваньні для адміністратараў',
+'revdelete-hid'                  => 'схаваць $1',
+'revdelete-unhid'                => 'не хаваць $1',
+'revdelete-log-message'          => '$1 для $2 {{PLURAL:$2|вэрсіі|вэрсій|вэрсіяў}}',
+'logdelete-log-message'          => '$1 для $2 {{PLURAL:$2|падзеі|падзеяў|падзеяў}}',
 
 # Suppression log
 'suppressionlog'     => 'Журнал схаваньняў',
@@ -1001,6 +1055,8 @@ $2',
 'mergehistory-invalid-destination' => 'Мэтавая старонка мусіць мець карэктную назву.',
 'mergehistory-autocomment'         => "Гісторыя [[:$1]] аб'яднаная ў [[:$2]]",
 'mergehistory-comment'             => "Гісторыя [[:$1]] аб'яднаная ў [[:$2]]: $3",
+'mergehistory-same-destination'    => 'Крынічная і мэтавая старонкі ня могуць супадаць',
+'mergehistory-reason'              => 'Прычына:',
 
 # Merge log
 'mergelog'           => "Журнал аб'яднаньняў",
@@ -1013,122 +1069,219 @@ $2',
 'difference'              => '(Адрозьненьні паміж вэрсіямі)',
 'lineno'                  => 'Радок $1:',
 'compareselectedversions' => 'Параўнаць выбраныя вэрсіі',
+'visualcomparison'        => 'Візуальнае параўнаньне',
+'wikicodecomparison'      => 'Параўнаньне вікі-тэксту',
 'editundo'                => 'адмяніць',
-'diff-multi'              => '($1 {{PLURAL:$1|прамежная вэрсія не паказаная|прамежныя вэрсіі не паказаныя|прамежных вэрсіяў не паказаныя}}.)',
+'diff-multi'              => '($1 {{PLURAL:$1|прамежная вэрсія не паказаная|прамежныя вэрсіі не паказаныя|прамежных вэрсіяў не паказаныя}})',
+'diff-movedto'            => 'перанесены ў $1',
+'diff-styleadded'         => 'дададзены стыль $1',
+'diff-added'              => 'дададзены $1',
+'diff-changedto'          => 'зьменены на $1',
+'diff-movedoutof'         => 'перанесены з $1',
+'diff-styleremoved'       => 'выдалены стыль $1',
+'diff-removed'            => 'выдалены $1',
+'diff-changedfrom'        => 'зьменены з $1',
+'diff-src'                => 'крыніца',
+'diff-withdestination'    => 'з мэтай $1',
+'diff-with'               => '&#32;з $1 $2',
+'diff-with-final'         => '&#32;і $1 $2',
+'diff-width'              => 'шырыня',
+'diff-height'             => 'вышыня',
+'diff-p'                  => "'''абзац'''",
+'diff-blockquote'         => "'''цытата'''",
+'diff-h1'                 => "'''загаловак (1-ы ўзровень)'''",
+'diff-h2'                 => "'''загаловак (2-і ўзровень)'''",
+'diff-h3'                 => "'''загаловак (3-і ўзровень)'''",
+'diff-h4'                 => "'''загаловак (4-ы ўзровень)'''",
+'diff-h5'                 => "'''загаловак (5-ы ўзровень)'''",
+'diff-pre'                => "'''блёк зададзенага фармату'''",
+'diff-div'                => "'''падзел'''",
+'diff-ul'                 => "'''неўпарадкаваны сьпіс'''",
+'diff-ol'                 => "'''упарадкаваны сьпіс'''",
+'diff-li'                 => "'''элемэнт сьпісу'''",
+'diff-table'              => "'''табліца'''",
+'diff-tbody'              => "'''зьмест табліцы'''",
+'diff-tr'                 => "'''радок'''",
+'diff-td'                 => "'''ячэйка'''",
+'diff-th'                 => "'''загаловак'''",
+'diff-br'                 => "'''разрыў'''",
+'diff-hr'                 => "'''гарызантальная лінія'''",
+'diff-code'               => "'''блёк кампутарнага коду'''",
+'diff-dl'                 => "'''сьпіс азначэньняў'''",
+'diff-dt'                 => "'''тэрмін азначэньня'''",
+'diff-dd'                 => "'''азначэньне'''",
+'diff-input'              => "'''увод'''",
+'diff-form'               => "'''форма'''",
+'diff-img'                => "'''выява'''",
+'diff-span'               => "'''дыяпазон'''",
+'diff-a'                  => "'''спасылка'''",
+'diff-i'                  => "'''курсіў'''",
+'diff-b'                  => "'''тлусты шрыфт'''",
+'diff-strong'             => "'''тлусты'''",
+'diff-em'                 => "'''з прыціскам'''",
+'diff-font'               => "'''шрыфт'''",
+'diff-big'                => "'''вялікі шрыфт'''",
+'diff-del'                => "'''выдалена'''",
+'diff-tt'                 => "'''роўнашырокі шрыфт'''",
+'diff-sub'                => "'''ніжні індэкс'''",
+'diff-sup'                => "'''верхні індэкс'''",
+'diff-strike'             => "'''перакрэсьлены'''",
 
 # Search results
-'searchresults'             => 'Вынікі пошуку',
-'searchresulttext'          => 'Для атрыманьня больш падрабязнай інфармацыі пра пошук у {{GRAMMAR:месны|{{SITENAME}}}}, глядзіце [[{{MediaWiki:Helppage}}|{{int:help}}]].',
-'searchsubtitle'            => "Па запыце '''[[:$1]]''' ([[Special:Prefixindex/$1|усе старонкі, якія пачынаюцца з «$1»]] | [[Special:WhatLinksHere/$1|усе старонкі, якія спасылаюцца на «$1»]])",
-'searchsubtitleinvalid'     => "Па запыце '''$1'''",
-'noexactmatch'              => "'''Старонкі з гэткай назвай не існуе.''' Вы можаце '''[[:$1|стварыць гэтую старонку]]'''.",
-'noexactmatch-nocreate'     => "'''Не існуе старонкі з назвай «$1».'''",
-'toomanymatches'            => 'Знойдзена зашмат супадзеньняў з запытам, калі ласка, паспрабуйце зьмяніць запыт',
-'titlematches'              => 'Супадзеньні ў назвах старонак',
-'notitlematches'            => 'Супадзеньні ў назвах старонак ня знойдзеныя',
-'textmatches'               => 'Супадзеньні ў тэкстах старонак',
-'notextmatches'             => 'Супадзеньні ў тэкстах старонак ня знойдзеныя',
-'prevn'                     => 'папярэднія $1',
-'nextn'                     => 'наступныя $1',
-'viewprevnext'              => 'Паказаць ($1) ($2) ($3)',
-'search-result-size'        => '$1 ($2 {{PLURAL:$2|слова|словы|слоў}})',
-'search-result-score'       => 'Адпаведнасьць: $1%',
-'search-redirect'           => '(перанакіраваньне $1)',
-'search-section'            => '(сэкцыя $1)',
-'search-suggest'            => 'Вы мелі на ўвазе: $1',
-'search-interwiki-caption'  => 'Сумежныя праекты',
-'search-interwiki-default'  => 'вынікі з $1:',
-'search-interwiki-more'     => '(яшчэ)',
-'search-mwsuggest-enabled'  => 'з парадамі',
-'search-mwsuggest-disabled' => 'без парад',
-'search-relatedarticle'     => 'Зьвязаны',
-'mwsuggest-disable'         => 'Адключыць AJAX-падказкі',
-'searchrelated'             => 'зьвязаны',
-'searchall'                 => 'усе',
-'showingresults'            => "Ніжэй {{PLURAL:$1|паданы|паданыя|паданыя}} да '''$1''' {{PLURAL:$1|выніку|вынікаў|вынікаў}}, пачынаючы з #<b>$2</b>.",
-'showingresultsnum'         => "Ніжэй паказаны сьпіс з '''$3''' {{PLURAL:$3|выніка|вынікаў|вынікаў}}, пачынаючы ад № '''$2'''.",
-'showingresultstotal'       => "Ніжэй {{PLURAL:$3|паказаны '''$1''' вынік з '''$3'''|паказаныя вынікі '''$1 — $2''' з '''$3'''}}",
-'nonefound'                 => "'''Увага''': Па змоўчаньні пошук вядзецца не ва ўсіх прасторах назваў. Трэба дапісаць да запыту ''усе:'' каб шукаць па ўсім зьмесьце (уключаючы абмеркаваньні, шаблёны і г.д.) альбо дадаць да запыту неабходную прастору назваў.",
-'powersearch'               => 'Пошук',
-'powersearch-legend'        => 'Удасканалены пошук',
-'powersearch-ns'            => 'Шукаць у прасторах назваў:',
-'powersearch-redir'         => 'Паказваць перанакіраваньні',
-'powersearch-field'         => 'Шукаць',
-'search-external'           => 'Вонкавы пошук',
-'searchdisabled'            => 'Функцыя пошуку ў {{GRAMMAR:месны|{{SITENAME}}}} адключаная.
+'searchresults'                    => 'Вынікі пошуку',
+'searchresults-title'              => 'Вынікі пошуку для «$1»',
+'searchresulttext'                 => 'Для атрыманьня больш падрабязнай інфармацыі пра пошук у {{GRAMMAR:месны|{{SITENAME}}}}, глядзіце [[{{MediaWiki:Helppage}}|{{int:help}}]].',
+'searchsubtitle'                   => "Па запыце '''[[:$1]]''' ([[Special:Prefixindex/$1|усе старонкі, якія пачынаюцца з «$1»]]{{int:pipe-separator}}[[Special:WhatLinksHere/$1|усе старонкі, якія спасылаюцца на «$1»]])",
+'searchsubtitleinvalid'            => "Па запыце '''$1'''",
+'noexactmatch'                     => "'''Старонкі з гэткай назвай не існуе.''' Вы можаце '''[[:$1|стварыць гэтую старонку]]'''.",
+'noexactmatch-nocreate'            => "'''Не існуе старонкі з назвай «$1».'''",
+'toomanymatches'                   => 'Знойдзена зашмат супадзеньняў з запытам, калі ласка, паспрабуйце зьмяніць запыт',
+'titlematches'                     => 'Супадзеньні ў назвах старонак',
+'notitlematches'                   => 'Супадзеньні ў назвах старонак ня знойдзеныя',
+'textmatches'                      => 'Супадзеньні ў тэкстах старонак',
+'notextmatches'                    => 'Супадзеньні ў тэкстах старонак ня знойдзеныя',
+'prevn'                            => 'папярэднія $1',
+'nextn'                            => 'наступныя $1',
+'prevn-title'                      => '{{PLURAL:$1|Папярэдні $1 вынік|Папярэднія $1 вынікі|Папярэднія $1 вынікаў}}',
+'nextn-title'                      => '{{PLURAL:$1|Наступны $1 вынік|Наступныя $1 вынікі|Наступныя $1 вынікаў}}',
+'shown-title'                      => 'Паказваць $1 {{PLURAL:$1|вынік|вынікі|вынікаў}} на старонцы',
+'viewprevnext'                     => 'Паказаць ($1) ($2) ($3)',
+'searchmenu-legend'                => 'Устаноўкі пошуку',
+'searchmenu-exists'                => "* Старонка '''[[$1]]'''",
+'searchmenu-new'                   => "'''Стварыць старонку «[[:$1|$1]]» у {{GRAMMAR:месны|{{SITENAME}}}}!'''",
+'searchhelp-url'                   => 'Help:Зьмест',
+'searchmenu-prefix'                => '[[Special:PrefixIndex/$1|Праглядзець старонкі з гэтым прэфіксам]]',
+'searchprofile-articles'           => 'Старонкі са зьместам',
+'searchprofile-articles-and-proj'  => 'Старонкі са зьместам і старонкі праекту',
+'searchprofile-project'            => 'Старонкі праекту',
+'searchprofile-images'             => 'Файлы',
+'searchprofile-everything'         => 'Усё',
+'searchprofile-advanced'           => 'Пашыраны',
+'searchprofile-articles-tooltip'   => 'Пошук у $1',
+'searchprofile-project-tooltip'    => 'Пошук у $1',
+'searchprofile-images-tooltip'     => 'Пошук файлаў',
+'searchprofile-everything-tooltip' => 'Шукаць усюды (уключна са старонкамі абмеркаваньня)',
+'searchprofile-advanced-tooltip'   => 'Шукаць у дадатковых прасторах назваў',
+'prefs-search-nsdefault'           => 'Шукаць з выкарыстаньнем змоўчаньняў:',
+'prefs-search-nscustom'            => 'Шукаць у дадатковых прасторах назваў:',
+'search-result-size'               => '$1 ($2 {{PLURAL:$2|слова|словы|словаў}})',
+'search-result-score'              => 'Адпаведнасьць: $1%',
+'search-redirect'                  => '(перанакіраваньне $1)',
+'search-section'                   => '(сэкцыя $1)',
+'search-suggest'                   => 'Магчыма, вы мелі на ўвазе: $1',
+'search-interwiki-caption'         => 'Сумежныя праекты',
+'search-interwiki-default'         => 'вынікі з $1:',
+'search-interwiki-more'            => '(яшчэ)',
+'search-mwsuggest-enabled'         => 'з парадамі',
+'search-mwsuggest-disabled'        => 'без парад',
+'search-relatedarticle'            => 'Зьвязаны',
+'mwsuggest-disable'                => 'Адключыць AJAX-падказкі',
+'searchrelated'                    => 'зьвязаны',
+'searchall'                        => 'усе',
+'showingresults'                   => "Ніжэй {{PLURAL:$1|паданы|паданыя|паданыя}} да '''$1''' {{PLURAL:$1|выніку|вынікаў|вынікаў}}, пачынаючы з #<b>$2</b>.",
+'showingresultsnum'                => "Ніжэй паказаны сьпіс з '''$3''' {{PLURAL:$3|выніка|вынікаў|вынікаў}}, пачынаючы ад № '''$2'''.",
+'showingresultstotal'              => "Ніжэй {{PLURAL:$4|паказаны '''$1''' вынік з '''$3'''|паказаныя вынікі '''$1 — $2''' з '''$3'''}}",
+'nonefound'                        => "'''Увага''': Па змоўчваньні пошук вядзецца не ва ўсіх прасторах назваў. Трэба дапісаць да запыту ''усе:'' каб шукаць па ўсім зьмесьце (уключаючы абмеркаваньні, шаблёны і г.д.) альбо дадаць да запыту неабходную прастору назваў.",
+'search-nonefound'                 => 'Супадзеньняў па запыце ня знойдзена.',
+'powersearch'                      => 'Удасканалены пошук',
+'powersearch-legend'               => 'Удасканалены пошук',
+'powersearch-ns'                   => 'Шукаць у прасторах назваў:',
+'powersearch-redir'                => 'Паказваць перанакіраваньні',
+'powersearch-field'                => 'Шукаць',
+'search-external'                  => 'Вонкавы пошук',
+'searchdisabled'                   => 'Функцыя пошуку ў {{GRAMMAR:месны|{{SITENAME}}}} адключаная.
 Вы можаце пашукаць з дапамогай Google, але заўважце, што там інфармацыя пра старонкі {{GRAMMAR:родны|{{SITENAME}}}} можа быць састарэлай.',
 
 # Preferences page
-'preferences'              => 'Устаноўкі',
-'mypreferences'            => 'Мае ўстаноўкі',
-'prefs-edits'              => 'Колькасьць рэдагаваньняў:',
-'prefsnologin'             => 'Вы не ўвайшлі ў сыстэму',
-'prefsnologintext'         => 'Вам трэба <span class="plainlinks">[{{fullurl:Special:Userlogin|returnto=$1}} ўвайсьці ў сыстэму]</span>, каб зьмяняць свае ўстаноўкі.',
-'prefsreset'               => 'Адноўленыя ўстаноўкі па змоўчаньні.',
-'qbsettings'               => 'Панэль хуткага доступу',
-'qbsettings-none'          => 'Не паказваць',
-'qbsettings-fixedleft'     => 'Замацаваная зьлева',
-'qbsettings-fixedright'    => 'Замацаваная справа',
-'qbsettings-floatingleft'  => 'Рухомая зьлева',
-'qbsettings-floatingright' => 'Плавае справа',
-'changepassword'           => 'Зьмяніць пароль',
-'skin'                     => 'Афармленьне',
-'math'                     => 'Матэматыка',
-'dateformat'               => 'Фармат даты',
-'datedefault'              => 'Па змоўчаньні',
-'datetime'                 => 'Дата і час',
-'math_failure'             => 'Не атрымалася разабраць',
-'math_unknown_error'       => 'невядомая памылка',
-'math_unknown_function'    => 'невядомая функцыя',
-'math_lexing_error'        => 'лексычная памылка',
-'math_syntax_error'        => 'сынтаксычная памылка',
-'math_image_error'         => 'Не атрымалася пераўтварыць у PNG;
+'preferences'               => 'Устаноўкі',
+'mypreferences'             => 'Мае ўстаноўкі',
+'prefs-edits'               => 'Колькасьць рэдагаваньняў:',
+'prefsnologin'              => 'Вы не ўвайшлі ў сыстэму',
+'prefsnologintext'          => 'Вам трэба <span class="plainlinks">[{{fullurl:Special:UserLogin|returnto=$1}} ўвайсьці ў сыстэму]</span>, каб зьмяняць свае ўстаноўкі.',
+'prefsreset'                => 'Адноўленыя ўстаноўкі па змоўчаньні.',
+'qbsettings'                => 'Панэль хуткага доступу',
+'qbsettings-none'           => 'Не паказваць',
+'qbsettings-fixedleft'      => 'Замацаваная зьлева',
+'qbsettings-fixedright'     => 'Замацаваная справа',
+'qbsettings-floatingleft'   => 'Рухомая зьлева',
+'qbsettings-floatingright'  => 'Плавае справа',
+'changepassword'            => 'Зьмяніць пароль',
+'skin'                      => 'Афармленьне',
+'skin-preview'              => 'Папярэдні прагляд',
+'math'                      => 'Матэматыка',
+'dateformat'                => 'Фармат даты',
+'datedefault'               => 'Па змоўчаньні',
+'datetime'                  => 'Дата і час',
+'math_failure'              => 'Не атрымалася разабраць',
+'math_unknown_error'        => 'невядомая памылка',
+'math_unknown_function'     => 'невядомая функцыя',
+'math_lexing_error'         => 'лексычная памылка',
+'math_syntax_error'         => 'сынтаксычная памылка',
+'math_image_error'          => 'Не атрымалася пераўтварыць у PNG;
 спраўдзіце дакладнасьць усталяваньня пакетаў latex, dvips, gs, і convert',
-'math_bad_tmpdir'          => 'Немагчыма запісаць ці стварыць часовую дырэкторыю для матэматыкі',
-'math_bad_output'          => 'Немагчыма запісаць ці стварыць выходную матэматычную дырэкторыю',
-'math_notexvc'             => 'Выканаўчы модуль texvc ня знойдзены.
+'math_bad_tmpdir'           => 'Немагчыма запісаць ці стварыць часовую дырэкторыю для матэматыкі',
+'math_bad_output'           => 'Немагчыма запісаць ці стварыць выходную матэматычную дырэкторыю',
+'math_notexvc'              => 'Выканаўчы модуль texvc ня знойдзены.
 Калі ласка, прачытайце math/README пра яго канфігурацыю.',
-'prefs-personal'           => 'Асабістыя зьвесткі',
-'prefs-rc'                 => 'Апошнія зьмены',
-'prefs-watchlist'          => 'Сьпіс назіраньня',
-'prefs-watchlist-days'     => 'Колькасьць дзён для паказу ў сьпісе назіраньня:',
-'prefs-watchlist-edits'    => 'Колькасьць рэдагаваньняў для паказу ў пашыраным сьпісе назіраньня:',
-'prefs-misc'               => 'Рознае',
-'saveprefs'                => 'Захаваць',
-'resetprefs'               => 'Скінуць',
-'oldpassword'              => 'Стары пароль:',
-'newpassword'              => 'Новы пароль:',
-'retypenew'                => 'Паўтарыце новы пароль:',
-'textboxsize'              => 'Рэдагаваньне',
-'rows'                     => 'Радкоў:',
-'columns'                  => 'Слупкоў:',
-'searchresultshead'        => 'Пошук',
-'resultsperpage'           => 'Колькасьць вынікаў на старонцы:',
-'contextlines'             => 'Колькасьць радкоў для паказу:',
-'contextchars'             => 'Колькасьць сымбаляў на радок:',
-'stub-threshold'           => 'Максымальны памер старонкі для паказу спасылак <a href="#" class="stub">як на накід</a> (у байтах):',
-'recentchangesdays'        => 'Колькасьць дзён для паказу ў апошніх зьменах:',
-'recentchangescount'       => 'Колькасьць рэдагаваньняў для паказу ў апошніх зьменах і гісторыі, колькасьць запісаў у журналах падзей:',
-'savedprefs'               => 'Вашыя ўстаноўкі былі захаваныя.',
-'timezonelegend'           => 'Часавы пояс',
-'timezonetext'             => '¹На колькі гадзінаў Ваш мясцовы час адрозьніваецца ад сэрвэрнага (UTC).',
-'localtime'                => 'Мясцовы час',
-'timezoneoffset'           => 'Розьніца¹',
-'servertime'               => 'Цяперашні час на сэрвэры',
-'guesstimezone'            => 'Запоўніць з браўзэра',
-'allowemail'               => 'Дазволіць атрыманьне лістоў ад іншых удзельнікаў і ўдзельніц',
-'prefs-searchoptions'      => 'Магчымасьці пошуку',
-'prefs-namespaces'         => 'Прасторы назваў',
-'defaultns'                => 'Па змоўчаньні, шукаць у наступных прасторах назваў:',
-'default'                  => 'па змоўчаньні',
-'files'                    => 'Файлы',
+'prefs-personal'            => 'Асабістыя зьвесткі',
+'prefs-rc'                  => 'Апошнія зьмены',
+'prefs-watchlist'           => 'Сьпіс назіраньня',
+'prefs-watchlist-days'      => 'Колькасьць дзён для паказу ў сьпісе назіраньня:',
+'prefs-watchlist-days-max'  => '(максымальна 7 дзён)',
+'prefs-watchlist-edits'     => 'Колькасьць рэдагаваньняў для паказу ў пашыраным сьпісе назіраньня:',
+'prefs-watchlist-edits-max' => '(максымальная колькасьць: 1000)',
+'prefs-misc'                => 'Рознае',
+'prefs-resetpass'           => 'Зьмяніць пароль',
+'saveprefs'                 => 'Захаваць',
+'resetprefs'                => 'Скінуць',
+'restoreprefs'              => 'Вярнуць усе настройкі па змоўчваньні',
+'textboxsize'               => 'Рэдагаваньне',
+'prefs-edit-boxsize'        => 'Памер акна рэдагаваньня.',
+'rows'                      => 'Радкоў:',
+'columns'                   => 'Слупкоў:',
+'searchresultshead'         => 'Пошук',
+'resultsperpage'            => 'Колькасьць вынікаў на старонцы:',
+'contextlines'              => 'Колькасьць радкоў для паказу:',
+'contextchars'              => 'Колькасьць сымбаляў на радок:',
+'stub-threshold'            => 'Максымальны памер старонкі для паказу спасылак <a href="#" class="stub">як на накід</a> (у байтах):',
+'recentchangesdays'         => 'Колькасьць дзён для паказу ў апошніх зьменах:',
+'recentchangesdays-max'     => '(максымальна $1 {{PLURAL:$1|дзень|дні|дзён}})',
+'recentchangescount'        => 'Колькасьць рэдагаваньняў для паказу ў апошніх зьменах, гісторыях старонак і ў журналах, па змоўчваньні:',
+'savedprefs'                => 'Вашыя ўстаноўкі былі захаваныя.',
+'timezonelegend'            => 'Часавы пояс:',
+'timezonetext'              => '¹На колькі гадзінаў Ваш мясцовы час адрозьніваецца ад сэрвэрнага (UTC).',
+'localtime'                 => 'Мясцовы час:',
+'timezoneselect'            => 'Часавы пояс:',
+'timezoneuseserverdefault'  => 'Выкарыстоўваць часавы пояс сэрвэра',
+'timezoneuseoffset'         => 'Іншы (пазначце розьніцу ў часе)',
+'timezoneoffset'            => 'Розьніца¹:',
+'servertime'                => 'Час на сэрвэры:',
+'guesstimezone'             => 'Запоўніць з браўзэра',
+'timezoneregion-africa'     => 'Афрыка',
+'timezoneregion-america'    => 'Амэрыка',
+'timezoneregion-antarctica' => 'Антарктыда',
+'timezoneregion-arctic'     => 'Арктыка',
+'timezoneregion-asia'       => 'Азія',
+'timezoneregion-atlantic'   => 'Атлянтычны акіян',
+'timezoneregion-australia'  => 'Аўстралія',
+'timezoneregion-europe'     => 'Эўропа',
+'timezoneregion-indian'     => 'Індыйскі акіян',
+'timezoneregion-pacific'    => 'Ціхі акіян',
+'allowemail'                => 'Дазволіць атрыманьне лістоў ад іншых удзельнікаў і ўдзельніц',
+'prefs-searchoptions'       => 'Магчымасьці пошуку',
+'prefs-namespaces'          => 'Прасторы назваў',
+'defaultns'                 => 'Па змоўчаньні, шукаць у наступных прасторах назваў:',
+'default'                   => 'па змоўчваньні',
+'files'                     => 'Файлы',
+'prefs-custom-css'          => 'Індывідуальны CSS',
+'prefs-custom-js'           => 'Індывідуальны JS',
 
 # User rights
 'userrights'                  => 'Кіраваньне правамі ўдзельнікаў і ўдзельніц', # Not used as normal message but as header for the special page itself
 'userrights-lookup-user'      => 'Кіраваньне групамі ўдзельнікаў і ўдзельніц',
 'userrights-user-editname'    => 'Увядзіце імя ўдзельніка:',
 'editusergroup'               => 'Рэдагаваць групы ўдзельнікаў і ўдзельніц',
-'editinguser'                 => "Зьмена правоў удзельніка '''[[User:$1|$1]]''' ([[User talk:$1|{{int:talkpagelinktext}}]] | [[Special:Contributions/$1|{{int:contribslink}}]])",
+'editinguser'                 => "Зьмена правоў удзельніка '''[[User:$1|$1]]''' ([[User talk:$1|{{int:talkpagelinktext}}]]{{int:pipe-separator}}[[Special:Contributions/$1|{{int:contribslink}}]])",
 'userrights-editusergroup'    => 'Рэдагаваць групы ўдзельнікаў і ўдзельніц',
 'saveusergroups'              => 'Захаваць групы ўдзельнікаў і ўдзельніц',
 'userrights-groupsmember'     => 'Уваходзіць у:',
@@ -1136,7 +1289,7 @@ $2',
 * Вызначанае поле азначае прыналежнасьць удзельніка да гэтай групы.
 * Ня вызначанае поле азначае, што ўдзельнік не належыць гэтай групе.
 * Знак * азначае што Вы ня зможаце выдаліць удзельніка з групы, калі дададзіце яго да яе і наадварот.',
-'userrights-reason'           => 'Прычына зьмены:',
+'userrights-reason'           => 'Прычына:',
 'userrights-no-interwiki'     => 'Вы ня маеце дазволу зьмяняць правы ўдзельнікаў іншых вікаў.',
 'userrights-nodatabase'       => 'Базы зьвестак $1 не існуе альбо яна не зьяўляецца лякальнай.',
 'userrights-nologin'          => 'Вы павінны [[Special:UserLogin|ўвайсьці ў сыстэму]] як адміністратар, каб прызначаць правы ўдзельнікам.',
@@ -1169,57 +1322,61 @@ $2',
 'grouppage-suppress'      => '{{ns:project}}:Рэвізоры',
 
 # Rights
-'right-read'                 => 'прагляд старонак',
-'right-edit'                 => 'рэдагаваньне старонак',
-'right-createpage'           => 'стварэньне старонак (акрамя старонак абмеркаваньняў)',
-'right-createtalk'           => 'стварэньне старонак абмеркаваньня',
-'right-createaccount'        => 'стварэньне новых рахункаў удзельніка',
-'right-minoredit'            => 'пазначэньне рэдагаваньняў як дробныя',
-'right-move'                 => 'перанос старонак',
-'right-move-subpages'        => 'перанос старонак разам зь іх падстаронкамі',
-'right-suppressredirect'     => 'не ствараць перанакіраваньне са старой назвы пасьля пераносу старонкі',
-'right-upload'               => 'загрузка файлаў',
-'right-reupload'             => 'перазапіс існуючых файлаў',
-'right-reupload-own'         => 'перазапіс уласных існуючых файлаў',
-'right-reupload-shared'      => 'перазапіс файлаў з агульнага сховішча лякальнымі',
-'right-upload_by_url'        => 'загрузка файлаў з URL-адрасу',
-'right-purge'                => 'ачыстка кэшу старонак бяз запыту пацьверджаньня',
-'right-autoconfirmed'        => 'рэдагаваньне часткова абароненых старонак',
-'right-bot'                  => 'лічыцца аўтаматычным працэсам',
-'right-nominornewtalk'       => 'не паведамляць удзельнікам пра новыя паведамленьні на іх старонках размоваў, калі зробленыя там праўкі былі дробнымі',
-'right-apihighlimits'        => 'Менш абмежаваньняў на выкананьне API-запытаў',
-'right-writeapi'             => 'выкарыстаньне API для запісаў',
-'right-delete'               => 'выдаленьне старонак',
-'right-bigdelete'            => 'Выдаленьне старонак зь вялікімі гісторыямі',
-'right-deleterevision'       => 'выдаленьне і аднаўленьне асобных вэрсій старонак',
-'right-deletedhistory'       => 'прагляд выдаленай гісторыі старонак без доступу да выдаленага тэксту',
-'right-browsearchive'        => 'пошук выдаленых старонак',
-'right-undelete'             => 'аднаўленьне старонак',
-'right-suppressrevision'     => 'прагляд і аднаўленьне вэрсій схаваных ад адміністратараў',
-'right-suppressionlog'       => 'прагляд прыватных журналаў',
-'right-block'                => 'блякаваньне іншых удзельнікаў ад рэдагаваньняў',
-'right-blockemail'           => 'блякаваньне іншых ўдзельнікаў ад дасылкі электроннай пошты',
-'right-hideuser'             => 'блякаваньне рахунку ўдзельніка і яго хаваньне',
-'right-ipblock-exempt'       => 'абход блякаваньняў IP-адрасоў, аўта-блякаваньняў і блякаваньняў дыяпазонаў',
-'right-proxyunbannable'      => 'абход аўтаматычных блякаваньняў проксі',
-'right-protect'              => 'зьмена ўзроўню абароны старонак і рэдагаваньне абароненых старонак',
-'right-editprotected'        => 'рэдагаваньне абароненых старонак (без каскаднай абароны)',
-'right-editinterface'        => 'рэдагаваньне інтэрфэйса карыстальніка',
-'right-editusercssjs'        => 'рэдагаваньне CSS і JS файлаў іншых удзельнікаў',
-'right-rollback'             => 'хуткі адкат правак апошняга ўдзельніка, які рэдагаваў старонку',
-'right-markbotedits'         => 'пазначэньне адкатаў як рэдагаваньне робатам',
-'right-noratelimit'          => 'няма абмежаваньняў па хуткасьці',
-'right-import'               => 'імпарт старонак зь іншых вікі',
-'right-importupload'         => 'імпарт старонак праз загрузку файлаў',
-'right-patrol'               => 'пазначэньне рэдагаваньняў як «патруляваныя»',
-'right-autopatrol'           => 'аўтаматычнае пазначэньне рэдагаваньняў як «патруляваных»',
-'right-patrolmarks'          => 'прагляд пазначэньняў пра патруляваньне ў апошніх зьменах',
-'right-unwatchedpages'       => 'прагляд сьпісу старонак, за якімі ніхто не назірае',
-'right-trackback'            => 'адпраўка trackback',
-'right-mergehistory'         => "аб'яднаньне гісторыі старонак",
-'right-userrights'           => 'рэдагаваньне правоў усіх удзельнікаў',
-'right-userrights-interwiki' => 'рэдагаваньне правоў удзельнікаў у іншых вікі',
-'right-siteadmin'            => 'блякаваньне і разблякаваньне базы зьвестак',
+'right-read'                  => 'прагляд старонак',
+'right-edit'                  => 'рэдагаваньне старонак',
+'right-createpage'            => 'стварэньне старонак (акрамя старонак абмеркаваньняў)',
+'right-createtalk'            => 'стварэньне старонак абмеркаваньня',
+'right-createaccount'         => 'стварэньне новых рахункаў удзельніка',
+'right-minoredit'             => 'пазначэньне рэдагаваньняў як дробныя',
+'right-move'                  => 'перанос старонак',
+'right-move-subpages'         => 'перанос старонак разам зь іх падстаронкамі',
+'right-move-rootuserpages'    => 'Перанос карэнных старонак удзельнікаў',
+'right-movefile'              => 'перайменаваньне файлаў',
+'right-suppressredirect'      => 'не ствараць перанакіраваньне са старой назвы пасьля пераносу старонкі',
+'right-upload'                => 'загрузка файлаў',
+'right-reupload'              => 'перазапіс існуючых файлаў',
+'right-reupload-own'          => 'перазапіс уласных існуючых файлаў',
+'right-reupload-shared'       => 'перазапіс файлаў з агульнага сховішча лякальнымі',
+'right-upload_by_url'         => 'загрузка файлаў з URL-адрасу',
+'right-purge'                 => 'ачыстка кэшу старонак бяз запыту пацьверджаньня',
+'right-autoconfirmed'         => 'рэдагаваньне часткова абароненых старонак',
+'right-bot'                   => 'лічыцца аўтаматычным працэсам',
+'right-nominornewtalk'        => 'не паведамляць удзельнікам пра новыя паведамленьні на іх старонках гутарак, калі зробленыя там праўкі былі дробнымі',
+'right-apihighlimits'         => 'Менш абмежаваньняў на выкананьне API-запытаў',
+'right-writeapi'              => 'выкарыстаньне API для запісаў',
+'right-delete'                => 'выдаленьне старонак',
+'right-bigdelete'             => 'Выдаленьне старонак зь вялікімі гісторыямі',
+'right-deleterevision'        => 'выдаленьне і аднаўленьне асобных вэрсій старонак',
+'right-deletedhistory'        => 'прагляд выдаленай гісторыі старонак без доступу да выдаленага тэксту',
+'right-browsearchive'         => 'пошук выдаленых старонак',
+'right-undelete'              => 'аднаўленьне старонак',
+'right-suppressrevision'      => 'прагляд і аднаўленьне вэрсій схаваных ад адміністратараў',
+'right-suppressionlog'        => 'прагляд прыватных журналаў',
+'right-block'                 => 'блякаваньне іншых удзельнікаў ад рэдагаваньняў',
+'right-blockemail'            => 'блякаваньне іншых ўдзельнікаў ад дасылкі электроннай пошты',
+'right-hideuser'              => 'блякаваньне рахунку ўдзельніка і яго хаваньне',
+'right-ipblock-exempt'        => 'абход блякаваньняў IP-адрасоў, аўта-блякаваньняў і блякаваньняў дыяпазонаў',
+'right-proxyunbannable'       => 'абход аўтаматычных блякаваньняў проксі',
+'right-protect'               => 'зьмена ўзроўню абароны старонак і рэдагаваньне абароненых старонак',
+'right-editprotected'         => 'рэдагаваньне абароненых старонак (без каскаднай абароны)',
+'right-editinterface'         => 'рэдагаваньне інтэрфэйса карыстальніка',
+'right-editusercssjs'         => 'рэдагаваньне CSS і JS файлаў іншых удзельнікаў',
+'right-rollback'              => 'хуткі адкат правак апошняга ўдзельніка, які рэдагаваў старонку',
+'right-markbotedits'          => 'пазначэньне адкатаў як рэдагаваньне робатам',
+'right-noratelimit'           => 'няма абмежаваньняў па хуткасьці',
+'right-import'                => 'імпарт старонак зь іншых вікі',
+'right-importupload'          => 'імпарт старонак праз загрузку файлаў',
+'right-patrol'                => 'пазначэньне рэдагаваньняў як «патруляваныя»',
+'right-autopatrol'            => 'аўтаматычнае пазначэньне рэдагаваньняў як «патруляваных»',
+'right-patrolmarks'           => 'прагляд пазначэньняў пра патруляваньне ў апошніх зьменах',
+'right-unwatchedpages'        => 'прагляд сьпісу старонак, за якімі ніхто не назірае',
+'right-trackback'             => 'адпраўка trackback',
+'right-mergehistory'          => "аб'яднаньне гісторыі старонак",
+'right-userrights'            => 'рэдагаваньне правоў усіх удзельнікаў',
+'right-userrights-interwiki'  => 'рэдагаваньне правоў удзельнікаў у іншых вікі',
+'right-siteadmin'             => 'блякаваньне і разблякаваньне базы зьвестак',
+'right-reset-passwords'       => 'ачыстка пароляў іншых удзельнікаў',
+'right-override-export-depth' => 'экспартаваньне старонак, уключаючы зьвязаныя старонкі з глыбінёй да 5',
 
 # User rights log
 'rightslog'      => 'Журнал правоў удзельнікаў',
@@ -1227,9 +1384,46 @@ $2',
 'rightslogentry' => 'зьменена прыналежнасьць $1 з групы $2 да $3',
 'rightsnone'     => '(няма)',
 
+# Associated actions - in the sentence "You do not have permission to X"
+'action-read'                 => 'чытаньне гэтай старонкі',
+'action-edit'                 => 'рэдагаваньне гэтай старонкі',
+'action-createpage'           => 'стварэньне старонак',
+'action-createtalk'           => 'стварэньне старонак абмеркаваньняў',
+'action-createaccount'        => 'стварэньне гэтага рахунку ўдзельніка',
+'action-minoredit'            => 'пазначэньне гэтай праўкі як дробнай',
+'action-move'                 => 'перанос гэтай старонкі',
+'action-move-subpages'        => 'перанос гэтай старонкі і яе падстаронак',
+'action-move-rootuserpages'   => 'перанос карэнных старонак удзельнікаў',
+'action-movefile'             => 'перайменаваць гэты файл',
+'action-upload'               => 'загрузку гэтага файла',
+'action-reupload'             => 'перазапіс гэтага файла',
+'action-reupload-shared'      => 'перакрыцьцё гэтага файла ў агульным сховішчы',
+'action-upload_by_url'        => 'загрузку гэтага файла з URL-адрасу',
+'action-writeapi'             => 'выкарыстаньне API для запісаў',
+'action-delete'               => 'выдаленьне гэтай старонкі',
+'action-deleterevision'       => 'выдаленьне гэтай вэрсіі',
+'action-deletedhistory'       => 'прагляд выдаленай гісторыі гэтай старонкі',
+'action-browsearchive'        => 'пошук выдаленых старонак',
+'action-undelete'             => 'аднаўленьне гэтай старонкі',
+'action-suppressrevision'     => 'прагляд і аднаўленьне гэтай схаванай вэрсіі',
+'action-suppressionlog'       => 'прагляд гэтага прыватнага журнала',
+'action-block'                => 'блякаваньне гэтага ўдзельніка ад рэдагаваньняў',
+'action-protect'              => 'зьмену ўзроўню абароны гэтай старонкі',
+'action-import'               => 'імпарт гэтай старонкі зь іншай вікі',
+'action-importupload'         => 'імпарт гэтай старонкі праз загрузку файла',
+'action-patrol'               => 'пазначэньне чужых рэдагаваньняў як «патруляваныя»',
+'action-autopatrol'           => 'пазначэньне ўласных рэдагаваньняў як «патруляваныя»',
+'action-unwatchedpages'       => 'прагляд сьпісу старонак, за якімі ніхто не назірае',
+'action-trackback'            => 'адпраўку trackback',
+'action-mergehistory'         => "аб'яднаньне гісторыі гэтай старонкі",
+'action-userrights'           => 'рэдагаваньне правоў усіх удзельнікаў',
+'action-userrights-interwiki' => 'рэдагаваньне правоў удзельнікаў у іншых вікі',
+'action-siteadmin'            => 'блякаваньне і разблякаваньне базы зьвестак',
+
 # Recent changes
 'nchanges'                          => '$1 {{PLURAL:$1|зьмена|зьмены|зьменаў}}',
 'recentchanges'                     => 'Апошнія зьмены',
+'recentchanges-legend'              => 'Устаноўкі апошніх зьменаў',
 'recentchangestext'                 => 'Сачыце за апошнімі зьменамі ў {{GRAMMAR:месны|{{SITENAME}}}} на гэтай старонцы.',
 'recentchanges-feed-description'    => 'Сачыць за апошнімі зьменамі ў {{GRAMMAR:месны|{{SITENAME}}}} праз гэтую стужку.',
 'rcnote'                            => "Ніжэй {{PLURAL:$1|пададзена '''$1''' апошняя зьмена|пададзеныя '''$1''' апошнія зьмены|пададзеныя '''$1''' апошніх зьменаў}} за {{PLURAL:$2|апошні '''$2''' дзень|апошнія '''$2''' дні|апошнія '''$2''' дзён}}, па стане на $5, $4.",
@@ -1244,8 +1438,8 @@ $2',
 'rclinks'                           => 'Паказаць апошнія $1 зьменаў за мінулыя $2 дзён<br />$3',
 'diff'                              => 'розьн',
 'hist'                              => 'гіст',
-'hide'                              => 'схаваць',
-'show'                              => 'паказаць',
+'hide'                              => 'Схаваць',
+'show'                              => 'Паказаць',
 'minoreditletter'                   => 'д',
 'newpageletter'                     => 'Н',
 'boteditletter'                     => 'р',
@@ -1253,6 +1447,8 @@ $2',
 'rc_categories'                     => 'Абмежаваць катэгорыямі (разьдзяляйце знакам «|»)',
 'rc_categories_any'                 => 'Усе',
 'newsectionsummary'                 => '/* $1 */ новая сэкцыя',
+'rc-enhanced-expand'                => 'Паказаць падрабязнасьці (патрабуе JavaScript)',
+'rc-enhanced-hide'                  => 'Схаваць падрабязнасьці',
 
 # Recent changes linked
 'recentchangeslinked'          => 'Зьвязаныя праўкі',
@@ -1274,11 +1470,11 @@ $2',
 'upload_directory_read_only'  => 'Сэрвэр ня мае правоў на запіс у дырэкторыю загружаных файлаў ($1).',
 'uploaderror'                 => 'Памылка загрузкі',
 'uploadtext'                  => "Ужывайце форму ніжэй для загрузкі файлаў.
-Каб паглядзець ці адшукаць раней загружаныя файлы, глядзіце [[Special:ImageList|сьпіс загружаных файлаў]], загрузкі таксама запісваюцца ў [[Special:Log/upload|журнал загрузак]], а выдаленьні — у [[Special:Log/delete|журнал выдаленьняў]].
+Каб паглядзець ці адшукаць раней загружаныя файлы, глядзіце [[Special:FileList|сьпіс загружаных файлаў]], загрузкі таксама запісваюцца ў [[Special:Log/upload|журнал загрузак]], а выдаленьні — у [[Special:Log/delete|журнал выдаленьняў]].
 
 Каб улучыць файл у старонку, ужывайце адзін з наступных варыянтаў:
-* '''<tt><nowiki>[[</nowiki>{{ns:image}}<nowiki>:File.jpg]]</nowiki></tt>''' для поўнай вэрсіі файла
-* '''<tt><nowiki>[[</nowiki>{{ns:image}}<nowiki>:File.png|200px|thumb|left|Подпіс да выявы]]</nowiki></tt>''' для выявы шырынёй 200 піксэляў у рамцы і тэкстам «Подпіс да выявы» ў якасьці подпісу
+* '''<tt><nowiki>[[</nowiki>{{ns:file}}<nowiki>:File.jpg]]</nowiki></tt>''' для поўнай вэрсіі файла
+* '''<tt><nowiki>[[</nowiki>{{ns:file}}<nowiki>:File.png|200px|thumb|left|Подпіс да выявы]]</nowiki></tt>''' для выявы шырынёй 200 піксэляў у рамцы і тэкстам «Подпіс да выявы» ў якасьці подпісу
 * '''<tt><nowiki>[[</nowiki>{{ns:media}}<nowiki>:File.ogg]]</nowiki></tt>''' для простай спасылкі на файл безь яго адлюстраваньня.",
 'upload-permitted'            => 'Дазволеныя тыпы файлаў: $1.',
 'upload-preferred'            => 'Пажаданыя тыпы файлаў: $1.',
@@ -1289,6 +1485,7 @@ $2',
 'filename'                    => 'Назва файла',
 'filedesc'                    => 'Апісаньне',
 'fileuploadsummary'           => 'Апісаньне:',
+'filereuploadsummary'         => 'Зьмены ў файле:',
 'filestatus'                  => 'Умовы распаўсюджаньня і выкарыстаньня:',
 'filesource'                  => 'Крыніца:',
 'uploadedfiles'               => 'Загружаныя файлы',
@@ -1298,6 +1495,7 @@ $2',
 'illegalfilename'             => 'Назва файла «$1» зьмяшчае сымбалі, якія нельга выкарыстоўваць у назвах старонак. Калі ласка, зьмяніце назву файла і паспрабуйце загрузіць яго зноў.',
 'badfilename'                 => 'Назва файла была зьмененая на «$1».',
 'filetype-badmime'            => 'Загрузка файлаў тыпу MIME «$1» забароненая.',
+'filetype-bad-ie-mime'        => 'Немагчыма загрузіць гэты файл, таму што Internet Explorer вызначыў яго як «$1», што азначае, што тып гэтага файла забаронены і патэнцыяльна небясьпечны.',
 'filetype-unwanted-type'      => "'''«.$1»''' — непажаданы тып файла.
 {{PLURAL:$3|Пажаданым тыпам файла зьяўляецца|Пажаданымі тыпамі файлаў зьяўляюцца}} $2.",
 'filetype-banned-type'        => "'''«.$1»''' — забаронены тып файлаў. {{PLURAL:$3|Дазволеным тыпам файла зьяўляецца|Дазволенымі тыпамі файлаў зьяўляюцца}} $2.",
@@ -1307,26 +1505,30 @@ $2',
 'largefileserver'             => 'Памер гэтага файла перавышае максымальна дазволены.',
 'emptyfile'                   => 'Загружаны файл, здаецца, пусты. Магчыма гэты адбылося з-за памылкі ў назьве файла.
 Удакладніце, ці Вы сапраўды жадаеце загрузіць гэты файл.',
-'fileexists'                  => 'Файл з такой назвай ужо існуе. Калі ласка, праверце <strong><tt>$1</tt></strong>, калі Вы ня ўпэўненыя, што хаціце яго замяніць.',
-'filepageexists'              => 'Старонка апісаньня для гэтага файла ўжо існуе як <strong><tt>$1</tt></strong>, але файла з такой назвай няма.
+'fileexists'                  => "Файл з такой назвай ужо існуе.
+Калі ласка, праверце '''<tt>[[:$1]]</tt>''', калі Вы ня ўпэўненыя, што жадаеце яго замяніць.
+[[$1|thumb]]",
+'filepageexists'              => "Старонка апісаньня для гэтага файла ўжо існуе як '''<tt>[[:$1]]</tt>''', але файла з такой назвай няма.
 Апісаньне якое Вы дадалі ня зьявіцца на старонцы апісаньня.
-Каб яно там зьявілася, Вам трэба рэдагаваць яе самастойна',
-'fileexists-extension'        => 'Файл з падобнай назвай ужо існуе:<br />
-Назва загружанага файла: <strong><tt>$1</tt></strong><br />
-Назва існуючага файла: <strong><tt>$2</tt></strong><br />
-Калі ласка, выбярыце іншую назву.',
+Каб яно там зьявілася, Вам трэба рэдагаваць яе самастойна.
+[[$1|thumb]]",
+'fileexists-extension'        => "Файл з падобнай назвай ужо існуе: [[$2|thumb]]
+* Назва загружанага файла: '''<tt>[[:$1]]</tt>'''
+* Назва існуючага файла: '''<tt>[[:$2]]</tt>'''
+Калі ласка, выбярыце іншую назву.",
 'fileexists-thumb'            => "<center>'''Існуючы файл'''</center>",
-'fileexists-thumbnail-yes'    => 'Верагодна файл зьяўляецца паменшанай копіяй <i>(мініятурай)</i>.
-Калі ласка, праверце файл <strong><tt>$1</tt></strong>.<br />
-Калі правераны файл зьяўляецца той жа выявай, то загрузка мініятуры ня мае сэнсу.',
-'file-thumbnail-no'           => 'Назва файла пачынаецца з <strong><tt>$1</tt></strong>.
-Верагодна гэта паменшаная копія выявы <i>(мініятура)</i>.
-Калі Вы маеце гэтую выяву ў поўным памеры, загрузіце яе, альбо зьмяніце назву файла.',
-'fileexists-forbidden'        => 'Файл з такой назвай ужо існуе.
-Калі ласка, вярніцеся назад і загрузіце гэты файл з новай назвай. [[Image:$1|thumb|center|$1]]',
+'fileexists-thumbnail-yes'    => "Верагодна файл зьяўляецца паменшанай копіяй ''(мініятурай)''. [[$1|thumb]]
+Калі ласка, праверце файл '''<tt>[[:$1]]</tt>'''.
+Калі правераны файл зьяўляецца той жа выявай, то загрузка мініятуры ня мае сэнсу.",
+'file-thumbnail-no'           => "Назва файла пачынаецца з '''<tt>$1</tt>'''.
+Верагодна гэта паменшаная копія выявы ''(мініятура)''.
+Калі Вы маеце гэтую выяву ў поўным памеры, загрузіце яе, альбо зьмяніце назву файла.",
+'fileexists-forbidden'        => 'Файл з такой назвай ужо існуе і ня можа быць перапісаны.
+Калі ласка, вярніцеся назад і загрузіце гэты файл з новай назвай. [[File:$1|thumb|center|$1]]',
 'fileexists-shared-forbidden' => 'Файл з такой назвай ужо існуе ў агульным сховішчы файлаў.
-Калі Вы жадаеце загрузіць Ваш файл, вярніцеся назад і загрузіце гэты файл з новай назвай. [[Image:$1|thumb|center|$1]]',
+Калі Вы жадаеце загрузіць Ваш файл, вярніцеся назад і загрузіце гэты файл з новай назвай. [[File:$1|thumb|center|$1]]',
 'file-exists-duplicate'       => 'Гэты файл дублюе {{PLURAL:$1|наступны файл|наступныя файлы}}:',
+'file-deleted-duplicate'      => 'Падобны файл ([[$1]]) ужо выдаляўся. Калі ласка, паглядзіце гісторыю выдаленьняў гэтага файла перад яго паўторнай загрузкай.',
 'successfulupload'            => 'Загрузка пасьпяхова скончылася',
 'uploadwarning'               => 'Папярэджаньне',
 'savefile'                    => 'Захаваць файл',
@@ -1334,6 +1536,7 @@ $2',
 'overwroteimage'              => 'загружаная новая вэрсія «[[$1]]»',
 'uploaddisabled'              => 'Загрузка файлаў забароненая',
 'uploaddisabledtext'          => 'Загрузка файлаў забароненая.',
+'php-uploaddisabledtext'      => 'Загрузка файлаў была забароненая ў PHP. Калі ласка, праверце ўстаноўку «file_uploads».',
 'uploadscripted'              => 'Гэты файл утрымлівае HTML-код альбо скрыпт, які можа памылкова апрацоўвацца браўзэрам.',
 'uploadcorrupt'               => 'Файл пашкоджаны альбо мае неадпаведнае пашырэньне.
 Калі ласка, праверце файл і загрузіце яго зноў.',
@@ -1341,14 +1544,14 @@ $2',
 'sourcefilename'              => 'Пачатковая назва файла:',
 'destfilename'                => 'Канчатковая назва файла:',
 'upload-maxfilesize'          => 'Максымальны памер файла: $1',
-'watchthisupload'             => 'Назіраць за гэтай старонкай',
+'watchthisupload'             => 'Назіраць за гэтым файлам',
 'filewasdeleted'              => 'Файл з такой назвай загружаўся, але быў выдалены.
 Вам трэба праверыць $1 перад новай загрузкай.',
 'upload-wasdeleted'           => "'''Папярэджаньне: Вы спрабуеце загрузіць файл, які ўжо выдаляўся.'''
 
 Упэўніцеся ў неабходнасьці загрузкі гэтага файла.
 Журнал выдаленьняў для гэтага файла знаходзіцца ніжэй:",
-'filename-bad-prefix'         => 'Назва файла, які Вы загружаеце, пачынаецца з <strong>«$1»</strong>. Падобныя бессэнсоўныя назвы звычайна ствараюцца аўтаматычна лічбавымі фотаапаратамі. Калі ласка, абярыце больш зразумелую назву для Вашага файла.',
+'filename-bad-prefix'         => "Назва файла, які Вы загружаеце, пачынаецца з '''«$1»'''. Падобныя бессэнсоўныя назвы звычайна ствараюцца аўтаматычна лічбавымі фотаапаратамі. Калі ласка, абярыце больш зразумелую назву для Вашага файла.",
 
 'upload-proto-error'      => 'Няслушны пратакол',
 'upload-proto-error-text' => 'Аддаленая загрузка файлаў патрабуе URL-адрас, які пачынаецца з <code>http://</code> альбо <code>ftp://</code>.',
@@ -1370,54 +1573,58 @@ $2',
 Вы можаце паспрабаваць пад час меншай загрузкі сайта.',
 
 'license'            => 'Ліцэнзія:',
-'nolicense'          => 'Не выбраная',
+'nolicense'          => 'Ня выбраная',
 'license-nopreview'  => '(Прагляд недаступны)',
 'upload_source_url'  => ' (слушны, агульнадаступны URL-адрас)',
 'upload_source_file' => ' (файл на Вашым кампутары)',
 
-# Special:ImageList
-'imagelist-summary'     => 'На гэтай спэцыяльнай старонцы паказаныя ўсе загружаныя файлы.
+# Special:ListFiles
+'listfiles-summary'     => 'На гэтай спэцыяльнай старонцы паказаныя ўсе загружаныя файлы.
 Па змоўчваньні апошнія загружаныя файлы адлюстраваныя зьверху сьпісу.
 Націсьніце на назву слупка, каб зьмяніць парадак сартаваньня.',
-'imagelist_search_for'  => 'Пошук па назьве файла:',
+'listfiles_search_for'  => 'Пошук па назьве файла:',
 'imgfile'               => 'файл',
-'imagelist'             => 'Сьпіс файлаў',
-'imagelist_date'        => 'Дата',
-'imagelist_name'        => 'Назва',
-'imagelist_user'        => 'Удзельнік',
-'imagelist_size'        => 'Памер',
-'imagelist_description' => 'Апісаньне',
+'listfiles'             => 'Сьпіс файлаў',
+'listfiles_date'        => 'Дата',
+'listfiles_name'        => 'Назва',
+'listfiles_user'        => 'Удзельнік',
+'listfiles_size'        => 'Памер',
+'listfiles_description' => 'Апісаньне',
+'listfiles_count'       => 'Вэрсіі',
 
-# Image description page
-'filehist'                       => 'Гісторыя файла',
-'filehist-help'                  => 'Націсьніце на дату/час каб паглядзець, як тады выглядаў файл.',
-'filehist-deleteall'             => 'выдаліць усе',
-'filehist-deleteone'             => 'выдаліць',
-'filehist-revert'                => 'вярнуць',
-'filehist-current'               => 'цяперашняя',
-'filehist-datetime'              => 'Дата і час',
-'filehist-user'                  => 'Удзельнік',
-'filehist-dimensions'            => 'Памеры',
-'filehist-filesize'              => 'Памер файла',
-'filehist-comment'               => 'Камэнтар',
-'imagelinks'                     => 'Спасылкі',
-'linkstoimage'                   => '{{PLURAL:$1|Наступная старонка спасылаецца|Наступныя старонкі спасылаюцца}} на гэты файл:',
-'nolinkstoimage'                 => 'Ніводная старонка не спасылаецца на гэты файл.',
-'morelinkstoimage'               => 'Паказаць [[Special:WhatLinksHere/$1|болей спасылак]] на гэты файл.',
-'redirectstofile'                => '{{PLURAL:$1|Наступны файл перанакіроўвае|Наступныя файлы перанакіроўваюць}} на гэты файл:',
-'duplicatesoffile'               => '{{PLURAL:$1|Наступны файл дублюе|Наступныя файлы дублююць}} гэты файл:',
-'sharedupload'                   => 'Гэты файл зьяўляецца агульным і можа выкарыстоўвацца іншымі праектамі.',
-'shareduploadwiki'               => 'Глядзіце дадатковую інфармацыю на $1.',
-'shareduploadwiki-desc'          => 'Апісаньне $1 з агульнага сховішча паказанае ніжэй.',
-'shareduploadwiki-linktext'      => 'старонка апісаньня файла',
-'shareduploadduplicate'          => 'Гэты файл дублюе $1 з агульнага сховішча.',
-'shareduploadduplicate-linktext' => 'іншага файла',
-'shareduploadconflict'           => 'Гэты файл мае такую ж назву як і $1 з агульнага сховішча.',
-'shareduploadconflict-linktext'  => 'іншы файл',
-'noimage'                        => 'Няма файла з такой назвай, але Вы можаце $1.',
-'noimage-linktext'               => 'загрузіць яго',
-'uploadnewversion-linktext'      => 'Загрузіць новую вэрсію гэтага файла',
-'imagepage-searchdupe'           => 'Пошук дублікатаў файлаў',
+# File description page
+'filehist'                  => 'Гісторыя файла',
+'filehist-help'             => 'Націсьніце на дату/час, каб паглядзець, як тады выглядаў файл.',
+'filehist-deleteall'        => 'выдаліць усе',
+'filehist-deleteone'        => 'выдаліць',
+'filehist-revert'           => 'вярнуць',
+'filehist-current'          => 'цяперашняя',
+'filehist-datetime'         => 'Дата і час',
+'filehist-thumb'            => 'Мініятура',
+'filehist-thumbtext'        => 'Мініятура вэрсіі ад $1',
+'filehist-nothumb'          => 'Няма мініятуры',
+'filehist-user'             => 'Удзельнік',
+'filehist-dimensions'       => 'Памеры',
+'filehist-filesize'         => 'Памер файла',
+'filehist-comment'          => 'Камэнтар',
+'imagelinks'                => 'Спасылкі на файл',
+'linkstoimage'              => '{{PLURAL:$1|Наступная старонка спасылаецца|Наступныя старонкі спасылаюцца}} на гэты файл:',
+'linkstoimage-more'         => 'Больш чым $1 {{PLURAL:$1|старонка спасылаецца|старонкі спасылаюцца|старонак спасылаюцца}} на гэты файл.
+У гэтым сьпісе толькі $1 {{PLURAL:$1|спасылка|спасылкі|спасылак}} на гэты файл.
+Даступны таксама [[Special:WhatLinksHere/$2|поўны сьпіс]].',
+'nolinkstoimage'            => 'Ніводная старонка не спасылаецца на гэты файл.',
+'morelinkstoimage'          => 'Паказаць [[Special:WhatLinksHere/$1|болей спасылак]] на гэты файл.',
+'redirectstofile'           => '{{PLURAL:$1|Наступны файл перанакіроўвае|Наступныя файлы перанакіроўваюць}} на гэты файл:',
+'duplicatesoffile'          => '{{PLURAL:$1|Наступны файл дублюе|Наступныя файлы дублююць}} гэты файл ([[Special:FileDuplicateSearch/$2|падрабязнасьці]]):',
+'sharedupload'              => 'Гэты файл паходзіць з $1 і можа выкарыстоўвацца іншымі праектамі.', # $1 is the repo name, $2 is shareduploadwiki(-desc)
+'shareduploadwiki'          => 'Глядзіце дадатковую інфармацыю на $1.',
+'shareduploadwiki-desc'     => 'Апісаньне, пазначанае на $1, паказанае ніжэй.',
+'shareduploadwiki-linktext' => 'старонцы апісаньня файла',
+'noimage'                   => 'Няма файла з такой назвай, але Вы можаце $1.',
+'noimage-linktext'          => 'загрузіць яго',
+'uploadnewversion-linktext' => 'Загрузіць новую вэрсію гэтага файла',
+'shared-repo-from'          => '$1', # $1 is the repository name
+'shared-repo'               => 'агульнага сховішча', # used when shared-repo-NAME does not exist
 
 # File reversion
 'filerevert'                => 'Вярнуць $1',
@@ -1432,7 +1639,7 @@ $2',
 # File deletion
 'filedelete'                  => 'Выдаліць $1',
 'filedelete-legend'           => 'Выдаліць файл',
-'filedelete-intro'            => "Вы выдаляеце '''[[Media:$1|$1]]'''.",
+'filedelete-intro'            => "Вы выдаляеце файл '''[[Media:$1|$1]]''' з усёй яго гісторыяй.",
 'filedelete-intro-old'        => "Вы выдаляеце вэрсію '''[[Media:$1|$1]]''' ад [$4 $3, $2].",
 'filedelete-comment'          => 'Прычына выдаленьня:',
 'filedelete-submit'           => 'Выдаліць',
@@ -1440,8 +1647,6 @@ $2',
 'filedelete-success-old'      => "Вэрсія '''[[Media:$1|$1]]''' ад $3, $2 была выдаленая.",
 'filedelete-nofile'           => "Файл '''$1''' не існуе.",
 'filedelete-nofile-old'       => "Не існуе архіўнай вэрсіі '''$1''' з пазначанымі атрыбутамі.",
-'filedelete-iscurrent'        => 'Вы спрабуеце выдаліць апошнюю вэрсію гэтага файла.
-Спачатку трэба вярнуць папярэднюю вэрсію.',
 'filedelete-otherreason'      => 'Іншая/дадатковая прычына:',
 'filedelete-reason-otherlist' => 'Іншая прычына',
 'filedelete-reason-dropdown'  => '* Звычайныя прычыны выдаленьня
@@ -1464,43 +1669,47 @@ $2',
 
 # Unused templates
 'unusedtemplates'     => 'Шаблёны, якія не выкарыстоўваюцца',
-'unusedtemplatestext' => 'На гэтай старонцы зьмешчаны сьпіс усіх старонак прасторы назваў «Шаблёны», якія ня ўключаныя ў іншыя старонкі.
+'unusedtemplatestext' => 'На гэтай старонцы зьмешчаны сьпіс усіх старонак прасторы назваў «{{ns:template}}», якія ня ўключаныя ў іншыя старонкі.
 Не забывайцеся праверыць іншыя спасылкі на шаблёны перад іх выдаленьнем.',
 'unusedtemplateswlh'  => 'іншыя спасылкі',
 
 # Random page
 'randompage'         => 'Выпадковая старонка',
-'randompage-nopages' => 'У гэтай прасторы назваў няма старонак.',
+'randompage-nopages' => 'У прасторы назваў «$1» няма старонак.',
 
 # Random redirect
 'randomredirect'         => 'Выпадковае перанакіраваньне',
-'randomredirect-nopages' => 'У гэтай прасторы назваў няма перанакіраваньняў.',
+'randomredirect-nopages' => 'У прасторы назваў «$1» няма перанакіраваньняў.',
 
 # Statistics
-'statistics'             => 'Статыстыка',
-'sitestats'              => 'Статыстыка {{GRAMMAR:родны|{{SITENAME}}}}',
-'userstats'              => 'Статыстыка ўдзелу',
-'sitestatstext'          => "У базе зьвестак утрымліваецца '''$1''' {{PLURAL:$1|старонка|старонкі|старонак}}.
-Сюды ўваходзяць старонкі пра {{GRAMMAR:вінавальны|{{SITENAME}}}}, старонкі абмеркаваньняў, накіды, перанакіраваньні і іншыя старонкі якія ня ўлічваюцца пры падліку артыкулаў.
-Акрамя іх ёсьць '''$2''' {{PLURAL:$2|старонка|старонкі|старонак}}, якія лічацца паўнавартаснымі.
-
-{{PLURAL:$8|Быў загружаны '''$8''' файл|Было загружана '''$8''' файлы|Было загружана '''$8''' файлаў}}.
-
-Усяго было '''$3''' {{PLURAL:$3|прагляд|прагляды|праглядаў}}, і '''$4''' {{PLURAL:$4|рэдагаваньне|рэдагаваньні|рэдагаваньняў}} з пачатку працы {{GRAMMAR:родны|{{SITENAME}}}}.
-Такім чынам, у сярэднім прыходзіцца '''$5''' рэдагаваньне на адну старонку, і '''$6''' праглядаў на адно рэдагаваньне.
-
-Даўжыня [http://www.mediawiki.org/wiki/Manual:Job_queue чаргі заданьняў] складае '''$7'''.",
-'userstatstext'          => "Тут {{PLURAL:$1|зарэгістраваны|зарэгістраваныя|зарэгістраваныя}} '''$1''' [[Special:ListUsers|{{PLURAL:$1|удзельнік|удзельнікі|удзельнікаў}}]], зь якіх '''$2''' (ці '''$4%''') {{PLURAL:$2|мае|маюць|маюць}} правы $5.",
-'statistics-mostpopular' => 'Найпапулярнейшыя старонкі',
+'statistics'                   => 'Статыстыка',
+'statistics-header-pages'      => 'Статыстыка старонак',
+'statistics-header-edits'      => 'Статыстыка рэдагаваньняў',
+'statistics-header-views'      => 'Статыстыка праглядаў',
+'statistics-header-users'      => 'Статыстыка ўдзелу',
+'statistics-articles'          => 'Колькасьць старонак са зьместам',
+'statistics-pages'             => 'Колькасьць старонак',
+'statistics-pages-desc'        => 'Усе старонкі ў вікі, улучна з абмеркаваньнямі, перанакіраваньнямі і г.д.',
+'statistics-files'             => 'Колькасьць загружаных файлаў',
+'statistics-edits'             => 'Колькасьць рэдагаваньняў старонак з моманту ўсталяваньня {{GRAMMAR:родны|{{SITENAME}}}}',
+'statistics-edits-average'     => 'Сярэдняя колькасьць рэдагаваньняў на старонку',
+'statistics-views-total'       => 'Агульная колькасьць праглядаў',
+'statistics-views-peredit'     => 'Колькасьць праглядаў на рэдагаваньне',
+'statistics-jobqueue'          => 'Даўжыня [http://www.mediawiki.org/wiki/Manual:Job_queue чаргі заданьняў]',
+'statistics-users'             => '[[Special:ListUsers|Зарэгістраваныя ўдзельнікі]]',
+'statistics-users-active'      => 'Актыўныя ўдзельнікі',
+'statistics-users-active-desc' => 'Удзельнікі, якія выканалі нейкае дзеяньне цягам {{PLURAL:$1|апошняга $1 дня|апошніх $1 дзён|апошніх $1 дзён}}',
+'statistics-mostpopular'       => 'Найпапулярнейшыя старонкі',
 
 'disambiguations'      => 'Старонкі-неадназначнасьці',
-'disambiguationspage'  => 'Шаблён:Неадназначнасьць',
+'disambiguationspage'  => 'Template:Неадназначнасьць',
 'disambiguations-text' => "Наступныя старонкі спасылаюцца на '''старонкі-неадназначнасьці'''.
 Замест гэтага, яны павінны спасылацца на пэўныя старонкі.<br />
 Старонка лічыцца шматзначнай, калі яна ўтрымлівае шаблён назва якога знаходзіцца на старонцы [[MediaWiki:Disambiguationspage]]",
 
 'doubleredirects'            => 'Двайныя перанакіраваньні',
-'doubleredirectstext'        => 'На гэтай старонцы знаходзіцца сьпіс перанакіраваньняў на іншыя перанакіраваньні. Кожны радок утрымлівае спасылкі на першае і другое перанакіраваньне, а таксама першы радок старонкі другога перанакіраваньня, у якім звычайна знаходзіцца назва старонкі, куды павіннае спасылацца першае перанакіраваньне.',
+'doubleredirectstext'        => 'На гэтай старонцы знаходзіцца сьпіс перанакіраваньняў на іншыя перанакіраваньні. Кожны радок утрымлівае спасылкі на першае і другое перанакіраваньне, а таксама першы радок старонкі другога перанакіраваньня, у якім звычайна знаходзіцца назва старонкі, куды павіннае спасылацца першае перанакіраваньне.
+<s>Закрэсьленыя</s> элемэнты былі выпраўленыя.',
 'double-redirect-fixed-move' => '[[$1]] была перанесеная, яна цяпер перанакіроўвае на [[$2]]',
 'double-redirect-fixer'      => 'Выпраўленьне перанакіраваньняў',
 
@@ -1518,14 +1727,14 @@ $2',
 
 # Miscellaneous special pages
 'nbytes'                  => '$1 {{PLURAL:$1|байт|байты|байтаў}}',
-'ncategories'             => '$1 {{PLURAL:$1|катэгорыя|катэгорыі|катэгорый}}',
+'ncategories'             => '$1 {{PLURAL:$1|катэгорыя|катэгорыі|катэгорыяў}}',
 'nlinks'                  => '$1 {{PLURAL:$1|спасылка|спасылкі|спасылак}}',
 'nmembers'                => '$1 {{PLURAL:$1|элемэнт|элемэнты|элемэнтаў}}',
 'nrevisions'              => '$1 {{PLURAL:$1|вэрсія|вэрсіі|вэрсій}}',
 'nviews'                  => '$1 {{PLURAL:$1|прагляд|прагляды|праглядаў}}',
 'specialpage-empty'       => 'Гэтая старонка — пустая.',
 'lonelypages'             => 'Старонкі-сіраціны',
-'lonelypagestext'         => 'На наступныя старонкі няма спасылак зь іншых старонак {{GRAMMAR:родны|{{SITENAME}}}}.',
+'lonelypagestext'         => 'На наступныя старонкі няма спасылак і яны ня ўлучаныя ў іншыя старонкі {{GRAMMAR:родны|{{SITENAME}}}}.',
 'uncategorizedpages'      => 'Некатэгарызаваныя старонкі',
 'uncategorizedcategories' => 'Некатэгарызаваныя катэгорыі',
 'uncategorizedimages'     => 'Некатэгарызаваныя файлы',
@@ -1535,39 +1744,47 @@ $2',
 'popularpages'            => 'Папулярныя старонкі',
 'wantedcategories'        => 'Запатрабаваныя катэгорыі',
 'wantedpages'             => 'Запатрабаваныя старонкі',
-'missingfiles'            => 'Адсутныя файлы',
+'wantedpages-badtitle'    => 'Няслушная назва сярод вынікаў: $1',
+'wantedfiles'             => 'Запатрабаваныя файлы',
+'wantedtemplates'         => 'Запатрабаваныя шаблёны',
 'mostlinked'              => 'Старонкі, на якія найчасьцей спасылаюцца',
-'mostlinkedcategories'    => 'Катэгорыі з найбольшай колькасьцю артыкулаў',
+'mostlinkedcategories'    => 'Катэгорыі з найбольшай колькасьцю старонак',
 'mostlinkedtemplates'     => 'Шаблёны, якія найчасьцей выкарыстоўваюцца',
-'mostcategories'          => 'Старонкі з найбольшай колькасьцю катэгорый',
+'mostcategories'          => 'Старонкі з найбольшай колькасьцю катэгорыяў',
 'mostimages'              => 'Файлы, на якія найчасьцей спасылаюцца',
 'mostrevisions'           => 'Старонкі з найбольшай колькасьцю рэдагаваньняў',
-'prefixindex'             => 'Пошук старонак па пачатку назвы',
+'prefixindex'             => 'Усе старонкі з пачаткам назваў',
 'shortpages'              => 'Кароткія старонкі',
 'longpages'               => 'Доўгія старонкі',
 'deadendpages'            => 'Тупіковыя старонкі',
 'deadendpagestext'        => 'Наступныя старонкі не спасылаюцца на іншыя старонкі {{GRAMMAR:родны|{{SITENAME}}}}.',
 'protectedpages'          => 'Абароненыя старонкі',
 'protectedpages-indef'    => 'Толькі бестэрміновыя абароны',
+'protectedpages-cascade'  => 'Толькі каскадныя абароны',
 'protectedpagestext'      => 'Наступныя старонкі абароненыя ад пераносаў і рэдагаваньняў',
 'protectedpagesempty'     => 'Цяпер няма абароненых старонак з пазначанымі парамэтрамі.',
 'protectedtitles'         => 'Забароненыя старонкі',
 'protectedtitlestext'     => 'Стварэньне наступных старонак забароненае',
 'protectedtitlesempty'    => 'Цяпер няма абароненых назваў з пазначанымі парамэтрамі.',
 'listusers'               => 'Сьпіс удзельнікаў і ўдзельніц',
+'listusers-editsonly'     => 'Паказаць толькі ўдзельнікаў, якія маюць рэдагаваньні',
+'listusers-creationsort'  => 'Адсартаваць па даце стварэньня',
+'usereditcount'           => '$1 {{PLURAL:$1|рэдагаваньне|рэдагаваньні|рэдагаваньняў}}',
+'usercreated'             => 'Створаны $1 ў $2',
 'newpages'                => 'Новыя старонкі',
 'newpages-username'       => 'Імя ўдзельніка/ўдзельніцы:',
 'ancientpages'            => 'Найстарэйшыя старонкі',
 'move'                    => 'Перанесьці',
 'movethispage'            => 'Перанесьці гэтую старонку',
-'unusedimagestext'        => 'Калі ласка, заўважце, што іншыя сайты могуць спасылацца на гэты файл празь непасрэдную спасылку (URL), і ён можа актыўна выкарыстоўвацца нягледзячы на знаходжаньне ў гэтым сьпісе.',
-'unusedcategoriestext'    => 'Існуюць наступныя катэгорыі, якія ня ўтрымліваюць артыкулаў ці іншых катэгорыяў.',
+'unusedimagestext'        => 'Наступныя файлы існуюць, але не выкарыстоўваюцца ні на адной старонцы.
+Калі ласка, заўважце, што іншыя сайты могуць спасылацца на гэты файл празь непасрэдную спасылку (URL), і ён можа актыўна выкарыстоўвацца нягледзячы на знаходжаньне ў гэтым сьпісе.',
+'unusedcategoriestext'    => 'Існуюць наступныя катэгорыі, якія ня ўтрымліваюць старонак ці іншых катэгорыяў.',
 'notargettitle'           => 'Не пазначаная мэта',
 'notargettext'            => 'Вы не пазначылі мэтавую старонку альбо ўдзельніка для гэтага дзеяньня.',
 'nopagetitle'             => 'Мэтавая старонка не існуе',
 'nopagetext'              => 'Пазначанай мэтавай старонкі не існуе.',
 'pager-newer-n'           => '$1 {{PLURAL:$1|навейшая|навейшыя|навейшых}}',
-'pager-older-n'           => '$1 {{PLURAL:$1|старэйшая|старэйшых|старэйшых}}',
+'pager-older-n'           => '$1 {{PLURAL:$1|старэйшая|старэйшыя|старэйшых}}',
 'suppress'                => 'Рэвізаваць',
 
 # Book sources
@@ -1575,15 +1792,14 @@ $2',
 'booksources-search-legend' => 'Пошук кніг',
 'booksources-go'            => 'Паказаць',
 'booksources-text'          => 'Ніжэй знаходзіцца сьпіс спасылак на іншыя сайты, якія прадаюць новыя і патрыманыя кнігі, і могуць таксама мець інфармацыю пра кнігі, якія Вы шукаеце:',
+'booksources-invalid-isbn'  => 'Пададзены няслушны ISBN; праверце, магчыма ўзьніклі памылкі пры пераносе нумару з арыгінальнай крыніцы.',
 
 # Special:Log
 'specialloguserlabel'  => 'Удзельнік/удзельніца:',
 'speciallogtitlelabel' => 'Назва:',
-'log'                  => 'Журналы падзей',
-'all-logs-page'        => 'Усе журналы падзей',
-'log-search-legend'    => 'Пошук у журналах',
-'log-search-submit'    => 'Шукаць',
-'alllogstext'          => 'Сумесны паказ усіх журналаў падзей {{GRAMMAR:родны|{{SITENAME}}}}.
+'log'                  => 'Журналы падзеяў',
+'all-logs-page'        => 'Усе публічныя журналы падзеяў',
+'alllogstext'          => 'Сумесны паказ усіх журналаў падзеяў {{GRAMMAR:родны|{{SITENAME}}}}.
 Вы можаце адфільтраваць вынікі па тыпе журналу, удзельніку ці старонцы.',
 'logempty'             => 'Падобных запісаў у журнале няма.',
 'log-title-wildcard'   => 'Шукаць назвы, якія пачынаюцца з гэтага тэксту',
@@ -1594,6 +1810,7 @@ $2',
 'nextpage'          => 'Наступная старонка ($1)',
 'prevpage'          => 'Папярэдняя старонка ($1)',
 'allpagesfrom'      => 'Паказаць старонкі, пачынаючы з:',
+'allpagesto'        => 'Паказаць старонкі да:',
 'allarticles'       => 'Усе старонкі',
 'allinnamespace'    => 'Усе старонкі (прастора назваў: $1)',
 'allnotinnamespace' => 'Усе старонкі (не ў прасторы назваў $1)',
@@ -1608,46 +1825,75 @@ $2',
 'categories'                    => 'Катэгорыі',
 'categoriespagetext'            => 'Наступныя катэгорыі зьмяшчаюць старонкі і/альбо мэдыя-файлы.
 Тут не паказаныя [[Special:UnusedCategories|катэгорыі, якія не выкарыстоўваюцца]].
-Глядзіце таксама [[Special:WantedCategories|сьпіс запатрабаваных катэгорый]].',
+Глядзіце таксама [[Special:WantedCategories|сьпіс запатрабаваных катэгорыяў]].',
 'categoriesfrom'                => 'Паказаць катэгорыі, пачынаючы з:',
 'special-categories-sort-count' => 'сартаваць паводле колькасьці',
 'special-categories-sort-abc'   => 'сартаваць паводле альфабэту',
+
+# Special:DeletedContributions
+'deletedcontributions'       => 'Выдалены ўнёсак удзельніка',
+'deletedcontributions-title' => 'Выдалены ўнёсак удзельніка',
+
+# Special:LinkSearch
+'linksearch'       => 'Вонкавыя спасылкі',
+'linksearch-pat'   => 'Узор для пошуку:',
+'linksearch-ns'    => 'Прастора назваў:',
+'linksearch-ok'    => 'Шукаць',
+'linksearch-text'  => 'Можна ўжываць сымбалі падстаноўкі, напрыклад, «*.wikipedia.org».<br />
+Пратаколы, якія падтрымліваюцца: <tt>$1</tt>',
+'linksearch-line'  => 'Спасылка на $1 з $2',
+'linksearch-error' => 'Сымбалі падстаноўкі могуць ужывацца толькі ў пачатку адрасоў.',
 
 # Special:ListUsers
 'listusersfrom'      => 'Паказаць удзельнікаў, пачынаючы з:',
 'listusers-submit'   => 'Паказаць',
 'listusers-noresult' => 'Удзельнікі ня знойдзеныя.',
 
+# Special:Log/newusers
+'newuserlogpage'              => 'Журнал стварэньня рахункаў',
+'newuserlogpagetext'          => 'Гэта журнал стварэньня рахункаў удзельнікаў і ўдзельніц.',
+'newuserlog-byemail'          => 'Пароль адасланы па электроннай пошце',
+'newuserlog-create-entry'     => 'Новы ўдзельнік',
+'newuserlog-create2-entry'    => 'створаны рахунак $1',
+'newuserlog-autocreate-entry' => 'Рахунак створаны аўтаматычна',
+
 # Special:ListGroupRights
-'listgrouprights'          => 'Правы групаў удзельнікаў',
-'listgrouprights-summary'  => 'Ніжэй пададзены сьпіс групаў удзельнікаў {{GRAMMAR:родны|{{SITENAME}}}}, разам зь іх правамі.
+'listgrouprights'                 => 'Правы групаў удзельнікаў',
+'listgrouprights-summary'         => 'Ніжэй пададзены сьпіс групаў удзельнікаў {{GRAMMAR:родны|{{SITENAME}}}}, разам зь іх правамі.
 Таксама можна паглядзець [[{{MediaWiki:Listgrouprights-helppage}}|дадатковую інфармацыю]] пра асабістыя правы.',
-'listgrouprights-group'    => 'Група',
-'listgrouprights-rights'   => 'Правы',
-'listgrouprights-helppage' => 'Help:Правы групаў удзельнікаў',
-'listgrouprights-members'  => '(сьпіс удзельнікаў групы)',
+'listgrouprights-group'           => 'Група',
+'listgrouprights-rights'          => 'Правы',
+'listgrouprights-helppage'        => 'Help:Правы групаў удзельнікаў',
+'listgrouprights-members'         => '(сьпіс удзельнікаў групы)',
+'listgrouprights-addgroup'        => 'можа дадаваць {{PLURAL:$2|групу|групы}}: $1',
+'listgrouprights-removegroup'     => 'можа выдаляць {{PLURAL:$2|групу|групы}}: $1',
+'listgrouprights-addgroup-all'    => 'можа дадаваць усе групы',
+'listgrouprights-removegroup-all' => 'можа выдаляць усе групы',
 
 # E-mail user
-'mailnologin'     => 'Няма адрасу атрымальніка',
-'mailnologintext' => 'Вам неабходна [[Special:UserLogin|ўвайсьці ў сыстэму]] і мець пацьверджаны адрас электроннай пошты ў Вашых [[Special:Preferences|устаноўках]], каб дасылаць лісты іншым удзельнікам.',
-'emailuser'       => 'Даслаць ліст',
-'emailpage'       => 'Даслаць ліст ўдзельніку ці ўдзельніцы па электроннай пошце',
-'emailpagetext'   => 'Калі гэты ўдзельнік пазначыў слушны адрас электроннай пошты ў сваіх устаноўках, то з дапамогай формы ніжэй можна даслаць яму ліст.
+'mailnologin'      => 'Няма адрасу атрымальніка',
+'mailnologintext'  => 'Вам неабходна [[Special:UserLogin|ўвайсьці ў сыстэму]] і мець пацьверджаны адрас электроннай пошты ў Вашых [[Special:Preferences|устаноўках]], каб дасылаць лісты іншым удзельнікам.',
+'emailuser'        => 'Даслаць ліст',
+'emailpage'        => 'Даслаць ліст ўдзельніку ці ўдзельніцы па электроннай пошце',
+'emailpagetext'    => 'Вы можаце выкарыстоўваць форму ніжэй, каб даслаць гэтаму ўдзельніку ліст па электроннай пошце.
 Адрас электроннай пошты, які Вы пазначалі ў [[Special:Preferences|сваіх устаноўках]], будзе пазначаны ў полі ліста «Ад», і ўдзельнік зможа даслаць на гэты адрас адказ.',
-'usermailererror' => 'Пры адсыланьні пошты адбылася памылка:',
-'defemailsubject' => 'Электронная пошта {{GRAMMAR:родны|{{SITENAME}}}}',
-'noemailtitle'    => 'Адрас электроннай пошты адсутнічае',
-'noemailtext'     => 'Гэты удзельнік не пазначыў слушны адрас электроннай пошты альбо пазначыў, што не жадае атрымліваць лісты ад іншых удзельнікаў.',
-'emailfrom'       => 'Ад:',
-'emailto'         => 'Каму:',
-'emailsubject'    => 'Тэма:',
-'emailmessage'    => 'Паведамленьне:',
-'emailsend'       => 'Даслаць',
-'emailccme'       => 'Даслаць мне копію ліста.',
-'emailccsubject'  => 'Копія Вашага ліста да $1: $2',
-'emailsent'       => 'Ліст адасланы',
-'emailsenttext'   => 'Ваш ліст быў адасланы.',
-'emailuserfooter' => 'Гэты ліст быў дасланы ўдзельнікам $1 да ўдзельніка $2 з дапамогай функцыі «Даслаць ліст» праекту {{SITENAME}}.',
+'usermailererror'  => 'Пры адсыланьні пошты адбылася памылка:',
+'defemailsubject'  => 'Электронная пошта {{GRAMMAR:родны|{{SITENAME}}}}',
+'noemailtitle'     => 'Адрас электроннай пошты адсутнічае',
+'noemailtext'      => 'Гэты удзельнік не пазначыў слушны адрас электроннай пошты.',
+'nowikiemailtitle' => 'Атрыманьне лістоў па электроннай пошце забароненае',
+'nowikiemailtext'  => 'Гэты ўдзельнік не дазволіў атрымліваць лісты па электроннай пошце ад іншых удзельнікаў.',
+'email-legend'     => 'Даслаць ліст электроннай пошты іншаму ўдзельніку {{GRAMMAR:родны|{{SITENAME}}}}',
+'emailfrom'        => 'Ад:',
+'emailto'          => 'Да:',
+'emailsubject'     => 'Тэма:',
+'emailmessage'     => 'Паведамленьне:',
+'emailsend'        => 'Даслаць',
+'emailccme'        => 'Даслаць мне копію ліста.',
+'emailccsubject'   => 'Копія Вашага ліста да $1: $2',
+'emailsent'        => 'Ліст адасланы',
+'emailsenttext'    => 'Ваш ліст быў адасланы.',
+'emailuserfooter'  => 'Гэты ліст быў дасланы ўдзельнікам $1 да ўдзельніка $2 з дапамогай функцыі «Даслаць ліст» праекту {{SITENAME}}.',
 
 # Watchlist
 'watchlist'            => 'Мой сьпіс назіраньня',
@@ -1658,17 +1904,15 @@ $2',
 'watchnologin'         => 'Вы не ўвайшлі ў сыстэму',
 'watchnologintext'     => 'Вам неабходна [[Special:UserLogin|ўвайсьці ў сыстэму]], каб зьмяніць Ваш сьпіс назіраньня.',
 'addedwatch'           => 'Дададзеная ў сьпіс назіраньня',
-'addedwatchtext'       => "Артыкул «$1» быў дададзены да Вашага [[Special:Watchlist|сьпісу назіраньня]].
-Наступныя зьмены ў гэтым артыкуле і зьвязанай зь ім старонцы абмеркаваньняў будуць бачныя там, і старонка будзе выглядаць '''тлустай''' на [[Special:RecentChanges|старонцы са сьпісам апошніх зьменаў]], каб зьмены было лягчэй заўважыць.
-
-Калі Вы захочаце выдаліць артыкул са сьпісу назіраньня, націсьніце «не назіраць» у спэцыяльным радку зьверху артыкула.",
+'addedwatchtext'       => "Старонка «[[:$1]]» была дададзеная да Вашага [[Special:Watchlist|сьпісу назіраньня]].
+Наступныя зьмены ў гэтай старонцы і зьвязанай зь ёю старонцы абмеркаваньняў будуць бачныя там, і старонка будзе выглядаць '''тлустай''' ў [[Special:RecentChanges|сьпісе апошніх зьменаў]], каб зьмены было лягчэй заўважыць.",
 'removedwatch'         => 'Выдаленая са сьпісу назіраньня',
-'removedwatchtext'     => 'Старонка «[[:$1]]» была выдаленая з Вашага сьпісу назіраньня.',
+'removedwatchtext'     => 'Старонка «[[:$1]]» была выдаленая з [[Special:Watchlist|Вашага сьпісу назіраньня]].',
 'watch'                => 'Назіраць',
 'watchthispage'        => 'Назіраць за гэтай старонкай',
 'unwatch'              => 'Не назіраць',
 'unwatchthispage'      => 'Перастаць назіраць',
-'notanarticle'         => 'Не артыкул',
+'notanarticle'         => 'Не старонка зьместу',
 'notvisiblerev'        => 'Вэрсія была выдаленая',
 'watchnochange'        => 'Нічога з Вашага сьпісу назіраньня не зьмянілася за паказаны пэрыяд.',
 'watchlist-details'    => 'У Вашым сьпісе назіраньня $1 {{PLURAL:$1|старонка|старонкі|старонак}} за выключэньнем старонак абмеркаваньня.',
@@ -1680,12 +1924,7 @@ $2',
 'iteminvalidname'      => 'Праблема з элемэнтам «$1», няслушная назва…',
 'wlnote'               => "Ніжэй {{PLURAL:$1|паказаная '''$1''' апошняя зьмена|паказаныя '''$1''' апошнія зьмены|паказаныя '''$1''' апошніх зьменаў}} за '''$2''' {{PLURAL:$2|гадзіну|гадзіны|гадзінаў}}.",
 'wlshowlast'           => 'Паказваць за апошнія $1 гадзінаў $2 дзён $3',
-'watchlist-show-bots'  => 'паказаць робатаў',
-'watchlist-hide-bots'  => 'схаваць робатаў',
-'watchlist-show-own'   => 'паказаць мае праўкі',
-'watchlist-hide-own'   => 'схаваць мае праўкі',
-'watchlist-show-minor' => 'паказаць дробныя праўкі',
-'watchlist-hide-minor' => 'схаваць дробныя праўкі',
+'watchlist-options'    => 'Устаноўкі сьпісу назіраньня',
 
 # Displayed when you click the "watch" button and it is in the process of watching
 'watching'   => 'Дадаецца ў сьпіс назіраньня…',
@@ -1726,84 +1965,103 @@ $NEWPAGE
 Зваротная сувязь і дапамога:
 {{fullurl:{{MediaWiki:Helppage}}}}',
 
-# Delete/protect/revert
-'deletepage'                  => 'Выдаліць старонку',
-'confirm'                     => 'Пацьверджаньне',
-'excontent'                   => 'колішні зьмест: «$1»',
-'excontentauthor'             => "зьмест быў: «$1» (і адзіным аўтарам быў '[[Special:Contributions/$2|$2]]')",
-'exbeforeblank'               => 'зьмест да ачысткі: «$1»',
-'exblank'                     => 'старонка была пустая',
-'delete-confirm'              => 'Выдаліць «$1»',
-'delete-legend'               => 'Выдаліць',
-'historywarning'              => 'Папярэджаньне: у старонкі, якую Вы зьбіраецеся выдаліць, ёсьць гісторыя:',
-'confirmdeletetext'           => 'Зараз Вы выдаліце старонку разам з усёй гісторыяй зьменаў.
+# Delete
+'deletepage'             => 'Выдаліць старонку',
+'confirm'                => 'Пацьвердзіць',
+'excontent'              => 'колішні зьмест: «$1»',
+'excontentauthor'        => "зьмест быў: «$1» (і адзіным аўтарам быў '[[Special:Contributions/$2|$2]]')",
+'exbeforeblank'          => 'зьмест да ачысткі: «$1»',
+'exblank'                => 'старонка была пустая',
+'delete-confirm'         => 'Выдаліць «$1»',
+'delete-legend'          => 'Выдаліць',
+'historywarning'         => 'Папярэджаньне: у старонкі, якую Вы зьбіраецеся выдаліць, ёсьць гісторыя:',
+'confirmdeletetext'      => 'Зараз Вы выдаліце старонку разам з усёй гісторыяй зьменаў.
 Калі ласка, пацьвердзіце, што Вы зьбіраецеся гэта зрабіць і што Вы разумееце ўсе наступствы, а таксама робіце гэта ў адпаведнасьці з [[{{MediaWiki:Policy-url}}|правіламі]].',
-'actioncomplete'              => 'Дзеяньне завершанае',
-'deletedtext'                 => '«<nowiki>$1</nowiki>» была выдаленая.
+'actioncomplete'         => 'Дзеяньне завершанае',
+'deletedtext'            => '«<nowiki>$1</nowiki>» была выдаленая.
 Глядзіце журнал выдаленьняў у $2.',
-'deletedarticle'              => 'выдаленая «[[$1]]»',
-'suppressedarticle'           => 'схаваў «[[$1]]»',
-'dellogpage'                  => 'Журнал выдаленьняў',
-'dellogpagetext'              => 'Сьпіс апошніх выдаленьняў.',
-'deletionlog'                 => 'журнал выдаленьняў',
-'reverted'                    => 'Вернутая да папярэдняй вэрсіі',
-'deletecomment'               => 'Прычына выдаленьня:',
-'deleteotherreason'           => 'Іншая/дадатковая прычына:',
-'deletereasonotherlist'       => 'Іншая прычына',
-'deletereason-dropdown'       => '* Агульныя прычыны выдаленьня
+'deletedarticle'         => 'выдаленая «[[$1]]»',
+'suppressedarticle'      => 'схаваў «[[$1]]»',
+'dellogpage'             => 'Журнал выдаленьняў',
+'dellogpagetext'         => 'Сьпіс апошніх выдаленьняў.',
+'deletionlog'            => 'журнал выдаленьняў',
+'reverted'               => 'Вернутая да папярэдняй вэрсіі',
+'deletecomment'          => 'Прычына выдаленьня:',
+'deleteotherreason'      => 'Іншая/дадатковая прычына:',
+'deletereasonotherlist'  => 'Іншая прычына',
+'deletereason-dropdown'  => '* Агульныя прычыны выдаленьня
 ** Запыт аўтара/аўтаркі
 ** Парушэньне аўтарскіх правоў
 ** Вандалізм',
-'delete-edit-reasonlist'      => 'Рэдагаваць прычыны выдаленьня',
-'delete-toobig'               => 'Гэтая старонка мае доўгую гісторыю рэдагаваньняў, болей за $1 {{PLURAL:$1|вэрсію|вэрсіі|вэрсій}}.
+'delete-edit-reasonlist' => 'Рэдагаваць прычыны выдаленьня',
+'delete-toobig'          => 'Гэтая старонка мае доўгую гісторыю рэдагаваньняў, болей за $1 {{PLURAL:$1|вэрсію|вэрсіі|вэрсій}}.
 Выдаленьне такіх старонак было забароненае, каб пазьбегнуць праблемаў у працы {{GRAMMAR:родны|{{SITENAME}}}}.',
-'delete-warning-toobig'       => 'Гэтая старонка мае доўгую гісторыю рэдагаваньняў, больш за $1 {{PLURAL:$1|вэрсію|вэрсіі|вэрсій}}.
+'delete-warning-toobig'  => 'Гэтая старонка мае доўгую гісторыю рэдагаваньняў, больш за $1 {{PLURAL:$1|вэрсію|вэрсіі|вэрсій}}.
 Яе выдаленьне можа выклікаць праблемы ў працы базы зьвестак {{GRAMMAR:родны|{{SITENAME}}}}; будзьце асьцярожны.',
-'rollback'                    => 'Адмяніць рэдагаваньні',
-'rollback_short'              => 'Адкат',
-'rollbacklink'                => 'адкат',
-'rollbackfailed'              => 'Памылка адкату',
-'cantrollback'                => 'Немагчыма скасаваць зьмену; апошні рэдактар — адзіны аўтар гэтай старонкі.',
-'alreadyrolled'               => 'Немагчыма скасаваць апошнюю зьмену [[:$1]], якую зрабіў [[User:$2|$2]] ([[User talk:$2|гутаркі]]); нехта іншы ўжо зьмяніў артыкул ці скасаваў зьмены.
 
-Апошнія зьмены зробленыя [[User:$3|$3]] ([[User talk:$3|гутаркі]]).',
-'editcomment'                 => 'Камэнтар рэдагаваньня быў: «<i>$1</i>».', # only shown if there is an edit comment
-'revertpage'                  => 'Адмененыя рэдагаваньні [[Special:Contributions/$2|$2]] ([[User talk:$2|Talk]]) да папярэдняй вэрсіі [[User:$1|$1]]', # Additional available: $3: revid of the revision reverted to, $4: timestamp of the revision reverted to, $5: revid of the revision reverted from, $6: timestamp of the revision reverted from
-'rollback-success'            => 'Адмененыя рэдагаваньні $1;
+# Rollback
+'rollback'         => 'Адмяніць рэдагаваньні',
+'rollback_short'   => 'Адкат',
+'rollbacklink'     => 'адкат',
+'rollbackfailed'   => 'Памылка адкату',
+'cantrollback'     => 'Немагчыма скасаваць зьмену; апошні рэдактар — адзіны аўтар гэтай старонкі.',
+'alreadyrolled'    => 'Немагчыма скасаваць апошнюю зьмену [[:$1]], якую {{GENDER:$2|зрабіў|зрабіла}} [[User:$2|$2]] ([[User talk:$2|Talk]]{{int:pipe-separator}}[[Special:Contributions/$2|{{int:contribslink}}]]); нехта іншы ўжо зьмяніў старонку альбо скасаваў зьмены.
+
+Апошнія зьмены зробленыя [[User:$3|$3]] ([[User talk:$3|гутаркі]]{{int:pipe-separator}}[[Special:Contributions/$3|{{int:contribslink}}]]).',
+'editcomment'      => "Кароткае апісаньне зьменаў было: «''$1''».", # only shown if there is an edit comment
+'revertpage'       => 'Адмененыя рэдагаваньні [[Special:Contributions/$2|$2]] ([[User talk:$2|гутаркі]]) да папярэдняй вэрсіі [[User:$1|$1]]', # Additionally available: $3: revid of the revision reverted to, $4: timestamp of the revision reverted to, $5: revid of the revision reverted from, $6: timestamp of the revision reverted from
+'rollback-success' => 'Адмененыя рэдагаваньні $1;
 вернутая папярэдняя вэрсія $2.',
-'sessionfailure'              => 'Магчыма ўзьніклі праблемы ў Вашым цяперашнім сэансе працы;
+'sessionfailure'   => 'Магчыма ўзьніклі праблемы ў Вашым цяперашнім сэансе працы;
 гэта дзеяньне было скасавана для прадухіленьня перахвату сэанса.
 Калі ласка, націсьніце «назад» і перазагрузіце старонку зь якой Вы прыйшлі і паспрабуйце ізноў.',
+
+# Protect
 'protectlogpage'              => 'Журнал абаронаў',
 'protectlogtext'              => 'Ніжэй знаходзіцца сьпіс абаронаў і зьняцьцяў абаронаў.
 Глядзіце [[Special:ProtectedPages|сьпіс абароненых старонак на цяперашні момант]].',
 'protectedarticle'            => 'абароненая «[[$1]]»',
 'modifiedarticleprotection'   => 'зьменены ўзровень абароны старонкі «[[$1]]»',
 'unprotectedarticle'          => 'зьнятая абарона са старонкі «[[$1]]»',
+'movedarticleprotection'      => 'перанесеныя устаноўкі абароны з «[[$2]]» на «[[$1]]»',
 'protect-title'               => 'Абарона «$1»',
+'prot_1movedto2'              => '[[$1]] перанесеная ў [[$2]]',
 'protect-legend'              => 'Пацьверджаньне абароны',
-'protectcomment'              => 'Камэнтар:',
-'protectexpiry'               => 'Сканчаецца:',
+'protectcomment'              => 'Прычына:',
+'protectexpiry'               => 'Тэрмін:',
 'protect_expiry_invalid'      => 'Няслушны час сканчэньня абароны.',
 'protect_expiry_old'          => 'Тэрмін абароны прайшоў.',
 'protect-unchain'             => 'Дазволіць пераносы',
-'protect-text'                => 'Тут можна паглядзець і зьмяніць узровень абароны старонкі <strong><nowiki>$1</nowiki></strong>.',
-'protect-locked-blocked'      => 'Вы ня можаце зьмяняць узровень абароны, пакуль Вы заблякаваны.
-Цяперашнія ўстаноўкі для старонкі <strong>$1</strong>:',
-'protect-locked-dblock'       => 'Узровень абароны ня можа быць зьменены, таму што база зьвестак заблякаваная.
-Цяперашнія ўстаноўкі для старонкі <strong>$1</strong>:',
-'protect-locked-access'       => 'Вы ня маеце правоў для зьмены ўзроўню абароны старонкі.
-Цяперашнія наладкі старонкі <strong>$1</strong>:',
+'protect-text'                => "Тут можна паглядзець і зьмяніць узровень абароны старонкі '''<nowiki>$1</nowiki>'''.",
+'protect-locked-blocked'      => "Вы ня можаце зьмяняць узровень абароны, пакуль Вы заблякаваны.
+Цяперашнія ўстаноўкі для старонкі '''$1''':",
+'protect-locked-dblock'       => "Узровень абароны ня можа быць зьменены, таму што база зьвестак заблякаваная.
+Цяперашнія ўстаноўкі для старонкі '''$1''':",
+'protect-locked-access'       => "Вы ня маеце правоў для зьмены ўзроўню абароны старонкі.
+Цяперашнія наладкі старонкі '''$1''':",
 'protect-cascadeon'           => 'Гэтая старонка часова абароненая, таму што яна ўключаная ў {{PLURAL:$1|наступную старонку, якая абароненая|наступныя старонкі, якія абароненыя|наступныя старонкі, якія абароненыя}} каскаднай абаронай.
 Вы можаце зьмяніць узровень абароны, але гэта не паўплывае на каскадную абарону.',
-'protect-default'             => '(па змоўчаньні)',
+'protect-default'             => 'Дазволіць усім удзельнікам',
 'protect-fallback'            => 'Патрэбны дазвол «$1»',
-'protect-level-autoconfirmed' => 'Абараніць ад ананімных і новых удзельнікаў',
+'protect-level-autoconfirmed' => 'Блякаваць новых і ананімных удзельнікаў',
 'protect-level-sysop'         => 'Толькі адміністратары',
 'protect-summary-cascade'     => 'каскадная',
 'protect-expiring'            => 'сканчаецца $1 (UTC)',
+'protect-expiry-indefinite'   => 'бестэрмінова',
 'protect-cascade'             => 'Абараняць старонкі, якія ўключаныя ў гэтую старонку (каскадная абарона)',
 'protect-cantedit'            => 'Вы ня можаце зьмяніць узровень абароны гэтай старонкі, таму што Вы ня маеце дазволу на яе рэдагаваньне.',
+'protect-othertime'           => 'Іншы тэрмін:',
+'protect-othertime-op'        => 'іншы тэрмін',
+'protect-existing-expiry'     => 'Наяўны час сканчэньня: $3, $2',
+'protect-otherreason'         => 'Іншая/дадатковая прычына:',
+'protect-otherreason-op'      => 'Іншая прычына',
+'protect-dropdown'            => '*Звычайныя прычыны абароны
+** Часты вандалізм
+** Празьмерны спам
+** Непрадукцыйная вайна рэдагаваньняў
+** Папулярная старонка',
+'protect-edit-reasonlist'     => 'Рэдагаваць прычыны абароны',
+'protect-expiry-options'      => '1 гадзіна:1 hour,1 дзень:1 day,1 тыдзень:1 week,2 тыдні:2 weeks,1 месяц:1 month,3 месяцы:3 months,6 месяцаў:6 months,1 год:1 year,назаўсёды:infinite', # display1:time1,display2:time2,...
 'restriction-type'            => 'Дазвол:',
 'restriction-level'           => 'Узровень абмежаваньня:',
 'minimum-size'                => 'Мінімальны памер',
@@ -1826,7 +2084,7 @@ $NEWPAGE
 'undeletepage'                 => 'Прагляд і аднаўленьне выдаленых старонак',
 'undeletepagetitle'            => "'''Ніжэй паданыя выдаленыя вэрсіі [[:$1|$1]]'''.",
 'viewdeletedpage'              => 'Паказаць выдаленыя старонкі',
-'undeletepagetext'             => 'Наступныя старонкі былі выдаленыя, але яны знаходзяцца ў архіве і могуць быць адноўленыя.
+'undeletepagetext'             => '{{PLURAL:$1|Наступная старонка была выдаленая, але яна знаходзяцца ў архіве і можа быць адноўленая|Наступныя старонкі былі выдаленыя, але яны знаходзяцца ў архіве і могуць быць адноўленыя}}.
 Архіў пэрыядычна чысьціцца.',
 'undelete-fieldset-title'      => 'Аднавіць вэрсіі',
 'undeleteextrahelp'            => "Для поўнага аднаўленьня старонкі, пакіньце ўсе адзнакі нявызначнымі і націсьніце '''''Аднавіць'''''.
@@ -1839,13 +2097,14 @@ $NEWPAGE
 'undeletehistorynoadmin'       => 'Гэтая старонка была выдаленая.
 Прычына выдаленьня пададзена ніжэй, разам са зьвесткамі ўдзельніка, які рэдагаваў старонку перад выдаленьнем.
 Тэкст выдаленай старонкі могуць глядзець толькі адміністратары.',
-'undelete-revision'            => 'Выдаленая вэрсія $1 (ад $2) ўдзельніка $3:',
+'undelete-revision'            => 'Выдаленая вэрсія $1 (ад $5 $4) ўдзельніка $3:',
 'undeleterevision-missing'     => 'Некарэктная ці неіснуючая вэрсія.
 Верагодна Вы карысталіся няслушнай спасылкай, альбо, магчыма, вэрсія была выдаленая з архіву.',
 'undelete-nodiff'              => 'Папярэдняя вэрсія ня знойдзеная.',
 'undeletebtn'                  => 'Аднавіць',
-'undeletelink'                 => 'аднавіць',
-'undeletereset'                => 'Ачысьціць',
+'undeletelink'                 => 'паглядзець/аднавіць',
+'undeletereset'                => 'Скінуць',
+'undeleteinvert'               => 'Адваротны выбар',
 'undeletecomment'              => 'Камэнтар:',
 'undeletedarticle'             => 'адноўленая «[[$1]]»',
 'undeletedrevisions'           => '{{PLURAL:$1|адноўленая $1 вэрсія|адноўленыя $1 вэрсіі|адноўленыя $1 вэрсій}}',
@@ -1869,33 +2128,37 @@ $NEWPAGE
 'undelete-error-long'          => 'Пад час аднаўленьня файла адбыліся памылкі:
 
 $1',
+'undelete-show-file-confirm'   => 'Вы ўпэўненыя, што жадаеце паглядзець выдаленую вэрсію файла «<nowiki>$1</nowiki>» ад $2 $3?',
+'undelete-show-file-submit'    => 'Так',
 
 # Namespace form on various pages
 'namespace'      => 'Прастора назваў:',
 'invert'         => 'Адваротны выбар',
-'blanknamespace' => 'Артыкул',
+'blanknamespace' => '(Асноўная)',
 
 # Contributions
-'contributions' => 'Унёсак',
-'mycontris'     => 'Мой унёсак',
-'contribsub2'   => 'Для $1 ($2)',
-'nocontribs'    => 'Ня знойдзена зьменаў, якія адпавядаюць гэтым крытэрыям.',
-'uctop'         => ' (апошняя)',
-'month'         => 'Ад месяца (і раней):',
-'year'          => 'Ад году (і раней):',
+'contributions'       => 'Унёсак',
+'contributions-title' => 'Унёсак {{GENDER:$1|удзельніка|удзельніцы}} $1',
+'mycontris'           => 'Мой унёсак',
+'contribsub2'         => 'Для $1 ($2)',
+'nocontribs'          => 'Ня знойдзена зьменаў, якія адпавядаюць гэтым крытэрыям.', # Optional parameter: $1 is the user name
+'uctop'               => ' (апошняя)',
+'month'               => 'Ад месяца (і раней):',
+'year'                => 'Ад году (і раней):',
 
-'sp-contributions-newbies'     => 'Паказаць унёсак толькі з новых рахункаў',
-'sp-contributions-newbies-sub' => 'Унёсак пачынаючых',
-'sp-contributions-blocklog'    => 'журнал блякаваньняў',
-'sp-contributions-search'      => 'Пошук унёску',
-'sp-contributions-username'    => 'IP-адрас альбо імя ўдзельніка/ўдзельніцы:',
-'sp-contributions-submit'      => 'Шукаць',
+'sp-contributions-newbies'       => 'Паказаць унёсак толькі з новых рахункаў',
+'sp-contributions-newbies-sub'   => 'Унёсак пачынаючых',
+'sp-contributions-newbies-title' => 'Унёсак удзельнікаў з новых рахункаў',
+'sp-contributions-blocklog'      => 'журнал блякаваньняў',
+'sp-contributions-logs'          => 'журналы падзеяў',
+'sp-contributions-search'        => 'Пошук унёску',
+'sp-contributions-username'      => 'IP-адрас альбо імя ўдзельніка/ўдзельніцы:',
+'sp-contributions-submit'        => 'Шукаць',
 
 # What links here
 'whatlinkshere'            => 'Спасылкі на старонку',
 'whatlinkshere-title'      => 'Старонкі, якія спасылаюцца на $1',
 'whatlinkshere-page'       => 'Старонка:',
-'linklistsub'              => '(Сьпіс спасылак)',
 'linkshere'                => "Наступныя старонкі спасылаюцца на '''[[:$1]]''':",
 'nolinkshere'              => "Ніводная старонка не спасылаецца на '''[[:$1]]'''.",
 'nolinkshere-ns'           => "Ніводная старонка не спасылаецца на '''[[:$1]]''' з выбранай прасторы назваў.",
@@ -1932,30 +2195,36 @@ $1',
 'ipbcreateaccount'                => 'Забараніць стварэньне рахункаў',
 'ipbemailban'                     => 'Забараніць удзельніку дасылаць лісты па электроннай пошце',
 'ipbenableautoblock'              => 'Аўтаматычна блякаваць апошні IP-адрас гэтага ўдзельніка, і ўсіх наступных IP-адрасоў зь якіх ён будзе спрабаваць рэдагаваць',
-'ipbsubmit'                       => 'Заблякаваць удзельніка',
+'ipbsubmit'                       => 'Заблякаваць гэтага удзельніка',
 'ipbother'                        => 'Іншы тэрмін:',
 'ipboptions'                      => '2 гадзіны:2 hours,1 дзень:1 day,3 дні:3 days,1 тыдзень:1 week,2 тыдні:2 weeks,1 месяц:1 month,3 месяцы:3 months,6 месяцаў:6 months,1 год:1 year,назаўсёды:infinite', # display1:time1,display2:time2,...
 'ipbotheroption'                  => 'іншы',
 'ipbotherreason'                  => 'Іншая/дадатковая прычына:',
-'ipbhidename'                     => 'Схаваць імя ўдзельніка ў журнале блякаваньняў, сьпісе заблякаваных і сьпісе ўдзельнікаў',
-'ipbwatchuser'                    => 'Назіраць за старонкай удзельніка і яго размовамі',
+'ipbhidename'                     => 'Схаваць імя ўдзельніка ў рэдагаваньнях і сьпісах',
+'ipbwatchuser'                    => 'Назіраць за старонкай удзельніка і яго гутаркамі',
+'ipballowusertalk'                => 'Дазволіць гэтаму ўдзельніку рэдагаваць уласную старонку гутарак, калі ён заблякаваны',
+'ipb-change-block'                => 'Зьмяніць парамэтры блякаваньня',
 'badipaddress'                    => 'Некарэктны IP-адрас',
 'blockipsuccesssub'               => 'Блякаваньне пасьпяховае',
-'blockipsuccesstext'              => '[[Special:Contributions/$1|$1]] быў заблякаваны/была заблякаваная.
+'blockipsuccesstext'              => '[[Special:Contributions/$1|$1]] {{GENDER:$1|быў заблякаваны|была заблякаваная}}.
 <br />Глядзіце [[Special:IPBlockList|сьпіс заблякаваных IP-адрасоў]] дзеля перагляду блякаваньняў.',
 'ipb-edit-dropdown'               => 'Рэдагаваць прычыны блякіровак',
 'ipb-unblock-addr'                => 'Разблякаваць $1',
 'ipb-unblock'                     => 'Разблякаваць рахунак ўдзельніка ці IP-адрас',
-'ipb-blocklist-addr'              => 'Паказаць існуючыя блякаваньні для $1',
+'ipb-blocklist-addr'              => 'Наяўныя блякаваньні для $1',
 'ipb-blocklist'                   => 'Паказаць існуючыя блякаваньні',
+'ipb-blocklist-contribs'          => 'Унёсак $1',
 'unblockip'                       => 'Разблякаваць удзельніка',
 'unblockiptext'                   => 'Карыстайцеся формай паданай ніжэй для аднаўленьня магчымасьці рэдагаваньня для раней заблякаванага IP-адрасу альбо рахунку ўдзельніка.',
-'ipusubmit'                       => 'Разблякаваць гэты IP-адрас',
+'ipusubmit'                       => 'Зьняць гэта блякаваньне',
 'unblocked'                       => '[[User:$1|$1]] быў разблякаваны.',
 'unblocked-id'                    => 'Блякаваньне $1 зьнятае',
-'ipblocklist'                     => 'Заблякаваныя IP-адрасы і імёны удзельнікаў',
+'ipblocklist'                     => 'Заблякаваныя IP-адрасы і імёны ўдзельнікаў',
 'ipblocklist-legend'              => 'Пошук заблякаванага ўдзельніка',
 'ipblocklist-username'            => 'Імя ўдзельніка/ўдзельніцы альбо IP-адрас:',
+'ipblocklist-sh-userblocks'       => '$1 блякаваньні рахунку',
+'ipblocklist-sh-tempblocks'       => '$1 часовыя блякаваньні',
+'ipblocklist-sh-addressblocks'    => '$1 блякаваньні асобных IP-адрасоў',
 'ipblocklist-submit'              => 'Шукаць',
 'blocklistline'                   => '$1, $2 заблякаваў $3 ($4)',
 'infiniteblock'                   => 'назаўсёды',
@@ -1964,25 +2233,34 @@ $1',
 'noautoblockblock'                => 'аўтаматычнае блякаваньне адключанае',
 'createaccountblock'              => 'стварэньне рахунку заблякаванае',
 'emailblock'                      => 'дасылка лістоў забароненая',
+'blocklist-nousertalk'            => 'ня можа рэдагаваць уласную старонку гутарак',
 'ipblocklist-empty'               => 'Сьпіс блякаваньняў пусты.',
 'ipblocklist-no-results'          => 'Паданы IP-адрас альбо імя ўдзельніка не заблякаваныя.',
 'blocklink'                       => 'заблякаваць',
 'unblocklink'                     => 'разблякаваць',
+'change-blocklink'                => 'зьмяніць блякаваньне',
 'contribslink'                    => 'унёсак',
 'autoblocker'                     => "Вы аўтаматычна заблякаваныя, таму што Ваш IP-адрас нядаўна ўжываўся «[[User:$1|$1]]». Прычына блякаваньня $1 наступная: «'''$2'''»",
 'blocklogpage'                    => 'Журнал блякаваньняў',
+'blocklog-fulllog'                => 'Поўны журнал блякаваньняў',
 'blocklogentry'                   => 'заблякаваны [[$1]] на тэрмін: $2 $3',
+'reblock-logentry'                => 'зьмененыя парамэтры блякаваньня для [[$1]] на тэрмін: з $2 да $3',
 'blocklogtext'                    => 'Гэта журнал уліку блякаваньняў і разблякаваньняў удзельнікаў. Аўтаматычна заблякаваныя IP-адрасы не пазначаныя. Глядзіце [[Special:IPBlockList|сьпіс заблякаваных IP-адрасоў]], каб пабачыць дзейныя ў гэты момант блякаваньні.',
 'unblocklogentry'                 => 'разблякаваны $1',
 'block-log-flags-anononly'        => 'толькі ананімныя ўдзельнікі',
 'block-log-flags-nocreate'        => 'стварэньне рахункаў забароненае',
 'block-log-flags-noautoblock'     => 'аўтаматычнае блякаваньне адключанае',
 'block-log-flags-noemail'         => 'электронная пошта заблякаваная',
+'block-log-flags-nousertalk'      => 'ня можа рэдагаваць уласную старонку гутарак',
 'block-log-flags-angry-autoblock' => 'уключанае палепшанае аўтаблякаваньне',
+'block-log-flags-hiddenname'      => 'імя ўдзельніка схаванае',
 'range_block_disabled'            => 'Адміністратарам забаронена блякаваць дыяпазоны.',
 'ipb_expiry_invalid'              => 'Няслушны тэрмін блякаваньня.',
 'ipb_expiry_temp'                 => 'Блякаваньні са схаваньнем імя ўдзельніка павінны быць бестэрміновымі.',
+'ipb_hide_invalid'                => 'Немагчыма схаваць гэты рахунак; верагодна зь яго зроблена зашмат рэдагаваньняў.',
 'ipb_already_blocked'             => '«$1» ужо заблякаваны',
+'ipb-needreblock'                 => '== Ужо заблякаваны ==
+$1 ужо заблякаваны. Вы жадаеце зьмяніць парамэтры?',
 'ipb_cant_unblock'                => 'Памылка: ID блякаваньня $1 ня знойдзена. Верагодна яно было ўжо зьнятае.',
 'ipb_blocked_as_range'            => 'Памылка: IP-адрас $1 быў заблякаваны наўпрост і ня можа быць разблякаваны.
 Тым ня менш, ён належыць да дыяпазону $2, які можа быць разблякаваны.',
@@ -1996,6 +2274,7 @@ $1',
 'sorbsreason'                     => 'Ваш IP-адрас знаходзіцца ў сьпісе адкрытых проксі ў DNSBL, якім карыстаецца {{SITENAME}}.',
 'sorbs_create_account_reason'     => 'Ваш IP-адрас знаходзіцца ў сьпісе адкрытых проксі ў DNSBL, якім карыстаецца {{SITENAME}}.
 Вы ня зможаце стварыць рахунак',
+'cant-block-while-blocked'        => 'Вы ня можаце блякаваць іншых удзельнікаў, пакуль Вы самі заблякаваныя.',
 
 # Developer tools
 'lockdb'              => 'Заблякаваць базу зьвестак',
@@ -2019,9 +2298,9 @@ $1',
 'databasenotlocked'   => 'База зьвестак не заблякаваная.',
 
 # Move page
-'move-page'               => 'Перанесьці $1',
-'move-page-legend'        => 'Перанесьці старонку',
-'movepagetext'            => "З дапамогай гэтай формы Вы можаце зьмяніць назву і гісторыю старонкі.
+'move-page'                    => 'Перанесьці $1',
+'move-page-legend'             => 'Перанесьці старонку',
+'movepagetext'                 => "З дапамогай гэтай формы Вы можаце зьмяніць назву і гісторыю старонкі.
 Старая назва будзе перанакіроўваць на новую.
 Вы можаце аўтаматычна абнавіць перанакіраваньні на першапачатковую назву.
 Калі вы адмовіцеся, упэўніцеся ў адсутнасьці [[Special:DoubleRedirects|падвойных]] ці [[Special:BrokenRedirects|няслушных перанакіраваньняў]].
@@ -2032,49 +2311,64 @@ $1',
 '''ПАПЯРЭДЖАНЬНЕ!'''
 Зьмена назвы можа прывесьці да нечаканых зьменаў папулярных старонак;
 калі ласка, упэўніцеся, што Вы разумееце наступствы такіх зьменаў.",
-'movepagetalktext'        => "Старонка абмеркаваньня будзе перанесеная разам з асноўнай старонкай, '''за выключэньнем:'''
+'movepagetalktext'             => "Старонка абмеркаваньня будзе перанесеная разам з асноўнай старонкай, '''за выключэньнем:'''
 * Не пустая старонка абмеркаваньня ўжо існуе пад новай назвай, альбо
 * Вы не паставілі адзнаку ў полі ніжэй.
 
 У такіх выпадках, Вы можаце перанесьці ці аб'яднаць старонку абмеркаваньня самастойна.",
-'movearticle'             => 'Перанесьці старонку:',
-'movenotallowed'          => 'Вы ня маеце дазволу на перанос старонак.',
-'newtitle'                => 'Новая назва:',
-'move-watch'              => 'Назіраць за гэтай старонкай',
-'movepagebtn'             => 'Перанесьці старонку',
-'pagemovedsub'            => 'Пасьпяховы перанос',
-'movepage-moved'          => "<big>'''Старонка «$1» была перанесеная ў «$2»'''</big>", # The two titles are passed in plain text as $3 and $4 to allow additional goodies in the message.
-'articleexists'           => 'Старонка з такой назвай ужо існуе, альбо абраная Вамі назва недапушчальная. Калі ласка, абярыце іншую назву.',
-'cantmove-titleprotected' => 'Немагчыма перанесьці старонку, таму што новая назва знаходзіцца ў сьпісе забароненых',
-'talkexists'              => "'''Старонка пасьпяхова перанесеная, але не атрымалася перанесьці старонку абмеркаваньня, таму што старонка з такой назвай ужо існуе. Калі ласка, аб'яднайце тэксты самастойна.'''",
-'movedto'                 => 'перанесеная ў',
-'movetalk'                => 'Перанесьці таксама старонку абмеркаваньня.',
-'move-subpages'           => 'Перанесьці ўсё падстаронкі, калі гэта магчыма',
-'move-talk-subpages'      => 'Перанесьці ўсё падстаронкі старонкі абмеркаваньня, калі гэта магчыма',
-'movepage-page-exists'    => 'Старонка $1 ужо існуе і ня можа быць перапісана аўтаматычна.',
-'movepage-page-moved'     => 'Старонка $1 перанесеная ў $2.',
-'movepage-page-unmoved'   => 'Старонка $1 ня можа быць перанесеная ў $2.',
-'movepage-max-pages'      => '$1 {{PLURAL:$1|старонка была перанесеная|старонкі былі перанесеныя|старонак былі перанесеныя}} — гэта дазволены максымум, больш аўтаматычных пераносаў ня будзе.',
-'1movedto2'               => '[[$1]] перанесеная ў [[$2]]',
-'1movedto2_redir'         => '[[$1]] перанесеная ў [[$2]] з выдаленьнем перанакіраваньня',
-'movelogpage'             => 'Журнал пераносаў',
-'movelogpagetext'         => 'Ніжэй пададзены сьпіс перанесеных старонак.',
-'movereason'              => 'Прычына:',
-'revertmove'              => 'адкат',
-'delete_and_move'         => 'Выдаліць і перанесьці',
-'delete_and_move_text'    => '==Патрабуецца выдаленьне==
+'movearticle'                  => 'Перанесьці старонку:',
+'movenologin'                  => 'Вы не ўвайшлі ў сыстэму',
+'movenologintext'              => 'Вам неабходна [[Special:UserLogin|ўвайсьці ў сыстэму]], каб перанесьці старонкі.',
+'movenotallowed'               => 'Вы ня маеце дазволу на перанос старонак.',
+'movenotallowedfile'           => 'Вы ня маеце правоў на перайменаваньне файлаў.',
+'cant-move-user-page'          => 'Вы ня маеце правоў для пераносу старонак удзельнікаў (апрача падстаронак).',
+'cant-move-to-user-page'       => 'Вы ня маеце правоў для пераносу старонкі ў прастору ўдзельніка (апрача падстаронак).',
+'newtitle'                     => 'Новая назва:',
+'move-watch'                   => 'Назіраць за гэтай старонкай',
+'movepagebtn'                  => 'Перанесьці старонку',
+'pagemovedsub'                 => 'Пасьпяховы перанос',
+'movepage-moved'               => "<big>'''Старонка «$1» была перанесеная ў «$2»'''</big>", # The two titles are passed in plain text as $3 and $4 to allow additional goodies in the message.
+'movepage-moved-redirect'      => 'Перанакіраваньне было створана.',
+'movepage-moved-noredirect'    => 'Перанакіраваньне не было створанае.',
+'articleexists'                => 'Старонка з такой назвай ужо існуе, альбо абраная Вамі назва недапушчальная. Калі ласка, абярыце іншую назву.',
+'cantmove-titleprotected'      => 'Немагчыма перанесьці старонку, таму што новая назва знаходзіцца ў сьпісе забароненых',
+'talkexists'                   => "'''Старонка пасьпяхова перанесеная, але не атрымалася перанесьці старонку абмеркаваньня, таму што старонка з такой назвай ужо існуе. Калі ласка, аб'яднайце тэксты самастойна.'''",
+'movedto'                      => 'перанесеная ў',
+'movetalk'                     => 'Перанесьці таксама старонку абмеркаваньня',
+'move-subpages'                => 'Перанесьці ўсе падстаронкі (да $1)',
+'move-talk-subpages'           => 'Перанесьці ўсе падстаронкі старонкі абмеркаваньня (да $1)',
+'movepage-page-exists'         => 'Старонка $1 ужо існуе і ня можа быць перапісана аўтаматычна.',
+'movepage-page-moved'          => 'Старонка $1 перанесеная ў $2.',
+'movepage-page-unmoved'        => 'Старонка $1 ня можа быць перанесеная ў $2.',
+'movepage-max-pages'           => '$1 {{PLURAL:$1|старонка была перанесеная|старонкі былі перанесеныя|старонак былі перанесеныя}} — гэта дазволены максымум, больш аўтаматычных пераносаў ня будзе.',
+'1movedto2'                    => '[[$1]] перанесеная ў [[$2]]',
+'1movedto2_redir'              => '[[$1]] перанесеная ў [[$2]] з выдаленьнем перанакіраваньня',
+'move-redirect-suppressed'     => 'перанакіраваньне забаронена',
+'movelogpage'                  => 'Журнал пераносаў',
+'movelogpagetext'              => 'Ніжэй пададзены сьпіс перанесеных старонак.',
+'movesubpage'                  => '{{PLURAL:$1|Падстаронка|Падстаронкі}}',
+'movesubpagetext'              => 'Гэтая старонка мае $1 {{PLURAL:$1|падстаронку|падстаронкі|падстаронак}}, {{PLURAL:$1|якая паказаная ніжэй|якія паказаныя ніжэй}}.',
+'movenosubpage'                => 'Гэтая старонка ня мае падстаронак.',
+'movereason'                   => 'Прычына:',
+'revertmove'                   => 'адкат',
+'delete_and_move'              => 'Выдаліць і перанесьці',
+'delete_and_move_text'         => '==Патрабуецца выдаленьне==
 Мэтавая старонка «[[:$1]]» ужо існуе.
 Ці жадаеце Вы яе выдаліць, каб вызваліць месца для пераносу?',
-'delete_and_move_confirm' => 'Так, выдаліць старонку',
-'delete_and_move_reason'  => 'Выдаленая, каб вызваліць месца для пераносу',
-'selfmove'                => 'Крынічная і мэтавая назвы супадаюць;
+'delete_and_move_confirm'      => 'Так, выдаліць старонку',
+'delete_and_move_reason'       => 'Выдаленая, каб вызваліць месца для пераносу',
+'selfmove'                     => 'Крынічная і мэтавая назвы супадаюць;
 немагчыма перанесьці старонку саму на сябе.',
-'immobile_namespace'      => 'Крынічная ці мэтавая назва належыць да спэцыяльнага тыпу;
-немагчыма перанесьці з гэтай ці ў гэтую прастору назваў.',
-'imagenocrossnamespace'   => 'Нельга перанесьці файл у ня-файлавую прастору назваў',
-'imagetypemismatch'       => 'Новае пашырэньне файла не адпавядае яго тыпу',
-'imageinvalidfilename'    => 'Няслушная назва мэтавага файла',
-'fix-double-redirects'    => 'Абнавіць усе перанакіраваньні на першапачатковую назву',
+'immobile-source-namespace'    => 'Немагчыма пераносіць старонкі ў прасторы назваў «$1»',
+'immobile-target-namespace'    => 'Немагчыма пераносіць старонкі ў прастору назваў «$1»',
+'immobile-target-namespace-iw' => 'Інтэрвікі-спасылка — няслушная назва для пераносу старонкі.',
+'immobile-source-page'         => 'Гэтую старонку нельга пераносіць.',
+'immobile-target-page'         => 'Немагчыма перанесьці старонку пад гэтую назву.',
+'imagenocrossnamespace'        => 'Нельга перанесьці файл у ня-файлавую прастору назваў',
+'imagetypemismatch'            => 'Новае пашырэньне файла не адпавядае яго тыпу',
+'imageinvalidfilename'         => 'Няслушная назва мэтавага файла',
+'fix-double-redirects'         => 'Абнавіць усе перанакіраваньні на першапачатковую назву',
+'move-leave-redirect'          => 'Пакінуць перанакіраваньне',
 
 # Export
 'export'            => 'Экспартаваць старонкі',
@@ -2083,22 +2377,26 @@ $1',
 
 Каб экспартаваць старонкі, увядзіце назвы старонак у тэкставае поле ніжэй, адну назву ў адзін радок, і абярыце жадаеце Вы цяперашнюю вэрсію разам з усімі папярэднімі вэрсіямі і гісторыяй рэдагаваньняў, ці толькі цяперашнюю вэрсію з інфармацыяй пра апошняе рэдагаваньне.
 
-У апошнім выпадку Вы можаце таксама скарыстацца спасылкай, напрыклад, [[{{ns:special}}:Export/{{MediaWiki:Mainpage}}]] для «[[{{MediaWiki:Mainpage}}]]».',
+У апошнім выпадку Вы можаце таксама скарыстацца спасылкай, напрыклад, [[{{#Special:Export}}/{{MediaWiki:Mainpage}}]] для «[[{{MediaWiki:Mainpage}}]]».',
 'exportcuronly'     => 'Экспартаваць толькі цяперашнюю вэрсію, бяз поўнай гісторыі',
 'exportnohistory'   => "----
 '''Заўвага:''' экспартаваньне поўнай гісторыі старонак з дапамогай гэтай формы было адключанае праз прычыны прадукцыйнасьці сыстэмы.",
 'export-submit'     => 'Экспартаваць',
 'export-addcattext' => 'Дадаць старонкі з катэгорыі:',
 'export-addcat'     => 'Дадаць',
+'export-addnstext'  => 'Дадаць старонкі з прасторы назваў:',
+'export-addns'      => 'Дадаць',
 'export-download'   => 'Захаваць як файл',
 'export-templates'  => 'Разам з шаблёнамі',
+'export-pagelinks'  => 'Уключыць зьвязаныя старонкі да глыбіні:',
 
 # Namespace 8 related
 'allmessages'               => 'Сыстэмныя паведамленьні',
 'allmessagesname'           => 'Назва',
 'allmessagesdefault'        => 'Тэкст па змоўчаньні',
 'allmessagescurrent'        => 'Цяперашні тэкст',
-'allmessagestext'           => 'Сьпіс усіх сыстэмных паведамленьняў, якія існуюць у прасторы назваў MediaWiki.',
+'allmessagestext'           => 'Сьпіс усіх сыстэмных паведамленьняў, якія існуюць у прасторы назваў MediaWiki.
+Калі ласка, наведайце [http://www.mediawiki.org/wiki/Localisation старонку пра лякалізацыю MediaWiki] і [http://translatewiki.net translatewiki.net], калі Вы жадаеце ўдзельнічаць у перакладзе MediaWiki.',
 'allmessagesnotsupportedDB' => "'''{{ns:special}}:AllMessages''' не падтрымліваецца, таму што адключанае '''\$wgUseDatabaseMessages'''.",
 'allmessagesfilter'         => 'Фільтар рэгулярных выразаў:',
 'allmessagesmodified'       => 'Паказаць толькі зьмененыя',
@@ -2118,9 +2416,13 @@ $1',
 'import-interwiki-text'      => 'Абярыце вікі і назву старонкі для імпартаваньня.
 Даты зьменаў і імёны аўтараў будуць захаваныя.
 Усе дзеяньні імпартаваньня паміж вікі запісваюцца ў [[Special:Log/import|журнал імпартаваньняў]].',
+'import-interwiki-source'    => 'Крынічная вікі/старонка:',
 'import-interwiki-history'   => 'Капіяваць гісторыю старонкі цалкам',
+'import-interwiki-templates' => 'Уключыць усе шаблёны',
 'import-interwiki-submit'    => 'Імпартаваць',
-'import-interwiki-namespace' => 'Перанесьці старонкі ў прастору назваў:',
+'import-interwiki-namespace' => 'Мэтавая прастора назваў:',
+'import-upload-filename'     => 'Назва файла:',
+'import-comment'             => 'Камэнтар:',
 'importtext'                 => 'Калі ласка, экспартуйце файл з крынічнай вікі з дапамогай [[Special:Export|прылады экспарту]].
 Захавайце яго на свой дыск, а потым загрузіце сюды.',
 'importstart'                => 'Імпартаваньне старонак…',
@@ -2146,6 +2448,8 @@ $1',
 'import-nonewrevisions'      => 'Усе вэрсіі былі імпартаваныя раней.',
 'xml-error-string'           => '$1 у радку $2, пазыцыі $3 (байт $4): $5',
 'import-upload'              => 'Загрузіць XML-зьвесткі',
+'import-token-mismatch'      => 'Страчаныя зьвесткі сэсіі. Калі ласка, паспрабуйце ізноў.',
+'import-invalid-interwiki'   => 'Немагчыма імпартаваць з вызначанай вікі.',
 
 # Import log
 'importlogpage'                    => 'Журнал імпартаваньняў',
@@ -2156,19 +2460,19 @@ $1',
 'import-logentry-interwiki-detail' => '$1 {{PLURAL:$1|вэрсія|вэрсіі|вэрсій}} з $2',
 
 # Tooltip help for the actions
-'tooltip-pt-userpage'             => 'Мая старонка ўдзельніка',
+'tooltip-pt-userpage'             => 'Ваша старонка ўдзельніка',
 'tooltip-pt-anonuserpage'         => 'Старонка ўдзельніка для IP-адрасу, зь якога Вы рэдагуеце',
-'tooltip-pt-mytalk'               => 'Мая старонка размоваў',
+'tooltip-pt-mytalk'               => 'Ваша старонка гутарак',
 'tooltip-pt-anontalk'             => 'Старонка гутарак пра рэдагаваньні, зробленыя з гэтага IP-адрасу',
-'tooltip-pt-preferences'          => 'Мае ўстаноўкі',
+'tooltip-pt-preferences'          => 'Вашыя ўстаноўкі',
 'tooltip-pt-watchlist'            => 'Сьпіс старонак, за зьменамі якіх Вы назіраеце',
-'tooltip-pt-mycontris'            => 'Мой унёсак',
+'tooltip-pt-mycontris'            => 'Ваш унёсак',
 'tooltip-pt-login'                => 'Вас запрашаюць увайсьці, хаця гэта і неабавязкова.',
 'tooltip-pt-anonlogin'            => 'Уваход у сыстэму вітаецца, хаця ён не абавязковы.',
 'tooltip-pt-logout'               => 'Выйсьці',
 'tooltip-ca-talk'                 => 'Абмеркаваньне зьместу старонкі',
 'tooltip-ca-edit'                 => 'Вы можаце рэдагаваць гэтую старонку. Калі ласка, ужывайце кнопку прагляду перад захаваньнем.',
-'tooltip-ca-addsection'           => 'Дадаць камэнтар да гэтага абмеркаваньня.',
+'tooltip-ca-addsection'           => 'Пачаць новую сэкцыю',
 'tooltip-ca-viewsource'           => 'Гэтая старонка абароненая. Але можна паглядзець яе крынічны тэкст.',
 'tooltip-ca-history'              => 'Мінулыя вэрсіі гэтай старонкі.',
 'tooltip-ca-protect'              => 'Абараніць гэтую старонку',
@@ -2180,7 +2484,7 @@ $1',
 'tooltip-search'                  => 'Шукаць у {{GRAMMAR:месны|{{SITENAME}}}}',
 'tooltip-search-go'               => 'Перайсьці да старонкі з гэтай назвай, калі старонка існуе',
 'tooltip-search-fulltext'         => 'Шукаць гэты тэкст на старонках',
-'tooltip-p-logo'                  => 'Галоўная старонка',
+'tooltip-p-logo'                  => 'Наведаць галоўную старонку',
 'tooltip-n-mainpage'              => 'Наведаць галоўную старонку',
 'tooltip-n-portal'                => 'Пра праект, што Вы можаце зрабіць, дзе што знайсьці',
 'tooltip-n-currentevents'         => 'Атрымаць інфармацыю пра актуальныя падзеі',
@@ -2215,6 +2519,9 @@ $1',
 'tooltip-watch'                   => 'Дадаць гэтую старонку ў Ваш сьпіс назіраньня',
 'tooltip-recreate'                => 'Аднавіць старонку, ня гледзячы на тое, што яна была выдаленая',
 'tooltip-upload'                  => 'Пачаць загрузку',
+'tooltip-rollback'                => '«Адкат» вяртае рэдагаваньні папярэдняга ўдзельніка адным клікам.',
+'tooltip-undo'                    => '«Адмяніць» — скасоўвае гэтае рэдагаваньне і адкрывае акно рэдагаваньня ў рэжыме прагляду.
+Дазваляе дадаваць прычыну адкату ў апісаньне зьменаў.',
 
 # Metadata
 'nodublincore'      => 'Мэтазьвесткі Dublin Core RDF забароненыя на гэтым сэрвэры.',
@@ -2222,12 +2529,12 @@ $1',
 'notacceptable'     => 'Вікі-сэрвэр ня можа адлюстраваць зьвесткі ў выглядзе, які здольны прачытаць Ваш браўзэр.',
 
 # Attribution
-'anonymous'        => 'Ананімныя ўдзельнікі і ўдзельніцы {{GRAMMAR:родны|{{SITENAME}}}}',
+'anonymous'        => '{{PLURAL:$1|Ананімны ўдзельнік ці ўдзельніца|Ананімныя ўдзельнікі і ўдзельніцы}} {{GRAMMAR:родны|{{SITENAME}}}}',
 'siteuser'         => 'Удзельнік/удзельніца {{GRAMMAR:родны|{{SITENAME}}}} $1',
 'lastmodifiedatby' => 'Гэтую старонку апошні раз рэдагаваў $3 $2, $1.', # $1 date, $2 time, $3 user
 'othercontribs'    => 'На аснове працы $1.',
 'others'           => 'іншыя',
-'siteusers'        => 'Удзельнік(і) {{grammar:родны|{{SITENAME}}}} $1',
+'siteusers'        => '{{PLURAL:$2|Удзельнік|Удзельнікі}} {{GRAMMAR:родны|{{SITENAME}}}} $1',
 'creditspage'      => 'Падзякі',
 'nocredits'        => 'Няма інфармацыі пра аўтараў гэтай старонкі.',
 
@@ -2247,6 +2554,16 @@ $1',
 'numwatchers'    => 'Колькасьць назіральнікаў і назіральніц: $1',
 'numauthors'     => 'Колькасьць розных аўтараў і аўтарак (старонкі): $1',
 'numtalkauthors' => 'Колькасьць розных аўтараў і аўтарак (старонкі абмеркаваньня): $1',
+
+# Skin names
+'skinname-standard'    => 'Клясычнае',
+'skinname-nostalgia'   => 'Настальгія',
+'skinname-cologneblue' => 'Кёльнскі смутак',
+'skinname-monobook'    => 'Монакніга',
+'skinname-myskin'      => 'MySkin',
+'skinname-chick'       => 'Цыпа',
+'skinname-simple'      => 'Простае',
+'skinname-modern'      => 'Сучаснае',
 
 # Math options
 'mw_math_png'    => 'Заўсёды паказваць як PNG',
@@ -2268,10 +2585,12 @@ $1',
 'markedaspatrollederror-noautopatrol' => 'Вам не дазволена пазначаць Вашыя ўласныя зьмены як «патруляваныя».',
 
 # Patrol log
-'patrol-log-page'   => 'Журнал патруляваньняў',
-'patrol-log-header' => 'Гэта журнал патруляваных вэрсіяў.',
-'patrol-log-line'   => 'пазначана $1 з $2 патруляваных $3',
-'patrol-log-auto'   => '(аўтаматычна)',
+'patrol-log-page'      => 'Журнал патруляваньняў',
+'patrol-log-header'    => 'Гэта журнал патруляваных вэрсіяў.',
+'patrol-log-line'      => 'пазначана $1 з $2 патруляваных $3',
+'patrol-log-auto'      => '(аўтаматычна)',
+'patrol-log-diff'      => 'вэрсія $1',
+'log-show-hide-patrol' => '$1 журнал патруляваньняў',
 
 # Image deletion
 'deletedrevision'                 => 'Выдаленая старая вэрсія $1',
@@ -2288,8 +2607,11 @@ $1',
 'previousdiff' => '← Папярэдняя зьмена',
 'nextdiff'     => 'Наступная зьмена →',
 
+# Visual comparison
+'visual-comparison' => 'Візуальнае параўнаньне',
+
 # Media information
-'mediawarning'         => "'''Папярэджаньне''': гэты файл можа ўтрымліваць зламысны код, выкананьне якога можа нашкодзіць вашай сыстэме.<hr />",
+'mediawarning'         => "'''Папярэджаньне''': гэты тып файл можа ўтрымліваць зламысны код. Яго выкананьне можа нашкодзіць вашай сыстэме.<hr />",
 'imagemaxsize'         => 'Абмяжоўваць памер выяваў на старонках апісаньня да:',
 'thumbsize'            => 'Памер паменшанай вэрсіі выявы:',
 'widthheightpage'      => '$1×$2, $3 {{PLURAL:$3|старонка|старонкі|старонак}}',
@@ -2300,10 +2622,12 @@ $1',
 'show-big-image'       => 'Найлепшае разрозьненьне',
 'show-big-image-thumb' => '<small>Памер пры папярэднім праглядзе: $1 × $2 {{PLURAL:$2|піксэль|піксэлі|піксэляў}}</small>',
 
-# Special:NewImages
+# Special:NewFiles
 'newimages'             => 'Галерэя новых файлаў',
 'imagelisttext'         => "Ніжэй пададзены сьпіс з '''$1''' {{PLURAL:$1|файла|файлаў|файлаў}}, адсартаваных $2.",
 'newimages-summary'     => 'Гэтая спэцыяльная старонка паказвае нядаўна загружаныя файлы.',
+'newimages-legend'      => 'Фільтар',
+'newimages-label'       => 'Назва файла (альбо яе частка):',
 'showhidebots'          => '($1 робатаў)',
 'noimages'              => 'Выявы адсутнічаюць.',
 'ilsubmit'              => 'Шукаць',
@@ -2332,6 +2656,7 @@ $1',
 * datetimeoriginal
 * exposuretime
 * fnumber
+* isospeedratings
 * focallength', # Do not translate list items
 
 # EXIF tags
@@ -2491,14 +2816,89 @@ $1',
 'exif-meteringmode-2'   => 'Сярэдне-ўзважаны',
 'exif-meteringmode-3'   => 'Кропкавы',
 'exif-meteringmode-4'   => 'Шматкропкавы',
+'exif-meteringmode-5'   => 'Матрычны',
 'exif-meteringmode-6'   => 'Частковы',
 'exif-meteringmode-255' => 'Іншы',
 
 'exif-lightsource-0'   => 'Невядомая',
 'exif-lightsource-1'   => 'Дзённае сьвятло',
+'exif-lightsource-2'   => 'Люмінісцэнтная',
+'exif-lightsource-3'   => 'Вальфрам (лямпа накальваньня)',
 'exif-lightsource-4'   => 'Успышка',
+'exif-lightsource-9'   => "Выдатнае надвор'е",
+'exif-lightsource-10'  => "Хмарнае надвор'е",
 'exif-lightsource-11'  => 'Цень',
+'exif-lightsource-12'  => 'Лямпа дзённага сьвятла (D 5700 – 7100K)',
+'exif-lightsource-13'  => 'Лямпа дзённага сьвятла (N 4600 – 5400K)',
+'exif-lightsource-14'  => 'Лямпа дзённага сьвятла (W 3900 – 4500K)',
+'exif-lightsource-15'  => 'Лямпа дзённага сьвятла (WW 3200 – 3700K)',
+'exif-lightsource-17'  => 'Стандартнае асьвятленьне A',
+'exif-lightsource-18'  => 'Стандартнае асьвятленьне B',
+'exif-lightsource-19'  => 'Стандартнае асьвятленьне C',
+'exif-lightsource-24'  => 'студыйная лямпа стандарту ISO',
 'exif-lightsource-255' => 'Іншая крыніца сьвятла',
+
+# Flash modes
+'exif-flash-fired-0'    => 'Успышка не спрацавала',
+'exif-flash-fired-1'    => 'Успышка спрацавала',
+'exif-flash-return-0'   => 'бяз функцыі папярэдняй успышкі',
+'exif-flash-return-2'   => 'адваротны імпульс папярэдняй успышкі не атрыманы',
+'exif-flash-return-3'   => 'адваротны імпульс папярэдняй успышкі атрыманы',
+'exif-flash-mode-1'     => 'прымусовая ўспышка',
+'exif-flash-mode-2'     => 'прымусовае падаўленьне ўспышкі',
+'exif-flash-mode-3'     => 'аўтаматычны рэжым',
+'exif-flash-function-1' => 'Без успышкі',
+'exif-flash-redeye-1'   => 'рэжым памяншэньня эфэкту чырвоных вачэй',
+
+'exif-focalplaneresolutionunit-2' => 'цаляў',
+
+'exif-sensingmethod-1' => 'Нявызначаны',
+'exif-sensingmethod-2' => 'Аднакрысталічны матрычны колеравы сэнсар',
+'exif-sensingmethod-3' => 'Двухкрысталічны матрычны колеравы сэнсар',
+'exif-sensingmethod-4' => 'Трохкрысталічны матрычны колеравы сэнсар',
+'exif-sensingmethod-5' => 'Каляровы матрычны сэквэнцыйны сэнсар',
+'exif-sensingmethod-7' => 'Трохлінейны сэнсар',
+'exif-sensingmethod-8' => 'Лінейны сэнсар з пасьлядоўнай зьменай колеру',
+
+'exif-scenetype-1' => 'Непасрэдна сфатаграфаваная выява',
+
+'exif-customrendered-0' => 'Звычайны працэс',
+'exif-customrendered-1' => 'Нестандартны працэс',
+
+'exif-exposuremode-0' => 'Аўтаматычны лад насьвятленьня',
+'exif-exposuremode-1' => 'Ручная ўстаноўка парамэтраў насьвятленьня',
+'exif-exposuremode-2' => 'Брэкетынг',
+
+'exif-whitebalance-0' => 'Аўтаматычны балянс белага',
+'exif-whitebalance-1' => 'Ручны балянс белага',
+
+'exif-scenecapturetype-0' => 'Стандартны',
+'exif-scenecapturetype-1' => 'Ляндшафт',
+'exif-scenecapturetype-2' => 'Партрэт',
+'exif-scenecapturetype-3' => 'Начны здымак',
+
+'exif-gaincontrol-0' => 'Няма',
+'exif-gaincontrol-1' => 'Невялікае павелічэньне',
+'exif-gaincontrol-2' => 'Значнае павелічэньне',
+'exif-gaincontrol-3' => 'Невялікае памяншэньне',
+'exif-gaincontrol-4' => 'Значнае памяншэньне',
+
+'exif-contrast-0' => 'Звычайны',
+'exif-contrast-1' => 'Мяккі',
+'exif-contrast-2' => 'Значнае павышэньне',
+
+'exif-saturation-0' => 'Звычайная',
+'exif-saturation-1' => 'Невялікая насычанасьць',
+'exif-saturation-2' => 'Вялікая насычанасьць',
+
+'exif-sharpness-0' => 'Звычайная',
+'exif-sharpness-1' => 'Мяккая',
+'exif-sharpness-2' => 'Значнае павышэньне',
+
+'exif-subjectdistancerange-0' => 'Невядомы',
+'exif-subjectdistancerange-1' => 'Макраздымка',
+'exif-subjectdistancerange-2' => 'Выгляд зблізку',
+'exif-subjectdistancerange-3' => 'Выгляд здалёку',
 
 # Pseudotags used for GPSLatitudeRef and GPSDestLatitudeRef
 'exif-gpslatitude-n' => 'паўночнай шыраты',
@@ -2508,9 +2908,24 @@ $1',
 'exif-gpslongitude-e' => 'усходняй даўгаты',
 'exif-gpslongitude-w' => 'заходняй даўгаты',
 
+'exif-gpsstatus-a' => 'Адбываецца вымярэньне',
+'exif-gpsstatus-v' => 'Ацэнка магчымасьці ўзаемадзеяньня сетак',
+
+'exif-gpsmeasuremode-2' => 'Вымярэньне двухмерных каардынатаў',
+'exif-gpsmeasuremode-3' => 'Вымярэньне трохмерных каардынатаў',
+
+# Pseudotags used for GPSSpeedRef and GPSDestDistanceRef
+'exif-gpsspeed-k' => 'Кілямэтраў за гадзіну',
+'exif-gpsspeed-m' => 'міляў за гадзіну',
+'exif-gpsspeed-n' => 'вузлоў',
+
+# Pseudotags used for GPSTrackRef, GPSImgDirectionRef and GPSDestBearingRef
+'exif-gpsdirection-t' => 'Сапраўдны накірунак',
+'exif-gpsdirection-m' => 'магнітны кірунак',
+
 # External editor support
 'edit-externally'      => 'Рэдагаваць гэты файл з выкарыстаньнем вонкавай праграмы',
-'edit-externally-help' => 'Глядзіце падрабязнасьці ў [http://www.mediawiki.org/wiki/Manual:External_editors інструкцыі па наладцы] (па-ангельску).',
+'edit-externally-help' => '(Глядзіце падрабязнасьці ў [http://www.mediawiki.org/wiki/Manual:External_editors інструкцыі па наладцы] (па-ангельску))',
 
 # 'all' in various places, this might be different for inflected languages
 'recentchangesall' => 'усе',
@@ -2520,70 +2935,84 @@ $1',
 'monthsall'        => 'усе',
 
 # E-mail address confirmation
-'confirmemail'            => 'Пацьвердзіць адрас электроннай пошты',
-'confirmemail_noemail'    => 'Вы не пазначылі слушны адрас электроннай пошты ў Вашых [[Special:Preferences|устаноўках удзельніка]].',
-'confirmemail_text'       => '{{SITENAME}} патрабуе, каб Вы пацьвердзілі Ваш адрас электроннай пошты перад ўжываньнем мажлівасьцей электроннай пошты. Актывізуйце кнопку ніжэй, каб даслаць ліст з пацьверджаньнем на Ваш адрас. Ліст будзе ўтрымліваць спасылку з кодам; загрузіце спасылку ў Вашым браўзэры, каб пацьвердзіць, што Ваш адрас электроннай пошты зьяўляецца слушным.',
-'confirmemail_pending'    => '<div class="error">
-Код пацьверджаньня ужо быў дасланы Вам праз электронную пошту; калі Вы нядаўна стварылі рахунак, Вам варта пачакаць код некалькі хвілінаў перад спробай запыту новага коду.
-</div>',
-'confirmemail_send'       => 'Даслаць код пацьверджаньня',
-'confirmemail_sent'       => 'Ліст для пацьверджаньня дасланы.',
-'confirmemail_oncreate'   => 'Код пацьверджаньня быў адпраўлены на Ваш адрас электроннай пошты. Гэты код не патрэбны, каб увайсьці, але Вам трэба будзе падаць яго перад ужываньнем мажлівасьцей, заснаваных на электроннай пошце, у {{GRAMMAR:месны|{{SITENAME}}}}.',
-'confirmemail_sendfailed' => '{{SITENAME}} ня можа даслаць пацьвярджальны ліст. Праверце адрас на наяўнасьць няслушных сымбаляў.
+'confirmemail'             => 'Пацьвердзіць адрас электроннай пошты',
+'confirmemail_noemail'     => 'Вы не пазначылі слушны адрас электроннай пошты ў Вашых [[Special:Preferences|устаноўках удзельніка]].',
+'confirmemail_text'        => '{{SITENAME}} патрабуе, каб Вы пацьвердзілі Ваш адрас электроннай пошты перад ўжываньнем магчымасьцяў электроннай пошты. Актывізуйце кнопку ніжэй, каб даслаць ліст з пацьверджаньнем на Ваш адрас. Ліст будзе ўтрымліваць спасылку з кодам; загрузіце спасылку ў Вашым браўзэры, каб пацьвердзіць, што Ваш адрас электроннай пошты зьяўляецца слушным.',
+'confirmemail_pending'     => 'Код пацьверджаньня ужо быў дасланы Вам праз электронную пошту; калі Вы нядаўна стварылі рахунак, Вам варта пачакаць код некалькі хвілінаў перад спробай запыту новага коду.',
+'confirmemail_send'        => 'Даслаць код пацьверджаньня',
+'confirmemail_sent'        => 'Ліст для пацьверджаньня дасланы.',
+'confirmemail_oncreate'    => 'Код пацьверджаньня быў адпраўлены на Ваш адрас электроннай пошты. Гэты код не патрэбны, каб увайсьці, але Вам трэба будзе падаць яго перад ужываньнем магчымасьцяў, заснаваных на электроннай пошце, у {{GRAMMAR:месны|{{SITENAME}}}}.',
+'confirmemail_sendfailed'  => '{{SITENAME}} ня можа даслаць пацьвярджальны ліст. Праверце адрас на наяўнасьць няслушных сымбаляў.
 
 Адказ паштовага сэрвэра: $1',
-'confirmemail_invalid'    => 'Няслушны код пацьверджаньня. Магчыма, скончыўся яго тэрмін дзеяньня.',
-'confirmemail_needlogin'  => 'Вам трэба $1, каб пацьвердзіць Ваш адрас электроннай пошты.',
-'confirmemail_success'    => 'Ваш адрас электроннай пошты быў пацьверджаны. Зараз Вы можаце ўвайсьці.',
-'confirmemail_loggedin'   => 'Ваш адрас электроннай пошты быў пацьверджаны.',
-'confirmemail_error'      => 'Нешта пайшло ня так у часе захаваньня вашага пацьверджаньня.',
-'confirmemail_subject'    => '{{SITENAME}}: Пацьверджаньне адрасу электроннай пошты',
-'confirmemail_body'       => 'Нехта, магчыма Вы, з IP-адрасу $1, стварыў рахунак «$2» з гэтым паштовым адрасам у праекце {{SITENAME}}.
+'confirmemail_invalid'     => 'Няслушны код пацьверджаньня. Магчыма, скончыўся яго тэрмін дзеяньня.',
+'confirmemail_needlogin'   => 'Вам трэба $1, каб пацьвердзіць Ваш адрас электроннай пошты.',
+'confirmemail_success'     => 'Ваш адрас электроннай пошты быў пацьверджаны. Зараз Вы можаце ўвайсьці.',
+'confirmemail_loggedin'    => 'Ваш адрас электроннай пошты быў пацьверджаны.',
+'confirmemail_error'       => 'Нешта пайшло ня так у часе захаваньня вашага пацьверджаньня.',
+'confirmemail_subject'     => '{{SITENAME}}: Пацьверджаньне адрасу электроннай пошты',
+'confirmemail_body'        => 'Нехта, магчыма Вы, з IP-адрасу $1, стварыў рахунак «$2» з гэтым паштовым адрасам у праекце {{SITENAME}}.
 
-Каб пацьвердзіць, што гэты рахунак належыць Вам актывізаваць магчымасьці электроннай пошты ў {{GRAMMAR:месны|{{SITENAME}}}}, адчыніце гэтую спасылку у Вашым браўзэры:
+Каб пацьвердзіць, што гэты рахунак належыць Вам актывізаваць магчымасьці электроннай пошты ў {{GRAMMAR:месны|{{SITENAME}}}}, адкрыйце гэтую спасылку у Вашым браўзэры:
 
 $3
 
-Калі гэта ня Вы, адчыніце наступную спасылку для таго, каб не пацьвердзіць адрас электроннай пошты.
+Калі гэта ня Вы, адкрыйце наступную спасылку для таго, каб не пацьвердзіць адрас электроннай пошты.
 
 $5
 
 Код дзейнічае да $4.',
+'confirmemail_invalidated' => 'Пацьверджаньне адрасу электроннай пошты адмененае',
+'invalidateemail'          => 'Адмяніць пацьверджаньне адрасу электроннай пошты',
+
+# Scary transclusion
+'scarytranscludedisabled' => '[Улучэньне інтэрвікі было адключанае]',
+'scarytranscludefailed'   => '[Памылка атрыманьня шаблёну $1]',
+'scarytranscludetoolong'  => '[Занадта даўгі URL-адрас]',
+
+# Trackbacks
+'trackbackbox'      => 'Trackback для гэтай старонкі:<br />
+$1',
+'trackbackremove'   => '([$1 выдаліць])',
+'trackbacklink'     => 'Trackback',
+'trackbackdeleteok' => 'Trackback быў пасьпяхова выдалены.',
 
 # Delete conflict
-'confirmrecreate' => "Удзельнік [[User:$1|$1]] ([[User talk:$1|гутаркі]]) выдаліў гэтую старонку, перад тым як Вы пачалі яе рэдагаваць, з прычыны:
+'deletedwhileediting' => "'''Увага''': Гэтая старонка была выдаленая пасьля таго, як Вы пачалі яе рэдагаваньне!",
+'confirmrecreate'     => "{{GENDER:$1|Удзельнік|Удзельніца}} [[User:$1|$1]] ([[User talk:$1|гутаркі]]) {{GENDER:$1|выдаліў|выдаліла}} гэтую старонку, перад тым як Вы пачалі яе рэдагаваць, з прычыны:
 : ''$2''
 Калі ласка, пацьвердзіце, што Вы сапраўды жадаеце стварыць нанава гэтую старонку.",
-'recreate'        => 'Стварыць ізноў',
+'recreate'            => 'Стварыць ізноў',
 
 'unit-pixel' => 'пкс',
 
 # action=purge
-'confirm_purge'        => 'Ачысьціць кэш гэтай старонкі?
-
-$1',
-'confirm_purge_button' => 'Так',
-
-# AJAX search
-'articletitles' => "Старонкі, якія пачынаюцца з ''$1''",
-'hideresults'   => 'Схаваць вынікі',
+'confirm_purge_button' => 'Добра',
+'confirm-purge-top'    => 'Ачысьціць кэш гэтай старонкі?',
+'confirm-purge-bottom' => 'Ачыстка кэшу старонкі прывядзе да адлюстраваньня яе апошняй вэрсіі.',
 
 # Multipage image navigation
 'imgmultipageprev' => '← папярэдняя старонка',
 'imgmultipagenext' => 'наступная старонка →',
+'imgmultigo'       => 'Перайсьці!',
 'imgmultigoto'     => 'Перайсьці на старонку $1',
 
 # Table pager
-'table_pager_next'  => 'Наступная старонка',
-'table_pager_prev'  => 'Папярэдняя старонка',
-'table_pager_first' => 'Першая старонка',
-'table_pager_last'  => 'Апошняя старонка',
+'ascending_abbrev'         => 'узраст.',
+'descending_abbrev'        => 'зьмянш.',
+'table_pager_next'         => 'Наступная старонка',
+'table_pager_prev'         => 'Папярэдняя старонка',
+'table_pager_first'        => 'Першая старонка',
+'table_pager_last'         => 'Апошняя старонка',
+'table_pager_limit'        => 'Паказваць $1 элемэнтаў на старонцы',
+'table_pager_limit_submit' => 'Перайсьці',
+'table_pager_empty'        => 'Ня знойдзена',
 
 # Auto-summaries
-'autosumm-blank'   => 'Зьмест старонкі выдалены цалкам',
+'autosumm-blank'   => 'Выдалены ўвесь зьмест старонкі',
 'autosumm-replace' => "Старонка замененая на '$1'",
 'autoredircomment' => 'Перанакіроўвае на [[$1]]',
-'autosumm-new'     => 'Новая старонка: $1',
+'autosumm-new'     => "Створана старонка са зьместам '$1'",
 
 # Size units
 'size-bytes'     => '$1 б',
@@ -2594,10 +3023,35 @@ $1',
 # Live preview
 'livepreview-loading' => 'Загрузка…',
 'livepreview-ready'   => 'Загрузка… Гатова!',
+'livepreview-failed'  => 'Не атрымалася ўжыць хуткі папярэдні прагляд! Паспрабуйце ўжыць звычайны папярэдні прагляд.',
+'livepreview-error'   => 'Не атрымалася далучыцца да: $1 «$2».
+Паспрабуйце ўжыць звычайны папярэдні прагляд.',
+
+# Friendlier slave lag warnings
+'lag-warn-normal' => 'Зьмены, зробленыя меней чым $1 {{PLURAL:$1|сэкунду|сэкунды|сэкундаў}} таму, могуць ня трапіць у гэты сьпіс.',
+'lag-warn-high'   => 'У выніку значнага адставаньня ў сынхранізацыі сэрвэраў базаў зьвестак зьмены, зробленыя раней за $1 {{PLURAL:$1|сэкунду|сэкунды|сэкундаў}} таму, могуць быць не паказаныя ў гэтым сьпісе.',
 
 # Watchlist editor
-'watchlistedit-normal-title' => 'Рэдагаваць сьпіс назіраньня',
-'watchlistedit-raw-titles'   => 'Назвы:',
+'watchlistedit-numitems'       => 'Ваш сьпіс назіраньня ўтрымлівае $1 {{PLURAL:$1|запіс|запісы|запісаў}}, без уліку старонак абмеркаваньня.',
+'watchlistedit-noitems'        => 'Ваш сьпіс назіраньня пусты.',
+'watchlistedit-normal-title'   => 'Рэдагаваць сьпіс назіраньня',
+'watchlistedit-normal-legend'  => 'Выдаленьне старонак са сьпісу назіраньня',
+'watchlistedit-normal-explain' => 'Ніжэй паданыя старонкі з Вашага сьпісу назіраньня.
+Для выдаленьня старонкі са сьпісу пазначце адпаведныя пазыцыі і націсьніце кнопку «Выдаліць са сьпісу».
+Таксама Вы можаце [[Special:Watchlist/raw|рэдагаваць нефарматаваны сьпіс назіраньня]].',
+'watchlistedit-normal-submit'  => 'Выдаліць са сьпісу',
+'watchlistedit-normal-done'    => '$1 {{PLURAL:$1|запіс быў выдалены|запісы былі выдаленыя|запісаў былі выдаленыя}} з Вашага сьпісу назіраньня:',
+'watchlistedit-raw-title'      => 'Рэдагаваць нефарматаваны сьпіс назіраньня',
+'watchlistedit-raw-legend'     => 'Рэдагаваць нефарматаваны сьпіс назіраньня',
+'watchlistedit-raw-explain'    => 'Ніжэй пададзены сьпіс старонак Вашага сьпісу назіраньня, і Вы можаце яго рэдагаваць, дадаючы і выдаляючы радкі з назвамі старонак;
+адна назва старонкі ў радку.
+Пасьля заканчэньня рэдагаваньня, націсьніце «Абнавіць сьпіс назіраньня».
+Таксама Вы можаце [[Special:Watchlist/edit|выкарыстаць стандартны інтэрфэйс рэдагаваньня]].',
+'watchlistedit-raw-titles'     => 'Назвы:',
+'watchlistedit-raw-submit'     => 'Абнавіць сьпіс назіраньня',
+'watchlistedit-raw-done'       => 'Ваш сьпіс назіраньня быў абноўлены.',
+'watchlistedit-raw-added'      => '$1 {{PLURAL:$1|запіс быў дададзены|запісы былі дададзеныя|запісаў былі дададзеныя}}:',
+'watchlistedit-raw-removed'    => '$1 {{PLURAL:$1|запіс быў выдалены|запісы былі выдаленыя|запісаў былі выдаленыя}}:',
 
 # Watchlist editing tools
 'watchlisttools-view' => 'Паказаць зьмены ў старонках зь сьпісу',
@@ -2606,40 +3060,102 @@ $1',
 
 # Core parser functions
 'unknown_extension_tag' => 'Невядомы тэг пашырэньня «$1»',
+'duplicate-defaultsort' => 'Папярэджаньне: Ключ сартыроўкі па змоўчваньні «$2» замяняе папярэдні ключ сартыроўкі па змоўчваньні «$1».',
 
 # Special:Version
-'version'                  => 'Вэрсія', # Not used as normal message but as header for the special page itself
-'version-extensions'       => 'Усталяваныя пашырэньні',
-'version-specialpages'     => 'Спэцыяльныя старонкі',
-'version-other'            => 'Іншыя',
-'version-version'          => 'Вэрсія',
-'version-license'          => 'Ліцэнзія',
-'version-software-version' => 'Вэрсія',
+'version'                          => 'Вэрсія', # Not used as normal message but as header for the special page itself
+'version-extensions'               => 'Усталяваныя пашырэньні',
+'version-specialpages'             => 'Спэцыяльныя старонкі',
+'version-parserhooks'              => 'Працэдуры-перахопнікі парсэра',
+'version-variables'                => 'Зьменныя',
+'version-other'                    => 'Іншыя',
+'version-mediahandlers'            => 'Апрацоўшчыкі мэдыя',
+'version-hooks'                    => 'Працэдуры-перахопнікі',
+'version-extension-functions'      => 'Функцыі пашырэньняў',
+'version-parser-extensiontags'     => 'Тэгі пашырэньняў парсэра',
+'version-parser-function-hooks'    => 'Перахопнікі функцыяў парсэра',
+'version-skin-extension-functions' => 'Функцыі пашырэньня афармленьняў',
+'version-hook-name'                => 'Назва працэдуры-перахопніка',
+'version-hook-subscribedby'        => 'Падпісаны на',
+'version-version'                  => 'Вэрсія',
+'version-license'                  => 'Ліцэнзія',
+'version-software'                 => 'Усталяванае праграмнае забесьпячэньне',
+'version-software-product'         => 'Прадукт',
+'version-software-version'         => 'Вэрсія',
 
 # Special:FilePath
-'filepath'        => 'Шлях да файла',
-'filepath-page'   => 'Файл:',
-'filepath-submit' => 'Шлях',
+'filepath'         => 'Шлях да файла',
+'filepath-page'    => 'Файл:',
+'filepath-submit'  => 'Шлях',
+'filepath-summary' => 'Гэтая спэцыяльная старонка вяртае поўны шлях да файла.
+Выявы паказаныя ў поўным выглядзе, астатнія тыпы файлаў адкрываюцца прыпісанымі да іх праграмамі.
+
+Увядзіце назву файла бяз прэфіксу «{{ns:file}}:»',
 
 # Special:FileDuplicateSearch
 'fileduplicatesearch'          => 'Пошук дублікатаў файлаў',
+'fileduplicatesearch-summary'  => 'Пошук аднолькавых файлаў на падставе іх хэшаў.
+
+Увядзіце назву файла бяз прэфіксу «{{ns:file}}:».',
+'fileduplicatesearch-legend'   => 'Пошук аднолькавых файлаў',
 'fileduplicatesearch-filename' => 'Назва файла:',
 'fileduplicatesearch-submit'   => 'Шукаць',
-'fileduplicatesearch-result-1' => 'Файл «$1» ня мае ідэнтычных копій.',
-'fileduplicatesearch-result-n' => 'Файл «$1» мае $2 {{PLURAL:$2|ідэнтычную копію|ідэнтычных копіі|ідэнтычных копій}}.',
+'fileduplicatesearch-info'     => '$1 × $2 піксэляў<br />Памер файла: $3<br />Тып MIME: $4',
+'fileduplicatesearch-result-1' => 'Файл «$1» ня мае ідэнтычных копіяў.',
+'fileduplicatesearch-result-n' => 'Файл «$1» мае $2 {{PLURAL:$2|ідэнтычную копію|ідэнтычныя копіі|ідэнтычных копіяў}}.',
 
 # Special:SpecialPages
-'specialpages'                 => 'Спэцыяльныя старонкі',
-'specialpages-group-other'     => 'Іншыя спэцыяльныя старонкі',
-'specialpages-group-changes'   => 'Апошнія зьмены і журналы падзей',
-'specialpages-group-media'     => 'Справаздачы пра мэдыя-файлы і загрузка',
-'specialpages-group-users'     => 'Удзельнікі і правы',
-'specialpages-group-pages'     => 'Сьпісы старонак',
-'specialpages-group-pagetools' => 'Інструмэнты для старонак',
-'specialpages-group-spam'      => 'Інструмэнты для барацьбы са спамам',
+'specialpages'                   => 'Спэцыяльныя старонкі',
+'specialpages-note'              => '----
+* Звычайныя спэцыяльныя старонкі.
+* <strong class="mw-specialpagerestricted">Спэцыяльныя старонкі з абмежаваным доступам.</strong>',
+'specialpages-group-maintenance' => 'Тэхнічныя справаздачы',
+'specialpages-group-other'       => 'Іншыя спэцыяльныя старонкі',
+'specialpages-group-login'       => 'Уваход / стварэньне рахунку',
+'specialpages-group-changes'     => 'Апошнія зьмены і журналы падзеяў',
+'specialpages-group-media'       => 'Справаздачы пра мэдыя-файлы і загрузка',
+'specialpages-group-users'       => 'Удзельнікі і правы',
+'specialpages-group-highuse'     => 'Частаўжываныя старонкі',
+'specialpages-group-pages'       => 'Сьпісы старонак',
+'specialpages-group-pagetools'   => 'Інструмэнты для старонак',
+'specialpages-group-wiki'        => 'Зьвесткі пра вікі і прылады',
+'specialpages-group-redirects'   => 'Спэцыяльныя старонкі-перанакіраваньні',
+'specialpages-group-spam'        => 'Інструмэнты для барацьбы са спамам',
 
 # Special:BlankPage
 'blankpage'              => 'Пустая старонка',
 'intentionallyblankpage' => 'Гэтая старонка наўмысна пакінутая пустой',
+
+# External image whitelist
+'external_image_whitelist' => ' #Пакіньце гэты радок такім, які ён ёсьць<pre>
+#Зьмясьціце часткі рэгулярных выразаў (толькі частку якая знаходзіцца паміж //) ніжэй
+#Яны будуць суаднесеныя з URL-адрасамі вонкавых выяваў
+#Тыя, якія будуць пасаваць будуць паказвацца як выявы, астатнія толькі як спасылкі
+#Радкі, пазначаныя #, лічыцца камэнтарамі
+#Рэгістар сымбаляў ня ўлічваецца
+
+#Зьмясьціце ўсе часткі рэгулярных выразаў над гэтым радком. Сам радок пакіньце ў такім жа выглядзе</pre>',
+
+# Special:Tags
+'tags'                    => 'Слушныя тэгі зьменаў',
+'tag-filter'              => 'Фільтар [[Special:Tags|тэгаў]]:',
+'tag-filter-submit'       => 'Фільтар',
+'tags-title'              => 'Тэгі',
+'tags-intro'              => 'На гэтай старонцы знаходзіцца сьпіс тэгаў, якімі праграмнае забесьпячэньне можа пазначыць рэдагаваньне, і іх значэньне.',
+'tags-tag'                => 'Назва тэга',
+'tags-display-header'     => 'Новыя запісы ў сьпісе зьменаў',
+'tags-description-header' => 'Поўнае апісаньне значэньня',
+'tags-hitcount-header'    => 'Пазначаныя зьмены',
+'tags-edit'               => 'рэдагаваць',
+'tags-hitcount'           => '$1 {{PLURAL:$1|зьмена|зьмены|зьменаў}}',
+
+# Database error messages
+'dberr-header'      => '{{SITENAME}} мае праблемы',
+'dberr-problems'    => 'Прабачце! {{SITENAME}} мае тэхнічныя праблемы.',
+'dberr-again'       => 'Паспрабуйце пачакаць некалькі хвілінаў і абнавіць.',
+'dberr-info'        => '(Немагчыма злучыцца з сэрвэрам базы зьвестак: $1)',
+'dberr-usegoogle'   => 'Вы можаце пакуль паспрабаваць пашукаць праз Google.',
+'dberr-outofdate'   => 'Увага, індэксы нашага зьместу могуць быць састарэлымі.',
+'dberr-cachederror' => 'Наступная старонка была загружана з кэшу і можа быць састарэлай.',
 
 );

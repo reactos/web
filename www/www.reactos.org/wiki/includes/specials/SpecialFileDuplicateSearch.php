@@ -49,7 +49,7 @@ class FileDuplicateSearchPage extends QueryPage {
 	function formatResult( $skin, $result ) {
 		global $wgContLang, $wgLang;
 
-		$nt = Title::makeTitle( NS_IMAGE, $result->title );
+		$nt = Title::makeTitle( NS_FILE, $result->title );
 		$text = $wgContLang->convert( $nt->getText() );
 		$plink = $skin->makeLink( $nt->getPrefixedText(), $text );
 
@@ -64,7 +64,7 @@ class FileDuplicateSearchPage extends QueryPage {
  * Output the HTML search form, and constructs the FileDuplicateSearch object.
  */
 function wfSpecialFileDuplicateSearch( $par = null ) {
-	global $wgRequest, $wgTitle, $wgOut, $wgLang, $wgContLang;
+	global $wgRequest, $wgOut, $wgLang, $wgContLang, $wgScript;
 
 	$hash = '';
 	$filename =  isset( $par ) ?  $par : $wgRequest->getText( 'filename' );
@@ -73,7 +73,7 @@ function wfSpecialFileDuplicateSearch( $par = null ) {
 	if( $title && $title->getText() != '' ) {
 		$dbr = wfGetDB( DB_SLAVE );
 		$image = $dbr->tableName( 'image' );
-		$encFilename = $dbr->addQuotes( htmlspecialchars( $title->getDbKey() ) );
+		$encFilename = $dbr->addQuotes( htmlspecialchars( $title->getDBKey() ) );
 		$sql = "SELECT img_sha1 from $image where img_name = $encFilename";
 		$res = $dbr->query( $sql );
 		$row = $dbr->fetchRow( $res );
@@ -85,7 +85,8 @@ function wfSpecialFileDuplicateSearch( $par = null ) {
 
 	# Create the input form
 	$wgOut->addHTML(
-		Xml::openElement( 'form', array( 'id' => 'fileduplicatesearch', 'method' => 'get', 'action' => $wgTitle->getLocalUrl() ) ) .
+		Xml::openElement( 'form', array( 'id' => 'fileduplicatesearch', 'method' => 'get', 'action' => $wgScript ) ) .
+		Xml::hidden( 'title', SpecialPage::getTitleFor( 'FileDuplicateSearch' )->getPrefixedDbKey() ) .
 		Xml::openElement( 'fieldset' ) .
 		Xml::element( 'legend', null, wfMsg( 'fileduplicatesearch-legend' ) ) .
 		Xml::inputLabel( wfMsg( 'fileduplicatesearch-filename' ), 'filename', 'filename', 50, $filename ) . ' ' .
@@ -100,7 +101,7 @@ function wfSpecialFileDuplicateSearch( $par = null ) {
 		# Show a thumbnail of the file
 		$img = wfFindFile( $title );
 		if ( $img ) {
-			$thumb = $img->getThumbnail( 120, 120 );
+			$thumb = $img->transform( array( 'width' => 120, 'height' => 120 ) );
 			if( $thumb ) {
 				$wgOut->addHTML( '<div style="float:' . $align . '" id="mw-fileduplicatesearch-icon">' .
 					$thumb->toHtml( array( 'desc-link' => false ) ) . '<br />' .

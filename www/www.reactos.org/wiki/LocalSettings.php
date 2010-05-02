@@ -59,9 +59,8 @@ $wgEnotifUserTalk = true; # UPO
 $wgEnotifWatchlist = true; # UPO
 $wgEmailAuthentication = false;
 
+## Database settings
 require_once("$IP/../../www.reactos.org_config/wiki-connect.php");
-#BugzillaReports extension
-require_once("$IP/../../www.reactos.org_config/bugzilla-config.php");
 
 # MySQL specific settings
 $wgDBprefix         = "";
@@ -97,7 +96,7 @@ $wgShellLocale = "en_US.UTF-8";
 ## you can enable inline LaTeX equations:
 $wgUseTeX           = false;
 
-$wgLocalInterwiki   = $wgSitename;
+$wgLocalInterwiki   = strtolower( $wgSitename );
 
 $wgLanguageCode = "en";
 
@@ -155,6 +154,9 @@ $wgNamespacesToBeSearchedDefault[100]=true;
 # Extensions
 require_once("$IP/extensions/ParserFunctions/ParserFunctions.php");
 require_once("$IP/extensions/SyntaxHighlight_GeSHi/SyntaxHighlight_GeSHi.php");
+
+# BugzillaReports extension
+require_once("$IP/../../www.reactos.org_config/bugzilla-config.php");
 require_once("$IP/extensions/BugzillaReports/BugzillaReports.php");
 $wgBugzillaReports = array(
   'host'        => $dbbug_host, 

@@ -1,6 +1,9 @@
 <?php
 /** Tahitian (Reo Mā`ohi)
  *
+ * See MessagesQqq.php for message documentation incl. usage of parameters
+ * To improve a translation please visit http://translatewiki.net
+ *
  * @ingroup Language
  * @file
  *
@@ -123,10 +126,10 @@ $messages = array(
 # Recent changes
 'recentchanges' => 'Te mau fa’ahuru-’ē-ra’a ’āpī',
 
-# Special:ImageList
-'imagelist_user' => 'Ta’ata fa’a’ohipa',
+# Special:ListFiles
+'listfiles_user' => 'Ta’ata fa’a’ohipa',
 
-# Image description page
+# File description page
 'filehist-user' => 'Ta’ata',
 
 # Random page
@@ -141,8 +144,14 @@ $messages = array(
 # Special:Categories
 'categories' => 'Te mau huru o te ’api',
 
+# Special:Log/newusers
+'newuserlog-create-entry' => 'Ta’ata fa’a’ohipa ’āpī',
+
 # Watchlist
 'watch' => 'Ha’apa’o',
+
+# Protect
+'prot_1movedto2' => '’Ua tāhitihia te ’api [[$1]] e ana i te ’api ’āpī [[$2]]',
 
 # Restrictions (nouns)
 'restriction-edit' => 'Fa’ahuru ’ē',

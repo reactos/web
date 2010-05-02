@@ -6,7 +6,7 @@
  * @ingroup FileRepo
  */
 class FSRepo extends FileRepo {
-	var $directory, $deletedDir, $url, $hashLevels, $deletedHashLevels;
+	var $directory, $deletedDir, $url, $deletedHashLevels;
 	var $fileFactory = array( 'UnregisteredLocalFile', 'newFromTitle' );
 	var $oldFileFactory = false;
 	var $pathDisclosureProtection = 'simple';
@@ -149,10 +149,8 @@ class FSRepo extends FileRepo {
 				if ( !wfMkdirParents( $dstDir ) ) {
 					return $this->newFatal( 'directorycreateerror', $dstDir );
 				}
-				// In the deleted zone, seed new directories with a blank
-				// index.html, to prevent crawling
 				if ( $dstZone == 'deleted' ) {
-					file_put_contents( "$dstDir/index.html", '' );
+					$this->initDeletedDir( $dstDir );
 				}
 			}
 
@@ -212,6 +210,20 @@ class FSRepo extends FileRepo {
 			}
 		}
 		return $status;
+	}
+
+	/**
+	 * Take all available measures to prevent web accessibility of new deleted
+	 * directories, in case the user has not configured offline storage
+	 */
+	protected function initDeletedDir( $dir ) {
+		// Add a .htaccess file to the root of the deleted zone
+		$root = $this->getZonePath( 'deleted' );
+		if ( !file_exists( "$root/.htaccess" ) ) {
+			file_put_contents( "$root/.htaccess", "Deny from all\n" );
+		}
+		// Seed new directories with a blank index.html, to prevent crawling
+		file_put_contents( "$dir/index.html", '' );
 	}
 
 	/**
@@ -393,8 +405,7 @@ class FSRepo extends FileRepo {
 					$status->fatal( 'directorycreateerror', $archiveDir );
 					continue;
 				}
-				// Seed new directories with a blank index.html, to prevent crawling
-				file_put_contents( "$archiveDir/index.html", '' );
+				$this->initDeletedDir( $archiveDir );
 			}
 			// Check if the archive directory is writable
 			// This doesn't appear to work on NTFS
@@ -438,14 +449,6 @@ class FSRepo extends FileRepo {
 			}
 		}
 		return $status;
-	}
-
-	/**
-	 * Get a relative path including trailing slash, e.g. f/fa/
-	 * If the repo is not hashed, returns an empty string
-	 */
-	function getHashPath( $name ) {
-		return FileRepo::getHashPathForLevel( $name, $this->hashLevels );
 	}
 
 	/**
