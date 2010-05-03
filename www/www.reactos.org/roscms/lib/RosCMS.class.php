@@ -114,7 +114,7 @@ class RosCMS
    * getter functions
    */
   public function emailSupport() { if ($this->applied) return $this->email_support; }
-  public function emailSystem() { if ($this->applied) return $this-email_system; }
+  public function emailSystem() { if ($this->applied) return $this->email_system; }
   public function cookieUserKey() { if ($this->applied) return $this->cookie_user_key; }
 
   public function cookieUserName() { if ($this->applied) return $this->cookie_user_name; }
