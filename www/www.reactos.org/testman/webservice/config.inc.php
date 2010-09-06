@@ -13,5 +13,5 @@
 	// aggregator script
 	// NOTE: The aggregator script allocates memory per test result, so this
 	// has no effect on the total log size
-	define("MAX_MEMORY", 700000);
+	define("MAX_MEMORY", 4000000);
 ?>
