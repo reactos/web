@@ -158,7 +158,7 @@ $messages = array(
 'category-file-count-limited'    => 'Бу категорияла {{PLURAL:$1|$1 файл}} бар.',
 'listingcontinuesabbrev'         => '(дауамы)',
 
-'mainpagetext'      => '<big>«MediaWiki» уңышлы рәүештә ҡоролдо.</big>',
+'mainpagetext'      => '«MediaWiki» уңышлы рәүештә ҡоролдо.',
 'mainpagedocfooter' => 'Был вики менән эшләү тураһында мәғлүмәтте [http://meta.wikimedia.org/wiki/Ярҙам:Белешмә ошонда] табып була.
 
 == Файҙалы сығанаҡтар ==
@@ -221,7 +221,7 @@ $messages = array(
 'personaltools'     => 'Шәхси ҡоралдар',
 'postcomment'       => 'Яңы бүлек',
 'articlepage'       => 'Мәҡәләне ҡарап сығырға',
-'talk'              => 'Фекер алышыу',
+'talk'              => 'Фекерләшеү',
 'views'             => 'Ҡарауҙар',
 'toolbox'           => 'Ҡоралдар',
 'userpage'          => 'Ҡулланыусы битен ҡарарға',
@@ -546,7 +546,7 @@ $2',
 'summary-preview'                  => 'Буласаҡ тасуирлама:',
 'subject-preview'                  => 'Тема/башлыҡты алдан ҡарау:',
 'blockedtitle'                     => 'Ҡулланыусы блокланған',
-'blockedtext'                      => "<big>'''Иҫәп яҙыуығыҙ йәки IP-адресығыҙ блокланған.'''</big>
+'blockedtext'                      => "'''Иҫәп яҙыуығыҙ йәки IP-адресығыҙ блокланған.'''
 
 Блоклаусы хәким: $1.
 Белдерелгән сәбәп: ''$2''.
@@ -750,7 +750,7 @@ $3 белдергән сәбәп: ''$2''",
 'revdelete-suppress'        => 'Мәғлүмәттәрҙе шулай уҡ хәкимдәрҙән дә йәшерергә',
 'revdelete-hide-image'      => 'Файл эстәлеген йәшерергә',
 'revdelete-unsuppress'      => 'Тергеҙелгән версияларҙан бар сикләүҙәрҙе алырға',
-'revdelete-log'             => 'Юйыу сәбәбе:',
+'revdelete-log'             => 'Сәбәп:',
 'revdelete-logentry'        => '[[$1]] бит версияһының күренеүсәнлеге үҙгәрҙе',
 'logdelete-logentry'        => '[[$1]] ваҡиғаһының күренеүсәнлеге үҙгәртелде',
 'revdelete-success'         => "'''Версия күренеүсәнлеге уңышлы үҙгәртелде.'''",
@@ -1117,7 +1117,7 @@ $3 белдергән сәбәп: ''$2''",
 # File deletion
 'filedelete'                  => '$1 юйырға',
 'filedelete-legend'           => 'Файлды юйырға',
-'filedelete-comment'          => 'Юйыу сәбәбе:',
+'filedelete-comment'          => 'Сәбәп:',
 'filedelete-submit'           => 'Юйырға',
 'filedelete-otherreason'      => 'Башҡа/өҫтәмә сәбәп:',
 'filedelete-reason-otherlist' => 'Башҡа сәбәп',
@@ -1305,7 +1305,7 @@ $3 белдергән сәбәп: ''$2''",
 'deletedarticle'         => '«[[$1]]» юйылды',
 'dellogpage'             => 'Юйыуҙар журналы',
 'deletionlog'            => 'Юйыуҙар журналы',
-'deletecomment'          => 'Юйыу сәбәбе:',
+'deletecomment'          => 'Сәбәп:',
 'deleteotherreason'      => 'Башҡа сәбәп/өҫтәмә:',
 'deletereasonotherlist'  => 'Башҡа сәбәп',
 'delete-edit-reasonlist' => 'Сәбәптәр исемлеген мөхәррирләргә',
@@ -1460,7 +1460,7 @@ $3 белдергән сәбәп: ''$2''",
 'move-watch'          => 'Был битте күҙәтеү исемлегенә өҫтәргә',
 'movepagebtn'         => 'Биттең исемен үҙгәртергә',
 'pagemovedsub'        => 'Бит исеме үҙгәртелде',
-'movepage-moved'      => "<big>'''«$1» битенең яңы исеме: «$2»'''</big>", # The two titles are passed in plain text as $3 and $4 to allow additional goodies in the message.
+'movepage-moved'      => "'''«$1» битенең яңы исеме: «$2»'''", # The two titles are passed in plain text as $3 and $4 to allow additional goodies in the message.
 'articleexists'       => 'Бындай исемле бит бар йәки һеҙ белдергән исем рөхсәт ителмәй.
 Зинһар, башҡа исем һайлағыҙ.',
 'talkexists'          => "'''Бит исеме үҙгәртелде, ләкин фекер алышыу битенең исемен үҙгәртеп булмай, сөнки ундай исемле бит бар инде. Зинһар, уларҙы үҙегеҙ берләштерегеҙ.'''",

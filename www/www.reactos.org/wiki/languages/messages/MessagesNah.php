@@ -175,7 +175,7 @@ $messages = array(
 'category-file-count-limited'    => 'Inīn {{PLURAL:$1|tlahcuilōlli cah|$1 tlahcuilōlli cateh}} inīn neneuhcāyōc.',
 'listingcontinuesabbrev'         => 'niman',
 
-'mainpagetext' => "<big>'''MediaHuiqui cualli ōmotlahtlāli.'''</big>",
+'mainpagetext' => "'''MediaHuiqui cualli ōmotlahtlāli.'''",
 
 'about'          => 'Ītechpa',
 'article'        => 'tlahcuilōlli',
@@ -677,7 +677,7 @@ Hueliz ōmopolo huiqui nozo ōmozacac.
 'userrights-editusergroup' => 'Tiquimpatlāz tlatequitiltilīlli olōlli',
 'saveusergroups'           => 'Tiquimpiyāz tlatequitiltilīlli olōlli',
 'userrights-groupsmember'  => 'Olōlco:',
-'userrights-reason'        => 'Tlapatlaliztli īxtlamatiliztli:',
+'userrights-reason'        => 'Īxtlamatiliztli:',
 'userrights-no-interwiki'  => 'Ahmo tihuelīti ticpatla tlatequitiltilīlli huelītiliztli occequīntīn huiquipan.',
 
 # Groups
@@ -845,7 +845,7 @@ Timitztlātlauhtiah, xitlahcuiloa occē tōcāitl.",
 # File deletion
 'filedelete'                  => 'Ticpolōz $1',
 'filedelete-legend'           => 'Ticpolōz tlahcuilōlli',
-'filedelete-comment'          => 'Tlapololiztli īxtlamatiliztli:',
+'filedelete-comment'          => 'Īxtlamatiliztli:',
 'filedelete-submit'           => 'Ticpolōz',
 'filedelete-success'          => "Ōmopolo '''$1'''.",
 'filedelete-nofile'           => "'''$1''' ahmo ia.",
@@ -1046,7 +1046,7 @@ Xiquitta $2 ic yancuīc tlapololiztli.',
 'deletedarticle'         => 'ōmopolo "$1"',
 'dellogpage'             => 'Tlapololiztli tlahcuilōlloh',
 'deletionlog'            => 'tlapololiztli tlahcuilōlloh',
-'deletecomment'          => 'Tlapololiztli īxtlamatiliztli:',
+'deletecomment'          => 'Īxtlamatiliztli:',
 'deleteotherreason'      => 'Occē īxtlamatiliztli:',
 'deletereasonotherlist'  => 'Occē īxtlamatiliztli',
 'delete-edit-reasonlist' => 'Tiquimpatlāz īxtlamatiliztli tlapoloaliztechcopa',
@@ -1129,7 +1129,7 @@ Xiquitta $2 ic yancuīc tlapololiztli.',
 'ipaddress'          => 'IP:',
 'ipadressorusername' => 'IP nozo tlatequitiltilīlli ītōcā:',
 'ipbexpiry'          => 'Motlamia:',
-'ipbreason'          => 'Īīxtlamatiliztli:',
+'ipbreason'          => 'Īxtlamatiliztli:',
 'ipbreasonotherlist' => 'Occē īxtlamatiliztli',
 'ipbsubmit'          => 'Tiquitzacuilīz inīn tlatequitiltilīlli',
 'ipbother'           => 'Occē cāuhpan:',
@@ -1175,7 +1175,7 @@ Hueliz cah inīn huēyi tlapatlaliztli. Timitztlātlauhtia ticmatīz cuallōtl a
 'move-watch'                => 'Tictlachiyāz inīn zāzanilli',
 'movepagebtn'               => 'Ticzacāz zāzanilli',
 'pagemovedsub'              => 'Cualli ōmozacac',
-'movepage-moved'            => '<big>\'\'\'"$1" ōmotlacuep īhuīc "$2".\'\'\'</big>', # The two titles are passed in plain text as $3 and $4 to allow additional goodies in the message.
+'movepage-moved'            => '\'\'\'"$1" ōmotlacuep īhuīc "$2".\'\'\'', # The two titles are passed in plain text as $3 and $4 to allow additional goodies in the message.
 'movedto'                   => 'ōmozacac īhuīc',
 'movetalk'                  => 'Ticzacāz nō tēixnāmiquiliztli tlahcuilōltechcopa.',
 'movepage-page-moved'       => 'Zāzanilli $1 ōmozacac īhuīc $2.',

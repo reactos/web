@@ -168,7 +168,7 @@ $messages = array(
 'listingcontinuesabbrev'         => 'ચાલુ..',
 
 'linkprefix'        => '/^(.*?)([a-zA-Z\\x80-\\xff]+)$/sD',
-'mainpagetext'      => "<big>'''મિડીયાવિકિ સફળતાપૂર્વક ઇન્સટોલ થયું છે.'''</big>",
+'mainpagetext'      => "'''મિડીયાવિકિ સફળતાપૂર્વક ઇન્સટોલ થયું છે.'''",
 'mainpagedocfooter' => 'વિકિ સોફ્ટવેર વાપરવાની માહીતિ માટે [http://meta.wikimedia.org/wiki/Help:Contents સભ્ય માર્ગદર્શિકા] જુઓ.
 
 == શરૂઆતના તબક્કે ==
@@ -560,7 +560,7 @@ Please log in again after you receive it.
 'summary-preview'                  => 'સારાંશ પૂર્વાવલોકન:',
 'subject-preview'                  => 'વિષય/શિર્ષક પૂર્વાવલોકન:',
 'blockedtitle'                     => 'સભ્ય પ્રતિબંધિત છે',
-'blockedtext'                      => "<big>'''આપનાં સભ્ય નામ અથવા આઇ.પી. એડ્રેસ પર પ્રતિબંધ મુકવામાં આવ્યો છે.'''</big>
+'blockedtext'                      => "'''આપનાં સભ્ય નામ અથવા આઇ.પી. એડ્રેસ પર પ્રતિબંધ મુકવામાં આવ્યો છે.'''
 
 આ પ્રતિબંધ  $1એ મુક્યો છે.
 જેને માટે કારણ આપવામાં આવ્યું છે કે, ''$2''.
@@ -873,7 +873,7 @@ Please log in again after you receive it.
 'filedelete-legend'           => 'ફાઇલ ભુસી નાખો.',
 'filedelete-intro'            => "તમે '''[[Media:$1|$1]]'' ફાઇલ અને તેની સાથે સંલગ્ન ઇતિહાસ ભુંસી રહ્યા છો.",
 'filedelete-intro-old'        => "તમે '''[[Media:$1|$1]]'''નું આ [$4 $3, $2] વર્ઝન ભુસી રહ્યા છો.",
-'filedelete-comment'          => 'દૂર કરવાનું કારણ:',
+'filedelete-comment'          => 'કારણ:',
 'filedelete-submit'           => 'ભુંસો',
 'filedelete-success'          => "'''$1'''ને ભુસી નાંખવામાં આવ્યું છે.",
 'filedelete-success-old'      => "'''[[Media:$1|$1]]'''નું $3, $2ના રોજનું  સંસ્કરણ ભુંસી નાખ્યું છે.",
@@ -1031,7 +1031,7 @@ Please log in again after you receive it.
 તાજેતરમાં દૂર કરેલા લેખોની વિગત માટે $2 જુઓ.',
 'deletedarticle'        => 'હટાવવામાં આવેલા "[[$1]]"',
 'dellogpage'            => 'હટાવેલાઓનું માહિતિ પત્રક (ડિલિશન લૉગ)',
-'deletecomment'         => 'હટાવવા માટેનું કારણ:',
+'deletecomment'         => 'કારણ:',
 'deleteotherreason'     => 'અન્ય/વધારાનું કારણ:',
 'deletereasonotherlist' => 'અન્ય કારણ',
 
@@ -1115,7 +1115,7 @@ Please log in again after you receive it.
 
 # Block/unblock
 'blockip'                  => 'સભ્ય પર પ્રતિબંધ મુકો',
-'ipbreason'                => 'કારણ',
+'ipbreason'                => 'કારણ:',
 'ipbreasonotherlist'       => 'બીજું કારણ',
 'ipbother'                 => 'અન્ય સમય',
 'ipboptions'               => '૨ કલાક:2 hours,૧ દિવસ:1 day,૩ દિવસ:3 days,૧ સપ્તાહ:1 week,૨ સપ્તાહ:2 weeks,૧ માસ:1 month,૩ માસ:3 months,૬ માસ:6 months,૧ વર્ષ:1 year,અમર્યાદ:infinite', # display1:time1,display2:time2,...
@@ -1155,7 +1155,7 @@ Please log in again after you receive it.
 'move-watch'              => 'આ પાનું ધ્યાનમાં રાખો',
 'movepagebtn'             => 'પાનું ખસેડો',
 'pagemovedsub'            => 'પાનું સફળતા પૂર્વક ખસેડવામાં આવ્યું છે',
-'movepage-moved'          => '<big>\'\'\'"$1" નું નામ બદલીને "$2" કરવામાં આવ્યું છે\'\'\'</big>', # The two titles are passed in plain text as $3 and $4 to allow additional goodies in the message.
+'movepage-moved'          => '\'\'\'"$1" નું નામ બદલીને "$2" કરવામાં આવ્યું છે\'\'\'', # The two titles are passed in plain text as $3 and $4 to allow additional goodies in the message.
 'articleexists'           => 'આ નામનું પાનું અસ્તિત્વમાં છે, અથવાતો તમે પસંદ કરેલું નામ અસ્વિકાર્ય છો.
 કૃપા કરી અન્ય નામ પસંદ કરો.',
 'talkexists'              => "'''મુખ્ય પાનું સફળતાપૂર્વક ખસેડવામાં આવ્યું છે, પરંતુ તેનું ચર્ચાનું પાનું ખસેડી શકાયું નથી, કેમકે નવા શિર્ષક હેઠળ તે પાનું પહેલેથી અસ્તિત્વમાં છે.
@@ -1165,7 +1165,7 @@ Please log in again after you receive it.
 '1movedto2'               => '[[$1]] નું નામ બદલી ને [[$2]] કરવામાં આવ્યું છે.',
 '1movedto2_redir'         => 'નામ બદલતા [[$1]] ને [[$2]] બનાવ્યું',
 'movelogpage'             => 'નામ ફેર માહિતિ પત્રક',
-'movereason'              => 'કારણ',
+'movereason'              => 'કારણ:',
 'revertmove'              => 'પૂર્વવત',
 'delete_and_move'         => 'હટાવો અને નામ બદલો',
 'delete_and_move_confirm' => 'હા, આ પાનું હટાવો',

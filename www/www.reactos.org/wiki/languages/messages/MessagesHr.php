@@ -326,7 +326,7 @@ $messages = array(
 'tog-enotifrevealaddr'        => 'Prikaži moju e-mail adresu u obavijestima o izmjeni',
 'tog-shownumberswatching'     => 'Prikaži broj suradnika koji prate stranicu (u nedavnim izmjenama, popisu praćenja i samim člancima)',
 'tog-fancysig'                => 'Običan potpis kao wikitekst (bez automatske poveznice)',
-'tog-externaleditor'          => 'Uvijek koristi vanjski editor',
+'tog-externaleditor'          => 'Uvijek rabi vanjski program za uređivanje (samo za napredne, potrebne su posebne postavke na računalu)',
 'tog-externaldiff'            => 'Uvijek koristi vanjski program za usporedbu',
 'tog-showjumplinks'           => 'Uključi pomoćne poveznice "Skoči na"',
 'tog-uselivepreview'          => 'Uključi trenutačni pretpregled (JavaScript) (eksperimentalno)',
@@ -415,7 +415,7 @@ $messages = array(
 'category-file-count-limited'    => '{{PLURAL:$1|datoteka je|$1 datoteke su|$1 datoteka su}} u ovoj kategoriji.',
 'listingcontinuesabbrev'         => 'nast.',
 
-'mainpagetext'      => "<big>'''Softver MediaWiki je uspješno instaliran.'''</big>",
+'mainpagetext'      => "'''Softver MediaWiki je uspješno instaliran.'''",
 'mainpagedocfooter' => 'Pogledajte [http://meta.wikimedia.org/wiki/MediaWiki_localisation dokumentaciju o prilagodbi sučelja]
 i [http://meta.wikimedia.org/wiki/MediaWiki_User%27s_Guide Vodič za suradnike] za pomoć pri uporabi i podešavanju.',
 
@@ -812,7 +812,7 @@ Možda ste već uspješno promijenili vašu lozinku ili ste zatražili novu priv
 'summary-preview'                  => 'Pregled sažetka:',
 'subject-preview'                  => 'Pregled predmeta:',
 'blockedtitle'                     => 'Suradnik je blokiran',
-'blockedtext'                      => '<big>\'\'\'Vaše suradničko ime ili IP adresa je blokirana\'\'\'</big>
+'blockedtext'                      => '\'\'\'Vaše suradničko ime ili IP adresa je blokirana\'\'\'
 
 Blokirao vas je $1.
 Iz sljedećeg razloga: \'\'$2\'\'.
@@ -1045,7 +1045,7 @@ Molimo potvrdite da to želite, da razumijete posljedice, i da to radite u sklad
 'revdelete-suppress'             => 'Sakrij podatke od administratora i ostalih suradnika',
 'revdelete-hide-image'           => 'Sakrij sadržaj datoteke (sakrij sliku)',
 'revdelete-unsuppress'           => 'Ukloni ograničenja na vraćenim izmjenama',
-'revdelete-log'                  => 'Razlog za brisanje:',
+'revdelete-log'                  => 'Razlog:',
 'revdelete-submit'               => 'Izvrši brisanje/sakrivanje',
 'revdelete-logentry'             => 'promijenjena vidljivost izmjene za [[$1]]',
 'logdelete-logentry'             => 'promijenjena vidljivost uređivanja [[$1]]',
@@ -1365,7 +1365,7 @@ Primijetite da uporaba navigacijskih poveznica resetira vaše izbore u koloni.',
 'right-move-subpages'         => 'Premještanje stranica s njihovim podstranicama',
 'right-move-rootuserpages'    => 'Premještanje osnovne stranice suradnika',
 'right-movefile'              => 'Premještanje datoteka',
-'right-suppressredirect'      => 'Ne radi preusmjeravanje od starog imena prilikom premještanja stranice',
+'right-suppressredirect'      => 'Ne raditi preusmjeravanje od starog imena prilikom premještanja stranice',
 'right-upload'                => 'Postavljanje datoteka',
 'right-reupload'              => 'Postavljanje nove inačice datoteke',
 'right-reupload-own'          => 'Postavljanje nove inačice vlastite datoteke',
@@ -1595,7 +1595,7 @@ Ukoliko se problem ponovi, javite to [[Special:ListUsers/sysop|administratoru]].
 'upload-curl-error28-text' => 'Poslužitelj ne odgovara na upit. Provjerite da li su web stranice dostupne, pričekajte i pokušajte ponovo. Možete pokušati kasnije, kad bude manja gužva.',
 
 'license'            => 'Licencija:',
-'nolicense'          => 'Molim odaberite:',
+'nolicense'          => 'Ništa nije odabrano',
 'license-nopreview'  => '(Prikaz nije moguć)',
 'upload_source_url'  => ' (valjani, javno dostupni URL)',
 'upload_source_file' => ' (datoteka na vašem računalu)',
@@ -1652,7 +1652,7 @@ Slijedeći popis prikazuje {{PLURAL:$1|stranice koje|prvih $1 stranica koje}} vo
 'filerevert'                => 'Ukloni ← $1',
 'filerevert-legend'         => 'Vrati datoteku',
 'filerevert-intro'          => "Vraćate '''[[Media:$1|$1]]''' na [$4 promjenu od $3, $2].",
-'filerevert-comment'        => 'Komentar:',
+'filerevert-comment'        => 'Razlog:',
 'filerevert-defaultcomment' => 'Vraćeno na inačicu od $2, $1',
 'filerevert-submit'         => 'Vrati',
 'filerevert-success'        => "'''[[Media:$1|$1]]''' je vraćena na [$4 promjenu od $3, $2].",
@@ -1663,7 +1663,7 @@ Slijedeći popis prikazuje {{PLURAL:$1|stranice koje|prvih $1 stranica koje}} vo
 'filedelete-legend'           => 'Izbriši datoteku',
 'filedelete-intro'            => "Brišete datoteku '''[[Media:$1|$1]]''' uključujući i sve njezine stare izmjene.",
 'filedelete-intro-old'        => "Brišete inačicu '''[[Media:$1|$1]]''' od [$4 $3, $2].",
-'filedelete-comment'          => 'Komentar:',
+'filedelete-comment'          => 'Razlog:',
 'filedelete-submit'           => 'Izbriši',
 'filedelete-success'          => "Datoteka '''$1''' je izbrisana.",
 'filedelete-success-old'      => "Inačica datoteke '''[[Media:$1|$1]]''' od $3, $2 je obrisana.",
@@ -2013,7 +2013,7 @@ Vidi $2 za evidenciju nedavnih brisanja.',
 Sva vremena su prema poslužiteljevom vremenu.',
 'deletionlog'            => 'evidencija brisanja',
 'reverted'               => 'Vraćeno na prijašnju inačicu',
-'deletecomment'          => 'Razlog za brisanje',
+'deletecomment'          => 'Razlog:',
 'deleteotherreason'      => 'Drugi/dodatni razlog:',
 'deletereasonotherlist'  => 'Drugi razlog',
 'deletereason-dropdown'  => '*Razlozi brisanja stranica
@@ -2126,13 +2126,13 @@ ili je promjena vraćena ili uklonjena iz arhive.',
 'undeletelink'                 => 'vidi/vrati',
 'undeletereset'                => 'Očisti',
 'undeleteinvert'               => 'Obrni odabir',
-'undeletecomment'              => 'Komentar:',
+'undeletecomment'              => 'Razlog:',
 'undeletedarticle'             => 'vraćena stranica "$1"',
 'undeletedrevisions'           => '{{PLURAL:$1|$1 inačica vraćena|$1 inačice vraćene|$1 inačica vraćeno}}',
 'undeletedrevisions-files'     => '{{PLURAL:$1|$1 promjena|$1 promjene|$1 promjena}} i {{PLURAL:$2|$2 datoteka vraćena|$2 datototeke vraćene|$2 datoteka vraćeno}}',
 'undeletedfiles'               => '{{PLURAL:$1|$1 datoteka vraćena|$1 datoteke vraćene|$1 datoteka vraćeno}}',
 'cannotundelete'               => 'Vraćanje obrisane inačice nije uspjelo; netko drugi je stranicu već vratio.',
-'undeletedpage'                => "<big>'''$1 je vraćena'''</big>
+'undeletedpage'                => "'''$1 je vraćena'''
 
 Pogledajte [[Special:Log/delete|evidenciju brisanja]] za zapise nedavnih brisanja i vraćanja.",
 'undelete-header'              => 'Pogledaj [[Special:Log/delete|evidenciju brisanja]] za nedavno obrisane stranice.',
@@ -2205,7 +2205,7 @@ vandalizirane).',
 'ipaddress'                       => 'IP adresa',
 'ipadressorusername'              => 'IP adresa ili suradničko ime',
 'ipbexpiry'                       => 'Rok (na engleskom)',
-'ipbreason'                       => 'Razlog',
+'ipbreason'                       => 'Razlog:',
 'ipbreasonotherlist'              => 'Drugi razlog',
 'ipbreason-dropdown'              => "*Najčešći razlozi za blokiranje
 ** Netočne informacije
@@ -2348,7 +2348,7 @@ ako to želite.",
 'move-watch'                   => 'Prati ovu stranicu',
 'movepagebtn'                  => 'Premjesti stranicu',
 'pagemovedsub'                 => 'Premještanje uspjelo',
-'movepage-moved'               => '<big>\'\'\'"$1" je premješteno na "$2"\'\'\'</big>', # The two titles are passed in plain text as $3 and $4 to allow additional goodies in the message.
+'movepage-moved'               => '\'\'\'"$1" je premješteno na "$2"\'\'\'', # The two titles are passed in plain text as $3 and $4 to allow additional goodies in the message.
 'movepage-moved-redirect'      => 'Napravljeno je preusmjeravanje.',
 'movepage-moved-noredirect'    => 'Stvaranje preusmjeravanja je izostavljeno.',
 'articleexists'                => 'Stranica pod tim imenom već postoji ili ime koje ste odabrali nije u skladu s pravilima.
@@ -2371,7 +2371,7 @@ Molimo odaberite drugo ime.',
 'movesubpage'                  => '{{PLURAL:$1|Podstranica|Podstranice}}',
 'movesubpagetext'              => 'Ova stranica ima $1 {{PLURAL:$1|podstarnicu|podstranice}} koje su prikazane ispod.',
 'movenosubpage'                => 'Ova stranica nema podstranica.',
-'movereason'                   => 'Razlog',
+'movereason'                   => 'Razlog:',
 'revertmove'                   => 'vrati',
 'delete_and_move'              => 'Izbriši i premjesti',
 'delete_and_move_text'         => '==Nužno brisanje==
@@ -2632,7 +2632,7 @@ $1',
 
 # Media information
 'mediawarning'         => "'''Upozorenje''': Ova datoteka možda sadrži štetan kod.
-Njegovim izvršavanjem mogli biste oštetiti svoj sustav.<hr />",
+Njegovim izvršavanjem mogli biste oštetiti svoj sustav.",
 'imagemaxsize'         => 'Ograniči veličinu slike na stranici s opisom:',
 'thumbsize'            => 'Veličina sličice (umanjene inačice slike):',
 'widthheightpage'      => '$1×$2, $3 {{PLURAL:$3|stranica|stranice}}',
@@ -3103,7 +3103,7 @@ Također možete koristiti [[Special:Watchlist/edit|uređivanje popisa putem ''k
 # Special:FilePath
 'filepath'         => 'Putanja datoteke',
 'filepath-page'    => 'Datoteka:',
-'filepath-submit'  => 'Putanja',
+'filepath-submit'  => 'Idi',
 'filepath-summary' => "Ova posebna stranica daje Vam kompletnu putanju do neke datoteke. Slike se na taj način prikazuju u punoj rezoluciji, drugi tipovi datoteka se otvaraju na klik (kako je već namješteno u vašem operacijskom sustavu).
 
 Unesite ime datoteke bez predmetka (''prefiksa'') imenskog prostora \"{{ns:file}}:\".",

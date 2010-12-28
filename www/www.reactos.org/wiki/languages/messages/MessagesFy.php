@@ -260,7 +260,7 @@ $messages = array(
 'category-file-count-limited'    => 'Dizze kategory befettet {{PLURAL:$1|de folgjende triem|de folgjende $1 triemmen}}.',
 'listingcontinuesabbrev'         => '(ferfolch)',
 
-'mainpagetext'      => "<big>'''MediaWiki-program goed ynstallearre.'''</big>",
+'mainpagetext'      => "'''MediaWiki-program goed ynstallearre.'''",
 'mainpagedocfooter' => "Rieplachtsje de [http://meta.wikimedia.org/wiki/Help:Ynhâldsopjefte hantlieding] foar ynformaasje oer it gebrûk fan 'e wikisoftware.
 
 == Mear help oer Mediawiki ==
@@ -646,7 +646,7 @@ Mûglik hawwe Jo Jo wachtwurd al feroare of in nij tydlik wachtwurd oanfrege.',
 'summary-preview'                  => 'Gearfetting sa at dy brûkt wurdt:',
 'subject-preview'                  => 'Neisjen ûnderwerp/kop:',
 'blockedtitle'                     => 'Meidogger is útsletten troch',
-'blockedtext'                      => "<big>'''Jo meidoggernamme of Ynternet-adres is útsletten.'''</big>
+'blockedtext'                      => "'''Jo meidoggernamme of Ynternet-adres is útsletten.'''
 
 De útsluting is útfierd troch $1.
 De opjûne reden is ''$2''.
@@ -866,7 +866,7 @@ Oare behearders fan {{SITENAME}} kinne de ferburgen ynhâld benaderje en it fuor
 'revdelete-suppress'             => 'Gegevens foar behearders likegoed as oaren ûnderdrukke',
 'revdelete-hide-image'           => 'Triem ynhâld ferskûlje',
 'revdelete-unsuppress'           => 'Beheinings op tebeksette feroarings fuorthelje',
-'revdelete-log'                  => 'Opmerking yn logboek:',
+'revdelete-log'                  => 'Reden:',
 'revdelete-submit'               => 'Tapasse op selektearre bewurking',
 'revdelete-logentry'             => 'sichtberens fan bewurkings is feroare foar [[$1]]',
 'logdelete-logentry'             => 'feroare sichtberens fan barren [[$1]]',
@@ -1146,7 +1146,7 @@ Gean nei oft latex, dvips, en gs goed ynstallearre binne en set om',
 * In oankrúst fekje betsjut dat de brûker lid is fan 'e groep.
 * In net oankrúst fekje betsjut dat de brûker gjin lid is fan 'e groep.
 * In \"*\" betsjut dat jo in brûker net út in groep weihelje kinne nei't jo dy tafoege hawwe, of oarsom.",
-'userrights-reason'           => 'Reden foar wizigjen:',
+'userrights-reason'           => 'Reden:',
 'userrights-no-interwiki'     => 'Jo hawwe gjin foech om rjochten fan meidoggers op oare wikis te wizigjen.',
 'userrights-nodatabase'       => 'Databank $1 bestiet net of is net lokaal.',
 'userrights-nologin'          => 'Jo moatte jo [[Special:UserLogin|oanmelde]] as rjochtenútfurder om rjochten fan meidoggers wizigje te kinnen.',
@@ -1516,7 +1516,7 @@ Der is ek in [[Special:WhatLinksHere/$2|folsleine list]].',
 'filedelete-legend'           => 'Wiskje triem',
 'filedelete-intro'            => "Jo wiskje '''[[Media:$1|$1]]'''.",
 'filedelete-intro-old'        => "Jo wiskje de ferzje fan '''[[Media:$1|$1]]''' fan [$4 $3, $2].",
-'filedelete-comment'          => 'Reden foar it wiskjen:',
+'filedelete-comment'          => 'Reden:',
 'filedelete-submit'           => 'Wiskje',
 'filedelete-success'          => "'''$1''' is wiske.",
 'filedelete-success-old'      => "De ferzje fan '''[[Media:$1|$1]]''' fan $2, $3 is fuorthelle.",
@@ -1779,7 +1779,7 @@ De ûntfanger kin dus daliks nei jo reagearje.',
 
 At jo letter in side net mear folgje wolle, dan brûke jo op dy side de keppeling \"Ferjit dizze side.\" Jo [[Special:Watchlist|folchlist]] hat ek in keppeling \"Jo folchlist bewurkje,\" foar at jo mear as ien side \"ferjitte\" wolle.",
 'removedwatch'       => 'Net mear folgje',
-'removedwatchtext'   => 'De side "<nowiki>$1</nowiki>" stiet net mear op jo folchlist.',
+'removedwatchtext'   => 'De side "[[:$1]]" stiet net mear op jo folchlist.',
 'watch'              => 'Folgje',
 'watchthispage'      => 'Folgje dizze side',
 'unwatch'            => 'Ferjit',
@@ -1849,7 +1849,7 @@ Sjoch "$2" foar in list fan wat resint wiske is.',
 (Tiden oanjûn as UTC).',
 'deletionlog'           => 'wiskloch',
 'reverted'              => 'Weromset nei eardere ferzje',
-'deletecomment'         => 'Reden foar it wiskjen',
+'deletecomment'         => 'Reden:',
 'deleteotherreason'     => 'Oare/eventuele reden:',
 'deletereasonotherlist' => 'Oare reden',
 'deletereason-dropdown' => '*Faak-brûkte redenen
@@ -1881,7 +1881,7 @@ Sjoch [[Special:ProtectedPages|Skoattele side]] foar mear ynformaasje.',
 'protect-title'               => 'Ynstellen fan befeiligingsnivo foar "$1"',
 'prot_1movedto2'              => '[[$1]] feroare ta [[$2]]',
 'protect-legend'              => 'Befeiliging befêstigje',
-'protectcomment'              => 'Reden foar it skoatteljen',
+'protectcomment'              => 'Reden:',
 'protectexpiry'               => 'Ferrint nei',
 'protect_expiry_invalid'      => 'Tiid fan ferrinnen is net jildich.',
 'protect_expiry_old'          => 'Tiid fan ferrinnen leit yn it ferline.',
@@ -1994,7 +1994,7 @@ Meld de krekte reden! Neam bygelyks de siden dy't oantaaste waarden.",
 'ipaddress'            => 'Meidochnamme of ynternet-adres',
 'ipadressorusername'   => 'IP Adres of meidoggernamme:',
 'ipbexpiry'            => 'Ferrint nei:',
-'ipbreason'            => 'Reden',
+'ipbreason'            => 'Reden:',
 'ipbreasonotherlist'   => 'Oare reden',
 'ipbreason-dropdown'   => '*Faak foarkommende redenen foar blokkades
 ** Ferkearde ynformaasje ynfiere
@@ -2085,7 +2085,7 @@ In dizze gefallen is it oan jo hoe't jo de oerlisside werneame of ynfoegje wolle
 'move-watch'              => 'Folch dizze side',
 'movepagebtn'             => 'Werneam side',
 'pagemovedsub'            => 'Werneamen slagge',
-'movepage-moved'          => '<big>\'\'\'"$1" hjit no "$2"\'\'\'</big>', # The two titles are passed in plain text as $3 and $4 to allow additional goodies in the message.
+'movepage-moved'          => '\'\'\'"$1" hjit no "$2"\'\'\'', # The two titles are passed in plain text as $3 and $4 to allow additional goodies in the message.
 'articleexists'           => "Der is al in side mei dy namme, of oars is de namme dy't jo oanjûn hawwe net tastien. Besykje it op 'e nij.",
 'talkexists'              => "It werneamen fan de side is slagge, mar de eardere oerlisside is net mear keppele om't der foar de side mei de nije namme al in oerlisside wie. Kopiearje de oerlisside fan de 'âlde' side mei de nije.",
 'movedto'                 => 'werneamd as',

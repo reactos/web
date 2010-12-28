@@ -10,6 +10,7 @@
  * @author Asoxor
  * @author Bangin
  * @author Erdal Ronahi
+ * @author The Evil IP address
  */
 
 $namespaceNames = array(
@@ -151,7 +152,7 @@ $messages = array(
 'category-file-count-limited'    => "Ev {{PLURAL:$1|data'yê|$1 datayên}} jêr di vê kategorîyê da ne.",
 'listingcontinuesabbrev'         => 'dewam',
 
-'mainpagetext'      => "<big>'''MediaWiki serketî hate çêkirin.'''</big>",
+'mainpagetext'      => "'''MediaWiki serketî hate çêkirin.'''",
 'mainpagedocfooter' => 'Alîkarî ji bo bikaranîn û guherandin yê datayê Wîkî tu di bin [http://meta.wikimedia.org/wiki/Help:Contents pirtûka alîkarîyê ji bikarhêneran] da dikarê bibînê.
 
 == Alîkarî ji bo destpêkê ==
@@ -507,7 +508,7 @@ Eger account\'a bikarhêneran şaşî hate çêkirin, guhdare vê peyamê meke.'
 'summary-preview'                  => 'Pêşdîtinê kurtenivîsê:',
 'subject-preview'                  => 'Pêşdîtinê sernivîsê:',
 'blockedtitle'                     => 'Bikarhêner hat asteng kirin',
-'blockedtext'                      => "<big>'''Navî te ya IP'ya te hate astengkirin.'''</big>
+'blockedtext'                      => "'''Navî te ya IP'ya te hate astengkirin.'''
 
 Astengkirinê te ji $1 hate çêkirin. Sedemê astengkirinê te ev e: ''$2''.
 
@@ -758,7 +759,7 @@ Sedemê qedexekirinê ji $3 ev e: ''$2''",
 * Çargoşeyekî nîşankirî dibêje ku ev bikarhênera di wê grûpê da ye.
 * Çargoşeyekî nenîşankirî dibêje ku ev bikarhênera ne di wê grûpê da ye.
 * Stêrkek (*) nîşandide ku du nikarê wê grûpê dîsa jêbibê eger te da wî.',
-'userrights-reason'           => 'Sedemê guherandinê:',
+'userrights-reason'           => 'Sedem',
 'userrights-no-interwiki'     => 'Mafên te ji bo guherandina mafên bikarhêneran di Wîkîyên din da tune ne.',
 'userrights-nodatabase'       => "Database'a $1 tune ye ya ne yê vir e.",
 'userrights-nologin'          => "Ji bo guherandina mafên bikarhêneran, tu gereke xwe bi account'eka koordînatorekî [[Special:UserLogin|qeydbikê]].",
@@ -944,7 +945,7 @@ Zanibe, ku ev barkirina kê were qebûlkirin ya na.
 'filedelete-legend'           => 'Data jêbibe',
 'filedelete-intro'            => "Tu kê '''[[Media:$1|$1]]''' jêbibê.",
 'filedelete-intro-old'        => "Tu niha verzyona '''[[Media:$1|$1]]''' [$4 verzyon, ji $2, saet $3] jêdibê.",
-'filedelete-comment'          => 'Nivîs:',
+'filedelete-comment'          => 'Sedem',
 'filedelete-submit'           => 'Jêbibe',
 'filedelete-success'          => "'''$1''' hate jêbirin.",
 'filedelete-success-old'      => "<span class=\"plainlinks\">Verzyona \$2 ji data'ya '''[[Media:\$1|\$1]]''' di saet \$3 da hate jêbirin.</span>",
@@ -1111,7 +1112,7 @@ Li rûpela [[Special:RecentChanges|Guherandinên dawî]] jî ji bo hasan dîtina
 
 <p>Her dem tu bixwazî ew rûpel li nav lîsteya te ya şopandinê derbikî, li ser wê rûpelê, klîk bike \"êdî neşopîne\".</p>",
 'removedwatch'         => 'Ji lîsteya şopandinê hate jêbirin',
-'removedwatchtext'     => 'Rûpela "<nowiki>$1</nowiki>" ji lîsteya te ya şopandinê hate jêbirin.',
+'removedwatchtext'     => 'Rûpela "[[:$1]]" ji lîsteya te ya şopandinê hate jêbirin.',
 'watch'                => 'Bişopîne',
 'watchthispage'        => 'Vê rûpelê bişopîne',
 'unwatch'              => 'Êdî neşopîne',
@@ -1178,7 +1179,7 @@ Eger tu dixazê lîstêya xwe yê şopandinê biguherînê, li
 'dellogpagetext'         => 'Li jêr lîsteyek ji jêbirinên dawî heye.',
 'deletionlog'            => 'reşahîya jêbirin',
 'reverted'               => 'Hate şondabirin berve verzyonekî berê',
-'deletecomment'          => 'Sedema jêbirinê',
+'deletecomment'          => 'Sedem',
 'deleteotherreason'      => 'Sedemekî din:',
 'deletereasonotherlist'  => 'Sedemekî din',
 'deletereason-dropdown'  => '*Sedemên jêbirinê
@@ -1209,7 +1210,7 @@ Guhartoya dawî bi [[User:$3|$3]] ([[User talk:$3|guftûgo]]).',
 'protect-title'               => 'parastina "$1" biguherîne',
 'prot_1movedto2'              => '$1 çû cihê $2',
 'protect-legend'              => 'Parastinê teyîd bike',
-'protectcomment'              => 'Sedema parastinê',
+'protectcomment'              => 'Sedem',
 'protectexpiry'               => 'Heta:',
 'protect_expiry_invalid'      => 'Dema nivîsandî şaş e.',
 'protect_expiry_old'          => 'Dema girtinê di zemanê berê da ye.',
@@ -1247,7 +1248,7 @@ Guhartoya dawî bi [[User:$3|$3]] ([[User talk:$3|guftûgo]]).',
 'undeletedrevisions'       => '{{PLURAL:$1|Verzyonek dîsa hate|$1 verzyon dîsa hatin}} çêkirin',
 'undeletedrevisions-files' => '{{PLURAL:$1|Verzyonek|$1 verzyon}} û {{PLURAL:$2|medyayek hate|$2 medya hatin}} çêkirin',
 'undeletedfiles'           => '{{PLURAL:$1|Medyayek hate|$1 medya hatin}} çêkirin',
-'undeletedpage'            => "<big>'''$1 dîsa hate çêkirin'''</big>
+'undeletedpage'            => "'''$1 dîsa hate çêkirin'''
 
 Ji bo jêbirinan û çêkirinên nuh ra, xêra xwe di [[Special:Log/delete|reşahîya jêbirinê]] da seke.",
 'undelete-header'          => '[[Special:Log/delete|Reşahîya jêbirinê]] bibîne ji bo rûpelên jêbirî.',
@@ -1397,7 +1398,7 @@ da bikarî navê wê rûpelê biguherînî.',
 'move-watch'                => 'Vê rûpelê bişopîne',
 'movepagebtn'               => 'Vê rûpelê bigerîne',
 'pagemovedsub'              => 'Gerandin serkeftî',
-'movepage-moved'            => '<big>\'\'\'"$1" çû cihê "$2"\'\'\'</big>', # The two titles are passed in plain text as $3 and $4 to allow additional goodies in the message.
+'movepage-moved'            => '\'\'\'"$1" çû cihê "$2"\'\'\'', # The two titles are passed in plain text as $3 and $4 to allow additional goodies in the message.
 'movepage-moved-noredirect' => "Redirect'ek nehate çêkirin",
 'articleexists'             => 'Rûpela bi vî navî heye, an navê ku te hilbijart derbas nabe. Navekî din hilbijêre.',
 'cantmove-titleprotected'   => 'Tu nikanê vê rûpelê bervê vê cihê bigerînê ji ber ku sernava nuh tê parastin ji bo çêkirinê',
@@ -1406,8 +1407,8 @@ da bikarî navê wê rûpelê biguherînî.',
 'movepage-page-exists'      => 'Rûpela $1 berê heye û ew nikane otomatîk were jêbirin.',
 'movepage-page-moved'       => 'Rûpela $1 çû cihê $2.',
 'movepage-page-unmoved'     => 'Rûpela $1 nikanî çûba ciha $2.',
-'1movedto2'                 => '$1 çû cihê $2',
-'1movedto2_redir'           => '$1 çû cihê $2 ser redirect',
+'1movedto2'                 => '[[$1]] çû cihê [[$2]]',
+'1movedto2_redir'           => '[[$1]] çû cihê [[$2]] ser redirect',
 'movelogpage'               => 'Reşahîya nav guherandin',
 'movelogpagetext'           => 'Li jêr lîsteyek ji rûpelan ku navê wan hatiye guherandin heye.',
 'movereason'                => 'Sedem',

@@ -251,7 +251,7 @@ $messages = array(
 'category-file-count-limited'    => 'Le sequente {{PLURAL:$1|file es|$1 files es}} in le categoria actual.',
 'listingcontinuesabbrev'         => 'cont.',
 
-'mainpagetext'      => "<big>'''MediaWiki ha essite installate con successo.'''</big>",
+'mainpagetext'      => "'''MediaWiki ha essite installate con successo.'''",
 'mainpagedocfooter' => 'Consulta le [http://meta.wikimedia.org/wiki/Help:Contents Guida del usator] pro informationes super le uso del software wiki.
 
 == Pro initiar ==
@@ -500,7 +500,7 @@ Le motivo specificate es ''$2''.",
 'logouttext'                 => "'''Tu ha claudite le session.'''
 
 Tu pote continuar a usar {{SITENAME}} anonymemente, o tu pote [[Special:UserLogin|aperir un nove session]] con le mesme nomine de usator o con un altere.
-Nota que alcun paginas pote continuar a apparer como si tu esserea ancora identificate. Pro remediar isto, tu pote vacuar le cache de tu navigator.",
+Nota que alcun paginas pote continuar a apparer como si tu esserea ancora authenticate. Pro remediar isto, tu pote vacuar le cache de tu navigator.",
 'welcomecreation'            => '== Benvenite, $1! ==
 Tu conto ha essite create.
 Non oblida personalisar tu [[Special:Preferences|preferentias in {{SITENAME}}]].',
@@ -513,16 +513,16 @@ Non oblida personalisar tu [[Special:Preferences|preferentias in {{SITENAME}}]].
 'externaldberror'            => 'O il occurreva un error in le base de datos de authentication, o tu non ha le autorisation de actualisar tu conto externe.',
 'login'                      => 'Aperir session',
 'nav-login-createaccount'    => 'Aperir session / crear conto',
-'loginprompt'                => 'Tu debe haber activate le cookies pro poter identificar te a {{SITENAME}}.',
+'loginprompt'                => 'Tu debe haber activate le cookies pro poter aperir un session in {{SITENAME}}.',
 'userlogin'                  => 'Aperir session / crear conto',
 'logout'                     => 'Clauder session',
 'userlogout'                 => 'Clauder session',
 'notloggedin'                => 'Tu non ha aperite un session',
 'nologin'                    => "Tu non ha un conto? '''$1'''.",
-'nologinlink'                => 'Crear un conto',
-'createaccount'              => 'Crear nove conto',
+'nologinlink'                => 'Crea un conto',
+'createaccount'              => 'Crear conto',
 'gotaccount'                 => "Tu jam ha un conto? '''$1'''.",
-'gotaccountlink'             => 'Aperir un session',
+'gotaccountlink'             => 'Aperi un session',
 'createaccountmail'          => 'per e-mail',
 'badretype'                  => 'Le duo contrasignos que tu scribeva non es identic.',
 'userexists'                 => 'Le nomine de usator que tu entrava es ja in uso.
@@ -547,7 +547,7 @@ Illo debe haber minus de $1 {{PLURAL:$1|character|characteres}}.',
 'prefs-help-realname'        => 'Le nomine real es optional.
 Si tu opta pro dar lo, isto essera usate pro dar te attribution pro tu contributiones.',
 'loginerror'                 => 'Error in le apertura del session',
-'prefs-help-email'           => 'Le adresse de e-mail es optional, sed permitte facer inviar te tu contrasigno in caso que tu lo oblida. Tu pote etiam optar pro permitter que altere personas te contacta via tu pagina de usator o de discussion, sin necessitate de revelar tu identitate.',
+'prefs-help-email'           => 'Le adresse de e-mail es optional, ma es necessari pro le reinitialisation de tu contrasigno, in caso que tu lo oblida. Tu pote etiam optar pro permitter que altere personas te contacta via tu pagina de usator o de discussion, sin necessitate de revelar tu identitate.',
 'prefs-help-email-required'  => 'Le adresse de e-mail es requirite.',
 'nocookiesnew'               => "Le conto de usator ha essite create, sed tu non ha aperite un session.
 {{SITENAME}} usa ''cookies'' pro mantener le sessiones del usatores.
@@ -558,7 +558,7 @@ Tu ha disactivate le functionalitate del ''cookies''.
 Per favor activa lo e reprova.",
 'noname'                     => 'Tu non specificava un nomine de usator valide.',
 'loginsuccesstitle'          => 'Session aperite con successo',
-'loginsuccess'               => "'''Tu es ora identificate in {{SITENAME}} como \"\$1\".'''",
+'loginsuccess'               => "'''Tu es ora authenticate in {{SITENAME}} como \"\$1\".'''",
 'nosuchuser'                 => 'Non existe un usator con le nomine "$1".
 In le nomines de usator se distingue inter majusculas e minusculas.
 Verifica le orthographia, o [[Special:UserLogin/signup|crea un nove conto]].',
@@ -587,8 +587,8 @@ Per favor initia un session post reciper lo.',
 'blocked-mailpassword'       => 'Tu adresse IP es blocate de facer modificationes, e pro impedir le abuso, le uso del function pro recuperar contrasignos es equalmente blocate.',
 'eauthentsent'               => 'Un e-mail de confirmation ha essite inviate al adresse de e-mail nominate.
 Ante que alcun altere e-mail se invia al conto, tu debera sequer le instructiones in le e-mail, pro confirmar que le conto es de facto tue.',
-'throttled-mailpassword'     => 'Un memento del contrasigno jam esseva inviate durante le ultime {{PLURAL:$1|hora|$1 horas}}.
-Pro impedir le abuso, nos invia solmente un memento de contrasigno per {{PLURAL:$1|hora|$1 horas}}.',
+'throttled-mailpassword'     => 'Un rememoration del contrasigno ha jam essite inviate intra le ultime {{PLURAL:$1|hora|$1 horas}}.
+Pro prevenir le abuso, solmente un rememoration de contrasigno essera inviate per {{PLURAL:$1|hora|$1 horas}}.',
 'mailerror'                  => 'Error de inviar e-mail: $1',
 'acct_creation_throttle_hit' => 'Le visitatores de iste wiki usante tu adresse IP ha create {{PLURAL:$1|1 conto|$1 contos}} durante le ultime die, e isto es le maximo permittite in iste periodo de tempore.
 A causa de isto, le visitatores usante iste adresse IP non pote crear nove contos al momento.',
@@ -666,17 +666,17 @@ Es possibile que tu ha ja cambiate tu contrasigno o requestate un nove contrasig
 'showpreview'                      => 'Monstrar previsualisation',
 'showlivepreview'                  => 'Previsualisation directe',
 'showdiff'                         => 'Detaliar modificationes',
-'anoneditwarning'                  => "'''Attention:''' Tu non te ha identificate.
+'anoneditwarning'                  => "'''Attention:''' Tu non ha aperite un session.
 Tu adresse IP essera registrate in le historia de modificationes de iste pagina.",
-'missingsummary'                   => "'''Memento:''' Tu non entrava alcun summario del modification.
-Si tu clicca super Publicar de novo, le modification essera publicate sin summario.",
+'missingsummary'                   => "'''Rememoration:''' Tu non ha specificate un summario del modification.
+Si tu clicca super \"{{int:savearticle}}\" de novo, le modification essera publicate sin summario.",
 'missingcommenttext'               => 'Per favor entra un commento infra.',
 'missingcommentheader'             => "'''Memento:''' Tu non entrava un subjecto/titulo pro iste commento.
 Si tu clicca super Publicar de novo, tu commento essera publicate sin subjecto/titulo.",
 'summary-preview'                  => 'Previsualisation del summario:',
 'subject-preview'                  => 'Previsualisation del subjecto/titulo:',
 'blockedtitle'                     => 'Le usator es blocate',
-'blockedtext'                      => "<big>'''Tu nomine de usator o adresse IP ha essite blocate.'''</big>
+'blockedtext'                      => "'''Tu nomine de usator o adresse IP ha essite blocate.'''
 
 Le blocada esseva facite per $1.
 Le motivo presentate es ''$2''.
@@ -808,8 +808,8 @@ Le administrator qui lo blocava dava iste explication: $1",
 'hiddencategories'                 => 'Iste pagina es membro de {{PLURAL:$1|1 categoria|$1 categorias}} celate:',
 'edittools'                        => '<!-- Iste texto se monstrara sub le formularios de modificar articulos e de incargar files. -->',
 'nocreatetitle'                    => 'Creation de paginas limitate',
-'nocreatetext'                     => '{{SITENAME}} ha restringite le permission de crear nove paginas.
-Tu pote retornar e modificar un pagina existente, o [[Special:UserLogin|identificar te, o crear un conto]].',
+'nocreatetext'                     => '{{SITENAME}} ha restringite le possibilitate de crear nove paginas.
+Tu pote retornar e modificar un pagina existente, o [[Special:UserLogin|aperir un session, o crear un conto]].',
 'nocreate-loggedin'                => 'Tu non ha le permission de crear nove paginas.',
 'permissionserrors'                => 'Errores de permissiones',
 'permissionserrorstext'            => 'Tu non ha le permission de facer isto, pro le sequente {{PLURAL:$1|motivo|motivos}}:',
@@ -925,15 +925,15 @@ Per favor confirma que tu ha le intention de facer isto, que tu comprende le con
 * Informationes personal inappropriate
 *: ''adresses de domicilio e numeros de telephono, numeros de securitate social, etc.''",
 'revdelete-legend'               => 'Definir restrictiones de visibilitate',
-'revdelete-hide-text'            => 'Celar texto del version',
+'revdelete-hide-text'            => 'Celar le texto del version',
 'revdelete-hide-name'            => 'Celar action e objectivo',
-'revdelete-hide-comment'         => 'Celar commento de modification',
-'revdelete-hide-user'            => 'Celar nomine de usator o adresse IP del modificator',
+'revdelete-hide-comment'         => 'Celar le summario del modification',
+'revdelete-hide-user'            => 'Celar le nomine de usator o adresse IP del modificator',
 'revdelete-hide-restricted'      => 'Supprimer le datos a administratores assi como a alteres',
 'revdelete-suppress'             => 'Supprimer le datos a administratores assi como a alteres',
-'revdelete-hide-image'           => 'Celar contento del file',
+'revdelete-hide-image'           => 'Celar le contento del file',
 'revdelete-unsuppress'           => 'Eliminar restrictiones super versiones restaurate',
-'revdelete-log'                  => 'Motivo pro deletion:',
+'revdelete-log'                  => 'Motivo:',
 'revdelete-submit'               => 'Applicar al version seligite',
 'revdelete-logentry'             => 'cambiava le visibilitate de versiones pro [[$1]]',
 'logdelete-logentry'             => 'cambiava le visibilitate de eventos pro [[$1]]',
@@ -1123,7 +1123,7 @@ Nota que lor indices del contento de {{SITENAME}} pote esser obsolete.',
 'preferences'               => 'Preferentias',
 'mypreferences'             => 'Mi preferentias',
 'prefs-edits'               => 'Numero de modificationes:',
-'prefsnologin'              => 'Tu non te ha identificate',
+'prefsnologin'              => 'Tu non ha aperite un session',
 'prefsnologintext'          => 'Tu debe <span class="plainlinks">[{{fullurl:Special:UserLogin|returnto=$1}} aperir un session] pro poter configurar tu preferentias.',
 'prefsreset'                => 'Tu preferentias anterior ha essite restaurate.',
 'qbsettings'                => 'Barra rapide',
@@ -1155,7 +1155,7 @@ per favor vide math/README pro configurar lo.",
 'prefs-watchlist'           => 'Observatorio',
 'prefs-watchlist-days'      => 'Numero de dies a monstrar in le observatorio:',
 'prefs-watchlist-days-max'  => '(non plus de 7 dies)',
-'prefs-watchlist-edits'     => 'Numero maximal de modificationes a monstrar in le observatorio expandite:',
+'prefs-watchlist-edits'     => 'Numero maxime de modificationes a monstrar in le observatorio expandite:',
 'prefs-watchlist-edits-max' => '(numero maxime: 1000)',
 'prefs-misc'                => 'Misc',
 'prefs-resetpass'           => 'Cambiar contrasigno',
@@ -1391,7 +1391,7 @@ Le paginas presente in [[Special:Watchlist|tu observatorio]] appare in litteras 
 'uploadbtn'                   => 'Incargar file',
 'reupload'                    => 'Recargar',
 'reuploaddesc'                => 'Cancellar e retornar al formulario de incargamento',
-'uploadnologin'               => 'Tu non te ha identificate',
+'uploadnologin'               => 'Tu non ha aperite un session',
 'uploadnologintext'           => 'Tu debe [[Special:UserLogin|aperir un session]] pro poter incargar files.',
 'upload_directory_missing'    => 'Le directorio de incargamento ($1) manca, e le servitor de web non poteva crear lo.',
 'upload_directory_read_only'  => 'Le servitor web non ha le permission de scriber in le directorio de incargamento ($1).',
@@ -1576,7 +1576,7 @@ Un [[Special:WhatLinksHere/$2|lista complete]] es disponibile.',
 'filerevert'                => 'Reverter $1',
 'filerevert-legend'         => 'Reverter file',
 'filerevert-intro'          => "Tu reverte '''[[Media:$1|$1]]''' al [$4 version del $3 a $2].",
-'filerevert-comment'        => 'Commento:',
+'filerevert-comment'        => 'Motivo:',
 'filerevert-defaultcomment' => 'Revertite al version del $2 a $1',
 'filerevert-submit'         => 'Reverter',
 'filerevert-success'        => "'''[[Media:$1|$1]]''' ha essite revertite al [$4 version del $3 a $2].",
@@ -1587,7 +1587,7 @@ Un [[Special:WhatLinksHere/$2|lista complete]] es disponibile.',
 'filedelete-legend'           => 'Deler file',
 'filedelete-intro'            => "Tu es super le puncto de deler le file '''[[Media:$1|$1]]''' con tote su historia.",
 'filedelete-intro-old'        => "Tu va deler le version de '''[[Media:$1|$1]]''' del [$4 $3 a $2].",
-'filedelete-comment'          => 'Motivo pro deletion:',
+'filedelete-comment'          => 'Motivo:',
 'filedelete-submit'           => 'Deler',
 'filedelete-success'          => "'''$1''' ha essite delite.",
 'filedelete-success-old'      => "Le version de '''[[Media:$1|$1]]''' del $3 a $2 ha essite delite.",
@@ -1941,7 +1941,7 @@ Vide $2 pro un registro de deletiones recente.',
 Tote le horas es in le fuso horari del servitor.',
 'deletionlog'            => 'registro de deletiones',
 'reverted'               => 'Revertite al version anterior',
-'deletecomment'          => 'Motivo pro deletion:',
+'deletecomment'          => 'Motivo:',
 'deleteotherreason'      => 'Motivo altere/additional:',
 'deletereasonotherlist'  => 'Altere motivo',
 'deletereason-dropdown'  => '*Motivos habitual pro deler paginas
@@ -2047,7 +2047,7 @@ Le archivo pote esser vacuate periodicamente.',
 'undelete-fieldset-title'      => 'Restaurar versiones',
 'undeleteextrahelp'            => "Pro restaurar le historia integre del pagina, lassa tote le quadratos dismarcate e clicca '''''Restaurar'''''.
 Pro executar un restauration selective, marca le quadratos correspondente al versiones pro restaurar, e clicca '''''Restaurar'''''.
-Le button '''''Reinitiar''''' face rader le campo de commento e tote le quadratos.",
+Le button '''''Reinitialisar''''' face rader le campo de commento e tote le quadratos.",
 'undeleterevisions'            => '$1 {{PLURAL:$1|version|versiones}} archivate',
 'undeletehistory'              => 'Si tu restaura un pagina, tote le versiones essera restaurate al historia.
 Si un nove pagina con le mesme nomine ha essite create post le deletion, le versiones
@@ -2065,14 +2065,14 @@ Es possibile que le adresse URL es invalide, o que le version ha essite restaura
 'undeletelink'                 => 'vider/restaurar',
 'undeletereset'                => 'Reinitialisar',
 'undeleteinvert'               => 'Inverter selection',
-'undeletecomment'              => 'Commento:',
+'undeletecomment'              => 'Motivo:',
 'undeletedarticle'             => 'restaurava "[[$1]]"',
 'undeletedrevisions'           => '{{PLURAL:$1|1 version|$1 versiones}} restaurate',
 'undeletedrevisions-files'     => '{{PLURAL:$1|1 version|$1 versiones}} e {{PLURAL:$2|1 file|$2 files}} restaurate',
 'undeletedfiles'               => '$1 {{PLURAL:$1|archivo|archivos}} restaurate',
 'cannotundelete'               => 'Le restauration ha fallite;
 es possibile que un altere persona ha ja restaurate le pagina.',
-'undeletedpage'                => "<big>'''$1 ha essite restaurate'''</big>
+'undeletedpage'                => "'''$1 ha essite restaurate'''
 
 Consulta le [[Special:Log/delete|registro de deletiones]] pro un lista de deletiones e restaurationes recente.",
 'undelete-header'              => 'Vide [[Special:Log/delete|le registro de deletiones]] pro un lista de paginas recentemente delite.',
@@ -2162,7 +2162,7 @@ specific que ha essite vandalisate).',
 'ipbemailban'                     => 'Impedir que le usator invia e-mail',
 'ipbenableautoblock'              => 'Blocar automaticamente le adresse IP usate le plus recentemente per iste usator, e omne IPs successive desde le quales ille/-a tenta facer modificationes',
 'ipbsubmit'                       => 'Blocar iste adresse',
-'ipbother'                        => 'Altere tempore:',
+'ipbother'                        => 'Altere durata:',
 'ipboptions'                      => '2 horas:2 hours,1 die:1 day,3 dies:3 days,1 septimana:1 week,2 septimanas:2 weeks,1 mense:1 month,3 menses:3 months,6 menses:6 months,1 anno:1 year,infinite:infinite', # display1:time1,display2:time2,...
 'ipbotheroption'                  => 'altere',
 'ipbotherreason'                  => 'Motivo altere/additional:',
@@ -2303,7 +2303,7 @@ Il tal casos, tu debera renominar o fusionar le pagina manualmente si desirate."
 'move-watch'                   => 'Observar le paginas de origine e de destination',
 'movepagebtn'                  => 'Renominar pagina',
 'pagemovedsub'                 => 'Renomination succedite',
-'movepage-moved'               => '<big>\'\'\'"$1" ha essite renominate a "$2"\'\'\'</big>', # The two titles are passed in plain text as $3 and $4 to allow additional goodies in the message.
+'movepage-moved'               => '\'\'\'"$1" ha essite renominate a "$2"\'\'\'', # The two titles are passed in plain text as $3 and $4 to allow additional goodies in the message.
 'movepage-moved-redirect'      => 'Un redirection ha essite create.',
 'movepage-moved-noredirect'    => 'Le creation de un redirection ha essite supprimite.',
 'articleexists'                => 'Un pagina con iste nomine ja existe, o le nomine seligite non es valide.
@@ -2342,7 +2342,7 @@ non pote renominar un pagina al mesme titulo.',
 'immobile-target-namespace-iw' => 'Un ligamine interwiki non es un destination valide pro le renomination de un pagina.',
 'immobile-source-page'         => 'Iste pagina non es renominabile.',
 'immobile-target-page'         => 'Non pote renominar a iste titulo de destination.',
-'imagenocrossnamespace'        => 'Non pote renominar file verso un spatio de nomines non-file',
+'imagenocrossnamespace'        => 'Impossibile renominar un file verso un spatio de nomines non-file',
 'imagetypemismatch'            => 'Le nove extension del nomine del file non corresponde al typo del file',
 'imageinvalidfilename'         => 'Le nomine del file de destination es invalide',
 'fix-double-redirects'         => 'Actualisar tote le redirectiones que puncta verso le titulo original',
@@ -2442,8 +2442,8 @@ Salveguarda lo in tu computator e incarga lo hic.',
 'tooltip-pt-preferences'          => 'Mi preferentias',
 'tooltip-pt-watchlist'            => 'Le lista de paginas del quales tu seque le modificationes',
 'tooltip-pt-mycontris'            => 'Lista de tu contributiones',
-'tooltip-pt-login'                => 'Nos recommenda que tu te identifica, ma il non es obligatori.',
-'tooltip-pt-anonlogin'            => 'Nos te invita a aperir un session, ma il non es obligatori.',
+'tooltip-pt-login'                => 'Nos recommenda que tu te authentica, ma non es obligatori.',
+'tooltip-pt-anonlogin'            => 'Nos recommenda que tu te authentica, ma non es obligatori.',
 'tooltip-pt-logout'               => 'Clauder session',
 'tooltip-ca-talk'                 => 'Discussiones a proposito del pagina de contento',
 'tooltip-ca-edit'                 => 'Tu pote modificar iste pagina.
@@ -2613,7 +2613,7 @@ $1',
 
 # Media information
 'mediawarning'         => "'''Attention''': Iste typo de file pote continer codice maligne.
-Le execution de illo pote compromitter le securitate de tu systema.<hr />",
+Le execution de illo pote compromitter le securitate de tu systema.",
 'imagemaxsize'         => 'Limitar le imagines in paginas de description de files a:',
 'thumbsize'            => 'Grandor del miniaturas:',
 'widthheightpage'      => '$1×$2, $3 {{PLURAL:$3|pagina|paginas}}',
@@ -3037,16 +3037,16 @@ Per favor confirma que tu realmente vole recrear iste pagina.",
 'watchlistedit-noitems'        => 'Tu observatorio contine nulle titulos.',
 'watchlistedit-normal-title'   => 'Modificar observatorio',
 'watchlistedit-normal-legend'  => 'Eliminar titulos del observatorio',
-'watchlistedit-normal-explain' => 'Le titulos in tu observatorio se monstra infra.
-Pro eliminar un titulo, marca le quadrato correspondente, e clicca "Eliminar titulos".
+'watchlistedit-normal-explain' => 'Le titulos in tu observatorio es monstrate hic infra.
+Pro eliminar un titulo, marca le quadrato correspondente, e clicca "{{int:Watchlistedit-normal-submit}}".
 Tu pote etiam [[Special:Watchlist/raw|modificar le lista in forma crude]].',
 'watchlistedit-normal-submit'  => 'Eliminar titulos',
 'watchlistedit-normal-done'    => '{{PLURAL:$1|1 titulo|$1 titulos}} ha essite eliminate de tu observatorio:',
 'watchlistedit-raw-title'      => 'Modification del observatorio in forma crude',
 'watchlistedit-raw-legend'     => 'Modification del observatorio in forma de un lista simple de titulos',
-'watchlistedit-raw-explain'    => 'Le titulos in tu observatorio se monstra infra, e tu pote adder e eliminar entratas del lista;
+'watchlistedit-raw-explain'    => 'Le titulos in tu observatorio es monstrate hic infra, e pote esser modificate per adder e eliminar entratas del lista;
 un titulo per linea.
-Quando tu ha finite, clicca "Actualisar observatorio".
+Quando tu ha finite, clicca super "{{int:Watchlistedit-raw-submit}}".
 Tu pote etiam [[Special:Watchlist/edit|usar le editor standard]].',
 'watchlistedit-raw-titles'     => 'Titulos:',
 'watchlistedit-raw-submit'     => 'Actualisar observatorio',
@@ -3087,7 +3087,7 @@ Tu pote etiam [[Special:Watchlist/edit|usar le editor standard]].',
 # Special:FilePath
 'filepath'         => 'Cammino del file',
 'filepath-page'    => 'File:',
-'filepath-submit'  => 'Cammino',
+'filepath-submit'  => 'Ir',
 'filepath-summary' => 'Iste pagina special contine le cammino complete de un file.
 Le imagines se monstra in plen resolution, le altere typos de file se executa directemente con lor programmas associate.
 

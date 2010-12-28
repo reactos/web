@@ -169,7 +169,7 @@ $messages = array(
 'category-file-count-limited'    => '{{PLURAL:$1|El siguiente archivu ta|Los siguientes $1 archivos tán}} na categoría actual.',
 'listingcontinuesabbrev'         => 'cont.',
 
-'mainpagetext'      => "<big>'''MediaWiki instalóse correchamente.'''</big>",
+'mainpagetext'      => "'''MediaWiki instalóse correchamente.'''",
 'mainpagedocfooter' => "Visita la [http://meta.wikimedia.org/wiki/Help:Contents Guía d'usuariu] pa saber cómo usar esti software wiki.
 
 == Empecipiando ==
@@ -567,7 +567,7 @@ Puede ser que yá la cambiaras o que solicitaste otra.",
 'summary-preview'                  => 'Previsualización del resume:',
 'subject-preview'                  => 'Previsualización del tema/títulu:',
 'blockedtitle'                     => "L'usuariu ta bloquiáu",
-'blockedtext'                      => "<big>'''El to nome d'usuariu o la to direición IP foi bloquiáu.'''</big>
+'blockedtext'                      => "'''El to nome d'usuariu o la to direición IP foi bloquiáu.'''
 
 El bloquéu féxolu $1.
 El motivu conseñáu ye ''$2''.
@@ -794,7 +794,7 @@ restricciones adicionales.",
 'revdelete-suppress'             => 'Eliminar datos de los alministradores lo mesmo que los de los demás',
 'revdelete-hide-image'           => 'Esconder el conteníu del archivu',
 'revdelete-unsuppress'           => 'Eliminar restricciones de revisiones restauraes',
-'revdelete-log'                  => 'Comentariu de rexistru:',
+'revdelete-log'                  => 'Motivu:',
 'revdelete-submit'               => 'Aplicar a la revisión seleicionada',
 'revdelete-logentry'             => 'camudada la visibilidá de revisiones de [[$1]]',
 'logdelete-logentry'             => "camudada la visibilidá d'eventos de [[$1]]",
@@ -1064,7 +1064,7 @@ Asegúrate de qu'esti cambéu caltenga la continuidá del históricu de la páxi
 * Un caxellu marcáu significa que l'usuariu ta nesi grupu.
 * Un caxellu non marcáu significa que l'usuariu nun ta nesi grupu.
 * Un * indica que nun pues eliminalu del grupu una vegada tea inxeríu, o viceversa.",
-'userrights-reason'           => 'Motivu del cambéu:',
+'userrights-reason'           => 'Motivu:',
 'userrights-no-interwiki'     => "Nun tienes permisu pa editar los derechos d'usuariu n'otres wikis.",
 'userrights-nodatabase'       => 'La base de datos $1 nun esiste o nun ye llocal.',
 'userrights-nologin'          => "Has tar [[Special:UserLogin|identificáu]] con una cuenta d'alministrador p'asignar derechos d'usuariu.",
@@ -1400,7 +1400,7 @@ Hai disponible una [[Special:WhatLinksHere/$2|llista completa]].",
 'filedelete-legend'           => 'Esborrar archivu',
 'filedelete-intro'            => "Tas a piques d'esborrar el ficheru '''[[Media:$1|$1]]''' xunto con tol so historial.",
 'filedelete-intro-old'        => "Tas esborrando la versión de '''[[Media:$1|$1]]''' del [$4 $3 a les $2].",
-'filedelete-comment'          => 'Comentariu:',
+'filedelete-comment'          => 'Motivu:',
 'filedelete-submit'           => 'Esborrar',
 'filedelete-success'          => "'''$1''' foi esborráu.",
 'filedelete-success-old'      => "Eliminóse la versión de '''[[Media:$1|$1]]''' del $2 a les $3.",
@@ -1738,7 +1738,7 @@ Mira en $2 la llista de les últimes páxines esborraes.',
 'dellogpagetext'         => 'Abaxo amuésase una llista de los artículos esborraos más recién.',
 'deletionlog'            => 'rexistru de-esborraos',
 'reverted'               => 'Revertida a una revisión anterior',
-'deletecomment'          => 'Motivu del esborráu:',
+'deletecomment'          => 'Motivu:',
 'deleteotherreason'      => 'Otru motivu/motivu adicional:',
 'deletereasonotherlist'  => 'Otru motivu',
 'deletereason-dropdown'  => "*Motivos comunes d'esborráu
@@ -1862,7 +1862,7 @@ revisión fuera restaurada o eliminada del archivu.",
 'undeletedrevisions-files'     => '{{PLURAL:$1|1 revisión|$1 revisiones}} y {{PLURAL:$2|1 archivu|$2 archivos}} restauraos',
 'undeletedfiles'               => '{{PLURAL:$1|1 archivu restauráu|$1 archivos restauraos}}',
 'cannotundelete'               => 'Falló la restauración; seique daquién yá restaurara la páxina enantes.',
-'undeletedpage'                => "<big>'''Restauróse $1'''</big>
+'undeletedpage'                => "'''Restauróse $1'''
 
 Consulta'l [[Special:Log/delete|rexistru d'esborraos]] pa ver los esborraos y restauraciones de recién.",
 'undelete-header'              => "Mira nel [[Special:Log/delete|rexistru d'esborraos]] les páxines esborraes recién.",
@@ -2079,7 +2079,7 @@ Nestos casos vas tener que treslladar o fusionar la páxina manualmente.",
 'move-watch'                   => 'Vixilar esta páxina',
 'movepagebtn'                  => 'Treslladar la páxina',
 'pagemovedsub'                 => 'Treslláu correctu',
-'movepage-moved'               => '<big>\'\'\'"$1" treslladóse a "$2"\'\'\'</big>', # The two titles are passed in plain text as $3 and $4 to allow additional goodies in the message.
+'movepage-moved'               => '\'\'\'"$1" treslladóse a "$2"\'\'\'', # The two titles are passed in plain text as $3 and $4 to allow additional goodies in the message.
 'movepage-moved-redirect'      => 'Creóse una redireición.',
 'movepage-moved-noredirect'    => "Desaniciose la creación d'una redireición.",
 'articleexists'                => "Yá hai una páxina con esi nome, o'l nome qu'escoyisti nun ye válidu. Por favor, escueyi otru nome.",
@@ -2345,7 +2345,7 @@ $1",
 'visual-comparison' => 'Comparación visual',
 
 # Media information
-'mediawarning'         => "'''Avisu''': Esti archivu pue contener códigu maliciosu, pue ser comprometío executalu nel to sistema.<hr />",
+'mediawarning'         => "'''Avisu''': Esti archivu pue contener códigu maliciosu, pue ser comprometío executalu nel to sistema.",
 'imagemaxsize'         => 'Llendar les imáxenes nes páxines de descripción a:',
 'thumbsize'            => 'Tamañu de la muestra:',
 'widthheightpage'      => '$1×$2, $3 {{PLURAL:$3|páxina|páxines}}',

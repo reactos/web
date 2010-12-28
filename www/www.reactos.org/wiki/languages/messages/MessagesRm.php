@@ -9,6 +9,7 @@
  *
  * @author Gion
  * @author Gion-andri
+ * @author Kazu89
  * @author Urhixidur
  * @author לערי ריינהארט
  */
@@ -431,7 +432,7 @@ Spetga per plaschair avant ch'empruvar anc ina giada.",
 'missingcommenttext'               => 'Endatescha per plaschair ina resumaziun.',
 'summary-preview'                  => 'prevista da la resumaziun:',
 'blockedtitle'                     => 'Utilisader è bloccà',
-'blockedtext'                      => "<big>'''Tes num d'utilisader u tia adressa d'IP è vegnida bloccada.'''</big>
+'blockedtext'                      => "'''Tes num d'utilisader u tia adressa d'IP è vegnida bloccada.'''
 
 ''$1'' ha bloccà tai.
 Il motiv inditgà è: ''$2''.
@@ -457,7 +458,7 @@ Integrescha per plaschair tut las indicaziuns survart sche ti contacteschas insa
 
 Il pled-clav per quest nov conto po vegnir midà sin la pagina ''[[Special:ChangePassword|midar pled-clav]]'' suenter che ti t'es annunzià.",
 'newarticle'                       => '(Nov)',
-'newarticletext'                   => "Ti as clicca in link ad ina pagina che exista anc betg. Per crear ina pagina, entschaiva a tippar en la stgaffa sutvart (guarda [[{{MediaWiki:Helppage}}|la pagina d'agid]] per s'infurmar).",
+'newarticletext'                   => "Ti has cliccà in link ad ina pagina che exista anc betg. Per crear ina pagina, entschaiva a tippar en la stgaffa sutvart (guarda [[{{MediaWiki:Helppage}}|la pagina d'agid]] per t'infurmar).",
 'anontalkpagetext'                 => "----''Quai è la pagina da discussiun per in utilisader anomim che n'ha anc betg creà in conto d'utilisader u che n'al utilisescha betg. 
 Perquai avain nus d'utilisar l'adressa d'IP per l'identifitgar. 
 Ina tala adressa d'IP po vegnir utilisada da differents utilisaders. 
@@ -1039,7 +1040,7 @@ Conferma per plaschair che ti ta es conscient da las consequenzas e che ti agesc
 Sin $2 chattas ti ina glista dals davos artitgels stizzads.',
 'deletedarticle'        => '"[[$1]]" è stizzà',
 'dellogpage'            => 'log dal stizzar',
-'deletecomment'         => 'Motiv per il stizzar',
+'deletecomment'         => 'Motiv:',
 'deleteotherreason'     => 'Autra / supplementara raschun:',
 'deletereasonotherlist' => 'Autra raschun:',
 
@@ -1176,7 +1177,7 @@ En quests cas as ti da spustar u colliar manualmain las paginas, sche giavischà
 'move-watch'                => 'Observar questa pagina',
 'movepagebtn'               => 'Spustar la pagina',
 'pagemovedsub'              => 'Spustà cun success',
-'movepage-moved'            => '<big>\'\'\'"$1" è vegnì spustà a "$2"\'\'\'</big>', # The two titles are passed in plain text as $3 and $4 to allow additional goodies in the message.
+'movepage-moved'            => '\'\'\'"$1" è vegnì spustà a "$2"\'\'\'', # The two titles are passed in plain text as $3 and $4 to allow additional goodies in the message.
 'movepage-moved-redirect'   => 'In renviament è vegnì creà.',
 'movepage-moved-noredirect' => 'I è vegnì impedì da crear in renviament.',
 'articleexists'             => 'I exista gia in artitgel cun quai num. Tscherni per plaschair in auter.',

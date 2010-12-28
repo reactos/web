@@ -482,7 +482,7 @@ $messages = array(
 'category-file-count-limited'    => 'Ağımdağı sanatta kelesi $1 faýl bar.',
 'listingcontinuesabbrev'         => '(jalğ.)',
 
-'mainpagetext'      => "<big>'''MedïaWïkï bwması sätti ornatıldı.'''</big>",
+'mainpagetext'      => "'''MedïaWïkï bwması sätti ornatıldı.'''",
 'mainpagedocfooter' => 'Wïkï bağdarlamalıq jasaqtamasın qalaý qoldanatın aqparatı üşin [http://meta.wikimedia.org/wiki/Help:Contents Paýdalanwşılıq nusqawlarınan] keñes alıñız.
 
 == Bastaw üşin ==
@@ -874,7 +874,7 @@ Eger tağı da Saqtaw tüýmesin nuqısañız, öñdemeñiz solsız saqtaladı."
 'summary-preview'                  => 'Qısqaşa mazmundamasın qarap şığw:',
 'subject-preview'                  => 'Taqırıbın/bas jolın qarap şığw:',
 'blockedtitle'                     => 'Qatıswşı buğattalğan',
-'blockedtext'                      => "<big>'''Qatıswşı atıñız ne IP mekenjaýıñız buğattalğan.'''</big>
+'blockedtext'                      => "'''Qatıswşı atıñız ne IP mekenjaýıñız buğattalğan.'''
 
 Osı buğattawdı $1 istegen. Keltirilgen sebebi: ''$2''.
 
@@ -1080,7 +1080,7 @@ keltirilgen tüzetw joq, ne ağımdıq tüzetwdi jasırw üşin ärekettenip kö
 'revdelete-suppress'          => 'Derekterdi barşağa uqsas äkimşilerden de şettetw',
 'revdelete-hide-image'        => 'Faýl mağlumatın jasır',
 'revdelete-unsuppress'        => 'Qalpına keltirilgen tüzetwlerden tïımdardı alastaw',
-'revdelete-log'               => 'Jwrnaldağı mändemesi:',
+'revdelete-log'               => 'Sebebi:',
 'revdelete-submit'            => 'Bölektengen tüzetwge qoldanw',
 'revdelete-logentry'          => '[[$1]] degenniñ tüzetw körinisin özgertti',
 'logdelete-logentry'          => '[[$1]] degenniñ oqïğa körinisin özgertti',
@@ -1262,7 +1262,7 @@ baptaw üşin math/README qujatın qarañız.',
 * Qusbelgi qoýılğan közi qatıswşı bul topqa kirgenin körsetedi;
 * Qusbelgi alıp tastalğan köz qatıswşı bul topqa kirmegenin körsetedi;
 * Keltirilgen * toptı bir üstegeninen keýin alastaý almaýtındığın, ne qarama-qarsısın körsetedi.',
-'userrights-reason'           => 'Özgertw sebebi:',
+'userrights-reason'           => 'Sebebi:',
 'userrights-no-interwiki'     => 'Basqa wïkïlerdegi paýdalanwşı quqıqtarın öñdewge ruqsatıñız joq.',
 'userrights-nodatabase'       => '$1 derekqorı joq ne jergilikti emes.',
 'userrights-nologin'          => 'Qatıswşı quqıqtarın tağaýındaw üşin äkimşi tirkelgisimen [[{{#special:Userlogin}}|kirwiñiz]] jön.',
@@ -1557,7 +1557,7 @@ Bağannıñ bas jolın nuqığanda surıptawdıñ rettewi özgertiledi.',
 'filedelete-legend'           => 'Faýldı joyw',
 'filedelete-intro'            => "'''[[Media:$1|$1]]''' degendi joywdasız.",
 'filedelete-intro-old'        => '<span class="plainlinks">\'\'\'[[{{ns:media}}:$1|$1]]\'\'\' — [$4 $3, $2 kezindegi nusqasın] joywdasız.</span>',
-'filedelete-comment'          => 'Joyw sebebi:',
+'filedelete-comment'          => 'Sebebi:',
 'filedelete-submit'           => 'Joý',
 'filedelete-success'          => "'''$1''' degen joýıldı.",
 'filedelete-success-old'      => '<span class="plainlinks">\'\'\'[[{{ns:media}}:$1|$1]]\'\'\' — $3, $2 kezindegi nusqası joýıldı.</span>',
@@ -1860,7 +1860,7 @@ Jwıqtağı joywlar twralı jazbaların $2 degennen qarañız.',
 'dellogpagetext'         => 'Tömende jwıqtağı joywlardıñ tizimi berilgen.',
 'deletionlog'            => 'joyw jwrnalı',
 'reverted'               => 'Erterek tüzetwine qaýtarılğan',
-'deletecomment'          => 'Joywdıñ sebebi:',
+'deletecomment'          => 'Sebebi:',
 'deleteotherreason'      => 'Basqa/qosımşa sebep:',
 'deletereasonotherlist'  => 'Basqa sebep',
 'deletereason-dropdown'  => '* Joywdıñ jalpı sebepteri
@@ -1903,7 +1903,7 @@ Ağımdağı qorğaw ärektter bar better üşin [[{{#special:Protectedpages}}|q
 'protect-title'               => '«$1» qorğaw deñgeýin özgertw',
 'prot_1movedto2'              => '[[$1]] degendi [[$2]] degenge jıljıttı',
 'protect-legend'              => 'Qorğawdı quptaw',
-'protectcomment'              => 'Mändemesi:',
+'protectcomment'              => 'Sebebi:',
 'protectexpiry'               => 'Merzimi bitpek:',
 'protect_expiry_invalid'      => 'Bitetin waqıtı jaramsız.',
 'protect_expiry_old'          => 'Bitetin waqıtı ötip ketken.',
@@ -1975,7 +1975,7 @@ Siltemeñiz jaramsız, ne tüzetw qalpına keltirilgen, nemese murağattan alast
 'undeletedfiles'               => '$1 faýl qalpına keltirildi',
 'cannotundelete'               => 'Joyw boldırmawı sätsiz bitti;
 basqa birew alğaşında bettiñ joywdıñ boldırmawı mümkin.',
-'undeletedpage'                => "<big>'''$1 qalpına keltirildi'''</big>
+'undeletedpage'                => "'''$1 qalpına keltirildi'''
 
 Jwıqtağı joywlar men qalpına keltirwler jöninde [[{{#special:Log}}/delete|joyw jwrnalın]] qarañız.",
 'undelete-header'              => 'Jwıqtağı joýılğan better jöninde [[{{#special:Log}}/delete|joyw jwrnalın]] qarañız.',
@@ -2171,7 +2171,7 @@ Osı oraýda, qalawıñız bolsa, betti qoldan jıljıta ne qosa alasız.",
 'move-watch'              => 'Bul betti baqılaw',
 'movepagebtn'             => 'Betti jıljıt',
 'pagemovedsub'            => 'Jıljıtw sätti ayaqtaldı',
-'movepage-moved'          => '<big>\'\'\'"$1" beti "$2" betine jıljıtıldı\'\'\'</big>', # The two titles are passed in plain text as $3 and $4 to allow additional goodies in the message.
+'movepage-moved'          => '\'\'\'"$1" beti "$2" betine jıljıtıldı\'\'\'', # The two titles are passed in plain text as $3 and $4 to allow additional goodies in the message.
 'articleexists'           => 'Osılaý atalğan bet aldaqaşan bar, ne tañdağan atawıñız jaramdı emes.
 Özge atawdı tañdañız',
 'cantmove-titleprotected' => 'Betti osı orınğa jıljıta almaýsız, sebebi jaña taqırıp atı bastawdan qorğalğan',
@@ -2445,7 +2445,7 @@ $1',
 'nextdiff'     => 'Kelesi aýırm. →',
 
 # Media information
-'mediawarning'         => "'''Qulaqtandırw''': Bul faýl türinde qaskünemdi kodı bar bolwı ıqtïmal; bunı jegip jüýeñizge zïyan keltirwiñiz mümkin.<hr />",
+'mediawarning'         => "'''Qulaqtandırw''': Bul faýl türinde qaskünemdi kodı bar bolwı ıqtïmal; bunı jegip jüýeñizge zïyan keltirwiñiz mümkin.",
 'imagemaxsize'         => 'Sïpattaması betindegi swrettiñ mölşerin şektewi:',
 'thumbsize'            => 'Nobaý mölşeri:',
 'widthheight'          => '$1 × $2',

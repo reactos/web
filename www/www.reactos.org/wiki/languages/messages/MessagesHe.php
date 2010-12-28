@@ -440,7 +440,7 @@ $messages = array(
 'category-file-count-limited'    => 'קטגוריה זו כוללת את {{PLURAL:$1|הקובץ הבא|$1 הקבצים הבאים}}.',
 'listingcontinuesabbrev'         => '(המשך)',
 
-'mainpagetext'      => "<big>'''תוכנת מדיה־ויקי הותקנה בהצלחה.'''</big>",
+'mainpagetext'      => "'''תוכנת מדיה־ויקי הותקנה בהצלחה.'''",
 'mainpagedocfooter' => 'היעזרו ב[http://meta.wikimedia.org/wiki/Help:Contents מדריך למשתמש] למידע על שימוש בתוכנת הוויקי.
 
 == קישורים שימושיים ==
@@ -660,7 +660,7 @@ $1',
 'viewsource'           => 'הצגת מקור',
 'viewsourcefor'        => 'לדף $1',
 'actionthrottled'      => 'הפעולה הוגבלה',
-'actionthrottledtext'  => 'כאמצעי נגד ספאם, אינכם מורשים לבצע פעולה זו פעמים רבות מדי בזמן קצר. אנא נסו שנית בעוד מספר דקות.',
+'actionthrottledtext'  => 'כאמצעי נגד ספאם, אינכם מורשים לבצע פעולה זו פעמים רבות מדי בזמן קצר. אנא נסו שוב בעוד מספר דקות.',
 'protectedpagetext'    => 'דף זה נעול לעריכה.',
 'viewsourcetext'       => 'באפשרותכם לצפות בטקסט המקור של הדף, ואף להעתיקו:',
 'protectedinterface'   => 'דף זה הוא אחד מסדרת דפים המספקים הודעות מערכת לתוכנה, ונעול לעריכה למפעילי מערכת בלבד כדי למנוע השחתות של ההודעות.',
@@ -740,8 +740,8 @@ $2',
 אנא ודאו שהאיות נכון (כולל אותיות רישיות וקטנות), או [[Special:UserLogin/signup|צרו חשבון חדש]].',
 'nosuchusershort'            => 'אין משתמש בשם "<nowiki>$1</nowiki>". אנא ודאו שהאיות נכון.',
 'nouserspecified'            => 'עליכם לציין שם משתמש.',
-'wrongpassword'              => 'הסיסמה שהקלדתם שגויה, אנא נסו שנית.',
-'wrongpasswordempty'         => 'הסיסמה שהקלדתם ריקה. אנא נסו שנית.',
+'wrongpassword'              => 'הסיסמה שהקלדתם שגויה, אנא נסו שוב.',
+'wrongpasswordempty'         => 'הסיסמה שהקלדתם ריקה. אנא נסו שוב.',
 'passwordtooshort'           => 'סיסמתכם בלתי תקינה או קצרה מדי. עליה להיות מורכבת מ{{PLURAL:$1|תו אחד|־$1 תווים}} לפחות ושונה משם המשתמש.',
 'mailmypassword'             => 'שלחו לי סיסמה חדשה',
 'passwordremindertitle'      => 'סיסמה זמנית חדשה מ{{grammar:תחילית|{{SITENAME}}}}',
@@ -774,7 +774,7 @@ $2',
 
 באפשרותכם להתעלם מהודעה זו, אם החשבון נוצר בטעות.',
 'login-throttled'            => 'ביצעתם לאחרונה ניסיונות רבים מדי להיכנס לחשבון זה.
-אנא המתינו לפני שתנסו שנית.',
+אנא המתינו לפני שתנסו שוב.',
 'loginlanguagelabel'         => 'שפה: $1',
 
 # Password reset dialog
@@ -831,13 +831,14 @@ $2',
 'showlivepreview'                  => 'תצוגה מקדימה מהירה',
 'showdiff'                         => 'הצגת שינויים',
 'anoneditwarning'                  => "'''אזהרה:''' אינכם מחוברים לחשבון. כתובת ה־IP שלכם תירשם בהיסטוריית העריכות של הדף.",
-'missingsummary'                   => "'''תזכורת:''' לא הזנתם תקציר עריכה. אם תלחצו שוב על כפתור השמירה, עריכתכם תישמר בלעדיו.",
+'missingsummary'                   => "'''תזכורת:''' לא הזנתם תקציר עריכה.
+אם תלחצו שוב על כפתור השמירה, עריכתכם תישמר בלעדיו.",
 'missingcommenttext'               => 'אנא הקלידו את ההודעה למטה.',
 'missingcommentheader'             => "'''תזכורת:''' לא הזנתם נושא/כותרת להודעה זו. אם תלחצו שוב על כפתור השמירה, עריכתכם תישמר בלעדיו.",
 'summary-preview'                  => 'תצוגה מקדימה של התקציר:',
 'subject-preview'                  => 'תצוגה מקדימה של הנושא/הכותרת:',
 'blockedtitle'                     => 'המשתמש חסום',
-'blockedtext'                      => '<big>\'\'\'שם המשתמש או כתובת ה־IP שלכם נחסמו.\'\'\'</big>
+'blockedtext'                      => '\'\'\'שם המשתמש או כתובת ה־IP שלכם נחסמו.\'\'\'
 
 החסימה בוצעה על ידי $1. הסיבה שניתנה לכך היא \'\'\'$2\'\'\'.
 
@@ -892,11 +893,11 @@ $2',
 או [{{fullurl:{{FULLPAGENAME}}|action=edit}} לערוך דף זה]</span>.',
 'userpage-userdoesnotexist'        => 'חשבון המשתמש "$1" אינו רשום.
 אנא בדקו אם ברצונכם ליצור/לערוך דף זה.',
-'clearyourcache'                   => "'''הערה:''' לאחר השמירה, עליכם לנקות את זכרון המטמון (Cache) של הדפדפן על־מנת להבחין בשינויים.
-* ב'''מוזילה''', ב'''פיירפוקס''' או ב'''ספארי''', לחצו על מקש ה־Shift בעת לחיצתכם על '''העלה מחדש''' (Reload), או הקישו Ctrl+Shift+R (או Cmd+Shift+R במקינטוש של אפל).
-* ב'''אינטרנט אקספלורר''', לחצו על מקש ה־Ctrl בעת לחיצתכם על '''רענן''' (Refresh), או הקישו על Ctrl+F5.
-* ב־'''Konqueror''', לחצו על '''העלה מחדש''' (Reload), או הקישו על F5.
-* ב'''אופרה''', ייתכן שתצטרכו להשתמש ב'''כלים''' (Tools) > '''העדפות''' (Preferences) כדי לנקות לחלוטין את זכרון המטמון.",
+'clearyourcache'                   => "'''הערה:''' לאחר השמירה, עליכם לנקות את זיכרון המטמון (Cache) של הדפדפן כדי להבחין בשינויים.
+* '''מוזילה / פיירפוקס / ספארי:''' לחצו על מקש ה־Shift בעת לחיצתכם על '''העלה מחדש''' (Reload), או הקישו על ''Ctrl+F5'' או על ''Ctrl+R'' (או על ''Command+R'' במקינטוש).
+* '''Konqueror:''' לחצו על '''העלה מחדש''' (Reload), או הקישו על ''F5''.
+* '''אופרה''': נקו את המטמון ב'''כלים''' (Tools) > '''העדפות''' (Preferences).
+* '''אינטרנט אקספלורר:''' לחצו על מקש ה־Ctrl בעת לחיצתכם על '''רענן''' (Refresh), או הקישו על ''Ctrl+F5''.",
 'usercssjsyoucanpreview'           => "'''עצה:''' השתמשו בלחצן \"תצוגה מקדימה\" כדי לבחון את גליון ה־CSS או את סקריפט ה־JavaScript החדש שלכם לפני השמירה.",
 'usercsspreview'                   => "'''זכרו שזו רק תצוגה מקדימה של גליון ה־CSS שלכם.'''
 '''הוא טרם נשמר!'''",
@@ -909,13 +910,13 @@ $2',
 השינויים שלכם טרם נשמרו!",
 'previewconflict'                  => 'תצוגה מקדימה זו מציגה כיצד ייראה הטקסט בחלון העריכה העליון, אם תבחרו לשמור אותו.',
 'session_fail_preview'             => "'''לא ניתן לבצע את עריכתכם עקב אובדן מידע הכניסה.'''
-אנא נסו שנית.
+אנא נסו שוב.
 אם זה לא עוזר, נסו [[Special:UserLogout|לצאת מהחשבון]] ולהיכנס אליו שנית.",
 'session_fail_preview_html'        => "'''לא ניתן לבצע את עריכתם עקב אובדן מידע הכניסה.'''
 
 כיוון שבאתר זה אפשרות השימוש ב־HTML מאופשרת, התצוגה המקדימה מוסתרת כדי למנוע התקפות JavaScript.
 
-'''אם זהו ניסיון עריכה לגיטימי, אנא נסו שנית.'''
+'''אם זהו ניסיון עריכה לגיטימי, אנא נסו שוב.'''
 אם זה לא עוזר, נסו [[Special:UserLogout|לצאת מהחשבון]] ולהיכנס אליו שנית.",
 'token_suffix_mismatch'            => "'''עריכתכם נדחתה כיוון שהדפדפן שלכם מחק את תווי הניקוד באסימון העריכה.'''
 העריכה נדחתה כדי למנוע בעיות כאלה בטקסט של הדף.
@@ -1003,20 +1004,20 @@ $2',
 # History pages
 'viewpagelogs'           => 'הצגת יומנים עבור דף זה',
 'nohistory'              => 'אין היסטוריית שינויים עבור דף זה.',
-'currentrev'             => 'גרסה נוכחית',
+'currentrev'             => 'גרסה אחרונה',
 'currentrev-asof'        => 'גרסה נוכחית מתאריך $1',
 'revisionasof'           => 'גרסה מתאריך $1',
 'revision-info'          => 'גרסה מתאריך $1 מאת $2', # Additionally available: $3: revision id
 'previousrevision'       => '→ הגרסה הקודמת',
 'nextrevision'           => 'הגרסה הבאה ←',
-'currentrevisionlink'    => 'הגרסה הנוכחית',
+'currentrevisionlink'    => 'הגרסה האחרונה',
 'cur'                    => 'נוכ',
 'next'                   => 'הבא',
 'last'                   => 'אחרון',
 'page_first'             => 'ראשון',
 'page_last'              => 'אחרון',
 'histlegend'             => "השוואת גרסאות: סמנו את תיבות האפשרויות של הגרסאות המיועדות להשוואה, והקישו על Enter או על הכפתור שלמעלה או למטה.<br />
-מקרא: '''({{int:cur}})''' = הבדלים עם הגרסה הנוכחית, '''({{int:last}})''' = הבדלים עם הגרסה הקודמת, '''{{int:minoreditletter}}''' = שינוי משני.",
+מקרא: '''({{int:cur}})''' = הבדלים עם הגרסה האחרונה, '''({{int:last}})''' = הבדלים עם הגרסה הקודמת, '''{{int:minoreditletter}}''' = שינוי משני.",
 'history-fieldset-title' => 'חיפוש בהיסטוריית הדף',
 'deletedrev'             => '[נמחק]',
 'histfirst'              => 'ראשונות',
@@ -1074,10 +1075,10 @@ $2',
 'revdelete-suppress'             => 'הסתרת המידע גם ממפעילי המערכת',
 'revdelete-hide-image'           => 'הסתרת תוכן הקובץ',
 'revdelete-unsuppress'           => 'הסרת הגבלות בגרסאות המשוחזרות',
-'revdelete-log'                  => 'סיבה למחיקה:',
+'revdelete-log'                  => 'סיבה:',
 'revdelete-submit'               => 'ביצוע על הגרסה שנבחרה',
-'revdelete-logentry'             => 'שינה את הסתרת הגרסה של [[$1]]',
-'logdelete-logentry'             => 'שינה את הסתרת פעולת היומן של [[$1]]',
+'revdelete-logentry'             => 'שינה את הסתרת הגרסה של "[[$1]]"',
+'logdelete-logentry'             => 'שינה את הסתרת פעולת היומן של "[[$1]]"',
 'revdelete-success'              => "'''מצב הסתרת הגרסה עודכן בהצלחה.'''",
 'logdelete-success'              => "'''הסתרת פעולת היומן הושלמה בהצלחה.'''",
 'revdel-restore'                 => 'שינוי ההצגה',
@@ -1283,8 +1284,7 @@ $2',
 'math_image_error'          => 'ההמרה ל־PNG נכשלה; אנא בדקו אם התקנתם נכון את latex, את dvips, את gs ואת convert.',
 'math_bad_tmpdir'           => 'התוכנה לא הצליחה לכתוב או ליצור את הספרייה הזמנית של המתמטיקה',
 'math_bad_output'           => 'התוכנה לא הצליחה לכתוב או ליצור את ספריית הפלט של המתמטיקה',
-'math_notexvc'              => 'קובץ בר־ביצוע של texvc אינו זמין;
-אנא צפו בקובץ math/README למידע על ההגדרות.',
+'math_notexvc'              => 'קובץ בר־ביצוע של texvc אינו זמין; אנא צפו בקובץ math/README למידע על ההגדרות.',
 'prefs-personal'            => 'פרטי המשתמש',
 'prefs-rc'                  => 'שינויים אחרונים',
 'prefs-watchlist'           => 'רשימת המעקב',
@@ -1336,7 +1336,7 @@ $2',
 'default'                   => 'ברירת מחדל',
 'files'                     => 'קבצים',
 'prefs-custom-css'          => 'קובץ CSS מותאם אישית',
-'prefs-custom-js'           => 'קובץ JS מותאם אישית',
+'prefs-custom-js'           => 'קובץ JavaScript מותאם אישית',
 
 # User rights
 'userrights'                  => 'ניהול הרשאות משתמש', # Not used as normal message but as header for the special page itself
@@ -1422,7 +1422,7 @@ $2',
 'right-protect'               => 'שינוי רמות הגנה ועריכת דפים מוגנים',
 'right-editprotected'         => 'עריכת דפים מוגנים (ללא הגנה מדורגת)',
 'right-editinterface'         => 'עריכת ממשק המשתמש',
-'right-editusercssjs'         => 'עריכת דפי CSS ו־JS של משתמשים אחרים',
+'right-editusercssjs'         => 'עריכת דפי CSS ו־JavaScript של משתמשים אחרים',
 'right-rollback'              => 'שחזור מהיר של עריכות המשתמש האחרון שערך דף מסוים',
 'right-markbotedits'          => 'סימון עריכות משוחזרות כעריכות של בוט',
 'right-noratelimit'           => 'עקיפת הגבלת קצב העריכות',
@@ -1443,7 +1443,7 @@ $2',
 # User rights log
 'rightslog'      => 'יומן תפקידים',
 'rightslogtext'  => 'זהו יומן השינויים בתפקידי המשתמשים.',
-'rightslogentry' => 'שינה את ההרשאות של $1 מ־$2 ל־$3',
+'rightslogentry' => 'שינה את ההרשאות של $1 מ$2 ל$3',
 'rightsnone'     => '(כלום)',
 
 # Associated actions - in the sentence "You do not have permission to X"
@@ -1633,14 +1633,14 @@ PICT # שונות
 אנא צרו קשר עם [[Special:ListUsers/sysop|מפעיל מערכת]].',
 'upload-misc-error'       => 'שגיאת העלאה בלתי ידועה',
 'upload-misc-error-text'  => 'שגיאת העלאה בלתי ידועה התרחשה במהלך ההעלאה.
-אנא ודאו שכתובת ה־URL תקינה וזמינה ונסו שנית.
+אנא ודאו שכתובת ה־URL תקינה וזמינה ונסו שוב.
 אם הבעיה חוזרת על עצמה, אנא צרו קשר עם [[Special:ListUsers/sysop|מפעיל מערכת]].',
 
 # Some likely curl errors. More could be added from <http://curl.haxx.se/libcurl/c/libcurl-errors.html>
 'upload-curl-error6'       => 'לא ניתן להגיע ל־URL',
 'upload-curl-error6-text'  => 'לא ניתן לכתובת ה־URL שנכתבה. אנא בדקו אם כתובת זו נכונה ואם האתר זמין.',
 'upload-curl-error28'      => 'הסתיים זמן ההמתנה להעלאה',
-'upload-curl-error28-text' => 'לאתר לקח זמן רב מדי לענות. אנא בדקו שהאתר זמין, המתינו מעט ונסו שנית. ייתכן שתרצו לנסות בזמן פחות עמוס.',
+'upload-curl-error28-text' => 'לאתר לקח זמן רב מדי לענות. אנא בדקו שהאתר זמין, המתינו מעט ונסו שוב. ייתכן שתרצו לנסות בזמן פחות עמוס.',
 
 'license'            => 'רישיון:',
 'nolicense'          => 'אין',
@@ -1699,7 +1699,7 @@ PICT # שונות
 'filerevert-backlink'       => '→ $1',
 'filerevert-legend'         => 'שחזור קובץ',
 'filerevert-intro'          => "אתם עומדים לשחזר את הקובץ '''[[Media:$1|$1]]''' ל[$4 גרסה מ־$3, $2].",
-'filerevert-comment'        => 'הערה:',
+'filerevert-comment'        => 'סיבה:',
 'filerevert-defaultcomment' => 'שוחזר לגרסה מ־$2, $1',
 'filerevert-submit'         => 'שחזור',
 'filerevert-success'        => "'''[[Media:$1|$1]]''' שוחזרה ל[$4 גרסה מ־$3, $2].",
@@ -1711,7 +1711,7 @@ PICT # שונות
 'filedelete-legend'           => 'מחיקת קובץ',
 'filedelete-intro'            => "אתם עומדים למחוק את הקובץ '''[[Media:$1|$1]]''' יחד עם כל ההיסטוריה שלו.",
 'filedelete-intro-old'        => "אתם מוחקים את הגרסה של '''[[Media:$1|$1]]''' מ־[$4 $3, $2].",
-'filedelete-comment'          => 'סיבה למחיקה:',
+'filedelete-comment'          => 'סיבה:',
 'filedelete-submit'           => 'מחיקה',
 'filedelete-success'          => "'''$1''' נמחק.",
 'filedelete-success-old'      => "הגרסה של '''[[Media:$1|$1]]''' מ־$3, $2 נמחקה.",
@@ -1971,7 +1971,7 @@ PICT # שונות
 'watchlistfor'         => "(עבור '''$1''')",
 'nowatchlist'          => 'אין דפים ברשימת המעקב.',
 'watchlistanontext'    => 'עליכם $1 כדי לצפות או לערוך פריטים ברשימת המעקב.',
-'watchnologin'         => 'לא נכנסתם לאתר',
+'watchnologin'         => 'לא נכנסתם לחשבון',
 'watchnologintext'     => 'עליכם [[Special:UserLogin|להיכנס לחשבון]] כדי לערוך את רשימת המעקב.',
 'addedwatch'           => 'הדף נוסף לרשימת המעקב',
 'addedwatchtext'       => 'הדף [[:$1]] נוסף ל[[Special:Watchlist|רשימת המעקב]]. שינויים שייערכו בעתיד, בדף זה ובדף השיחה שלו, יוצגו ברשימת המעקב.
@@ -2056,7 +2056,7 @@ $NEWPAGE
 'dellogpagetext'         => 'להלן רשימה של המחיקות האחרונות שבוצעו.',
 'deletionlog'            => 'יומן מחיקות',
 'reverted'               => 'שוחזר לגרסה קודמת',
-'deletecomment'          => 'סיבת המחיקה:',
+'deletecomment'          => 'סיבה:',
 'deleteotherreason'      => 'סיבה נוספת/אחרת:',
 'deletereasonotherlist'  => 'סיבה אחרת',
 'deletereason-dropdown'  => '* סיבות מחיקה נפוצות
@@ -2079,7 +2079,9 @@ $NEWPAGE
 'editcomment'      => "תקציר העריכה היה: \"'''\$1'''\".", # only shown if there is an edit comment
 'revertpage'       => 'שוחזר מעריכות של [[Special:Contributions/$2|$2]] ([[User talk:$2|שיחה]]) לעריכה האחרונה של [[User:$1|$1]]', # Additionally available: $3: revid of the revision reverted to, $4: timestamp of the revision reverted to, $5: revid of the revision reverted from, $6: timestamp of the revision reverted from
 'rollback-success' => 'שוחזר מעריכה של $1 לעריכה האחרונה של $2',
-'sessionfailure'   => 'נראה שיש בעיה בחיבורכם לאתר. פעולתכם בוטלה כאמצעי זהירות כנגד התחזות לתקשורת ממחשבכם. אנא חיזרו לדף הקודם ונסו שנית.',
+'sessionfailure'   => 'נראה שיש בעיה בחיבורכם לאתר;
+פעולתכם בוטלה כאמצעי זהירות נגד התחזות לתקשורת ממחשבכם.
+אנא חזרו לדף הקודם, העלו אותו מחדש ונסו שוב.',
 
 # Protect
 'protectlogpage'              => 'יומן הגנות',
@@ -2166,7 +2168,7 @@ $NEWPAGE
 'undeletelink'                 => 'צפייה/שחזור',
 'undeletereset'                => 'איפוס',
 'undeleteinvert'               => 'הפיכת הבחירה',
-'undeletecomment'              => 'תקציר:',
+'undeletecomment'              => 'סיבה:',
 'undeletedarticle'             => 'שחזר את [[$1]]',
 'undeletedrevisions'           => '{{PLURAL:$1|שוחזרה גרסה אחת|שוחזרו $1 גרסאות}}',
 'undeletedrevisions-files'     => 'שחזר {{PLURAL:$1|גרסה אחת|$1 גרסאות}} ו{{PLURAL:$2|קובץ אחד|־$2 קבצים}}',
@@ -2395,7 +2397,7 @@ $1 כבר נחסם. האם ברצונכם לשנות את הגדרות החסי�
 'move-watch'                   => 'מעקב אחרי דף המקור ואחרי דף היעד',
 'movepagebtn'                  => 'העברה',
 'pagemovedsub'                 => 'ההעברה הושלמה בהצלחה',
-'movepage-moved'               => '<big>הדף "$1" הועבר לשם "$2".</big>', # The two titles are passed in plain text as $3 and $4 to allow additional goodies in the message.
+'movepage-moved'               => 'הדף "$1" הועבר לשם "$2".', # The two titles are passed in plain text as $3 and $4 to allow additional goodies in the message.
 'movepage-moved-redirect'      => 'נוצרה הפניה.',
 'movepage-moved-noredirect'    => 'יצירת ההפניה בוטלה.',
 'articleexists'                => 'קיים כבר דף עם אותו שם, או שהשם שבחרתם אינו חוקי.
@@ -2512,7 +2514,7 @@ $1 כבר נחסם. האם ברצונכם לשנות את הגדרות החסי�
 'import-nonewrevisions'      => 'כל הגרסאות יובאו בעבר.',
 'xml-error-string'           => '$1 בשורה $2, עמודה $3 (בייט מספר $4): $5',
 'import-upload'              => 'העלאת קובץ XML',
-'import-token-mismatch'      => 'מידע הכניסה אבד. אנא נסו שנית.',
+'import-token-mismatch'      => 'מידע הכניסה אבד. אנא נסו שוב.',
 'import-invalid-interwiki'   => 'לא ניתן לייבא מאתר הוויקי שציינתם.',
 
 # Import log
@@ -2699,7 +2701,7 @@ $1',
 
 # Media information
 'mediawarning'         => "'''אזהרה:''' סוג קובץ זה עלול להכיל קוד זדוני.
-הרצת הקוד עלולה לסכן את המערכת שלכם.<hr />",
+הרצת הקוד עלולה לסכן את המערכת שלכם.",
 'imagemaxsize'         => 'הגבלת תמונות בדפי תיאור הקובץ ל:',
 'thumbsize'            => 'הקטנה לגודל של:',
 'widthheightpage'      => '$1×$2, {{PLURAL:$3|דף אחד|$3 דפים}}',
@@ -3119,12 +3121,17 @@ $1',
 'watchlistedit-noitems'        => 'רשימת המעקב ריקה.',
 'watchlistedit-normal-title'   => 'עריכת רשימת המעקב',
 'watchlistedit-normal-legend'  => 'הסרת דפים מרשימת המעקב',
-'watchlistedit-normal-explain' => 'כל הדפים ברשימת המעקב מוצגים להלן. כדי להסיר דף, יש לסמן את התיבה לידו, וללחוץ על "הסרת הדפים". באפשרותכם גם [[Special:Watchlist/raw|לערוך את הרשימה הגולמית]].',
+'watchlistedit-normal-explain' => 'כל הדפים ברשימת המעקב מוצגים להלן.
+כדי להסיר דף, יש לסמן את התיבה לידו, וללחוץ על "{{int:Watchlistedit-normal-submit}}".
+באפשרותכם גם [[Special:Watchlist/raw|לערוך את הרשימה הגולמית]].',
 'watchlistedit-normal-submit'  => 'הסרת הדפים',
 'watchlistedit-normal-done'    => '{{PLURAL:$1|כותרת אחת הוסרה|$1 כותרות הוסרו}} מרשימת המעקב:',
 'watchlistedit-raw-title'      => 'עריכת הרשימה הגולמית',
 'watchlistedit-raw-legend'     => 'עריכת הרשימה הגולמית',
-'watchlistedit-raw-explain'    => 'הדפים ברשימת המעקב מוצגים להלן, וניתן לערוך אותם באמצעות הוספה והסרה שלהם מהרשימה; כל כותרת מופיעה בשורה נפרדת. לאחר סיום העריכה, יש ללחוץ על "עדכון הרשימה". באפשרותכם גם [[Special:Watchlist/edit|להשתמש בעורך הרגיל]].',
+'watchlistedit-raw-explain'    => 'הדפים ברשימת המעקב מוצגים להלן, וניתן לערוך אותם באמצעות הוספה והסרה שלהם מהרשימה;
+כל כותרת מופיעה בשורה נפרדת.
+לאחר סיום העריכה, יש ללחוץ על "{{int:Watchlistedit-raw-submit}}".
+באפשרותכם גם [[Special:Watchlist/edit|להשתמש בעורך הרגיל]].',
 'watchlistedit-raw-titles'     => 'דפים:',
 'watchlistedit-raw-submit'     => 'עדכון הרשימה',
 'watchlistedit-raw-done'       => 'רשימת המעקב עודכנה.',
@@ -3222,7 +3229,7 @@ $1',
 # Special:FilePath
 'filepath'         => 'נתיב לקובץ',
 'filepath-page'    => 'הקובץ:',
-'filepath-submit'  => 'מציאת הנתיב',
+'filepath-submit'  => 'הצגה',
 'filepath-summary' => 'דף זה מציג את הנתיב המלא לקבצים שהועלו.
 תמונות מוצגות ברזולוציה מלאה, ואילו סוגי קבצים אחרים מוצגים ישירות באמצעות התוכנה שהוגדרה להצגתם.
 

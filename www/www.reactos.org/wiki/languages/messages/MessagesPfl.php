@@ -458,7 +458,7 @@ Bitte du bstätiche, dass Du des wllscht du, dass Du verstehsch, was des hääß
 Guck $2 fer e Lischt vun de letschte Leschunge.',
 'deletedarticle'        => 'hot "[[$1]]" glescht',
 'dellogpage'            => 'Leschlogbuch',
-'deletecomment'         => 'Grund fer d Leschung:',
+'deletecomment'         => 'Grund:',
 'deleteotherreason'     => 'Annere/zusätzliche Grund:',
 'deletereasonotherlist' => 'Annere Grund',
 
@@ -576,7 +576,7 @@ In denne Fäll misst mer d Dischbediersaid vun Hand kopiere.",
 'move-watch'       => 'Die Said beowachde',
 'movepagebtn'      => 'Seid verschiewe',
 'pagemovedsub'     => 'Verschiewung hot geklappt',
-'movepage-moved'   => '<big>\'\'\'"$1" isch verschowe worre uff "$2"\'\'\'</big>', # The two titles are passed in plain text as $3 and $4 to allow additional goodies in the message.
+'movepage-moved'   => '\'\'\'"$1" isch verschowe worre uff "$2"\'\'\'', # The two titles are passed in plain text as $3 and $4 to allow additional goodies in the message.
 'articleexists'    => 'E Said mid dem Name gebbt s schun, orrer de Name, wu du gewählt hoscht, isch nid gildich.
 Bitte nemm e annere Name.',
 'talkexists'       => "'''Die Said selwerschd, isch verschowe worre, awwer d Dischbediersaid hot nid kenne verschowe werre, wail s schun enni gebbt mid dem Name.

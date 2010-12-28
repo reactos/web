@@ -80,7 +80,7 @@ $messages = array(
 'tog-watchdefault'            => 'Apondre les pâges que chanjo a ma lista de survelyence',
 'tog-watchmoves'              => 'Apondre les pâges que renomo a ma lista de survelyence',
 'tog-watchdeletion'           => 'Apondre les pâges que suprimo a ma lista de survelyence',
-'tog-minordefault'            => 'Marcar mos changements coment petiôts per dèfôt',
+'tog-minordefault'            => 'Marcar per dèfôt mos changements coment petiôts',
 'tog-previewontop'            => 'Montrar la prèvisualisacion en-dessus de la bouèta d’èdicion',
 'tog-previewonfirst'          => 'Montrar la prèvisualisacion pendent la premiére èdicion',
 'tog-nocache'                 => 'Dèsactivar lo cache de les pâges',
@@ -90,8 +90,8 @@ $messages = array(
 'tog-enotifrevealaddr'        => 'Fâre vêre mon adrèce èlèctronica dens los mèssâjos d’avèrtissement',
 'tog-shownumberswatching'     => 'Fâre vêre lo nombro d’utilisators que siuvont les pâges',
 'tog-fancysig'                => 'Trètar la signatura coment de vouiquitèxto (sen lim ôtomatico)',
-'tog-externaleditor'          => 'Utilisar un èditor de tèxto de defôr per dèfôt (por los utilisators avanciês, at fôta d’una configuracion spèciâla sur voutron ordenator)',
-'tog-externaldiff'            => 'Utilisar un comparator de defôr per dèfôt (por los utilisators avanciês, at fôta d’una configuracion spèciâla sur voutron ordenator)',
+'tog-externaleditor'          => 'Utilisar per dèfôt un èditor de tèxto de defôr (solament por los utilisators avanciês, at fôta d’una configuracion spèciâla sur voutron ordenator)',
+'tog-externaldiff'            => 'Utilisar per dèfôt un comparator de defôr (solament por los utilisators avanciês, at fôta d’una configuracion spèciâla sur voutron ordenator)',
 'tog-showjumplinks'           => 'Activar los lims « navigacion » et « rechèrche » d’amont la pâge',
 'tog-uselivepreview'          => 'Utilisar l’apèrçu vito fêt (at fôta de JavaScript) (èxpèrimentâl)',
 'tog-forceeditsummary'        => 'M’avèrtir quand j’é pas spècefiâ de rèsumâ de changement',
@@ -180,7 +180,7 @@ $messages = array(
 'category-file-count-limited'    => '{{PLURAL:$1|Ceti fichiér figure|Cetos $1 fichiérs figuront}} dens la presenta catègorie.',
 'listingcontinuesabbrev'         => '(suita)',
 
-'mainpagetext'      => "<big>'''MediaWiki at étâ enstalâ avouéc reusséta.'''</big>",
+'mainpagetext'      => "'''MediaWiki at étâ enstalâ avouéc reusséta.'''",
 'mainpagedocfooter' => 'Vêde lo [http://meta.wikimedia.org/wiki/Aide:Contenu guido d’utilisator] por més d’enformacions sur l’usâjo de la programeria vouiqui.
 
 == Dèmarrar avouéc MediaWiki ==
@@ -607,7 +607,7 @@ Se vos tornâd clicar dessus « Sôvar ceta pâge », voutron changement serat s
 'summary-preview'                  => 'Prèvisualisacion du rèsumâ :',
 'subject-preview'                  => 'Prèvisualisacion du sujèt / titro :',
 'blockedtitle'                     => 'L’utilisator est blocâ.',
-'blockedtext'                      => "<big>'''Voutron compto utilisator ou ben voutra adrèce IP at étâ blocâ.'''</big>
+'blockedtext'                      => "'''Voutron compto utilisator ou ben voutra adrèce IP at étâ blocâ.'''
 
 Lo blocâjo at étâ fêt per $1.
 La rêson balyê est ceta : ''$2''.
@@ -657,8 +657,8 @@ Lo mot de pâssa por cél compto novél pôt étre changiê sur la pâge de ''[[
 'newarticletext'                   => "Vos éd siuvu un lim de vers una pâge qu’ègziste p’oncor ou ben qu’at étâ [{{fullurl:Special:Log|type=delete&page={{FULLPAGENAMEE}}}} suprimâ].
 Por fâre cela pâge, buchiéd voutron tèxto dens la bouèta ce-desot (vos pouede vêre la [[{{MediaWiki:Helppage}}|pâge d’éde]] por més d’enformacions).
 Se vos éte arrevâ ice per èrror, clicâd sur lo boton '''Devant''' de voutron navigator.",
-'anontalkpagetext'                 => "---- ''Vos éte sur la pâge de discussion a un utilisator pas encartâ qu’at p’oncor fêt un compto ou ben que nen utilise pas.
-Por celes rêsons, nos devens utilisar son adrèce IP por l’identifiar.
+'anontalkpagetext'                 => "---- ''O est la pâge de discussion a un utilisator pas encartâ qu’at p’oncor fêt un compto ou ben que nen utilise pas.
+Por celes rêsons, nos devens utilisar son adrèce IP numerica por l’identifiar.
 Una adrèce IP pôt étre partagiê per un mouél d’utilisators.
 Se vos éte un utilisator pas encartâ et pués se vos constatâd que des comentèros que vos regârdont pas vos ont étâ adrèciês, vos pouede [[Special:UserLogin/signup|fâre un compto]] ou ben [[Special:UserLogin|vos branchiér]] por èvitar tota confusion a vegnir avouéc d’ôtros contributors pas encartâs.''",
 'noarticletext'                    => 'Ora, y at gins de tèxto dens ceta pâge.
@@ -864,7 +864,7 @@ Volyéd confirmar qu’o est franc cen que vos voléd fâre, que vos en compregn
 'revdelete-suppress'             => 'Suprimar les balyês ux administrators et pués ux ôtros',
 'revdelete-hide-image'           => 'Cachiér lo contegnu du fichiér',
 'revdelete-unsuppress'           => 'Enlevar les rèstriccions sur les vèrsions refêtes',
-'revdelete-log'                  => 'Rêson de la suprèssion :',
+'revdelete-log'                  => 'Rêson :',
 'revdelete-submit'               => 'Aplicar a la vèrsion chouèsia',
 'revdelete-logentry'             => 'at changiê la visibilitât de la vèrsion de [[$1]]',
 'logdelete-logentry'             => 'at changiê la visibilitât de l’entrâ de [[$1]]',
@@ -1143,10 +1143,10 @@ Volyéd liére « math/README » por lo configurar.',
 'userrights-editusergroup'    => 'Changement a les tropes a l’utilisator',
 'saveusergroups'              => 'Sôvar les tropes a l’utilisator',
 'userrights-groupsmember'     => 'Membro de :',
-'userrights-groups-help'      => 'Vos pouede changiér les tropes a lesquintes apartint ceti utilisator.
+'userrights-groups-help'      => 'Vos pouede changiér les tropes a lesquintes est ceti utilisator.
 * Una câsa pouentâ vôt dére que l’utilisator sè trove dens cela tropa.
 * Una câsa pas pouentâ vôt dére qu’y sè trove pas.
-* Una ètêla (*) endique que vos porréd pas enlevar cela tropa setout que vos l’aréd apondua et l’un l’ôtro.',
+* Una petiôta ètêla (*) endique que vos porréd pas enlevar cela tropa setout que vos l’aréd apondua et l’un l’ôtro.',
 'userrights-reason'           => 'Rêson :',
 'userrights-no-interwiki'     => 'Vos avéd pas la pèrmission de changiér des drêts d’utilisator dessus d’ôtros vouiquis.',
 'userrights-nodatabase'       => 'La bâsa de balyês « $1 » ègziste pas ou ben el est pas locala.',
@@ -1513,7 +1513,7 @@ Una [[Special:WhatLinksHere/$2|lista complèta]] est disponibla.',
 'filerevert'                => 'Rètablir $1',
 'filerevert-legend'         => 'Rètablir lo fichiér',
 'filerevert-intro'          => "Vos éte prèst a rètablir lo fichiér '''[[Media:$1|$1]]''' a la [$4 vèrsion du $2 a $3].",
-'filerevert-comment'        => 'Comentèro :',
+'filerevert-comment'        => 'Rêson :',
 'filerevert-defaultcomment' => 'Vèrsion du $1 a $2 rètablia',
 'filerevert-submit'         => 'Rètablir',
 'filerevert-success'        => "'''[[Media:$1|$1]]''' at étâ rètabli a la [$4 vèrsion du $2 a $3].",
@@ -1524,7 +1524,7 @@ Una [[Special:WhatLinksHere/$2|lista complèta]] est disponibla.',
 'filedelete-legend'           => 'Suprimar lo fichiér',
 'filedelete-intro'            => "Vos éte prèst a suprimar '''[[Media:$1|$1]]''' et pués tot son historico.",
 'filedelete-intro-old'        => "Vos éte aprés suprimar la vèrsion de '''[[Media:$1|$1]]''' du [$4 $2 a $3].",
-'filedelete-comment'          => 'Rêson de la suprèssion :',
+'filedelete-comment'          => 'Rêson :',
 'filedelete-submit'           => 'Suprimar',
 'filedelete-success'          => "'''$1''' at étâ suprimâ.",
 'filedelete-success-old'      => "La vèrsion de '''[[Media:$1|$1]]''' du $2 a $3 at étâ suprimâ.",
@@ -1697,8 +1697,8 @@ Vos pouede rètrendre la vua en chouèséssent un tipo de jornal, un nom d’uti
 'allpagesfrom'      => 'Fâre vêre les pâges dês :',
 'allpagesto'        => 'Fâre vêre les pâges tant qu’a :',
 'allarticles'       => 'Totes les pâges',
-'allinnamespace'    => 'Totes les pâges (dens l’èspâço de noms $1)',
-'allnotinnamespace' => 'Totes les pâges (en defôr de l’èspâço de noms $1)',
+'allinnamespace'    => 'Totes les pâges (dens l’èspâço de noms « $1 »)',
+'allnotinnamespace' => 'Totes les pâges (en defôr de l’èspâço de noms « $1 »)',
 'allpagesprev'      => 'Devant',
 'allpagesnext'      => 'Aprés',
 'allpagessubmit'    => 'Listar',
@@ -1872,7 +1872,7 @@ Vêde lo $2 por una lista de les novèles suprèssions.',
 'dellogpagetext'         => 'Vê-que la lista de les suprèssions les ples novèles.',
 'deletionlog'            => 'jornal de les suprèssions',
 'reverted'               => 'Vèrsion devant rètablia',
-'deletecomment'          => 'Rêson de la suprèssion :',
+'deletecomment'          => 'Rêson :',
 'deleteotherreason'      => 'Ôtra rêson / rêson de ples :',
 'deletereasonotherlist'  => 'Ôtra rêson',
 'deletereason-dropdown'  => '* Rêsons de suprèssion les ples corentes
@@ -1995,14 +1995,14 @@ Vos avéd pôt-étre un crouyo lim, ou ben la vèrsion at possu étre refêta ou
 'undeletelink'                 => 'vêre / refâre',
 'undeletereset'                => 'Tornar inicialisar',
 'undeleteinvert'               => 'Envèrsar lo chouèx',
-'undeletecomment'              => 'Rèsumâ :',
+'undeletecomment'              => 'Rêson :',
 'undeletedarticle'             => 'at refêt « [[$1]] »',
 'undeletedrevisions'           => '$1 {{PLURAL:$1|vèrsion refêta|vèrsions refêtes}}',
 'undeletedrevisions-files'     => '$1 vèrsion{{PLURAL:$1||s}} et $2 fichiér{{PLURAL:$2||s}} refêts',
 'undeletedfiles'               => '$1 {{PLURAL:$1|fichiér refêt|fichiérs refêts}}',
 'cannotundelete'               => 'La rèstoracion at pas reussia ;
 un ôtro utilisator at probâblament ja refêt la pâge.',
-'undeletedpage'                => "<big>'''La pâge $1 at étâ refêta.'''</big>
+'undeletedpage'                => "'''La pâge $1 at étâ refêta.'''
 
 Vêde lo [[Special:Log/delete|jornal de les suprèssions]] por vêre la lista de les novèles suprèssions et de les novèles rèstoracions.",
 'undelete-header'              => 'Vêde lo [[Special:Log/delete|jornal de les suprèssions]] por vêre la lista de les pâges suprimâs dèrriérement.',
@@ -2087,7 +2087,7 @@ Balyéd ce-desot una rêson justa (per ègzemplo en citent les pâges qu’ont �
 'ipbanononly'                     => 'Blocar ren que los utilisators pas encartâs',
 'ipbcreateaccount'                => 'Empachiér la crèacion de compto',
 'ipbemailban'                     => 'Empachiér l’utilisator de mandar des mèssâjos',
-'ipbenableautoblock'              => 'Blocar ôtomaticament la dèrriére adrèce IP utilisâ per l’utilisator et pués totes ses adrèces IP a vegnir et que porrêt èprovar',
+'ipbenableautoblock'              => 'Blocar ôtomaticament la dèrriére adrèce IP utilisâ per l’utilisator et pués totes ses adrèces IP a vegnir que porrêt èprovar',
 'ipbsubmit'                       => 'Blocar ceti utilisator',
 'ipbother'                        => 'Ôtro temps :',
 'ipboptions'                      => '2 hores:2 hours,1 jorn:1 day,3 jorns:3 days,1 semana:1 week,2 semanes:2 weeks,1 mês:1 month,3 mês:3 months,6 mês:6 months,1 an:1 year,sen fin:infinite', # display1:time1,display2:time2,...
@@ -2226,7 +2226,7 @@ Dens celos câs, vos devréd renomar ou ben fusionar la pâge a la man se vos lo
 'move-watch'                   => 'Siuvre ceta pâge',
 'movepagebtn'                  => 'Renomar la pâge',
 'pagemovedsub'                 => 'Changement de nom reussi',
-'movepage-moved'               => "<big>'''« $1 » at étâ renomâ en « $2 »'''</big>", # The two titles are passed in plain text as $3 and $4 to allow additional goodies in the message.
+'movepage-moved'               => "'''« $1 » at étâ renomâ en « $2 »'''", # The two titles are passed in plain text as $3 and $4 to allow additional goodies in the message.
 'movepage-moved-redirect'      => 'Una redirèccion dês lo viely nom at étâ fêta.',
 'movepage-moved-noredirect'    => 'La crèacion d’una redirèccion dês lo viely nom at étâ anulâ.',
 'articleexists'                => 'Ègziste ja una pâge que pôrte cél titro, ou ben lo titro que vos éd chouèsi est fôx.
@@ -2250,7 +2250,7 @@ Nen volyéd chouèsir un ôtro.',
 'movesubpage'                  => 'Sot-pâge{{PLURAL:$1||s}}',
 'movesubpagetext'              => 'Cela pâge at $1 {{PLURAL:$1|sot-pâge montrâ|sot-pâges montrâs}} ce-desot.',
 'movenosubpage'                => 'Cela pâge at gins de sot-pâge.',
-'movereason'                   => 'Rêson du changement de nom :',
+'movereason'                   => 'Rêson :',
 'revertmove'                   => 'rètablir',
 'delete_and_move'              => 'Suprimar et renomar',
 'delete_and_move_text'         => '== Suprèssion nècèssèra ==
@@ -2265,7 +2265,7 @@ empossiblo de renomar una pâge sur lyé-méma.',
 'immobile-target-namespace-iw' => 'Los lims entèrvouiquis sont pas una ciba valida por los changements de nom.',
 'immobile-source-page'         => 'Cela pâge est pas renomâbla.',
 'immobile-target-page'         => 'Empossiblo de renomar la pâge vers cél titro.',
-'imagenocrossnamespace'        => 'Empossiblo de renomar un fichiér vers un èspâço de noms ôtro que fichiér.',
+'imagenocrossnamespace'        => 'Empossiblo de renomar un fichiér vers un èspâço de noms ôtro que « {{ns:file}} ».',
 'imagetypemismatch'            => 'La novèla èxtension de cél fichiér corrèspond pas a son tipo.',
 'imageinvalidfilename'         => 'Lo nom du fichiér ciba est fôx',
 'fix-double-redirects'         => 'Betar a jorn les redirèccions que pouentont vers lo titro originâl',
@@ -2540,7 +2540,7 @@ $1',
 
 # Media information
 'mediawarning'         => "'''Atencion :''' ceti tipo de fichiér pôt contegnir de code mâlvelyent.
-Se vos l’ègzécutâd, voutron sistèmo pôt étre compromês.<hr />",
+Se vos l’ègzécutâd, voutron sistèmo pôt étre compromês.",
 'imagemaxsize'         => 'Format lo ples grant por les émâges dens les pâges de dèscripcion d’émâges :',
 'thumbsize'            => 'Talye de la figura :',
 'widthheightpage'      => '$1 × $2, $3 pâge{{PLURAL:$3||s}}',
@@ -2988,7 +2988,7 @@ Volyéd confirmar que vos voléd franc refâre cela pâge.",
 'watchlistedit-normal-title'   => 'Changiér la lista de survelyence',
 'watchlistedit-normal-legend'  => 'Enlevar des titros de la lista de survelyence',
 'watchlistedit-normal-explain' => 'Los titros de voutra lista de survelyence sont montrâs ce-desot.
-Por enlevar un titro (et sa pâge de discussion), pouentâd la câsa a coutâ et pués clicâd sur lo boton « Enlevar los titros chouèsis ».
+Por enlevar un titro (et sa pâge de discussion), pouentâd la câsa a coutâ et pués clicâd sur lo boton « {{int:Watchlistedit-normal-submit}} ».
 Vos pouede asse-ben changiér la [[Special:Watchlist/raw|lista en fôrma bruta]].',
 'watchlistedit-normal-submit'  => 'Enlevar los titros chouèsis',
 'watchlistedit-normal-done'    => '{{PLURAL:$1|Yon titro at étâ enlevâ|$1 titros ont étâ enlevâs}} de voutra lista de survelyence :',
@@ -2996,7 +2996,7 @@ Vos pouede asse-ben changiér la [[Special:Watchlist/raw|lista en fôrma bruta]]
 'watchlistedit-raw-legend'     => 'Changement de la lista de survelyence en fôrma bruta',
 'watchlistedit-raw-explain'    => 'Los titros de voutra lista de survelyence sont montrâs ce-desot et pôvont étre changiês en los apondent ou ben en los enlevent de la lista ;
 yon titro per legne.
-Quand vos éd feni, clicâd sur lo boton « Betar a jorn la lista de survelyence ».
+Quand vos éd feni, clicâd sur lo boton « {{int:Watchlistedit-raw-submit}} ».
 Vos pouede asse-ben utilisar l’[[Special:Watchlist/edit|èditor normal]].',
 'watchlistedit-raw-titles'     => 'Titros :',
 'watchlistedit-raw-submit'     => 'Betar a jorn la lista de survelyence',
@@ -3095,7 +3095,7 @@ Vos pouede asse-ben utilisar l’[[Special:Watchlist/edit|èditor normal]].',
 # Special:FilePath
 'filepath'         => 'Chemin d’accès du fichiér',
 'filepath-page'    => 'Fichiér :',
-'filepath-submit'  => 'Chemin d’accès',
+'filepath-submit'  => 'Alar trovar',
 'filepath-summary' => 'Ceta pâge spèciâla montre lo chemin d’accès complèt d’un fichiér.
 Les émâges sont montrâs dens lor plêna rèsolucion, los ôtros fichiérs sont chargiês et dèmarrâs tot drêt avouéc lor programo associyê.
 

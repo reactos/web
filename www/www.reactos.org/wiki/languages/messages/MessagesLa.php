@@ -605,7 +605,7 @@ Hunc nuntium ignorare potes, si nolis hac ratione uti.',
 'summary-preview'                  => 'Praevisum summarii:',
 'subject-preview'                  => 'Praevisum rei/tituli:',
 'blockedtitle'                     => 'Usor obstructus est',
-'blockedtext'                      => '<big>\'\'\'Nomen usoris aut locus IP tuus obstructus est\'\'\'</big> a magistratu $1.
+'blockedtext'                      => '\'\'\'Nomen usoris aut locus IP tuus obstructus est\'\'\' a magistratu $1.
 
 Ratio data est: \'\'$2\'\'.
 
@@ -769,7 +769,7 @@ Titulus: '''({{int:cur}})''' = dissimilis ab emendatione novissima,
 'revdelete-hide-text'            => 'Celare textum emendationis',
 'revdelete-hide-comment'         => 'Celare summarium emendationis',
 'revdelete-hide-image'           => 'Celare contentum fasciculi',
-'revdelete-log'                  => 'Causa deletionis:',
+'revdelete-log'                  => 'Causa:',
 'revdelete-logentry'             => 'mutavit visibilitatem emendationis paginae [[$1]]',
 'revdel-restore'                 => 'visibilitatem mutare',
 'pagehist'                       => 'Historia paginae',
@@ -880,7 +880,7 @@ Titulus: '''({{int:cur}})''' = dissimilis ab emendatione novissima,
 'prevn-title'                    => '{{PLURAL:$1|Eventus prior|Eventus priores}} $1',
 'nextn-title'                    => '{{PLURAL:$1|Eventus proximus|Eventus proximi}} $1',
 'shown-title'                    => 'Monstrare $1 {{PLURAL:$1|eventum|eventus}} per paginam',
-'viewprevnext'                   => 'Videre ($1) ($2) ($3).',
+'viewprevnext'                   => 'Videre ($1) ($2) ($3)',
 'searchmenu-legend'              => 'Optiones',
 'searchmenu-exists'              => "'''Iam est pagina \"[[:\$1]]\"'''",
 'searchmenu-new'                 => "'''Creare paginam \"[[:\$1]]\"'''",
@@ -1243,7 +1243,7 @@ Commodule notatio fasciculorum deletorum hic datur:",
 'filerevert'                => 'Revertere $1',
 'filerevert-legend'         => 'Reverti fasciculum',
 'filerevert-intro'          => "Reverteris '''[[Media:$1|$1]]''' ad [emendationem $4 ex $3, $2].",
-'filerevert-comment'        => 'Sententia:',
+'filerevert-comment'        => 'Causa:',
 'filerevert-defaultcomment' => 'Reverti ad emendationem ex $2, $1',
 'filerevert-submit'         => 'Revertere',
 'filerevert-success'        => "'''[[Media:$1|$1]]''' reversum est ad [emendationem $4 ex $3, $2].",
@@ -1253,7 +1253,7 @@ Commodule notatio fasciculorum deletorum hic datur:",
 'filedelete-legend'           => 'Fasciculum delere',
 'filedelete-intro'            => "Deles fasciculum '''[[Media:$1|$1]]''' una cum tota eius historia.",
 'filedelete-intro-old'        => "Deles fasciculi '''[[Media:$1|$1]]''' emendationem [$4 ex $3, $2].",
-'filedelete-comment'          => 'Causa deletionis:',
+'filedelete-comment'          => 'Causa:',
 'filedelete-submit'           => 'Delere',
 'filedelete-success'          => "'''$1''' deletum est.",
 'filedelete-success-old'      => "Emendatio fasciculi '''[[Media:$1|$1]]''' ex $3, $2 deletum est.",
@@ -1558,7 +1558,7 @@ Adfirma quaesumus te paginam re vera delere velle, te consequentias intellere, e
 'dellogpagetext'         => 'Subter est index deletionum recentissimarum.',
 'deletionlog'            => 'index deletionum',
 'reverted'               => 'Reversum ad emendationem proximam',
-'deletecomment'          => 'Causa deletionis:',
+'deletecomment'          => 'Causa:',
 'deleteotherreason'      => 'Causa alia vel explicatio:',
 'deletereasonotherlist'  => 'Causa alia',
 'deletereason-dropdown'  => '*Causae deletionum communes
@@ -1648,7 +1648,7 @@ Si pagina nova cum ipso nomine post deletionem creata est, emendationes restitut
 'undeletelink'              => 'inspicere/restituere',
 'undeletereset'             => 'Reperscriptare',
 'undeleteinvert'            => 'Selectionem invertere',
-'undeletecomment'           => 'Sententia:',
+'undeletecomment'           => 'Causa:',
 'undeletedarticle'          => 'restituit "[[$1]]"',
 'undeletedrevisions'        => '{{PLURAL:$1|1 emendatio recuperata|$1 emendationes recuperatae}}',
 'undeletedrevisions-files'  => '{{PLURAL:$1|1 emendatio recuperata|$1 emendationes recuperatae}} et {{PLURAL:1 fasciculus recuperatus|$2 fasciculi recuperati}}',
@@ -1713,6 +1713,14 @@ Si pagina nova cum ipso nomine post deletionem creata est, emendationes restitut
 'ipbexpiry'                    => 'Exitus:',
 'ipbreason'                    => 'Causa:',
 'ipbreasonotherlist'           => 'Causa alia',
+'ipbreason-dropdown'           => '*Rationes crebriter adductae
+** Ob scripta falsa
+** Ob textum remotum
+** Ob nexus externos multiplicatos
+** Ob scripta sensu sive et Latinitate carentia
+** Ob scripta inurbana 
+** Ob rationes perniciose multiplicatas
+** Ob nomen inurbanum sive inconveniens',
 'ipbanononly'                  => 'Solum usores anonymi obstruere',
 'ipbcreateaccount'             => 'Creationem rationum obstruere',
 'ipbemailban'                  => 'Litteras electronicas vetare',
@@ -1827,7 +1835,7 @@ Ergo manu necesse disputationes motare vel contribuere erit, si vis.",
 'move-watch'                => 'Hanc paginam custodire',
 'movepagebtn'               => 'Paginam movere',
 'pagemovedsub'              => 'Pagina mota est',
-'movepage-moved'            => '<big>\'\'\'"$1" mota est ad "$2"\'\'\'</big>', # The two titles are passed in plain text as $3 and $4 to allow additional goodies in the message.
+'movepage-moved'            => '\'\'\'"$1" mota est ad "$2"\'\'\'', # The two titles are passed in plain text as $3 and $4 to allow additional goodies in the message.
 'movepage-moved-redirect'   => 'Redirectio creata est.',
 'movepage-moved-noredirect' => 'Redirectio non creata est.',
 'articleexists'             => 'Pagina huius tituli iam est, aut invalidum est nomen electum.
@@ -2353,7 +2361,7 @@ Quaesumus, adfirma ut iterum hanc paginam crees.",
 # Special:FilePath
 'filepath'        => 'Fasciculorum inscriptio',
 'filepath-page'   => 'Fasciculus:',
-'filepath-submit' => 'Via',
+'filepath-submit' => 'Ire',
 
 # Special:FileDuplicateSearch
 'fileduplicatesearch-legend'   => 'Duplicatum quaerere',

@@ -120,7 +120,7 @@ $messages = array(
 'category-media-header' => 'Média dans classe "$1"',
 'category-empty'        => "''À présent, cette classe a ni articles ni média.''",
 
-'mainpagetext'      => "<big>'''Vous avez bien installé MediaWiki.'''</big>",
+'mainpagetext'      => "'''Vous avez bien installé MediaWiki.'''",
 'mainpagedocfooter' => 'Lisez la [http://meta.wikimedia.org/wiki/Help:Contents Guide des Useurs] pour apprendre à user le wiki software.
 
 == Pour Commencer ==
@@ -316,7 +316,8 @@ Demande: $2',
 'protectedinterface'   => "Cette page crée le texte de l'interface pour le software, et est barrée pour empêcher l'abus.",
 'editinginterface'     => "'''Attention:'''  Vous êtes après changer une page qu'est usée pour créer le texte de l'interface pour le software.  Si vous changerait cette page, vous changerait des autres pages aussi.",
 'sqlhidden'            => '(Demande SQL cachée)',
-'cascadeprotected'     => 'Cette page est protégée parce que c\'est sus {{PLURAL:$1|la page suivante|les pages suivantes}} {{PLURAL:$1|qu\'est protégée|qui sont protégées}} avec l’option "protection en cascade":',
+'cascadeprotected'     => 'Cette page est protégée parce qu’elle est incluse par {{PLURAL:$1|la page suivante, qui est protégée|les pages suivantes, qui sont protégées}} avec l’option « protection en cascade » activée :
+$2',
 'namespaceprotected'   => 'Vous avez pas la permission de changer les pages dans l\'espace de noms "$1".',
 'customcssjsprotected' => "Vous avez pas la permission de changer cette page parce qu'alle contient le réglage d'un autre useur.",
 'ns-specialprotected'  => "Vous pouvez pas changer les pages dans l'espace de noms {{ns:special}}.",
@@ -444,7 +445,7 @@ Si quèqu\'une d\'autre a demandé ce mot de passe ou si vous vous rappelez de v
 'summary-preview'           => "Vue d'avance de la description:",
 'subject-preview'           => "Vue d'avance du sujet:",
 'blockedtitle'              => "L'useur est bloqué",
-'blockedtext'               => "<big>'''Votre compte d'useur (ou votre adresse IP) est bloqué.'''</big>
+'blockedtext'               => "'''Votre compte d'useur (ou votre adresse IP) est bloqué.'''
 
 Le blocage a été fait par $1.  La raison donnée est ''$2''.  
 
@@ -523,7 +524,7 @@ Il foudra que vous mettez vos changements dans le texte qu'est là asteur.
 'readonlywarning'           => "'''ATTENTION: La base d'information a été barrée, ça fait, vous serez pas capable de sauver votres changements asteur.  Vous ferait mieux de copier et coller le texte dans un dossier texte et le sauver pour plus tard.'''",
 'protectedpagewarning'      => "'''ATTENTION: Cette page a été barrée pour que ça peuve être changée juste par les administrateurs.'''",
 'semiprotectedpagewarning'  => "'''Notez:'''  Cette page a été barrée pour que ça peuve être changé juste par les useurs connectés.",
-'cascadeprotectedwarning'   => "'''Attention:'''  Cette page est barrée pour que ça peuve être changé juste par les administrateurs parce que cette page est comprise dans {{PLURAL:$1|une page protégée|des pages protégées}} avec la protection en cascade.",
+'cascadeprotectedwarning'   => "'''Attention :''' Cette page est protégée (ne peut être modifiée que par les administrateurs) parce qu’elle est incluse par {{PLURAL:$1|une page protégée|des pages protégées}} avec la protection en cascade activée :",
 'templatesused'             => 'Patrons usés sus cette page:',
 'templatesusedpreview'      => "Patrons usés dans cette vue d'avance:",
 'templatesusedsection'      => 'Patrons usés dans cette section:',
@@ -601,7 +602,7 @@ Des autres administrateurs sus ce wiki ont la permission de voir et de rétablir
 'revdelete-suppress'          => "Ôter de l'information des administrateurs et les autres useurs",
 'revdelete-hide-image'        => "Cacher l'information du dossier",
 'revdelete-unsuppress'        => 'Ôter les restrictions des versions rétablies',
-'revdelete-log'               => 'Remarque de notes:',
+'revdelete-log'               => 'Raison:',
 'revdelete-submit'            => 'Appliquer à la version choisie',
 'revdelete-logentry'          => 'La visibilité pour la version a été changée pour [[$1]]',
 'logdelete-logentry'          => "La visibilité de l'événement a été changée pour [[$1]]",

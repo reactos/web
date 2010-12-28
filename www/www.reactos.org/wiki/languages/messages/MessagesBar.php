@@ -114,7 +114,7 @@ $messages = array(
 'category-file-count-limited'    => "{{PLURAL:$1|D'foignde Datei is|De foigndn $1 Datein san}} in de Kategorie eisoatiad:",
 'listingcontinuesabbrev'         => '(Foatsetzung)',
 
-'mainpagetext'      => "<big>'''MediaWiki is eafoigreich installiad woan.'''</big>",
+'mainpagetext'      => "'''MediaWiki is eafoigreich installiad woan.'''",
 'mainpagedocfooter' => 'A Huif zua Benutzung und Konfiguration vo da Wiki-Software findst im [http://meta.wikimedia.org/wiki/Help:Contents Benutzerhandbuch].
 * [https://lists.wikimedia.org/mailman/listinfo/mediawiki-announce Mailingliste neuer MediaWiki-Versionen]',
 
@@ -745,7 +745,7 @@ und dass Sie in Übaeinstimmung mit de [[{{MediaWiki:Policy-url}}|Richtlinien]] 
 'dellogpage'            => 'Lösch-Logbuach',
 'deletionlog'           => 'Lösch-Logbuach',
 'reverted'              => 'Auf a oide Version zruckgesetzt',
-'deletecomment'         => 'Grund vo dera Löschung',
+'deletecomment'         => 'Grund:',
 'deleteotherreason'     => 'Ãndara/eagänznda Grund:',
 'deletereasonotherlist' => 'Ãndara Grund',
 
@@ -891,7 +891,7 @@ Bittschee gib außadem druntn in '''neichn''' Nãm vu da Seitn ei und schreib ku
 'move-watch'             => 'De Seitn beobachten',
 'movepagebtn'            => 'Seitn vaschiam',
 'pagemovedsub'           => "s'Vaschiam håd highaud",
-'movepage-moved'         => "<big>'''D'Seitn „$1“ is nåch „$2“ vaschom woan.'''</big>", # The two titles are passed in plain text as $3 and $4 to allow additional goodies in the message.
+'movepage-moved'         => "'''D'Seitn „$1“ is nåch „$2“ vaschom woan.'''", # The two titles are passed in plain text as $3 and $4 to allow additional goodies in the message.
 'articleexists'          => 'Unter dem Nam existiert bereits a Seitn.
 Bitte nehmans an andern Nam.',
 'talkexists'             => "D'Seitn söiwa is eafoigreich vaschom woan, de dazuaghearade Diskussionsseitn åwa ned, weu's unta dea iahm neichn Nãm schãu a Seitn gibt. Bittschee kümmat di händisch um's Zsãmmfüahn.",
@@ -900,7 +900,7 @@ Bitte nehmans an andern Nam.',
 '1movedto2'              => 'håt [[$1]] nåch [[$2]] verschom',
 '1movedto2_redir'        => 'håt [[$1]] nåch [[$2]] verschom und dabei a Weiterleitung überschriem',
 'movelogpage'            => 'Vaschiabungs-Logbuach',
-'movereason'             => 'Weng wås:',
+'movereason'             => 'Grund:',
 'revertmove'             => 'zruck vaschiam',
 'delete_and_move'        => 'Löschn und vaschiam',
 'delete_and_move_reason' => 'glöscht, um Plåtz fia Vaschiam zum macha',

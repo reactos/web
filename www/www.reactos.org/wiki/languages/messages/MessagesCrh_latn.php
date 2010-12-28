@@ -223,7 +223,7 @@ $messages = array(
 'listingcontinuesabbrev'         => ' (devam)',
 
 'linkprefix'        => '/^(.*?)([a-zâçğıñöşüA-ZÂÇĞİÑÖŞÜa-яёА-ЯЁ«„]+)$/sDu',
-'mainpagetext'      => "<big>'''MediaWiki muvafaqiyetnen quruldı.'''</big>",
+'mainpagetext'      => "'''MediaWiki muvafaqiyetnen quruldı.'''",
 'mainpagedocfooter' => "Bu vikiniñ yol-yoruğını [http://meta.wikimedia.org/wiki/Help:Contents User's Guide qullanıcı qılavuzından] ögrenip olasıñız.
 
 == Bazı faydalı saytlar ==
@@ -614,7 +614,7 @@ Parоliñizni endi muvafaqiyetnen deñiştirdiñiz ya da yañı bir muvaqqat par
 'summary-preview'                  => 'Baqıp çıquv tasviri:',
 'subject-preview'                  => 'Baqıp çıquv serlevası:',
 'blockedtitle'                     => 'Qullanıcı blok etildi.',
-'blockedtext'                      => '<big>\'\'\'Esabıñız ya da IP adresiñiz blok etildi.\'\'\'</big>
+'blockedtext'                      => '\'\'\'Esabıñız ya da IP adresiñiz blok etildi.\'\'\'
 
 Blok yapqan idareci: $1.
 Blok sebebi: \'\'"$2"\'\'.
@@ -1413,7 +1413,7 @@ yaqın zamanda yoq etilgenlerni körmek içün: $2.',
 'dellogpagetext'        => 'Aşağıdaki cedvel soñki yoq etüv jurnalıdır.',
 'deletionlog'           => 'yoq etüv jurnalı',
 'reverted'              => 'Evelki versiya keri ketirildi',
-'deletecomment'         => 'Yoq etüv sebebi',
+'deletecomment'         => 'Sebep:',
 'deleteotherreason'     => 'Diger/ilâveli sebep:',
 'deletereasonotherlist' => 'Diger sebep',
 
@@ -1585,7 +1585,7 @@ Böyle allarda, kerek olsa, saifelerni qolnen taşımağa ya da birleştirmege m
 'move-watch'                => 'Bu saifeni közet',
 'movepagebtn'               => 'Adını deñiştir',
 'pagemovedsub'              => 'Ad deñişikligi tamamlandı',
-'movepage-moved'            => '<big>\'\'\'"$1" saifesiniñ adı "$2" olaraq deñiştirildi\'\'\'</big>', # The two titles are passed in plain text as $3 and $4 to allow additional goodies in the message.
+'movepage-moved'            => '\'\'\'"$1" saifesiniñ adı "$2" olaraq deñiştirildi\'\'\'', # The two titles are passed in plain text as $3 and $4 to allow additional goodies in the message.
 'movepage-moved-redirect'   => 'Bir yollama yaratıldı.',
 'movepage-moved-noredirect' => 'Yollama yaratıluvı bastırıldı.',
 'articleexists'             => 'Bu adda bir saife endi bar ya da siz yazğan ad yasaqlı.
@@ -1775,7 +1775,7 @@ MediaWiki interfeysiniñ çeşit tillerge tercime etüvde iştirak etmege istese
 
 # Media information
 'mediawarning'         => "'''İhtar''': Bu fayl türüniñ içinde yaman niyetli kod ola bile.
-Faylnı işletip işletim sistemañızğa zarar ketirip olursıñız.<hr />",
+Faylnı işletip işletim sistemañızğa zarar ketirip olursıñız.",
 'imagemaxsize'         => 'Resimlerniñ malümat saifelerindeki resimniñ azamiy (maksimal) ölçüsi:',
 'thumbsize'            => 'Kiçik ölçü:',
 'widthheightpage'      => '$1 × $2, {{PLURAL:$3|1|$3}} saife',

@@ -138,7 +138,7 @@ $messages = array(
 'category-file-count-limited'    => 'Ацы категорийы {{PLURAL:$1|$1 файл|$1 файлы}} ис.',
 'listingcontinuesabbrev'         => '(дарддæрдзу)',
 
-'mainpagetext' => "<big>'''Вики-скрипт «MediaWiki» æнтыстджынæй æвæрд æрцыд.'''</big>",
+'mainpagetext' => "'''Вики-скрипт «MediaWiki» æнтыстджынæй æвæрд æрцыд.'''",
 
 'about'          => 'Афыст',
 'article'        => 'Статья',
@@ -704,7 +704,7 @@ $3',
 'exblank'               => 'фарс афтид уыдис',
 'dellogpage'            => 'Аппарыны лог',
 'deletionlog'           => 'аппарыны лог',
-'deletecomment'         => 'Аппарынæн аххос:',
+'deletecomment'         => 'Аххос:',
 'deleteotherreason'     => 'Æндæр кæнæ уæлæмхасæн аххос:',
 'deletereasonotherlist' => 'Æндæр аххос',
 
@@ -749,7 +749,7 @@ $3',
 # Block/unblock
 'blockip'                => 'Бахъоды кæн',
 'blockip-legend'         => 'Бахъоды æй кæн',
-'ipbreason'              => 'Аххос',
+'ipbreason'              => 'Аххос:',
 'ipbreasonotherlist'     => 'Æндæр аххос',
 'ipbotherreason'         => 'Æндæр кæнæ уæлæмхасæн аххос:',
 'ipb-blocklist'          => 'Актуалон хъоды равдис',

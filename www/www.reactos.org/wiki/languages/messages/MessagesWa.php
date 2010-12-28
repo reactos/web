@@ -179,7 +179,7 @@ $messages = array(
 'category-file-count'            => "{{PLURAL:$2|Dins cisse categoreye ci, gn a k' ene pådje.|{{PLURAL:$1|Gn a cisse pådje ci|Gn a les $1 pådjes ki shuvèt}} dins cisse categoreye ci, po $2 pådjes å totå.}}",
 'category-file-count-limited'    => "{{PLURAL:$1|Gn a k' cisse pådje cial|Gn a les $1 pådjes ciddé padzo}} dins cisse categoreye ci.",
 
-'mainpagetext' => "<big>'''Li programe Wiki a stî astalé a l' idêye.'''</big>",
+'mainpagetext' => "'''Li programe Wiki a stî astalé a l' idêye.'''",
 
 'about'          => 'Åd fwait',
 'article'        => 'Årtike',
@@ -606,7 +606,7 @@ Les ôtes manaedjeus so ç' wiki ci pôront todi vey li contnou catchî eyet l' 
 'revdelete-hide-comment'      => "Catchî l' comintaire di candjmint",
 'revdelete-hide-user'         => "Catchî l' no d' uzeu/adresse IP do candjeu",
 'revdelete-hide-restricted'   => 'Apliker ces restrictions ossu åzès manaedjeus',
-'revdelete-log'               => 'Comintaire pol djournå:',
+'revdelete-log'               => 'Råjhon',
 'revdelete-submit'            => 'Apliker al modêye tchoezeye',
 'revdelete-logentry'          => 'li veyåvisté des modêyes a stî candjeye po [[$1]]',
 'revdelete-hid'               => 'muchyî $1',
@@ -710,7 +710,7 @@ Les ôtes manaedjeus so ç' wiki ci pôront todi vey li contnou catchî eyet l' 
 'userrights-editusergroup' => "Candjî groupes d' uzeus",
 'saveusergroups'           => "Schaper des groupes d' uzeus",
 'userrights-groupsmember'  => 'Mimbes di:',
-'userrights-reason'        => 'Råjhon do candjmint:',
+'userrights-reason'        => 'Råjhon',
 
 # Groups
 'group'            => 'Groupe:',
@@ -857,7 +857,7 @@ ou co po les sons
 # File deletion
 'filedelete'         => 'Disfacer $1',
 'filedelete-legend'  => 'Disfacer fitchî',
-'filedelete-comment' => 'Comintaire:',
+'filedelete-comment' => 'Råjhon',
 'filedelete-submit'  => 'Disfacer',
 
 # MIME search
@@ -1011,7 +1011,7 @@ el [[Special:RecentChanges|djivêye des dierins candjmints]] po k' ça soeye pus
 
 Si vos vloz bodjî l' pådje foû di vosse djivêye des shuvous, clitchîz so «Èn pus shuve li pådje» dins l' bår di menu sol costé.",
 'removedwatch'         => 'Bodjî foû des shuvous',
-'removedwatchtext'     => 'Li pådje «<nowiki>$1</nowiki>» a stî bodjeye foû di vosse djivêye des pådjes a shuve.',
+'removedwatchtext'     => 'Li pådje «[[:$1]]» a stî bodjeye foû di vosse djivêye des pådjes a shuve.',
 'watch'                => 'Shuve',
 'watchthispage'        => 'Shuve cisse pådje',
 'unwatch'              => 'Èn pus shuve',
@@ -1080,7 +1080,7 @@ djivêye des dierins disfaçaedjes.',
 'dellogpagetext'    => "Chal pa dzo c' est l' djivêye des dierins disfaçaedjes.",
 'deletionlog'       => 'djournå des disfaçaedjes',
 'reverted'          => 'Rimetou ene modêye di dvant',
-'deletecomment'     => 'Råjhon do disfaçaedje',
+'deletecomment'     => 'Råjhon',
 
 # Rollback
 'cantrollback'  => "Dji n' sai disfé les candjmints; li dierin contribouweu est li seu oteur po cist årtike ci.",
@@ -1099,7 +1099,7 @@ Li dierin candjmint a stî fwait pa [[User:$3|$3]] ([[User talk:$3|Copene]]).",
 'protect-title'               => 'Protedjant «$1»',
 'prot_1movedto2'              => '[[$1]] displaecî viè [[$2]]',
 'protect-legend'              => "Acertinez l' protedjaedje",
-'protectcomment'              => 'Råjhon po protedjî',
+'protectcomment'              => 'Råjhon',
 'protect-unchain'             => 'Disbloker les permissions di displaeçaedje',
 'protect-text'                => "Vos ploz droci vey eyet candjî l' livea d' protedjaedje pol pådje '''<nowiki>$1</nowiki>'''.",
 'protect-default'             => '(prémetou)',
@@ -1137,7 +1137,7 @@ ni pout esse veyou ki des manaedjeus.",
 'undeletedrevisions-files'     => '{{PLURAL:$1|1 modêye|$1 modêyes}} et {{PLURAL:$2|1 fitchî|$2 fitchîs}} di rapexhîs',
 'undeletedfiles'               => '{{PLURAL:$1|1 fitchî|$1 fitchîs}} di rapexhîs',
 'cannotundelete'               => "Li rapexhaedje a fwait berwete; motoit bén k' ene ôte sakî l' a ddja rapexhî.",
-'undeletedpage'                => "<big>'''Li pådje $1 a stî rapexheye.'''
+'undeletedpage'                => "'''Li pådje $1 a stî rapexheye.'''
 
 Loukîz l' [[Special:Log/delete|djournå des disfaçaedjes]] po ene djivêye des dierins disfaçaedjes eyet rapexhaedjes.",
 'undelete-search-submit'       => 'Cweri',
@@ -1412,7 +1412,7 @@ Totes les accions di rcopiaedje eterwiki sont metowes e [[Special:Log/import|djo
 'nextdiff'     => 'Diferinces des candjmints shuvants →',
 
 # Media information
-'mediawarning'   => "'''Asteme''': Ci fitchî chal pôreut esse evirussé, si vos l' enondez vos pôrîz infecter l' sistinme da vosse.<hr />",
+'mediawarning'   => "'''Asteme''': Ci fitchî chal pôreut esse evirussé, si vos l' enondez vos pôrîz infecter l' sistinme da vosse.",
 'imagemaxsize'   => "Limite pol håynaedje ezès pådjes d' imådje:",
 'thumbsize'      => 'Grandeu po les imådjetes (thumb):',
 'file-info-size' => '($1 × $2 picsels, groxheur do fitchî: $3, del sôre "MIME": $4)',

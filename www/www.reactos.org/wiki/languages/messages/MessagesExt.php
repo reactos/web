@@ -132,7 +132,7 @@ $messages = array(
 'category-file-count-limited'    => '{{PLURAL:$1|El siguienti archivu está|Los siguientis $1 archivus están}} nesta categoria.',
 'listingcontinuesabbrev'         => 'acont.',
 
-'mainpagetext'      => "<big>'''MeyaGüiqui s'á istalau satihatoriamenti.'''</big>",
+'mainpagetext'      => "'''MeyaGüiqui s'á istalau satihatoriamenti.'''",
 'mainpagedocfooter' => "Consurta la [http://meta.wikimedia.org/wiki/Help:Contents User's Guide] pa sabel mas al tentu el huncionamientu el software güiqui.
 
 == Esminciandu ==
@@ -525,7 +525,7 @@ Si s\'á criau la cuenta ebiu a angún marru, inora esti mensahi.',
 'summary-preview'                  => 'Previsoreal síntesis:',
 'subject-preview'                  => 'Previsoreal tema/entítulu:',
 'blockedtitle'                     => 'Esti usuáriu está atarugau',
-'blockedtext'                      => "<big>'''El tu nombri d'usuáriu/direción IP está atarugau/á.'''</big>
+'blockedtext'                      => "'''El tu nombri d'usuáriu/direción IP está atarugau/á.'''
 
 \$1 jue quien jidu el tarugu, pola siguienti razón: ''\$2''.
 
@@ -728,7 +728,7 @@ El restu e çahorilis desti güiqui sí tendrán premisu pa visoreal el continiu
 'revdelete-suppress'          => 'Esborral tamién los datus los çahorilis',
 'revdelete-hide-image'        => 'Açonchal el continiu el archivu',
 'revdelete-unsuppress'        => 'Esborral restricionis enas revisionis arrecuperás',
-'revdelete-log'               => 'Razón pal esborrau:',
+'revdelete-log'               => 'Razón:',
 'revdelete-submit'            => 'Aprical a la revisión aseñalá',
 'revdelete-logentry'          => 'chambá la visibiliá la revisión pa [[$1]]',
 'logdelete-logentry'          => "chambá la visibiliá d'eventus de [[$1]]",
@@ -770,7 +770,7 @@ Asigurati e qu'esti chambu mantenga la continuiá el estorial la páhina.",
 'mergehistory-invalid-destination' => 'La páhina e destinu ebi tenel un entítulu premitiu.',
 'mergehistory-autocomment'         => 'Mesturau [[:$1]] en [[:$2]]',
 'mergehistory-comment'             => 'Mesturau [[:$1]] en [[:$2]]: $3',
-'mergehistory-reason'              => 'Radón:',
+'mergehistory-reason'              => 'Razón:',
 
 # Merge log
 'mergelog'           => 'Rustrihu e fusionis',
@@ -1224,7 +1224,7 @@ Pursa nel entítulu la coluna pa chambal el ordin.',
 'filedelete-legend'           => 'Esborral archivu',
 'filedelete-intro'            => "Estás esborrandu '''[[Media:$1|$1]]''' untu al su estorial.",
 'filedelete-intro-old'        => "Estás esborrandu la velsón de '''[[Media:$1|$1]]''' del [$4 $3 a las $2].",
-'filedelete-comment'          => 'Comentáriu:',
+'filedelete-comment'          => 'Razón:',
 'filedelete-submit'           => 'Esborral',
 'filedelete-success'          => "S´á esborrau '''$1'''.",
 'filedelete-success-old'      => "Á siu esborrá la velsión de '''[[Media:$1|$1]]''' del $2 a las $3.</span>",
@@ -1531,7 +1531,7 @@ Consurta $2 pa vel los úrtimus esborraus.',
 'dellogpagetext'         => 'Embahu se muestra una lista colos úrtimus esborraus.',
 'deletionlog'            => 'rustrihu d´esborrau',
 'reverted'               => 'Revertiu a la úrtima revisión',
-'deletecomment'          => 'Razón del esborrau',
+'deletecomment'          => 'Razón:',
 'deleteotherreason'      => 'Otras razonis:',
 'deletereasonotherlist'  => 'Otra razón',
 'deletereason-dropdown'  => "*Motivus mas frecuentis d'esborrau
@@ -1566,7 +1566,7 @@ tu escrucaol pa cargal otra vezi la páhina i güervi a ententalu.",
 'protect-title'               => 'Estableciendu nivel de proteción pa "$1"',
 'prot_1movedto2'              => '[[$1]] s´á moviu a [[$2]]',
 'protect-legend'              => 'Confirmal proteción',
-'protectcomment'              => 'Radón:',
+'protectcomment'              => 'Razón:',
 'protectexpiry'               => 'Acabiha:',
 'protect_expiry_invalid'      => 'La fecha e cauciá nu es correta.',
 'protect_expiry_old'          => 'La fecha e cauciá está nel pasau.',
@@ -1628,7 +1628,7 @@ arrecuperás apaicerán nel estorial anteriol.",
 'undeletedrevisions-files'     => '{{PLURAL:$1|1 revisión|$1 revisionis}} i {{PLURAL:$2|1 archivu|$2 archivus}} restauraus',
 'undeletedfiles'               => '{{PLURAL:$1|1 archivu|$1 archivus}} restauraus',
 'cannotundelete'               => 'Marru arrecuperandu; es posibri qu´alguien ya aiga arrecuperau la páhina.',
-'undeletedpage'                => "<big>'''S'á restaurau $1'''</big>
+'undeletedpage'                => "'''S'á restaurau $1'''
 
 Consurta el [[Special:Log/delete|rustrihu d'esborrau]] pa visoreal los úrtimus esborraus i arrecuperacionis.",
 'undelete-header'              => 'Vaiti pal [[Special:Log/delete|rustrihu d´esborrau]] pa vel las úrtimas páhinas esborrás.',
@@ -1827,7 +1827,7 @@ En dambus los dos chascus, si lo deseas, tendrás que movel u mestural la páhin
 'move-watch'              => 'Vehilal esta páhina',
 'movepagebtn'             => 'Movel páhina',
 'pagemovedsub'            => 'S´á moviu la páhina',
-'movepage-moved'          => "<big>S'á muau '''\"\$1\" a \"\$2\"'''</big>", # The two titles are passed in plain text as $3 and $4 to allow additional goodies in the message.
+'movepage-moved'          => "S'á muau '''\"\$1\" a \"\$2\"'''", # The two titles are passed in plain text as $3 and $4 to allow additional goodies in the message.
 'movepage-moved-redirect' => 'Á siu criá una redireción.',
 'articleexists'           => 'Ya desisti una páhina con esi nombri u nu se premiti el nombri qu´as lihiu.
 Pol favol, escrebi otru entítulu.',

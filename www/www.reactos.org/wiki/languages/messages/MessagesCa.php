@@ -299,7 +299,7 @@ $messages = array(
 'category-file-count-limited'    => '{{PLURAL:$1|El següent fitxer és|Els següents $1 fitxers són}} dins la categoria actual.',
 'listingcontinuesabbrev'         => ' cont.',
 
-'mainpagetext'      => "<big>'''El programari del MediaWiki s'ha instaŀlat correctament.'''</big>",
+'mainpagetext'      => "'''El programari del MediaWiki s'ha instaŀlat correctament.'''",
 'mainpagedocfooter' => "Consulteu la [http://meta.wikimedia.org/wiki/Help:Contents Guia d'Usuari] per a més informació sobre com utilitzar-lo.
 
 == Per a començar ==
@@ -700,7 +700,7 @@ Deveu haver canviat la vostra contrasenya o demanat una nova contrasenya tempora
 'summary-preview'                  => 'Previsualització del resum:',
 'subject-preview'                  => 'Previsualització de tema/capçalera:',
 'blockedtitle'                     => "L'usuari està blocat",
-'blockedtext'                      => "<big>'''S'ha procedit al blocatge del vostre compte d'usuari o la vostra adreça IP.'''</big>
+'blockedtext'                      => "'''S'ha procedit al blocatge del vostre compte d'usuari o la vostra adreça IP.'''
 
 El blocatge l'ha dut a terme l'usuari $1.
 El motiu donat és ''$2''.
@@ -939,7 +939,7 @@ Si us plau, confirmeu que és això el que desitjeu fer, que enteneu les conseq�
 'revdelete-suppress'             => 'Suprimeix també les dades dels administradors',
 'revdelete-hide-image'           => 'Amaga el contingut del fitxer',
 'revdelete-unsuppress'           => 'Suprimir les restriccions de les revisions restaurades',
-'revdelete-log'                  => "Motiu d'esborrat:",
+'revdelete-log'                  => 'Motiu:',
 'revdelete-submit'               => 'Aplica a la revisió seleccionada',
 'revdelete-logentry'             => "s'ha canviat la visibilitat de la revisió de [[$1]]",
 'logdelete-logentry'             => "s'ha canviat la visibilitat de [[$1]]",
@@ -1226,18 +1226,18 @@ Assegureu-vos que aquest canvi mantindrà la continuïtat històrica de la pàgi
 'group'               => 'Grup:',
 'group-user'          => 'Usuaris',
 'group-autoconfirmed' => 'Usuaris autoconfirmats',
-'group-bot'           => 'bots',
-'group-sysop'         => 'administradors',
-'group-bureaucrat'    => 'buròcrates',
+'group-bot'           => 'Bots',
+'group-sysop'         => 'Administradors',
+'group-bureaucrat'    => 'Buròcrates',
 'group-suppress'      => 'Oversights',
 'group-all'           => '(tots)',
 
-'group-user-member'          => 'Usuari',
-'group-autoconfirmed-member' => 'Usuari autoconfirmat',
+'group-user-member'          => 'usuari',
+'group-autoconfirmed-member' => 'usuari autoconfirmat',
 'group-bot-member'           => 'bot',
 'group-sysop-member'         => 'administrador',
 'group-bureaucrat-member'    => 'buròcrata',
-'group-suppress-member'      => 'Oversight',
+'group-suppress-member'      => 'oversight',
 
 'grouppage-user'          => '{{ns:project}}:Usuaris',
 'grouppage-autoconfirmed' => '{{ns:project}}:Usuaris autoconfirmats',
@@ -1543,7 +1543,7 @@ Podeu consultar la [[Special:WhatLinksHere/$2|llista completa]].",
 'filerevert'                => 'Reverteix $1',
 'filerevert-legend'         => 'Reverteix el fitxer',
 'filerevert-intro'          => "Esteu revertint '''[[Media:$1|$1]]''' a la [$4 versió de  $3, $2].",
-'filerevert-comment'        => 'Comentari:',
+'filerevert-comment'        => 'Motiu:',
 'filerevert-defaultcomment' => "S'ha revertit a la versió com de $2, $1",
 'filerevert-submit'         => 'Reverteix',
 'filerevert-success'        => "'''[[Media:$1|$1]]''' ha estat revertit a la [$4 versió de $3, $2].",
@@ -1554,7 +1554,7 @@ Podeu consultar la [[Special:WhatLinksHere/$2|llista completa]].",
 'filedelete-legend'           => 'Suprimeix el fitxer',
 'filedelete-intro'            => "Esteu eliminant el fitxer '''[[Media:$1|$1]]''' juntament amb el seu historial.",
 'filedelete-intro-old'        => "Esteu eliminant la versió de '''[[Media:$1|$1]]''' com de [$4 $3, $2].",
-'filedelete-comment'          => 'Comentari:',
+'filedelete-comment'          => 'Motiu:',
 'filedelete-submit'           => 'Suprimeix',
 'filedelete-success'          => "'''$1''' s'ha eliminat.",
 'filedelete-success-old'      => "<span class=\"plainlinks\">La versió de '''[[Media:\$1|\$1]]''' s'ha eliminat el \$2 a les \$3.</span>",
@@ -1896,13 +1896,13 @@ conseqüències, i que el que esteu fent està d'acord amb la [[{{MediaWiki:Poli
 'actioncomplete'         => "S'ha realitzat l'acció de manera satisfactòria.",
 'deletedtext'            => '«<nowiki>$1</nowiki>» ha estat esborrat.
 Vegeu $2 per a un registre dels esborrats més recents.',
-'deletedarticle'         => 'eliminat «[[$1]]»',
+'deletedarticle'         => 'ha esborrat «[[$1]]»',
 'suppressedarticle'      => "s'ha suprimit «[[$1]]»",
 'dellogpage'             => "Registre d'eliminació",
 'dellogpagetext'         => 'Davall hi ha una llista dels esborraments més recents.',
 'deletionlog'            => "Registre d'esborrats",
 'reverted'               => 'Invertit amb una revisió anterior',
-'deletecomment'          => 'Motiu per a ser esborrat:',
+'deletecomment'          => 'Motiu:',
 'deleteotherreason'      => 'Motius diferents o addicionals:',
 'deletereasonotherlist'  => 'Altres motius',
 'deletereason-dropdown'  => "*Motius freqüents d'esborrat
@@ -2017,13 +2017,13 @@ al resum a continuació, juntament amb detalls dels usuaris que l'havien editat 
 'undeletelink'                 => 'mira/restaura',
 'undeletereset'                => 'Reinicia',
 'undeleteinvert'               => 'Invertir selecció',
-'undeletecomment'              => 'Comentari:',
+'undeletecomment'              => 'Motiu:',
 'undeletedarticle'             => 'restaurat «[[$1]]»',
 'undeletedrevisions'           => '{{PLURAL:$1|Una revisió restaurada|$1 revisions restaurades}}',
 'undeletedrevisions-files'     => '{{PLURAL:$1|Una revisió|$1 revisions}} i {{PLURAL:$2|un fitxer|$2 fitxers}} restaurats',
 'undeletedfiles'               => '$1 {{PLURAL:$1|fitxer restaurat|fitxers restaurats}}',
 'cannotundelete'               => "No s'ha pogut restaurar; algú altre pot estar restaurant la mateixa pàgina.",
-'undeletedpage'                => "<big>'''S'ha restaurat «$1»'''</big>
+'undeletedpage'                => "'''S'ha restaurat «$1»'''
 
 Consulteu el [[Special:Log/delete|registre d'esborraments]] per a veure els esborraments i els restauraments més recents.",
 'undelete-header'              => "Vegeu [[Special:Log/delete|el registre d'eliminació]] per a veure les pàgines eliminades recentment.",
@@ -2248,7 +2248,7 @@ per reanomenar una pàgina.",
 'move-watch'                   => 'Vigila aquesta pàgina',
 'movepagebtn'                  => 'Reanomena la pàgina',
 'pagemovedsub'                 => 'Reanomenament amb èxit',
-'movepage-moved'               => "<big>'''«$1» s'ha mogut a «$2»'''</big>", # The two titles are passed in plain text as $3 and $4 to allow additional goodies in the message.
+'movepage-moved'               => "'''«$1» s'ha mogut a «$2»'''", # The two titles are passed in plain text as $3 and $4 to allow additional goodies in the message.
 'movepage-moved-redirect'      => "S'ha creat una redirecció.",
 'movepage-moved-noredirect'    => "La creació d'una redirecció s'ha suprimit.",
 'articleexists'                => 'Ja existeix una pàgina amb aquest nom, o el nom que heu triat no és vàlid.
@@ -2273,7 +2273,7 @@ Incorporeu-les manualment, si us plau.",
 'movesubpage'                  => '{{PLURAL:$1|Subpàgina|Subpàgines}}',
 'movesubpagetext'              => 'Aquesta pàgina té {{PLURAL:$1|una subpàgina|$1 subpàgines}} que es mostren a continuació.',
 'movenosubpage'                => 'Aquesta pàgina no té subpàgines.',
-'movereason'                   => 'Motiu',
+'movereason'                   => 'Motiu:',
 'revertmove'                   => 'reverteix',
 'delete_and_move'              => 'Elimina i trasllada',
 'delete_and_move_text'         => "==Cal l'eliminació==
@@ -2532,7 +2532,7 @@ $1",
 
 # Media information
 'mediawarning'         => "'''Advertència''': Aquest fitxer podria contenir codi maliciós.
-Si l'executeu, podeu comprometre la seguretat del vostre sistema.<hr />",
+Si l'executeu, podeu comprometre la seguretat del vostre sistema.",
 'imagemaxsize'         => "Limita les imatges de les pàgines de descripció d'imatges a:",
 'thumbsize'            => 'Mida de la miniatura:',
 'widthheightpage'      => '$1×$2, $3 {{PLURAL:$3|pàgina|pàgines}}',
@@ -2961,13 +2961,15 @@ Proveu-ho amb la previsualització normal.',
 'watchlistedit-noitems'        => 'La vostra llista de seguiment no té cap títol.',
 'watchlistedit-normal-title'   => 'Edita la llista de seguiment',
 'watchlistedit-normal-legend'  => 'Esborra els títols de la llista de seguiment',
-'watchlistedit-normal-explain' => 'Els títols de la vostra llista de seguiment es mostren a continuació. Per a eliminar un títol, marqueu
-	el quadre del costat, i feu clic a Elimina els títols. Podeu també [[Special:Watchlist/raw|editar-ne la llista crua]].',
-'watchlistedit-normal-submit'  => 'Esborra els títols',
+'watchlistedit-normal-explain' => 'Els títols de les pàgines que estan en la vostra llista de seguiment es mostren a continuació. 
+Per a eliminar algun element, marqueu el quadre del seu costat, i feu clic al botó «{{int:Watchlistedit-normal-submit}}». També podeu [[Special:Watchlist/raw|editar-ne la llista en text pla]].',
+'watchlistedit-normal-submit'  => 'Elimina entrades',
 'watchlistedit-normal-done'    => "{{PLURAL:$1|1 títol s'ha|$1 títols s'han}} eliminat de la vostra llista de seguiment:",
 'watchlistedit-raw-title'      => 'Edita la llista de seguiment crua',
 'watchlistedit-raw-legend'     => 'Edita la llista de seguiment crua',
-'watchlistedit-raw-explain'    => "Els títols de la vostra llista de seguiment es mostren a continuació, i poden modificar-se afegint-los o suprimint-los de la llista; un títol per línia. En acabar, feu clic a Actualitza la llista de seguiment.
+'watchlistedit-raw-explain'    => "Els títols de la vostra llista de seguiment es mostren a continuació, i poden modificar-se afegint-los o suprimint-los de la llista; 
+un títol per línia. 
+En acabar, feu clic a «{{int:Watchlistedit-raw-submit}}».
 També podeu [[Special:Watchlist/edit|utilitzar l'editor estàndard]].",
 'watchlistedit-raw-titles'     => 'Títols:',
 'watchlistedit-raw-submit'     => 'Actualitza la llista de seguiment',
@@ -3008,7 +3010,7 @@ També podeu [[Special:Watchlist/edit|utilitzar l'editor estàndard]].",
 # Special:FilePath
 'filepath'         => 'Camí del fitxer',
 'filepath-page'    => 'Fitxer:',
-'filepath-submit'  => 'Camí',
+'filepath-submit'  => 'Vés-hi',
 'filepath-summary' => "Aquesta pàgina especial retorna un camí complet d'un fitxer.
 Les imatges es mostren en plena resolució; altres tipus de fitxer s'inicien directament amb el seu programa associat.
 

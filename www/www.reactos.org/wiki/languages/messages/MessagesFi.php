@@ -395,7 +395,7 @@ $messages = array(
 'category-file-count-limited'    => 'Tässä luokassa on {{PLURAL:$1|yksi tiedosto|$1 tiedostoa}}.',
 'listingcontinuesabbrev'         => 'jatkuu',
 
-'mainpagetext'      => "<big>'''MediaWiki on onnistuneesti asennettu.'''</big>",
+'mainpagetext'      => "'''MediaWiki on onnistuneesti asennettu.'''",
 'mainpagedocfooter' => "Lisätietoja käytöstä on sivulla [http://meta.wikimedia.org/wiki/Help:Contents User's Guide].
 
 === Lisäohjeita ===
@@ -667,7 +667,7 @@ Käyttäjätunnuksesi on luotu.
 'badretype'                  => 'Syöttämäsi salasanat ovat erilaiset.',
 'userexists'                 => 'Pyytämäsi käyttäjänimi on jo käytössä. Valitse toinen käyttäjänimi.',
 'youremail'                  => 'Sähköpostiosoite',
-'username'                   => 'Tunnus',
+'username'                   => 'Käyttäjätunnus',
 'uid'                        => 'Numero',
 'prefs-memberingroups'       => 'Jäsenenä {{PLURAL:$1|ryhmässä|ryhmissä}}',
 'yourrealname'               => 'Oikea nimi',
@@ -780,14 +780,15 @@ Olet saattanut jo onnistuneesti vaihtaa salasanasi tai pyytää uutta väliaikai
 'showpreview'                      => 'Esikatsele',
 'showlivepreview'                  => 'Pikaesikatselu',
 'showdiff'                         => 'Näytä muutokset',
-'anoneditwarning'                  => 'Et ole kirjautunut sisään. IP-osoitteesi kirjataan tämän sivun muokkaushistoriaan.',
+'anoneditwarning'                  => "'''Varoitus:''' Et ole kirjautunut sisään.
+IP-osoitteesi kirjataan tämän sivun muutoshistoriaan.",
 'missingsummary'                   => 'Et ole antanut yhteenvetoa. Jos valitset Tallenna uudelleen, niin muokkauksesi tallennetaan ilman yhteenvetoa.',
 'missingcommenttext'               => 'Kirjoita viesti alle.',
 'missingcommentheader'             => 'Et ole antanut otsikkoa kommentillesi. Valitse <em>Tallenna</em>, jos et halua antaa otsikkoa.',
 'summary-preview'                  => 'Yhteenvedon esikatselu:',
 'subject-preview'                  => 'Otsikon esikatselu:',
 'blockedtitle'                     => 'Pääsy estetty',
-'blockedtext'                      => "<big>'''Käyttäjätunnuksesi tai IP-osoitteesi on estetty.'''</big>
+'blockedtext'                      => "'''Käyttäjätunnuksesi tai IP-osoitteesi on estetty.'''
 
 Eston on asettanut $1.
 Syy: '''$2'''
@@ -1006,7 +1007,7 @@ Varmista, että haluat tehdä tämän, ymmärrät seuraukset ja teet tämän [[{
 'revdelete-suppress'             => 'Piilota myös ylläpitäjiltä',
 'revdelete-hide-image'           => 'Piilota tiedoston sisältö',
 'revdelete-unsuppress'           => 'Poista rajoitukset palautetuilta versiolta',
-'revdelete-log'                  => 'Syy poistoon:',
+'revdelete-log'                  => 'Syy',
 'revdelete-submit'               => 'Toteuta',
 'revdelete-logentry'             => 'muutti sivun [[$1]] version näkyvyyttä',
 'logdelete-logentry'             => 'muutti sivun [[$1]] näkyvyyttä',
@@ -1110,7 +1111,7 @@ Uuden ja vanhan sivun muutoksien pitää muodostaa jatkumo – ne eivät saa men
 'diff-img'                => "'''kuva'''",
 'diff-span'               => "'''span'''",
 'diff-a'                  => "'''linkki'''",
-'diff-i'                  => "'''kursiivi'''",
+'diff-i'                  => "'''kursivointi'''",
 'diff-b'                  => "'''lihavointi'''",
 'diff-strong'             => "'''vahvennus'''",
 'diff-em'                 => "'''korostus'''",
@@ -1233,8 +1234,8 @@ Kokeile lisätä haun alkuun ''all:'', niin haku kohdistuu kaikkeen sisältöön
 'restoreprefs'              => 'Palauta kaikki oletusasetuksiin',
 'textboxsize'               => 'Muokkaus',
 'prefs-edit-boxsize'        => 'Muokkauskentän koko.',
-'rows'                      => 'Rivit',
-'columns'                   => 'Sarakkeet',
+'rows'                      => 'Rivejä',
+'columns'                   => 'Sarakkeita',
 'searchresultshead'         => 'Haku',
 'resultsperpage'            => 'Tuloksia sivua kohti',
 'contextlines'              => 'Rivien määrä tulosta kohti',
@@ -1356,7 +1357,7 @@ Kokeile lisätä haun alkuun ''all:'', niin haku kohdistuu kaikkeen sisältöön
 'right-protect'               => 'Muuttaa sivujen suojauksia ja muokata suojattuja sivuja',
 'right-editprotected'         => 'Muokata suojattuja sivuja (pois lukien laajennettu sisällytyssuojaus)',
 'right-editinterface'         => 'Muokata käyttöliittymätekstejä',
-'right-editusercssjs'         => 'Muokata toisten käyttäjien CSS- ja JS-tiedostoja',
+'right-editusercssjs'         => 'Muokata toisten käyttäjien CSS- ja JavaScript-tiedostoja',
 'right-rollback'              => 'Palauttaa nopeasti käyttäjän viimeisimmät muokkaukset sivuun',
 'right-markbotedits'          => 'Kumota muokkauksia bottimerkinnällä',
 'right-noratelimit'           => 'Ohittaa nopeusrajoitukset',
@@ -1618,7 +1619,7 @@ Seuraava lista näyttää {{PLURAL:$1|ensimmäisen linkittävän sivun|$1 ensimm
 'filedelete-legend'           => 'Tiedoston poisto',
 'filedelete-intro'            => "Olet poistamassa tiedostoa '''[[Media:$1|$1]]''' ja kaiken sen historian.",
 'filedelete-intro-old'        => '<span class="plainlinks">Olet poistamassa tiedoston \'\'\'[[Media:$1|$1]]\'\'\' [$4 $3 kello $2 luotua versiota].</span>',
-'filedelete-comment'          => 'Poiston syy',
+'filedelete-comment'          => 'Syy',
 'filedelete-submit'           => 'Poista',
 'filedelete-success'          => "Tiedosto '''$1''' on poistettu.",
 'filedelete-success-old'      => "Tiedoston '''[[Media:$1|$1]]''' $3 kello $2 luotu versio on poistettu.",
@@ -1765,7 +1766,7 @@ Huomaa, että muut verkkosivut saattavat viitata tiedostoon suoran URL:n avulla,
 'booksources'               => 'Kirjalähteet',
 'booksources-search-legend' => 'Etsi kirjalähteitä',
 'booksources-isbn'          => 'ISBN',
-'booksources-go'            => 'Etsi',
+'booksources-go'            => 'Siirry',
 'booksources-text'          => 'Alla linkkejä ulkopuolisiin sivustoihin, joilla myydään uusia ja käytettyjä kirjoja. Sivuilla voi myös olla lisätietoa kirjoista.',
 'booksources-invalid-isbn'  => 'Annettu ISBN-numero ei ole kelvollinen. Tarkista alkuperäisestä lähteestä kirjoitusvirheiden varalta.',
 
@@ -1957,7 +1958,7 @@ Sivulla $2 on lista viimeaikaisista poistoista.',
 'dellogpagetext'         => 'Alla on loki viimeisimmistä poistoista.',
 'deletionlog'            => 'poistoloki',
 'reverted'               => 'Palautettu aikaisempaan versioon',
-'deletecomment'          => 'Poistamisen syy',
+'deletecomment'          => 'Syy',
 'deleteotherreason'      => 'Muu syy tai tarkennus',
 'deletereasonotherlist'  => 'Muu syy',
 'deletereason-dropdown'  => '*Yleiset poistosyyt
@@ -2059,13 +2060,13 @@ Viimeisimmän muokkauksen on tehnyt käyttäjä [[User:$3|$3]] ([[User talk:$3|k
 'undeletelink'                 => 'näytä tai palauta',
 'undeletereset'                => 'Tyhjennä',
 'undeleteinvert'               => 'Käänteinen valinta',
-'undeletecomment'              => 'Kommentti',
+'undeletecomment'              => 'Syy',
 'undeletedarticle'             => 'palautti sivun [[$1]]',
 'undeletedrevisions'           => '{{PLURAL:$1|Yksi versio|$1 versiota}} palautettiin',
 'undeletedrevisions-files'     => '{{PLURAL:$1|Yksi versio|$1 versiota}} ja {{PLURAL:$2|yksi tiedosto|$2 tiedostoa}} palautettiin',
 'undeletedfiles'               => '{{PLURAL:$1|1 tiedosto|$1 tiedostoa}} palautettiin',
 'cannotundelete'               => 'Palauttaminen epäonnistui.',
-'undeletedpage'                => "<big>'''$1 on palautettu.'''</big>
+'undeletedpage'                => "'''$1 on palautettu.'''
 
 [[Special:Log/delete|Poistolokista]] löydät listan viimeisimmistä poistoista ja palautuksista.",
 'undelete-header'              => '[[Special:Log/delete|Poistolokissa]] on lista viimeisimmistä poistoista.',
@@ -2273,7 +2274,7 @@ Näissä tapauksissa sivut täytyy siirtää tai yhdistää käsin.",
 'move-watch'                   => 'Tarkkaile tätä sivua',
 'movepagebtn'                  => 'Siirrä sivu',
 'pagemovedsub'                 => 'Siirto onnistui',
-'movepage-moved'               => "<big>'''$1 on siirretty nimelle $2'''</big>", # The two titles are passed in plain text as $3 and $4 to allow additional goodies in the message.
+'movepage-moved'               => "'''$1 on siirretty nimelle $2'''", # The two titles are passed in plain text as $3 and $4 to allow additional goodies in the message.
 'movepage-moved-redirect'      => 'Ohjaus luotiin.',
 'movepage-moved-noredirect'    => 'Ohjausta ei luotu.',
 'articleexists'                => 'Kohdesivu on jo olemassa, tai valittu nimi ei ole sopiva. Ole hyvä ja valitse uusi nimi.',
@@ -2561,7 +2562,7 @@ $1',
 
 # Media information
 'mediawarning'         => "'''Varoitus''': Tämä tiedostomuoto saattaa sisältää vahingollista koodia.
-Suorittamalla sen järjestelmäsi voi muuttua epäluotettavaksi.<hr />",
+Suorittamalla sen järjestelmäsi voi muuttua epäluotettavaksi.",
 'imagemaxsize'         => 'Kuvien enimmäiskoko kuvaussivuilla:',
 'thumbsize'            => 'Pikkukuvien koko',
 'widthheightpage'      => '$1×$2, $3 {{PLURAL:$3|sivu|sivua}}',
@@ -2982,12 +2983,14 @@ Yritä normaalia esikatselua.',
 'watchlistedit-noitems'        => 'Tarkkailulistasi on tyhjä.',
 'watchlistedit-normal-title'   => 'Tarkkailulistan muokkaus',
 'watchlistedit-normal-legend'  => 'Sivut',
-'watchlistedit-normal-explain' => 'Tarkkailulistasi sivut on lueteltu alla. Voit poistaa sivuja valitsemalla niitä vastaavat valintaruudut. Voit myös muokata listaa [[Special:Watchlist/raw|tekstimuodossa]].',
+'watchlistedit-normal-explain' => 'Tarkkailulistasi sivut on lueteltu alla. Voit poistaa sivuja valitsemalla niitä vastaavat valintaruudut ja napsauttamalla ”{{int:Watchlistedit-normal-submit}}”. Voit myös muokata listaa [[Special:Watchlist/raw|tekstimuodossa]].',
 'watchlistedit-normal-submit'  => 'Poista',
 'watchlistedit-normal-done'    => '{{PLURAL:$1|Yksi sivu|$1 sivua}} poistettiin tarkkailulistaltasi:',
 'watchlistedit-raw-title'      => 'Tarkkailulistan muokkaus',
 'watchlistedit-raw-legend'     => 'Tarkkailulistan muokkaus',
-'watchlistedit-raw-explain'    => 'Tarkkailulistalla olevat sivut on lueteltu alla jokainen omalla rivillään.',
+'watchlistedit-raw-explain'    => 'Tarkkailulistasi sivut on lueteltu alla jokainen omalla rivillään. Voit muokata listaa lisäämällä ja poistamalla rivejä.
+Kun olet valmis, napsauta ”{{int:Watchlistedit-raw-submit}}”.
+Voit myös muokata listaa [[Special:Watchlist/edit|tavalliseen tapaan]].',
 'watchlistedit-raw-titles'     => 'Sivut',
 'watchlistedit-raw-submit'     => 'Päivitä tarkkailulista',
 'watchlistedit-raw-done'       => 'Tarkkailulistasi on päivitetty.',
@@ -3027,7 +3030,7 @@ Yritä normaalia esikatselua.',
 # Special:FilePath
 'filepath'         => 'Tiedoston osoite',
 'filepath-page'    => 'Tiedosto',
-'filepath-submit'  => 'Selvitä osoite',
+'filepath-submit'  => 'Siirry',
 'filepath-summary' => 'Tämä toimintosivu palauttaa tiedoston URL-osoitteen. Anna tiedoston nimi ilman {{ns:file}}-nimiavaruusliitettä.',
 
 # Special:FileDuplicateSearch

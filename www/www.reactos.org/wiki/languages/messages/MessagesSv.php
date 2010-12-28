@@ -21,6 +21,7 @@
  * @author Micke
  * @author NH
  * @author Najami
+ * @author Nghtwlkr
  * @author Ozp
  * @author Per
  * @author Petter Strandmark
@@ -302,7 +303,7 @@ $messages = array(
 'tog-nocache'                 => 'Stäng av cachning av sidor',
 'tog-enotifwatchlistpages'    => 'Skicka e-post till mig när en sida på min bevakningslista ändras',
 'tog-enotifusertalkpages'     => 'Skicka e-post till mig när något händer på min diskussionssida',
-'tog-enotifminoredits'        => 'Skicka mig e-post även för små redigeringar',
+'tog-enotifminoredits'        => 'Skicka mig e-post även för mindre ändringar',
 'tog-enotifrevealaddr'        => 'Visa min e-postadress i e-postmeddelanden om ändringar som skickas till andra',
 'tog-shownumberswatching'     => 'Visa antalet användare som bevakar',
 'tog-fancysig'                => 'Rå signatur som wikitext (utan en automatisk länk)',
@@ -396,7 +397,7 @@ $messages = array(
 'category-file-count-limited'    => 'Följande {{PLURAL:$1|fil |$1 filer}} finns i den här kategorin.',
 'listingcontinuesabbrev'         => 'forts.',
 
-'mainpagetext'      => "<big>'''MediaWiki har installerats utan problem.'''</big>",
+'mainpagetext'      => "'''MediaWiki har installerats utan problem.'''",
 'mainpagedocfooter' => 'Information om hur wiki-programvaran används finns i [http://meta.wikimedia.org/wiki/Help:Contents användarguiden].
 
 == Att komma igång ==
@@ -803,7 +804,7 @@ Om du klickar på Spara igen, kommer din redigering att sparas utan en sådan.",
 'summary-preview'                  => 'Förhandsgranskning av sammanfattning:',
 'subject-preview'                  => 'Rubrikförhandsgranskning:',
 'blockedtitle'                     => 'Användaren är blockerad',
-'blockedtext'                      => "<big>'''Din IP-adress eller ditt användarnamn är blockerat.'''</big>
+'blockedtext'                      => "'''Din IP-adress eller ditt användarnamn är blockerat.'''
 
 Blockeringen utfördes av $1 med motiveringen: ''$2''.
 
@@ -1044,13 +1045,13 @@ Vänligen bekräfta att detta är vad du avser göra, att du förstår konsekven
 'revdelete-suppress'             => 'Undanhåll data även från administratörer',
 'revdelete-hide-image'           => 'Dölj filinnehåll',
 'revdelete-unsuppress'           => 'Ta bort begränsningar på återställda versioner',
-'revdelete-log'                  => 'Orsak till radering:',
+'revdelete-log'                  => 'Anledning:',
 'revdelete-submit'               => 'Tillämpa på vald version',
 'revdelete-logentry'             => 'ändrade synlighet för versioner av [[$1]]',
 'logdelete-logentry'             => 'ändrade synlighet för åtgärder i [[$1]]',
 'revdelete-success'              => "'''Sidversionssynlighet har uppdaterats.'''",
 'logdelete-success'              => "'''Loggåtgärdens synlighet har ändrats.'''",
-'revdel-restore'                 => 'Ändra synlighet',
+'revdel-restore'                 => 'ändra synlighet',
 'pagehist'                       => 'Sidhistorik',
 'deletedhist'                    => 'Raderad historik',
 'revdelete-content'              => 'innehåll',
@@ -1305,8 +1306,8 @@ Notera dock att deras indexering av {{SITENAME}} kan vara något föråldrad.',
 'defaultns'                 => 'Sök i följande namnrymder som förval:',
 'default'                   => 'ursprungsinställning',
 'files'                     => 'Filer',
-'prefs-custom-css'          => 'Personlig CSS',
-'prefs-custom-js'           => 'Personlig JavaScript',
+'prefs-custom-css'          => 'personlig CSS',
+'prefs-custom-js'           => 'personlig JavaScript',
 
 # User rights
 'userrights'                  => 'Hantering av användarrättigheter', # Not used as normal message but as header for the special page itself
@@ -1672,7 +1673,7 @@ Det finns en [[Special:WhatLinksHere/$2|fullständig lista]].',
 'filerevert'                => 'Återställ $1',
 'filerevert-legend'         => 'Återställ fil',
 'filerevert-intro'          => "Du återställer '''[[Media:$1|$1]]''' till [$4 versionen från $2 kl. $3].",
-'filerevert-comment'        => 'Kommentar:',
+'filerevert-comment'        => 'Anledning:',
 'filerevert-defaultcomment' => 'Återställer till versionen från $1 kl. $2.',
 'filerevert-submit'         => 'Återställ',
 'filerevert-success'        => "'''[[Media:$1|$1]]''' har återställts till [$4 versionen från $2 kl. $3].",
@@ -1771,7 +1772,7 @@ En sida anses vara en förgreningssida om den inkluderar en mall som länkas til
 'ncategories'             => '$1 {{PLURAL:$1|kategori|kategorier}}',
 'nlinks'                  => '$1 {{PLURAL:$1|länk|länkar}}',
 'nmembers'                => '$1 {{PLURAL:$1|medlem|medlemmar}}',
-'nrevisions'              => '$1 {{PLURAL:$1|ändring|ändringar}}',
+'nrevisions'              => '$1 {{PLURAL:$1|version|versioner}}',
 'nviews'                  => '$1 {{PLURAL:$1|visning|visningar}}',
 'specialpage-empty'       => 'Den här sidan är tom.',
 'lonelypages'             => 'Föräldralösa sidor',
@@ -2025,7 +2026,7 @@ Se $2 för noteringar om de senaste raderingarna.',
 'dellogpagetext'         => 'Nedan listas de senaste raderingarna.',
 'deletionlog'            => 'raderingsloggen',
 'reverted'               => 'Återgått till tidigare version',
-'deletecomment'          => 'Anledning till borttagning:',
+'deletecomment'          => 'Anledning:',
 'deleteotherreason'      => 'Annan/ytterligare anledning:',
 'deletereasonotherlist'  => 'Annan anledning',
 'deletereason-dropdown'  => '*Vanliga anledningar till radering
@@ -2137,13 +2138,13 @@ I sådana fall måste du se till att den senaste raderade versionen inte är ikr
 'undeletelink'                 => 'visa/återställ',
 'undeletereset'                => 'Rensa',
 'undeleteinvert'               => 'Invertera urval',
-'undeletecomment'              => 'Kommentar:',
+'undeletecomment'              => 'Anledning:',
 'undeletedarticle'             => 'återställde "[[$1]]"',
 'undeletedrevisions'           => '{{PLURAL:$1|en version återställd|$1 versioner återställda}}',
 'undeletedrevisions-files'     => '$1 {{PLURAL:$1|version|versioner}} och $2 {{PLURAL:$2|fil|filer}} återställda',
 'undeletedfiles'               => '{{PLURAL:$1|en fil återställd|$1 filer återställda}}',
 'cannotundelete'               => 'Återställning misslyckades; kanske någon redan har återställt sidan.',
-'undeletedpage'                => "<big>'''$1 har återställts'''</big>
+'undeletedpage'                => "'''$1 har återställts'''
 
 Se [[Special:Log/delete|raderingsloggen]] för en förteckning över de senaste raderingarna och återställningarna.",
 'undelete-header'              => 'Se [[Special:Log/delete|raderingsloggen]] för nyligen raderade sidor.',
@@ -2360,7 +2361,7 @@ I de fallen måste du flytta eller sammanfoga sidan manuellt, om det önskas.",
 'move-watch'                   => 'Bevaka denna sida',
 'movepagebtn'                  => 'Flytta sidan',
 'pagemovedsub'                 => 'Flyttningen lyckades',
-'movepage-moved'               => '<big>\'\'\'"$1" har flyttats till "$2"\'\'\'</big>', # The two titles are passed in plain text as $3 and $4 to allow additional goodies in the message.
+'movepage-moved'               => '\'\'\'"$1" har flyttats till "$2"\'\'\'', # The two titles are passed in plain text as $3 and $4 to allow additional goodies in the message.
 'movepage-moved-redirect'      => 'En omdirigering har skapats.',
 'movepage-moved-noredirect'    => 'Skapandet av en omdirigering avbröts.',
 'articleexists'                => 'Antingen existerar redan en sida med det namnet, eller så har du valt ett namn som inte är tillåtet.
@@ -2550,7 +2551,7 @@ Vänligen använd förhandsgranskningsknappen innan du sparar.',
 'tooltip-watch'                   => 'Lägg till den här sidan i din bevakningslista',
 'tooltip-recreate'                => 'Återskapa sidan fast den har tagits bort',
 'tooltip-upload'                  => 'Starta uppladdning',
-'tooltip-rollback'                => '"Tillbakarullning" tar med en knapptryckning bort ändringar som gjorts av den som senast redigerade sidan.',
+'tooltip-rollback'                => '"Tillbakarullning" tar med en knapptryckning bort ändringar som gjorts av den som senast redigerade sidan',
 'tooltip-undo'                    => '"Gör ogjord" återställer denna redigering och öppnar redigeringsrutan med förhandsgranskning.
 Ger möjlighet att skriva en motivering i redigeringssammanfattningen',
 
@@ -2666,7 +2667,7 @@ $1',
 
 # Media information
 'mediawarning'         => "'''Varning''': Den här filen kan innehålla elak kod.
-Om du kör den kan din dator skadas.<hr />",
+Om du kör den kan din dator skadas.",
 'imagemaxsize'         => 'Begränsa bilders storlek på filbeskrivningssidor till:',
 'thumbsize'            => 'Storlek på minibild:',
 'widthheightpage'      => '$1×$2, $3 {{PLURAL:$3|sida|sidor}}',
@@ -3091,16 +3092,16 @@ Pröva vanlig förhandsgranskning istället.',
 'watchlistedit-noitems'        => 'Din bevakningslista innehåller inga sidor.',
 'watchlistedit-normal-title'   => 'Redigera bevakningslista',
 'watchlistedit-normal-legend'  => 'Ta bort sidor från bevakningslistan',
-'watchlistedit-normal-explain' => 'Sidorna i din bevakningslista visas nedan.
-För att ta bort en sida, kryssa i rutan intill den, och tryck på "Ta bort sidor".
-Du kan även [[Special:Watchlist/raw|redigera listan i råformat]].',
+'watchlistedit-normal-explain' => 'Titlar på din bevakningslista visas nedan.
+För att ta bort en titel, markera rutan bredvid den och klicka på "{{int:Watchlistedit-normal-submit}}".
+Du kan också [[Special:Watchlist/raw|redigera listan i råformat]].',
 'watchlistedit-normal-submit'  => 'Ta bort sidor',
 'watchlistedit-normal-done'    => '{{PLURAL:$1|1 sida|$1 sidor}} togs bort från din bevakningslista:',
 'watchlistedit-raw-title'      => 'Redigera bevakningslistan i råformat',
 'watchlistedit-raw-legend'     => 'Redigera bevakningslistan i råformat',
-'watchlistedit-raw-explain'    => 'Sidorna i din bevakningslista visas här nedanför, och kan redigeras genom att lägga till och ta bort från listan;
-en sida per rad.
-Tryck på "Uppdatera bevakningslista", när du är färdig.
+'watchlistedit-raw-explain'    => 'Titlar på din bevakningslista visas nedan, och kan redigeras genom att lägga till och ta bort från listan;
+en titel per rad.
+När du är klar klickar du på "{{int:Watchlistedit-raw-submit}}".
 Du kan också [[Special:Watchlist/edit|använda standardeditorn]].',
 'watchlistedit-raw-titles'     => 'Sidor:',
 'watchlistedit-raw-submit'     => 'Uppdatera bevakningslistan',

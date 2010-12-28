@@ -184,7 +184,7 @@ $messages = array(
 'mypage'         => 'Mona poslapis',
 'mytalk'         => 'Mona aptarėms',
 'anontalk'       => 'Šėta IP aptarėms',
-'navigation'     => 'Navigacėjė',
+'navigation'     => 'Naršīms',
 'and'            => '&#32;ėr',
 
 # Metadata in edit box
@@ -214,8 +214,8 @@ $messages = array(
 'protect'           => 'Ožrakintė',
 'protect_change'    => 'pakeistė',
 'protectthispage'   => 'Ožrakintė šėta poslapi',
-'unprotect'         => 'Atrakėntė',
-'unprotectthispage' => 'Atrakėntė šėta poslapi',
+'unprotect'         => 'Atrakintė',
+'unprotectthispage' => 'Atrakintė šėta poslapi',
 'newpage'           => 'Naus poslapis',
 'talkpage'          => 'Aptartė šėta poslapi',
 'talkpagelinktext'  => 'Aptarėms',
@@ -496,7 +496,7 @@ nebus siontamas ni vėinam žemiau ėšvardėntam puoslaugiō.',
 'summary-preview'                  => 'Kuomentara parvaiza:',
 'subject-preview'                  => 'Skėrsnelė/ontraštės parvaiza:',
 'blockedtitle'                     => 'Nauduotuos īr ožblokouts',
-'blockedtext'                      => "<big>'''Tamstas nauduotuojė vards a IP adresos īr ožblokouts.'''</big>
+'blockedtext'                      => "'''Tamstas nauduotuojė vards a IP adresos īr ožblokouts.'''
 
 Ožbluokava $1. 
 Nuruodīta prižastis īr ''$2''.
@@ -826,7 +826,7 @@ Kėtė admėnėstratuorē šėtom pruojekte vėsdar galės pasėiktė pasliepta 
 'userrights-editusergroup' => 'Keistė nauduotuoju gropes',
 'saveusergroups'           => 'Sauguotė nauduotuoju gropes',
 'userrights-groupsmember'  => 'Narīs:',
-'userrights-reason'        => 'Keitėma prižastis:',
+'userrights-reason'        => 'Prīžastis:',
 
 # Groups
 'group'               => 'Gropė:',
@@ -1028,7 +1028,7 @@ Paspaude ont štolpelė ontraštės pakeisėt ėšruokavėma.',
 'filedelete'                  => 'Trintė $1',
 'filedelete-legend'           => 'Trintė faila',
 'filedelete-intro'            => "Tamsta roušeties ėštrėntė faila '''[[Media:$1|$1]]''' so vėsa anuo istuorėjė.",
-'filedelete-comment'          => 'Kuomentars:',
+'filedelete-comment'          => 'Prīžastis:',
 'filedelete-submit'           => 'Trintė',
 'filedelete-success'          => "'''$1''' bova ėštrints.",
 'filedelete-nofile'           => "'''$1''' nēsa.",
@@ -1290,7 +1290,7 @@ Paskotiniu pašalinėmu istuorėjė - $2.',
 'dellogpagetext'         => 'Žemiau īr pateikiams paskotiniu ėštrīnimu sārašos.',
 'deletionlog'            => 'pašalinėmu istuorėjė',
 'reverted'               => 'Atkorta i onkstesne versėje',
-'deletecomment'          => 'Trīnima prižastis',
+'deletecomment'          => 'Prīžastis:',
 'deleteotherreason'      => 'Kėta/papėlduoma prižastis:',
 'deletereasonotherlist'  => 'Kėta prižastis',
 'deletereason-dropdown'  => '*Dažnas trīnėma prižastīs
@@ -1402,7 +1402,7 @@ lėgė trīnima. Ėštrintū poslapiu tekstos īr galėmas tėk admėnėstratuor
 'undeletedrevisions'         => 'atkorta $1 {{PLURAL:$1|versėjė|versėjės|versėju}}',
 'undeletedrevisions-files'   => 'atkorta $1 {{PLURAL:$1|versėjė|versėjės|versėju}} ėr $2 {{PLURAL:$2|fails|failā|failu}}',
 'undeletedfiles'             => 'atkorta $1 {{PLURAL:$1|fails|failā|failu}}',
-'undeletedpage'              => "<big>'''$1 bova atkurts'''</big>
+'undeletedpage'              => "'''$1 bova atkurts'''
 Parveizėkiet [[Special:Log/delete|trīnimu sāraša]], nuoriedamė rastė paskotėniu trīnimu ėr atkorėmu sāraša.",
 'undelete-header'            => 'Veizėkit [[Special:Log/delete|trīnima istuorėjuo]] paskoteniausē ėštrintū poslapiu.',
 'undelete-search-box'        => 'Ėiškuotė ėštrintū poslapiu',
@@ -1461,7 +1461,7 @@ Parveizėkiet [[Special:Log/delete|trīnimu sāraša]], nuoriedamė rastė pasko
 'ipaddress'                   => 'IP adresos',
 'ipadressorusername'          => 'IP adresos a nauduotuojė vards',
 'ipbexpiry'                   => 'Galiuojėma čiesos',
-'ipbreason'                   => 'Prižastis',
+'ipbreason'                   => 'Prīžastis:',
 'ipbreasonotherlist'          => 'Kėta prīžastis',
 'ipbreason-dropdown'          => '*Dažniausės bluokavėma prižastīs
 ** Melagėngas infuormacėjės rašīms
@@ -1564,7 +1564,7 @@ kū soprantat vėsas pasiekmes.",
 'move-watch'              => 'Keravuotė šėta poslapi',
 'movepagebtn'             => 'Parvadintė poslapė',
 'pagemovedsub'            => 'Parvadinta siekmingā',
-'movepage-moved'          => '<big>\'\'\'"$1" bova parvadints i "$2"\'\'\'</big>', # The two titles are passed in plain text as $3 and $4 to allow additional goodies in the message.
+'movepage-moved'          => '\'\'\'"$1" bova parvadints i "$2"\'\'\'', # The two titles are passed in plain text as $3 and $4 to allow additional goodies in the message.
 'movepage-moved-redirect' => 'Nukreipims bova sokorts.',
 'articleexists'           => 'Straipsnis so tuokiu vardo jau īr
 a parinktāsis vards īr bluogs.
@@ -1578,7 +1578,7 @@ Prašuom sojongtė šėtuos poslapios.'''",
 '1movedto2_redir'         => '[[$1]] parvadints i [[$2]] (onkstiau bova nukrēpamāsis)',
 'movelogpage'             => 'Parvardinėmu istuorėjė',
 'movelogpagetext'         => 'Sārašos parvadintu poslapiu.',
-'movereason'              => 'Prižastis:',
+'movereason'              => 'Prīžastis:',
 'revertmove'              => 'atmestė',
 'delete_and_move'         => 'Ėštrintė ė parkeltė',
 'delete_and_move_text'    => '==Rēkalings ėštrīnims==
@@ -1634,7 +1634,7 @@ Paskėrties straipsnis „[[:$1]]“ jau īr. A nuorėt ana ėštrintė, kū gal
 'tooltip-ca-addsection'           => 'Pradietė nauja skīriu',
 'tooltip-ca-viewsource'           => 'Poslapis īr ožrakints. Galėt parveizėt torini.',
 'tooltip-ca-history'              => 'Unkstesnės poslapė versėjės.',
-'tooltip-ca-protect'              => 'Ožrakėntė šėta poslapi',
+'tooltip-ca-protect'              => 'Ožrakintė šėta poslapi',
 'tooltip-ca-delete'               => 'Trėntė ta poslapi',
 'tooltip-ca-move'                 => 'Parvadėntė poslapi',
 'tooltip-ca-watch'                => 'Pridietė poslapi i keravuojamu sāraša',
@@ -1728,7 +1728,7 @@ Paskėrties straipsnis „[[:$1]]“ jau īr. A nuorėt ana ėštrintė, kū gal
 'nextdiff'     => 'Paskesinis pakeitėms →',
 
 # Media information
-'mediawarning'         => "'''Diemesė''': Šėts fails gal torietė kenksmėnga kuoda, anū palaidus Tamstas sėstėma gal būtė sogadinta.<hr />",
+'mediawarning'         => "'''Diemesė''': Šėts fails gal torietė kenksmėnga kuoda, anū palaidus Tamstas sėstėma gal būtė sogadinta.",
 'imagemaxsize'         => 'Rėbuotė abruozdieliu dėdoma anū aprašīma poslapī lėgė:',
 'thumbsize'            => 'Somažėntu pavēkslieliu didums:',
 'widthheightpage'      => '$1×$2, $3 {{PLURAL:$3|poslapis|poslapē|poslapiu}}',

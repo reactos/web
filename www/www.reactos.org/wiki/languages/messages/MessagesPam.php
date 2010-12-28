@@ -131,7 +131,7 @@ Pabusten ing pamanaliling dake kapamilatan [alilan] ning suglung',
 'category-file-count-limited'    => '{{PLURAL:$1|Ing makatuking simpan kayabe ya|Deng makatuking $1 simpan kayabe la}} king salukuyang kategoriya.',
 'listingcontinuesabbrev'         => 'katuglung.',
 
-'mainpagetext'      => "<big>'''Melaus ing pamipalyari ning MediaWiki.'''</big>",
+'mainpagetext'      => "'''Melaus ing pamipalyari ning MediaWiki.'''",
 'mainpagedocfooter' => "Basan me ing [http://meta.wikimedia.org/wiki/Help:Contents User's Guide] para king impormasiun keng pamangamit ning wiki software.
 
 == Pamagumpisa ==
@@ -514,7 +514,7 @@ Nung i-click meng pasibayu ing Save, ma-save ya ing kekang i-edit a yalang anti 
 'summary-preview'                  => 'Preview ning sampulung (summary preview):',
 'subject-preview'                  => 'Preview ning paksa/pamagat:',
 'blockedtitle'                     => 'Ing talagamit mesabat ya',
-'blockedtext'                      => "<big>'''Mesabat ya ing kekang lagiung talagamit (user name) o IP address.'''</big>
+'blockedtext'                      => "'''Mesabat ya ing kekang lagiung talagamit (user name) o IP address.'''
 
 I $1 ing menyabat. Ini ing binie nang sangkan ''$2''.
 
@@ -716,7 +716,7 @@ Abusni da pa murin deng aliwang talapanibala (admin) king {{SITENAME}} itang lam
 'revdelete-suppress'          => 'Isalikut ing data kareng Sysop ampo kareng aliwa',
 'revdelete-hide-image'        => 'Isalikut ya ing laman ning simpan',
 'revdelete-unsuppress'        => 'Ilako ing pamagbawal kareng pamanaliling misubli',
-'revdelete-log'               => 'Itala ya ing komentu:',
+'revdelete-log'               => 'Sangkan:',
 'revdelete-submit'            => 'Ipairal ya kareng mepiling pamanalili (selected revision)',
 'revdelete-logentry'          => 'miyalilan ing lino da reng mengayalili (revision visibility) king [[$1]]',
 'logdelete-logentry'          => 'miyalilan ing lino da reng miliari (event visibility) king [[$1]]',
@@ -894,7 +894,7 @@ pakilawe me ing math/README ba meng i-configure.',
 * Nung maka-check ya ing kahun, atyu king grupung ita ing talagamit.
 * Nung e maka-check ing kahun, ala yu king grupung ita ing talagamit.
 * Ing buri nang sabian ning *, e mu ne alako ing grupu kabud adagdag me, o vice versa.',
-'userrights-reason'           => 'Sangkan king pamanalili:',
+'userrights-reason'           => 'Sangkan:',
 'userrights-no-interwiki'     => 'Ala kang paintulut a i-edit la reng katuliran da reng talagamit (user rights) kareng aliwang wiki.',
 'userrights-nodatabase'       => 'Alang database a $1 o e ya lokal iti.',
 'userrights-nologin'          => 'Kailangan mung [[Special:UserLogin|mag-login]] king metung a administrator account ba kang makapamieng katulirang talagamit (user rights).',
@@ -1186,7 +1186,7 @@ Miyalilan ing pamanayus nung i-click ya ing pamagat ning kolum (column header).'
 'filedelete-legend'           => 'Buran ya ing simpan (file)',
 'filedelete-intro'            => "Buburan me ing '''[[Media:$1|$1]]'''.",
 'filedelete-intro-old'        => "Buburan me ing bersion ning '''[[Media:$1|$1]]''' aniang [$4 $3, $2].",
-'filedelete-comment'          => 'Sangkan king pamamura:',
+'filedelete-comment'          => 'Sangkan:',
 'filedelete-submit'           => 'Buran',
 'filedelete-success'          => "Mebura ne ing '''$1'''.",
 'filedelete-success-old'      => '<span class="plainlinks">Ing bersion ning \'\'\'[[Media:$1|$1]]\'\'\' aniang $3, $2 mebura ne.</span>',
@@ -1479,7 +1479,7 @@ Makasulat la king $2 deng pekabayung mebura.',
 'dellogpagetext'         => 'Makabili la king lalam deng pekabayung mebura.',
 'deletionlog'            => 'tala da ring mebura',
 'reverted'               => 'Misubli ya king minunang bersion',
-'deletecomment'          => 'Sangkan ning pangabura',
+'deletecomment'          => 'Sangkan:',
 'deleteotherreason'      => 'Aliwa/karagdagang sangkan:',
 'deletereasonotherlist'  => 'Aliwang sangkan',
 'deletereason-dropdown'  => '*Karaniwang sangkan king pamamura
@@ -1589,7 +1589,7 @@ Mapaliaring putut ya ing kekang suglung, o misubli (restored) ya o milako king s
 'undeletedrevisions-files'     => '{{PLURAL:$1|1 pamagbayung|$1 pamagbayung}} ampong {{PLURAL:$2|1 simpan|$2 simpan}} a misubli',
 'undeletedfiles'               => '{{PLURAL:$1|1 simpan|$1 simpan}} a misubli',
 'cannotundelete'               => "E melaus ing pamamawi king pamamura.  Mapalyaring ati'nang minunang ginawa kaniti.",
-'undeletedpage'                => "ing <big>'''$1 misubli ya'''</big>
+'undeletedpage'                => "ing '''$1 misubli ya'''
 
 Lon me ing [[Special:Log/delete|tala da reng mebura (deletion log)]] para king tala/listaan da reng bayu-bayung mebura ampong misubli.",
 'undelete-header'              => 'Lon me [[Special:Log/delete|tala da reng mebura]] para kareng bulung a bayu-bayung mebura.',
@@ -1785,7 +1785,7 @@ Nung makanyan pin ing milyari, kailangan meng iyalis o isanib (merge) ing bulung
 'move-watch'              => 'Banten ya ing bulung a ini',
 'movepagebtn'             => 'Iyalis ya ing bulung',
 'pagemovedsub'            => 'Merapat ing pamanalis',
-'movepage-moved'          => '<big>\'\'\'Ing "$1" miyalis ya king "$2"\'\'\'</big>', # The two titles are passed in plain text as $3 and $4 to allow additional goodies in the message.
+'movepage-moved'          => '\'\'\'Ing "$1" miyalis ya king "$2"\'\'\'', # The two titles are passed in plain text as $3 and $4 to allow additional goodies in the message.
 'articleexists'           => 'Ing bulung a yan atinang miki lagyu, okaya
 ing lagyu ginamit mu e malyari.
 Gumamit na kang aliwang lagyu.',
@@ -2028,7 +2028,7 @@ $1',
 'nextdiff'     => 'Mas bayung edit/pamanalili →',
 
 # Media information
-'mediawarning'         => "'''Kapiadian''': Mapaliaring atin yang code a makarok (malicious) ing simpan (file) a ini, at nung paganan me, maliari yang masira ing kekang system.<hr />",
+'mediawarning'         => "'''Kapiadian''': Mapaliaring atin yang code a makarok (malicious) ing simpan (file) a ini, at nung paganan me, maliari yang masira ing kekang system.",
 'imagemaxsize'         => 'E la dapat migit king bilang a iti deng larawan kareng bulung pamilarawan simpan (file description pages):',
 'thumbsize'            => 'Kasindagul kuku (thumbnail size):',
 'widthheightpage'      => '$1×$2, $3 bulung',

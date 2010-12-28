@@ -244,7 +244,7 @@ $messages = array(
 'category-file-count-limited'    => 'Swivan {{PLURAL:$1|dokiman sa|$1 dokiman sa yo}} nan kategori kouran.',
 'listingcontinuesabbrev'         => '(kontinye)',
 
-'mainpagetext'      => "<big>'''MedyaWiki byen enstale l.'''</big>",
+'mainpagetext'      => "'''MedyaWiki byen enstale l.'''",
 'mainpagedocfooter' => 'Konsilte [http://meta.wikimedia.org/wiki/Help:Konteni Gid Itilizatè] pou enfòmasyon sou kijan pou w itilize logisye wiki-a.
 
 == Kijan kòmanse ==
@@ -621,7 +621,7 @@ Si ou klike sou \"Pibliye\", edisyon ou an pap genyen yon tit.",
 'summary-preview'                  => 'Kout zye nan rezime an anvan li anrejistre:',
 'subject-preview'                  => 'Yon kout zye sou sijè/tit atik kontni sa:',
 'blockedtitle'                     => 'itilizatè a bloke.',
-'blockedtext'                      => "<big>'''Kont itilizatè ou an (oubyen adrès IP ou an) bloke.'''</big>
+'blockedtext'                      => "'''Kont itilizatè ou an (oubyen adrès IP ou an) bloke.'''
 
 Blokaj an fèt pa $1.
 Rezon li bay se : ''$2''.
@@ -769,7 +769,7 @@ Mande ou byen si ou ap byen fè kreye li ankò toutbon (gade jounal paj sa a pou
 'revdelete-suppress'        => 'Kache revizyon yo tou pou administratè yo',
 'revdelete-hide-image'      => 'Kache kontni fichye a',
 'revdelete-unsuppress'      => 'Anlve restriksyon yo sou vèsyon yo ki restore',
-'revdelete-log'             => 'Komantè pou istorik paj sa :',
+'revdelete-log'             => 'Poukisa:',
 'revdelete-submit'          => 'Aplike sou vèsyon ki seleksyone a',
 'revdelete-logentry'        => 'Vizibilite pou vèsyon sa modifye pou [[$1]]',
 'revdel-restore'            => 'Modifye, chanje vizibilite a',
@@ -1038,7 +1038,7 @@ Pwochen modifikasyon nan paj sa a ke make na lis swivi ou an, paj an ke parèt <
 Gade $2 pou wè yon lis efasman resan.',
 'deletedarticle'        => 'efase « [[$1]] »',
 'dellogpage'            => 'Istorik efasman yo',
-'deletecomment'         => 'Rezon pou kilès la ou efase :',
+'deletecomment'         => 'Rezon:',
 'deleteotherreason'     => 'Rezon an plis :',
 'deletereasonotherlist' => 'Lòt rezon',
 
@@ -1151,7 +1151,7 @@ Nan pozisyon sa a, ou ke dwèt renonmen oubyen fizyone ou menm menm paj an si ou
 'move-watch'       => 'Swiv paj sa a',
 'movepagebtn'      => 'Deplase paj an',
 'pagemovedsub'     => 'Deplasman an fèt',
-'movepage-moved'   => '<big>\'\'\'"$1" deplase nan "$2" alè kile\'\'\'</big>', # The two titles are passed in plain text as $3 and $4 to allow additional goodies in the message.
+'movepage-moved'   => '\'\'\'"$1" deplase nan "$2" alè kile\'\'\'', # The two titles are passed in plain text as $3 and $4 to allow additional goodies in the message.
 'articleexists'    => 'Nou ja genyen yon atik ak non sa a oubyen non ke ou chwazi an pa valab ankò. Chwazi yon lòt.',
 'talkexists'       => 'Paj an men byen deplase. Mè paj diskisyon an pa deplase paske li te ja egziste yonn anlè nouvo paj an. Souple, fizyone de diskisyon sa yo, mete yo ansanmm anlè nouvo paj an.',
 'movedto'          => 'deplase nan',
@@ -1159,7 +1159,7 @@ Nan pozisyon sa a, ou ke dwèt renonmen oubyen fizyone ou menm menm paj an si ou
 '1movedto2'        => '[[$1]] renonmen, li kounye a [[$2]]',
 '1movedto2_redir'  => 'deplase [[$1]] vè [[$2]], li ekraze nan menm tan sa, redireksyon li',
 'movelogpage'      => 'Istorik renomaj yo',
-'movereason'       => 'Poukisa nou deplase li :',
+'movereason'       => 'Poukisa:',
 'revertmove'       => 'anile',
 
 # Export

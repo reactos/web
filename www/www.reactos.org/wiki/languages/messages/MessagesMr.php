@@ -303,7 +303,7 @@ $messages = array(
 'category-file-count-limited'    => 'खालील {{PLURAL:$1|संचिका|$1 संचिका}} या वर्गात आहेत.',
 'listingcontinuesabbrev'         => 'पुढे.',
 
-'mainpagetext'      => "<big>'''मीडियाविकीचे इन्स्टॉलेशन पूर्ण.'''</big>",
+'mainpagetext'      => "'''मीडियाविकीचे इन्स्टॉलेशन पूर्ण.'''",
 'mainpagedocfooter' => 'विकी सॉफ्टवेअर वापरण्याकरिता [http://meta.wikimedia.org/wiki/Help:Contents यूजर गाईड] पहा.
 
 == सुरुवात ==
@@ -681,7 +681,7 @@ $2',
 'summary-preview'                  => 'आढाव्याची झलक:',
 'subject-preview'                  => 'विषय/मथळा झलक:',
 'blockedtitle'                     => 'या सदस्यासाठी प्रवेश नाकारण्यात आलेला आहे.',
-'blockedtext'                      => "<big>'''तुमचे सदस्यनाव अथवा IP पत्ता ब्लॉक केलेला आहे.'''</big>
+'blockedtext'                      => "'''तुमचे सदस्यनाव अथवा IP पत्ता ब्लॉक केलेला आहे.'''
 
 हा ब्लॉक $1 यांनी केलेला आहे.
 यासाठी ''$2'' हे कारण दिलेले आहे.
@@ -879,7 +879,7 @@ $3ने ''$2'' कारण दिले आहे.",
 'revdelete-suppress'          => 'प्रबंधक तसेच इतरांपासून विदा लपवा',
 'revdelete-hide-image'        => 'संचिका मजकुर लपवा',
 'revdelete-unsuppress'        => 'पुर्नस्थापीत आवृत्तीवरील बंधने ऊठवा',
-'revdelete-log'               => 'नोंद प्रतिक्रीया:',
+'revdelete-log'               => 'कारण:',
 'revdelete-submit'            => 'निवडलेल्या आवृत्त्यांना लागू करा',
 'revdelete-logentry'          => '[[$1]]ची आवर्तन सदृश्यता बदलली.',
 'logdelete-logentry'          => '[[$1]]ची घटना सदृश्यता बदलली.',
@@ -1054,7 +1054,7 @@ $3ने ''$2'' कारण दिले आहे.",
 * निवडलेला चौकोन म्हणजे सदस्य त्या गटात आहे.
 * न निवडलेला चौकोन म्हणजे सदस्य त्या गटात नाही.
 * एक * चा अर्थ तुम्ही एकदा समावेश केल्यानंतर तो गट बदलू शकत नाही, किंवा काढल्यानंतर समावेश करू शकत नाही.',
-'userrights-reason'           => 'बदलाचे कारण:',
+'userrights-reason'           => 'कारण:',
 'userrights-no-interwiki'     => 'इतर विकींवरचे सदस्य अधिकार बदलण्याची परवानगी तुम्हाला नाही.',
 'userrights-nodatabase'       => 'विदा $1 अस्तीत्वात नाही अथवा स्थानिक नाही.',
 'userrights-nologin'          => 'सदस्य अधिकार देण्यासाठी तुम्ही प्रबंधक म्हणून [[Special:UserLogin|प्रवेश केलेला]] असणे आवश्यक आहे.',
@@ -1341,7 +1341,7 @@ $3ने ''$2'' कारण दिले आहे.",
 'filedelete-legend'           => 'संचिका वगळा',
 'filedelete-intro'            => "तुम्ही '''[[Media:$1|$1]]''' वगळत आहात.",
 'filedelete-intro-old'        => "[$4 $3, $2]च्या वेळेचे '''[[Media:$1|$1]]'''चे आवर्तन तुम्ही वगळत आहात.",
-'filedelete-comment'          => 'वगळ्ण्याची कारणे:',
+'filedelete-comment'          => 'कारण:',
 'filedelete-submit'           => 'वगळा',
 'filedelete-success'          => "'''$1'''वगळण्यात आले.",
 'filedelete-success-old'      => '<span class="plainlinks">$3, $2 वेळी \'\'\'[[Media:$1|$1]]\'\'\' चे आवर्तन वगळण्यात आले आहे .</span>',
@@ -1640,7 +1640,7 @@ $NEWPAGE
 'dellogpagetext'         => 'नुकत्याच वगळलेल्या पानांची यादी खाली आहे.',
 'deletionlog'            => 'वगळल्याची नोंद',
 'reverted'               => 'जुन्या आवृत्तीकडे पूर्वपदास नेले',
-'deletecomment'          => 'वगळण्याचे कारण',
+'deletecomment'          => 'कारण:',
 'deleteotherreason'      => 'दुसरे/अतिरिक्त कारण:',
 'deletereasonotherlist'  => 'दुसरे कारण',
 'deletereason-dropdown'  => '* वगळण्याची सामान्य कारणे
@@ -1676,7 +1676,7 @@ $NEWPAGE
 'protect-title'               => '"$1" सुरक्षित करत आहे',
 'prot_1movedto2'              => '"[[$1]]" हे पान "[[$2]]" मथळ्याखाली स्थानांतरित केले.',
 'protect-legend'              => 'सुरक्षापातळीतील बदल निर्धारित करा',
-'protectcomment'              => 'सुरक्षित करण्यामागचे कारण',
+'protectcomment'              => 'कारण:',
 'protectexpiry'               => 'संपण्याचा कालावधी:',
 'protect_expiry_invalid'      => 'संपण्याचा कालावधी चुकीचा आहे.',
 'protect_expiry_old'          => 'संपण्याचा कालावधी उलटून गेलेला आहे.',
@@ -1738,7 +1738,7 @@ $NEWPAGE
 'undeletedrevisions-files'     => '{{PLURAL:$1|1 आवर्तन|$1 आवर्तने}}आणि {{PLURAL:$2|1 संचिका|$2 संचिका}} पुनर्स्थापित',
 'undeletedfiles'               => '{{PLURAL:$1|1 संचिका|$1 संचिका}} पुनर्स्थापित',
 'cannotundelete'               => 'वगळणे उलटवणे फसले; इतर कुणी तुमच्या आधी वगळणे उलटवले असु शकते.',
-'undeletedpage'                => "<big>'''$1ला पुनर्स्थापित केले'''</big>
+'undeletedpage'                => "'''$1ला पुनर्स्थापित केले'''
 
 अलिकडिल वगळलेल्या आणि पुनर्स्थापितांच्या नोंदीकरिता [[Special:Log/delete|वगळल्याच्या नोंदी]] पहा .",
 'undelete-header'              => 'अलिकडील वगळलेल्या पानांकरिता [[Special:Log/delete|वगळलेल्या नोंदी]] पहा.',
@@ -1805,7 +1805,7 @@ $1',
 'ipaddress'                   => 'अंकपत्ता',
 'ipadressorusername'          => 'अंकपत्ता किंवा सदस्यनाम:',
 'ipbexpiry'                   => 'समाप्ति:',
-'ipbreason'                   => 'कारण',
+'ipbreason'                   => 'कारण:',
 'ipbreasonotherlist'          => 'इतर कारण',
 'ipbreason-dropdown'          => '*प्रतिबंधनाची सामान्य कारणे
 ** चुकीची माहिती भरणे
@@ -1932,7 +1932,7 @@ $1',
 'move-watch'              => 'या पानावर लक्ष ठेवा',
 'movepagebtn'             => 'स्थानांतरण करा',
 'pagemovedsub'            => 'स्थानांतरण यशस्वी',
-'movepage-moved'          => '<big>\'\'\'"$1" ला "$2" मथळ्याखाली स्थानांतरीत केले\'\'\'</big>', # The two titles are passed in plain text as $3 and $4 to allow additional goodies in the message.
+'movepage-moved'          => '\'\'\'"$1" ला "$2" मथळ्याखाली स्थानांतरीत केले\'\'\'', # The two titles are passed in plain text as $3 and $4 to allow additional goodies in the message.
 'articleexists'           => 'त्या नावाचे पृष्ठ अगोदरच अस्तित्वात आहे, किंवा तुम्ही निवडलेले
 नाव योग्य नाही आहे.
 कृपया दुसरे नाव शोधा.',
@@ -2185,7 +2185,7 @@ $1',
 'nextdiff'     => 'पुढील संपादन →',
 
 # Media information
-'mediawarning'         => "'''सावधान''': या संचिकेत डंखी संकेत असू शकतो,जो वापरल्याने तुमच्या संगणक प्रणालीस नाजूक परिस्थितीस सामोरे जावे लागू शकते.<hr />",
+'mediawarning'         => "'''सावधान''': या संचिकेत डंखी संकेत असू शकतो,जो वापरल्याने तुमच्या संगणक प्रणालीस नाजूक परिस्थितीस सामोरे जावे लागू शकते.",
 'imagemaxsize'         => 'संचिका वर्णन पानांवरील चित्रांना मर्यादा घाला:',
 'thumbsize'            => 'इवलासा आकार:',
 'widthheightpage'      => '$1×$2, $3 {{PLURAL:$3|पान|पाने}}',

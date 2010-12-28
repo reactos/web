@@ -257,7 +257,7 @@ $messages = array(
 'category-file-count-limited'    => 'جهلیگین {{PLURAL:$1|فایل|$1 فایلان}} ته هنوکین دسته اینت',
 'listingcontinuesabbrev'         => 'ادامه.',
 
-'mainpagetext'      => "<big>'''مدیا وی کی گون موفقیت نصب بوت.'''</big>",
+'mainpagetext'      => "'''مدیا وی کی گون موفقیت نصب بوت.'''",
 'mainpagedocfooter' => "مشورت کنیت گون  [http://meta.wikimedia.org/wiki/Help:Contents User's Guide] په گشیترین اطلاعات په استفاده چه برنامه ویکی.
 
 == شروع بیت ==
@@ -676,7 +676,7 @@ $2',
 'summary-preview'                  => 'خلاصه بازبینی:',
 'subject-preview'                  => 'بازبین موضوع/سرخط:',
 'blockedtitle'                     => 'کاربر محدود بوتت',
-'blockedtext'                      => "<big>'''شمی نام کاربری یا آی پی محدود بیتت.''''</big>
+'blockedtext'                      => "'''شمی نام کاربری یا آی پی محدود بیتت.''''
 
 محدودیت توسط $1 شر بوتت. دلیل داتت ''$2''.
 
@@ -915,7 +915,7 @@ Legend: (cur) = تفاوتان گون هنوکین نسخه,
 'revdelete-suppress'             => 'توقیف کن دیتاء چه مدیران سیستم و دگران',
 'revdelete-hide-image'           => 'پناه کن فایل محتواء',
 'revdelete-unsuppress'           => 'بزور محدودیت آنء جه ترینتگین بازبینی آن',
-'revdelete-log'                  => 'آمار نظر:',
+'revdelete-log'                  => 'دلیل:',
 'revdelete-submit'               => 'بلی اور انتخابی بازبینی',
 'revdelete-logentry'             => 'عوض بوت ظاهر بیگ بازبینی  [[$1]]',
 'logdelete-logentry'             => 'عوض بیت ظاهر بوتن رویداد چه  [[$1]]',
@@ -1197,7 +1197,7 @@ Legend: (cur) = تفاوتان گون هنوکین نسخه,
 * یک جعبه علامتی یعنی شی که کاربر تا آ گروه انت.
 * یک بی علامتین جعبه یعنی شی که کاربر ته آ گروه نهنت.
 * A * پیش داریت که شما نه تونیت بزور گروهی که یک بری که آیء اضافه کت یا برعکس.',
-'userrights-reason'           => 'دلیل په عوض کتن:',
+'userrights-reason'           => 'دلیل:',
 'userrights-no-interwiki'     => 'شما را اجازت نیست دان حقوق کاربر ته دگ ویکی آن اصلاح کنیت.',
 'userrights-nodatabase'       => 'دیتابیس $1  موجود نهنت یا محلی نهنت.',
 'userrights-nologin'          => 'شما باید [[Special:UserLogin|وارد بیت]]  گون حساب مدیریتی په مشخص کتن حقوق کاربر.',
@@ -1564,7 +1564,7 @@ PICT # misc.
 'filedelete-legend'           => 'حذف فایل',
 'filedelete-intro'            => "شما حذف کنگت ''[[Media:$1|$1]]''' گون تمام آی تاریح ءَ",
 'filedelete-intro-old'        => " شما په حذف کتن نسخه ای چه '''[[Media:$1|$1]]''' په داب چه [$4 $3, $2].",
-'filedelete-comment'          => 'دلیل په حذف:',
+'filedelete-comment'          => 'دلیل:',
 'filedelete-submit'           => 'حذف',
 'filedelete-success'          => "'''$1''' حذف بوت.",
 'filedelete-success-old'      => '<span class="plainlinks">نسخه چه \'\'\'[[Media:$1|$1]]\'\'\'  په داب چه $3, $2 حذف بوتت.</span>',
@@ -1908,7 +1908,7 @@ $NEWPAGE
 'dellogpagetext'         => 'جهلء یک لیستی چه نوکترین حذفیات هست.',
 'deletionlog'            => 'آمار حذف',
 'reverted'               => 'ترینگ بوت په پیشترین بازبینی',
-'deletecomment'          => 'دلیل حذف:',
+'deletecomment'          => 'دلیل:',
 'deleteotherreason'      => 'دگه/گیشترین دلیل:',
 'deletereasonotherlist'  => 'دگه دلیل',
 'deletereason-dropdown'  => '*متداولین دلایل حذف
@@ -2037,7 +2037,7 @@ $NEWPAGE
 'undeletedfiles'               => '{{PLURAL:$1|1 فایل|$1 فایلآن}} واترینگ بین',
 'cannotundelete'               => 'حذف نه کتن پروشت؛
 یک نفری دگه شاید ای صفحهء  پیشتر حذفی ترینتت.',
-'undeletedpage'                => "<big>'''$1 تررینگ بوتت'''</big>
+'undeletedpage'                => "'''$1 تررینگ بوتت'''
 
 شوهاز کن [[Special:Log/delete|آمار حذف]] په یک ثبتی چه نوکین حذفیات و بازتررینگان.",
 'undelete-header'              => 'See [[Special:Log/delete|آمار حذف]] په نوکین حذفی صفحات..',
@@ -2258,7 +2258,7 @@ $1',
 'move-watch'                   => 'این صفحه یا بچار',
 'movepagebtn'                  => 'جاه په جاه کن صفحه',
 'pagemovedsub'                 => 'جاه په جاهی موفقیت بود',
-'movepage-moved'               => '<big>\'\'\'"$1" جاه په اجه بوت په"$2"\'\'\'</big>', # The two titles are passed in plain text as $3 and $4 to allow additional goodies in the message.
+'movepage-moved'               => '\'\'\'"$1" جاه په اجه بوت په"$2"\'\'\'', # The two titles are passed in plain text as $3 and $4 to allow additional goodies in the message.
 'movepage-moved-redirect'      => 'یک غیر مستقیمی شر بوت',
 'movepage-moved-noredirect'    => 'شرکتن غیر مستقیم بند بوتگ.',
 'articleexists'                => 'صفحه گون آن نام پیش تر هستت، یا نامی که شما زورتت نامعتبرنت.
@@ -2547,7 +2547,7 @@ $1',
 'visual-comparison' => 'مقایسه تصویری',
 
 # Media information
-'mediawarning'         => "''''هوژاری:'''' ای فایل شاید شامل بد واهین کد بوت،اجرای آیی ته وتی سیستم شاید توافقی بیت.<hr />",
+'mediawarning'         => "''''هوژاری:'''' ای فایل شاید شامل بد واهین کد بوت،اجرای آیی ته وتی سیستم شاید توافقی بیت.",
 'imagemaxsize'         => 'محدودیت تصاویر ته فایل صفحات توضیح ته:',
 'thumbsize'            => 'اندازه پیج انگشتی',
 'widthheightpage'      => '$1×$2, $3 {{PLURAL:$3|صفحه|صفحات}}',

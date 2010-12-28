@@ -117,7 +117,7 @@ $messages = array(
 'category-empty'         => "''Bu kategoriyada henez bulunmêêr bir yazı yaki media.''",
 'listingcontinuesabbrev' => '(devam)',
 
-'mainpagetext'      => "<big>'''MediaWiki başarılan kuruldu.'''</big>",
+'mainpagetext'      => "'''MediaWiki başarılan kuruldu.'''",
 'mainpagedocfooter' => "Vikilän iş uurunda bilgi almaa için [http://meta.wikimedia.org/wiki/Help:Contents User's Guide] sayfasına bakınız
 
 == Eni başlayanlar için ==
@@ -396,7 +396,7 @@ O zamana kadar ani e-maildaki instrukțiyalar yapılmaycêk hem doorulanmaycêk 
 'summary-preview'        => 'Ön siir özeti:',
 'subject-preview'        => 'Konu/başlık ön siiri:',
 'blockedtitle'           => 'Kullanıcı kösteklendi.',
-'blockedtext'            => '<big>Kullanıcı adınız yaki parolunuz $1 tarafından kösteklendi.</big>
+'blockedtext'            => 'Kullanıcı adınız yaki parolunuz $1 tarafından kösteklendi.
 
 Sizi köstek edän önderci: $1. Köstek sebebi: \'\'$2\'\'.
 
@@ -664,7 +664,7 @@ Gelecektä, bu sayfaya hem ilgili konuşmaa sayfasına yapılacêk diişmäkler 
 
 Ne zaman neetlendiniz sayfayı bakmaa listasınnan çıkarmaa tuşlayın "sayfaya bakmaa durgun" baalantısına.',
 'removedwatch'      => 'Bakmaa listanızdan silindi',
-'removedwatchtext'  => '"<nowiki>$1</nowiki>" yapraı siir listanızdan silindi.',
+'removedwatchtext'  => '"[[:$1]]" yapraı siir listanızdan silindi.',
 'watch'             => 'Bak',
 'watchthispage'     => 'Bak bu sayfaya',
 'unwatch'           => 'Durgun sayfa izlemää',
@@ -685,7 +685,7 @@ Lütfen doorulayın ani siz neetlenersiniz bunu yapmaa, annêêrsiniz onun rezul
 Yakın zamanda silinenleri görmää deyni: $2.',
 'deletedarticle'        => '"$1" silindi',
 'dellogpage'            => 'Silmää jurnalı',
-'deletecomment'         => 'Silmää sebep',
+'deletecomment'         => 'Sebep',
 'deleteotherreason'     => 'Başka/ek sebep:',
 'deletereasonotherlist' => 'Başka sebep',
 
@@ -696,7 +696,7 @@ Yakın zamanda silinenleri görmää deyni: $2.',
 'protectlogpage'              => 'Korunmak jurnalı',
 'prot_1movedto2'              => '[[$1]] sayfasın eni adı: [[$2]]',
 'protect-legend'              => 'Korunmaa doorula',
-'protectcomment'              => 'Korunma altına almaa sebep:',
+'protectcomment'              => 'Sebep',
 'protectexpiry'               => 'Bitmää datası:',
 'protect_expiry_invalid'      => 'Yannış bitmää datası.',
 'protect_expiry_old'          => 'Bitmää datası geçti.',

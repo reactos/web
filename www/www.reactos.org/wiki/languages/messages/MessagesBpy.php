@@ -168,7 +168,7 @@ $messages = array(
 'category-file-count-limited'    => 'তলে {{PLURAL:$1|গ ফাইল|$1 গি ফাইল}} এরে বিষয়থাকে আসে।',
 'listingcontinuesabbrev'         => 'চলতই',
 
-'mainpagetext'      => "<big>'''মিডিয়াউইকি হবাবালা ইয়া ইন্সটল ইল.'''</big>",
+'mainpagetext'      => "'''মিডিয়াউইকি হবাবালা ইয়া ইন্সটল ইল.'''",
 'mainpagedocfooter' => 'উইকি সফটৱ্যার এহান আতানির বারে দরকার ইলে [http://meta.wikimedia.org/wiki/Help:Contents আতাকুরার গাইড]হানর পাঙলাক নেগা।
 
 == অকরানিহান ==
@@ -552,7 +552,7 @@ $2',
 'summary-preview'                  => 'সারমর্মর আগচা:',
 'subject-preview'                  => 'বিষয়/চিঙনাঙর আগচা:',
 'blockedtitle'                     => 'আতাকুরাগরে থেপ করানি অসে',
-'blockedtext'                      => "<big>'''তর আতাকুরা নাঙহান নাইলেউ আইপি ঠিকানাহানরে থেপকরানি অসে।'''</big>
+'blockedtext'                      => "'''তর আতাকুরা নাঙহান নাইলেউ আইপি ঠিকানাহানরে থেপকরানি অসে।'''
 
 থেপকরিসেতাই: $1
 এহানর কারণহান অসেতাইঃ: ''$2''
@@ -715,7 +715,7 @@ $2',
 'revdelete-hide-user'       => 'পতাকুরার নাঙহান/আইপি ঠিকানাহান গুর',
 'revdelete-hide-image'      => 'ফাইলর বিষয়বস্তু গুর',
 'revdelete-unsuppress'      => 'সীমাবদ্ধতাহানি নেইকরেদে',
-'revdelete-log'             => 'পুসানির কারণহান:',
+'revdelete-log'             => 'কারণ:',
 'revdel-restore'            => 'দৃষ্টিপাত সিলকর',
 'pagehist'                  => 'পাতার ইতিহাসহান',
 'deletedhist'               => 'ইতিহাসহান পুস',
@@ -1142,7 +1142,7 @@ $2',
 চা $2 এহার বারে আগে আসে পুসানির লাতংগ।',
 'deletedarticle'        => 'পুসানিইল "[[$1]]"',
 'dellogpage'            => 'পুসিসিতার লাতংগ',
-'deletecomment'         => 'পুসানির কারনহান:',
+'deletecomment'         => 'কারণ:',
 'deleteotherreason'     => 'আরাক/উপরি কারন:',
 'deletereasonotherlist' => 'আর আর কারন',
 
@@ -1155,7 +1155,7 @@ $2',
 'protectedarticle'            => 'লুৱসে "[[$1]]"',
 'modifiedarticleprotection'   => '"[[$1]]"-র কা লুকরানির থাকহান বদলানি অসে',
 'prot_1movedto2'              => '[[$1]]-রে [[$2]]-ত গুসানি ইল',
-'protectcomment'              => 'কারনহান:',
+'protectcomment'              => 'কারণ:',
 'protectexpiry'               => 'মিয়াদহান লালর:',
 'protect_expiry_invalid'      => 'খেন্তাম লিতনাহান লালুইসে।',
 'protect_expiry_old'          => 'বাতিলর খেন্তামহান আগেকার তারিখে পরিসে।',
@@ -1307,7 +1307,7 @@ $2',
 'move-watch'              => 'পাতা এহান খিয়াল কর',
 'movepagebtn'             => 'পাতা থেইকর',
 'pagemovedsub'            => 'গুসানিহান হবা বালাই লমিল',
-'movepage-moved'          => '<big>\'\'\'"$1" থেইককরানি ইল "$2"\'\'\'</big>', # The two titles are passed in plain text as $3 and $4 to allow additional goodies in the message.
+'movepage-moved'          => '\'\'\'"$1" থেইককরানি ইল "$2"\'\'\'', # The two titles are passed in plain text as $3 and $4 to allow additional goodies in the message.
 'movepage-moved-redirect' => 'কুইকরা পাতা হঙিল।',
 'articleexists'           => 'ইতে পারে এরে শিরোনাঙর নিবন্ধহান হঙপরসেগা, নাইলে তি দিয়াসত শিরোনাং এহান দেনার য়্যাথাং নেই। কৃপা করিয়া আরাক শিরোনাং আহান দেনার হৎনা কর।',
 'talkexists'              => "'''পাতাহান হবা বালাই গুসিল কিন্তু অরে নাঙর য়্যারির পাতা আহান আগেত্তর থানাই না গুসিল।
@@ -1317,7 +1317,7 @@ $2',
 '1movedto2'               => '[[$1]]-রে [[$2]]-ত গুসানি ইল',
 '1movedto2_redir'         => '[[$1]]-রে [[$2]]-ত বারো-র্নির্দেশনার মা থেইকরানি ইল',
 'movelogpage'             => 'লগ গুসা',
-'movereason'              => 'কারন:',
+'movereason'              => 'কারণ:',
 'revertmove'              => 'রিভার্ট',
 'delete_and_move'         => 'পুসানি বারো থেইকরানি',
 'delete_and_move_confirm' => 'হায়, পাতা এহান পুস',

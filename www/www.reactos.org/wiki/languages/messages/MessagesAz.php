@@ -1,5 +1,5 @@
 <?php
-/** Azerbaijani (Azərbaycan)
+/** Azerbaijani (Azərbaycanca)
  *
  * See MessagesQqq.php for message documentation incl. usage of parameters
  * To improve a translation please visit http://translatewiki.net
@@ -157,7 +157,7 @@ $messages = array(
 'category-file-count-limited'    => 'Bu kateqoriyada {{PLURAL:$1|$1 fayl}} var.',
 'listingcontinuesabbrev'         => '(davam)',
 
-'mainpagetext'      => "<big>'''MediaWiki müvəffəqiyyətlə quraşdırıldı.'''</big>",
+'mainpagetext'      => "'''MediaWiki müvəffəqiyyətlə quraşdırıldı.'''",
 'mainpagedocfooter' => 'Bu vikinin istifadəsi ilə bağlı məlumat almaq üçün [http://meta.wikimedia.org/wiki/Help:Contents İstifadəçi məlumat səhifəsinə] baxın.
 
 == Faydalı keçidlər ==
@@ -423,7 +423,7 @@ Düzgün yazdığına əmin ol.',
 'wrongpasswordempty'         => 'Parol boş. Təkrar yaz.',
 'mailmypassword'             => 'E-mail ilə yeni parol göndər',
 'passwordremindertitle'      => '{{SITENAME}} parol xatırladıcı',
-'noemail'                    => '"$1" adlı istifadəçi e-məktub ünvanı qeyd edmemişdir.',
+'noemail'                    => '"$1" adlı istifadəçi e-poçt ünvanını qeyd etməmişdir.',
 'passwordsent'               => 'Yeni parol "$1" üçün qeydiyyata alınan e-məktub ünvanına göndərilmişdir.
 Xahiş edirik, e-məktubu aldıqdan sonra yenidən daxil olasınız.',
 'mailerror'                  => 'Məktub göndərmə xətası: $1',
@@ -486,6 +486,7 @@ Yeni cəhd etməzdən əvvəl bir qədər gözləyin.',
 'savearticle'                      => 'Səhifəni qeyd et',
 'preview'                          => 'Sınaq göstərişi',
 'showpreview'                      => 'Sınaq göstərişi',
+'showlivepreview'                  => 'Canlı sınaq göstərişi',
 'showdiff'                         => 'Dəyişiklikləri göstər',
 'anoneditwarning'                  => "'''Diqqət''': Siz özünüzü sistemə təqdim etməmisiniz. Sizin IP ünvanınız bu səhifənin tarixçəsinə qeyd olunacaq.",
 'missingsummary'                   => "'''Xatırlatma.''' Siz dəyişikliklərin qısa şərhini verməmisiniz. \"Səhifəni qeyd et\" düyməsinə təkrar basandan sonra sizin dəyişiklikləriniz şərhsiz qeyd olunacaq.",
@@ -496,10 +497,11 @@ Yeni cəhd etməzdən əvvəl bir qədər gözləyin.',
 'blockedoriginalsource'            => "'''$1''' mənbəyi aşağıda göstərilib:",
 'blockededitsource'                => "Aşağıda '''$1''' səhifəsində etdiyiniz '''dəyişikliklərin''' mətni göstərilib:",
 'whitelistedittitle'               => 'Redaktə üçün daxil olmalısınız',
+'whitelistedittext'                => 'Dəyişiklik edə bilmək üçün $1.',
 'confirmedittitle'                 => 'Redaktə üçün e-məktub təsdiqi lazımdır',
 'nosuchsectiontitle'               => 'Belə bölmə yoxdur',
 'loginreqtitle'                    => 'Daxil olmalısınız',
-'loginreqlink'                     => 'Daxil ol',
+'loginreqlink'                     => 'daxil olmalısınız',
 'accmailtitle'                     => 'Parol göndərildi.',
 'accmailtext'                      => "[[User talk:$1|$1]] üçün təsadüfi yolla yaradılmış parol $2 ünvanına göndərildi.
 Hesabınıza daxil olduqdan sonra, parolunuzu ''[[Special:ChangePassword|parolu dəyiş]]'' səhifəsində dəyişdirə bilərsiniz.",
@@ -593,7 +595,7 @@ Vikidə buna bənzər səhifələr [[Special:Search|axtarmağa]] cəhd edin.',
 'revdelete-suppress'        => 'Məlumatları idarəçilərdən də gizlə',
 'revdelete-hide-image'      => 'Faylın məzmununu gizlə',
 'revdelete-unsuppress'      => 'Bərpa olunan versiyalar üzərindən məhdudiyyətləri qaldır',
-'revdelete-log'             => 'Silinmə səbəbi:',
+'revdelete-log'             => 'Səbəb:',
 'revdelete-logentry'        => '[[$1]] səhifəsinin versiyasının görünüşünü dəyişdirdi',
 'revdelete-success'         => "'''Versiyanın görünüşü yeniləndi.'''",
 'revdel-restore'            => 'Görünüşü dəyiş',
@@ -898,7 +900,7 @@ Bu səhifə üçün silmə qeydləri aşağıda göstərilmişdir:",
 'filedelete'                  => '$1 adlı faylı sil',
 'filedelete-legend'           => 'Faylı sil',
 'filedelete-intro'            => "'''[[Media:$1|$1]]''' faylını və onunla bağlı bütün tarixçəni silmək ərəfəsindəsiniz.",
-'filedelete-comment'          => 'Silmə qeydi:',
+'filedelete-comment'          => 'Səbəb:',
 'filedelete-success'          => "'''$1''' silinmişdir.",
 'filedelete-success-old'      => '<span class="plainlinks">\'\'\'[[Media:$1|$1]]\'\'\'-nin  $3 və $2 versiyaları silinmişdir.</span>',
 'filedelete-otherreason'      => 'Başqa/əlavə səbəb:',
@@ -1127,7 +1129,7 @@ Sonuncu silinmələrə bax: $2.',
 'dellogpagetext'         => 'Ən son silinmiş səhifələrin siyahısı.',
 'deletionlog'            => 'Silmə jurnal qeydləri',
 'reverted'               => 'Daha əvvəlki versiya bərpa edildi',
-'deletecomment'          => 'Silmə səbəbi',
+'deletecomment'          => 'Səbəb:',
 'deleteotherreason'      => 'Digər/əlavə səbəb:',
 'deletereasonotherlist'  => 'Digər səbəb',
 'deletereason-dropdown'  => '*Əsas silmə səbəbi
@@ -1188,7 +1190,7 @@ Sonuncu silinmələrə bax: $2.',
 'undeletecomment'        => 'Səbəb:',
 'undeletedarticle'       => '"[[$1]]" məqaləsi bərpa edilmişdir',
 'cannotundelete'         => 'Silməni ləğv etmə yetinə yetirilə bilmir; başqa birisi daha əvvəl səhifənin silinməsini ləğv etmiş ola bilər.',
-'undeletedpage'          => "<big>'''$1 bərpa edildi'''</big>
+'undeletedpage'          => "'''$1 bərpa edildi'''
 
 Məqalələrin bərpa edilməsi və silinməsi haqqında son dəyişiklikləri nəzərdən keçirmək üçün [[Special:Log/delete|silmə qeydlərinə]] baxın.",
 'undelete-header'        => 'Son silinmiş səhifələrə baxmaq üçün [[Special:Log/delete|silmə qeydlərinə]] bax.',
@@ -1238,7 +1240,7 @@ Məqalələrin bərpa edilməsi və silinməsi haqqında son dəyişiklikləri n
 'ipaddress'                   => 'IP ünvanı',
 'ipadressorusername'          => 'IP ünvanı və ya istifadəçi adı',
 'ipbexpiry'                   => 'Bitmə müddəti:',
-'ipbreason'                   => 'Səbəb',
+'ipbreason'                   => 'Səbəb:',
 'ipbanononly'                 => 'Yalnız anonim istifadəçiləri blokla',
 'ipbcreateaccount'            => 'Hesab açmanı məhdudlaşdır',
 'ipbsubmit'                   => 'Bu istifadəçini blokla',
@@ -1296,7 +1298,7 @@ Bu yerdəyişmə populiyar səhifə üçün əsaslı və gözlənilməz ola bil�
 'move-watch'              => 'Bu səhifəni izlə',
 'movepagebtn'             => 'Səhifənin adını dəyiş',
 'pagemovedsub'            => 'Yerdəyişmə edilmişdir',
-'movepage-moved'          => '<big>\'\'\'"$1" səhifəsi "$2" səhifəsinə yerləşdirilmişdir\'\'\'</big>', # The two titles are passed in plain text as $3 and $4 to allow additional goodies in the message.
+'movepage-moved'          => '\'\'\'"$1" səhifəsi "$2" səhifəsinə yerləşdirilmişdir\'\'\'', # The two titles are passed in plain text as $3 and $4 to allow additional goodies in the message.
 'movedto'                 => 'dəyişdi',
 'movetalk'                => 'Bu səhifənin müzakirə səhifəsinin de adını dəyişdir.',
 '1movedto2'               => '[[$1]] adı dəyişildi. Yeni adı: [[$2]]',

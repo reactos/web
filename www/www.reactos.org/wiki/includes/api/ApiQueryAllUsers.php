@@ -71,7 +71,7 @@ class ApiQueryAllUsers extends ApiQueryBase {
 		}
 
 		if ($params['witheditsonly'])
-			$this->addWhere('user_editcount > 0');
+			$this->addWhere('u1.user_editcount > 0');
 
 		if ($fld_groups) {
 			// Show the groups the given users belong to
@@ -181,6 +181,10 @@ class ApiQueryAllUsers extends ApiQueryBase {
 		$result->setIndexedTagName_internal(array('query', $this->getModuleName()), 'u');
 	}
 
+	public function getCacheMode( $params ) {
+		return 'public';
+	}
+
 	public function getAllowedParams() {
 		return array (
 			'from' => null,
@@ -232,6 +236,6 @@ class ApiQueryAllUsers extends ApiQueryBase {
 	}
 
 	public function getVersion() {
-		return __CLASS__ . ': $Id: ApiQueryAllUsers.php 46845 2009-02-05 14:30:59Z catrope $';
+		return __CLASS__ . ': $Id: ApiQueryAllUsers.php 69986 2010-07-27 03:57:39Z tstarling $';
 	}
 }

@@ -388,7 +388,7 @@ $messages = array(
 'listingcontinuesabbrev'         => 'vidare',
 
 'linkprefix'        => '/^(.*?)([a-zA-Z\\x80-\\xff]+)$/sD',
-'mainpagetext'      => "<big>'''MediaWiki er no installert.'''</big>",
+'mainpagetext'      => "'''MediaWiki er no installert.'''",
 'mainpagedocfooter' => 'Sjå [http://meta.wikimedia.org/wiki/Help:Contents brukarmanualen] for informasjon om bruk og oppsettshjelp for wikiprogramvara.
 
 ==Kome i gang==
@@ -638,10 +638,10 @@ Ikkje gløym å endre på [[Special:Preferences|innstillingane]] dine.',
 'logout'                     => 'Logg ut',
 'userlogout'                 => 'Logg ut',
 'notloggedin'                => 'Ikkje innlogga',
-'nologin'                    => "Er du allereie registrert? '''$1'''.",
+'nologin'                    => "Har du ingen brukarkonto? '''$1'''.",
 'nologinlink'                => 'Registrer deg',
 'createaccount'              => 'Opprett ny konto',
-'gotaccount'                 => "Er du allereie registrert? '''$1'''.",
+'gotaccount'                 => "Har du ein brukarkonto? '''$1'''.",
 'gotaccountlink'             => 'Logg inn',
 'createaccountmail'          => 'over e-post',
 'badretype'                  => 'Passorda du skreiv inn er ikkje like.',
@@ -772,7 +772,7 @@ Du kan allereie ha byta passordet, eller ha bede om å få eit nytt mellombels p
 'summary-preview'                  => 'Førehandsvising av endringssamandraget:',
 'subject-preview'                  => 'Førehandsvising av emne/overskrift:',
 'blockedtitle'                     => 'Brukaren er blokkert',
-'blockedtext'                      => "<big>'''Brukarnamnet ditt eller IP-adressa di er blokkert frå endring'''</big>
+'blockedtext'                      => "'''Brukarnamnet ditt eller IP-adressa di er blokkert frå endring'''
 
 Blokkeringa vart gjort av $1. 
 Denne grunnen vart gjeven: ''$2''.
@@ -806,7 +806,7 @@ Ver venleg og opplyse dette ved eventuelle førespurnader.",
 'nosuchsectiontext'                => 'Du prøvde å endre ein bolk som ikkje finst. 
 Han kan ha vorten flytta eller sletta medan du såg på sida.',
 'loginreqtitle'                    => 'Innlogging trengst',
-'loginreqlink'                     => 'logg inn',
+'loginreqlink'                     => 'logga inn',
 'loginreqpagetext'                 => 'Du lyt $1 for å lesa andre sider.',
 'accmailtitle'                     => 'Passord er sendt.',
 'accmailtext'                      => "Eit tilfeldig laga passord for [[User talk:$1|$1]] er sendt til $2.
@@ -974,7 +974,7 @@ Som ein administrator kan du enno [$1 sjå skilnaden] om du ynskjer å halda fra
 'revdelete-nologid-title'        => 'Ugyldig loggelement',
 'revdelete-nologid-text'         => 'Du har anten ikkje oppgjeve eit loggelement som denne funksjonen skal nytta, eller det oppgjeve loggelementet finst ikkje.',
 'revdelete-selected'             => "'''{{PLURAL:$2|Vald versjon|Valde versjonar}} av [[:$1]]:'''",
-'logdelete-selected'             => "'''{{PLURAL:$1|Vald loggoppføring|Valde loggoppføringar}} for [[:$1]]:'''",
+'logdelete-selected'             => "'''{{PLURAL:$1|Vald loggoppføring|Valde loggoppføringar}}:'''",
 'revdelete-text'                 => "Sletta versjonar og oppføringar vert framleis synlege i sidehistorikken og loggane, men delar av innhaldet deira vert ikkje lenger offentleggjort.'''
 
 Andre administratorar på {{SITENAME}} kan framleis sjå det gøymde innhaldet og attopprette det, med mindre fleire avgrensingar vert lagde inn av sideoperatørane. Ver venleg å stadfesta at du meiner å gjera dette, og at du skjønar fylgjene, og at du gjer dette i samsvar med [[{{MediaWiki:Policy-url}}|MediaWiki sine retningsliner]].",
@@ -990,13 +990,13 @@ Andre administratorar på {{SITENAME}} kan framleis sjå det gøymde innhaldet o
 'revdelete-suppress'             => 'Fjern informasjon frå administratorar også',
 'revdelete-hide-image'           => 'Skjul filinnhald',
 'revdelete-unsuppress'           => 'Fjern avgrensingane på dei attoppretta versjonane',
-'revdelete-log'                  => 'Grunngjeving for sletting:',
+'revdelete-log'                  => 'Årsak:',
 'revdelete-submit'               => 'Utfør på vald versjon',
 'revdelete-logentry'             => 'endra versjonsvisinga til [[$1]]',
 'logdelete-logentry'             => 'endra visinga av loggoppføringane til [[$1]]',
 'revdelete-success'              => "'''Endringa av versjonsvisinga var vellukka.'''",
 'logdelete-success'              => "'''Visinga av loggoppføringar er endra.'''",
-'revdel-restore'                 => 'Endr synlegheita',
+'revdel-restore'                 => 'endra synlegheita',
 'pagehist'                       => 'Sidehistorikk',
 'deletedhist'                    => 'Sletta historikk',
 'revdelete-content'              => 'innhald',
@@ -1006,7 +1006,7 @@ Andre administratorar på {{SITENAME}} kan framleis sjå det gøymde innhaldet o
 'revdelete-unrestricted'         => 'fjerna avgrensingar for administratorar',
 'revdelete-hid'                  => 'løynde $1',
 'revdelete-unhid'                => 'gjorde $1 synleg',
-'revdelete-log-message'          => '$1 for $2 {{PLURAL:$2|revisjon|revisjonar}}',
+'revdelete-log-message'          => '$1 for $2 {{PLURAL:$2|versjon|versjonar}}',
 'logdelete-log-message'          => '$1 for {{PLURAL:$2|eitt element|$2 element}}',
 
 # Suppression log
@@ -1110,7 +1110,7 @@ Pass på at den nye sida også har innhald frå den innfletta sida.',
 'searchresults'                    => 'Søkjeresultat',
 'searchresults-title'              => 'Søkjeresultat for «$1»',
 'searchresulttext'                 => 'For meir info om søkjefunksjonen i {{SITENAME}}, sjå [[{{MediaWiki:Helppage}}|Hjelp]].',
-'searchsubtitle'                   => 'Du søkte etter «[[:$1]]» ([[Special:Prefixindex/$1|alle sider som byrjar med «$1»]]{{int:pipe-separator}}[[Special:WhatLinksHere/$1|alle sider som lenkjer til «$1»]])',
+'searchsubtitle'                   => "Du søkte etter '''[[:$1]]''' ([[Special:Prefixindex/$1|alle sider som byrjar med «$1»]]{{int:pipe-separator}}[[Special:WhatLinksHere/$1|alle sider som lenkjer til «$1»]])",
 'searchsubtitleinvalid'            => 'Du søkte etter «$1»',
 'noexactmatch'                     => "* '''{{SITENAME}} har ikkje noka side med [[:$1|dette namnet]].'''
 * <big>'''Du kan [[:$1|opprette ho no]]'''</big>.<br />
@@ -1151,7 +1151,7 @@ Pass på at den nye sida også har innhald frå den innfletta sida.',
 'search-section'                   => '(bolk $1)',
 'search-suggest'                   => 'Meinte du: «$1»',
 'search-interwiki-caption'         => 'Systerprosjekt',
-'search-interwiki-default'         => '$1 resultat:',
+'search-interwiki-default'         => '$1-resultat:',
 'search-interwiki-more'            => '(meir)',
 'search-mwsuggest-enabled'         => 'med forslag',
 'search-mwsuggest-disabled'        => 'ingen forslag',
@@ -1419,8 +1419,8 @@ Ver merksam på at registra deira kan vera utdaterte.',
 'rclinks'                           => 'Vis siste $1 endringar dei siste $2 dagane<br />$3',
 'diff'                              => 'skil',
 'hist'                              => 'hist',
-'hide'                              => 'gøym',
-'show'                              => 'vis',
+'hide'                              => 'Gøym',
+'show'                              => 'Vis',
 'minoreditletter'                   => 's',
 'newpageletter'                     => 'n',
 'boteditletter'                     => 'b',
@@ -1433,7 +1433,7 @@ Ver merksam på at registra deira kan vera utdaterte.',
 
 # Recent changes linked
 'recentchangeslinked'          => 'Relaterte endringar',
-'recentchangeslinked-title'    => 'Endringar relaterte til "$1"',
+'recentchangeslinked-title'    => 'Endringar relaterte til «$1»',
 'recentchangeslinked-backlink' => '← $1',
 'recentchangeslinked-noresult' => 'Det er ikkje gjort endringar på sidene som var lenkja hit i den oppgjevne perioden.',
 'recentchangeslinked-summary'  => "Denne spesialsida inneheld alle endringane som er gjort på sider som vert ''lenkja til'' frå denne (eller på sider i ein viss kategori). Dei av sidene du har på [[Special:Watchlist|overvakingslista]] di er '''utheva'''.",
@@ -1611,7 +1611,7 @@ Ei [[Special:WhatLinksHere/$2|fullstendig liste]] er tilgjengeleg.',
 'filerevert'                => 'Rull attende $1',
 'filerevert-legend'         => 'Rull attende fila',
 'filerevert-intro'          => "Du rullar attende '''[[Media:$1|$1]]''' til [$4 versjonen frå $3, $2].",
-'filerevert-comment'        => 'Kommentar:',
+'filerevert-comment'        => 'Årsak:',
 'filerevert-defaultcomment' => 'Rulla attende til versjonen frå $2, $1',
 'filerevert-submit'         => 'Rull attende',
 'filerevert-success'        => "'''[[Media:$1|$1]]''' er rulla attende til [$4 versjonen frå $3, $2].",
@@ -1622,7 +1622,7 @@ Ei [[Special:WhatLinksHere/$2|fullstendig liste]] er tilgjengeleg.',
 'filedelete-legend'           => 'Slett fil',
 'filedelete-intro'            => "Du er i ferd med å sletta fila '''[[Media:$1|$1]]''' i lag med heile historikken hennar.",
 'filedelete-intro-old'        => "Du slettar versjonen av '''[[Media:$1|$1]]''' frå [$4 $3, $2].",
-'filedelete-comment'          => 'Sletteårsak:',
+'filedelete-comment'          => 'Årsak:',
 'filedelete-submit'           => 'Slett',
 'filedelete-success'          => "'''$1''' er sletta.",
 'filedelete-success-old'      => "Versjonen av '''[[Media:$1|$1]]''' frå $3, $2 er sletta.",
@@ -1938,7 +1938,7 @@ For hjelp og meir informasjon:
 {{fullurl:Hjelp:Overvaking}}',
 
 # Delete
-'deletepage'             => 'Slett side',
+'deletepage'             => 'Slett sida',
 'confirm'                => 'Stadfest',
 'excontent'              => 'innhaldet var: «$1»',
 'excontentauthor'        => 'innhaldet var: «$1» (og den einaste bidragsytaren var «$2»)',
@@ -1956,7 +1956,7 @@ For hjelp og meir informasjon:
 'dellogpagetext'         => 'Her er ei liste over dei siste slettingane.',
 'deletionlog'            => 'slettelogg',
 'reverted'               => 'Attenderulla til ein tidlegare versjon',
-'deletecomment'          => 'Sletteårsak:',
+'deletecomment'          => 'Årsak:',
 'deleteotherreason'      => 'Annan grunn:',
 'deletereasonotherlist'  => 'Annan grunn',
 'deletereason-dropdown'  => '*Vanlege grunnar for sletting
@@ -2063,13 +2063,13 @@ Innhaldet i dei sletta versjonane er berre tilgjengeleg for administratorar.',
 'undeletelink'                 => 'syn/attopprett',
 'undeletereset'                => 'Nullstill',
 'undeleteinvert'               => 'Inverter val',
-'undeletecomment'              => 'Kommentar:',
+'undeletecomment'              => 'Årsak:',
 'undeletedarticle'             => 'attoppretta «[[$1]]»',
 'undeletedrevisions'           => '{{PLURAL:$1|Éin versjon|$1 versjonar}} attoppretta.',
 'undeletedrevisions-files'     => '{{PLURAL:$1|Éin versjon|$1 versjonar}} og {{PLURAL:$2|éi fil|$2 filer}} er attoppretta',
 'undeletedfiles'               => '{{PLURAL:$1|Éi fil|$1 filer}} er attoppretta',
 'cannotundelete'               => 'Feil ved attoppretting, andre kan allereie ha attoppretta sida.',
-'undeletedpage'                => "<big>'''$1 er attoppretta'''</big>
+'undeletedpage'                => "'''$1 er attoppretta'''
 
 Sjå [[Special:Log/delete|sletteloggen]] for eit oversyn over sider som nyleg er sletta eller attoppretta.",
 'undelete-header'              => 'Sjå [[Special:Log/delete|sletteloggen]] for dei sist sletta sidene.',
@@ -2267,11 +2267,11 @@ I desse falla lyt du flytte eller flette saman sida manuelt.",
 'movenotallowedfile'           => 'Du har ikkje løyve til å flytta filer.',
 'cant-move-user-page'          => 'Du har ikkje løyve til å flytte brukarsider (bortsett frå undersider).',
 'cant-move-to-user-page'       => 'Du har ikkje løyve til å flytte brukarsider (bortsett frå undersider).',
-'newtitle'                     => 'Til ny tittel',
+'newtitle'                     => 'Til ny tittel:',
 'move-watch'                   => 'Overvak denne sida',
 'movepagebtn'                  => 'Flytt side',
 'pagemovedsub'                 => 'Flyttinga er gjennomført',
-'movepage-moved'               => "<big>'''«$1» er flytt til «$2»'''</big>", # The two titles are passed in plain text as $3 and $4 to allow additional goodies in the message.
+'movepage-moved'               => "'''«$1» er flytt til «$2»'''", # The two titles are passed in plain text as $3 and $4 to allow additional goodies in the message.
 'movepage-moved-redirect'      => 'Ei omdirigering er vorten oppretta.',
 'movepage-moved-noredirect'    => 'Det vart ikkje oppretta ei omdirigering.',
 'articleexists'                => 'Ei side med det namnet finst allereie, eller det namnet du har valt er ikkje gyldig. Vel eit anna namn.',
@@ -2294,7 +2294,7 @@ I desse falla lyt du flytte eller flette saman sida manuelt.",
 'movesubpagetext'              => 'Denne sida har {{PLURAL:$1|éi underside som vert synt|$1 undersider som vert synte}} nedanfor.',
 'movenosubpage'                => 'Denne sida har ingen undersider.',
 'movereason'                   => 'Årsak:',
-'revertmove'                   => 'attende',
+'revertmove'                   => 'flytt attende',
 'delete_and_move'              => 'Slett og flytt',
 'delete_and_move_text'         => '== Sletting påkrevd ==
 
@@ -2386,7 +2386,7 @@ Vitja [http://www.mediawiki.org/wiki/Localisation MediaWiki Localisation] og [ht
 'xml-error-string'           => '$1 på rad $2, kolonne $3 (byte: $4): $5',
 'import-upload'              => 'Last opp XML-data',
 'import-token-mismatch'      => 'Mista sesjonsdata. Ver venleg og prøv om att.',
-'import-invalid-interwiki'   => 'Kan ikkje importera frå valt wiki.',
+'import-invalid-interwiki'   => 'Kan ikkje importera frå den valde wikien.',
 
 # Import log
 'importlogpage'                    => 'Importeringslogg',
@@ -2411,7 +2411,7 @@ Vitja [http://www.mediawiki.org/wiki/Localisation MediaWiki Localisation] og [ht
 'tooltip-ca-edit'                 => 'Du kan endre denne sida. Bruk førehandsvisings-knappen før du lagrar.',
 'tooltip-ca-addsection'           => 'Start ein ny bolk',
 'tooltip-ca-viewsource'           => 'Denne sida er verna, men du kan sjå kjeldeteksten.',
-'tooltip-ca-history'              => 'Eldre versjonar av denne sida.',
+'tooltip-ca-history'              => 'Eldre versjonar av denne sida',
 'tooltip-ca-protect'              => 'Vern denne sida',
 'tooltip-ca-delete'               => 'Slett denne sida',
 'tooltip-ca-undelete'             => 'Attopprett denne sida',
@@ -2441,7 +2441,7 @@ Vitja [http://www.mediawiki.org/wiki/Localisation MediaWiki Localisation] og [ht
 'tooltip-ca-nstab-main'           => 'Vis innhaldssida',
 'tooltip-ca-nstab-user'           => 'Vis brukarsida',
 'tooltip-ca-nstab-media'          => 'Direktelenkje (filpeikar) til fil',
-'tooltip-ca-nstab-special'        => 'Dette er ei spesialside, du kan ikkje endre ho.',
+'tooltip-ca-nstab-special'        => 'Dette er ei spesialside, du kan ikkje endre ho',
 'tooltip-ca-nstab-project'        => 'Vis prosjektside',
 'tooltip-ca-nstab-image'          => 'Vis filside',
 'tooltip-ca-nstab-mediawiki'      => 'Vis systemmelding',
@@ -2456,7 +2456,7 @@ Vitja [http://www.mediawiki.org/wiki/Localisation MediaWiki Localisation] og [ht
 'tooltip-watch'                   => 'Legg denne sida til i overvakingslista di [alt-w]',
 'tooltip-recreate'                => 'Ved å trykkje på «Nyopprett» vert sida oppretta på nytt.',
 'tooltip-upload'                  => 'Start opplastinga',
-'tooltip-rollback'                => '«Attenderull»-knappen attenderullar endringar på denne sida med eitt klikk til den førre utgåva av ein annan brukar.',
+'tooltip-rollback'                => '«Attenderull»-knappen attenderullar endringar på denne sida med eitt klikk til den førre utgåva av ein annan brukar',
 'tooltip-undo'                    => '«Gjer om» attenderullar endringar og opnar endringsvindauga med førehandsvising. Gjer at ein kan leggje til ei årsak samandragsboksen.',
 
 # Stylesheets
@@ -2570,7 +2570,7 @@ $1',
 'visual-comparison' => 'Visuell samanlikning',
 
 # Media information
-'mediawarning'         => "'''Åtvaring''': Denne fila kan innehalda skadeleg programkode, ved å køyra programmet kan systemet ditt ta skade.<hr />",
+'mediawarning'         => "'''Åtvaring''': Denne fila kan innehalda skadeleg programkode, ved å køyra programmet kan systemet ditt ta skade.",
 'imagemaxsize'         => 'Avgrens bilete på filsider til (pikslar):',
 'thumbsize'            => 'Miniatyrstørrelse:',
 'widthheightpage'      => '$1×$2, {{PLURAL:$3|éi side|$3 sider}}',
@@ -2881,7 +2881,7 @@ Dei andre felta er gøymde som standard.
 
 # External editor support
 'edit-externally'      => 'Endre denne fila med eit eksternt program',
-'edit-externally-help' => '(Sjå [http://www.mediawiki.org/wiki/Manual:External_editors eksterne program instruksjonane] for meir informasjon)',
+'edit-externally-help' => '(Sjå [http://www.mediawiki.org/wiki/Manual:External_editors oppsettsinstruksjonane] for meir informasjon)',
 
 # 'all' in various places, this might be different for inflected languages
 'recentchangesall' => 'alle',
@@ -2991,13 +2991,16 @@ Du må stadfeste at du verkeleg vil nyopprette denne sida.",
 'watchlistedit-normal-title'   => 'Endre overvakingslista',
 'watchlistedit-normal-legend'  => 'Fjern sider frå overvakingslista',
 'watchlistedit-normal-explain' => 'Sidene på overvakingslista di er viste nedanfor.
-For å fjerne ei side, kryss av boksen ved sida av sida du vil fjerne og klikk på «Fjern side».
+For å fjerne ei side, kryss av boksen ved sida av sida du vil fjerne og klikk på «{{int:Watchlistedit-normal-submit}}».
 Du kan òg [[Special:Watchlist/raw|endre overvakingslista i råformat]].',
 'watchlistedit-normal-submit'  => 'Fjern sider',
 'watchlistedit-normal-done'    => '{{PLURAL:$1|Éi side|$1 sider}} vart fjerna frå overvakingslista di:',
 'watchlistedit-raw-title'      => 'Endre på overvakingslista i råformat',
 'watchlistedit-raw-legend'     => 'Endre på overvakingslista i råformat',
-'watchlistedit-raw-explain'    => 'Sidene på overvakingslista di er viste nedanfor, og lista kan endrast ved å legge til eller fjerne sider frå lista; ei side per line. Når du er ferdig, klikk «Oppdater overvakingsliste». Du kan òg [[Special:Watchlist/edit|nytte standardverktøyet]].',
+'watchlistedit-raw-explain'    => 'Sidene på overvakingslista di er viste nedanfor, og lista kan endrast ved å legge til eller fjerne sider frå lista;
+ei side per line.
+Når du er ferdig, klikk «{{int:Watchlistedit-raw-submit}}».
+Du kan òg [[Special:Watchlist/edit|nytte standardverktøyet]].',
 'watchlistedit-raw-titles'     => 'Sider:',
 'watchlistedit-raw-submit'     => 'Oppdater overvakingslista',
 'watchlistedit-raw-done'       => 'Overvakingslista er oppdatert.',
@@ -3037,7 +3040,7 @@ Du kan òg [[Special:Watchlist/raw|endre overvakingslista i råformat]].',
 # Special:FilePath
 'filepath'         => 'Filsti',
 'filepath-page'    => 'Fil:',
-'filepath-submit'  => 'Sti',
+'filepath-submit'  => 'Gå',
 'filepath-summary' => 'Denne spesialsida gjev den fullstendige stien for ei fil. Bilete vert vist i oppløysing; andre filtypar vert starta direkte i dei tilknytte programma sine.
 
 Skriv inn filnamnet utan «{{ns:file}}:»-prefikset.',

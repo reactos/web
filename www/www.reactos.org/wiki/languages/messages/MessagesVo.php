@@ -116,8 +116,8 @@ $messages = array(
 'tog-hideminor'               => 'Klänedön redakamis pülik su lised votükamas nulik',
 'tog-hidepatrolled'           => 'Klänedön redakamis pezepöl in lised votükamas nulik.',
 'tog-newpageshidepatrolled'   => 'Klänedön padis pezepöl in lised padas nulik',
-'tog-extendwatchlist'         => 'Stäänükön galädalisedi ad jonön votükamis tefik valik',
-'tog-usenewrc'                => 'Lised pamenodöl votükamas nulik (JavaScript)',
+'tog-extendwatchlist'         => 'Stäänükön galädalisedi ad jonön votükamis tefik valik, e no te nulikünos',
+'tog-usenewrc'                => 'Gebön votükamis nulik patik (me JavaScript)',
 'tog-numberheadings'          => 'Givön itjäfidiko nümis dilädatiädes',
 'tog-showtoolbar'             => 'Jonön redakamastumemi (JavaScript)',
 'tog-editondblclick'          => 'Dälön redakön padis pö drän telik mugaknopa (JavaScript)',
@@ -228,7 +228,7 @@ $messages = array(
 'category-file-count-limited'    => '{{PLURAL:$1|Ragiv sököl binon|Ragivs sököl $1 binons}} in klad at.',
 'listingcontinuesabbrev'         => '(fov.)',
 
-'mainpagetext'      => "<big>'''El MediaWiki pestiton benosekiko.'''</big>",
+'mainpagetext'      => "'''El MediaWiki pestiton benosekiko.'''",
 'mainpagedocfooter' => 'Konsultolös [http://meta.wikimedia.org/wiki/Help:Contents Gebanageidian] ad tuvön nünis dö geb programema vükik.
 
 == Nüdugot ==
@@ -615,7 +615,7 @@ Ba ya evotükol benosekiko letavödi olik, u ya ebegol benosekiko letavödi nela
 'summary-preview'                  => 'Büologed brefik:',
 'subject-preview'                  => 'Büologed yegäda/diläda:',
 'blockedtitle'                     => 'Geban peblokon',
-'blockedtext'                      => "<big>'''Gebananem u ladet-IP olik(s) peblokon(s).'''</big>
+'blockedtext'                      => "'''Gebananem u ladet-IP olik(s) peblokon(s).'''
 
 Blokam at pejenükon fa geban: $1. 
 Kod binon: ''$2''.
@@ -834,7 +834,7 @@ Fümedolös, das vilol dunön osi, das suemol sekis, e das dunol osi baiädü [[
 'revdelete-suppress'             => 'Klänedön moükamakodis i de guvans (äsi de votikans)',
 'revdelete-hide-image'           => 'Klänedön ragivaninädi',
 'revdelete-unsuppress'           => 'Moükön miedükamis fomamas pegegetöl',
-'revdelete-log'                  => 'Kod moükama:',
+'revdelete-log'                  => 'Kod:',
 'revdelete-submit'               => 'Gebön me fomam pevälöl',
 'revdelete-logentry'             => 'logov fomamas pada: [[$1]] pevotükon',
 'logdelete-logentry'             => 'logov jenota: [[$1]] pevotükon',
@@ -1444,7 +1444,7 @@ Lised dono jonon {{PLURAL:$1|padayümi balid|padayümis balid $1}} te lü ragiv 
 'filedelete-legend'           => 'Moükön ragivi',
 'filedelete-intro'            => "Moükol padi: '''[[Media:$1|$1]]''', kobü jenotem lölik ona.",
 'filedelete-intro-old'        => "Anu moükol fomami pada: '''[[Media:$1|$1]]''' [$4 $3, $2].",
-'filedelete-comment'          => 'Küpet:',
+'filedelete-comment'          => 'Kod:',
 'filedelete-submit'           => 'Moükön',
 'filedelete-success'          => "'''$1''' pemoükon.",
 'filedelete-success-old'      => "Fomam ela '''[[Media:$1|$1]]''' timü $3, $2 pemoükon.",
@@ -1538,7 +1538,7 @@ Pad palelogon telplänovapad if gebon samafomoti, lü kel payümon pad [[MediaWi
 'lonelypagestext'         => 'Pads nonik in vük at peyümons ad pads sököl in {{SITENAME}}.',
 'uncategorizedpages'      => 'Pads nen klad',
 'uncategorizedcategories' => 'Klads nen klad löpikum',
-'uncategorizedimages'     => 'Magods nen klad',
+'uncategorizedimages'     => 'Ragivs nen klad',
 'uncategorizedtemplates'  => 'Samafomots nen klad',
 'unusedcategories'        => 'Klads no pageböls',
 'unusedimages'            => 'Ragivs no pageböls',
@@ -1781,7 +1781,7 @@ $2 jonon moükamis nulik.',
 'dellogpagetext'         => 'Dono binon lised moükamas nulikün.',
 'deletionlog'            => 'jenotalised moükamas',
 'reverted'               => 'Pegeükon ad revid büik',
-'deletecomment'          => 'Kod moükama',
+'deletecomment'          => 'Kod:',
 'deleteotherreason'      => 'Kod votik:',
 'deletereasonotherlist'  => 'Kod votik',
 'deletereason-dropdown'  => '* Kods kösömik moükama
@@ -1900,7 +1900,7 @@ Ba labol yümi dädik, u ba fomam pegepübon u pemoükon se registar.',
 'undeletedrevisions-files'     => 'Moükam {{PLURAL:$1|revida 1|revidas $1}} e {{PLURAL:$2|ragiva 1|ragivas $2}} pesädunons',
 'undeletedfiles'               => 'Moükam {{PLURAL:$1|ragiva 1|ragivas $1}} pesädunon',
 'cannotundelete'               => 'Sädunam moükama no eplöpon. Ba ek ya esädunon moükami at.',
-'undeletedpage'                => "<big>'''Moükam pada: $1 pesädunon'''</big>
+'undeletedpage'                => "'''Moükam pada: $1 pesädunon'''
 
 Logolös [[Special:Log/delete|lisedi moükamas]] if vilol kontrolön moükamis e sädunamis brefabüikis.",
 'undelete-header'              => 'Logolös [[Special:Log/delete|jenotalisedi moükamas]] ad tuvön padis brefabüo pemoükölis.',
@@ -2108,7 +2108,7 @@ Votükam at kanon binön mu staböfik ä no paspetöl pö pad pöpedik. Suemolö
 'move-watch'                   => 'Pladolöd padi at ini galädalised',
 'movepagebtn'                  => 'Topätükolöd padi',
 'pagemovedsub'                 => 'Topätükam eplöpon',
-'movepage-moved'               => '<big>\'\'\'"$1" petopätükon lü "$2"\'\'\'</big>', # The two titles are passed in plain text as $3 and $4 to allow additional goodies in the message.
+'movepage-moved'               => '\'\'\'"$1" petopätükon lü "$2"\'\'\'', # The two titles are passed in plain text as $3 and $4 to allow additional goodies in the message.
 'movepage-moved-redirect'      => 'Lüodüköm pejafon.',
 'movepage-moved-noredirect'    => 'Lüoküköm ye no pejafon.',
 'articleexists'                => 'Pad labü nem at ya dabinon, u nem fa ol pevälöl no lonöfon.
@@ -2382,7 +2382,7 @@ $1',
 
 # Media information
 'mediawarning'         => "'''Nuned''': Ragiv at ba ninükon programi(s) badälik.
-If ojäfidükol oni, nünömasit olik ba podämükon.<hr />",
+If ojäfidükol oni, nünömasit olik ba podämükon.",
 'imagemaxsize'         => 'Miedükön magodis su pads magodis bepenöls ad:',
 'thumbsize'            => 'Gretot magodüla:',
 'widthheightpage'      => '$1×$2, {{PLURAL:$3|pad|pads}} $3',

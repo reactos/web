@@ -133,7 +133,7 @@ $messages = array(
 'category-file-count-limited'    => 'Ii vibhag me etna {{PLURAL:$1|file hai|$1 files hai}}.',
 'listingcontinuesabbrev'         => 'aur',
 
-'mainpagetext'      => "<big>'''MediaWiki ke safalta se install kar dewa gais hai.'''</big>",
+'mainpagetext'      => "'''MediaWiki ke safalta se install kar dewa gais hai.'''",
 'mainpagedocfooter' => "Wiki software ke use kare ke aur jaankari ke khatir [http://meta.wikimedia.org/wiki/Help:Contents User's Guide] ke dekho.
 
 == Getting started ==
@@ -548,7 +548,7 @@ Agar aap Save pe click karaa tab bina vishay ke iske save kar lewa jaai.",
 'summary-preview'                  => 'Sanchhep jhalak:',
 'subject-preview'                  => 'Suchi ke jhalak:',
 'blockedtitle'                     => 'Sadasya ke rok dewa gais hai',
-'blockedtext'                      => "<big>'''Aapke user name nai to IP address ke rok dewa gae hai.'''</big>
+'blockedtext'                      => "'''Aapke user name nai to IP address ke rok dewa gae hai.'''
 
 Roke waala hai $1. 
 Iske kaaran hai ''$2''.
@@ -797,7 +797,7 @@ Meharbaani kar ke ii confirm karo ki aap ii chij kare mangta hai, aap iske natij
 'revdelete-suppress'             => 'Sysops ke saathe saathe aur sab se data ke suppress karo',
 'revdelete-hide-image'           => 'File content ke lukao',
 'revdelete-unsuppress'           => 'Pahile jaise karaa gais badlao me se rukawat hatao',
-'revdelete-log'                  => 'Mitae ke kaaran:',
+'revdelete-log'                  => 'Kaaran:',
 'revdelete-submit'               => 'Chuna gae badlao ke apply karo',
 'revdelete-logentry'             => '[[$1]] ke badlao ke visibility ke badal dewa gais hai',
 'logdelete-logentry'             => '[[$1]] keevent visibility ke badal dewa gais hae',
@@ -1424,7 +1424,7 @@ Ek [[Special:WhatLinksHere/$2|Puura suchi]] available hai.',
 'filerevert'                => '$1 ke pahile jaise karo',
 'filerevert-legend'         => 'File ke pahile jaise karo',
 'filerevert-intro'          => "Aap '''[[Media:$1|$1]]''' ke [$4 version as of $3, $2] jaise kartaa hai.",
-'filerevert-comment'        => 'Vichar:',
+'filerevert-comment'        => 'Kaaran:',
 'filerevert-defaultcomment' => 'Version as of $2, $1 pe revert kar dewa gais hai',
 'filerevert-submit'         => 'Pahile jaise karo',
 'filerevert-success'        => "'''[[Media:$1|$1]]''' ke [$4 version as of $3, $2] pe revert kar dewa gais hai.",
@@ -1435,7 +1435,7 @@ Ek [[Special:WhatLinksHere/$2|Puura suchi]] available hai.',
 'filedelete-legend'           => 'File ke mitao',
 'filedelete-intro'            => "Aap file '''[[Media:$1|$1]]''' ke delete kare waala hai iske itihaas ke saathe.",
 'filedelete-intro-old'        => "Aap '''[[Media:$1|$1]]''' ke version as of [$4 $3, $2] ke delete kartaa hai.",
-'filedelete-comment'          => 'Mitae ke kaaran:',
+'filedelete-comment'          => 'Kaaran:',
 'filedelete-submit'           => 'Mitao',
 'filedelete-success'          => "'''$1''' ke mitae dewa gais hai.",
 'filedelete-success-old'      => "'''[[Media:$1|$1]]''' ke version as of $3, $2 ke delete kar dewa gais hai.",
@@ -1781,7 +1781,7 @@ Meharbani kar ke iske confirm karo, ki aap iske consequences ke samajhta hai, au
 'dellogpagetext'         => 'Niche nawaa mitawa gais panna ke suchi hai.',
 'deletionlog'            => 'Mitae waala suchi',
 'reverted'               => 'Pahile ke revision pe lautae dewa gais hai',
-'deletecomment'          => 'Delete kare ke kaaran:',
+'deletecomment'          => 'Kaaran:',
 'deleteotherreason'      => 'Aur/duusra kaaran:',
 'deletereasonotherlist'  => 'Duusra kaaran',
 'deletereason-dropdown'  => '*Sadharan mitae ke kaaran
@@ -1854,7 +1854,7 @@ Aap ii panna ke ijaajat level badle sakta hai, lekin ii cascading protection nai
 'protect-othertime-op'        => 'duusra time',
 'protect-existing-expiry'     => 'Abhi ke khatam hoe waala time: $3, $2',
 'protect-otherreason'         => 'Duusra/aur kaaran:',
-'protect-otherreason-op'      => 'duusra/aur kaaran:',
+'protect-otherreason-op'      => 'Duusra kaaran:',
 'protect-dropdown'            => '*Bachae ke sadharan kaaran
 ** Jaada vandalism
 ** Jaada spamming
@@ -1906,14 +1906,14 @@ Sait aap ke kharaab link hoi, nai to badlao ke sait pahile jaise kar dewa gais h
 'undeletelink'                 => 'dekho/pahile jaise karo',
 'undeletereset'                => 'Pahile jaise karo',
 'undeleteinvert'               => 'Selection ke ulta karo',
-'undeletecomment'              => 'Aapan bichar do:',
+'undeletecomment'              => 'Kaaran::',
 'undeletedarticle'             => '"[[$1]]" ke pahile jaise kar dewa gais hai',
 'undeletedrevisions'           => '{{PLURAL:$1|1 badlao|$1 badlao}} ke pahile jaise kar dewa gais hai',
 'undeletedrevisions-files'     => '{{PLURAL:$1|1 badlao|$1 badlao}} aur {{PLURAL:$2|1 file|$2 files}} ke pahile jaise kar dewa gais hai',
 'undeletedfiles'               => '{{PLURAL:$1|1 file|$1 files}} ke pahile jaise kar dewa gais hai',
 'cannotundelete'               => 'Pahile jaise nai kare sakaa;
 saait aur koi panna ke pahile jaise kar diis hai.',
-'undeletedpage'                => "<big>'''$1 ke pahile jaise kar dewa gais hai'''</big>
+'undeletedpage'                => "'''$1 ke pahile jaise kar dewa gais hai'''
 
 Nawaa mitawa gais aur badlao ke ulta karaa gais panna ke dekhe ke khatir [[Special:Log/delete|deletion log]] ke dekho.",
 'undelete-header'              => 'Nawaa mitawa gais panna ke dekhe ke khatir [[Special:Log/delete|the deletion log]] ke dekho.',
@@ -2136,7 +2136,7 @@ Ii prastithi me, aap ke manually move yah merge kare ke parri.",
 'move-watch'                   => 'Ii panna pe dhyan rakho',
 'movepagebtn'                  => 'Panna ke naam badlo',
 'pagemovedsub'                 => 'Panna ke naam badle me safalta',
-'movepage-moved'               => '<big>\'\'\'"$1" ke naam badal ke "$2" kar dewa gais hai\'\'\'</big>', # The two titles are passed in plain text as $3 and $4 to allow additional goodies in the message.
+'movepage-moved'               => '\'\'\'"$1" ke naam badal ke "$2" kar dewa gais hai\'\'\'', # The two titles are passed in plain text as $3 and $4 to allow additional goodies in the message.
 'movepage-moved-redirect'      => 'Ek redirect ke banae dewa gais hai.',
 'movepage-moved-noredirect'    => 'Ek redirect ke banae pe rukawat lagae dewa gais hai.',
 'articleexists'                => 'Uu naam ke panna abhi hai, nai to jon naam aap choose karaa hai valid nai hai.
@@ -2413,7 +2413,7 @@ $1',
 
 # Media information
 'mediawarning'         => "'''Chetauni''': Ii file me saait kharaab code hoi.
-Iske execute kare se aap ke system me garrbarr hoe sake hae.<hr />",
+Iske execute kare se aap ke system me garrbarr hoe sake hae.",
 'thumbsize'            => 'Anguutha ke nakkhuun etna barraa:',
 'widthheightpage'      => '$1×$2, $3 {{PLURAL:$3|panna|panna}}',
 'file-info'            => '(file etnaa barraa: $1, MIME rakam: $2)',
@@ -2503,6 +2503,7 @@ Wahii line pe aur koi jorr exception consider karaa jai i.e. jahaan pe panna sak
 'exif-subsectimedigitized'         => 'Digitized tarik aur time subseconds me',
 'exif-shutterspeedvalue'           => 'Shutter ke raftaar',
 'exif-aperturevalue'               => 'Aperture',
+'exif-brightnessvalue'             => 'Chamak',
 'exif-focallength'                 => 'Lens ke focal length',
 'exif-gpsaltitude'                 => 'Uunchai',
 'exif-gpsspeedref'                 => 'Raftar ke unit',
@@ -2547,8 +2548,12 @@ Wahii line pe aur koi jorr exception consider karaa jai i.e. jahaan pe panna sak
 # E-mail address confirmation
 'confirmemail' => 'E-mail address ke pakka karo',
 
+# Delete conflict
+'recreate' => 'Fir se banao',
+
 # action=purge
 'confirm_purge_button' => 'Thik hae',
+'confirm-purge-top'    => 'Ii panna ke cache ke mitao',
 
 # Multipage image navigation
 'imgmultipageprev' => '← pahile waala panna',
@@ -2568,6 +2573,7 @@ Wahii line pe aur koi jorr exception consider karaa jai i.e. jahaan pe panna sak
 'autosumm-blank' => 'Panna ke mitae dia hae',
 
 # Watchlist editor
+'watchlistedit-noitems'      => 'Aap ke dhyan suchi me koi naam nai hae',
 'watchlistedit-normal-title' => 'Dhyan suchi ke badlo',
 
 # Watchlist editing tools
