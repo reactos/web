@@ -1,5 +1,5 @@
 <?php
-require_once("$phpbb_root_path/../../www.reactos.org_config/forum-connect.php");
+require("$phpbb_root_path/../../www.reactos.org_config/forum-connect.php");
 
 $dbms = 'mysqli';
 $table_prefix = 'phpbb_';
