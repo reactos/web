@@ -46,6 +46,7 @@ use Bugzilla::Bug;
 use Bugzilla::Product;
 use Bugzilla::Keyword;
 use Bugzilla::Field;
+use Bugzilla::Token;
 
 use Date::Parse;
 
@@ -273,7 +274,7 @@ sub LookupNamedQuery {
     $result
        || ThrowUserError("buglist_parameters_required", {'queryname' => $name});
 
-    return $result;
+    return wantarray ? ($result, $id) : $result;
 }
 
 # Inserts a Named Query (a "Saved Search") into the database, or
@@ -301,9 +302,10 @@ sub InsertNamedQuery {
     my $dbh = Bugzilla->dbh;
 
     $query_name = trim($query_name);
-    my ($query_obj) = grep {$_->name eq $query_name} @{Bugzilla->user->queries};
+    my ($query_obj) = grep {lc($_->name) eq lc($query_name)} @{Bugzilla->user->queries};
 
     if ($query_obj) {
+        $query_obj->set_name($query_name);
         $query_obj->set_url($query);
         $query_obj->set_query_type($query_type);
         $query_obj->update();
@@ -404,14 +406,16 @@ if ($cgi->param('cmdtype') eq "dorem" && $cgi->param('remaction') =~ /^run/) {
 # Take appropriate action based on user's request.
 if ($cgi->param('cmdtype') eq "dorem") {  
     if ($cgi->param('remaction') eq "run") {
-        $buffer = LookupNamedQuery(scalar $cgi->param("namedcmd"),
-                                   scalar $cgi->param('sharer_id'));
+        my $query_id;
+        ($buffer, $query_id) = LookupNamedQuery(scalar $cgi->param("namedcmd"),
+                                                scalar $cgi->param('sharer_id'));
         # If this is the user's own query, remember information about it
         # so that it can be modified easily.
         $vars->{'searchname'} = $cgi->param('namedcmd');
         if (!$cgi->param('sharer_id') ||
             $cgi->param('sharer_id') == Bugzilla->user->id) {
             $vars->{'searchtype'} = "saved";
+            $vars->{'search_id'} = $query_id;
         }
         $params = new Bugzilla::CGI($buffer);
         $order = $params->param('order') || $order;
@@ -460,6 +464,10 @@ if ($cgi->param('cmdtype') eq "dorem") {
             # The user has no query of this name. Play along.
         }
         else {
+            # Make sure the user really wants to delete his saved search.
+            my $token = $cgi->param('token');
+            check_hash_token($token, [$query_id, $qname]);
+
             $dbh->do('DELETE FROM namedqueries
                             WHERE id = ?',
                      undef, $query_id);
@@ -513,9 +521,12 @@ elsif (($cgi->param('cmdtype') eq "doit") && defined $cgi->param('remtype')) {
             my %bug_ids;
             my $is_new_name = 0;
             if ($query_name) {
+                my ($query, $query_id) =
+                  LookupNamedQuery($query_name, undef, QUERY_LIST, !THROW_ERROR);
                 # Make sure this name is not already in use by a normal saved search.
-                if (LookupNamedQuery($query_name, undef, QUERY_LIST, !THROW_ERROR)) {
-                    ThrowUserError('query_name_exists', {'name' => $query_name});
+                if ($query) {
+                    ThrowUserError('query_name_exists', {name     => $query_name,
+                                                         query_id => $query_id});
                 }
                 $is_new_name = 1;
             }
@@ -664,6 +675,8 @@ DefineColumn("deadline"          , $dbh->sql_date_format('bugs.deadline', '%Y-%m
 foreach my $field (Bugzilla->get_fields({ custom => 1, obsolete => 0})) {
     DefineColumn($field->name, 'bugs.' . $field->name, $field->description);
 }
+
+Bugzilla::Hook::process("buglist-columns", {'columns' => $columns} );
 
 ################################################################################
 # Display Column Determination

@@ -330,6 +330,8 @@ sub html_strip {
     $var =~ s/\&gt;/>/g;
     $var =~ s/\&quot;/\"/g;
     $var =~ s/&#64;/@/g;
+    # Also remove undesired newlines and consecutive spaces.
+    $var =~ s/[\n\s]+/ /gms;
     return $var;
 }
 
@@ -352,10 +354,12 @@ sub die_handler {
        $msg =~ s/at .+ line.*$//ms;
        $msg =~ s/^Compilation failed in require.+$//ms;
        $msg = html_strip($msg);
-       my $reply = reply(to => $input_email, top_post => 1, body => "$msg\n");
+       my $from = Bugzilla->params->{'mailfrom'};
+       my $reply = reply(to => $input_email, from => $from, top_post => 1, 
+                         body => "$msg\n");
        MessageToMTA($reply->as_string);
     }
-    print STDERR $msg;
+    print STDERR "$msg\n";
     # We exit with a successful value, because we don't want the MTA
     # to *also* send a failure notice.
     exit;

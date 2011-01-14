@@ -41,6 +41,19 @@ sub get_param_list {
   my $class = shift;
   my @param_list = (
   {
+   name => 'allow_attachment_display',
+   type => 'b',
+   default => 0
+  },
+
+  {
+   name => 'attachment_base',
+   type => 't',
+   default => '',
+   checker => \&check_urlbase
+  },
+
+  {
   name => 'allow_attachment_deletion',
   type => 'b',
   default => 0

@@ -682,7 +682,7 @@ sub can_enter_product {
     }
     trick_taint($product_name);
     my $can_enter =
-        grep($_->name eq $product_name, @{$self->get_enterable_products});
+        grep(lc($_->name) eq lc($product_name), @{$self->get_enterable_products});
 
     return 1 if $can_enter;
 
@@ -2005,7 +2005,7 @@ Returns a list of groups that the user is aware of.
 
 =item C<visible_groups_as_string>
 
-Returns the result of C<visible_groups_direct> as a string (a comma-separated
+Returns the result of C<visible_groups_inherited> as a string (a comma-separated
 list).
 
 =item C<product_responsibilities>

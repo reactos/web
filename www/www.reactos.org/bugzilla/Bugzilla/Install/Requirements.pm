@@ -88,13 +88,18 @@ sub REQUIRED_MODULES {
     {
         package => 'Email-Send',
         module  => 'Email::Send',
-        version => ON_WINDOWS ? '2.16' : '2.00'
+        version => ON_WINDOWS ? '2.16' : '2.00',
+        blacklist => ['^2\.196$']
     },
     {
-        # This will pull in Email::MIME for us, also. 
+        package => 'Email-MIME',
+        module  => 'Email::MIME',
+        version => '1.861'
+    },
+    {
         package => 'Email-MIME-Modifier',
         module  => 'Email::MIME::Modifier',
-        version => 0
+        version => '1.442'
     },
     );
 
@@ -178,6 +183,8 @@ sub OPTIONAL_MODULES {
         package => 'SOAP-Lite',
         module  => 'SOAP::Lite',
         version => 0,
+        # These versions (0.70 -> 0.710.05) are affected by bug 468009
+        blacklist => ['^0\.70', '^0\.710?\.0[1-5]$'],
         feature => 'XML-RPC Interface'
     },
     {

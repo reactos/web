@@ -59,7 +59,7 @@ __END__
 
 =head1 NAME
 
-Bugzilla::Hook - Extendible extension hooks for Bugzilla code
+Bugzilla::Hook - Extendable extension hooks for Bugzilla code
 
 =head1 SYNOPSIS
 
@@ -127,7 +127,37 @@ They will be accessible to the hook via L<Bugzilla/hook_args>.
 
 =head1 HOOKS
 
-This describes what hooks exist in Bugzilla currently.
+This describes what hooks exist in Bugzilla currently. They are mostly
+in alphabetical order, but some related hooks are near each other instead
+of being alphabetical.
+
+=head2 buglist-columns
+
+This happens in buglist.cgi after the standard columns have been defined and
+right before the display column determination.  It gives you the opportunity
+to add additional display columns.
+
+Params:
+
+=over
+
+=item C<columns> - A hashref, where the keys are unique string identifiers
+for the column being defined and the values are hashrefs with the
+following fields:
+
+=over
+
+=item C<name> - The name of the column in the database.
+
+=item C<title> - The title of the column as displayed to users.
+
+=back
+
+The definition is structured as:
+
+ $columns->{$id} = { name => $name, title => $title };
+
+=back
 
 =head2 enter_bug-entrydefaultvars
 
@@ -138,6 +168,21 @@ Params:
 =over
 
 =item C<vars> - A hashref. The variables that will be passed into the template.
+
+=back
+
+=head2 install-before_final_checks
+
+Allows execution of custom code before the final checks are done in 
+checksetup.pl.
+
+Params:
+
+=over
+
+=item C<silent>
+
+A flag that indicates whether or not checksetup is running in silent mode.
 
 =back
 
@@ -188,5 +233,38 @@ Params:
 L<Bugzilla::DB::Schema/ABSTRACT_SCHEMA>. Add new hash keys to make new table
 definitions. F<checksetup.pl> will automatically add these tables to the
 database when run.
+
+=back
+
+=head2 webservice
+
+This hook allows you to add your own modules to the WebService. (See
+L<Bugzilla::WebService>.)
+
+Params:
+
+=over
+
+=item C<dispatch>
+
+A hashref that you can specify the names of your modules and what Perl
+module handles the functions for that module. (This is actually sent to 
+L<SOAP::Lite/dispatch_with>. You can see how that's used in F<xmlrpc.cgi>.)
+
+The Perl module name must start with C<extensions::yourextension::lib::>
+(replace C<yourextension> with the name of your extension). The C<package>
+declaration inside that module must also start with 
+C<extensions::yourextension::lib::> in that module's code.
+
+Example:
+
+  $dispatch->{Example} = "extensions::example::lib::Example";
+
+And then you'd have a module F<extensions/example/lib/Example.pm>
+
+It's recommended that all the keys you put in C<dispatch> start with the
+name of your extension, so that you don't conflict with the standard Bugzilla
+WebService functions (and so that you also don't conflict with other
+plugins).
 
 =back
