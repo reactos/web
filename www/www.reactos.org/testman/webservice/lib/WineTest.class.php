@@ -3,22 +3,21 @@
   PROJECT:    ReactOS Web Test Manager
   LICENSE:    GNU GPLv2 or any later version as published by the Free Software Foundation
   PURPOSE:    Class for submitting Wine Test results
-  COPYRIGHT:  Copyright 2008-2010 Colin Finck <colin@reactos.org>
+  COPYRIGHT:  Copyright 2008-2011 Colin Finck <colin@reactos.org>
 */
 
 	class WineTest implements Test
 	{
-		public function getTestId($revision, $platform, $comment)
+		public function getTestId($source_id, $revision, $platform, $comment)
 		{
 			global $dbh;
-			global $user_id;
 			
 			if(!isset($revision) || !isset($platform))
 				return "Necessary sub-information not specified!";
 			
 			// Add a new Test ID with the given information
-			$stmt = $dbh->prepare("INSERT INTO " . DB_TESTMAN . ".winetest_runs (user_id, revision, platform, comment) VALUES (:userid, :revision, :platform, :comment)");
-			$stmt->bindParam(":userid", $user_id);
+			$stmt = $dbh->prepare("INSERT INTO winetest_runs (source_id, revision, platform, comment) VALUES (:sourceid, :revision, :platform, :comment)");
+			$stmt->bindParam(":sourceid", $source_id);
 			$stmt->bindParam(":revision", $revision);
 			$stmt->bindParam(":platform", $platform);
 			$stmt->bindParam(":comment", $comment);
@@ -35,7 +34,7 @@
 				return "Necessary sub-information not specified!";
 			
 			// Determine whether we already have a suite ID for this combination
-			$stmt = $dbh->prepare("SELECT id FROM " . DB_TESTMAN . ".winetest_suites WHERE module = :module AND test = :test");
+			$stmt = $dbh->prepare("SELECT id FROM winetest_suites WHERE module = :module AND test = :test");
 			$stmt->bindParam(":module", $module);
 			$stmt->bindParam(":test", $test);
 			$stmt->execute() or die("GetSuiteID(): SQL failed #1");
@@ -45,7 +44,7 @@
 				return $id;
 			
 			// Add this combination to the table and return the ID for it
-			$stmt = $dbh->prepare("INSERT INTO " . DB_TESTMAN . ".winetest_suites (module, test) VALUES (:module, :test)");
+			$stmt = $dbh->prepare("INSERT INTO winetest_suites (module, test) VALUES (:module, :test)");
 			$stmt->bindParam(":module", $module);
 			$stmt->bindParam(":test", $test);
 			$stmt->execute() or die("GetSuiteID(): SQL failed #2");
@@ -53,25 +52,24 @@
 			return $dbh->lastInsertId();
 		}
 		
-		public function submit($test_id, $suite_id, $log)
+		public function submit($source_id, $test_id, $suite_id, $log)
 		{
 			global $dbh;
-			global $user_id;
 			
 			if(!isset($test_id) || !isset($suite_id) || !isset($log))
 				return "Necessary sub-information not specified!";
 			
 			// Make sure that we may add information to the test with this Test ID
-			$stmt = $dbh->prepare("SELECT COUNT(*) FROM " . DB_TESTMAN . ".winetest_runs WHERE id = :testid AND finished = 0 AND user_id = :userid");
+			$stmt = $dbh->prepare("SELECT COUNT(*) FROM winetest_runs WHERE id = :testid AND finished = 0 AND source_id = :sourceid");
 			$stmt->bindParam(":testid", $test_id);
-			$stmt->bindParam(":userid", $user_id);
+			$stmt->bindParam(":sourceid", $source_id);
 			$stmt->execute() or die("Submit(): SQL failed #1");
 			
 			if(!$stmt->fetchColumn())
 				return "No such test or no permissions!";
 			
 			// Make sure that this test run does not yet have a result for this test suite
-			$stmt = $dbh->prepare("SELECT COUNT(*) FROM " . DB_TESTMAN . ".winetest_results WHERE test_id = :testid AND suite_id = :suiteid");
+			$stmt = $dbh->prepare("SELECT COUNT(*) FROM winetest_results WHERE test_id = :testid AND suite_id = :suiteid");
 			$stmt->bindParam(":testid", $test_id);
 			$stmt->bindParam(":suiteid", $suite_id);
 			$stmt->execute() or die("Submit(): SQL failed #2");
@@ -80,7 +78,7 @@
 				return "We already have a result for this test suite in this test run!";
 			
 			// Get the test name
-			$stmt = $dbh->prepare("SELECT test FROM " . DB_TESTMAN . ".winetest_suites WHERE id = :id");
+			$stmt = $dbh->prepare("SELECT test FROM winetest_suites WHERE id = :id");
 			$stmt->bindParam(":id", $suite_id);
 			$stmt->execute() or die("Submit(): SQL failed #3");
 			$test = $stmt->fetchColumn();
@@ -116,7 +114,7 @@
 			}
 			
 			// Add the information into the DB
-			$stmt = $dbh->prepare("INSERT INTO " . DB_TESTMAN . ".winetest_results (test_id, suite_id, status, count, failures, skipped) VALUES (:testid, :suiteid, :status, :count, :failures, :skipped)");
+			$stmt = $dbh->prepare("INSERT INTO winetest_results (test_id, suite_id, status, count, failures, skipped) VALUES (:testid, :suiteid, :status, :count, :failures, :skipped)");
 			$stmt->bindValue(":testid", (int)$test_id);
 			$stmt->bindValue(":suiteid", (int)$suite_id);
 			$stmt->bindParam(":status", $status);
@@ -125,7 +123,7 @@
 			$stmt->bindParam(":skipped", $skipped);
 			$stmt->execute() or die("Submit(): SQL failed #4");
 			
-			$stmt = $dbh->prepare("INSERT INTO " . DB_TESTMAN . ".winetest_logs (id, log) VALUES (:id, COMPRESS(:log))");
+			$stmt = $dbh->prepare("INSERT INTO winetest_logs (id, log) VALUES (:id, COMPRESS(:log))");
 			$stmt->bindValue(":id", (int)$dbh->lastInsertId());
 			$stmt->bindParam(":log", $log);
 			$stmt->execute() or die("Submit(): SQL failed #5");
@@ -133,24 +131,23 @@
 			return "OK";
 		}
 		
-		public function finish($test_id)
+		public function finish($source_id, $test_id)
 		{
 			global $dbh;
-			global $user_id;
 			
 			if(!isset($test_id))
 				return "Necessary sub-information not specified!";
 			
 			// Sum up all results and mark this test as finished, so no more results can be submitted for it
 			$stmt = $dbh->prepare(
-				"UPDATE " . DB_TESTMAN . ".winetest_runs " .
+				"UPDATE winetest_runs " .
 				"SET " .
 					"finished = 1, " .
-					"count    = (SELECT SUM(count) FROM  " . DB_TESTMAN . ".winetest_results WHERE test_id = :testid), " .
-					"failures = (SELECT SUM(failures) FROM " . DB_TESTMAN . ".winetest_results WHERE test_id = :testid) " .
-				"WHERE id = :testid AND user_id = :userid"
+					"count    = (SELECT SUM(count) FROM  winetest_results WHERE test_id = :testid), " .
+					"failures = (SELECT SUM(failures) FROM winetest_results WHERE test_id = :testid) " .
+				"WHERE id = :testid AND source_id = :sourceid"
 			);
-			$stmt->bindParam(":userid", $user_id);
+			$stmt->bindParam(":sourceid", $source_id);
 			$stmt->bindParam(":testid", $test_id);
 			$stmt->execute() or die("Finish(): SQL failed #1");
 			

@@ -3,7 +3,7 @@
   PROJECT:    ReactOS Web Test Manager
   LICENSE:    GNU GPLv2 or any later version as published by the Free Software Foundation
   PURPOSE:    Main Page
-  COPYRIGHT:  Copyright 2008-2009 Colin Finck <colin@reactos.org>
+  COPYRIGHT:  Copyright 2008-2011 Colin Finck <colin@reactos.org>
   
   charset=utf-8 without BOM
 */
@@ -96,9 +96,9 @@
 					</td>
 				</tr>
 				<tr>
-					<td><label for="search_user"><?php echo $testman_langres["user"]; ?>:</label></td>
+					<td><label for="search_source"><?php echo $testman_langres["source"]; ?>:</label></td>
 					<td>
-						<input type="text" id="search_user" value="" size="24" onkeypress="SearchInputs_OnKeyPress(event)" />
+						<input type="text" id="search_source" value="" size="24" onkeypress="SearchInputs_OnKeyPress(event)" />
 					</td>
 				</tr>
 				<tr>

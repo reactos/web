@@ -3,7 +3,7 @@
   PROJECT:    ReactOS Web Test Manager
   LICENSE:    GNU GPLv2 or any later version as published by the Free Software Foundation
   PURPOSE:    Result Details Page
-  COPYRIGHT:  Copyright 2008-2009 Colin Finck <colin@reactos.org>
+  COPYRIGHT:  Copyright 2008-2011 Colin Finck <colin@reactos.org>
   
   charset=utf-8 without BOM
 */
@@ -38,7 +38,7 @@
 	// Establish a DB connection
 	try
 	{
-		$dbh = new PDO("mysql:host=" . DB_HOST, DB_USER, DB_PASS);
+		$dbh = new PDO("mysql:host=" . DB_HOST . ";dbname=" . DB_TESTMAN, DB_USER, DB_PASS);
 	}
 	catch(PDOException $e)
 	{
@@ -48,12 +48,12 @@
 	
 	// Get information about this result
 	$stmt = $dbh->prepare(
-		"SELECT UNCOMPRESS(l.log) log, e.status, e.count, e.failures, e.skipped, s.module, s.test, UNIX_TIMESTAMP(r.timestamp) timestamp, r.revision, r.platform, a.name, r.comment " .
-		"FROM " . DB_TESTMAN . ".winetest_results e " .
-		"JOIN " . DB_TESTMAN . ".winetest_logs l ON e.id = l.id " .
-		"JOIN " . DB_TESTMAN . ".winetest_suites s ON e.suite_id = s.id " .
-		"JOIN " . DB_TESTMAN . ".winetest_runs r ON e.test_id = r.id " .
-		"JOIN " . DB_ROSCMS . ".roscms_accounts a ON r.user_id = a.id " .
+		"SELECT UNCOMPRESS(l.log) log, e.status, e.count, e.failures, e.skipped, s.module, s.test, UNIX_TIMESTAMP(r.timestamp) timestamp, r.revision, r.platform, src.name, r.comment " .
+		"FROM winetest_results e " .
+		"JOIN winetest_logs l ON e.id = l.id " .
+		"JOIN winetest_suites s ON e.suite_id = s.id " .
+		"JOIN winetest_runs r ON e.test_id = r.id " .
+		"JOIN sources src ON r.source_id = src.id " .
 		"WHERE e.id = :id"
 	);
 	$stmt->bindParam(":id", $_GET["id"]);
@@ -110,7 +110,7 @@
 		<td><?php echo GetDateString($row["timestamp"]); ?></td>
 	</tr>
 	<tr class="even" onmouseover="Row_OnMouseOver(this)" onmouseout="Row_OnMouseOut(this)">
-		<td class="info"><?php echo $testman_langres["user"]; ?>:</td>
+		<td class="info"><?php echo $testman_langres["source"]; ?>:</td>
 		<td><?php echo $row["name"]; ?></td>
 	</tr>
 	<tr class="odd" onmouseover="Row_OnMouseOver(this)" onmouseout="Row_OnMouseOut(this)">

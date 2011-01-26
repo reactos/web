@@ -3,7 +3,7 @@
   PROJECT:    ReactOS Web Test Manager
   LICENSE:    GNU GPLv2 or any later version as published by the Free Software Foundation
   PURPOSE:    Exporting the results as a XML file
-  COPYRIGHT:  Copyright 2009 Colin Finck <colin@reactos.org>
+  COPYRIGHT:  Copyright 2009-2011 Colin Finck <colin@reactos.org>
 */
 
 	header("Content-Type: text/xml");
@@ -22,7 +22,7 @@
 			die($stmt);
 		
 		$row = $stmt->fetch(PDO::FETCH_ASSOC);
-		echo '<revision id="' . $row["revision"] . '" timestamp="' . $row["timestamp"] . '" user="' . $row["name"] . '" platform="' . $row["platform"] . '">';
+		echo '<revision id="' . $row["revision"] . '" timestamp="' . $row["timestamp"] . '" source="' . $row["name"] . '" platform="' . $row["platform"] . '">';
 		
 		// Now get the all test results for this revision
 		$stmt = $reader->getSingleResultInfoStatement($i);

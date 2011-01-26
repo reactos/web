@@ -7,6 +7,5 @@
 	define("DB_USER", "root");
 	define("DB_PASS", "");
 	
-	define("DB_ROSCMS", "roscms");
 	define("DB_TESTMAN", "testman");
 ?>

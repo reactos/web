@@ -3,7 +3,7 @@
   PROJECT:    ReactOS Web Test Manager
   LICENSE:    GNU GPLv2 or any later version as published by the Free Software Foundation
   PURPOSE:    Utility functions shared among several PHP files
-  COPYRIGHT:  Copyright 2008-2009 Colin Finck <colin@reactos.org>
+  COPYRIGHT:  Copyright 2008-2011 Colin Finck <colin@reactos.org>
 */
 
 	// All classes are autoloaded through this magic function
@@ -31,7 +31,6 @@
 					{
 						case 0:
 							$str = "Windows 2000";
-							$final_builds = array(2195);
 							
 							if($type == "s")
 								$str .= " Server";
@@ -40,12 +39,9 @@
 						
 						case 1:
 							$str = "Windows XP";
-							$final_builds = array(2600);
 							break;
 						
 						case 2:
-							$final_builds = array(3790);
-							
 							if($type == "s")
 								$str = "Windows Server 2003";
 							else
@@ -63,8 +59,6 @@
 					switch($minor)
 					{
 						case 0:
-							$final_builds = array(6000, 6001);
-							
 							if($type = "s")
 								$str = "Windows Server 2008";
 							else
@@ -73,11 +67,9 @@
 							break;
 						
 						case 1:
-							$final_builds = array();
-							
 							$str = "Windows 7";
 							break;
-
+						
 						default:
 							return $platform;
 					}
@@ -87,22 +79,9 @@
 				default:
 					return $platform;
 			}
-
-			// Check if our current build is a final build. If it's not, also show the build number.
-			$found = false;
 			
-			foreach($final_builds as $b)
-			{
-				if($b == $build)
-				{
-					$found = true;
-					break;
-				}
-			}
+			$str .= " - Build " . $build;
 			
-			if(!$found)
-				$str .= " - Build " . $build;
-	
 			// Add the service pack information if we have any
 			if($sp_major)
 			{

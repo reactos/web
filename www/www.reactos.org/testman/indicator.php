@@ -27,7 +27,7 @@
 
 	try
 	{
-		$dbh = new PDO("mysql:host=" . DB_HOST, DB_USER, DB_PASS);
+		$dbh = new PDO("mysql:host=" . DB_HOST . ";dbname=" . DB_TESTMAN, DB_USER, DB_PASS);
 	}
 	catch(PDOException $e)
 	{
@@ -44,7 +44,7 @@
 	$colour = imagecolorallocate($image, 255, 255, 255);
 	imagefill($image, 0, 0, $colour);
 	
-	$stmt = $dbh->prepare("SELECT status, count, failures FROM " . DB_TESTMAN . ".winetest_results WHERE test_id = :test_id");
+	$stmt = $dbh->prepare("SELECT status, count, failures FROM winetest_results WHERE test_id = :test_id");
 	$stmt->bindParam(":test_id",$test_id,PDO::PARAM_INT);
 	$stmt->execute() or die("indicator DB error #1");
 	

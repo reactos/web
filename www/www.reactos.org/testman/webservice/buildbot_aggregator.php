@@ -3,19 +3,19 @@
   PROJECT:    ReactOS Web Test Manager
   LICENSE:    GNU GPLv2 or any later version as published by the Free Software Foundation
   PURPOSE:    Aggregator for the Debug Log of ReactOS BuildBot Buildslaves
-  COPYRIGHT:  Copyright 2009 Colin Finck <colin@reactos.org>
+  COPYRIGHT:  Copyright 2009-2011 Colin Finck <colin@reactos.org>
 */
 	
 	require_once("config.inc.php");
 	require_once(TESTMAN_PATH . "connect.db.php");
 	require_once("utils.inc.php");
 	
-	if(!isset($_GET["username"]) || !isset($_GET["password"]) || !isset($_GET["slavename"]) || !is_numeric($_GET["platform"]) || !is_numeric($_GET["build"]))
+	if(!isset($_GET["sourceid"]) || !isset($_GET["password"]) || !isset($_GET["builder"]) || !is_numeric($_GET["platform"]) || !is_numeric($_GET["build"]))
 		die("Necessary information not specified!");
 	
 	try
 	{
-		$dbh = new PDO("mysql:host=" . DB_HOST, DB_USER, DB_PASS);
+		$dbh = new PDO("mysql:host=" . DB_HOST . ";dbname=" . DB_TESTMAN, DB_USER, DB_PASS);
 	}
 	catch(PDOException $e)
 	{
@@ -23,24 +23,24 @@
 		die("Could not establish the DB connection");
 	}
 	
-	$user_id = VerifyLogin($_GET["username"], $_GET["password"]);
+	VerifyLogin($_GET["sourceid"], $_GET["password"]);
 	
 	// Make sure nobody runs this script multiple times for the same build
 	$stmt = $dbh->prepare(
 		"SELECT COUNT(*) " .
-		"FROM " . DB_TESTMAN . ".winetest_runs r " .
-		"JOIN " . DB_ROSCMS . ".roscms_accounts a ON r.user_id = a.id " .
-		"WHERE r.comment = :comment AND a.name = :username"
+		"FROM winetest_runs r " .
+		"JOIN sources src ON r.source_id = src.id " .
+		"WHERE r.comment = :comment AND src.id = :sourceid"
 	);
 	$stmt->bindValue(":comment", "Build " . $_GET["build"]);
-	$stmt->bindParam(":username", $_GET["username"]);
+	$stmt->bindParam(":sourceid", $_GET["sourceid"]);
 	$stmt->execute() or die("SQL failed #1");
 	
 	if($stmt->fetchColumn())
-		die("The script already processed this build before!");
+		die("The script has already processed this build before!");
 	
 	// Read the Buildslave test log
-	$fp = @fopen("http://build.reactos.org:8010/builders/" . rawurlencode($_GET["slavename"]) . "/builds/" . $_GET["build"] . "/steps/test/logs/stdio/text", "r");
+	$fp = @fopen("http://build.reactos.org:8010/builders/" . rawurlencode($_GET["builder"]) . "/builds/" . $_GET["build"] . "/steps/test/logs/stdio/text", "r");
 	
 	if(!$fp)
 		die("Could not open the test log!");
@@ -116,7 +116,7 @@
 		// Did we already get a Test ID for this run?
 		if(!$test_id)
 		{
-			$test_id = $t->getTestId($revision, "reactos." . $_GET["platform"], "Build " . $_GET["build"]);
+			$test_id = $t->getTestId($_GET["sourceid"], $revision, "reactos." . $_GET["platform"], "Build " . $_GET["build"]);
 			
 			// If an error occured, $test_id will contain the error message
 			if(!is_numeric($test_id))
@@ -124,7 +124,7 @@
 		}
 		
 		// Finally submit the log
-		$return = $t->submit($test_id, $suite_id, $log);
+		$return = $t->submit($_GET["sourceid"], $test_id, $suite_id, $log);
 		
 		// If an error occured, $return will contain the error message
 		if($return != "OK")
@@ -134,7 +134,7 @@
 	// If we have a Test ID, finish this test run and terminate with the return message from that function
 	// Otherwise we couldn't find any test information in this log
 	if($test_id)
-		die($t->finish($test_id));
+		die($t->finish($_GET["sourceid"], $test_id));
 	else
 		die("Found no test information in this log!");
 ?>

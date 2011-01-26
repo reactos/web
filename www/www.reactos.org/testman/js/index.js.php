@@ -2,7 +2,7 @@
   PROJECT:    ReactOS Web Test Manager
   LICENSE:    GNU GPLv2 or any later version as published by the Free Software Foundation
   PURPOSE:    JavaScript file for the Index Page (parsed by PHP before)
-  COPYRIGHT:  Copyright 2008-2009 Colin Finck <colin@reactos.org>
+  COPYRIGHT:  Copyright 2008-2011 Colin Finck <colin@reactos.org>
 
   charset=utf-8
 */
@@ -178,7 +178,7 @@ function SearchButton_OnClick()
 	
 	data["startrev"] = inputbox_startrev;
 	data["endrev"] = inputbox_endrev;
-	data["user"] = document.getElementById("search_user").value;
+	data["source"] = document.getElementById("search_source").value;
 	data["platform"] = document.getElementById("search_platform").value;
 	
 	data["resultlist"] = 1;
@@ -231,7 +231,7 @@ function Load()
 	
 	data["desc"] = 1;
 	data["limit"] = <?php echo DEFAULT_SEARCH_LIMIT; ?>;
-	data["user"] = "<?php echo DEFAULT_SEARCH_USER; ?>";
+	data["source"] = "<?php echo DEFAULT_SEARCH_SOURCE; ?>";
 	
 	data["resultlist"] = 1;
 	data["requesttype"] = REQUESTTYPE_FULLLOAD;
@@ -335,7 +335,7 @@ function SearchCallback(HttpRequest)
 		html += '<th><?php echo addslashes($testman_langres["date"]); ?><\/th>';
 		html += '<th><?php echo addslashes($testman_langres["totaltests"]); ?><\/th>';
 		html += '<th><?php echo addslashes($testman_langres["failedtests"]); ?><\/th>';
-		html += '<th><?php echo addslashes($testman_langres["user"]); ?><\/th>';
+		html += '<th><?php echo addslashes($testman_langres["source"]); ?><\/th>';
 		html += '<th><?php echo addslashes($testman_langres["platform"]); ?><\/th>';
 		html += '<th><?php echo addslashes($testman_langres["comment"]); ?><\/th>';
 		html += '<\/tr><\/thead>';
@@ -359,7 +359,7 @@ function SearchCallback(HttpRequest)
 				html += '<td onclick="ResultCell_OnClick(this)">' + GetTagData(results[i], "date") + '<\/td>';
 				html += '<td onclick="ResultCell_OnClick(this)">' + GetTagData(results[i], "count") + '<\/td>';
 				html += '<td onclick="ResultCell_OnClick(this)">' + GetTagData(results[i], "failures") + '<\/td>';
-				html += '<td onclick="ResultCell_OnClick(this)">' + GetTagData(results[i], "user") + '<\/td>';
+				html += '<td onclick="ResultCell_OnClick(this)">' + GetTagData(results[i], "source") + '<\/td>';
 				html += '<td onclick="ResultCell_OnClick(this)">' + GetTagData(results[i], "platform") + '<\/td>';
 				html += '<td onclick="ResultCell_OnClick(this)">' + GetTagData(results[i], "comment") + '<\/td>';
 				html += '<\/tr>';

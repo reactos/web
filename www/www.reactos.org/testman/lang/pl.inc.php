@@ -3,7 +3,7 @@
   PROJECT:    ReactOS Web Test Manager
   LICENSE:    GNU GPLv2 or any later version as published by the Free Software Foundation
   PURPOSE:    Translation
-  COPYRIGHT:  Copyright 2008-2009 Colin Finck <colin@reactos.org>
+  COPYRIGHT:  Copyright 2008-2011 Colin Finck <colin@reactos.org>
   TRANSLATOR: Maciej Bialas
               Mariusz Przybylski
               Olaf Siejka
@@ -20,7 +20,7 @@
 		
 		"date" => "Data",
 		"revision" => "Rewizja",
-		"user" => "Użytkownik",
+		"source" => "Źródło",
 		"platform" => "Platforma",
 		"comment" => "Komentarz",
 		

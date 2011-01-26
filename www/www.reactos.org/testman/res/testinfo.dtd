@@ -2,7 +2,7 @@
   PROJECT:    ReactOS Web Test Manager
   LICENSE:    GNU GPLv2 or any later version as published by the Free Software Foundation
   PURPOSE:    DTD for the XML export data
-  COPYRIGHT:  Copyright 2009 Colin Finck <colin@reactos.org>
+  COPYRIGHT:  Copyright 2009-2011 Colin Finck <colin@reactos.org>
 -->
 
 <!--=============================== Entities ===============================-->
@@ -28,7 +28,7 @@
 <!ATTLIST revision
   id         %TestID     #REQUIRED
   timestamp  %Timestamp  #REQUIRED
-  user       CDATA       #REQUIRED
+  source     CDATA       #REQUIRED
   platform   CDATA       #REQUIRED
 >
 

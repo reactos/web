@@ -3,7 +3,7 @@
   PROJECT:    ReactOS Web Test Manager
   LICENSE:    GNU GPLv2 or any later version as published by the Free Software Foundation
   PURPOSE:    AJAX backend for the Search feature
-  COPYRIGHT:  Copyright 2008-2009 Colin Finck <colin@reactos.org>
+  COPYRIGHT:  Copyright 2008-2011 Colin Finck <colin@reactos.org>
 */
 
 	header("Content-type: text/xml");
@@ -12,12 +12,12 @@
 	require_once("connect.db.php");
 	require_once("utils.inc.php");
 	
-	if(!isset($_GET["user"]))
+	if(!isset($_GET["source"]))
 		die("<error>Necessary information not specified!</error>");
 	
 	try
 	{
-		$dbh = new PDO("mysql:host=" . DB_HOST, DB_USER, DB_PASS);
+		$dbh = new PDO("mysql:host=" . DB_HOST . ";dbname=" . DB_TESTMAN, DB_USER, DB_PASS);
 	}
 	catch(PDOException $e)
 	{
@@ -28,7 +28,7 @@
 	// Prepare the WHERE clause
 	$where = "";
 	
-	if($_GET["startrev"] || $_GET["startid"] || $_GET["user"] || $_GET["platform"])
+	if($_GET["startrev"] || $_GET["startid"] || $_GET["source"] || $_GET["platform"])
 	{
 		$where = "WHERE r.finished = 1 ";
 		
@@ -38,15 +38,15 @@
 		if($_GET["startid"])
 			$where .= "AND r.id >= " . (int)$_GET["startid"] . " ";
 		
-		if($_GET["user"])
-			$where .= "AND a.name LIKE " . $dbh->quote($_GET["user"] . "%") . " ";
+		if($_GET["source"])
+			$where .= "AND src.name LIKE " . $dbh->quote($_GET["source"] . "%") . " ";
 		
 		if($_GET["platform"])
 			$where .= "AND r.platform LIKE " . $dbh->quote($_GET["platform"] . "%") . " ";
 	}
 	
 	// Prepare some clauses
-	$tables = "FROM " . DB_TESTMAN . ".winetest_runs r JOIN " . DB_ROSCMS . ".roscms_accounts a ON r.user_id = a.id ";
+	$tables = "FROM winetest_runs r JOIN sources src ON r.source_id = src.id ";
 	
 	if($_GET["desc"])
 		$order = "ORDER BY revision DESC, r.id DESC ";
@@ -89,7 +89,7 @@
 		if($_GET["resultlist"])
 		{
 			$stmt = $dbh->query(
-				"SELECT r.id, UNIX_TIMESTAMP(r.timestamp) timestamp, a.name, r.revision, r.platform, r.comment, r.count, r.failures " .
+				"SELECT r.id, UNIX_TIMESTAMP(r.timestamp) timestamp, src.name, r.revision, r.platform, r.comment, r.count, r.failures " .
 				$tables .	$where . $order .
 				"LIMIT " . $result_count
 			) or die("<error>Query failed #2</error>");
@@ -108,7 +108,7 @@
 				echo "<result>";
 				printf("<id>%d</id>", $row["id"]);
 				printf("<date>%s</date>", GetDateString($row["timestamp"]));
-				printf("<user>%s</user>", htmlspecialchars($row["name"]));
+				printf("<source>%s</source>", htmlspecialchars($row["name"]));
 				printf("<revision>%d</revision>", $row["revision"]);
 				printf("<platform>%s</platform>", GetPlatformString($row["platform"]));
 				printf("<comment>%s</comment>", htmlspecialchars($row["comment"]));

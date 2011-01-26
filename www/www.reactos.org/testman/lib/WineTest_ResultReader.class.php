@@ -3,7 +3,7 @@
   PROJECT:    ReactOS Web Test Manager
   LICENSE:    GNU GPLv2 or any later version as published by the Free Software Foundation
   PURPOSE:    Class for reading WineTest results
-  COPYRIGHT:  Copyright 2009 Colin Finck <colin@reactos.org>
+  COPYRIGHT:  Copyright 2009-2011 Colin Finck <colin@reactos.org>
 */
 
 	require_once("config.inc.php");
@@ -24,7 +24,7 @@
 			// Establish a DB connection
 			try
 			{
-				$this->dbh = new PDO("mysql:host=" . DB_HOST, DB_USER, DB_PASS);
+				$this->dbh = new PDO("mysql:host=" . DB_HOST . ";dbname=" . DB_TESTMAN, DB_USER, DB_PASS);
 			}
 			catch(PDOException $e)
 			{
@@ -70,8 +70,8 @@
 			// Get all Suite IDs linked to our Test IDs
 			$stmt = $this->dbh->query(
 				"SELECT s.id " .
-				"FROM " . DB_TESTMAN . ".winetest_suites s " .
-				"JOIN " . DB_TESTMAN . ".winetest_results e ON e.suite_id = s.id " .
+				"FROM winetest_suites s " .
+				"JOIN winetest_results e ON e.suite_id = s.id " .
 				"WHERE e.test_id IN (" . $this->test_id_list . ")"
 			);
 			
@@ -111,9 +111,9 @@
 				return "Index $i is out of range!";
 			
 			$stmt = $this->dbh->query(
-				"SELECT UNIX_TIMESTAMP(r.timestamp) timestamp, a.name, r.revision, r.platform, r.count, r.failures, r.id " .
-				"FROM " . DB_TESTMAN . ".winetest_runs r " .
-				"JOIN " . DB_ROSCMS . ".roscms_accounts a ON r.user_id = a.id " .
+				"SELECT UNIX_TIMESTAMP(r.timestamp) timestamp, src.name, r.revision, r.platform, r.count, r.failures, r.id " .
+				"FROM winetest_runs r " .
+				"JOIN sources src ON r.source_id = src.id " .
 				"WHERE r.id = " . $this->test_id_array[$i] . " " .
 				"LIMIT 1"
 			);
@@ -142,8 +142,8 @@
 			
 			$stmt = $this->dbh->query(
 				"SELECT e.id, e.status, e.count, e.failures, e.skipped, s.module, s.test " .
-				"FROM " . DB_TESTMAN . ".winetest_results e " .
-				"JOIN " . DB_TESTMAN . ".winetest_suites s ON e.suite_id = s.id " .
+				"FROM winetest_results e " .
+				"JOIN winetest_suites s ON e.suite_id = s.id " .
 				"WHERE e.test_id = " . $this->test_id_array[$i] . " " .
 				"ORDER BY s.module, s.test"
 			);
@@ -169,8 +169,8 @@
 			// Get all test suites for which we have at least one result in our ID list
 			$stmt = $this->dbh->query(
 				"SELECT DISTINCT s.id, s.module, s.test " .
-				"FROM " . DB_TESTMAN . ".winetest_suites s " .
-				"JOIN " . DB_TESTMAN . ".winetest_results e ON e.suite_id = s.id " .
+				"FROM winetest_suites s " .
+				"JOIN winetest_results e ON e.suite_id = s.id " .
 				"WHERE test_id IN (" . $this->test_id_list . ") " .
 				"ORDER BY s.module ASC, s.test ASC"
 			);
@@ -202,8 +202,8 @@
 			
 			$stmt = $this->dbh->query(
 				"SELECT e.id, e.status, e.count, e.failures, e.skipped " .
-				"FROM " . DB_TESTMAN . ".winetest_suites s " .
-				"LEFT JOIN " . DB_TESTMAN . ".winetest_results e ON e.suite_id = s.id AND e.test_id = " . $this->test_id_array[$i] . " " .
+				"FROM winetest_suites s " .
+				"LEFT JOIN winetest_results e ON e.suite_id = s.id AND e.test_id = " . $this->test_id_array[$i] . " " .
 				"WHERE s.id IN (" . $this->suite_id_list . ")" .
 				"ORDER BY s.module, s.test"
 			);
