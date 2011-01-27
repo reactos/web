@@ -194,7 +194,7 @@ class HTML_User_ProfileEdit extends HTML_User
           <input type="text" name="useremail" tabindex="4" id="useremail" maxlength="50" />
         </div>
         <div class="field">
-          <input type="hidden" name="code" value="'.htmlspecialchars($activation_code).'"
+          <input type="hidden" name="code" value="'.htmlspecialchars($activation_code).'" />
           <input type="hidden" name="registerpost" id="registerpost" value="reg" />
           <button type="submit" name="submit">Save</button>
           <button type="button" onclick="'."window.location='".$config->pathGenerated()."'".'" style="color:#777777;">Cancel</button>
