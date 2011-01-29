@@ -150,7 +150,7 @@ abstract class HTML
     echo_strip('
       <div id="footer" style="text-align:center;">
         <hr />
-        <strong>'.RosCMS::getInstance()->systemBrand().'</strong> &copy; 2005&ndash;2009 by Klemens Friedl, Danny G&ouml;tte
+        <strong>'.RosCMS::getInstance()->systemBrand().'</strong> &copy; 2005&ndash;2011 by Klemens Friedl, Danny G&ouml;tte
         <!--Page generated in '.$page_time.' seconds-->
       </div>
       </body>

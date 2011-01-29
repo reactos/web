@@ -253,7 +253,7 @@ abstract class HTML
           <hr />
           <address style="text-align:center">
             <a href="http://www.reactos.org">ReactOS</a> is a registered trademark or a trademark of <a href="http://www.reactos.org/?page=foundation">ReactOS Foundation</a> in the United States and other countries.<br />
-            Copyright  &copy; Klemens Friedl, Danny G&ouml;tte 2005-2009, All rights reserved.
+            Copyright  &copy; Klemens Friedl, Danny G&ouml;tte 2005-2011, All rights reserved.
           </address>
           <div id="tooltip" style="display: none;"></div>
         </body>

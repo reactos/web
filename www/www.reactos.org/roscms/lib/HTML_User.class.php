@@ -128,7 +128,7 @@ abstract class HTML_User extends HTML
       <ul>
         <li> 
           <div style="text-align:center;"> 
-            <select id="select" size="1" name="select" class="selectbox" style="width:140px" onchange="'."window.location.href = '".$config->pathInstance().'?'.htmlspecialchars($_SERVER['QUERY_STRING'])."&lang=' + this.options[this.selectedIndex].value".'">');
+            <select id="select" size="1" name="select" class="selectbox" style="width:140px" onchange="'."window.location.href = '".$config->pathInstance().'?'.htmlspecialchars($_SERVER['QUERY_STRING'])."&amp;lang=' + this.options[this.selectedIndex].value".'">');
 
     // for guests show all
     $stmt=&DBConnection::getInstance()->prepare("SELECT name, id, name_original FROM ".ROSCMST_LANGUAGES." ORDER BY name_original ASC");
