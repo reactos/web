@@ -95,6 +95,7 @@
 
 	while($row = $stmt->fetch(PDO::FETCH_NUM))
 	{
+		$row[2] = mb_encode_numericentity($row[2], array (0xff, 0xffff, 0, 0xffff), 'UTF-8');
 		echo "<user>";
 		printf("<id>%u</id>", $row[0]);
 		printf("<username>%s</username>", $row[1]);
