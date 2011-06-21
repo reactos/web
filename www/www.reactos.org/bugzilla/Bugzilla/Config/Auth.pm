@@ -69,16 +69,16 @@ sub get_param_list {
   {
    name => 'user_info_class',
    type => 's',
-   choices => [ 'CGI', 'Env', 'Env,CGI' ],
-   default => 'Env,CGI',
+   choices => [ 'CGI', 'Env', 'Env,CGI', 'Drupal' ],
+   default => 'Drupal',
    checker => \&check_multi
   },
 
   {
    name => 'user_verify_class',
    type => 'o',
-   choices => [ 'DB', 'RADIUS', 'LDAP' ],
-   default => 'DB',
+   choices => [ 'DB', 'RADIUS', 'LDAP','Drupal' ],
+   default => 'Drupal',
    checker => \&check_user_verify_class
   },
 

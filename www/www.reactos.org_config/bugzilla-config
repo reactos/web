@@ -108,3 +108,15 @@ $diffpath = '.';
 # It's very important that this key is kept secret. It also must be
 # very long.
 $site_wide_secret = '';
+
+# Drupal db name
+$drupal_db_name = '';
+
+# optional prefix
+$drupal_prefix = '';
+
+# name of the session cookie from Drupal
+$session_cookie_name = 'roscmskey';
+
+# url of the page the user should be redirected into
+$drupal_login_page = '/user/login/';

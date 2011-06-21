@@ -216,6 +216,34 @@ EOT
 # very long.
 EOT
     },
+	{
+        name    => 'drupal_db_name',
+        default => '',
+        desc    => <<EOT
+# Drupal db name
+EOT
+    },
+	{
+        name    => 'drupal_prefix',
+        default => '',
+        desc    => <<EOT
+# optional prefix
+EOT
+    },
+	{
+        name    => 'session_cookie_name',
+        default => 'roscmskey',
+        desc    => <<EOT
+# name of the session cookie from Drupal
+EOT
+    },
+	{
+        name    => 'drupal_login_page',
+        default => '/user/login/',
+        desc    => <<EOT
+# url of the page the user should be redirected into
+EOT
+    },
 );
 
 sub read_localconfig {
