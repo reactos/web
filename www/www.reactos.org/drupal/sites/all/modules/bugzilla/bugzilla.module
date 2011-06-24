@@ -1,0 +1,38 @@
+<?php
+
+/**
+ * @file
+ * Bugzilla Bridge
+ */
+
+/**
+ * Implements hook_boot().
+ */
+function bugzilla_boot() {
+   bzCookie();   
+} 
+
+/**
+ * Sets a cookie to be read by Bugzilla
+ */
+function bzCookie() {
+  drupal_load('module', 'user');
+    
+  global $user;
+  
+  /* load external configuration */
+  include_once(DRUPAL_ROOT.'/../../www.reactos.org_config/drupal-bz-config.php');
+  if (empty($session_name))
+	$session_name='roscmskey';
+	
+  if (!empty($user->name)) {
+    $vl = $_COOKIE[session_name()];
+    setcookie($session_name, $vl, REQUEST_TIME + 600, '/');
+  }
+  else {
+    setcookie($session_name, NULL);
+    setcookie('Bugzilla_login', NULL);
+    setcookie('Bugzilla_logincookie', NULL);
+  }
+    
+}
