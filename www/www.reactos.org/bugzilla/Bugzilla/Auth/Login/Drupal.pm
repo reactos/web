@@ -95,7 +95,7 @@ sub get_login_info {
 		my $browser_agent_clean = $ENV{'HTTP_USER_AGENT'};
 		trick_taint($browser_agent_clean);
 		
-    my $query = "SELECT us.uid " .
+		my $query = "SELECT us.uid " .
 				"  FROM $drupal_db_name.${drupal_prefix}users us" .
 				"  JOIN ${drupal_db_name}.${drupal_prefix}sessions sess ON us.uid = sess.uid " .
 				" WHERE sess.sid = ? " .
@@ -121,12 +121,14 @@ sub get_login_info {
 			# To show the Verify module that it should trust us, we pass the MD5 password hash to it. This should be secure as long as we're the only one who knows this MD5 hash.
 			# my $username = user_id_to_login($user_id);
 		#	(my $md5_password) = $dbh->selectrow_array("SELECT password FROM $roscms_db_name.roscms_accounts WHERE id = ?", undef, $roscms_user_id);
-				(my $md5_password,my $username) = $dbh->selectrow_array("SELECT pass,mail FROM $drupal_db_name.${drupal_prefix}users WHERE uid = ?", undef, $user_id);
+			(my $md5_password,my $username) = $dbh->selectrow_array("SELECT pass,mail FROM $drupal_db_name.${drupal_prefix}users WHERE uid = ?", undef, $user_id);
+			
+			#update permissions according to user roles in Drupal
+			_updatePermissions($user_id,login_to_id($username));
 			
 			# We need to set a parameter for the Auth::Persist::ROSCMS module
 			$cgi->param('ROSCMS_login', 1);
-	#		die($username.":".$md5_password.", stopped");
-  #    print $username.":".$md5_password;
+
 			return { username => $username, md5_password => $md5_password };
 		}
 	}
@@ -145,4 +147,53 @@ sub fail_nodata {
 	exit;
 }
 
+sub _updatePermissions{
+	
+	my $drupal_user_id = $_[0];
+	my $bz_user_id = $_[1];
+	
+	if (!defined ($drupal_user_id) || $bz_user_id < 2){
+		return 0;
+	}
+	
+	my $dbh = Bugzilla->dbh;
+	my $lc = Bugzilla->localconfig;
+
+	my $drupal_db_name = $lc->{drupal_db_name};
+	my $drupal_prefix  = $lc->{drupal_prefix};
+			
+	# fetch permissions
+	my $stmt = qq/SELECT bg.id as group_id 
+	FROM ${drupal_db_name}.${drupal_prefix}role_permission drp 	
+	LEFT JOIN ${drupal_db_name}.${drupal_prefix}users_roles dur ON drp.rid = dur.rid 
+	LEFT JOIN groups bg ON drp.permission = bg.name 
+	WHERE dur.uid = ? AND drp.module='bugzilla' 
+	ORDER BY bg.id/;
+
+	my $sth = $dbh->prepare($stmt);
+	$sth->execute($drupal_user_id);
+	my $results = $sth->fetchall_arrayref({});
+
+	# prepare to clean almost all permissions
+	
+	if ($bz_user_id != 0){	
+		my $del_query = qq{DELETE  
+		FROM user_group_map_copy 
+		WHERE user_id = ? 
+		AND group_id NOT IN (1,8)};
+		my $sth2= $dbh->prepare( $del_query );
+		$sth2->execute($bz_user_id);
+	}	
+
+	# insert new permissions
+	my $insert_query = qq{INSERT IGNORE INTO user_group_map_copy (user_id, group_id, isbless, grant_type)
+			 VALUES ( ?, ?, ?, ? )};
+	my $sth1= $dbh->prepare( $insert_query );
+
+	for my $row ( @$results ) {
+		my ($user_id1, $group_id, $is_bless, $grant_type)  = ($bz_user_id, $row->{group_id}, 0, 2);
+		$sth1->execute($user_id1, $group_id, $is_bless, $grant_type);
+	}
+
+}
 1;

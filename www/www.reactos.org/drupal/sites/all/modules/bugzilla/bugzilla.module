@@ -13,6 +13,40 @@ function bugzilla_boot() {
 } 
 
 /**
+ * Implements permission().
+ */
+function bugzilla_permission() {
+  return array(
+   'admin'=> array('title' => t('Administrators'),
+   ),
+	'tweakparams'=> array('title' => t('Can change Parameters'),
+   ),
+	'editusers'=> array('title' => t('Can edit or disable users'),
+   ),
+	'creategroups'=> array('title' => t('Can create and destroy groups'),
+   ),
+	'editclassifications'=> array('title' => t('Can create, destroy, and edit classifications'),
+   ),
+	'editcomponents'=> array('title' => t('Can create, destroy, and edit components'),
+   ),
+	'editkeywords'=> array('title' => t('Can create, destroy, and edit keywords'),
+   ),
+	'editbugs'=> array('title' => t('Can edit all bug fields'),
+   ),
+	'canconfirm'=> array('title' => t('Can confirm a bug or mark it a duplicate'),
+   ),
+	'bz_canusewhineatothers'=> array('title' => t('Can configure whine reports for other users'),
+   ),
+	'bz_canusewhines'=> array('title' => t('User can configure whine reports for self'),
+   ),
+	'bz_sudoers'=> array('title' => t('Can perform actions as other users'),
+   ),
+	'bz_sudo_protect'=> array('title' => t('Can not be impersonated by other users'),
+   ),
+  );
+}
+
+/**
  * Sets a cookie to be read by Bugzilla
  */
 function bzCookie() {
