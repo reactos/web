@@ -1,0 +1,28 @@
+<?php
+
+/**
+ * @file
+ * Install file for the answers module
+ */
+
+ module_load_include('inc', 'answers', 'answers.features.field');
+ 
+/**
+ * Implementation of hook_update_n()
+ */
+function answers_update_7200() {
+
+  $fields = answers_field_default_fields();
+  
+  if(!field_info_field('field_question_locked_p')) {
+    $field = $fields['node-question-field_question_locked_p']['field_config'];
+	field_create_field($field);
+  }
+  
+  if (!field_info_instance('node', 'field_question_locked_p', 'question')) {
+    $instance = $fields['node-question-field_question_locked_p']['field_instance'];
+	field_create_instance($instance);
+  }
+
+  return array();
+}

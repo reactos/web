@@ -1,0 +1,11 @@
+
+name = Naked Stacked
+description = Same as Naked except the Author Pane is on top.
+version = 2.x
+base style = naked
+; Information added by drupal.org packaging script on 2011-04-04
+version = "7.x-2.0-alpha1"
+core = "7.x"
+project = "advanced_forum"
+datestamp = "1301932868"
+

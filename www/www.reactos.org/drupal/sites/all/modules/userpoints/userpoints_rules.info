@@ -1,0 +1,16 @@
+; $Id
+name = Userpoints rules integration
+description = Provides integration of Userpoints with rules
+dependencies[] = userpoints 
+dependencies[] = rules
+package = Userpoints
+core = 7.x
+files[]=userpoints_rules.rules.inc
+
+
+; Information added by drupal.org packaging script on 2011-05-16
+version = "7.x-1.0-rc1"
+core = "7.x"
+project = "userpoints"
+datestamp = "1305570117"
+

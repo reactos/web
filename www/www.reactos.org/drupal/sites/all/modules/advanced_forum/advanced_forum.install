@@ -1,0 +1,69 @@
+<?php
+
+
+/**
+ * @file
+ * Installation code for Advanced Forum.
+ */
+
+function advanced_forum_install() {
+  db_update('system')
+    ->fields(array('weight' => 15))
+    ->condition('name', 'advanced_forum')
+    ->execute();
+}
+
+function advanced_forum_uninstall() {
+  variable_del('advanced_forum_style');
+  variable_del('advanced_forum_hide_created');
+  variable_del('advanced_forum_topic_pager_max');
+  variable_del('advanced_forum_get_new_comments');
+  variable_del('advanced_forum_add_local_task');
+  variable_del('advanced_forum_button_links');
+  variable_del('advanced_forum_collapsible_containers');
+  variable_del('advanced_forum_disable_breadcrumbs');
+  variable_del('advanced_forum_forum_disabled');
+  variable_del('advanced_forum_stats_replies');
+  variable_del('advanced_forum_styled_node_types');
+  variable_del('advanced_forum_style_all_comments');
+  variable_del('advanced_forum_style_only_forum_tagged');
+  variable_del('advanced_forum_style_teasers');
+  variable_del('advanced_forum_time_ago_cutoff');
+  variable_del('advanced_forum_topic_title_length');
+  variable_del('advanced_forum_use_topic_navigation');
+  variable_del('advanced_forum_views_as_tabs');
+  variable_del('advanced_forum_forum_page_breadcrumb');
+  variable_del('advanced_forum_user_picture_preset');
+  variable_del('advanced_forum_use_taxonomy_image');
+  variable_del('advanced_forum_views_as_tabs');
+}
+
+function advanced_forum_update_5000() {
+  db_update('system')
+    ->fields(array('weight' => 10))
+    ->condition('name', 'advanced_forum')
+    ->execute();
+}
+
+/* Removed these as they were a bad idea
+function advanced_forum_update_5001() {
+}
+
+function advanced_forum_update_5002() {
+}
+*/
+
+function advanced_forum_update_5003() {
+  db_drop_table('advforum_last_post');
+}
+
+function advanced_forum_update_5004() {
+/* Removed variable clean up because it caused false fails. */
+}
+
+function advanced_forum_update_5005() {
+  db_update('system')
+    ->fields(array('weight' => 15))
+    ->condition('name', 'advanced_forum')
+    ->execute();
+}

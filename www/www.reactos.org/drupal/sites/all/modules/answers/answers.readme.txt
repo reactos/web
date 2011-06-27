@@ -1,0 +1,88 @@
+This file gives a brief guide to the Answers Module.
+
+Last Updated: 6/17/11 by Chip Cleary
+
+This module is based on:
+•	The original D5 "answers" module written by Amanuel Tewolde.
+•	The original D6 conversion of that module written by Inders Singh
+•	The original features version of the module written by Greg Harvey
+•	The updated features version of the module written by me.
+
+There are 5 relevant roles (these are not drupal system roles but rather types of users for the module):
+1	Viewers: Those who view questions and answers
+2	Question Authors: Those who ask a question.
+3	Answer Authors: Those who answer a question
+4	Site Administrator: Those who have the "administer settings" privilege and who can set up the module
+5	Site Developer: Those who code sites using modules
+
+What the module does:
+•	Users can create new questions by going to the path 'node/add/question' (in this approach, users are taken directly to the new question form)
+•	Users can create new questions by going to the path 'questions/start_ask' (in this approach, users are asked to review questions that match theirs first)
+•	Viewers can review a list of all questions. This is available at the path 'questions/all'
+•	Viewers can review a list of unanswered questions. This is available at the path 'questions/unanswered'
+•	Viewers can review a list of questions that match a search query. This is available at the path 'questions/search'
+•	When viewing the list of questions, viewers can sort by title, post date, and page views
+•	When displaying a question, the system shows all the answers to that question. 
+•	When deleting a question, also delete all of the answers to it. 
+•	Viewers can also see lists of questions they asked and they answered
+
+
+1. Viewer Role:
+•	The module offers some predefined views to see lists of questions
+    - 'questions/all': A list of all questions
+    - 'questions/unanswered': A list of questions without answers
+    - 'questions/search': A form to search for questions
+•	Users can view an individual question along with its responses.
+•	Users can vote a question thumbs up or thumbs down is he has permission.
+•	Users can see questions asked and answered by themselves or others (these are shown under a "Your Questions" menu item on user profiles):
+    - 'user/%/questions/asked': A list of questions asked by a user
+    - 'user/%/questions/answered': A list of questions answered by a user	
+
+2. Question Author Role:
+•	Users can ask a new question if they have permission. They can do so at 'node/add/question' or by using the Create Content -> Question menu item
+•	When a user asks a new question, the user can specify whether they want to be notified by email when an answer is posted. This is a checkbox setting on the form used to create the question.
+
+3. Answer Author Role:
+•	When viewing a question, a user can enter a new answer if he has permission. This is done by using the 'Post an Answer' link on the question node view.
+
+4. Site Administrator Role: Site Administrators can define:
+•	Which drupal system roles can view questions and answers (by setting the permission 'access content')
+•	Which drupal system roles can ask a new question (by setting the  permission 'create question content')
+•	Which drupal system roles can answer questions (by setting the permission 'create answer content')
+•	Which drupal system roles can vote responses up/down (by setting the permission 'use vote up/down on nodes')
+•	Which drupal system roles can see the tally of up/down votes(by setting the permission 'use vote up/down on nodes')
+•	Whether users can edit or delete their own or others questions and answers (by setting the corresponding permissions)
+•	The subject and body templates for an email notification (using the path 'admin/settings/answers')
+
+5. Site Developer Role: 
+
+5.1 To set up the module:
+•	Install the module
+•	Configure the administration options (see "Administrator Role" above)
+
+5.2 A few pointers on how it works:
+•	The module was developed using the Features module
+•	It defines two CCK types: Question and Answer
+•	It defines a couple of views: all_questions and question answers
+•	It defines a couple of strongarm variables: 'answers_answer_notification_subject' and 'answers_answer_notification_body'
+•	It employs a small amount of custom code to:
+	•	Provide administrative settings
+	•	Send notification emails
+	•	Make some nice adjustments to the search and new question forms	
+	•	Hide the notification option when anonymoous users add questions.
+
+5.3 Site Developer tips:
+•	If you want to automatically search for questions that contain a string ...
+    => You can use the path 'questions/search?keys=your-string'
+•	If you want to lock a question so that viewers can no longer post new answers
+    => Set $question_node->field_question_locked_p[0]['value'] = 1; (Or set it to 0 to unlock a question)
+•	If you want users to ask a question but search for it first, send them to:
+    => 'questions/start_ask' (if they don't yet have a question)
+    => 'questions/continue_ask?keys=question-string' (if you do have a question string already)
+
+5.4 Module Developer tips
+•	Answers provides a simple api for other modules that would like to lock questions:
+	•	hook_answers_lock_question_p: Modules that want to set or release locks should define this hook. It returns TRUE if a question should be locked.
+	•	answers_lock_question: Lock a question
+	•	answers_unlock_question: Unlock a question
+	•	answers_reset_question_locks: Cycle through all questions and reset their locks. (This can be required when, e.g., a global policy is changed. For example, an administrator may change the policy in the Best Answers module to lock questions after a Best Answer is selected. When this happens, the module calls this function to update the locks.).
