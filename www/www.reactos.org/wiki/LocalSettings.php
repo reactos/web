@@ -133,3 +133,7 @@ $wgResourceLoaderMaxQueryLength = -1;
 
 # End of automatically generated settings.
 # Add more configuration options below.
+
+require_once("$IP/../../www.reactos.org_config/wiki-drupal-config.php");
+require_once ($IP.'/extensions/AuthDrupal/AuthDrupal.php');
+SetupAuthDrupal();
