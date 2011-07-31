@@ -752,7 +752,8 @@ function drupal_access_denied() {
  *     received.
  *   - redirect_code: If redirected, an integer containing the initial response
  *     status code.
- *   - redirect_url: If redirected, a string containing the redirection location.
+ *   - redirect_url: If redirected, a string containing the URL of the redirect
+ *     target.
  *   - error: If an error occurred, the error message. Otherwise not set.
  *   - headers: An array containing the response headers as name/value pairs.
  *     HTTP header names are case-insensitive (RFC 2616, section 4.2), so for
@@ -1008,7 +1009,9 @@ function drupal_http_request($url, array $options = array()) {
         $result = drupal_http_request($location, $options);
         $result->redirect_code = $code;
       }
-      $result->redirect_url = $location;
+      if (!isset($result->redirect_url)) {
+        $result->redirect_url = $location;
+      }
       break;
     default:
       $result->error = $status_message;
@@ -2252,7 +2255,7 @@ function drupal_http_header_attributes(array $attributes = array()) {
  *   An associative array of key-value pairs to be converted to attributes.
  *
  * @return
- *   A string ready for insertion in a tag.
+ *   A string ready for insertion in a tag (starts with a space).
  *
  * @ingroup sanitization
  */
@@ -2288,7 +2291,9 @@ function drupal_attributes(array $attributes = array()) {
  *     to work in a call to drupal_attributes($options['attributes']).
  *   - 'html' (default FALSE): Whether $text is HTML or just plain-text. For
  *     example, to make an image tag into a link, this must be set to TRUE, or
- *     you will see the escaped HTML image tag.
+ *     you will see the escaped HTML image tag. $text is not sanitized if
+ *     'html' is TRUE. The calling function must ensure that $text is already
+ *     safe.
  *   - 'language': An optional language object. If the path being linked to is
  *     internal to the site, $options['language'] is used to determine whether
  *     the link is "active", or pointing to the current page (the language as
@@ -2822,6 +2827,8 @@ function drupal_add_html_head_link($attributes, $header = FALSE) {
  *
  * @return
  *   An array of queued cascading stylesheets.
+ *
+ * @see drupal_get_css()
  */
 function drupal_add_css($data = NULL, $options = NULL) {
   $css = &drupal_static(__FUNCTION__, array());
@@ -2902,8 +2909,11 @@ function drupal_add_css($data = NULL, $options = NULL) {
  *   (optional) If set to TRUE, this function skips calling drupal_alter() on
  *   $css, useful when the calling function passes a $css array that has already
  *   been altered.
+ *
  * @return
  *   A string of XHTML CSS tags.
+ *
+ * @see drupal_add_css()
  */
 function drupal_get_css($css = NULL, $skip_alter = FALSE) {
   if (!isset($css)) {
@@ -7039,6 +7049,7 @@ function drupal_parse_info_format($data) {
  *   Array of the possible severity levels for log messages.
  *
  * @see watchdog()
+ * @ingroup logging_severity_levels
  */
 function watchdog_severity_levels() {
   return array(
@@ -7431,7 +7442,8 @@ function entity_create_stub_entity($entity_type, $ids) {
  *   Whether to reset the internal cache for the requested entity type.
  *
  * @return
- *   An array of entity objects indexed by their ids.
+ *   An array of entity objects indexed by their ids. When no results are
+ *   found, an empty array is returned.
  *
  * @todo Remove $conditions in Drupal 8.
  */
