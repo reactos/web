@@ -22,7 +22,15 @@
 /* This library assumes that the needed YUI libraries have been loaded 
    already. */
 
+var bz_no_validate_enter_bug = false;
 function validateEnterBug(theform) {
+    // This is for the "bookmarkable templates" button.
+    if (bz_no_validate_enter_bug) {
+        // Set it back to false for people who hit the "back" button
+        bz_no_validate_enter_bug = false;
+        return true;
+    }
+
     var component = theform.component;
     var short_desc = theform.short_desc;
     var version = theform.version;
@@ -664,7 +672,7 @@ YAHOO.bugzilla.userAutocomplete = {
           id : YAHOO.bugzilla.userAutocomplete.counter,
           params : [ { 
             match : [ decodeURIComponent(enteredText) ],
-            include_fields : [ "email", "real_name" ]
+            include_fields : [ "name", "real_name" ]
           } ]
       };
       var stringified =  YAHOO.lang.JSON.stringify(json_object);
@@ -674,7 +682,7 @@ YAHOO.bugzilla.userAutocomplete = {
       return stringified;
     },
     resultListFormat : function(oResultData, enteredText, sResultMatch) {
-        return ( _escapeHTML(oResultData.real_name) + " (" +  _escapeHTML(oResultData.email) + ")");
+        return ( _escapeHTML(oResultData.real_name) + " (" +  _escapeHTML(oResultData.name) + ")");
     },
     debug_helper : function ( ){
         /* used to help debug any errors that might happen */
@@ -693,7 +701,7 @@ YAHOO.bugzilla.userAutocomplete = {
             resultsList : "result.users",
             metaFields : { error: "error", jsonRpcId: "id"},
             fields : [
-                { key : "email" },
+                { key : "name" },
                 { key : "real_name"}
             ]
         };

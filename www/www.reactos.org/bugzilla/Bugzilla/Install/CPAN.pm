@@ -54,6 +54,13 @@ use constant REQUIREMENTS => (
         package => 'YAML',
         version => 0,
     },
+    {
+        # Many modules on CPAN are now built with Dist::Zilla, which
+        # unfortunately means they require this version of EU::MM to install.
+        module  => 'ExtUtils::MakeMaker',
+        package => 'ExtUtils-MakeMaker',
+        version => '6.31',
+    },
 );
 
 # We need the absolute path of ext_libpath, because CPAN chdirs around
@@ -62,6 +69,13 @@ use constant REQUIREMENTS => (
 # We need it often enough (and at compile time, in install-module.pl) so 
 # we make it a constant.
 use constant BZ_LIB => abs_path(bz_locations()->{ext_libpath});
+
+# These modules are problematic to install with "notest" (sometimes they
+# get installed when they shouldn't). So we always test their installation
+# and never ignore test failures.
+use constant ALWAYS_TEST => qw(
+    Math::Random::Secure
+);
 
 # CPAN requires nearly all of its parameters to be set, or it will start
 # asking questions to the user. We want to avoid that, so we have
@@ -150,9 +164,25 @@ sub install_module {
     if (!$module) {
         die install_string('no_such_module', { module => $name }) . "\n";
     }
+    my $version = $module->cpan_version;
+    my $module_name = $name;
+
+    if ($name eq 'LWP::UserAgent' && $^V lt v5.8.8) {
+        # LWP 6.x requires Perl 5.8.8 or newer.
+        # As PAUSE only indexes the very last version of each module,
+        # we have to specify the path to the tarball ourselves.
+        $name = 'GAAS/libwww-perl-5.837.tar.gz';
+        # This tarball contains LWP::UserAgent 5.835.
+        $version = '5.835';
+    }
+
     print install_string('install_module', 
-              { module => $name, version => $module->cpan_version }) . "\n";
-    if ($test) {
+              { module => $module_name, version => $version }) . "\n";
+
+    if (_always_test($name)) {
+        CPAN::Shell->install($name);
+    }
+    elsif ($test) {
         CPAN::Shell->force('install', $name);
     }
     else {
@@ -165,6 +195,11 @@ sub install_module {
     }
 
     $CPAN::Config->{makepl_arg} = $original_makepl;
+}
+
+sub _always_test {
+    my ($name) = @_;
+    return grep(lc($_) eq lc($name), ALWAYS_TEST) ? 1 : 0;
 }
 
 sub set_cpan_config {

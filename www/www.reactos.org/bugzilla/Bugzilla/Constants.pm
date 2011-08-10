@@ -197,7 +197,7 @@ use File::Basename;
 # CONSTANTS
 #
 # Bugzilla version
-use constant BUGZILLA_VERSION => "4.0";
+use constant BUGZILLA_VERSION => "4.0.2";
 
 # These are unique values that are unlikely to match a string or a number,
 # to be used in criteria for match() functions and other things. They start
@@ -431,8 +431,8 @@ use constant MAX_STS_AGE => 604800;
 
 # Protocols which are considered as safe.
 use constant SAFE_PROTOCOLS => ('afs', 'cid', 'ftp', 'gopher', 'http', 'https',
-                                'irc', 'mid', 'news', 'nntp', 'prospero', 'telnet',
-                                'view-source', 'wais');
+                                'irc', 'ircs', 'mid', 'news', 'nntp', 'prospero',
+                                'telnet', 'view-source', 'wais');
 
 # Valid MIME types for attachments.
 use constant LEGAL_CONTENT_TYPES => ('application', 'audio', 'image', 'message',

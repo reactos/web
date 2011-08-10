@@ -28,6 +28,7 @@
 
 <ul class="bz_toc">
   <li><a href="#v40_introduction">Introduction</a></li>
+  <li><a href="#v40_point">Updates in this 4.0.x Release</a></li>
   <li><a href="#v40_req">Minimum Requirements</a></li>
   <li><a href="#v40_feat">New Features and Improvements</a></li>
   <li><a href="#v40_issues">Outstanding Issues</a></li>
@@ -68,6 +69,86 @@
   and <a href="http://www.redhat.com/">Red Hat</a> for funding the development
   of certain features and improvements in this release of
   [%+ terms.Bugzilla %].</p>
+
+<h2 id="v40_point">Updates in this 4.0.x Release</h2>
+
+<h3>4.0.2</h3>
+
+<p>This release fixes several security issues. See the
+  <a href="http://www.bugzilla.org/security/3.4.11/">Security Advisory</a>
+  for details.</p>
+
+<p>In addition, the following important fixes/changes have been made in this
+  release:</p>
+
+<ul>
+  <li>The <kdb>B[% %]ug.create</kdb> WebService method now throws an error if you
+    pass a group name which doesn't exist. In [% terms.Bugzilla %] 4.0 and 4.0.1,
+    this group name was silently ignored, leaving your [% terms.bug %] unsecure
+    if no other group applied.
+    (<a href="https://bugzilla.mozilla.org/show_bug.cgi?id=653341">[% terms.Bug %] 653341</a>)</li>
+  <li>Moving several [% terms.bugs %] at once into another product displayed the
+    same confirmation page again and again, and changes were never committed
+    (regressed in 4.0).
+    (<a href="https://bugzilla.mozilla.org/show_bug.cgi?id=663208">[% terms.Bug %] 663208</a>)</li>
+  <li>Marking [% terms.abug %] as a duplicate now works in Internet Explorer 9.
+    (<a href="https://bugzilla.mozilla.org/show_bug.cgi?id=656769">[% terms.Bug %] 656769</a>)</li>
+  <li><kdb>importxml.pl</kdb> no longer crashes when importing keywords (regressed
+    in 4.0).
+    (<a href="https://bugzilla.mozilla.org/show_bug.cgi?id=657707">[% terms.Bug %] 657707</a>)</li>
+  <li>Data entered while reporting a new [% terms.bug %] could be lost if you had
+    to click the "Back" button of your web browser.
+    (<a href="https://bugzilla.mozilla.org/show_bug.cgi?id=652427">[% terms.Bug %] 652427</a>)</li>
+  <li>WebServices methods will return undefined [% terms.bug %] fields as undefined
+    instead of as an empty string. This change is consistent with how
+    [%+ terms.Bugzilla %] 4.2 behaves.
+    (<a href="https://bugzilla.mozilla.org/show_bug.cgi?id=657561">[% terms.Bug %] 657561</a>)</li>
+  <li>The XML-RPC interface now works with SOAP::Lite 0.711 and 0.712 under mod_perl.
+    (<a href="https://bugzilla.mozilla.org/show_bug.cgi?id=600810">[% terms.Bug %] 600810</a>)</li>
+  <li>LWP 6.00 and newer require Perl 5.8.8 and above. When installing this module
+    using <kdb>install-module.pl</kdb> on a Perl installation older than 5.8.8,
+    LWP 5.837 will be installed instead.
+    (<a href="https://bugzilla.mozilla.org/show_bug.cgi?id=655912">[% terms.Bug %] 655912</a>)</li>
+  <li>Viewing [% terms.abug %] report should be significantly faster when your
+    installation has many custom fields.
+    (<a href="https://bugzilla.mozilla.org/show_bug.cgi?id=634812">[% terms.Bug %] 634812</a>)</li>
+</ul>
+
+<h3>4.0.1</h3>
+
+<ul>
+  <li>During installation, the CPAN module Math::Random::Secure would
+    sometimes fail to install properly and give an error about
+    <kbd>Math::Random::Secure::irand</kbd>. Now, when using
+    <kbd>install-module.pl</kbd> to install Math::Random::Secure, this
+    will no longer happen. If you are currently experiencing this b[% %]ug
+    and it prevented you from installing 4.0, remove Math::Random::Secure
+    from your <kbd>lib/</kbd> directory, like:
+    <p><kbd>rm -rf lib/Math/Random/Secure*</kbd></p>
+    <p>(<a href="https://bugzilla.mozilla.org/show_bug.cgi?id=646578">[% terms.Bug %] 646578</a>)</p></li>
+  <li>The "Remember values as bookmarkable template" button on the
+    [%+ terms.bug %] entry page will now work even when some required fields
+    are empty. 
+    (<a href="https://bugzilla.mozilla.org/show_bug.cgi?id=640719">[% terms.Bug %] 640719</a>)</li>
+  <li>Email notifications about dependencies and flags had the wrong
+    timestamp.
+    (<a href="https://bugzilla.mozilla.org/show_bug.cgi?id=643910">[% terms.Bug %] 643910</a>
+    and  (<a href="https://bugzilla.mozilla.org/show_bug.cgi?id=652165">[% terms.Bug %] 652165</a>)</li>
+  <li>You can now select "UTC" as a valid timezone in General Preferences.
+    (<a href="https://bugzilla.mozilla.org/show_bug.cgi?id=646209">[% terms.Bug %] 646209</a>)</li>
+  <li>Automatic duplicate detection now works on PostgreSQL (although
+    it is not as high-quality as on other DB platforms). 
+    (<a href="https://bugzilla.mozilla.org/show_bug.cgi?id=634144">[% terms.Bug %] 634144</a>)</li>
+   <li>Autcomplete for users now works even if you are using the
+     "emailsuffix" option.
+     (<a href="https://bugzilla.mozilla.org/show_bug.cgi?id=641519">[% terms.Bug %] 641519</a>)</li>
+   <li>Javascript errors during series creation in New Charts have been
+     fixed.
+     (<a href="https://bugzilla.mozilla.org/show_bug.cgi?id=644285">[% terms.Bug %] 644285</a>)</li>
+    <li>The "Show Votes" page now works, for installations using the Voting
+      extension.
+      (<a href="https://bugzilla.mozilla.org/show_bug.cgi?id=652381">[% terms.Bug %] 652381</a>)</li> 
+</ul>
 
 <h2 id="v40_req">Minimum Requirements</h2>
 
@@ -165,9 +246,6 @@
   support must be installed on your [% terms.Bugzilla %]. It will be
   much faster on installations that run under mod_perl than it will
   be on other installations.</p>
-
-<p>This automatic duplicate detection does not currently work for installations
-  running on PostgreSQL.</p>
 
 <h3 id="v40_feat_search_ui">New Advanced Search UI</h3>
 
