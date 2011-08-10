@@ -1,0 +1,299 @@
+<?php
+// $Id: switchtheme.module,v 1.18 2011/01/07 23:41:22 sun Exp $
+
+/**
+ * @file
+ * Adds a block with a user theme switcher.
+ */
+
+/**
+ * Implements hook_help().
+ */
+function switchtheme_help($path, $arg) {
+  switch ($path) {
+    case 'admin/help#switchtheme':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('The Switchtheme module provides <a href="@blocks-url">blocks</a> to allow users to switch themes on the fly. You can define custom labels to display for each enabled theme. It also allows the theme to be changed based on the visitor browser (requires <a href="@browscap-url">Browscap</a> module).', array(
+        '@blocks-url' => url('admin/structure/block'),
+        '@browscap-url' => 'http://drupal.org/project/browscap',
+      )) . '</p>';
+      return $output;
+
+    case 'admin/config/user-interface/switchtheme':
+    case 'admin/config/user-interface/switchtheme/themes':
+      return t('Set a label for each enabled theme. This is what will be displayed to the user in the selection box.');
+  }
+}
+
+/**
+ * Implements hook_permission().
+ */
+function switchtheme_permission() {
+  return array(
+    'administer switch' => array(
+      'title' => t('Administer SwitchTheme'),
+    ),
+    'switch theme' => array(
+      'title' => t('Switch themes'),
+    ),
+    'select different theme' => array(
+      'title' => t('Permanently use a custom theme'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_menu().
+ */
+function switchtheme_menu() {
+  $items['admin/config/user-interface/switchtheme'] = array(
+    'title' => 'Switchtheme',
+    'description' => 'Configure theme selection settings.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('switchtheme_admin_settings'),
+    'access arguments' => array('administer switch'),
+    'file' => 'switchtheme.admin.inc',
+  );
+  $items['admin/config/user-interface/switchtheme/themes'] = array(
+    'title' => 'Themes',
+    'description' => 'Configure theme selection options of the Switchtheme block.',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => -10,
+  );
+  if (module_exists('browscap')) {
+    $items['admin/config/user-interface/switchtheme/browser'] = array(
+      'title' => 'Browsers',
+      'description' => 'Configure automatic theme selection for visitors.',
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array('switchtheme_admin_browser_settings'),
+      'access arguments' => array('administer switch'),
+      'file' => 'switchtheme.admin.inc',
+      'type' => MENU_LOCAL_TASK,
+      'weight' => 2,
+    );
+  }
+  return $items;
+}
+
+/**
+ * Implements hook_init().
+ */
+function switchtheme_init() {
+  // Skip maintenance mode and maintenance pages.
+  // @see menu_get_custom_theme()
+  if (_menu_site_is_offline(TRUE) || defined('MAINTENANCE_MODE')) {
+    return;
+  }
+
+  // If there is a HTTP GET parameter 'theme', assign it as new theme.
+  if (isset($_GET['theme'])) {
+    // Manually validate the value.
+    // @todo Consider switching the form's method to GET.
+    $themes = switchtheme_options();
+    if (isset($themes[$_GET['theme']])) {
+      $form = array();
+      $form_state['values']['theme'] = $_GET['theme'];
+      switchtheme_switch_form_submit($form, $form_state);
+    }
+  }
+}
+
+/**
+ * Implements hook_custom_theme().
+ *
+ * @param $return_single
+ *   Boolean whether to return the first determined custom theme (TRUE) or all
+ *   determined values (FALSE). Defaults to TRUE.
+ */
+function switchtheme_custom_theme($return_single = TRUE) {
+  global $user;
+
+  $custom_theme = array();
+
+  // The HTTP GET parameter 'theme' always has precedence.
+  if (isset($_GET['theme'])) {
+    $custom_theme['get'] = $_GET['theme'];
+  }
+  // Check whether the user session contains a custom theme.
+  if (isset($_SESSION['custom_theme'])) {
+    $custom_theme['session'] = $_SESSION['custom_theme'];
+  }
+  // Check whether the current user has a custom theme assigned.
+  if (!empty($user->theme)) {
+    $custom_theme['user'] = $user->theme;
+  }
+  // Lastly, check whether a theme can be automatically selected.
+  if (module_exists('browscap') && variable_get('switchtheme_browser_enabled', FALSE)) {
+    $browser = browscap_get_browser();
+    if (isset($browser['parent'])) {
+      $parent = trim($browser['parent']);
+      $browser_theme = variable_get('switchtheme_browser_' . md5($parent), 'default');
+      if ($browser_theme != 'default') {
+        $custom_theme['browser'] = $browser_theme;
+      }
+    }
+  }
+
+  if ($return_single) {
+    // reset() would return FALSE if $custom_theme is empty.
+    return (!empty($custom_theme) ? reset($custom_theme) : NULL);
+  }
+  return $custom_theme;
+}
+
+/**
+ * Implements hook_block_info()
+ */
+function switchtheme_block_info() {
+  $blocks['switch_form']['info'] = t('Switch theme');
+  $blocks['switch_random']['info'] = t('Random theme');
+  return $blocks;
+}
+
+/**
+ * Implements hook_block_view()
+ */
+function switchtheme_block_view($delta = '') {
+  if (user_access('switch theme')) {
+    switch ($delta) {
+      case 'switch_form':
+        $block['subject'] = t('Theme');
+        $block['content'] = drupal_get_form('switchtheme_switch_form');
+        return $block;
+
+      case 'switch_random':
+        $block['subject'] = t('Random theme');
+        $block['content'] = switchtheme_display_random_block();
+        return $block;
+    }
+  }
+}
+
+/**
+ * Renders a random theme with screenshot to switch to.
+ */
+function switchtheme_display_random_block() {
+  $themes = list_themes();
+  shuffle($themes);
+  foreach ($themes as $key => $theme) {
+    if ($theme->status && !empty($theme->info['screenshot'])) {
+      // Return the first theme with a screenshot.
+      $build['theme'] = array(
+        '#type' => 'link',
+        '#title' => theme('image', array(
+          'path' => $theme->info['screenshot'],
+          'alt' => t('Preview of @theme', array('@theme' => $theme->name)),
+        )),
+        '#href' => $_GET['q'],
+        '#options' => array(
+          'query' => array(
+            'theme' => $theme->name,
+          ),
+          'html' => TRUE,
+        ),
+      );
+      return $build;
+    }
+  }
+}
+
+/**
+ * Form constructor for theme switcher form.
+ */
+function switchtheme_switch_form($form, &$form_state) {
+  global $user, $theme_key;
+
+  $options = switchtheme_select();
+  // Nothing to switch if there is only one theme.
+  if (count($options) < 2) {
+    $form['#access'] = FALSE;
+    return $form;
+  }
+
+  $form['widget'] = array(
+    '#type' => 'container',
+    '#attributes' => array('class' => array('container-inline')),
+  );
+  $form['widget']['theme'] = array(
+    '#type' => 'select',
+    '#title' => t('Change the way this site looks'),
+    '#title_display' => 'attribute',
+    '#options' => $options,
+    '#required' => TRUE,
+  );
+  // The current page may be displayed in a theme that is not available to
+  // Switchtheme (e.g., a disabled admin theme). And even if the current theme
+  // is available to Switchtheme, it might not be the theme the current user
+  // previously selected. So in order to not confuse the user, we need to figure
+  // out the proper, last set theme for the #default_value.
+  foreach (switchtheme_custom_theme(FALSE) as $name) {
+    if (isset($options[$name])) {
+      $form['widget']['theme']['#default_value'] = $name;
+      break;
+    }
+  }
+  // Only if no custom theme could be determined, check whether we can preselect
+  // the current theme.
+  if (!isset($form['widget']['theme']['#default_value']) && isset($options[$theme_key])) {
+    $form['widget']['theme']['#default_value'] = $theme_key;
+  }
+
+  $form['widget']['actions'] = array('#type' => 'actions');
+  $form['widget']['actions']['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Switch'),
+    '#id' => 'switchtheme-submit',
+  );
+  return $form;
+}
+
+/**
+ * Form submission handler for switchtheme_switch_form().
+ *
+ * We do not validate the input here, because that is done in init_theme()
+ * already.
+ */
+function switchtheme_switch_form_submit($form, &$form_state) {
+  global $user;
+
+  // Save the setting for authenticated users, if the "select different theme"
+  // permission has been granted.
+  if ($user->uid > 0 && user_access('select different theme')) {
+    $account = user_load($user->uid);
+    user_save($account, array(
+      'theme' => $form_state['values']['theme'],
+    ));
+  }
+  // Otherwise save the setting in the user's session.
+  elseif (user_access('switch theme')) {
+    $_SESSION['custom_theme'] = $form_state['values']['theme'];
+  }
+}
+
+/**
+ * Returns an #options list of enabled themes.
+ */
+function switchtheme_options() {
+  $options = array();
+  $themes = list_themes();
+  foreach ($themes as $name => $theme) {
+    if ($theme->status) {
+      $options[$name] = $theme->info['name'];
+    }
+  }
+  return $options;
+}
+
+/**
+ * Returns switchtheme_options() with customized theme labels.
+ */
+function switchtheme_select() {
+  $options = array();
+  foreach (switchtheme_options() as $name => $label) {
+    $options[$name] = variable_get('switchtheme_' . $label, $label);
+  }
+  asort($options);
+  return $options;
+}
+

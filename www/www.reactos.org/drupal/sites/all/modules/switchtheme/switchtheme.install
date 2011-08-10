@@ -1,0 +1,16 @@
+<?php
+// $Id: switchtheme.install,v 1.1 2011/01/07 23:41:22 sun Exp $
+
+/**
+ * @file
+ * Installation functions for Switchtheme module.
+ */
+
+/**
+ * Implements hook_uninstall().
+ */
+function switchtheme_uninstall() {
+  db_delete('variable')
+    ->condition('name', 'switchtheme_%', 'LIKE')
+    ->execute;
+}
