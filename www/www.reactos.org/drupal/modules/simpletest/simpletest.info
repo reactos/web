@@ -48,8 +48,8 @@ files[] = tests/upgrade/upgrade.taxonomy.test
 files[] = tests/upgrade/upgrade.upload.test
 files[] = tests/upgrade/upgrade.user.test
 
-; Information added by drupal.org packaging script on 2011-07-27
-version = "7.6"
+; Information added by drupal.org packaging script on 2011-07-28
+version = "7.7"
 project = "drupal"
-datestamp = "1311798715"
+datestamp = "1311813879"
 
