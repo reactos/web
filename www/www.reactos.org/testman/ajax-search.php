@@ -12,7 +12,7 @@
 	require_once("connect.db.php");
 	require_once("utils.inc.php");
 	
-	if(!isset($_GET["source"]))
+	if((int)$_GET["page"] < 1)
 		die("<error>Necessary information not specified!</error>");
 	
 	try
@@ -26,17 +26,12 @@
 	}
 
 	// Prepare the WHERE clause
-	$where = "";
+	$where = "WHERE r.finished = 1 ";
 	
-	if($_GET["startrev"] || $_GET["startid"] || $_GET["source"] || $_GET["platform"])
+	if($_GET["startrev"] || $_GET["source"] || $_GET["platform"])
 	{
-		$where = "WHERE r.finished = 1 ";
-		
 		if($_GET["startrev"])
 			$where .= "AND r.revision >= " . (int)$_GET["startrev"] . " AND r.revision <= " . (int)$_GET["endrev"] . " ";
-		
-		if($_GET["startid"])
-			$where .= "AND r.id >= " . (int)$_GET["startid"] . " ";
 		
 		if($_GET["source"])
 			$where .= "AND src.name LIKE " . $dbh->quote($_GET["source"] . "%") . " ";
@@ -57,11 +52,13 @@
 	
 	// First determine how many results we would get in total with this query
 	$stmt = $dbh->query("SELECT COUNT(*) " . $tables . $where) or die("<error>Query failed #1</error>");
-	
-	$result_count = $stmt->fetchColumn();
+	$limit_offset = ((int)$_GET["page"] - 1) * RESULTS_PER_PAGE;
+	$limit_count = ($_GET["limit"] ? (int)$_GET["limit"] : RESULTS_PER_PAGE);
+	$result_count = $stmt->fetchColumn() - $limit_offset;
 	
 	if($_GET["limit"] && $result_count > $_GET["limit"])
 	{
+		// Stop looking for more pages if the results are limited by a supplied manual limit
 		$result_count = (int)$_GET["limit"];
 		echo "<moreresults>0</moreresults>";
 	}	
@@ -79,11 +76,9 @@
 	
 	printf("<resultcount>%d</resultcount>", $result_count);
 	
-	$first_id = 0;
 	$first_revision = 0;
 	$last_revision = 0;
-	$next_id = 0;
-	
+
 	if($result_count)
 	{
 		if($_GET["resultlist"])
@@ -91,7 +86,7 @@
 			$stmt = $dbh->query(
 				"SELECT r.id, UNIX_TIMESTAMP(r.timestamp) timestamp, src.name, r.revision, r.platform, r.comment, r.count, r.failures " .
 				$tables .	$where . $order .
-				"LIMIT " . $result_count
+				"LIMIT " . $limit_offset . ", " . $limit_count
 			) or die("<error>Query failed #2</error>");
 			
 			$first = true;
@@ -100,7 +95,6 @@
 			{
 				if($first)
 				{
-					$first_id = $row["id"];
 					$first_revision = $row["revision"];
 					$first = false;
 				}
@@ -122,24 +116,16 @@
 		else
 		{
 			// Get the first and last revision belonging to this call
-			$stmt = $dbh->query("SELECT r.id, r.revision " . $tables . $where .	$order . "LIMIT 1") or die("<error>Query failed #3</error>");
-			$row = $stmt->fetch(PDO::FETCH_ASSOC);
-			$first_id = $row["id"];
-			$first_revision = $row["revision"];
+			$stmt = $dbh->query("SELECT r.revision " . $tables . $where .	$order . "LIMIT " . $limit_offset . ", 1") or die("<error>Query failed #3</error>");
+			$first_revision = $stmt->fetchColumn();
 			
-			$stmt = $dbh->query("SELECT r.revision " . $tables . $where . $order . "LIMIT " . ($result_count - 1) . ", 1") or die("<error>Query failed #4</error>");
+			$stmt = $dbh->query("SELECT r.revision " . $tables . $where . $order . "LIMIT " . ($limit_offset + $result_count - 1) . ", 1") or die("<error>Query failed #4</error>");
 			$last_revision = $stmt->fetchColumn();
 		}
-		
-		// Get the next ID (= the first ID after our limit)
-		$stmt = $dbh->query("SELECT r.id " . $tables . $where .	$order . "LIMIT " . $result_count . ", 1") or die("<error>Query failed #5</error>");
-		$next_id = $stmt->fetchColumn();
 	}
 	
-	printf("<firstid>%d</firstid>", $first_id);
 	printf("<firstrev>%d</firstrev>", $first_revision);
 	printf("<lastrev>%d</lastrev>", $last_revision);
-	printf("<nextid>%d</nextid>", $next_id);
 	
 	echo "</results>";
 ?>

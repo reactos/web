@@ -127,37 +127,40 @@ function GetRevNums()
 		return true;
 	}
 	
-	if(isNaN(rev) || rev < 1)
+	if(isFinite(rev) && parseInt(rev) > 0)
 	{
-		// Maybe the user entered a revision range
-		var hyphen = rev.indexOf("-");
-		
-		if(hyphen > 0)
-		{
-			inputbox_startrev = rev.substr(0, hyphen)*1;
-			inputbox_endrev = rev.substr(hyphen + 1)*1;
-
-			// exchange start/end when wrong order was given
-			if (inputbox_startrev > inputbox_endrev) {
-				var tmp=inputbox_startrev;
-				inputbox_startrev=inputbox_endrev;
-				inputbox_endrev=tmp;
-			}
-		}
-		
-		if(hyphen <= 0 || isNaN(inputbox_startrev) || isNaN(inputbox_endrev))
-		{
-			alert("Invalid revision number!");
-			return false;
-		}
-	}
-	else
-	{
-		inputbox_startrev = rev;
-		inputbox_endrev = rev;
+		inputbox_startrev = parseInt(rev);
+		inputbox_endrev = parseInt(rev);
+		return true;
 	}
 	
-	return true;
+	// Maybe the user entered a revision range
+	var hyphen = rev.indexOf("-");
+	if(hyphen > 0)
+	{
+		inputbox_startrev = rev.substr(0, hyphen);
+		inputbox_endrev = rev.substr(hyphen + 1);
+
+		if(isFinite(inputbox_startrev) && parseInt(inputbox_startrev) > 0 &&
+		   isFinite(inputbox_endrev) && parseInt(inputbox_endrev) > 0)
+		{
+			inputbox_startrev = parseInt(inputbox_startrev);
+			inputbox_endrev = parseInt(inputbox_endrev);
+			
+			if(inputbox_startrev > inputbox_endrev)
+			{
+				// Exchange start and end revision due to wrong order
+				var tmp = inputbox_startrev;
+				inputbox_startrev = inputbox_endrev;
+				inputbox_endrev = tmp;
+			}
+			
+			return true;
+		}
+	}
+	
+	alert("Invalid revision number!");
+	return false;
 }
 
 function SearchCall()
@@ -181,6 +184,7 @@ function SearchButton_OnClick()
 	data["source"] = document.getElementById("search_source").value;
 	data["platform"] = document.getElementById("search_platform").value;
 	
+	data["page"] = CurrentPage;
 	data["resultlist"] = 1;
 	data["requesttype"] = REQUESTTYPE_FULLLOAD;
 	
@@ -233,6 +237,7 @@ function Load()
 	data["limit"] = <?php echo DEFAULT_SEARCH_LIMIT; ?>;
 	data["source"] = "<?php echo DEFAULT_SEARCH_SOURCE; ?>";
 	
+	data["page"] = CurrentPage;
 	data["resultlist"] = 1;
 	data["requesttype"] = REQUESTTYPE_FULLLOAD;
 	
@@ -301,7 +306,7 @@ function SearchCallback(HttpRequest)
 		{
 			PageCount = 1;
 			
-			html += '<option value="' + CurrentPage + '-' + HttpRequest.responseXML.getElementsByTagName("firstid")[0].firstChild.data + '"><?php echo addslashes($shared_langres["page"]); ?> ' + CurrentPage;
+			html += '<option value="' + CurrentPage + '"><?php echo addslashes($shared_langres["page"]); ?> ' + CurrentPage;
 			
 			if(HttpRequest.responseXML.getElementsByTagName("resultcount")[0].firstChild.data > 0)
 				html += ' - ' + HttpRequest.responseXML.getElementsByTagName("firstrev")[0].firstChild.data + ' ... ' + HttpRequest.responseXML.getElementsByTagName("lastrev")[0].firstChild.data + '<\/option>';
@@ -394,7 +399,7 @@ function SearchCallback(HttpRequest)
 		var OptionElem = document.createElement("option");
 		var OptionText = document.createTextNode('<?php echo addslashes($shared_langres["page"]); ?> ' + PageCount + ' - ' + HttpRequest.responseXML.getElementsByTagName("firstrev")[0].firstChild.data + ' ... ' + HttpRequest.responseXML.getElementsByTagName("lastrev")[0].firstChild.data);
 		
-		OptionElem.value = PageCount + "-" + HttpRequest.responseXML.getElementsByTagName("firstid")[0].firstChild.data;
+		OptionElem.value = PageCount;
 		OptionElem.appendChild(OptionText);
 		
 		document.getElementById("pagesel").appendChild(OptionElem);
@@ -404,7 +409,7 @@ function SearchCallback(HttpRequest)
 	{
 		// There are more results available in the full range. Therefore we have to start another request and add a new page.
 		data["resultlist"] = 0;
-		data["startid"] = HttpRequest.responseXML.getElementsByTagName("nextid")[0].firstChild.data;
+		data["page"] = PageCount + 1;
 		data["requesttype"] = REQUESTTYPE_ADDPAGE;
 		SearchCall();
 		return;
@@ -468,11 +473,11 @@ function CompareFirstTwoButton_OnClick()
 	OpenComparePage(IDArray);
 }
 
-function PageSwitch(NewPage, StartID)
+function PageSwitch(NewPage)
 {
 	CurrentPage = NewPage;
+	data["page"] = NewPage;
 	data["resultlist"] = 1;
-	data["startid"] = StartID;
 	data["requesttype"] = REQUESTTYPE_PAGESWITCH;
 	
 	SearchCall();
@@ -480,32 +485,27 @@ function PageSwitch(NewPage, StartID)
 
 function FirstPage_OnClick()
 {
-	var info = document.getElementById("pagesel").getElementsByTagName("option")[0].value.split("-");
-	PageSwitch(info[0], info[1]);
+	PageSwitch(document.getElementById("pagesel").getElementsByTagName("option")[0].value);
 }
 
 function PrevPage_OnClick()
 {
-	var info = document.getElementById("pagesel").getElementsByTagName("option")[CurrentPage - 2].value.split("-");
-	PageSwitch(info[0], info[1]);
+	PageSwitch(document.getElementById("pagesel").getElementsByTagName("option")[CurrentPage - 2].value);
 }
 
 function PageBox_OnChange(elem)
 {
-	var info = elem.value.split("-");
-	PageSwitch(info[0], info[1]);
+	PageSwitch(elem.value);
 }
 
 function NextPage_OnClick()
 {
-	var info = document.getElementById("pagesel").getElementsByTagName("option")[CurrentPage].value.split("-");
-	PageSwitch(info[0], info[1]);
+	PageSwitch(document.getElementById("pagesel").getElementsByTagName("option")[CurrentPage].value);
 }
 
 function LastPage_OnClick()
 {
-	var info = document.getElementById("pagesel").getElementsByTagName("option")[ document.getElementById("pagesel").getElementsByTagName("option").length - 1 ].value.split("-");
-	PageSwitch(info[0], info[1]);
+	PageSwitch(document.getElementById("pagesel").getElementsByTagName("option")[PageCount - 1].value);
 }
 
 function NumericComparison(a, b)
