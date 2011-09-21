@@ -1,0 +1,82 @@
+#page {
+  font-family:Verdana;
+  font-size:12px;
+  margin:0 0 1em 0;
+  padding:0;
+  background:white url('http://reactos.org/images/topbar.jpg') repeat-x left top;
+}
+h1 {
+  display:block;
+  line-height:normal;
+  font-size:14px;
+  font-weight:bold;
+  color:white;
+  background-color:#5984c3;
+  padding:0 0 1px 10px;
+  margin-top:0;
+}
+#header {
+  margin:0;
+  background:url('http://reactos.org/images/logo.jpg') no-repeat scroll 35px 0;
+  padding:103px 0 26px 0;
+  color:white;
+  text-align:right;
+}
+#logo, #site-name-wrapper { display:none; }
+#block-system-main-menu ul.menu {
+  list-style-type:none;
+  text-align:center;
+  margin:0;
+  padding:0;
+  line-height:normal;
+}
+#block-system-main-menu ul.menu li {
+  display:inline-block;
+  margin:0;
+  padding:0;
+  padding:0 3px;
+  border-left:#ffffff 1px solid;
+  line-height:normal;
+}
+#block-system-main-menu ul.menu li:first-child { border-left:none; }
+#block-system-main-menu ul.menu li a {
+  font-size:13px;
+  color:white;
+  text-decoration:none;
+  padding:1px 5px 1px 5px;
+}
+#block-system-main-menu ul.menu li a:hover {
+  color:black;
+  background-color:#ffcc33;
+}
+h2.block-title, .node h2 {
+  background:#5984c3;
+  color:#ffffff;
+  font-size:14px;
+  padding-left:12px;
+}
+div#sidebar-second, div#sidebar-first { width:20%; }
+div#content-group, div#main-group { width:80%; }
+.node.node-news.clearfix { clear:left; }
+#block-block-1, #block-block-2 {
+  width:100%;
+  overflow:hidden;
+  height:auto;
+}
+.main-news:first-child { margin-left:none; }
+#block-views-frontpage-block_1 {
+  width:100%;
+  overflow:hidden;
+  height:auto;
+}
+#block-views-main-page-news-block { clear:left; }
+#block-views-main-page-news-block div.view-content {
+  float:left;
+  width:49%;
+}
+#block-views-main-page-news-block div.view-footer  div.view-content { float:right; }
+#block-views-main-page-news-block div.view-footer  div.view-content h2 {
+  color:#006090;
+  font-size:12px;
+  background:#ffffff;
+}
