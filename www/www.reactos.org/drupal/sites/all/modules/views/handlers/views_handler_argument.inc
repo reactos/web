@@ -31,6 +31,8 @@
  */
 class views_handler_argument extends views_handler {
   var $name_field = NULL;
+  var $validator = NULL;
+
   /**
    * Constructor
    */
@@ -190,11 +192,19 @@ class views_handler_argument extends views_handler {
   function options_form(&$form, &$form_state) {
     parent::options_form($form, $form_state);
 
+    $argument_text = $this->view->display_handler->get_argument_text();
+
     $form['#pre_render'][] = 'views_ui_pre_render_move_argument_options';
+
+    $form['description'] = array(
+      '#markup' => $argument_text['description'],
+      '#theme_wrappers' => array('container'),
+      '#attributes' => array('class' => array('description')),
+    );
 
     $form['no_argument'] = array(
       '#type' => 'fieldset',
-      '#title' => t('When the filter value is <em>NOT</em> in the URL'),
+      '#title' => $argument_text['filter value not present'],
     );
     // Everything in the fieldset is floated, so the last element needs to
     // clear those floats.
@@ -256,7 +266,7 @@ class views_handler_argument extends views_handler {
 
     $form['argument_present'] = array(
       '#type' => 'fieldset',
-      '#title' => t('When the filter value <em>IS</em> in the URL or a default is provided'),
+      '#title' => $argument_text['filter value present'],
     );
     $form['title_enable'] = array(
       '#type' => 'checkbox',
@@ -715,6 +725,20 @@ class views_handler_argument extends views_handler {
   }
 
   /**
+   * Process the summary arguments for display.
+   *
+   * For example, the validation plugin may want to alter an argument for use in
+   * the URL.
+   */
+  function process_summary_arguments(&$args) {
+    if ($this->options['validate']['type'] != 'none') {
+      if (isset($this->validator) || $this->validator = $this->get_plugin('argument validator')) {
+        $this->validator->process_summary_arguments($args);
+      }
+    }
+  }
+
+  /**
    * Default action: summary.
    *
    * If an argument was expected and was not given, in this case, display
@@ -972,7 +996,7 @@ class views_handler_argument extends views_handler {
   /**
    * Get the value of this argument.
    */
-  function get_value($values, $field = NULL) {
+  function get_value() {
     // If we already processed this argument, we're done.
     if (isset($this->argument)) {
       return $this->argument;
@@ -1022,7 +1046,7 @@ class views_handler_argument extends views_handler {
 
     $plugin = views_get_plugin('style', $name);
     if ($plugin) {
-      $plugin->init($this->view, $this->display, $options);
+      $plugin->init($this->view, $this->view->display_handler->display, $options);
       // Write which plugin to use.
       $output .= $indent . $prefix . "['summary']['$option'] = '$name';\n";
 
@@ -1115,7 +1139,13 @@ class views_handler_argument extends views_handler {
 
     $plugin = views_get_plugin($type, $name);
     if ($plugin) {
-      $plugin->init($this->view, $this, $options);
+      // Style plugins expects different parameters as argument related plugins.
+      if ($type == 'style') {
+        $plugin->init($this->view, $this->view->display_handler->display, $options);
+      }
+      else {
+        $plugin->init($this->view, $this, $options);
+      }
       return $plugin;
     }
   }

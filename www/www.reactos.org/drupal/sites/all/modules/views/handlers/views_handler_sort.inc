@@ -91,7 +91,7 @@ class views_handler_sort extends views_handler {
       '#attributes' => array('class' => array('js-only')),
     );
     $form['expose_button']['checkbox']['checkbox'] = array(
-      '#title' => t('Expose this sort to visitors, to allow them to change it.'),
+      '#title' => t('Expose this sort to visitors, to allow them to change it'),
       '#type' => 'checkbox',
     );
 
@@ -197,7 +197,7 @@ class views_handler_sort extends views_handler {
   function expose_options() {
     $this->options['expose'] = array(
       'order' => $this->options['order'],
-      'label' => $this->ui_name(),
+      'label' => $this->definition['title'],
     );
   }
 }

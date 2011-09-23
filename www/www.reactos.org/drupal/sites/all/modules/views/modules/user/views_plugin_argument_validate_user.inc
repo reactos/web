@@ -81,7 +81,8 @@ class views_plugin_argument_validate_user extends views_plugin_argument_validate
     }
     else {
       if ($type == 'name' || $type == 'either') {
-        if ($argument == $GLOBALS['user']->name) {
+        $name = !empty($GLOBALS['user']->name) ? $GLOBALS['user']->name : variable_get('anonymous', t('Anonymous'));
+        if ($argument == $name) {
           $account = clone $GLOBALS['user'];
         }
         $where = "name = :argument";
@@ -119,5 +120,17 @@ class views_plugin_argument_validate_user extends views_plugin_argument_validate
     $this->argument->argument = $account->uid;
     $this->argument->validated_title = check_plain($account->name);
     return TRUE;
+  }
+
+  function process_summary_arguments(&$args) {
+    // If the validation says the input is an username, we should reverse the
+    // argument so it works for example for generation summary urls.
+    $uids_arg_keys = array_flip($args);
+    if ($this->options['type'] == 'name') {
+      $users = user_load_multiple($args);
+      foreach ($users as $uid => $account) {
+        $args[$uids_arg_keys[$uid]] = $account->name;
+      }
+    }
   }
 }

@@ -208,7 +208,8 @@ Drupal.behaviors.viewsUiRenderAddViewButton = {};
 Drupal.behaviors.viewsUiRenderAddViewButton.attach = function (context, settings) {
   var $ = jQuery;
   // Build the add display menu and pull the display input buttons into it.
-  var $menu = $('#views-ui-edit-form .secondary', context).once('views-ui-render-add-view-button-processed');
+  var $menu = $('#views-display-menu-tabs', context).once('views-ui-render-add-view-button-processed');
+
   if (!$menu.length) {
     return;
   }
@@ -384,10 +385,10 @@ Drupal.behaviors.viewsUiPreview.attach = function (context, settings) {
   // show the form.
   var contextualFilters = $('.views-display-setting a', contextualFiltersBucket);
   if (contextualFilters.length) {
-    $('.form-item-displays-settings-settings-content-preview-controls-view-args').show();
+    $('#preview-args').parent().show();
   }
   else {
-    $('.form-item-displays-settings-settings-content-preview-controls-view-args').hide();
+    $('#preview-args').parent().hide();
   }
 };
 
@@ -839,22 +840,33 @@ Drupal.viewsUi.Checkboxifier.prototype.clickHandler = function (e) {
 };
 
 /**
- * Add extra dependency behavior, in addition to CTools visibility management.
- *
- * @todo Abstract this and perhaps add to CTools.
+ * Change the Apply button text based upon the override select state.
  */
-Drupal.behaviors.viewsUiDependent = {};
-Drupal.behaviors.viewsUiDependent.attach = function (context, settings) {
+Drupal.behaviors.viewsUiOverrideSelect = {};
+Drupal.behaviors.viewsUiOverrideSelect.attach = function (context, settings) {
   var $ = jQuery;
-  $('#views-ui-config-item-form #edit-options-custom-label').once('views-ui-dependent', function () {
-    var $checkbox = $(this);
-    $checkbox.click(function (event) {
-      if (!$checkbox.is(':checked')) {
-        $('#views-ui-config-item-form #edit-options-label').val('');
-        $('#views-ui-config-item-form #edit-options-element-label-colon').attr('checked', false);
+  $('#edit-override-dropdown', context).once('views-ui-override-button-text', function() {
+    // Closures! :(
+    var $submit = $('#edit-submit', context);
+    var old_value = $submit.val();
+
+    $submit.once('views-ui-override-button-text')
+      .bind('mouseup', function() {
+        $(this).val(old_value);
+        return true;
+      });
+
+    $(this).bind('change', function() {
+      if ($(this).val() == 'default') {
+        $submit.val(Drupal.t('Apply (all displays)'));
       }
-    });
+      else {
+        $submit.val(Drupal.t('Apply (this display)'));
+      }
+    })
+    .trigger('change');
   });
+
 };
 
 Drupal.viewsUi.resizeModal = function (e, no_shrink) {

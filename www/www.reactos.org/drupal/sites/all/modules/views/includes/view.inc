@@ -53,6 +53,19 @@ class view extends views_db_object {
   // To avoid recursion in views embebed into areas
   var $parent_views = array();
 
+  // Stores the next steps of form items to handle.
+  // It's an array of stack items, which contain the form id, the type of form,
+  // the view, the display and some additional arguments.
+  // @see views_ui_add_form_to_stack().
+  // var $stack;
+
+  /**
+   * Identifier of the current display.
+   *
+   * @var string
+   */
+  var $current_display;
+
   /**
    * Where the $query object will reside:
    *
@@ -75,6 +88,13 @@ class view extends views_db_object {
    var $style_plugin;
 
   /**
+   * Allow to override the path used for generated urls.
+   *
+   * @var string
+   */
+  var $override_path = NULL;
+
+  /**
    * Constructor
    */
   function __construct() {
@@ -84,6 +104,20 @@ class view extends views_db_object {
       $this->$object = array();
     }
   }
+
+  /**
+   * Perform automatic updates when loading or importing a view.
+   *
+   * Over time, some things about Views or Drupal data has changed.
+   * this attempts to do some automatic updates that must happen
+   * to ensure older views will at least try to work.
+   */
+  function update() {
+    // When views are converted automatically the base_table should be renamed
+    // to have a working query.
+    $this->base_table = views_move_table($this->base_table);
+  }
+
 
   /**
    * Returns a list of the sub-object types used by this view. These types are
@@ -164,6 +198,15 @@ class view extends views_db_object {
     // If the pager is already initialized, pass it through to the pager.
     if (!empty($this->query->pager)) {
       $this->query->pager->set_offset($offset);
+    }
+  }
+
+  /**
+   * Determine if the pager actually uses a pager.
+   */
+  function use_pager() {
+    if (!empty($this->query->pager)) {
+      return $this->query->pager->use_pager();
     }
   }
 
@@ -355,10 +398,98 @@ class view extends views_db_object {
   }
 
   /**
+   * Attempt to discover if the view has handlers missing relationships.
+   *
+   * This will try to add relationships automatically if it can, and will
+   * remove the handlers if it cannot.
+   */
+  function fix_missing_relationships() {
+    if (isset($this->relationships_fixed)) {
+      return;
+    }
+
+    $this->relationships_fixed = TRUE;
+
+    // Go through all of our handler types and test them to see if they
+    // are missing relationships. Missing relationships can cause fatally
+    // broken Views.
+    $base_tables = array(
+      $this->base_table => TRUE,
+      '#global' => TRUE,
+    );
+
+    // For each relationship we have, make sure we mark the base it provides as
+    // available.
+    foreach ($this->display_handler->get_option('relationships') as $id => $options) {
+      $options['table'] = views_move_table($options['table']);
+      $data = views_fetch_data($options['table'], FALSE);
+      if (isset($data[$options['field']])) {
+        $base_tables[$data[$options['field']]['relationship']['base']] = TRUE;
+      }
+    }
+
+    $base_tables = array_keys($base_tables);
+    $missing_base_tables = array();
+
+    $types = views_object_types();
+    foreach ($types as $key => $info) {
+      foreach ($this->display_handler->get_option($info['plural']) as $id => $options) {
+        $options['table'] = views_move_table($options['table']);
+        $data = views_fetch_data($options['table'], FALSE);
+
+        $valid_bases = array($options['table']);
+        if (isset($data['table']['join'])) {
+          $valid_bases = array_merge($valid_bases, array_keys($data['table']['join']));
+        }
+
+        // If the base table is missing, record it so we can try to fix it.
+        if (!array_intersect($valid_bases, $base_tables)) {
+          $missing_base_tables[$options['table']][] = array('type' => $key, 'id' => $id);
+        }
+      }
+    }
+
+    if (!empty($missing_base_tables)) {
+      // This will change handlers, so make sure any existing handlers get
+      // tossed.
+      $this->display_handler->handlers = array();
+      $this->relationships_changed = TRUE;
+      $this->changed = TRUE;
+
+      // Try to fix it.
+      foreach ($missing_base_tables as $table => $handlers) {
+        $data = views_fetch_data($table);
+        $relationship = NULL;
+
+        // Does the missing base table have a default relationship we can
+        // throw in?
+        if (isset($data['table']['default_relationship'][$this->base_table])) {
+          // Create the relationship.
+          $info = $data['table']['default_relationship'][$this->base_table];
+
+          $relationship_options = isset($info['options']) ? $info['options'] : array();
+          $relationship = $this->add_item($this->current_display, 'relationship', $info['table'], $info['field'], $relationship_options);
+        }
+        foreach ($handlers as $handler) {
+          $options = $this->display_handler->get_option($types[$handler['type']]['plural']);
+          if ($relationship) {
+            $options[$handler['id']]['relationship'] = $relationship;
+          }
+          else {
+            unset($options[$handler['id']]);
+          }
+          $this->display_handler->set_option($types[$handler['type']]['plural'], $options);
+        }
+      }
+    }
+  }
+
+  /**
    * Acquire and attach all of the handlers.
    */
   function init_handlers() {
     if (empty($this->inited)) {
+      $this->fix_missing_relationships();
       foreach (views_object_types() as $key => $info) {
         $this->_init_handler($key, $info);
       }
@@ -419,6 +550,18 @@ class view extends views_db_object {
         $handlers[$id]->position = $position;
         $handlers[$id]->pre_query();
         $position++;
+      }
+    }
+  }
+
+  /**
+   * Run the post_execute() on all active handlers.
+   */
+  function _post_execute() {
+    foreach (views_object_types() as $key => $info) {
+      $handlers = &$this->$key;
+      foreach ($handlers as $id => $handler) {
+        $handlers[$id]->post_execute($this->result);
       }
     }
   }
@@ -547,7 +690,7 @@ class view extends views_db_object {
 
     // set the title in the build info.
     if (!empty($title)) {
-      $this->build_info['title'] = str_replace(array_keys($substitutions), $substitutions, $title);
+      $this->build_info['title'] = $title;
     }
 
     // Store the arguments for later use.
@@ -767,8 +910,8 @@ class view extends views_db_object {
       return TRUE;
     }
 
-    // Don't allow to use deactivated displays.
-    if (!$this->display[$this->current_display]->handler->get_option('enabled')) {
+    // Don't allow to use deactivated displays, but display them on the live preview.
+    if (!$this->display[$this->current_display]->handler->get_option('enabled') && empty($this->live_preview)) {
       $this->build_info['fail'] = TRUE;
       return FALSE;
     }
@@ -795,6 +938,7 @@ class view extends views_db_object {
     }
     else {
       $this->query->execute($this);
+      $this->_post_execute();
       if ($cache) {
         $cache->cache_set('results');
       }
@@ -858,7 +1002,7 @@ class view extends views_db_object {
       // Let the theme play too, because pre render is a very themey thing.
       $function = $GLOBALS['theme'] . '_views_pre_render';
       if (function_exists($function)) {
-        $function($this, $this->display_handler->output, $cache);
+        $function($this);
       }
 
       // Give field handlers the opportunity to perform additional queries
@@ -1116,6 +1260,10 @@ class view extends views_db_object {
       $title = $this->display_handler->get_option('title');
     }
 
+    // Allow substitutions from the first row.
+    if ($this->init_style()) {
+      $title = $this->style_plugin->tokenize_value($title, 0);
+    }
     return $title;
   }
 
@@ -1129,10 +1277,7 @@ class view extends views_db_object {
       $human_name = $this->human_name;
     }
     else {
-      $human_name = $this->get_title();
-      if (empty($human_name)) {
-        $human_name = $this->name;
-      }
+      $human_name = $this->name;
     }
     return $human_name;
   }
@@ -1181,8 +1326,7 @@ class view extends views_db_object {
     }
 
     $pieces = array();
-    $arguments = isset($arguments) ? $arguments : $this->display_handler->get_option('arguments');
-    $argument_keys = isset($arguments) ? array_keys($arguments) : array();
+    $argument_keys = isset($this->argument) ? array_keys($this->argument) : array();
     $id = current($argument_keys);
     foreach (explode('/', $path) as $piece) {
       if ($piece != '%') {
@@ -1191,8 +1335,8 @@ class view extends views_db_object {
       else {
         if (empty($args)) {
           // Try to never put % in a url; use the wildcard instead.
-          if ($id && !empty($arguments[$id]['wildcard'])) {
-            $pieces[] = $arguments[$id]['wildcard'];
+          if ($id && !empty($this->argument[$id]->options['exception']['value'])) {
+            $pieces[] = $this->argument[$id]->options['exception']['value'];
           }
           else {
             $pieces[] = '*'; // gotta put something if there just isn't one.
@@ -1519,6 +1663,7 @@ class view extends views_db_object {
    */
   function export($indent = '') {
     $this->init_display();
+    $this->init_query();
     $output = '';
     $output .= $this->export_row('view', $indent);
     // Set the API version
@@ -1668,6 +1813,7 @@ class view extends views_db_object {
 
     $errors = array();
 
+    $current_display = $this->current_display;
     foreach ($this->display as $id => $display) {
       if ($display->handler) {
         if (!empty($display->deleted)) {
@@ -1681,6 +1827,7 @@ class view extends views_db_object {
       }
     }
 
+    $this->set_display($current_display);
     return $errors ? $errors : TRUE;
   }
 
@@ -1692,7 +1839,7 @@ class view extends views_db_object {
       return TRUE;
     }
 
-    $this->localization_plugin = views_get_plugin('localization', variable_get('views_localization_plugin', 'core'));
+    $this->localization_plugin = views_get_plugin('localization', views_get_localization_plugin());
 
     if (empty($this->localization_plugin)) {
       return FALSE;
@@ -1935,7 +2082,7 @@ class views_db_object {
     if (empty($id)) {
       $id = $this->generate_display_id($type);
       if ($id !== 'default') {
-        preg_match("/[0-9]/", $id, $count);
+        preg_match("/[0-9]+/", $id, $count);
         $count = $count[0];
       }
       else {
@@ -2157,6 +2304,13 @@ class views_db_object {
  * to the behavior of the display at all.
  */
 class views_display extends views_db_object {
+  /**
+   * The display handler itself, which has all the methods.
+   *
+   * @var views_plugin_display
+   */
+  var $handler;
+
   var $db_table = 'views_display';
   function views_display($init = TRUE) {
     parent::init($init);

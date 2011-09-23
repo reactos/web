@@ -61,7 +61,7 @@ class ViewsUiBaseViewsWizard implements ViewsWizardInterface {
 
     $entities = entity_get_info();
     foreach ($entities as $entity_type => $entity_info) {
-      if ($this->base_table == $entity_info['base table']) {
+      if (isset($entity_info['base table']) && $this->base_table == $entity_info['base table']) {
         $this->entity_info = $entity_info;
         $this->entity_type = $entity_type;
       }
@@ -133,11 +133,11 @@ class ViewsUiBaseViewsWizard implements ViewsWizardInterface {
 
     $this->build_form_style($form, $form_state, 'page');
     $form['displays']['page']['options']['items_per_page'] = array(
-      '#title' => t('Items per page'),
+      '#title' => t('Items to display'),
       '#type' => 'textfield',
       '#default_value' => '10',
       '#size' => 5,
-      '#element_validate' => array('_element_validate_integer_positive'),
+      '#element_validate' => array('views_element_validate_integer_positive'),
     );
     $form['displays']['page']['options']['link'] = array(
       '#title' => t('Create a menu link'),
@@ -263,7 +263,7 @@ class ViewsUiBaseViewsWizard implements ViewsWizardInterface {
       '#type' => 'textfield',
       '#default_value' => '5',
       '#size' => 5,
-      '#element_validate' => array('_element_validate_integer_positive'),
+      '#element_validate' => array('views_element_validate_integer_positive'),
     );
 
     return $form;
@@ -418,10 +418,12 @@ class ViewsUiBaseViewsWizard implements ViewsWizardInterface {
    * By default, this adds a "sorted by [date]" filter (when it is available).
    */
   protected function build_sorts(&$form, &$form_state) {
-    // Check if we are allowed to sort by creation date.
-    $sorts = array();
+    $sorts = array(
+      'none' => t('Unsorted'),
+    );
+    // Check if we are allowed to sort by creation date.    
     if (!empty($this->plugin['created_column'])) {
-      $sorts = array(
+      $sorts += array(
         $this->plugin['created_column'] . ':DESC' => t('Newest first'),
         $this->plugin['created_column'] . ':ASC' => t('Oldest first'),
       );
@@ -429,14 +431,12 @@ class ViewsUiBaseViewsWizard implements ViewsWizardInterface {
         $sorts += $this->plugin['available_sorts'];
       }
     }
-    if (!empty($sorts)) {
-      $form['displays']['show']['sort'] = array(
-        '#type' => 'select',
-        '#title' => t('sorted by'),
-        '#options' => $sorts,
-        '#default_value' => isset($this->plugin['created_column']) ? $this->plugin['created_column'] . ':DESC' : NULL,
-      );
-    }
+    $form['displays']['show']['sort'] = array(
+      '#type' => 'select',
+      '#title' => t('sorted by'),
+      '#options' => $sorts,
+      '#default_value' => isset($this->plugin['created_column']) ? $this->plugin['created_column'] . ':DESC' : NULL,
+    );
   }
 
   protected function instantiate_view($form, &$form_state) {
@@ -696,7 +696,8 @@ class ViewsUiBaseViewsWizard implements ViewsWizardInterface {
   protected function default_display_sorts_user($form, $form_state) {
     $sorts = array();
 
-    if (!empty($form_state['values']['show']['sort'])) {
+    // Don't add a sort if there is no form value or the user selected none as sort.
+    if (!empty($form_state['values']['show']['sort']) && $form_state['values']['show']['sort'] != 'none') {
       list($column, $sort) = explode(':', $form_state['values']['show']['sort']);
       // Column either be a column-name or the table-columnn-ame.
       $column = explode('-', $column);

@@ -90,6 +90,11 @@
   width: 70%;
 }
 
+.views-group-box .form-item {
+  margin-left: 3px;
+  margin-right: 3px;
+}
+
 /* @end */
 
 /* @group Attachment details
@@ -98,7 +103,7 @@
  * to add a new section
  */
 
-.form-actions {
+.form-edit .form-actions {
   float: right; /* LTR */
 }
 
@@ -141,6 +146,12 @@
 .views-display-deleted .fieldset-wrapper > .views-ui-display-tab-bucket > *,
 .views-display-deleted .views-display-columns {
   opacity: 0.25;
+}
+
+.views-display-disabled > fieldset > legend,
+.views-display-disabled .fieldset-wrapper > .views-ui-display-tab-bucket > *,
+.views-display-disabled .views-display-columns {
+  opacity: 0.5;
 }
 
 .views-display-tab .fieldset-wrapper > .views-ui-display-tab-bucket .actions {
@@ -348,6 +359,7 @@ html.js span.js-only {
 /* @group AJAX throbber */
 
 /* Base Page */
+#views-ui-list-page .ajax-progress-throbber,
 .views-admin .ajax-progress-throbber {
   /* Can't do center:50% middle: 50%, so approximate it for a typical window size. */
   left: 49%;
@@ -355,6 +367,7 @@ html.js span.js-only {
   top: 48.5%;
   z-index: 1000;
 }
+#views-ui-list-page .ajax-progress-throbber .message,
 .views-admin .ajax-progress-throbber .message {
   display: none;
 }
