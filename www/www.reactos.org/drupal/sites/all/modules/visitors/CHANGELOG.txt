@@ -1,0 +1,54 @@
+Visitors 7.x-1.0-alpha4, 2011-09-10
+-----------------------
+- Added feature request #1262578: Add requirements checks and print results to
+  the Status report.
+- Change hook_permission implementation.
+
+Visitors 7.x-1.0-alpha3, 2011-09-03
+-----------------------
+- Fixed bug reports #1267722: Prohibit opening .txt files via browser.
+
+Visitors 7.x-0.39, 2011-09-03
+-----------------------
+- Fixed bug reports #1267722: Prohibit opening .txt files via browser.
+
+Visitors 7.x-0.38, 2011-09-02
+-----------------------
+- Fixed bug report #1262542: Rename all include files to *.inc.
+- Changed link to visitors settings page.
+
+Visitors 7.x-1.0-alpha2, 2011-09-01
+-----------------------
+- Fixed bug report #1248588: SQLSTATE[23000]: Integrity constraint violation:
+  1048 Column 'visitors_continent_code' cannot be null.
+- Fixed bug report #1248418: SQLite database. Module installation errors.
+  Notice: Undefined index: char:normal in
+  DatabaseSchema_sqlite->processField().
+- Fixed bug report #1262542: Rename all include files to *.inc.
+
+Visitors 7.x-1.0-alpha1, 2011-08-12
+-----------------------
+- Fixed feature request #556512: Countries.
+
+Visitors 7.x-0.37, 2011-07-22
+-----------------------
+- Fixed bug report #1221328: Ajax error message when checking for updates.
+
+Visitors 7.x-0.36, 2011-07-16
+-----------------------
+- Fixed task #1218500: Visitors settings path 6 / 7.
+
+Visitors 7.x-0.35, 2011-06-18
+-----------------------
+- Fixed bug report #1192520: Days of month report, incorrect days sorting.
+- Moved node visitors report from visitors.pages.inc to reports/node.php file.
+- Enhance the validation parameters of date filter form.
+- visitors_mysql_date_format_sql refactoring.
+- visitors_pgsql_date_format_sql refactoring.
+- visitors_exit code refactoring.
+- visitors_exit function moved to visitors.exit file.
+
+Visitors 7.x-0.34, 2011-05-28
+-----------------------
+- Feature requests #1010994: D7 Version?
+

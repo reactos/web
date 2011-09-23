@@ -1,0 +1,3 @@
+<FilesMatch "\.(txt)$">
+  Order allow,deny
+</FilesMatch>

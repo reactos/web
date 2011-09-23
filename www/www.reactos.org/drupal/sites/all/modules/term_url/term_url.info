@@ -1,5 +1,0 @@
-name = Term Reference URL Widget
-description = Adds a widget to the Term Reference field that will be prepopulated by the URL.
-files[] = term_url.module
-package = Fields
-core = 7.x

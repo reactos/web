@@ -1,0 +1,16 @@
+name = Organic groups migrate
+description = "Migrate Organic groups data."
+package = "Organic groups"
+dependencies[] = og
+dependencies[] = ctools
+core = 7.x
+
+; Test files.
+files[] = og_migrate.test
+
+; Information added by drupal.org packaging script on 2011-08-16
+version = "7.x-1.1"
+core = "7.x"
+project = "og"
+datestamp = "1313505720"
+
