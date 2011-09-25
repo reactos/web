@@ -1,0 +1,8 @@
+/**
+ * Implements hook_cron().
+ */
+function reactos_cron() {
+  $svn_path = '/srv/www';
+  exec('svn update ' . $svn_path . ' | tail', &$output);
+  drupal_set_message("Command 'svn up' attempted. The tail of the output follows:\n" . $output);
+}

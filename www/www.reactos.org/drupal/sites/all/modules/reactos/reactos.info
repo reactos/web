@@ -1,0 +1,4 @@
+name = ReactOS custom module
+description = All our custom code should go in here!
+core = 7.x
+
