@@ -5,8 +5,10 @@
  */
 function reactos_cron() {
   $svn_path = '/srv/www';
-  if (strpos(strtolower(php_sapi_name()), 'cgi') === FALSE) {
-    exec('svn update ' . $svn_path . ' | tail', $output);
-    drupal_set_message("Command 'svn up' attempted. The tail of the output follows: <br><em>$output[0]</em>");
-  }
+  exec('svn update ' . $svn_path . ' | tail', $output);
+  watchdog(
+    'ReactOS',
+    "Command 'svn up' attempted. The tail of the output follows: <br><em>!output[0]</em>",
+    array('!output' => $output),
+  );
 }
