@@ -52,8 +52,10 @@ padding:0;
 .with-navigation #content,.with-navigation .region-sidebar-first,.with-navigation .region-sidebar-second {
 margin-top:3em;
 width:20%;
+height:220px;
 }
 
+.section .block .content img{width:120px;height:120px;}
 .region-sidebar-first {
 float:left;
 margin-left:0;
