@@ -27,6 +27,8 @@ body {
   min-width: 960px; /* Don't allow the browser to make the site unreadable. */
 }
 
+.region-content{width:600px;}
+
 #page {
 }
 
