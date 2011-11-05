@@ -6,6 +6,7 @@
 
 .block /* Block wrapper */ {
   margin-bottom: 1.5em;
+  width:150px;
 }
 
 .block.first /* The first block in the region */ {
