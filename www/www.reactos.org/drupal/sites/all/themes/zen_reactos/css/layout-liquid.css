@@ -51,13 +51,13 @@ padding:0;
 
 .with-navigation #content,.with-navigation .region-sidebar-first,.with-navigation .region-sidebar-second {
 margin-top:3em;
+width:20%;
 }
 
 .region-sidebar-first {
 float:left;
 margin-left:0;
 margin-right:-200px;
-min-width:200px;
 padding:0;
 }
 
@@ -70,7 +70,6 @@ padding:0;
 float:right;
 margin-left:-200px;
 margin-right:0;
-min-width:220px;
 padding:0;
 }
 
