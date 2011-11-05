@@ -14,10 +14,10 @@ position:relative;
 float:left;
 margin-left:0;
 margin-right:-100%;
-max-width:580px;
+max-width:960px;
 min-width:580px;
+width:90%;
 padding:0;
-width:100%;
 }
 
 #content .section,.no-sidebars #content .section {
@@ -45,8 +45,8 @@ float:left;
 height:3em;
 margin-left:0;
 margin-right:-100%;
-padding:0;
 width:100%;
+padding:0;
 }
 
 .with-navigation #content,.with-navigation .region-sidebar-first,.with-navigation .region-sidebar-second {
@@ -57,7 +57,7 @@ margin-top:3em;
 float:left;
 margin-left:0;
 margin-right:-200px;
-min-width:350px;
+min-width:200px;
 padding:0;
 }
 
@@ -70,7 +70,7 @@ padding:0;
 float:right;
 margin-left:-200px;
 margin-right:0;
-min-width:350px;
+min-width:220px;
 padding:0;
 }
 
