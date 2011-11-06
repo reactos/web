@@ -1,7 +1,7 @@
 #page {
 font-family:Verdana;
 font-size:12px;
-background:#FFF url('http://reactos.org/images/topbar.jpg') repeat-x left top;
+background:#FFF url('./sites/all/themes/zen_reactos/images/topbar.jpg') repeat-x left top;
 margin:0 0 1em;
 padding:0;
 }
@@ -18,7 +18,7 @@ padding:0 0 1px 10px;
 }
 
 #header {
-background:url('http://reactos.org/images/logo.jpg') no-repeat scroll 35px 0;
+background:url('./sites/all/themes/zen_reactos/images/logo.jpg') no-repeat scroll 35px 0;
 color:#FFF;
 text-align:right;
 margin:0;
