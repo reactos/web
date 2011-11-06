@@ -102,7 +102,7 @@
   </div></div><!-- /.section, /#header -->
 
   <div id="main-wrapper"><div id="main" class="clearfix<?php if ($page['navigation']) { print ' with-navigation'; } ?>">
-
+      <!-- /.section, /#content -->
     <div id="content" class="column"><div class="section">
       <?php print render($page['highlighted']); ?>
       <?php print $breadcrumb; ?>
@@ -123,7 +123,8 @@
       <?php print render($page['content']); ?>
 	  <?php print render($page['content_bottom']); ?>
       <?php print $feed_icons; ?>
-    </div></div><!-- /.section, /#content -->
+    </div></div>
+      <!-- /.section, /#content -->
 
     <?php if ($page['navigation'] ): ?>
       <div id="navigation"><div class="section clearfix"><?php print render($page['navigation']); ?></div></div><!-- /.section, /#navigation -->
@@ -136,5 +137,4 @@
   </div></div><!-- /#main, /#main-wrapper -->
 
 </div></div><!-- /#page, /#page-wrapper -->
-<?php print render($page['footer']); ?>
 <?php print render($page['bottom']); ?>
