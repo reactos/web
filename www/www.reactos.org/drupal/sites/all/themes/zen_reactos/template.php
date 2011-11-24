@@ -140,3 +140,12 @@ function zen_reactos_preprocess_block(&$variables, $hook) {
   $variables['classes_array'][] = 'count-' . $variables['block_id'];
 }
 // */
+function zen_reactos_form_alter(&$form, &$form_state, $form_id) {
+    if ($form_id == 'search_block_form') {
+	$form['search_block_form']['#default_value'] = t('Search'); // Set a default value for the textfield
+	$form['actions']['submit']['#value'] = t('>'); // Change the text on the submit button
+        // Add extra attributes to the text box
+	$form['search_block_form']['#attributes']['onblur'] = "if (this.value == '') {this.value = '".t('Search')."';}";
+	$form['search_block_form']['#attributes']['onfocus'] = "if (this.value == '".t('Search')."') {this.value = '';}";
+    }
+} 
