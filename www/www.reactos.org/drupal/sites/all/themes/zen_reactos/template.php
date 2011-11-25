@@ -134,10 +134,12 @@ function zen_reactos_preprocess_comment(&$variables, $hook) {
  * @param $hook
  *   The name of the template being rendered ("block" in this case.)
  */
-/* -- Delete this line if you want to use this function
 function zen_reactos_preprocess_block(&$variables, $hook) {
-  // Add a count to all the blocks in the region.
-  $variables['classes_array'][] = 'count-' . $variables['block_id'];
+    // apply ReactOS' version number token
+    if (token_scan($variables['block']->title))
+    {
+        $variables['block']->subject = token_replace($variables['block']->title, array('custom'), array('clear'=>true));
+    }
 }
 // */
 function zen_reactos_form_alter(&$form, &$form_state, $form_id) {
