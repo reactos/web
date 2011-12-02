@@ -1,0 +1,5 @@
+name = ReactOS custom module
+description = All our miscellaneous custom code should go in here!
+package = ReactOS modules
+core = 7.x
+
