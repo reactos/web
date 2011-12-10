@@ -65,11 +65,6 @@ switch (@$_GET['page']) {
     new HTML_User_Register();
     break;
 
-  // Captcha
-  case 'captcha':
-    new CaptchaSecurityImages();
-    break;
-
   // User Profile (view | edit)
   case 'my':
   case 'user':

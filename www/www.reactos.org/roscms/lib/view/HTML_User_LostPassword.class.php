@@ -18,6 +18,7 @@
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
     */
 
+require_once(ROSCMS_PATH . "lib/recaptchalib.php");
 
 /**
  * class HTML_User_LostPassword
@@ -85,7 +86,7 @@ class HTML_User_LostPassword extends HTML_User
       }
     }
 
-    if (strlen($activation_code) > 6 && isset($_POST['registerpost']) && !empty($_POST['userpwd1']) && !empty($_POST['userpwd2']) && strlen($_POST['userpwd1']) >= $config->limitPasswordMin() && strlen($_POST['userpwd1']) < $config->limitPasswordMax() && $_POST['userpwd1'] == $_POST['userpwd2'] && !empty($_POST['usercaptcha']) && !empty($_SESSION['rdf_security_code']) && strtolower($_SESSION['rdf_security_code']) == strtolower($_POST['usercaptcha']) && $password_id_exists) {
+    if (strlen($activation_code) > 6 && isset($_POST['registerpost']) && !empty($_POST['userpwd1']) && !empty($_POST['userpwd2']) && strlen($_POST['userpwd1']) >= $config->limitPasswordMin() && strlen($_POST['userpwd1']) < $config->limitPasswordMax() && $_POST['userpwd1'] == $_POST['userpwd2'] && self::checkCaptcha() && $password_id_exists) {
       $stmt=&DBConnection::getInstance()->prepare("SELECT id FROM ".ROSCMST_USERS." WHERE activation_password = :getpwd_id LIMIT 1");
       $stmt->bindParam('getpwd_id',$activation_code,PDO::PARAM_STR);
       $stmt->execute();
@@ -103,7 +104,7 @@ class HTML_User_LostPassword extends HTML_User
 
       $noshow=true;
     }
-    elseif (strlen($activation_code) < 6 && isset($_POST['registerpost']) && !empty($_POST['useremail']) && EMail::isValid($_POST['useremail']) && !empty($_POST['usercaptcha']) && !empty($_SESSION['rdf_security_code']) && strtolower($_SESSION['rdf_security_code']) == strtolower($_POST['usercaptcha']) && $mail_exists) {
+    elseif (strlen($activation_code) < 6 && isset($_POST['registerpost']) && !empty($_POST['useremail']) && EMail::isValid($_POST['useremail']) && self::checkCaptcha() && $mail_exists) {
     
       // password activation code
       $activation_code = ROSUser::makeActivationCode();
@@ -130,7 +131,6 @@ class HTML_User_LostPassword extends HTML_User
         echo_strip('
           <h2>Account login data sent</h2>
           <div>Check your email inbox (and spam folder) for the email that contains your account login data.</div>');
-        unset($_SESSION['rdf_security_code']);
         unset($message);
         $noshow = true;
       }
@@ -185,26 +185,17 @@ class HTML_User_LostPassword extends HTML_User
 
     echo_strip('
       <div class="field">
-        <label for="usercaptcha"'.(isset($_POST['registerpost'])? ' style="color:red;"' :'').'>Type the code shown</label>
-        <input type="text" name="usercaptcha" tabindex="7" id="usercaptcha" maxlength="50" />');
+        <label'.(isset($_POST['registerpost'])? ' style="color:red;"' :'').'>Captcha</label>');
 
     echo '
         <script type="text/javascript">
-        <!--'."
-          var BypassCacheNumber = 0;
-
-          function CaptchaReload()
-          {
-            ++BypassCacheNumber;
-            document.getElementById('captcha').src = '".$config->pathInstance()."?page=captcha&nr=' + BypassCacheNumber;
-          }
-
-          document.write('".'<br /><span style="color:#817A71;">If you can\'t read this, try <a href="javascript:CaptchaReload()">another one</a>.</span>'."');
-        -->".'
+          var RecaptchaOptions = {
+            theme : "white"
+          };
         </script>';
-    echo_strip('
-        <img id="captcha" src="'.$config->pathInstance().'?page=captcha" style="padding-top:10px;" alt="If you can\'t read this, try another one or email '.$config->emailSupport().' for help." title="Are you human?" />
-        <br />');
+      
+    require(ROSCMS_PATH . "../../www.reactos.org_config/recaptcha.php");
+    echo recaptcha_get_html($recaptcha_publickey);
 
     if (isset($_POST['registerpost'])) { 
       echo_strip('
@@ -243,6 +234,11 @@ class HTML_User_LostPassword extends HTML_User
 
   } // end of member function body
 
+  private function checkCaptcha()
+  {
+    require(ROSCMS_PATH . "../../www.reactos.org_config/recaptcha.php");
+    return recaptcha_check_answer($recaptcha_privatekey, $_SERVER["REMOTE_ADDR"], $_POST["recaptcha_challenge_field"], $_POST["recaptcha_response_field"])->is_valid;
+  }
 
 } // end of HTML_User_LostPassword
 ?>

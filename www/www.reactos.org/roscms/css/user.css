@@ -32,7 +32,7 @@ ADDRESS P { margin: 0;}
 #leftNav H2 { margin: 0px; padding-left: 12px; border: #3F3849 1px solid; font-weight: bold; font-size: 14px; color: white; background-color: #5984c3; }
 
 /* Login Stuff */
-.bubble { margin: 10px auto; background-color: #e1eafb; width: 300px; text-align:center; }
+.bubble { margin: 10px auto; background-color: #e1eafb; width: 350px; text-align:center; }
 .bubble.message { background-color: #FAD163; margin-top: 20px; }
 .bubble H2 { color: black; font-size: 200%; font-weight:bold; padding: 5px; }
 .bubble FIELDSET { border: 1px solid lightgrey; text-align: left; margin: 20px 10px 10px 10px; padding: 10px; color:#817A71; font-size:105%; font-weight:bold;}
@@ -57,3 +57,6 @@ ADDRESS P { margin: 0;}
 .bubble .field .value A { font-size:95%; color:#333333 !important; }
 .bubble .field .detail { font-size: 10px;font-weight:lighter; }
 .bubble .field .u-link A { color:#333333 !important; font-size:110%; font-weight:bold; margin: 10px 0px; }
+
+/* recaptcha */
+#recaptcha_area { margin: 0 auto; width: 350px; }

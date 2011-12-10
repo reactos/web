@@ -19,6 +19,7 @@
     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
     */
 
+require_once(ROSCMS_PATH . "lib/recaptchalib.php");
 
 /**
  * class HTML_User_Register
@@ -123,8 +124,6 @@ class HTML_User_Register extends HTML_User
       {
         echo 'Error while trying to send E-Mail';
       }
-
-      unset($_SESSION['rdf_security_code']);
     } // end registration process
     else
     {
@@ -175,25 +174,17 @@ class HTML_User_Register extends HTML_User
       echo_strip('
         </div>
         <div class="field">
-          <label for="usercaptcha"' . ($captcha_ok ? '' : ' style="color: red;"') . '>Type the code shown</label>
-          <input name="usercaptcha" type="text" tabindex="7" id="usercaptcha" maxlength="6" />
-          <script type="text/javascript">');echo "
-          <!--
-            
-            var BypassCacheNumber = 0;
-
-            function CaptchaReload()
-            {
-              ++BypassCacheNumber;
-              document.getElementById('captcha').src = '".$config->pathInstance()."?page=captcha&nr=' + BypassCacheNumber;
-            }
-
-            document.write('<br /><span style=\"color:#817A71; \">If you cannot read this, try <a href=\"javascript:CaptchaReload()\">another one</a>.</span>');
-          
-          -->";echo_strip('
-          </script>
-          <img id="captcha" src="' . $config->pathInstance() . '?page=captcha" style="padding-top:10px;" alt="If you cannot read this, try another one or email ' . $config->emailSupport() . ' for help." title="Are you human?" />
-          <br />');
+          <label' . ($captcha_ok ? '' : ' style="color: red;"') . '>Captcha</label>');
+      
+      echo '
+          <script type="text/javascript">
+            var RecaptchaOptions = {
+              theme : "white"
+            };
+          </script>';
+      
+      require(ROSCMS_PATH . "../../www.reactos.org_config/recaptcha.php");
+      echo recaptcha_get_html($recaptcha_publickey);
       
       if (!$captcha_ok)
       {
@@ -291,9 +282,8 @@ class HTML_User_Register extends HTML_User
     
     // CAPTCHA CHECKS
     // Ensure that the captcha is correct
-    $captcha_ok = isset($_POST['usercaptcha']) && isset($_SESSION['rdf_security_code']) &&
-                  strtolower($_POST['usercaptcha']) == strtolower($_SESSION['rdf_security_code']);
-    
+    require(ROSCMS_PATH . "../../www.reactos.org_config/recaptcha.php");
+    $captcha_ok = recaptcha_check_answer($recaptcha_privatekey, $_SERVER["REMOTE_ADDR"], $_POST["recaptcha_challenge_field"], $_POST["recaptcha_response_field"])->is_valid;
     
     // Now we have all information together and can easily check whether an account could be registered.
     // Also the caller can get detailed information about _every_ incorrect field.
