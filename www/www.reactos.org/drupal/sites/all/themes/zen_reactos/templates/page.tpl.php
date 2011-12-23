@@ -137,4 +137,5 @@
   </div></div><!-- /#main, /#main-wrapper -->
 
 </div></div><!-- /#page, /#page-wrapper -->
-<?php print render($page['bottom']); ?>
+
+<?php print render($page['footer']); ?>
