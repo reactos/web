@@ -87,7 +87,6 @@ regions[navigation]     = Navigation bar
 regions[highlighted]    = Highlighted
 regions[content]        = Content
 regions[header]         = Header
-regions[footer]         = Footer
 regions[page_top]       = Page top
 regions[content_bottom] = Content bottom
 

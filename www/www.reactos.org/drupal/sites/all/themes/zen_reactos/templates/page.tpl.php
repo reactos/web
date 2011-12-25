@@ -138,4 +138,6 @@
 
 </div></div><!-- /#page, /#page-wrapper -->
 
-<?php print render($page['footer']); ?>
+<div id="footer">
+ReactOS is a registered trademark or a trademark of ReactOS Foundation in the United States and other countries.
+</div>
