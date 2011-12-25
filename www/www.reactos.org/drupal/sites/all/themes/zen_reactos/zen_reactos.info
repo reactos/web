@@ -99,7 +99,6 @@ regions[content_bottom] = Content bottom
 ; entry for it below. See the Drupal 7 Theme Guide for more info:
 ; http://drupal.org/node/171205#features
 
-features[] = logo
 features[] = node_user_picture
 features[] = comment_user_picture
 features[] = favicon
