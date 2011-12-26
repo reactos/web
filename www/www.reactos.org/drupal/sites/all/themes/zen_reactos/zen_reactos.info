@@ -46,7 +46,7 @@ stylesheets[all][]        = css/nodes.css
 stylesheets[all][]        = css/comments.css
 stylesheets[all][]        = css/forms.css
 stylesheets[all][]        = css/fields.css
-stylesheets[all][] 		  = css/reactos-style.css.less
+stylesheets[all][] 		  = css/reactos-style.css
 stylesheets[print][]      = css/print.css
 
 ; Example of adding handheld stylesheets. The iPhone's preferred media type
