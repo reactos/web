@@ -168,3 +168,39 @@ background:#fff;
 	text-align: center;
 	padding: 6px 0px;
 }
+
+.greenButton {
+}
+
+.greenButtonDownload {
+	background: url('http://www.reactos.org/images/button_download.jpg');
+}
+
+.greenButtonDonate {
+	background: url('http://www.reactos.org/images/button_donate.jpg');
+}
+
+.greenButtonCompat {
+	background: url('http://www.reactos.org/images/button_comp_home.jpg');
+}
+
+.greenButton a {
+	font-size: 16px;
+	color: #367D10;
+	height: 49px;
+	width: 235px;
+	display: block;
+}
+
+.greenButtonLabel {
+	width: 178px;
+	position: relative;
+	top: 8px;
+	left: 50px;
+	height: 30px;
+	vertical-align: bottom;
+	text-align: center;
+	font: normal 16px Verdana;
+	font-weight: 700;
+	line-height: 25px;
+}
