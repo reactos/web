@@ -173,15 +173,15 @@ background:#fff;
 }
 
 .greenButtonDownload {
-	background: url('http://www.reactos.org/images/button_download.jpg');
+	background: url('/drupal/sites/all/themes/zen_reactos/images/button_download.jpg');
 }
 
 .greenButtonDonate {
-	background: url('http://www.reactos.org/images/button_donate.jpg');
+	background: url('/drupal/sites/all/themes/zen_reactos/images/button_donate.jpg');
 }
 
 .greenButtonCompat {
-	background: url('http://www.reactos.org/images/button_comp_home.jpg');
+	background: url('/drupal/sites/all/themes/zen_reactos/images/button_comp_home.jpg');
 }
 
 .greenButton a {
