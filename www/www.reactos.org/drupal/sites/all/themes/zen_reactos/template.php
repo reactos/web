@@ -156,11 +156,19 @@ function zen_reactos_form_user_register_form_alter(&$form, &$form_state, $form_i
 	$form['#theme'] = 'user_register_form';
 }
 
+function zen_reactos_form_user_login_alter(&$form, &$form_state, $form_id) {
+	$form['#theme'] = 'user_login';
+}
+
 function zen_reactos_theme($existing, $type, $theme, $path) {
 	return array(
 		'user_register_form' => array(
 			'render element' => 'form',
 			'template' => 'templates/user-register-form'
-		)
+		),
+		'user_login' => array(
+			'render element' => 'form',
+			'template' => 'templates/user-login'
+		),
 	);
 }

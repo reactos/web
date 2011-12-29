@@ -361,6 +361,7 @@ img.icon, p.icon_p img {
   font-weight:bold;
 }
 
+/* user-register-form */
 
 #user-register-form {
 	background-color: #E1EAFB;
@@ -368,7 +369,6 @@ img.icon, p.icon_p img {
 	width: 350px;
 	padding: 10px;
 }
-
 #user-register-form input[type="text"], #user-register-form input[type="password"] {
 	background-color: #FFFADB;
 	border: 1px solid #CBB945;
@@ -376,7 +376,25 @@ img.icon, p.icon_p img {
 	padding: 3px 7px;
 	width: 200px;
 }
-
 #user-register-form label {
+	color: #817A71;
+}
+
+/* user-login */
+
+#user-login {
+	background-color: #E1EAFB;
+	text-align: center;
+	width: 350px;
+	padding: 10px;
+}
+#user-login input[type="text"], #user-login input[type="password"] {
+	background-color: #FFFADB;
+	border: 1px solid #CBB945;
+	color: #776B1B;
+	padding: 3px 7px;
+	width: 200px;
+}
+#user-login label {
 	color: #817A71;
 }
