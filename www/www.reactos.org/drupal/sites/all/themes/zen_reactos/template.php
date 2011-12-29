@@ -150,4 +150,17 @@ function zen_reactos_form_alter(&$form, &$form_state, $form_id) {
 	$form['search_block_form']['#attributes']['onblur'] = "if (this.value == '') {this.value = '".t('Search')."';}";
 	$form['search_block_form']['#attributes']['onfocus'] = "if (this.value == '".t('Search')."') {this.value = '';}";
     }
-} 
+}
+
+function zen_reactos_form_user_register_form_alter(&$form, &$form_state, $form_id) {
+	$form['#theme'] = 'user_register_form';
+}
+
+function zen_reactos_theme($existing, $type, $theme, $path) {
+	return array(
+		'user_register_form' => array(
+			'render element' => 'form',
+			'template' => 'templates/user-register-form'
+		)
+	);
+}

@@ -360,3 +360,23 @@ img.icon, p.icon_p img {
   color:#666666;
   font-weight:bold;
 }
+
+
+#user-register-form {
+	background-color: #E1EAFB;
+	text-align: center;
+	width: 350px;
+	padding: 10px;
+}
+
+#user-register-form input[type="text"], #user-register-form input[type="password"] {
+	background-color: #FFFADB;
+	border: 1px solid #CBB945;
+	color: #776B1B;
+	padding: 3px 7px;
+	width: 200px;
+}
+
+#user-register-form label {
+	color: #817A71;
+}
