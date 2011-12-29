@@ -398,3 +398,22 @@ img.icon, p.icon_p img {
 #user-login label {
 	color: #817A71;
 }
+
+/* user-pass */
+
+#user-pass {
+	background-color: #E1EAFB;
+	text-align: center;
+	width: 350px;
+	padding: 10px;
+}
+#user-pass input[type="text"], #user-pass input[type="password"] {
+	background-color: #FFFADB;
+	border: 1px solid #CBB945;
+	color: #776B1B;
+	padding: 3px 7px;
+	width: 200px;
+}
+#user-pass label {
+	color: #817A71;
+}
