@@ -173,15 +173,15 @@ background:#fff;
 }
 
 .greenButtonDownload {
-	background: url('/drupal/sites/all/themes/zen_reactos/images/button_download.jpg');
+	background: url('http://www.reactos.org/images/button_download.jpg');
 }
 
 .greenButtonDonate {
-	background: url('/drupal/sites/all/themes/zen_reactos/images/button_donate.jpg');
+	background: url('http://www.reactos.org/images/button_donate.jpg');
 }
 
 .greenButtonCompat {
-	background: url('/drupal/sites/all/themes/zen_reactos/images/button_comp_home.jpg');
+	background: url('http://www.reactos.org/images/button_comp_home.jpg');
 }
 
 .greenButton a {
@@ -203,4 +203,160 @@ background:#fff;
 	font: normal 16px Verdana;
 	font-weight: 700;
 	line-height: 25px;
+}
+
+
+
+/* BELOW ARE CONTENTS OF THE REACTOS-STYLE.CSS FROM /SITES/DEFAULT/ */
+
+
+
+
+
+#page-wrapper a {
+  font-size:12px;
+  color:#006090;
+}
+#main { margin:0 .4em; }
+#main .region-sidebar-first .block-menu .content ul {
+  margin:0;
+  padding:0;
+  list-style-type:none;
+  background-color:#eeeeee;
+  border-top:#3f3849 0 solid;
+  border-right:#3f3849 1px solid;
+  border-left:#3f3849 1px solid;
+}
+#main .region-sidebar-first .block-menu .content ul li {
+  font-size:13px;
+  font-weight:bold;
+  border-bottom:#3f3849 1px solid;
+}
+#main .region-sidebar-first .block-menu .content ul li ul {
+  border-left:none;
+  border-right:none;
+}
+#main .region-sidebar-first .block-menu .content ul li ul li {
+  border-bottom:none;
+  border-top:#3f3849 1px solid;
+}
+#main .region-sidebar-first .block-menu .content ul li ul li a {
+  padding-left:10px;
+  background-color:#cdcdcd;
+  color:#2f2839;
+}
+#main .region-sidebar-first .block-menu .content ul li a {
+  display:block;
+  font-size:12px;
+  padding:2px 4px 2px 4px;
+  color:#3f3849;
+  text-decoration:none;
+  background-color:#eeeeee;
+}
+#main .region-sidebar-first .block-menu .content ul li a:hover {
+  color:black;
+  background-color:#ffcc33;
+}
+#main .region-sidebar-first .block-search .content {
+  background-color:#eeeeee;
+  border:#3f3849 1px solid;
+  border-top:none;
+}
+#page {
+  font-family:Verdana;
+  font-size:12px;
+  margin:0 0 1em 0;
+  padding:0;
+  background:white url('http://reactos.org/images/topbar.jpg') repeat-x left top;
+}
+h1 {
+  display:block;
+  line-height:normal;
+  font-size:14px;
+  font-weight:bold;
+  color:white;
+  background-color:#5984c3;
+  padding:0 0 1px 10px;
+  margin-top:0;
+}
+#header {
+  margin:0;
+  background:url('http://reactos.org/images/logo.jpg') no-repeat scroll 35px 0;
+  padding:103px 0 26px 0;
+  color:white;
+  text-align:right;
+}
+#logo, #site-name-wrapper { display:none; }
+#block-system-main-menu ul.menu {
+  list-style-type:none;
+  text-align:center;
+  margin:0;
+  padding:0;
+  line-height:normal;
+}
+#block-system-main-menu ul.menu li {
+  display:inline-block;
+  margin:0;
+  padding:0;
+  padding:0 3px;
+  border-left:#ffffff 1px solid;
+  line-height:normal;
+}
+#block-system-main-menu ul.menu li:first-child { border-left:none; }
+#block-system-main-menu ul.menu li a {
+  font-size:13px;
+  color:white;
+  text-decoration:none;
+  padding:1px 5px 1px 5px;
+}
+#block-system-main-menu ul.menu li a:hover {
+  color:black;
+  background-color:#ffcc33;
+}
+h2.block-title, .node h2, h2.pane-title {
+  background:#5984c3;
+  color:#ffffff;
+  font-size:14px;
+  padding-left:12px;
+}
+div#sidebar-second, div#sidebar-first { width:20%; }
+div#content-group, div#main-group { width:80%; }
+.node.node-news.clearfix { clear:left; }
+#block-block-1, #block-block-2 {
+  width:100%;
+  overflow:hidden;
+  height:auto;
+}
+.main-news:first-child { margin-left:none; }
+#block-views-frontpage-block_1 {
+  width:100%;
+  overflow:hidden;
+  height:auto;
+}
+#block-views-main-page-news-block { clear:left; }
+#block-views-main-page-news-block div.view-content {
+  float:left;
+  width:49%;
+}
+#block-views-main-page-news-block div.view-footer  div.view-content { float:right; }
+#block-views-main-page-news-block div.view-footer  div.view-content h2 {
+  color:#006090;
+  font-size:12px;
+  background:#ffffff;
+}
+img.icon, p.icon_p img {
+  height:48px;
+  width:48px;
+  float:left;
+  margin:11px 10px 5px 10px;
+  border:0;
+}
+.view-Newsletter .view-header p {
+  margin:0;
+  color:#666666;
+}
+.view-Newsletter .views-field-title { font-weight:bold; }
+.view-News .views-row {
+  color:#666666;
+  font-weight:bold;
 }
