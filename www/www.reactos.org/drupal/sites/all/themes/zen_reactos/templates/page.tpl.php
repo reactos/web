@@ -103,7 +103,13 @@
       </div><!-- /#name-and-slogan -->
     <?php endif;*/ ?>
 
-    <?php print render($page['header']); ?>
+<?php /* print render($page['header']); */ ?>
+
+<div id="topMenu">
+	<div>
+		<a href="#">Home</a>|<a href="#">Community</a>
+	</div>
+</div>
 
   </div><!-- /.section, /#header -->
 

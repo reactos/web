@@ -33,14 +33,6 @@ padding: 0 0 1px 10px;
 margin-top: 0;
 }
 
-#header{
-	height: 102px;
-	background: url('/sites/all/themes/zen_reactos/images/topgradient.png');
-}
-
-
-
-
 
 #logo,#site-name-wrapper{
 display:none;
@@ -395,4 +387,35 @@ img.icon, p.icon_p img {
 }
 #user-pass label {
 	color: #817A71;
+}
+
+
+
+
+#header{
+	height: 102px;
+	background: url('/sites/all/themes/zen_reactos/images/topgradient.png');
+}
+
+#topMenu {
+	background-color: #5984C3;
+	font-size: 13px;
+	color: #fff;
+}
+
+#topMenu > div {
+	margin-left: 300px;
+}
+
+#topMenu a {
+	color: #fff;
+	text-decoration: none;
+	padding: 1px 5px;
+	font-size: 13px;
+}
+
+#topMenu a:hover {
+	background-color: #ffcc33;
+	color: #000;
+}
 }
