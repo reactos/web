@@ -20,7 +20,6 @@ font-family: Verdana;
 font-size: 12px;
 margin: 0 0 1em 0;
 padding: 0;
-background: white url('http://reactos.org/images/topbar.jpg') repeat-x left top;
 }
 
 h1{
@@ -33,13 +32,16 @@ background-color: #5984c3;
 padding: 0 0 1px 10px;
 margin-top: 0;
 }
+
 #header{
-margin: 0;
-background: url('http://reactos.org/images/logo.jpg') no-repeat scroll 35px 0;
-padding: 103px 0 26px 0;
-color: white;
-text-align: right;
+	height: 102px;
+	background: url('/sites/all/themes/zen_reactos/images/topgradient.png');
 }
+
+
+
+
+
 #logo,#site-name-wrapper{
 display:none;
 }
@@ -262,30 +264,7 @@ background:#fff;
   border:#3f3849 1px solid;
   border-top:none;
 }
-#page {
-  font-family:Verdana;
-  font-size:12px;
-  margin:0 0 1em 0;
-  padding:0;
-  background:white url('http://reactos.org/images/topbar.jpg') repeat-x left top;
-}
-h1 {
-  display:block;
-  line-height:normal;
-  font-size:14px;
-  font-weight:bold;
-  color:white;
-  background-color:#5984c3;
-  padding:0 0 1px 10px;
-  margin-top:0;
-}
-#header {
-  margin:0;
-  background:url('http://reactos.org/images/logo.jpg') no-repeat scroll 35px 0;
-  padding:103px 0 26px 0;
-  color:white;
-  text-align:right;
-}
+
 #logo, #site-name-wrapper { display:none; }
 #block-system-main-menu ul.menu {
   list-style-type:none;

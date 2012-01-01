@@ -66,16 +66,24 @@
  * @see template_preprocess_page()
  * @see zen_preprocess_page()
  * @see template_process()
+
+ *
+ *
+ *
+ * <img src="<?php print base_path().path_to_theme(); ?>/images/button_comp_home.jpg" />
  */
 ?>
 
 <div id="page-wrapper"><div id="page">
 
-  <div id="header"><div class="section clearfix">
+  <div id="header"></div>
 
-      <a href="<?php print $front_page; ?>" title="<?php print t('Home'); ?>" rel="home" id="logo"><img src="<?php print $logo; ?>" alt="<?php print t('Home'); ?>" /></a>
+  <div class="section clearfix">
 
-    <?php /* if ($site_name || $site_slogan): ?>
+    <?php /*
+    <a style="border: 1px solid green" href="<?php print $front_page; ?>" title="<?php print t('Home'); ?>" rel="home" id="logo"><img src="<?php print $logo; ?>" alt="<?php print t('Home'); ?>" /></a>
+
+     if ($site_name || $site_slogan): ?>
       <div id="name-and-slogan">
         <?php if ($site_name): ?>
           <?php if ($title): ?>
@@ -97,7 +105,7 @@
 
     <?php print render($page['header']); ?>
 
-  </div></div><!-- /.section, /#header -->
+  </div><!-- /.section, /#header -->
 
   <div id="main-wrapper"><div id="main" class="clearfix<?php if ($page['navigation']) { print ' with-navigation'; } ?>">
       <!-- /.section, /#content -->
