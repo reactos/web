@@ -107,7 +107,18 @@
 
 <div id="topMenu">
 	<div>
-		<a href="#">Home</a>|<a href="#">Community</a>
+		<?php
+		/* Render the main menu links */
+		$html = "";
+		foreach($main_menu as $link) {
+			$href = $link["href"];
+			$title = $link["title"];
+			$html .= "<a href=\"/?q=$href\">$title</a>";
+			$html .= " | ";
+		}
+		$html = substr($html, 0, -3);
+		echo $html;
+		?>
 	</div>
 </div>
 
