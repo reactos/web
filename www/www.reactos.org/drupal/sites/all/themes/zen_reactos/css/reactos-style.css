@@ -34,10 +34,6 @@ margin-top: 0;
 }
 
 
-#logo,#site-name-wrapper{
-display:none;
-}
-
 #block-system-main-menu ul.menu {
 	list-style-type:none;
 	text-align:center;
@@ -257,7 +253,6 @@ background:#fff;
   border-top:none;
 }
 
-#logo, #site-name-wrapper { display:none; }
 #block-system-main-menu ul.menu {
   list-style-type:none;
   text-align:center;
@@ -397,6 +392,12 @@ img.icon, p.icon_p img {
 	background: url('/sites/all/themes/zen_reactos/images/topgradient.png');
 }
 
+#logo {
+	position: absolute;
+	left: 40px;
+	z-index: 100;
+}
+
 #topMenu {
 	background-color: #5984C3;
 	font-size: 13px;
@@ -417,5 +418,4 @@ img.icon, p.icon_p img {
 #topMenu a:hover {
 	background-color: #ffcc33;
 	color: #000;
-}
 }

@@ -76,7 +76,9 @@
 
 <div id="page-wrapper"><div id="page">
 
-  <div id="header"></div>
+	<div id="header">
+		<img id="logo" src="/sites/all/themes/zen_reactos/images/reactos-logo.png" />
+	</div>
 
   <div class="section clearfix">
 
