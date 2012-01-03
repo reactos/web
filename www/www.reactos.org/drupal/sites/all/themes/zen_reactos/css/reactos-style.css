@@ -1,20 +1,3 @@
-
-/****************************/
-/* LOCAL CSS                */
-
-
-/* Put your custom CSS and CSS overrides in this file and  */
-/* rename it local.css.  By restricting your CSS changes   */
-/* to local.css, your changes will not be overwritten when */
-/* upgrading to a new version of this theme.  You can also */
-/* use a local-rtl.css file for the equivalent in RTL.     */
-
-/* Steps to activate local.css:                       */
-/* 1. Add your custom CSS to this file                */
-/* 2. Rename this file to local.css                   */
-/* 3. Clear cached data at admin/settings/performance */
-
-
 #page{
 font-family: Verdana;
 font-size: 12px;
@@ -64,7 +47,7 @@ margin-top: 0;
 
 #block-system-main-menu ul.menu li a:hover {
 	color: black;
-	background-color: #FC3;
+	background-color: #ffcc33;
 }
 
 h2.block-title, .node h2 {
@@ -268,17 +251,7 @@ background:#fff;
   border-left:#ffffff 1px solid;
   line-height:normal;
 }
-#block-system-main-menu ul.menu li:first-child { border-left:none; }
-#block-system-main-menu ul.menu li a {
-  font-size:13px;
-  color:white;
-  text-decoration:none;
-  padding:1px 5px 1px 5px;
-}
-#block-system-main-menu ul.menu li a:hover {
-  color:black;
-  background-color:#ffcc33;
-}
+
 h2.block-title, .node h2, h2.pane-title {
   background:#5984c3;
   color:#ffffff;
@@ -394,7 +367,8 @@ img.icon, p.icon_p img {
 
 #logo {
 	position: absolute;
-	left: 40px;
+	left: 43px;
+	top: 3px;
 	z-index: 100;
 }
 
