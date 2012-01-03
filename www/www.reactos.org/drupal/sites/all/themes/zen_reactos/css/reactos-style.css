@@ -1,8 +1,13 @@
-#page{
+#page-wrapper {
 font-family: Verdana;
 font-size: 12px;
 margin: 0 0 1em 0;
 padding: 0;
+}
+
+#page-wrapper a {
+	font-size:12px;
+	color:#006090;
 }
 
 h1{
@@ -146,15 +151,15 @@ background:#fff;
 }
 
 .greenButtonDownload {
-	background: url('http://www.reactos.org/images/button_download.jpg');
+	background: url('/sites/all/themes/zen_reactos/images/button_download.jpg');
 }
 
 .greenButtonDonate {
-	background: url('http://www.reactos.org/images/button_donate.jpg');
+	background: url('/sites/all/themes/zen_reactos/images/button_donate.jpg');
 }
 
 .greenButtonCompat {
-	background: url('http://www.reactos.org/images/button_comp_home.jpg');
+	background: url('/sites/all/themes/zen_reactos/images/button_comp_home.jpg');
 }
 
 .greenButton a {
@@ -184,12 +189,6 @@ background:#fff;
 
 
 
-
-
-#page-wrapper a {
-  font-size:12px;
-  color:#006090;
-}
 #main { margin:0 .4em; }
 #main .region-sidebar-first .block-menu .content ul {
   margin:0;
@@ -366,7 +365,7 @@ img.icon, p.icon_p img {
 }
 
 #logo {
-	position: absolute;
+	position: relative;
 	left: 43px;
 	top: 3px;
 	z-index: 100;

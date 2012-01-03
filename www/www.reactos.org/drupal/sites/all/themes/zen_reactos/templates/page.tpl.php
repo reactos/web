@@ -74,7 +74,8 @@
  */
 ?>
 
-<div id="page-wrapper"><div id="page">
+<div id="page-wrapper">
+	<div id="page">
 
 	<div id="header">
 		<img id="logo" src="/sites/all/themes/zen_reactos/images/reactos-logo.png" />
@@ -161,8 +162,9 @@
 
   </div></div><!-- /#main, /#main-wrapper -->
 
-</div></div><!-- /#page, /#page-wrapper -->
+	<div id="footer">
+	ReactOS is a registered trademark or a trademark of ReactOS Foundation in the United States and other countries.
+	</div>
 
-<div id="footer">
-ReactOS is a registered trademark or a trademark of ReactOS Foundation in the United States and other countries.
-</div>
+	</div><!-- #page --->
+</div><!-- #page-wrapper --->
