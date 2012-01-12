@@ -132,10 +132,16 @@
       <?php print $feed_icons; ?>
     </div>
 				</div>
+				<?php
+				if($is_front) {
+				?>
 				<!-- right sidebar -->
 				<div style="display: table-cell; width: 270px; border: 1px solid blue; vertical-align: top;">
 					<?php print render($page['sidebar_second']); ?>
 				</div>
+				<?php
+				}
+				?>
 			</div>
 		</div>
 
