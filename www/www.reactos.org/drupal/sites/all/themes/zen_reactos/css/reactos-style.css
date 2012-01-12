@@ -111,6 +111,8 @@ background:#fff;
 }
 
 .greenButton {
+	width: 232px;
+	height: 50px;
 }
 
 .greenButtonDownload {
@@ -154,8 +156,9 @@ background:#fff;
 
 #main { margin:0 .4em; }
 .region-sidebar-first {
-	width: 100%;
 	margin-right: 0px;
+	width: 147px;
+	margin: 0px 10px 10px 7px;
 }
 .region-sidebar-first .section {
 	margin: 0px;
@@ -206,8 +209,9 @@ background:#fff;
 }
 
 .region-sidebar-second {
-	width: 100%;
+	width: 270px;
 	margin-left: 0px;
+	margin: 0px 3px 0px 10px;
 }
 
 .region-sidebar-second .section {

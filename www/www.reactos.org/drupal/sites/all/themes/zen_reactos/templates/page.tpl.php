@@ -105,7 +105,7 @@
 		<div style="border: 1px solid cyan; display: table; width: 100%">
 			<div style="border: 1px solid pink; display: table-row">
 				<!-- left sidebar -->
-				<div style="display: table-cell; width: 147px; border: 1px solid red; vertical-align: top;">
+				<div style="display: table-cell; border: 1px solid red; vertical-align: top;">
 					<?php print render($page['sidebar_first']); ?>
 				</div>
 				<!-- main content -->
@@ -136,7 +136,7 @@
 				if($is_front) {
 				?>
 				<!-- right sidebar -->
-				<div style="display: table-cell; width: 270px; border: 1px solid blue; vertical-align: top;">
+				<div style="display: table-cell; border: 1px solid blue; vertical-align: top;">
 					<?php print render($page['sidebar_second']); ?>
 				</div>
 				<?php
