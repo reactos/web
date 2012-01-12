@@ -72,16 +72,79 @@
  *
  * <img src="<?php print base_path().path_to_theme(); ?>/images/button_comp_home.jpg" />
  */
+
 ?>
 
 <div id="page-wrapper">
 	<div id="page">
 
-	<div id="header">
-		<img id="logo" src="/sites/all/themes/zen_reactos/images/reactos-logo.png" />
+		<!-- header -->
+		<div id="header">
+			<img id="logo" src="/sites/all/themes/zen_reactos/images/reactos-logo.png" />
+		</div>
+
+		<!-- top menu -->
+		<div id="topMenu">
+			<div>
+				<?php
+				/* Render the main menu links */
+				$html = "";
+				foreach($main_menu as $link) {
+					$href = $link["href"];
+					$title = $link["title"];
+					$html .= "<a href=\"/?q=$href\">$title</a>";
+					$html .= " | ";
+				}
+				$html = substr($html, 0, -3);
+				echo $html;
+				?>
+			</div>
+		</div>
+
+		<!-- main area -->
+		<div style="border: 1px solid cyan; display: table; width: 100%">
+			<div style="border: 1px solid pink; display: table-row">
+				<!-- left sidebar -->
+				<div style="display: table-cell; width: 147px; border: 1px solid red; vertical-align: top;">
+					<?php print render($page['sidebar_first']); ?>
+				</div>
+				<!-- main content -->
+				<div id="content" class="column" style="display: table-cell; width: auto; border: 1px solid green; vertical-align: top;">
+<div class="section">
+      <?php print render($page['highlighted']); ?>
+      <?php print $breadcrumb; ?>
+      <a id="main-content"></a>
+      <?php print render($title_prefix); ?>
+      <?php if ($title): ?>
+        <h1 class="title" id="page-title"><?php print $title; ?></h1>
+      <?php endif; ?>
+      <?php print render($title_suffix); ?>
+      <?php print $messages; ?>
+      <?php if ($tabs = render($tabs)): ?>
+        <div class="tabs"><?php print $tabs; ?></div>
+      <?php endif; ?>
+      <?php print render($page['help']); ?>
+      <?php if ($action_links): ?>
+        <ul class="action-links"><?php print render($action_links); ?></ul>
+      <?php endif; ?>
+      <?php print render($page['content']); ?>
+	  <?php print render($page['content_bottom']); ?>
+      <?php print $feed_icons; ?>
+    </div>
+				</div>
+				<!-- right sidebar -->
+				<div style="display: table-cell; width: 270px; border: 1px solid blue; vertical-align: top;">
+					<?php print render($page['sidebar_second']); ?>
+				</div>
+			</div>
+		</div>
+
+	<!-- footer -->
+	<div id="footer">
+		ReactOS is a registered trademark or a trademark of ReactOS Foundation in the United States and other countries.
 	</div>
 
-  <div class="section clearfix">
+	</div><!-- #page -->
 
     <?php /*
     <a style="border: 1px solid green" href="<?php print $front_page; ?>" title="<?php print t('Home'); ?>" rel="home" id="logo"><img src="<?php print $logo; ?>" alt="<?php print t('Home'); ?>" /></a>
@@ -108,24 +171,8 @@
 
 <?php /* print render($page['header']); */ ?>
 
-<div id="topMenu">
-	<div>
-		<?php
-		/* Render the main menu links */
-		$html = "";
-		foreach($main_menu as $link) {
-			$href = $link["href"];
-			$title = $link["title"];
-			$html .= "<a href=\"/?q=$href\">$title</a>";
-			$html .= " | ";
-		}
-		$html = substr($html, 0, -3);
-		echo $html;
-		?>
-	</div>
-</div>
 
-  </div><!-- /.section, /#header -->
+<?php /*
 
   <div id="main-wrapper"><div id="main" class="clearfix<?php if ($page['navigation']) { print ' with-navigation'; } ?>">
       <!-- /.section, /#content -->
@@ -156,15 +203,11 @@
       <div id="navigation"><div class="section clearfix"><?php print render($page['navigation']); ?></div></div><!-- /.section, /#navigation -->
     <?php endif; ?>
 
-    <?php print render($page['sidebar_first']); ?>
 
-    <?php print render($page['sidebar_second']); ?>
 
   </div></div><!-- /#main, /#main-wrapper -->
 
-	<div id="footer">
-	ReactOS is a registered trademark or a trademark of ReactOS Foundation in the United States and other countries.
-	</div>
+*/
+?>
 
-	</div><!-- #page --->
 </div><!-- #page-wrapper --->

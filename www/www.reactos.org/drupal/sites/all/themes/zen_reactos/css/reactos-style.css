@@ -103,43 +103,6 @@ font-size:12px;
 background:#fff;
 }
 
-.region-sidebar-first .block-menu .content ul {
-	margin: 0;
-	padding: 0;
-	list-style-type: none;
-	background-color: #EEE;
-	border-top: #3F3849 0 solid;
-	border-right: #3F3849 1px solid;
-	border-left: #3F3849 1px solid;
-}
-
-.region-sidebar-first .block-menu .content ul li {
-	font-size: 13px;
-	font-weight: bold;
-	border-bottom: #3F3849 1px solid;
-}
-
-.region-sidebar-first .block-menu .content ul li a {
-	display: block;
-	font-size:12px;
-	/*width: 137px;*/
-	padding: 2px 4px 2px 4px;
-	color: #3F3849;
-	text-decoration: none;
-	background-color: #EEE;
-}
-
-.region-sidebar-first .block-menu .content ul li a:hover {
-	color: black;
-	background-color: #FC3;
-}
-
-.region-sidebar-first .block-search .content {
-	background-color: #EEE;
-	border: #3F3849 1px solid;
-	border-top:none;
-}
-
 #footer {
 	font: italic 9px Verdana;
 	border-top: 1px solid black;
@@ -151,15 +114,15 @@ background:#fff;
 }
 
 .greenButtonDownload {
-	background: url('/sites/all/themes/zen_reactos/images/button_download.jpg');
+	background: url('/sites/all/themes/zen_reactos/images/button_download.jpg') no-repeat;
 }
 
 .greenButtonDonate {
-	background: url('/sites/all/themes/zen_reactos/images/button_donate.jpg');
+	background: url('/sites/all/themes/zen_reactos/images/button_donate.jpg') no-repeat;
 }
 
 .greenButtonCompat {
-	background: url('/sites/all/themes/zen_reactos/images/button_comp_home.jpg');
+	background: url('/sites/all/themes/zen_reactos/images/button_comp_home.jpg') no-repeat;
 }
 
 .greenButton a {
@@ -190,7 +153,14 @@ background:#fff;
 
 
 #main { margin:0 .4em; }
-#main .region-sidebar-first .block-menu .content ul {
+.region-sidebar-first {
+	width: 100%;
+	margin-right: 0px;
+}
+.region-sidebar-first .section {
+	margin: 0px;
+}
+.region-sidebar-first .block-menu .content ul {
   margin:0;
   padding:0;
   list-style-type:none;
@@ -199,25 +169,25 @@ background:#fff;
   border-right:#3f3849 1px solid;
   border-left:#3f3849 1px solid;
 }
-#main .region-sidebar-first .block-menu .content ul li {
+.region-sidebar-first .block-menu .content ul li {
   font-size:13px;
   font-weight:bold;
   border-bottom:#3f3849 1px solid;
 }
-#main .region-sidebar-first .block-menu .content ul li ul {
+.region-sidebar-first .block-menu .content ul li ul {
   border-left:none;
   border-right:none;
 }
-#main .region-sidebar-first .block-menu .content ul li ul li {
+.region-sidebar-first .block-menu .content ul li ul li {
   border-bottom:none;
   border-top:#3f3849 1px solid;
 }
-#main .region-sidebar-first .block-menu .content ul li ul li a {
+.region-sidebar-first .block-menu .content ul li ul li a {
   padding-left:10px;
   background-color:#cdcdcd;
   color:#2f2839;
 }
-#main .region-sidebar-first .block-menu .content ul li a {
+.region-sidebar-first .block-menu .content ul li a {
   display:block;
   font-size:12px;
   padding:2px 4px 2px 4px;
@@ -225,15 +195,26 @@ background:#fff;
   text-decoration:none;
   background-color:#eeeeee;
 }
-#main .region-sidebar-first .block-menu .content ul li a:hover {
+.region-sidebar-first .block-menu .content ul li a:hover {
   color:black;
   background-color:#ffcc33;
 }
-#main .region-sidebar-first .block-search .content {
+.region-sidebar-first .block-search .content {
   background-color:#eeeeee;
   border:#3f3849 1px solid;
   border-top:none;
 }
+
+.region-sidebar-second {
+	width: 100%;
+	margin-left: 0px;
+}
+
+.region-sidebar-second .section {
+	margin: 0px;
+}
+
+
 
 #block-system-main-menu ul.menu {
   list-style-type:none;
@@ -391,4 +372,14 @@ img.icon, p.icon_p img {
 #topMenu a:hover {
 	background-color: #ffcc33;
 	color: #000;
+}
+
+#content {
+	float: none;
+	margin: 0px;
+}
+
+#content .section {
+	padding-left: 0px !important;
+	padding-right: 0px !important;
 }
