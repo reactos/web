@@ -105,7 +105,7 @@ $wgUpgradeKey = "132dccc4e3e9ddf";
 
 ## Default skin: you can change the default skin. Use the internal symbolic
 ## names, ie 'standard', 'nostalgia', 'cologneblue', 'monobook', 'vector':
-$wgDefaultSkin = "vector";
+$wgDefaultSkin = "reactos";
 
 ## For attaching licensing metadata to pages, and displaying an
 ## appropriate copyright notice / icon. GNU Free Documentation
@@ -133,7 +133,7 @@ $wgResourceLoaderMaxQueryLength = -1;
 
 # End of automatically generated settings.
 # Add more configuration options below.
-
+$wgShowExceptionDetails = true;
 require_once("$IP/../../www.reactos.org_config/wiki-drupal-config.php");
 require_once ($IP.'/extensions/AuthDrupal/AuthDrupal.php');
 SetupAuthDrupal();
