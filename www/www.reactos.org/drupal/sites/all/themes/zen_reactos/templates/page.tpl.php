@@ -216,4 +216,6 @@
 */
 ?>
 
-</div><!-- #page-wrapper --->
+<div id="footer">
+<p><?php print t("ReactOS is a registered trademark or a trademark of ReactOS Foundation in the United States and other countries."); ?></p>
+</div>
