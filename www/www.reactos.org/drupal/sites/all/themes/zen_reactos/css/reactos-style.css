@@ -136,8 +136,12 @@ background:#fff;
 #greenButtonCompat:hover {
         background-image: url('../images/button_comp_home_m.jpg');
 }
-
-
+#greenButtons{
+margin-top:8px;
+}
+.greenButton{
+margin:2px auto;
+}
 #greenButtons a {
 	font-size: 16px;
 	color: #367D10;
@@ -288,6 +292,9 @@ img.icon, p.icon_p img {
 .view-News .views-row {
   color:#666666;
   font-weight:bold;
+}
+#block-views-random-screenshot-block{
+text-align:center;
 }
 
 /* user-register-form */
