@@ -68,6 +68,7 @@ width:20%;
 div#content-group, div#main-group{
 width:80%;
 }
+
 .node.node-news.clearfix{
 clear:left;
 }
@@ -115,40 +116,45 @@ background:#fff;
 	height: 50px;
 }
 
-.greenButtonDownload {
-	background: url('/sites/all/themes/zen_reactos/images/button_download.jpg') no-repeat;
+#greenButtonDownload {
+	background: url('../images/button_download.jpg') no-repeat;
+}
+#greenButtonDownload:hover {
+        background-image: url('../images/button_download_m.jpg');
 }
 
-.greenButtonDonate {
-	background: url('/sites/all/themes/zen_reactos/images/button_donate.jpg') no-repeat;
+#greenButtonDonate {
+	background: url('../images/button_donate.jpg') no-repeat;
+}
+#greenButtonDonate:hover {
+        background-image: url('../images/button_donate_m.jpg');
 }
 
-.greenButtonCompat {
-	background: url('/sites/all/themes/zen_reactos/images/button_comp_home.jpg') no-repeat;
+#greenButtonCompat {
+	background: url('../images/button_comp_home.jpg') no-repeat;
+}
+#greenButtonCompat:hover {
+        background-image: url('../images/button_comp_home_m.jpg');
 }
 
-.greenButton a {
+
+#greenButtons a {
 	font-size: 16px;
 	color: #367D10;
-	height: 49px;
-	width: 235px;
+	height: 41px;
+	width: 185px;
 	display: block;
-}
-
-.greenButtonLabel {
-	width: 178px;
-	position: relative;
-	top: 8px;
-	left: 50px;
-	height: 30px;
-	vertical-align: bottom;
+	padding-top: 8px;
+	padding-left: 50px;
 	text-align: center;
 	font: normal 16px Verdana;
 	font-weight: 700;
-	line-height: 25px;
+	line-height: 28px;
 }
 
-
+#greenButtons a:hover {
+color:#3A935B;
+}
 
 /* BELOW ARE CONTENTS OF THE REACTOS-STYLE.CSS FROM /SITES/DEFAULT/ */
 
