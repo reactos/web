@@ -165,15 +165,15 @@ color:#3A935B;
 
 
 #main { margin:0 .4em; }
-.region-sidebar-first {
+#page .region-sidebar-first {
 	margin-right: 0px;
 	width: 147px;
 	margin: 0px 10px 10px 7px;
 }
-.region-sidebar-first .section {
+#page .region-sidebar-first .section {
 	margin: 0px;
 }
-.region-sidebar-first .block-menu .content ul {
+#page .region-sidebar-first .block-menu .content ul {
   margin:0;
   padding:0;
   list-style-type:none;
@@ -182,25 +182,25 @@ color:#3A935B;
   border-right:#3f3849 1px solid;
   border-left:#3f3849 1px solid;
 }
-.region-sidebar-first .block-menu .content ul li {
+#page .region-sidebar-first .block-menu .content ul li {
   font-size:13px;
   font-weight:bold;
   border-bottom:#3f3849 1px solid;
 }
-.region-sidebar-first .block-menu .content ul li ul {
+#page .region-sidebar-first .block-menu .content ul li ul {
   border-left:none;
   border-right:none;
 }
-.region-sidebar-first .block-menu .content ul li ul li {
+#page .region-sidebar-first .block-menu .content ul li ul li {
   border-bottom:none;
   border-top:#3f3849 1px solid;
 }
-.region-sidebar-first .block-menu .content ul li ul li a {
+#page .region-sidebar-first .block-menu .content ul li ul li a {
   padding-left:10px;
   background-color:#cdcdcd;
   color:#2f2839;
 }
-.region-sidebar-first .block-menu .content ul li a {
+#page .region-sidebar-first .block-menu .content ul li a {
   display:block;
   font-size:12px;
   padding:2px 4px 2px 4px;
@@ -208,11 +208,11 @@ color:#3A935B;
   text-decoration:none;
   background-color:#eeeeee;
 }
-.region-sidebar-first .block-menu .content ul li a:hover {
+#page .region-sidebar-first .block-menu .content ul li a:hover {
   color:black;
   background-color:#ffcc33;
 }
-.region-sidebar-first .block-search .content {
+#page .region-sidebar-first .block-search .content {
   background-color:#eeeeee;
   border:#3f3849 1px solid;
   border-top:none;
@@ -394,6 +394,7 @@ text-align:center;
 #content {
 	float: none;
 	margin: 0px;
+	font-size: 12px;
 }
 
 #content .section {
