@@ -400,3 +400,17 @@ text-align:center;
 	padding-left: 0px !important;
 	padding-right: 0px !important;
 }
+
+/* */
+.dtable {
+display:table;
+}
+.dtrow {
+display:table-row;
+}
+.dtcell {
+display:table-cell;
+}
+.dtcell-vtop {
+vertical-align:top;
+}

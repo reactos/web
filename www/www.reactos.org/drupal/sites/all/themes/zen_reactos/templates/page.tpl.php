@@ -102,14 +102,14 @@
 		</div>
 
 		<!-- main area -->
-		<div style="border: 1px solid cyan; display: table; width: 100%">
-			<div style="border: 1px solid pink; display: table-row">
+		<div class="wfcyan dtable">
+			<div class="wfpink dtrow">
 				<!-- left sidebar -->
-				<div style="display: table-cell; border: 1px solid red; vertical-align: top;">
+				<div class="wfred dtcell dtcell-vtop">
 					<?php print render($page['sidebar_first']); ?>
 				</div>
 				<!-- main content -->
-				<div id="content" class="column" style="display: table-cell; width: auto; border: 1px solid green; vertical-align: top;">
+				<div id="content" class="column wfgreen dtcell dtcell-vtop">
 <div class="section">
       <?php print render($page['highlighted']); ?>
       <?php print $breadcrumb; ?>
@@ -136,7 +136,7 @@
 				if($is_front) {
 				?>
 				<!-- right sidebar -->
-				<div style="display: table-cell; border: 1px solid blue; vertical-align: top;">
+				<div class="wfblue dtcell dtcell-vtop">
 					<?php print render($page['sidebar_second']); ?>
 				</div>
 				<?php
