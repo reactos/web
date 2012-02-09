@@ -56,6 +56,14 @@ class DrupalAlterTestCase extends DrupalWebTestCase {
     $this->assertEqual($array_copy, $array_expected, t('First argument to drupal_alter() was altered.'));
     $this->assertEqual($entity_copy, $entity_expected, t('Second argument to drupal_alter() was altered.'));
     $this->assertEqual($array2_copy, $array2_expected, t('Third argument to drupal_alter() was altered.'));
+
+    // Verify alteration order when passing an array of types to drupal_alter().
+    // common_test_module_implements_alter() places 'block' implementation after
+    // other modules.
+    $array_copy = $array;
+    $array_expected = array('foo' => 'Drupal block theme');
+    drupal_alter(array('drupal_alter', 'drupal_alter_foo'), $array_copy);
+    $this->assertEqual($array_copy, $array_expected, t('hook_TYPE_alter() implementations ran in correct order.'));
   }
 }
 
@@ -345,14 +353,14 @@ class CommonURLUnitTest extends DrupalWebTestCase {
 }
 
 /**
- * Tests for the check_plain() and filter_xss() functions.
+ * Tests for the check_plain(), filter_xss() and format_string() functions.
  */
 class CommonXssUnitTest extends DrupalUnitTestCase {
 
   public static function getInfo() {
     return array(
       'name' => 'String filtering tests',
-      'description' => 'Confirm that check_plain(), filter_xss(), and check_url() work correctly, including invalid multi-byte sequences.',
+      'description' => 'Confirm that check_plain(), filter_xss(), format_string() and check_url() work correctly, including invalid multi-byte sequences.',
       'group' => 'System',
     );
   }
@@ -383,6 +391,22 @@ class CommonXssUnitTest extends DrupalUnitTestCase {
      $this->assertEqual($text, '&lt;script&gt;', 'check_plain() escapes &lt;script&gt;');
      $text = check_plain('<>&"\'');
      $this->assertEqual($text, '&lt;&gt;&amp;&quot;&#039;', 'check_plain() escapes reserved HTML characters.');
+  }
+
+  /**
+   * Test t() and format_string() replacement functionality.
+   */
+  function testFormatStringAndT() {
+    foreach (array('format_string', 't') as $function) {
+      $text = $function('Simple text');
+      $this->assertEqual($text, 'Simple text', $function . ' leaves simple text alone.');
+      $text = $function('Escaped text: @value', array('@value' => '<script>'));
+      $this->assertEqual($text, 'Escaped text: &lt;script&gt;', $function . ' replaces and escapes string.');
+      $text = $function('Placeholder text: %value', array('%value' => '<script>'));
+      $this->assertEqual($text, 'Placeholder text: <em class="placeholder">&lt;script&gt;</em>', $function . ' replaces, escapes and themes string.');
+      $text = $function('Verbatim text: !value', array('!value' => '<script>'));
+      $this->assertEqual($text, 'Verbatim text: <script>', $function . ' replaces verbatim string as-is.');
+    }
   }
 
   /**
@@ -500,7 +524,7 @@ class CommonSizeTestCase extends DrupalUnitTestCase {
 /**
  * Test drupal_explode_tags() and drupal_implode_tags().
  */
-class DrupalTagsHandlingTestCase extends DrupalWebTestCase {
+class DrupalTagsHandlingTestCase extends DrupalUnitTestCase {
   var $validTags = array(
     'Drupal' => 'Drupal',
     'Drupal with some spaces' => 'Drupal with some spaces',
@@ -1095,7 +1119,7 @@ class DrupalGotoTest extends DrupalWebTestCase {
     $destination = 'common-test/drupal_goto/destination?foo=%2525&bar=123';
     $this->drupalGet('common-test/drupal_goto/redirect', array('query' => array('destination' => $destination)));
     $this->assertText('drupal_goto', t('Drupal goto redirect with destination succeeded.'));
-    $this->assertEqual($this->getUrl(), url('common-test/drupal_goto/destination', array('query' => array('foo' => '%25', 'bar' => '123'), 'absolute' => TRUE)), t('Drupal goto redirected to given query string destination. '));
+    $this->assertEqual($this->getUrl(), url('common-test/drupal_goto/destination', array('query' => array('foo' => '%25', 'bar' => '123'), 'absolute' => TRUE)), t('Drupal goto redirected to given query string destination.'));
   }
 
   /**
@@ -1723,6 +1747,37 @@ class DrupalRenderTestCase extends DrupalWebTestCase {
       '@type' => var_export($element['#type'], TRUE),
     )));
   }
+
+  /**
+   * Tests caching of an empty render item.
+   */
+  function testDrupalRenderCache() {
+    // Force a request via GET.
+    $request_method = $_SERVER['REQUEST_METHOD'];
+    $_SERVER['REQUEST_METHOD'] = 'GET';
+    // Create an empty element.
+    $test_element = array(
+      '#cache' => array(
+        'cid' => 'render_cache_test',
+      ),
+      '#markup' => '',
+    );
+
+    // Render the element and confirm that it goes through the rendering
+    // process (which will set $element['#printed']).
+    $element = $test_element;
+    drupal_render($element);
+    $this->assertTrue(isset($element['#printed']), t('No cache hit'));
+
+    // Render the element again and confirm that it is retrieved from the cache
+    // instead (so $element['#printed'] will not be set).
+    $element = $test_element;
+    drupal_render($element);
+    $this->assertFalse(isset($element['#printed']), t('Cache hit'));
+
+    // Restore the previous request method.
+    $_SERVER['REQUEST_METHOD'] = $request_method;
+  }
 }
 
 /**
@@ -2048,7 +2103,7 @@ class DrupalErrorCollectionUnitTest extends DrupalWebTestCase {
   function assertError($error, $group, $function, $file, $message = NULL) {
     $this->assertEqual($error['group'], $group, t("Group was %group", array('%group' => $group)));
     $this->assertEqual($error['caller']['function'], $function, t("Function was %function", array('%function' => $function)));
-    $this->assertEqual(basename($error['caller']['file']), $file, t("File was %file", array('%file' => $file)));
+    $this->assertEqual(drupal_basename($error['caller']['file']), $file, t("File was %file", array('%file' => $file)));
     if (isset($message)) {
       $this->assertEqual($error['message'], $message, t("Message was %message", array('%message' => $message)));
     }
@@ -2058,7 +2113,7 @@ class DrupalErrorCollectionUnitTest extends DrupalWebTestCase {
 /**
  * Test the drupal_parse_info_file() API function.
  */
-class ParseInfoFilesTestCase extends DrupalWebTestCase {
+class ParseInfoFilesTestCase extends DrupalUnitTestCase {
   public static function getInfo() {
     return array(
       'name' => 'Parsing .info files',
@@ -2317,8 +2372,10 @@ class DrupalJSONTest extends DrupalUnitTestCase {
       $str .= chr($i);
     }
     // Characters that must be escaped.
-    $html_unsafe = array('<', '>', '&');
-    $html_unsafe_escaped = array('\u003c', '\u003e', '\u0026');
+    // We check for unescaped " separately.
+    $html_unsafe = array('<', '>', '\'', '&');
+    // The following are the encoded forms of: < > ' & "
+    $html_unsafe_escaped = array('\u003C', '\u003E', '\u0027', '\u0026', '\u0022');
 
     // Verify there aren't character encoding problems with the source string.
     $this->assertIdentical(strlen($str), 128, t('A string with the full ASCII table has the correct length.'));
@@ -2329,6 +2386,11 @@ class DrupalJSONTest extends DrupalUnitTestCase {
     // Verify that JSON encoding produces a string with all of the characters.
     $json = drupal_json_encode($str);
     $this->assertTrue(strlen($json) > strlen($str), t('A JSON encoded string is larger than the source string.'));
+
+    // The first and last characters should be ", and no others.
+    $this->assertTrue($json[0] == '"', t('A JSON encoded string begins with ".'));
+    $this->assertTrue($json[strlen($json) - 1] == '"', t('A JSON encoded string ends with ".'));
+    $this->assertTrue(substr_count($json, '"') == 2, t('A JSON encoded string contains exactly two ".'));
 
     // Verify that encoding/decoding is reversible.
     $json_decoded = drupal_json_decode($json);

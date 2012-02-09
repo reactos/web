@@ -746,7 +746,7 @@ function update_fix_d7_requirements() {
     // Rename 'site_offline_message' variable to 'maintenance_mode_message'
     // and 'site_offline' variable to 'maintenance_mode'.
     // Old variable is removed in update for system.module, see
-    // system_update_7036().
+    // system_update_7072().
     if ($message = variable_get('site_offline_message', NULL)) {
       variable_set('maintenance_mode_message', $message);
     }
@@ -1426,7 +1426,7 @@ function update_retrieve_dependencies() {
   $return = array();
   // Get a list of installed modules, arranged so that we invoke their hooks in
   // the same order that module_invoke_all() does.
-  $modules = db_query("SELECT name FROM {system} WHERE type = 'module' AND schema_version != :schema ORDER BY weight ASC, name ASC", array(':schema' => SCHEMA_UNINSTALLED))->fetchCol();
+  $modules = db_query("SELECT name FROM {system} WHERE type = 'module' AND schema_version <> :schema ORDER BY weight ASC, name ASC", array(':schema' => SCHEMA_UNINSTALLED))->fetchCol();
   foreach ($modules as $module) {
     $function = $module . '_update_dependencies';
     if (function_exists($function)) {

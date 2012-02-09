@@ -208,6 +208,18 @@ function image_field_prepare_view($entity_type, $entities, $field, $instances, $
  */
 function image_field_presave($entity_type, $entity, $field, $instance, $langcode, &$items) {
   file_field_presave($entity_type, $entity, $field, $instance, $langcode, $items);
+
+  // Determine the dimensions if necessary.
+  foreach ($items as &$item) {
+    if (!isset($item['width']) || !isset($item['height'])) {
+      $info = image_get_info(file_load($item['fid'])->uri);
+
+      if (is_array($info)) {
+        $item['width'] = $info['width'];
+        $item['height'] = $info['height'];
+      }
+    }
+  }
 }
 
 /**
@@ -346,9 +358,42 @@ function image_field_widget_process($element, &$form_state, $form) {
 
   // Add the image preview.
   if ($element['#file'] && $widget_settings['preview_image_style']) {
+    $variables = array(
+      'style_name' => $widget_settings['preview_image_style'],
+      'path' => $element['#file']->uri,
+    );
+
+    // Determine image dimensions.
+    if (isset($element['#value']['width']) && isset($element['#value']['height'])) {
+      $variables['width'] = $element['#value']['width'];
+      $variables['height'] = $element['#value']['height'];
+    }
+    else {
+      $info = image_get_info($element['#file']->uri);
+
+      if (is_array($info)) {
+        $variables['width'] = $info['width'];
+        $variables['height'] = $info['height'];
+      }
+      else {
+        $variables['width'] = $variables['height'] = NULL;
+      }
+    }
+
     $element['preview'] = array(
       '#type' => 'markup',
-      '#markup' => theme('image_style', array('style_name' => $widget_settings['preview_image_style'], 'path' => $element['#file']->uri)),
+      '#markup' => theme('image_style', $variables),
+    );
+
+    // Store the dimensions in the form so the file doesn't have to be accessed
+    // again. This is important for remote files.
+    $element['width'] = array(
+      '#type' => 'hidden',
+      '#value' => $variables['width'],
+    );
+    $element['height'] = array(
+      '#type' => 'hidden',
+      '#value' => $variables['height'],
     );
   }
 
@@ -358,7 +403,8 @@ function image_field_widget_process($element, &$form_state, $form) {
     '#type' => 'textfield',
     '#default_value' => isset($item['alt']) ? $item['alt'] : '',
     '#description' => t('This text will be used by screen readers, search engines, or when the image cannot be loaded.'),
-    '#maxlength' => variable_get('image_alt_length', 80), // See http://www.gawds.org/show.php?contentid=28.
+    // @see http://www.gawds.org/show.php?contentid=28
+    '#maxlength' => 512,
     '#weight' => -2,
     '#access' => (bool) $item['fid'] && $settings['alt_field'],
   );
@@ -367,7 +413,7 @@ function image_field_widget_process($element, &$form_state, $form) {
     '#title' => t('Title'),
     '#default_value' => isset($item['title']) ? $item['title'] : '',
     '#description' => t('The title is used as a tool tip when the user hovers the mouse over the image.'),
-    '#maxlength' => variable_get('image_title_length', 500),
+    '#maxlength' => 1024,
     '#weight' => -1,
     '#access' => (bool) $item['fid'] && $settings['title_field'],
   );
@@ -534,6 +580,12 @@ function theme_image_formatter($variables) {
     'path' => $item['uri'],
     'alt' => $item['alt'],
   );
+
+  if (isset($item['width']) && isset($item['height'])) {
+    $image['width'] = $item['width'];
+    $image['height'] = $item['height'];
+  }
+
   // Do not output an empty 'title' attribute.
   if (drupal_strlen($item['title']) > 0) {
     $image['title'] = $item['title'];

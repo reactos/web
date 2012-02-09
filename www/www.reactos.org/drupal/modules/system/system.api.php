@@ -544,7 +544,7 @@ function hook_cron() {
 
   // Long-running operation example, leveraging a queue:
   // Fetch feeds from other sites.
-  $result = db_query('SELECT * FROM {aggregator_feed} WHERE checked + refresh < :time AND refresh != :never', array(
+  $result = db_query('SELECT * FROM {aggregator_feed} WHERE checked + refresh < :time AND refresh <> :never', array(
     ':time' => REQUEST_TIME,
     ':never' => AGGREGATOR_CLEAR_NEVER,
   ));
@@ -672,8 +672,8 @@ function hook_element_info_alter(&$type) {
  * page logging and specialized cleanup. This hook MUST NOT print anything.
  *
  * Only use this hook if your code must run even for cached page views.
- * If you have code which must run once on all non cached pages, use
- * hook_init instead. Thats the usual case. If you implement this hook
+ * If you have code which must run once on all non-cached pages, use
+ * hook_init() instead. That is the usual case. If you implement this hook
  * and see an error like 'Call to undefined function', it is likely that
  * you are depending on the presence of a module which has not been loaded yet.
  * It is not loaded because Drupal is still in bootstrap mode.
@@ -991,7 +991,8 @@ function hook_menu_get_item_alter(&$router_item, $path, $original_map) {
  *   );
  * @endcode
  * When path 'my-module/foo/edit' is requested, integer 1 will be replaced
- * with 'foo' and passed to the callback function.
+ * with 'foo' and passed to the callback function. Note that wildcards may not
+ * be used as the first component.
  *
  * Registered paths may also contain special "auto-loader" wildcard components
  * in the form of '%mymodule_abc', where the '%' part means that this path
@@ -1018,7 +1019,11 @@ function hook_menu_get_item_alter(&$router_item, $path, $original_map) {
  * @endcode
  * This 'abc' object will then be passed into the callback functions defined
  * for the menu item, such as the page callback function mymodule_abc_edit()
- * to replace the integer 1 in the argument array.
+ * to replace the integer 1 in the argument array. Note that a load function
+ * should return FALSE when it is unable to provide a loadable object. For 
+ * example, the node_load() function for the 'node/%node/edit' menu item will
+ * return FALSE for the path 'node/999/edit' if a node with a node ID of 999
+ * does not exist. The menu routing system will return a 404 error in this case.
  *
  * You can also define a %wildcard_to_arg() function (for the example menu
  * entry above this would be 'mymodule_abc_to_arg()'). The _to_arg() function
@@ -1053,24 +1058,24 @@ function hook_menu_get_item_alter(&$router_item, $path, $original_map) {
  * MENU_LOCAL_TASK. Example:
  * @code
  * // Make "Foo settings" appear on the admin Config page
- * $items['admin/config/foo'] = array(
+ * $items['admin/config/system/foo'] = array(
  *   'title' => 'Foo settings',
  *   'type' => MENU_NORMAL_ITEM,
  *   // Page callback, etc. need to be added here.
  * );
- * // Make "Global settings" the main tab on the "Foo settings" page
- * $items['admin/config/foo/global'] = array(
- *   'title' => 'Global settings',
+ * // Make "Tab 1" the main tab on the "Foo settings" page
+ * $items['admin/config/system/foo/tab1'] = array(
+ *   'title' => 'Tab 1',
  *   'type' => MENU_DEFAULT_LOCAL_TASK,
  *   // Access callback, page callback, and theme callback will be inherited
- *   // from 'admin/config/foo', if not specified here to override.
+ *   // from 'admin/config/system/foo', if not specified here to override.
  * );
- * // Make an additional tab called "Node settings" on "Foo settings"
- * $items['admin/config/foo/node'] = array(
- *   'title' => 'Node settings',
+ * // Make an additional tab called "Tab 2" on "Foo settings"
+ * $items['admin/config/system/foo/tab2'] = array(
+ *   'title' => 'Tab 2',
  *   'type' => MENU_LOCAL_TASK,
  *   // Page callback and theme callback will be inherited from
- *   // 'admin/config/foo', if not specified here to override.
+ *   // 'admin/config/system/foo', if not specified here to override.
  *   // Need to add access callback or access arguments.
  * );
  * @endcode
@@ -1578,12 +1583,21 @@ function hook_page_alter(&$page) {
  * One popular use of this hook is to add form elements to the node form. When
  * altering a node form, the node object can be accessed at $form['#node'].
  *
- * Note that instead of hook_form_alter(), which is called for all forms, you
- * can also use hook_form_FORM_ID_alter() to alter a specific form. For each
- * module (in system weight order) the general form alter hook implementation
- * is invoked first, then the form ID specific alter implementation is called.
- * After all module hook implementations are invoked, the hook_form_alter()
- * implementations from themes are invoked in the same manner.
+ * In addition to hook_form_alter(), which is called for all forms, there are
+ * two more specific form hooks available. The first,
+ * hook_form_BASE_FORM_ID_alter(), allows targeting of a form/forms via a base
+ * form (if one exists). The second, hook_form_FORM_ID_alter(), can be used to
+ * target a specific form directly.
+ *
+ * The call order is as follows: all existing form alter functions are called
+ * for module A, then all for module B, etc., followed by all for any base
+ * theme(s), and finally for the theme itself. The module order is determined
+ * by system weight, then by module name.
+ *
+ * Within each module, form alter hooks are called in the following order:
+ * first, hook_form_alter(); second, hook_form_BASE_FORM_ID_alter(); third,
+ * hook_form_FORM_ID_alter(). So, for each module, the more general hooks are
+ * called first followed by the more specific.
  *
  * @param $form
  *   Nested array of form elements that comprise the form.
@@ -1595,6 +1609,7 @@ function hook_page_alter(&$page) {
  *   String representing the name of the form itself. Typically this is the
  *   name of the function that generated the form.
  *
+ * @see hook_form_BASE_FORM_ID_alter()
  * @see hook_form_FORM_ID_alter()
  */
 function hook_form_alter(&$form, &$form_state, $form_id) {
@@ -1615,6 +1630,10 @@ function hook_form_alter(&$form, &$form_state, $form_id) {
  * rather than implementing hook_form_alter() and checking the form ID, or
  * using long switch statements to alter multiple forms.
  *
+ * Form alter hooks are called in the following order: hook_form_alter(),
+ * hook_form_BASE_FORM_ID_alter(), hook_form_FORM_ID_alter(). See
+ * hook_form_alter() for more details.
+ *
  * @param $form
  *   Nested array of form elements that comprise the form.
  * @param $form_state
@@ -1626,6 +1645,7 @@ function hook_form_alter(&$form, &$form_state, $form_id) {
  *   name of the function that generated the form.
  *
  * @see hook_form_alter()
+ * @see hook_form_BASE_FORM_ID_alter()
  * @see drupal_prepare_form()
  */
 function hook_form_FORM_ID_alter(&$form, &$form_state, $form_id) {
@@ -1642,17 +1662,27 @@ function hook_form_FORM_ID_alter(&$form, &$form_state, $form_id) {
 }
 
 /**
- * Provide a form-specific alteration for shared forms.
+ * Provide a form-specific alteration for shared ('base') forms.
+ *
+ * By default, when drupal_get_form() is called, Drupal looks for a function
+ * with the same name as the form ID, and uses that function to build the form.
+ * In contrast, base forms allow multiple form IDs to be mapped to a single base
+ * (also called 'factory') form function.
  *
  * Modules can implement hook_form_BASE_FORM_ID_alter() to modify a specific
- * form belonging to multiple form_ids, rather than implementing
- * hook_form_alter() and checking for conditions that would identify the
- * shared form constructor.
+ * base form, rather than implementing hook_form_alter() and checking for
+ * conditions that would identify the shared form constructor.
  *
- * Examples for such forms are node_form() or comment_form().
+ * To identify the base form ID for a particular form (or to determine whether
+ * one exists) check the $form_state. The base form ID is stored under
+ * $form_state['build_info']['base_form_id'].
  *
- * Note that this hook fires after hook_form_FORM_ID_alter() and before
- * hook_form_alter().
+ * See hook_forms() for more information on how to implement base forms in
+ * Drupal.
+ *
+ * Form alter hooks are called in the following order: hook_form_alter(),
+ * hook_form_BASE_FORM_ID_alter(), hook_form_FORM_ID_alter(). See
+ * hook_form_alter() for more details.
  *
  * @param $form
  *   Nested array of form elements that comprise the form.
@@ -1662,8 +1692,10 @@ function hook_form_FORM_ID_alter(&$form, &$form_state, $form_id) {
  *   String representing the name of the form itself. Typically this is the
  *   name of the function that generated the form.
  *
+ * @see hook_form_alter()
  * @see hook_form_FORM_ID_alter()
  * @see drupal_prepare_form()
+ * @see hook_forms()
  */
 function hook_form_BASE_FORM_ID_alter(&$form, &$form_state, $form_id) {
   // Modification for the form with the given BASE_FORM_ID goes here. For
@@ -1683,13 +1715,25 @@ function hook_form_BASE_FORM_ID_alter(&$form, &$form_state, $form_id) {
  *
  * By default, when drupal_get_form() is called, the system will look for a
  * function with the same name as the form ID, and use that function to build
- * the form. This hook allows you to override that behavior in two ways.
+ * the form. If no such function is found, Drupal calls this hook. Modules
+ * implementing this hook can then provide their own instructions for mapping
+ * form IDs to constructor functions. As a result, you can easily map multiple
+ * form IDs to a single form constructor (referred to as a 'base' form).
+ *
+ * Using a base form can help to avoid code duplication, by allowing many
+ * similar forms to use the same code base. Another benefit is that it becomes
+ * much easier for other modules to apply a general change to the group of
+ * forms; hook_form_BASE_FORM_ID_alter() can be used to easily alter multiple
+ * forms at once by directly targeting the shared base form.
+ *
+ * Two example use cases where base forms may be useful are given below.
  *
  * First, you can use this hook to tell the form system to use a different
  * function to build certain forms in your module; this is often used to define
  * a form "factory" function that is used to build several similar forms. In
  * this case, your hook implementation will likely ignore all of the input
- * arguments. See node_forms() for an example of this.
+ * arguments. See node_forms() for an example of this. Note, node_forms() is the
+ * hook_forms() implementation; the base form itself is defined in node_form().
  *
  * Second, you could use this hook to define how to build a form with a
  * dynamically-generated form ID. In this case, you would need to verify that
@@ -1706,7 +1750,9 @@ function hook_form_BASE_FORM_ID_alter(&$form, &$form_state, $form_id) {
  * @return
  *   An associative array whose keys define form_ids and whose values are an
  *   associative array defining the following keys:
- *   - callback: The name of the form builder function to invoke.
+ *   - callback: The name of the form builder function to invoke. This will be
+ *     used for the base form ID, for example, to target a base form using
+ *     hook_form_BASE_FORM_ID_alter().
  *   - callback arguments: (optional) Additional arguments to pass to the
  *     function defined in 'callback', which are prepended to $args.
  *   - wrapper_callback: (optional) The name of a form builder function to
@@ -1744,32 +1790,36 @@ function hook_forms($form_id, $args) {
 }
 
 /**
- * Perform setup tasks. See also, hook_init.
+ * Perform setup tasks for all page requests.
  *
  * This hook is run at the beginning of the page request. It is typically
- * used to set up global parameters which are needed later in the request.
+ * used to set up global parameters that are needed later in the request.
  *
- * Only use this hook if your code must run even for cached page views.This hook
- * is called before modules or most include files are loaded into memory.
+ * Only use this hook if your code must run even for cached page views. This
+ * hook is called before modules or most include files are loaded into memory.
  * It happens while Drupal is still in bootstrap mode.
+ *
+ * @see hook_init()
  */
 function hook_boot() {
-  // we need user_access() in the shutdown function. make sure it gets loaded
+  // We need user_access() in the shutdown function. Make sure it gets loaded.
   drupal_load('module', 'user');
   drupal_register_shutdown_function('devel_shutdown');
 }
 
 /**
- * Perform setup tasks. See also, hook_boot.
+ * Perform setup tasks for non-cached page requests.
  *
  * This hook is run at the beginning of the page request. It is typically
- * used to set up global parameters which are needed later in the request.
- * when this hook is called, all modules are already loaded in memory.
+ * used to set up global parameters that are needed later in the request.
+ * When this hook is called, all modules are already loaded in memory.
  *
  * This hook is not run on cached pages.
  *
  * To add CSS or JS that should be present on all pages, modules should not
  * implement this hook, but declare these files in their .info file.
+ *
+ * @see hook_boot()
  */
 function hook_init() {
   // Since this file should only be loaded on the front page, it cannot be
@@ -1857,12 +1907,20 @@ function hook_image_toolkits() {
  *  - 'language':
  *     The language object used to build the message before hook_mail_alter()
  *     is invoked.
+ *  - 'send':
+ *     Set to FALSE to abort sending this email message.
  *
  * @see drupal_mail()
  */
 function hook_mail_alter(&$message) {
   if ($message['id'] == 'modulename_messagekey') {
-    $message['body'][] = "--\nMail sent out from " . variable_get('sitename', t('Drupal'));
+    if (!example_notifications_optin($message['to'], $message['id'])) {
+      // If the recipient has opted to not receive such messages, cancel
+      // sending.
+      $message['send'] = FALSE;
+      return;
+    }
+    $message['body'][] = "--\nMail sent out from " . variable_get('site_name', t('Drupal'));
   }
 }
 
@@ -1872,6 +1930,15 @@ function hook_mail_alter(&$message) {
  * This hook is invoked during module_implements(). A module may implement this
  * hook in order to reorder the implementing modules, which are otherwise
  * ordered by the module's system weight.
+ *
+ * Note that hooks invoked using drupal_alter() can have multiple variations
+ * (such as hook_form_alter() and hook_form_FORM_ID_alter()). drupal_alter()
+ * will call all such variants defined by a single module in turn. For the
+ * purposes of hook_module_implements_alter(), these variants are treated as
+ * a single hook. Thus, to ensure that your implementation of
+ * hook_form_FORM_ID_alter() is called at the right time, you will have to
+ * have to change the order of hook_form_alter() implementation in
+ * hook_module_implements_alter().
  *
  * @param $implementations
  *   An array keyed by the module's name. The value of each item corresponds
@@ -1890,6 +1957,25 @@ function hook_module_implements_alter(&$implementations, $hook) {
     unset($implementations['my_module']);
     $implementations['my_module'] = $group;
   }
+}
+
+/**
+ * Return additional themes provided by modules.
+ *
+ * Only use this hook for testing purposes. Use a hidden MYMODULE_test.module
+ * to implement this hook. Testing themes should be hidden, too.
+ *
+ * This hook is invoked from _system_rebuild_theme_data() and allows modules to
+ * register additional themes outside of the regular 'themes' directories of a
+ * Drupal installation.
+ *
+ * @return
+ *   An associative array. Each key is the system name of a theme and each value
+ *   is the corresponding path to the theme's .info file.
+ */
+function hook_system_theme_info() {
+  $themes['mymodule_test_theme'] = drupal_get_path('module', 'mymodule') . '/mymodule_test_theme/mymodule_test_theme.info';
+  return $themes;
 }
 
 /**
@@ -1967,6 +2053,12 @@ function hook_permission() {
 /**
  * Register a module (or theme's) theme implementations.
  *
+ * The implementations declared by this hook have two purposes: either they
+ * specify how a particular render array is to be rendered as HTML (this is
+ * usually the case if the theme function is assigned to the render array's
+ * #theme property), or they return the HTML that should be returned by an
+ * invocation of theme().
+ *
  * The following parameters are all optional.
  *
  * @param array $existing
@@ -1994,21 +2086,26 @@ function hook_permission() {
  * @return array
  *   An associative array of theme hook information. The keys on the outer
  *   array are the internal names of the hooks, and the values are arrays
- *   containing information about the hook. Each array may contain the
- *   following elements:
- *   - variables: (required if "render element" not present) An array of
- *     variables that this theme hook uses. This value allows the theme layer
- *     to properly utilize templates. Each array key represents the name of the
- *     variable and the value will be used as the default value if it is not
- *     given when theme() is called. Template implementations receive these
- *     arguments as variables in the template file. Function implementations
- *     are passed this array data in the $variables parameter.
- *   - render element: (required if "variables" not present) A string that is
- *     the name of the sole renderable element to pass to the theme function.
- *     The string represents the name of the "variable" that will hold the
- *     renderable array inside any optional preprocess or process functions.
- *     Cannot be used with the "variables" item; only one or the other, not
- *     both, can be present in a hook's info array.
+ *   containing information about the hook. Each information array must contain
+ *   either a 'variables' element or a 'render element' element, but not both.
+ *   Use 'render element' if you are theming a single element or element tree
+ *   composed of elements, such as a form array, a page array, or a single
+ *   checkbox element. Use 'variables' if your theme implementation is
+ *   intended to be called directly through theme() and has multiple arguments
+ *   for the data and style; in this case, the variables not supplied by the
+ *   calling function will be given default values and passed to the template
+ *   or theme function. The returned theme information array can contain the
+ *   following key/value pairs:
+ *   - variables: (see above) Each array key is the name of the variable, and
+ *     the value given is used as the default value if the function calling
+ *     theme() does not supply it. Template implementations receive each array
+ *     key as a variable in the template file (so they must be legal PHP
+ *     variable names). Function implementations are passed the variables in a
+ *     single $variables function argument.
+ *   - render element: (see above) The name of the renderable element or element
+ *     tree to pass to the theme function. This name is used as the name of the
+ *     variable that holds the renderable element or tree in preprocess and
+ *     process functions.
  *   - file: The file the implementation resides in. This file will be included
  *     prior to the theme being rendered, to make sure that the function or
  *     preprocess function (as needed) is actually loaded; this makes it
@@ -2119,7 +2216,7 @@ function hook_theme($existing, $type, $theme, $path) {
 function hook_theme_registry_alter(&$theme_registry) {
   // Kill the next/previous forum topic navigation links.
   foreach ($theme_registry['forum_topic_navigation']['preprocess functions'] as $key => $value) {
-    if ($value = 'template_preprocess_forum_topic_navigation') {
+    if ($value == 'template_preprocess_forum_topic_navigation') {
       unset($theme_registry['forum_topic_navigation']['preprocess functions'][$key]);
     }
   }
@@ -2568,7 +2665,7 @@ function hook_stream_wrappers_alter(&$wrappers) {
  *   An array of file objects, indexed by fid.
  *
  * @see file_load_multiple()
- * @see upload_file_load()
+ * @see file_load()
  */
 function hook_file_load($files) {
   // Add the upload specific data into the file object.
@@ -2627,17 +2724,21 @@ function hook_file_presave($file) {
 /**
  * Respond to a file being added.
  *
- * This hook is called before a file has been added to the database. The hook
+ * This hook is called after a file has been added to the database. The hook
  * doesn't distinguish between files created as a result of a copy or those
  * created by an upload.
  *
  * @param $file
- *   The file that is about to be saved.
+ *   The file that has been added.
  *
  * @see file_save()
  */
 function hook_file_insert($file) {
-
+  // Add a message to the log, if the file is a jpg
+  $validate = file_validate_extensions($file, 'jpg');
+  if (empty($validate)) {
+    watchdog('file', 'A jpg has been added.');
+  }
 }
 
 /**
@@ -2689,7 +2790,6 @@ function hook_file_move($file, $source) {
  *   The file that has just been deleted.
  *
  * @see file_delete()
- * @see upload_file_delete()
  */
 function hook_file_delete($file) {
   // Delete all information associated with the file.
@@ -2862,7 +2962,7 @@ function hook_requirements($phase) {
   // Test PHP version
   $requirements['php'] = array(
     'title' => $t('PHP'),
-    'value' => ($phase == 'runtime') ? l(phpversion(), 'admin/logs/status/php') : phpversion(),
+    'value' => ($phase == 'runtime') ? l(phpversion(), 'admin/reports/status/php') : phpversion(),
   );
   if (version_compare(phpversion(), DRUPAL_MINIMUM_PHP) < 0) {
     $requirements['php']['description'] = $t('Your PHP installation is too old. Drupal requires at least PHP %version.', array('%version' => DRUPAL_MINIMUM_PHP));
@@ -2884,7 +2984,7 @@ function hook_requirements($phase) {
       );
     }
 
-    $requirements['cron']['description'] .= ' ' . $t('You can <a href="@cron">run cron manually</a>.', array('@cron' => url('admin/logs/status/run-cron')));
+    $requirements['cron']['description'] .= ' ' . $t('You can <a href="@cron">run cron manually</a>.', array('@cron' => url('admin/reports/status/run-cron')));
 
     $requirements['cron']['title'] = $t('Cron maintenance tasks');
   }
@@ -2899,11 +2999,19 @@ function hook_requirements($phase) {
  * more tables and their related keys and indexes. A schema is defined by
  * hook_schema() which must live in your module's .install file.
  *
- * By implementing hook_schema() and specifying the tables your module
- * declares, you can easily create and drop these tables on all
- * supported database engines. You don't have to deal with the
- * different SQL dialects for table creation and alteration of the
- * supported database engines.
+ * This hook is called at both install and uninstall time, and in the latter
+ * case, it cannot rely on the .module file being loaded or hooks being known.
+ * If the .module file is needed, it may be loaded with drupal_load().
+ *
+ * The tables declared by this hook will be automatically created when
+ * the module is first enabled, and removed when the module is uninstalled.
+ * This happens before hook_install() is invoked, and after hook_uninstall()
+ * is invoked, respectively.
+ *
+ * By declaring the tables used by your module via an implementation of
+ * hook_schema(), these tables will be available on all supported database
+ * engines. You don't have to deal with the different SQL dialects for table
+ * creation and alteration of the supported database engines.
  *
  * See the Schema API Handbook at http://drupal.org/node/146843 for
  * details on schema definition structures.
@@ -3060,11 +3168,13 @@ function hook_query_TAG_alter(QueryAlterableInterface $query) {
  * If the module implements hook_schema(), the database tables will
  * be created before this hook is fired.
  *
- * This hook will only be called the first time a module is enabled or after it
+ * Implementations of this hook are by convention declared in the module's
+ * .install file. The implementation can rely on the .module file being loaded.
+ * The hook will only be called the first time a module is enabled or after it
  * is re-enabled after being uninstalled. The module's schema version will be
- * set to the module's greatest numbered update hook. Because of this, anytime a
- * hook_update_N() is added to the module, this function needs to be updated to
- * reflect the current version of the database schema.
+ * set to the module's greatest numbered update hook. Because of this, any time
+ * a hook_update_N() is added to the module, this function needs to be updated
+ * to reflect the current version of the database schema.
  *
  * See the Schema API documentation at
  * @link http://drupal.org/node/146843 http://drupal.org/node/146843 @endlink
@@ -3132,13 +3242,10 @@ function hook_install() {
  *
  * A good rule of thumb is to remove updates older than two major releases of
  * Drupal. See hook_update_last_removed() to notify Drupal about the removals.
+ * For further information about releases and release numbers see:
+ * @link http://drupal.org/node/711070 Maintaining a drupal.org project with Git @endlink
  *
  * Never renumber update functions.
- *
- * Further information about releases and release numbers:
- * - @link http://drupal.org/handbook/version-info http://drupal.org/handbook/version-info @endlink
- * - @link http://drupal.org/node/93999 http://drupal.org/node/93999 @endlink (Overview of contributions branches and tags)
- * - @link http://drupal.org/handbook/cvs/releases http://drupal.org/handbook/cvs/releases @endlink
  *
  * Implementations of this hook should be placed in a mymodule.install file in
  * the same directory as mymodule.module. Drupal core's updates are implemented
@@ -3290,9 +3397,10 @@ function hook_update_last_removed() {
  * The module should not remove its entry from the {system} table. Database
  * tables defined by hook_schema() will be removed automatically.
  *
- * The uninstall hook will fire when the module gets uninstalled but before the
- * module's database tables are removed, allowing your module to query its own
- * tables during this routine.
+ * The uninstall hook must be implemented in the module's .install file. It
+ * will fire when the module gets uninstalled but before the module's database
+ * tables are removed, allowing your module to query its own tables during
+ * this routine.
  *
  * When hook_uninstall() is called, your module will already be disabled, so
  * its .module file will not be automatically included. If you need to call API
@@ -3314,7 +3422,9 @@ function hook_uninstall() {
 /**
  * Perform necessary actions after module is enabled.
  *
- * The hook is called every time the module is enabled.
+ * The hook is called every time the module is enabled. It should be
+ * implemented in the module's .install file. The implementation can
+ * rely on the .module file being loaded.
  *
  * @see module_enable()
  * @see hook_install()
@@ -3327,7 +3437,9 @@ function hook_enable() {
 /**
  * Perform necessary actions before module is disabled.
  *
- * The hook is called every time the module is disabled.
+ * The hook is called every time the module is disabled. It should be
+ * implemented in the module's .install file. The implementation can rely
+ * on the .module file being loaded.
  *
  * @see hook_uninstall()
  * @see hook_modules_disabled()
@@ -4000,7 +4112,7 @@ function hook_url_inbound_alter(&$path, $original_path, $path_language) {
  * @param $path
  *   The outbound path to alter, not adjusted for path aliases yet. It won't be
  *   adjusted for path aliases until all modules are finished altering it, thus
- *   being consistent with hook_url_alter_inbound(), which adjusts for all path
+ *   being consistent with hook_url_inbound_alter(), which adjusts for all path
  *   aliases before allowing modules to alter it. This may have been altered by
  *   other modules before this one.
  * @param $options
@@ -4418,7 +4530,7 @@ function hook_menu_site_status_alter(&$menu_site_status, $path) {
 /**
  * Register information about FileTransfer classes provided by a module.
  *
- * The FileTransfer class allows transfering files over a specific type of
+ * The FileTransfer class allows transferring files over a specific type of
  * connection. Core provides classes for FTP and SSH. Contributed modules are
  * free to extend the FileTransfer base class to add other connection types,
  * and if these classes are registered via hook_filetransfer_info(), those

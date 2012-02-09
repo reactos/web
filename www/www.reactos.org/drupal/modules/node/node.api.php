@@ -570,11 +570,13 @@ function hook_node_load($nodes, $types) {
  * block access, return NODE_ACCESS_IGNORE or simply return nothing.
  * Blindly returning FALSE will break other node access modules.
  *
- * @link http://api.drupal.org/api/group/node_access/7 More on the node access system @endlink
- * @ingroup node_access
+ * Also note that this function isn't called for node listings (e.g., RSS feeds,
+ * the default home page at path 'node', a recent content block, etc.) See
+ * @link node_access Node access rights @endlink for a full explanation.
+ *
  * @param $node
- *   The node on which the operation is to be performed, or, if it does
- *   not yet exist, the type of node to be created.
+ *   Either a node object or the machine name of the content type on which to
+ *   perform the access check.
  * @param $op
  *   The operation to be performed. Possible values:
  *   - "create"
@@ -582,13 +584,14 @@ function hook_node_load($nodes, $types) {
  *   - "update"
  *   - "view"
  * @param $account
- *   A user object representing the user for whom the operation is to be
- *   performed.
+ *   The user object to perform the access check operation on.
  *
  * @return
- *   NODE_ACCESS_ALLOW if the operation is to be allowed;
- *   NODE_ACCESS_DENY if the operation is to be denied;
- *   NODE_ACCESS_IGNORE to not affect this operation at all.
+ *   - NODE_ACCESS_ALLOW: if the operation is to be allowed.
+ *   - NODE_ACCESS_DENY: if the operation is to be denied.
+ *   - NODE_ACCESS_IGNORE: to not affect this operation at all.
+ *
+ * @ingroup node_access
  */
 function hook_node_access($node, $op, $account) {
   $type = is_string($node) ? $node : $node->type;
@@ -880,9 +883,9 @@ function hook_node_view_alter(&$build) {
  *      machine name of this type. FALSE = changeable (not locked),
  *      TRUE = unchangeable (locked). Optional (defaults to TRUE).
  *
- * The machine-readable name of a node type should contain only letters,
- * numbers, and underscores. Underscores will be converted into hyphens for the
- * purpose of constructing URLs.
+ * The machine name of a node type should contain only letters, numbers, and
+ * underscores. Underscores will be converted into hyphens for the purpose of
+ * constructing URLs.
  *
  * All attributes of a node type that are defined through this hook (except for
  * 'locked') can be edited by a site administrator. This includes the
@@ -973,6 +976,7 @@ function hook_ranking() {
  *   The node type object that is being created.
  */
 function hook_node_type_insert($info) {
+  drupal_set_message(t('You have just created a content type with a machine name %type.', array('%type' => $info->type)));
 }
 
 /**
@@ -1230,9 +1234,12 @@ function hook_validate($node, $form, &$form_state) {
 /**
  * Display a node.
  *
- * This is a hook used by node modules. It allows a module to define a
- * custom method of displaying its nodes, usually by displaying extra
- * information particular to that node type.
+ * This hook is invoked only on the module that defines the node's content type
+ * (use hook_node_view() to act on all node views).
+ *
+ * This hook is invoked during node viewing after the node is fully loaded,
+ * so that the node type module can define a custom method for display, or
+ * add to the default display.
  *
  * @param $node
  *   The node to be displayed, as returned by node_load().
@@ -1249,8 +1256,6 @@ function hook_validate($node, $form, &$form_state) {
  *   hook_node_view_alter(), so if you want to affect the final
  *   view of the node, you might consider implementing one of these hooks
  *   instead.
- *
- * For a detailed usage example, see node_example.module.
  *
  * @ingroup node_api_hooks
  */

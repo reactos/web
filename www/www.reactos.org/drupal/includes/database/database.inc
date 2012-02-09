@@ -152,7 +152,7 @@
  *   }
  *
  *   // $txn goes out of scope here.  Unless the transaction was rolled back, it
- *   // gets automatically commited here.
+ *   // gets automatically committed here.
  * }
  *
  * function my_other_function($id) {
@@ -1016,9 +1016,9 @@ abstract class DatabaseConnection extends PDO {
       throw new DatabaseTransactionNoActiveException();
     }
     // A previous rollback to an earlier savepoint may mean that the savepoint
-    // in question has already been rolled back.
-    if (!in_array($savepoint_name, $this->transactionLayers)) {
-      return;
+    // in question has already been accidentally committed.
+    if (!isset($this->transactionLayers[$savepoint_name])) {
+      throw new DatabaseTransactionNoActiveException();
     }
 
     // We need to find the point we're rolling back to, all other savepoints
@@ -1096,8 +1096,12 @@ abstract class DatabaseConnection extends PDO {
     if (!$this->supportsTransactions()) {
       return;
     }
+    // The transaction has already been committed earlier. There is nothing we
+    // need to do. If this transaction was part of an earlier out-of-order
+    // rollback, an exception would already have been thrown by
+    // Database::rollback().
     if (!isset($this->transactionLayers[$name])) {
-      throw new DatabaseTransactionNoActiveException();
+      return;
     }
 
     // Mark this layer as committable.
@@ -1899,21 +1903,19 @@ class DatabaseTransaction {
 }
 
 /**
- * A prepared statement.
+ * Represents a prepared statement.
  *
- * Some methods in that class are purposely commented out. Due to a change in
+ * Some methods in that class are purposefully commented out. Due to a change in
  * how PHP defines PDOStatement, we can't define a signature for those methods
  * that will work the same way between versions older than 5.2.6 and later
- * versions.
- *
- * Please refer to http://bugs.php.net/bug.php?id=42452 for more details.
+ * versions.  See http://bugs.php.net/bug.php?id=42452 for more details.
  *
  * Child implementations should either extend PDOStatement:
  * @code
  * class DatabaseStatement_oracle extends PDOStatement implements DatabaseStatementInterface {}
  * @endcode
- * or implement their own class, but in that case they will also have to
- * implement the Iterator or IteratorArray interfaces before
+ * or define their own class. If defining their own class, they will also have
+ * to implement either the Iterator or IteratorAggregate interface before
  * DatabaseStatementInterface:
  * @code
  * class DatabaseStatement_oracle implements Iterator, DatabaseStatementInterface {}
@@ -1997,7 +1999,7 @@ interface DatabaseStatementInterface extends Traversable {
    *   The numeric index of the field to return. Defaults to the first field.
    *
    * @return
-   *   A single field from the next record.
+   *   A single field from the next record, or FALSE if there is no next record.
    */
   public function fetchField($index = 0);
 
@@ -2017,7 +2019,7 @@ interface DatabaseStatementInterface extends Traversable {
    * helper method, so one is added.
    *
    * @return
-   *   An associative array.
+   *   An associative array, or FALSE if there is no next row.
    */
   public function fetchAssoc();
 
@@ -2045,7 +2047,7 @@ interface DatabaseStatementInterface extends Traversable {
    *   The index of the column number to fetch.
    *
    * @return
-   *   An indexed array.
+   *   An indexed array, or an empty array if there is no result set.
    */
   public function fetchCol($index = 0);
 
@@ -2065,7 +2067,7 @@ interface DatabaseStatementInterface extends Traversable {
    *   The numeric index of the field to use as the array value.
    *
    * @return
-   *   An associative array.
+   *   An associative array, or an empty array if there is no result set.
    */
   public function fetchAllKeyed($key_index = 0, $value_index = 1);
 
@@ -2084,7 +2086,7 @@ interface DatabaseStatementInterface extends Traversable {
    *   set for the query will be used.
    *
    * @return
-   *   An associative array.
+   *   An associative array, or an empty array if there is no result set.
    */
   public function fetchAllAssoc($key, $fetch = NULL);
 }

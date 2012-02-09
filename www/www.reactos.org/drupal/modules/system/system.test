@@ -272,12 +272,32 @@ class EnableDisableTestCase extends ModuleTestCase {
   }
 
   /**
-   * Tests entity cache after enabling a module with a dependency on an enitity
-   * providing module.
+   * Ensures entity info cache is updated after changes.
+   */
+  function testEntityInfoChanges() {
+    module_enable(array('entity_cache_test'));
+    $entity_info = entity_get_info();
+    $this->assertTrue(isset($entity_info['entity_cache_test']), 'Test entity type found.');
+
+    // Change the label of the test entity type and make sure changes appear
+    // after flushing caches.
+    variable_set('entity_cache_test_label', 'New label.');
+    drupal_flush_all_caches();
+    $info = entity_get_info('entity_cache_test');
+    $this->assertEqual($info['label'], 'New label.', 'New label appears in entity info.');
+
+    // Disable the providing module and make sure the entity type is gone.
+    module_disable(array('entity_cache_test', 'entity_cache_test_dependency'));
+    $entity_info = entity_get_info();
+    $this->assertFalse(isset($entity_info['entity_cache_test']), 'Entity type of the providing module is gone.');
+  }
+
+  /**
+   * Tests entity info cache after enabling a module with a dependency on an entity providing module.
    *
    * @see entity_cache_test_watchdog()
    */
-  function testEntityCache() {
+  function testEntityInfoCacheWatchdog() {
     module_enable(array('entity_cache_test'));
     $info = variable_get('entity_cache_test');
     $this->assertEqual($info['label'], 'Entity Cache Test', 'Entity info label is correct.');
@@ -419,6 +439,35 @@ class ModuleDependencyTestCase extends ModuleTestCase {
 
     // Verify that the module has been disabled.
     $this->assertModules(array('system_dependencies_test'), FALSE);
+  }
+
+  /**
+   * Tests enabling a module that depends on an incompatible version of a module.
+   */
+  function testIncompatibleModuleVersionDependency() {
+    // Test that the system_incompatible_module_version_dependencies_test is
+    // marked as having an incompatible dependency.
+    $this->drupalGet('admin/modules');
+    $this->assertRaw(t('@module (<span class="admin-missing">incompatible with</span> version @version)', array(
+      '@module' => 'System incompatible module version test (>2.0)',
+      '@version' => '1.0',
+    )), 'A module that depends on an incompatible version of a module is marked as such.');
+    $checkbox = $this->xpath('//input[@type="checkbox" and @disabled="disabled" and @name="modules[Testing][system_incompatible_module_version_dependencies_test][enable]"]');
+    $this->assert(count($checkbox) == 1, t('Checkbox for the module is disabled.'));
+  }
+
+  /**
+   * Tests enabling a module that depends on a module with an incompatible core version.
+   */
+  function testIncompatibleCoreVersionDependency() {
+    // Test that the system_incompatible_core_version_dependencies_test is
+    // marked as having an incompatible dependency.
+    $this->drupalGet('admin/modules');
+    $this->assertRaw(t('@module (<span class="admin-missing">incompatible with</span> this version of Drupal core)', array(
+      '@module' => 'System incompatible core version test',
+    )), 'A module that depends on a module with an incompatible core version is marked as such.');
+    $checkbox = $this->xpath('//input[@type="checkbox" and @disabled="disabled" and @name="modules[Testing][system_incompatible_core_version_dependencies_test][enable]"]');
+    $this->assert(count($checkbox) == 1, t('Checkbox for the module is disabled.'));
   }
 
   /**
@@ -1816,7 +1865,7 @@ class TokenReplaceTestCase extends DrupalWebTestCase {
     $result = token_replace($source, array('node' => $node), array('language' => $language, 'clear' => TRUE));
     $result = $this->assertEqual($target, $result, 'Valid tokens replaced while invalid tokens cleared out.');
 
-    // Test without using the clear parameter (non-existant token untouched).
+    // Test without using the clear parameter (non-existent token untouched).
     $target .= '[user:name]';
     $target .= '[bogus:token]';
     $result = token_replace($source, array('node' => $node), array('language' => $language));
@@ -1832,6 +1881,9 @@ class TokenReplaceTestCase extends DrupalWebTestCase {
 
     $generated = token_generate('node', $raw_tokens, array('node' => $node), array('sanitize' => FALSE));
     $this->assertEqual($generated['[node:title]'], $node->title, t('Unsanitized token generated properly.'));
+
+    // Test token replacement when the string contains no tokens.
+    $this->assertEqual(token_replace('No tokens here.'), 'No tokens here.');
   }
 
   /**
@@ -2086,7 +2138,7 @@ class UpdateScriptFunctionalTest extends DrupalWebTestCase {
   }
 
   function setUp() {
-    parent::setUp();
+    parent::setUp('update_script_test');
     $this->update_url = $GLOBALS['base_url'] . '/update.php';
     $this->update_user = $this->drupalCreateUser(array('administer software updates'));
   }
@@ -2120,6 +2172,58 @@ class UpdateScriptFunctionalTest extends DrupalWebTestCase {
     $this->drupalLogin($user1);
     $this->drupalGet($this->update_url, array('external' => TRUE));
     $this->assertResponse(200);
+  }
+
+  /**
+   * Tests that requirements warnings and errors are correctly displayed.
+   */
+  function testRequirements() {
+    $this->drupalLogin($this->update_user);
+
+    // If there are no requirements warnings or errors, we expect to be able to
+    // go through the update process uninterrupted.
+    $this->drupalGet($this->update_url, array('external' => TRUE));
+    $this->drupalPost(NULL, array(), t('Continue'));
+    $this->assertText(t('No pending updates.'), t('End of update process was reached.'));
+    // Confirm that all caches were cleared.
+    $this->assertText(t('hook_flush_caches() invoked for update_script_test.module.'), 'Caches were cleared when there were no requirements warnings or errors.');
+
+    // If there is a requirements warning, we expect it to be initially
+    // displayed, but clicking the link to proceed should allow us to go
+    // through the rest of the update process uninterrupted.
+
+    // First, run this test with pending updates to make sure they can be run
+    // successfully.
+    variable_set('update_script_test_requirement_type', REQUIREMENT_WARNING);
+    drupal_set_installed_schema_version('update_script_test', drupal_get_installed_schema_version('update_script_test') - 1);
+    $this->drupalGet($this->update_url, array('external' => TRUE));
+    $this->assertText('This is a requirements warning provided by the update_script_test module.');
+    $this->clickLink('try again');
+    $this->assertNoText('This is a requirements warning provided by the update_script_test module.');
+    $this->drupalPost(NULL, array(), t('Continue'));
+    $this->drupalPost(NULL, array(), t('Apply pending updates'));
+    $this->assertText(t('The update_script_test_update_7000() update was executed successfully.'), t('End of update process was reached.'));
+    // Confirm that all caches were cleared.
+    $this->assertText(t('hook_flush_caches() invoked for update_script_test.module.'), 'Caches were cleared after resolving a requirements warning and applying updates.');
+
+    // Now try again without pending updates to make sure that works too.
+    $this->drupalGet($this->update_url, array('external' => TRUE));
+    $this->assertText('This is a requirements warning provided by the update_script_test module.');
+    $this->clickLink('try again');
+    $this->assertNoText('This is a requirements warning provided by the update_script_test module.');
+    $this->drupalPost(NULL, array(), t('Continue'));
+    $this->assertText(t('No pending updates.'), t('End of update process was reached.'));
+    // Confirm that all caches were cleared.
+    $this->assertText(t('hook_flush_caches() invoked for update_script_test.module.'), 'Caches were cleared after applying updates and re-running the script.');
+
+    // If there is a requirements error, it should be displayed even after
+    // clicking the link to proceed (since the problem that triggered the error
+    // has not been fixed).
+    variable_set('update_script_test_requirement_type', REQUIREMENT_ERROR);
+    $this->drupalGet($this->update_url, array('external' => TRUE));
+    $this->assertText('This is a requirements error provided by the update_script_test module.');
+    $this->clickLink('try again');
+    $this->assertText('This is a requirements error provided by the update_script_test module.');
   }
 
   /**
@@ -2193,7 +2297,7 @@ class RetrieveFileTestCase extends DrupalWebTestCase {
   function testFileRetrieving() {
     // Test 404 handling by trying to fetch a randomly named file.
     drupal_mkdir($sourcedir = 'public://' . $this->randomName());
-    $filename = $this->randomName();
+    $filename = 'Файл для тестирования ' . $this->randomName();
     $url = file_create_url($sourcedir . '/' . $filename);
     $retrieved_file = system_retrieve_file($url);
     $this->assertFalse($retrieved_file, t('Non-existent file not fetched.'));
@@ -2201,7 +2305,12 @@ class RetrieveFileTestCase extends DrupalWebTestCase {
     // Actually create that file, download it via HTTP and test the returned path.
     file_put_contents($sourcedir . '/' . $filename, 'testing');
     $retrieved_file = system_retrieve_file($url);
-    $this->assertEqual($retrieved_file, 'public://' . $filename, t('Sane path for downloaded file returned (public:// scheme).'));
+
+    // URLs could not contains characters outside the ASCII set so $filename
+    // has to be encoded.
+    $encoded_filename = rawurlencode($filename);
+
+    $this->assertEqual($retrieved_file, 'public://' . $encoded_filename, t('Sane path for downloaded file returned (public:// scheme).'));
     $this->assertTrue(is_file($retrieved_file), t('Downloaded file does exist (public:// scheme).'));
     $this->assertEqual(filesize($retrieved_file), 7, t('File size of downloaded file is correct (public:// scheme).'));
     file_unmanaged_delete($retrieved_file);
@@ -2209,7 +2318,7 @@ class RetrieveFileTestCase extends DrupalWebTestCase {
     // Test downloading file to a different location.
     drupal_mkdir($targetdir = 'temporary://' . $this->randomName());
     $retrieved_file = system_retrieve_file($url, $targetdir);
-    $this->assertEqual($retrieved_file, "$targetdir/$filename", t('Sane path for downloaded file returned (temporary:// scheme).'));
+    $this->assertEqual($retrieved_file, "$targetdir/$encoded_filename", t('Sane path for downloaded file returned (temporary:// scheme).'));
     $this->assertTrue(is_file($retrieved_file), t('Downloaded file does exist (temporary:// scheme).'));
     $this->assertEqual(filesize($retrieved_file), 7, t('File size of downloaded file is correct (temporary:// scheme).'));
     file_unmanaged_delete($retrieved_file);
