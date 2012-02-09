@@ -405,6 +405,9 @@ text-align:center;
 .dtable {
 display:table;
 }
+.w100{
+width:100%;
+}
 .dtrow {
 display:table-row;
 }

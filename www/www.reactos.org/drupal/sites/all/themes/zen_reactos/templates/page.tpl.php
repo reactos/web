@@ -102,7 +102,7 @@
 		</div>
 
 		<!-- main area -->
-		<div class="wfcyan dtable">
+		<div class="wfcyan dtable w100">
 			<div class="wfpink dtrow">
 				<!-- left sidebar -->
 				<div class="wfred dtcell dtcell-vtop">
