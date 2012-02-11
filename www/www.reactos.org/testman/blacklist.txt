@@ -1,1 +1,6 @@
 // Contains blacklisted test suites in a form of module:testname
+gdiplus:graphics
+gdiplus:graphicspath
+gdiplus:region
+wininet:urlcache
+ws2_32:sock
