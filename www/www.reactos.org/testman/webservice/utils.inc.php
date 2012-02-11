@@ -12,7 +12,7 @@
 		public function getTestId($source_id, $revision, $platform, $comment);
 		public function getSuiteId($module, $test);
 		public function submit($source_id, $test_id, $suite_id, $log);
-		public function finish($source_id, $test_id);
+		public function finish($source_id, $test_id, $performance);
 	}
 	
 	// All classes are autoloaded through this magic function

@@ -8,6 +8,9 @@
 
 	define("TESTMAN_PATH", "../");
 	
+	//if you want to change this, change it also in testman's config
+	define("BLACKLIST_URL", "http://svn.reactos.org/web/trunk/www/www.reactos.org/testman/blacklist.txt");
+	
 	// Ensure we don't get bloated logs or even exceed PHP's memory limit
 	// by defining a maximum amount of memory, which may be allocated by the
 	// aggregator script

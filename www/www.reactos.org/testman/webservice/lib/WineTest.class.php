@@ -131,7 +131,7 @@
 			return "OK";
 		}
 		
-		public function finish($source_id, $test_id)
+		public function finish($source_id, $test_id, $performance)
 		{
 			global $dbh;
 			
@@ -140,15 +140,25 @@
 			
 			// Sum up all results and mark this test as finished, so no more results can be submitted for it
 			$stmt = $dbh->prepare(
-				"UPDATE winetest_runs " .
-				"SET " .
-					"finished = 1, " .
-					"count    = (SELECT SUM(count) FROM  winetest_results WHERE test_id = :testid), " .
-					"failures = (SELECT SUM(failures) FROM winetest_results WHERE test_id = :testid) " .
-				"WHERE id = :testid AND source_id = :sourceid"
+				"UPDATE winetest_runs 
+				 SET 
+					finished = 1, 
+					count    = (SELECT SUM(count) FROM  winetest_results WHERE test_id = :testid), 
+					failures = (SELECT SUM(failures) FROM winetest_results WHERE test_id = :testid), 
+					boot_cycles = :boot_cycles, 
+					context_switches = :context_switches,
+					interrupts = :interrupts, 
+					reboots = :reboots, 
+					system_calls = :system_calls 
+				 WHERE id = :testid AND source_id = :sourceid"
 			);
 			$stmt->bindParam(":sourceid", $source_id);
 			$stmt->bindParam(":testid", $test_id);
+			$stmt->bindParam(":boot_cycles", $performance["boot_cycles"]);
+			$stmt->bindParam(":context_switches", $performance["context_switches"]);
+			$stmt->bindParam(":interrupts", $performance["interrupts"]);
+			$stmt->bindParam(":reboots", $performance["reboots"]);
+			$stmt->bindParam(":system_calls", $performance["system_calls"]);
 			$stmt->execute() or die("Finish(): SQL failed #1");
 			
 			if(!$stmt->rowCount())

@@ -1,0 +1,1 @@
+// Contains blacklisted test suites in a form of module:testname

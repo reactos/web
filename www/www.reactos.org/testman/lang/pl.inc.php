@@ -60,6 +60,18 @@
 		"resulthead" => "Rewizja %d<br />dnia %s<br />przez %s<br /> na %s",
 		"totals" => "Łącznie",
 		
+		"blacklisted" => "blacklisted",
+
+		//Performance
+		"boot_cycles" => "boot cycles",
+		"context_switches" => "boot context switches",
+		"interrupts" => "boot interrupts",
+		"reboots" => "machine reboots",
+		"system_calls" => "boot system calls",
+
+		//Summary
+		"summary" => "Totals (non blacklisted)",
+		
 		// Result Details page
 		"detail_title" => "Szczegóły wyniku",
 		

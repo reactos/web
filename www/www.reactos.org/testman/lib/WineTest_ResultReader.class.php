@@ -111,7 +111,8 @@
 				return "Index $i is out of range!";
 			
 			$stmt = $this->dbh->query(
-				"SELECT UNIX_TIMESTAMP(r.timestamp) timestamp, src.name, r.revision, r.platform, r.count, r.failures, r.id " .
+				"SELECT UNIX_TIMESTAMP(r.timestamp) timestamp, src.name, r.revision, r.platform, r.count, r.failures, r.id, " .
+				" r.boot_cycles, r.context_switches, r.interrupts, r.reboots, r.system_calls " .
 				"FROM winetest_runs r " .
 				"JOIN sources src ON r.source_id = src.id " .
 				"WHERE r.id = " . $this->test_id_array[$i] . " " .

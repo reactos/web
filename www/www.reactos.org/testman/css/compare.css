@@ -70,6 +70,10 @@ button {
 	background-color: #FFFFCC !important;
 }
 
+.performancetests {
+	background-color: #FFFFCC !important;
+}
+
 .zero_failedtests {
 	background-color: #33FF66 !important;
 }
@@ -121,6 +125,15 @@ button {
 	font-weight: bold;
 }
 
+#comparetable td#summary {
+	font-weight: bold;
+}
+
+#comparetable td.blacklisted {
+    background: #000000;
+	color: #FFFFFF;
+}
+
 #comparetable td, #comparetable td div.box, #comparetable td div.healthindicator {
 	border-right: solid 1px #BBBBBB;
 	border-bottom: solid 1px #BBBBBB;
@@ -145,6 +158,11 @@ button {
 	width: 130px;
 }
 
+#comparetable td div.performancetests {
+	font-weight: bold;
+	width: 334px;
+}
+
 #comparetable td div.totals {
 	width: 163.5px;
 }
@@ -155,4 +173,8 @@ button {
 
 #comparetable tr.separator {
 	height: 10px;
+}
+
+#comparetable tr.blacklisted {
+	background: #000000;
 }

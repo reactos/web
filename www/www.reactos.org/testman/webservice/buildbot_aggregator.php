@@ -10,6 +10,12 @@
 	require_once(TESTMAN_PATH . "connect.db.php");
 	require_once("utils.inc.php");
 	
+	$perf = array("boot_cycles" => 0,
+	              "context_switches" => 0,
+	              "interrupts" => 0,
+	              "reboots" => 0,
+	              "system_calls" => 0);
+	
 	if(!isset($_GET["sourceid"]) || !isset($_GET["password"]) || !isset($_GET["builder"]) || !is_numeric($_GET["platform"]) || !is_numeric($_GET["build"]))
 		die("Necessary information not specified!");
 	
@@ -60,7 +66,56 @@
 	// Create a WineTest object for accessing the database
 	$t = new WineTest();
 	
+	// Find the first 3rd stage boot
+	while(substr($line, 0, 24) != "[SYSREG] Running stage 3" && !feof($fp))
+	{
+	   if(substr($line, 0, 22) == "[SYSREG] Running stage")
+	      $perf["reboots"]++;
 
+	   $line = fgets($fp);  
+	}
+	
+	// Find the boot performance info
+	while(substr($line, 0, 10) != "Boot took " && !feof($fp))
+	{
+	   $line = fgets($fp);  
+	}
+	
+	if(!feof($fp))
+	{
+	   //We found the boot info
+	   $cycles = explode(" ", $line, 4);
+	   
+	   if(is_numeric($cycles[2]))
+	      $perf["boot_cycles"] = $cycles[2];
+	      
+	   // We're in the 3rd stage, increase the reboot count
+	   $perf["reboots"]++;
+	}
+	
+	// Find the rest of the boot performance info
+	while(substr($line, 0, 12) != "Interrupts: " && !feof($fp))
+	{
+	   $line = fgets($fp);  
+	}
+	
+	if(!feof($fp))
+	{
+	   //We found the rest of the perf info
+	   $performance = explode(" ", trim($line), 12);
+	   
+	   if(is_numeric($performance[1]))
+	      $perf["interrupts"] = $performance[1];
+	   
+       if(is_numeric($performance[4]))
+	      $perf["system_calls"] = $performance[4];	
+       
+       if(is_numeric($performance[7]))
+	      $perf["context_switches"] = $performance[7];
+	      
+	}
+	
+	
 	// Get the log for each test
 	$line = "";
 	$test_id = 0;
@@ -69,7 +124,13 @@
 	{
 		// Find the line with the test information
 		while(substr($line, 0, 27) != "Running Wine Test, Module: " && !feof($fp))
+		{
 			$line = fgets($fp);
+
+            // Check for a reboot
+			if(substr($line, 0, 22) == "[SYSREG] Running stage")
+	           $perf["reboots"]++;
+		}
 		
 		// We might reach end of file here, we're done in this case
 		if(feof($fp))
@@ -134,7 +195,7 @@
 	// If we have a Test ID, finish this test run and terminate with the return message from that function
 	// Otherwise we couldn't find any test information in this log
 	if($test_id)
-		die($t->finish($_GET["sourceid"], $test_id));
+		die($t->finish($_GET["sourceid"], $test_id, $perf));
 	else
 		die("Found no test information in this log!");
 ?>

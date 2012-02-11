@@ -57,7 +57,19 @@
 		"testsuite" => "Test Suite",
 		"resulthead" => "Revision %d<br />at %s<br />by %s<br />under %s",
 		"totals" => "Totals",
-
+		
+		"blacklisted" => "blacklisted",
+		
+		//Performance
+		"boot_cycles" => "boot cycles",
+		"context_switches" => "boot context switches",
+		"interrupts" => "boot interrupts",
+		"reboots" => "machine reboots",
+		"system_calls" => "boot system calls",
+		
+		//Summary
+		"summary" => "Totals (non blacklisted)",
+		
 		// Result Details page
 		"detail_title" => "Result Details",
 		

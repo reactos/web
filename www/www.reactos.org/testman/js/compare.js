@@ -32,8 +32,10 @@ function Cell_OnMouseOut(elem)
 {
 	if(elem.parentNode.className == "odd")
 		elem.style.background = "#DDDDDD";
-	else
+	else if(elem.parentNode.className == "even")
 		elem.style.background = "#EEEEEE";
+	else
+	    elem.style.background = "#000000";
 }
 
 function GetColumnIndex(th)
@@ -133,11 +135,19 @@ function AddDifferenceForColumn(th)
 						var CurrentValue = (isNaN(valueElement.data) ? 0 : parseInt(valueElement.data));
 						var PreviousValue = (isNaN(PreviousDivs[j].firstChild.data) ? 0 : parseInt(PreviousDivs[j].firstChild.data));
 						var Diff = CurrentValue - PreviousValue;
+						var PercentStr = "";
+						
+						if(valueElement.parentNode.className == "box performancetests" && PreviousValue != 0)
+						{
+						    var Percent = Math.round(1000 * Diff / PreviousValue) / 10;
+						    PercentStr = " | " + ((Diff > 0) ? "+" : "") + Percent + "%";
+						}
 						
 						if(Diff > 0)
-							DiffString = String("(+" + Diff + ")");
+							DiffString = String("(+" + Diff + PercentStr + ")");
 						else if(Diff < 0)
-							DiffString = String("(" + Diff + ")");
+							DiffString = String("(" + Diff + PercentStr + ")");
+				
 					}
 					
 					// As this is a comparable result value, the next sibling of the #text element has to be a
