@@ -80,7 +80,7 @@
 
 		<!-- header -->
 		<div id="header">
-			<img id="logo" src="/sites/all/themes/zen_reactos/images/reactos-logo.png" />
+			<img id="logo" src="<?php print $logo; ?>" alt="<?php print t('Home'); ?>" />
 		</div>
 
 		<!-- top menu -->
