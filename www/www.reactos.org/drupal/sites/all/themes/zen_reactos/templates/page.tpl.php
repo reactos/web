@@ -78,28 +78,26 @@
 <div id="page-wrapper">
 	<div id="page">
 
-		<!-- header -->
 		<div id="header">
 			<img id="logo" src="<?php print $logo; ?>" alt="<?php print t('Home'); ?>" />
-		</div>
 
-		<!-- top menu -->
-		<div id="topMenu">
-			<div>
-				<?php
-				/* Render the main menu links */
-				$html = "";
-				foreach($main_menu as $link) {
-					$href = $link["href"];
-					$title = $link["title"];
-					$html .= "<a href=\"/?q=$href\">$title</a>";
-					$html .= " | ";
-				}
-				$html = substr($html, 0, -3);
-				echo $html;
-				?>
-			</div>
-		</div>
+			<div id="topMenu">
+				<div id="main-menu">
+					<?php
+						/* Render the main menu links */
+						$html = "";
+						foreach($main_menu as $link) {
+							$href = $link["href"];
+							$title = $link["title"];
+							$html .= "<a href=\"/?q=$href\">$title</a>";
+							$html .= " | ";
+						}
+						$html = substr($html, 0, -3);
+						echo $html;
+					?>
+				</div>
+			</div><!-- /#topMenu -->
+		</div><!-- /#header -->
 
 		<!-- main area -->
 		<div class="wfcyan dtable w100">
@@ -213,5 +211,5 @@
 
   </div></div><!-- /#main, /#main-wrapper -->
 
-*/
+*/ ?>
 

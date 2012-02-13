@@ -354,39 +354,40 @@ text-align:center;
 
 
 
-#header{
-	height: 102px;
-	background: url('/sites/all/themes/zen_reactos/images/topgradient.png');
+#header {
+	background-image: url('../images/topgradient.png');
+	background-repeat: repeat-x;
+	height: 145px;
 }
 
 #logo {
-	position: relative;
-	left: 43px;
-	top: 3px;
-	z-index: 100;
+	float: left;
+	margin: 3px 0 0 43px;
 }
 
 #topMenu {
-	background-color: #5984C3;
+	margin: 0;
+	padding: 102px 0 0 0;
+}
+
+#main-menu {
+	background-color: #5984c3;
+	color: #fff;
 	font-size: 13px;
-	color: #fff;
+	padding: 1px 0 1px 300px;
 }
-
-#topMenu > div {
-	margin-left: 300px;
-}
-
-#topMenu a {
+#main-menu a {
 	color: #fff;
-	text-decoration: none;
+	font-size: 13px;
 	padding: 1px 5px;
-	font-size: 13px;
+	text-decoration: none;
 }
-
-#topMenu a:hover {
-	background-color: #ffcc33;
+#main-menu a:hover {
+	background-color: #fc3;
 	color: #000;
 }
+
+
 
 #content {
 	float: none;
