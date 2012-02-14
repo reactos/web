@@ -16,25 +16,10 @@
 	
 	GetLanguage();
 	require_once("lang/$lang.inc.php");
-?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
-	<title><?php echo $testman_langres["detail_title"]; ?></title>
-	<link rel="stylesheet" type="text/css" href="../shared/css/basic.css" />
-	<link rel="stylesheet" type="text/css" href="../shared/css/reactos.css" />
-	<link rel="stylesheet" type="text/css" href="css/detail.css" />
-	<script type="text/javascript" src="js/detail.js"></script>
-</head>
-<body>
 
-<h2><?php echo $testman_langres["detail_title"]; ?></h2>
-
-<?php
-	if(!array_key_exists("id", $_GET))
+	if(!isset($_GET["id"]) || !is_numeric($_GET["id"]))
 		die("Necessary information not specified");
-	
+		
 	// Establish a DB connection
 	try
 	{
@@ -59,8 +44,29 @@
 	$stmt->bindParam(":id", $_GET["id"]);
 	$stmt->execute() or die("Query failed #1");
 	$row = $stmt->fetch(PDO::FETCH_ASSOC);
-?>
+	
+	$patterns[0] = "#^([a-z]*:?\()([a-zA-Z0-9\/]+.[a-z]+):([0-9]+)(\))#m";
+	$patterns[1] = "#^([a-zA-Z0-9]+.[a-z]+):([0-9]+)(: )#m";
 
+	$replacements[0] = '$1<a href="' . VIEWVC_TRUNK . '/reactos/$2?revision=' . $row["revision"] . '&amp;view=markup#l_$3">$2:$3</a>$4';
+	$replacements[1] = '<a href="' . VIEWVC_TRUNK . '/rostests/winetests/' . $row["module"] . '/$1?revision=' . $row["revision"] . '&amp;view=markup#l_$2">$1:$2</a>$3';
+	
+	$log = preg_replace($patterns, $replacements, htmlspecialchars($row["log"]));
+	
+?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+	<title><?php echo $testman_langres["detail_title"]; ?></title>
+	<link rel="stylesheet" type="text/css" href="../shared/css/basic.css" />
+	<link rel="stylesheet" type="text/css" href="../shared/css/reactos.css" />
+	<link rel="stylesheet" type="text/css" href="css/detail.css" />
+	<script type="text/javascript" src="js/detail.js"></script>
+</head>
+<body>
+
+<h2><?php echo $testman_langres["detail_title"]; ?></h2>
 <table class="datatable" cellspacing="0" cellpadding="0">
 	<tr class="head">
 		<th colspan="2"><?php echo $testman_langres["thisresult"]; ?></th>
@@ -68,7 +74,10 @@
 	
 	<tr class="even" onmouseover="Row_OnMouseOver(this)" onmouseout="Row_OnMouseOut(this)">
 		<td class="info"><?php echo $testman_langres["testsuite"]; ?>:</td>
-		<td><?php echo $row["module"]; ?>:<?php echo $row["test"]; ?></td>
+		<td><?php echo $row["module"].':'.$row["test"];
+            if(isset($_GET['prev']) && is_numeric($_GET['prev']) && $_GET['prev'] != 0)
+                echo ' <a href="diff.php?id1='.$_GET['prev'].'&id2='.$_GET['id'].'">'.$testman_langres["show_diff"].'</a>';?>
+        </td>
 	</tr>
 	<tr class="odd" onmouseover="Row_OnMouseOver(this)" onmouseout="Row_OnMouseOut(this)">
 		<td class="info"><?php echo $testman_langres["totaltests"]; ?>:</td>
@@ -84,15 +93,7 @@
 	</tr>
 	<tr class="even" onmouseover="Row_OnMouseOver(this)" onmouseout="Row_OnMouseOut(this)">
 		<td class="info"><?php echo $testman_langres["log"]; ?>:</td>
-		<td><pre><?php
-			$patterns[0] = "#^([a-z]*:?\()([a-zA-Z0-9\/]+.[a-z]+):([0-9]+)(\))#m";
-			$patterns[1] = "#^([a-zA-Z0-9]+.[a-z]+):([0-9]+)(: )#m";
-
-			$replacements[0] = '$1<a href="' . VIEWVC_TRUNK . '/reactos/$2?revision=' . $row["revision"] . '&amp;view=markup#l_$3">$2:$3</a>$4';
-			$replacements[1] = '<a href="' . VIEWVC_TRUNK . '/rostests/winetests/' . $row["module"] . '/$1?revision=' . $row["revision"] . '&amp;view=markup#l_$2">$1:$2</a>$3';
-			
-			echo preg_replace($patterns, $replacements, htmlspecialchars($row["log"]));
-		?></pre></td>
+		<td><pre><?php echo	$log;?></pre></td>
 	</tr>
 </table><br />
 

@@ -75,6 +75,8 @@
 		// Result Details page
 		"detail_title" => "Szczegóły wyniku",
 		
+		"show_diff" => "Compare with previous run (diff)",
+		
 		"thisresult" => "Informacje o tym wyniku",
 		"log" => "Dziennik",
 		"associatedtest" => "Informacje o powiązanym teście",

@@ -379,7 +379,7 @@ function Load()
 	ProcessFilters();
 }
 
-function Result_OnClick(id)
+function Result_OnClick(id, prev_id)
 {
-	window.open("detail.php?id=" + id);
+	window.open("detail.php?id=" + id + "&prev=" + prev_id);
 }

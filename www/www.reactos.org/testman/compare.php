@@ -120,7 +120,7 @@
 			$table_results .= '<td onmouseover="Cell_OnMouseOver(this)" onmouseout="Cell_OnMouseOut(this)"';
 			
 			if($row["id"])
-				$table_results .= sprintf(' class="clickable" onclick="Result_OnClick(%d)"', $row["id"]);
+				$table_results .= sprintf(' class="clickable" onclick="Result_OnClick(%d, %d)"', $row["id"], $prev_row["id"]);
 			
 			$table_results .= '>';
 			

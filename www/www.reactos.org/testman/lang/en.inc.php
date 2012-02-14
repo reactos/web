@@ -73,6 +73,8 @@
 		// Result Details page
 		"detail_title" => "Result Details",
 		
+		"show_diff" => "Compare with previous run (diff)",
+		
 		"thisresult" => "Information about this Result",
 		"log" => "Log",
 		"associatedtest" => "Information about the associated Test",
