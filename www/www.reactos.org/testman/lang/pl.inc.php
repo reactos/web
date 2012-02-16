@@ -42,6 +42,7 @@
 		"compare_title" => "Porównywanie wyników",
 		"showchanged" => "Pokaż tylko zmienione wyniki",
 		"showcrashed" => "Pokaż tylko wyniki Crash/Canceled",
+		"hideok" => "Hide successful results",
 		"export_as" => "Eksportuj jako",
 		
 		"healthindicator_intro" => "<i>Health Indicator</i> podaje uogólniony rezultat wszystkich zestawów testów.<br />Każdy pasek reprezentuje wynik danego zestawu. Stosuje się następujące oznaczenia:",

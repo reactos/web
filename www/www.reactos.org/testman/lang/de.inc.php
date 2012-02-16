@@ -40,6 +40,7 @@
 		"compare_title" => "Ergebnisse vergleichen",
 		"showchanged" => "Nur geänderte Ergebnisse anzeigen",
 		"showcrashed" => "Nur Crash/Canceled-Ergebnisse anzeigen",
+		"hideok" => "Hide successful results",
 		"export_as" => "Exportieren als",
 		
 		"healthindicator_intro" => "Der <i>Health Indicator</i> gibt einen groben Überblick über den gesamten Testverlauf.<br />Ein Streifen stellt dabei das Ergebnis einer einzelnen Test Suite dar. Folgende Farben werden dabei verwendet:",

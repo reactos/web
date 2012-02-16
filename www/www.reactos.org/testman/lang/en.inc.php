@@ -40,6 +40,7 @@
 		"compare_title" => "Comparing Results",
 		"showchanged" => "Show only changed results",
 		"showcrashed" => "Show only Crash/Canceled results",
+        "hideok" => "Hide successful results",
 		"export_as" => "Export as",
 		
 		"healthindicator_intro" => "The <i>Health Indicator</i> gives a rough overview about the entire test result.<br />A stripe represents the result of a single test suite. The following colors are used for this:",
