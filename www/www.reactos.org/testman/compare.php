@@ -32,6 +32,7 @@
     $testman_controls .= sprintf('<div%s><input type="checkbox" id="showchanged" name="filter" /> <label for="showchanged">%s</label></div>', ($reader->getTestIDCount() > 1 ? '' : ' style="display: none;"'), $testman_langres["showchanged"]);
 	$testman_controls .= sprintf('<div><input type="checkbox" id="showcrashed" name="filter" /> <label for="showcrashed">%s</label></div>', $testman_langres["showcrashed"]);
 	$testman_controls .= sprintf('<div><input type="checkbox" id="hideok" name="filter" /> <label for="hideok">%s</label></div>', $testman_langres["hideok"]);
+    $testman_controls .= sprintf('<div><input type="checkbox" id="hideblacklisted" name="filter" /> <label for="hideblacklisted">%s</label></div>', $testman_langres["hideblacklisted"]);
 	$testman_controls .= $testman_langres["export_as"];
 	$testman_controls .= ":";
 
@@ -157,12 +158,13 @@
 		
 		$table_results .= '</tr>';
 				
-		if(!$changed || !$crashed || $row["failures"] == 0)
+		if(!$changed || !$crashed || $row["failures"] == 0 || $blacklisted)
 		{
 			$filterable_rows[] = $suites_row["id"];
 			$filterable_rows[] = ((!$changed && $reader->getTestIdCount() > 1) ? 1 : 0);
 			$filterable_rows[] = (!$crashed ? 1 : 0);
 			$filterable_rows[] = (($row["failures"] == 0 && !$crashed) ? 1 : 0);
+            $filterable_rows[] = ($blacklisted ? 1 : 0);
 		}
 		
 		$odd = !$odd;
