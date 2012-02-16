@@ -3,6 +3,7 @@
 	require_once(TESTMAN_PATH . "connect.db.php");
 	require_once '/lib/text_diff/Diff.php';
     require_once '/lib/text_diff/Diff/Renderer/Html/SideBySide.php';
+    require_once '/lib/text_diff/Diff/Renderer/Html/Inline.php';
     
     function GetRevision($test_id)
     {
@@ -18,10 +19,10 @@
     	
     	$result = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        return array($result["revision"].' - '.$result["module"].':'.$result["test"], $result["suite_id"]);
+        return array($result["revision"], $result["module"], $result["test"], $result["suite_id"]);
     }
     
-    function GetLog($test_id)
+    function GetLog($test_id, $strip, $test)
     {
         global $dbh;
 
@@ -33,11 +34,31 @@
             die("DB error @".__LINE__);
 
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
-        return explode("\n", $result["log"]);
-    }
-    
+        $result = explode("\n", $result["log"]);
+        
+        if($strip != 1)
+        {
+            return $result;
+        }
+        
+        $stripped = array();
+        
+        foreach($result as &$value)
+        {
+            if($value && ($value[0] == "(" || strncmp($test, $value, strlen($test)) != 0))
+               continue;
 
-	if(!isset($_GET["id1"]) || !isset($_GET["id2"]) || !is_numeric($_GET["id1"]) || !is_numeric($_GET["id2"]))
+            $stripped[] = $value;
+        }
+        
+        unset($result);
+
+        return $stripped;
+
+    }
+
+	if(!isset($_GET["id1"]) || !isset($_GET["id2"]) || !isset($_GET["type"]) || !isset($_GET["strip"]) ||
+       !is_numeric($_GET["id1"]) || !is_numeric($_GET["id2"]) || !is_numeric($_GET["type"]) || !is_numeric($_GET["strip"]))
 		die("Necessary information not specified!");
 
 	try
@@ -52,16 +73,20 @@
     $suite_info[] = GetRevision($_GET["id1"]);
     $suite_info[] = GetRevision($_GET["id2"]);
     
-    if($suite_info[0][1] != $suite_info[1][1])
+    if($suite_info[0][3] != $suite_info[1][3])
        die("Not the same suite.");
 
     $title = array();
-    $title[] = $suite_info[0][0];
-    $title[] = $suite_info[1][0];
+    $title[] = array($suite_info[0][0], $suite_info[0][1].':'.$suite_info[0][2]);
+    $title[] = array($suite_info[1][0], $suite_info[0][1].':'.$suite_info[0][2]);
 
 	$options = array('ignoreWhitespace' => true, 'ignoreCase' => true);
-	$diff = new Diff(GetLog($_GET["id1"]), GetLog($_GET["id2"]), $options);
-	$renderer = new Diff_Renderer_Html_SideBySide;
+	$diff = new Diff(GetLog($_GET["id1"], $_GET["strip"], $suite_info[0][2]), GetLog($_GET["id2"], $_GET["strip"], $suite_info[0][2]), $options);
+
+    if($_GET["type"] == 1)
+        $renderer = new Diff_Renderer_Html_SideBySide;
+    else
+        $renderer = new Diff_Renderer_Html_Inline;
 ?>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -70,7 +95,7 @@
 	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 	<link rel="stylesheet" type="text/css" href="css/diff.css" />
 	<link rel="stylesheet" type="text/css" href="css/compare.css" />
-	<title><?php echo $title[0].' / '.$title[1];?></title>
+	<title><?php echo 'r'.$title[0][0].' / r'.$title[1][0].' '.$title[0][1];?></title>
 	<script type="text/javascript" src="js/diff.js"></script>
 </head>
 <body onload="showDiff()">

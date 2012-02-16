@@ -74,24 +74,33 @@
 	
 	<tr class="even" onmouseover="Row_OnMouseOver(this)" onmouseout="Row_OnMouseOut(this)">
 		<td class="info"><?php echo $testman_langres["testsuite"]; ?>:</td>
-		<td><?php echo $row["module"].':'.$row["test"];
-            if(isset($_GET['prev']) && is_numeric($_GET['prev']) && $_GET['prev'] != 0)
-                echo ' <a href="diff.php?id1='.$_GET['prev'].'&id2='.$_GET['id'].'">'.$testman_langres["show_diff"].'</a>';?>
-        </td>
+		<td><?php echo $row["module"].':'.$row["test"];?></td>
 	</tr>
 	<tr class="odd" onmouseover="Row_OnMouseOver(this)" onmouseout="Row_OnMouseOut(this)">
+		<td class="info"><?php echo $testman_langres["show_diff"]; ?>:</td>
+		<td><?php
+             if(isset($_GET['prev']) && is_numeric($_GET['prev']) && $_GET['prev'] != 0)
+             {
+                echo ' <a href="diff.php?id1='.$_GET['prev'].'&id2='.$_GET['id'].'&type=1&strip=0">'.$testman_langres["diff_sbs"].'</a> |';
+                echo ' <a href="diff.php?id1='.$_GET['prev'].'&id2='.$_GET['id'].'&type=1&strip=1">'.$testman_langres["diff_sbs_stripped"].'</a> |';
+                echo ' <a href="diff.php?id1='.$_GET['prev'].'&id2='.$_GET['id'].'&type=2&strip=1">'.$testman_langres["diff_inline_stripped"].'</a>';
+             }
+             ?>
+        </td>
+	</tr>
+	<tr class="even" onmouseover="Row_OnMouseOver(this)" onmouseout="Row_OnMouseOut(this)">
 		<td class="info"><?php echo $testman_langres["totaltests"]; ?>:</td>
 		<td><?php echo GetTotalTestsString($row); ?></td>
 	</tr>
-	<tr class="even" onmouseover="Row_OnMouseOver(this)" onmouseout="Row_OnMouseOut(this)">
+	<tr class="odd" onmouseover="Row_OnMouseOver(this)" onmouseout="Row_OnMouseOut(this)">
 		<td class="info"><?php echo $testman_langres["failedtests"]; ?>:</td>
 		<td><?php echo $row["failures"]; ?></td>
 	</tr>
-	<tr class="odd" onmouseover="Row_OnMouseOver(this)" onmouseout="Row_OnMouseOut(this)">
+	<tr class="even" onmouseover="Row_OnMouseOver(this)" onmouseout="Row_OnMouseOut(this)">
 		<td class="info"><?php echo $testman_langres["skippedtests"]; ?>:</td>
 		<td><?php echo $row["skipped"]; ?></td>
 	</tr>
-	<tr class="even" onmouseover="Row_OnMouseOver(this)" onmouseout="Row_OnMouseOut(this)">
+	<tr class="odd" onmouseover="Row_OnMouseOver(this)" onmouseout="Row_OnMouseOut(this)">
 		<td class="info"><?php echo $testman_langres["log"]; ?>:</td>
 		<td><pre><?php echo	$log;?></pre></td>
 	</tr>

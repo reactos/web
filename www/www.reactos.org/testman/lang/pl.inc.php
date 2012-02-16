@@ -75,7 +75,10 @@
 		// Result Details page
 		"detail_title" => "Szczegóły wyniku",
 		
-		"show_diff" => "Compare with previous run (diff)",
+		"show_diff" => "Diff to previous run",
+		"diff_sbs" => "Side by side",
+		"diff_sbs_stripped" => "Side by side (no debug)",
+		"diff_inline_stripped" => "Inline (no debug)",
 		
 		"thisresult" => "Informacje o tym wyniku",
 		"log" => "Dziennik",
