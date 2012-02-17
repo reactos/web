@@ -74,11 +74,11 @@ button {
 	background-color: #FFFFCC !important;
 }
 
-.zero_failedtests {
+.zero_failedtests, .better{
 	background-color: #33FF66 !important;
 }
 
-.real_failedtests {
+.real_failedtests, .worse{
 	background-color: #FF6666 !important;
 }
 
@@ -165,6 +165,10 @@ button {
 
 #comparetable td div.totals {
 	width: 163.5px;
+}
+
+#comparetable td div.difference {
+	width: 78px;
 }
 
 #comparetable td div.healthindicator {

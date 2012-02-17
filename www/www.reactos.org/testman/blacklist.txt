@@ -20,7 +20,7 @@ user32:TrackMouseEvent
 // randomly crashing http://www.reactos.org/testman/detail.php?id=4074447
 gdi32:SetSysColors
 
-randomly crashing http://www.reactos.org/testman/detail.php?id=4069486
+// randomly crashing http://www.reactos.org/testman/detail.php?id=4069486
 gdi32:SetMapMode
 
 // flaky

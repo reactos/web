@@ -71,6 +71,10 @@
 
 		//Summary
 		"summary" => "Totals (non blacklisted)",
+		"count" => "Tests performed",
+		"failures" => "Failures",
+		"inc" => "Increase",
+		"dec" => "Decrease",
 
 		// Result Details page
 		"detail_title" => "Ergebnis-Details",

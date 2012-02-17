@@ -40,6 +40,7 @@
     $table_totals = "";
     $table_performance = "";
     $table_results = "";
+    $table_separator = "";
     $odd = true;
     $performance = array("boot_cycles" => "", "context_switches" => "",
                          "interrupts" => "", "system_calls" => "",
@@ -65,6 +66,9 @@
 		$table_totals .= sprintf('<div title="%s" class="box %s_failedtests totals">%d <span class="diff">%s</span></div>', $testman_langres["failedtests"], ($row["failures"] > 0 ? 'real' : 'zero'), $row["failures"], GetDifference($row, $prev_row, "failures"));
 		$table_totals .= sprintf('<div class="healthindicator" onmouseover="HealthIndicator_OnMouseOver()" onmouseout="HealthIndicator_OnMouseOut()"><img src="indicator.php?id=%d" /></div>',$row["id"]);
 		$table_totals .= '</td>';
+		
+		$table_separator .= "<td>&nbsp;</td>";
+		
 		foreach($performance as $key => $val)
     	   $performance[$key] .= sprintf('<td><div title="%s" class="box performancetests">%s <span class="diff">%s</span></div></td>', $testman_langres[$key], $row[$key], GetDifference($row, $prev_row, $key, true));
 
@@ -91,8 +95,8 @@
 	$unchanged = array();
 	$uncrashed = array();
 	
-    $summary = array_fill(-1, $reader->getTestIDCount() + 1, array("total" => 0, "failed" => 0));
-	$summary[-1] = array("total" => null, "failed" => null);
+    $summary = array_fill(-1, $reader->getTestIDCount() + 1, array("total" => 0, "failed" => 0, "fail_inc" => 0, "fail_dec" => 0, "count_inc" => 0, "count_dec" => 0));
+	$summary[-1] = array("total" => null, "failed" => null, "fail_inc" => NULL, "fail_dec" => NULL, "count_inc" => NULL, "count_dec" => NULL);
 	
 	$blacklist = GetBlacklist();
 
@@ -134,7 +138,24 @@
 			if(!$blacklisted)
 		    {
 		        $summary[$i]["total"] += $row["count"];
-		        $summary[$i]["failed"] += $row["failures"];		    
+		        $summary[$i]["failed"] += $row["failures"];
+		        
+		        if($prev_row)
+		        {
+		            $fail_diff = $row["failures"] - $prev_row["failures"];
+                    $count_diff = $row["count"] - $prev_row["count"];
+                    
+                    if($fail_diff > 0)
+                       $summary[$i]["fail_inc"] += $fail_diff;
+                    else
+                       $summary[$i]["fail_dec"] += $fail_diff;
+                       
+                    if($count_diff > 0)
+                       $summary[$i]["count_inc"] += $count_diff;
+                    else
+                       $summary[$i]["count_dec"] += $count_diff;
+
+		        }
 		    }
 			
 			if($row["id"])
@@ -172,13 +193,21 @@
 	
 	// Display summary (excluding blacklisted suites)
 
-	$final_summary = NULL;
+	$summary_count = NULL;
+	$summary_failures = NULL;
 	for($i = 0; $i < $reader->getTestIDCount(); $i++)
 	{
-	    $final_summary .= '<td>';
-	   	$final_summary .= sprintf('<div title="%s" class="box totaltests totals">%s <span class="diff">%s</span></div>', $testman_langres["totaltests"], $summary[$i]["total"], GetDifference($summary[$i], $summary[$i - 1], "total"));
-		$final_summary .= sprintf('<div title="%s" class="box %s_failedtests totals">%d <span class="diff">%s</span></div>', $testman_langres["failedtests"], (($row["failures"] > 0) ? 'real' : 'zero'), $summary[$i]["failed"], GetDifference($summary[$i], $summary[$i - 1], "failed"));
-        $final_summary .= '</td>';        
+	    $summary_count .= '<td>';
+	   	$summary_count .= sprintf('<div title="%s" class="box totaltests totals">%s <span class="diff">%s</span></div>', $testman_langres["totaltests"], $summary[$i]["total"], GetDifference($summary[$i], $summary[$i - 1], "total"));
+        $summary_count .= sprintf('<div title="%s" class="box difference better">%s%s</div>', $testman_langres["totaltests"].' '.$testman_langres["inc"], $summary[$i]["count_inc"] > 0 ? '+' : '', $summary[$i]["count_inc"]);
+        $summary_count .= sprintf('<div title="%s" class="box difference worse">%s%s</div>', $testman_langres["totaltests"].' '.$testman_langres["dec"], $summary[$i]["count_dec"] > 0 ? '+' : '', $summary[$i]["count_dec"]);
+        $summary_count .= '</td>';
+		
+		$summary_failures .= '<td>';
+		$summary_failures .= sprintf('<div title="%s" class="box %s_failedtests totals">%d <span class="diff">%s</span></div>', $testman_langres["failedtests"], (($row["failures"] > 0) ? 'real' : 'zero'), $summary[$i]["failed"], GetDifference($summary[$i], $summary[$i - 1], "failed"));
+        $summary_failures .= sprintf('<div title="%s" class="box difference better">%s%s</div>', $testman_langres["failedtests"].' '.$testman_langres["inc"], $summary[$i]["fail_dec"] > 0 ? '+' : '', $summary[$i]["fail_dec"]);
+        $summary_failures .= sprintf('<div title="%s" class="box difference worse">%s%s</div>', $testman_langres["failedtests"].' '.$testman_langres["dec"], $summary[$i]["fail_inc"] > 0 ? '+' : '', $summary[$i]["fail_inc"]);
+        $summary_failures .= '</td>';
 	}
 	
 	$testman_filterable = implode(",", $filterable_rows);
