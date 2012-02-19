@@ -9,6 +9,7 @@
 	require_once("config.inc.php");
 	require_once(TESTMAN_PATH . "connect.db.php");
 	require_once("utils.inc.php");
+	require_once("autoload.inc.php");
 	
 	$perf = array("boot_cycles" => 0,
 	              "context_switches" => 0,
@@ -46,7 +47,7 @@
 		die("The script has already processed this build before!");
 	
 	// Read the Buildslave test log
-	$fp = @fopen("http://build.reactos.org:8010/builders/" . rawurlencode($_GET["builder"]) . "/builds/" . $_GET["build"] . "/steps/test/logs/stdio/text", "r");
+	$fp = @fopen(BUILDER_URL . rawurlencode($_GET["builder"]) . "/builds/" . $_GET["build"] . "/steps/test/logs/stdio/text", "r");
 	
 	if(!$fp)
 		die("Could not open the test log!");

@@ -9,6 +9,7 @@
 */
 	
 	require_once("config.inc.php");
+	require_once("common.inc.php");
 	require_once("connect.db.php");
 	require_once("utils.inc.php");
 	require_once("languages.inc.php");

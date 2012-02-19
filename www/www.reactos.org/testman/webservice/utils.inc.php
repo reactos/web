@@ -15,12 +15,6 @@
 		public function finish($source_id, $test_id, $performance);
 	}
 	
-	// All classes are autoloaded through this magic function
-	function __autoload($class)
-	{
-		require_once("lib/$class.class.php");
-	}
-	
 	function VerifyLogin($source_id, $password)
 	{
 		global $dbh;

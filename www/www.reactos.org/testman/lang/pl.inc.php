@@ -61,7 +61,7 @@
 		"testsuite" => "Zestaw testów",
 		"resulthead" => "Rewizja %d<br />dnia %s<br />przez %s<br /> na %s",
 		"totals" => "Łącznie",
-		
+
 		"blacklisted" => "blacklisted",
 
 		//Performance

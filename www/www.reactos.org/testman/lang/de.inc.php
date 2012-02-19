@@ -59,7 +59,7 @@
 		"testsuite" => "Test Suite",
 		"resulthead" => "Revision %d<br />am %s<br />von %s<br />unter %s",
 		"totals" => "Gesamtzahlen",
-		
+
 		"blacklisted" => "blacklisted",
 
 		//Performance
