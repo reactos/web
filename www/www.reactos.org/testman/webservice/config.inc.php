@@ -10,7 +10,7 @@
 	
 	define("TESTMAN_URL", "http://www.reactos.org/testman/");
 	define("BUILDER_URL", "http://build.reactos.org:8010/builders/");
-	
+
 	// Ensure we don't get bloated logs or even exceed PHP's memory limit
 	// by defining a maximum amount of memory, which may be allocated by the
 	// aggregator script

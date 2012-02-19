@@ -193,7 +193,14 @@
     
     $body .= sprintf("<a href=\"%s\">log</a>, ", BUILDER_URL . rawurlencode($_GET["builder"]) . "/builds/" . $_GET["build"] . "/steps/test/logs/stdio/text");
     $body .= sprintf("<a href=\"%scompare.php?ids=%d,%d\">testman</a>, ", TESTMAN_URL, $previous_run["id"], $current_run["id"]);
-    $body .= sprintf("<a href=\"%s?view=rev&revision=%d\">svn</a>", VIEWVC, $current_run["revision"]);
+    $body .= sprintf("<a href=\"%s?view=rev&revision=%d\">svn</a>\n\n", VIEWVC, $current_run["revision"]);
     
+    $body .= "Have fun,\nTestman"
+    
+    $headers = 'From: testman@reactos.org\r\n';
+    $headers .= 'Reply-To: ros-dev@reactos.org\r\n';
+               
+    mail("ros-builds@reactos.org", $subject, $message, $headers);
+
     echo "OK";
 ?>
