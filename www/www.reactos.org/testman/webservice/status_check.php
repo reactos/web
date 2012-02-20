@@ -195,12 +195,12 @@
     $body .= sprintf("<a href=\"%scompare.php?ids=%d,%d\">testman</a>, ", TESTMAN_URL, $previous_run["id"], $current_run["id"]);
     $body .= sprintf("<a href=\"%s?view=rev&revision=%d\">svn</a>\n\n", VIEWVC, $current_run["revision"]);
     
-    $body .= "Have fun,\nTestman"
+    $body .= "Have fun,\nTestman";
     
     $headers = 'From: testman@reactos.org\r\n';
     $headers .= 'Reply-To: ros-dev@reactos.org\r\n';
                
-    mail("ros-builds@reactos.org", $subject, $message, $headers);
+    mail("ros-builds@reactos.org", $subject, $body, $headers);
 
     echo "OK";
 ?>
