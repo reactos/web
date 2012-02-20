@@ -6,11 +6,7 @@ kernel32:pipe
 // is wildly random/erratic, possibly due to ws2_32:sock
 urlmon:url
 
-// number of tests/failures depends on the number of running processes which may vary between runs
-ntdll:info
-
 // flaky
-ntdll:file
 user32:win
 
 // random possibly due to TrackMouseEvent
