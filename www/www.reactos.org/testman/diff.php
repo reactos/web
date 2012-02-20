@@ -1,9 +1,9 @@
 <?php
 	require_once("config.inc.php");
 	require_once(TESTMAN_PATH . "connect.db.php");
-	require_once '/lib/text_diff/Diff.php';
-    require_once '/lib/text_diff/Diff/Renderer/Html/SideBySide.php';
-    require_once '/lib/text_diff/Diff/Renderer/Html/Inline.php';
+	require_once 'lib/text_diff/Diff.php';
+    require_once 'lib/text_diff/Diff/Renderer/Html/SideBySide.php';
+    require_once 'lib/text_diff/Diff/Renderer/Html/Inline.php';
     
     function GetRevision($test_id)
     {
