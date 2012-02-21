@@ -6,36 +6,36 @@
     include TESTMAN_PATH."utils.inc.php";
     include TESTMAN_PATH."connect.db.php";
     include TESTMAN_PATH."common.inc.php";
-    
-    
+
+
     function CheckResults($current_run, $previous_run, $blacklist)
     {
         global $dbh;
-        
+
         $total_fail_diff = 0;
         $total_count_diff = 0;
         $offenders = array();
-    
+
         if($current_run > $previous_run)
            $order = "DESC";
         else
            $order = "ASC";
-           
+
         $bl_size = count($blacklist) - 1;
-           
+
         $query = $dbh->prepare("SELECT id FROM winetest_suites ORDER BY id ASC");
         $query->execute();
-        
+
         if($query->rowCount() == 0)
             die("DB error ".__LINE__);
-            
+
         while($suite = $query->fetch(PDO::FETCH_ASSOC))
         {
            $results = array();
            $changed = false;
            $fail_diff = 0;
            $count_diff = 0;
-           
+
            // Is this suite blacklisted?
            if($bl_size >= 0 && $blacklist[$bl_size] == $suite["id"])
            {
@@ -43,7 +43,7 @@
                 $bl_size--;
                 continue;
            }
-           
+
             $stmt = $dbh->prepare("SELECT results.id, results.count, results.failures, results.status, suites.test, suites.module FROM winetest_results results
                                   JOIN winetest_suites suites ON results.suite_id = suites.id
                                   WHERE (results.test_id = :id1 OR results.test_id = :id2) AND results.suite_id = :sid ORDER BY results.id $order LIMIT 2");
@@ -75,7 +75,7 @@
             {
                 $fail_diff = 0;
             }
-            
+
             $count_diff = $results[0]["count"] - $results[1]["count"];
 
             if($count_diff < 0)
@@ -87,7 +87,7 @@
             {
                 $count_diff = 0;
             }
-            
+
             if($changed == true)
                 $offenders[] = array("name" => $results[0]["test"], "id1" => $results[0]["result_id"], "id2" => $results[1]["result_id"], "count" => $count_diff, "failures" => $fail_diff);
 
@@ -95,7 +95,7 @@
 
         return array("offenders" => $offenders, "fail_diff" => $total_fail_diff, "count_diff" => $total_count_diff);
     }
-    
+
     $bl_query = null;
     $result = array();
 
@@ -121,7 +121,7 @@
     {
         $bl_query =  "";
         $or = null;
-        
+
         foreach($blacklist as $suite)
         {
             $suite = explode(":", $suite, 2);
@@ -130,7 +130,7 @@
             $or = " OR ";
         }
     }
-    
+
     // Get ids of all blacklisted tests
     if($bl_query)
     {
@@ -138,16 +138,16 @@
         $stmt->execute() or die("DB error ".__LINE__);
         $blacklist = $stmt->fetchAll(PDO::FETCH_COLUMN, 0);
     }
-    
+
     // Get the revision run id
     $stmt = $dbh->prepare("SELECT id, revision FROM winetest_runs WHERE comment = :comment AND source_id = :source_id ORDER BY revision DESC LIMIT 1");
     $stmt->bindValue(":comment", "Build ".$_GET["build"]);
     $stmt->bindParam(":source_id", $_GET["source_id"]);
     $stmt->execute() or die("DB error ".__LINE__);
-    
+
     if($stmt->rowCount() == 0)
         die("DB error ".__LINE__);
-        
+
     $current_run = $stmt->fetch(PDO::FETCH_ASSOC);
 
     // Get the id of the preceding run
@@ -160,46 +160,45 @@
         die("DB error @".__LINE__);
 
     $previous_run = $stmt->fetch(PDO::FETCH_ASSOC);
-    
+
     $result = CheckResults($current_run["id"], $previous_run["id"], $blacklist);
-    
+
     // No change detected, no more work to do
     if($result["fail_diff"] == 0 && $result["count_diff"] == 0)
        die("OK");
-       
+
     // Assemble the report
     $subject = "";
     $body = "";
     $subject = $_GET["builder"].': '.($result["fail_diff"] > 0 ? ' failures +'.$result["fail_diff"] : '').($result["count_diff"] < 0 ? '  tests '.$result["count_diff"] : '');
-    
+
     $body = "Following issues were detected while comparing test results between revisions ".$previous_run["revision"]." and ".$current_run["revision"].":\n\n";
 
     foreach($result["offenders"] as $offender)
     {
         $body.= "&nbsp;&nbsp;&nbsp;&nbsp;".$offender["name"]." -> ";
-        
+
         if($offender["count"] != 0)
            $body .= " tests ".$offender["count"];
-    
+
         if($offender["failures"] != 0)
            $body .= " failures +".$offender["failures"];
-           
+
         $body .= sprintf(" <a href=\"%sdiff.php?id1=%d&id2=%d&type=1&strip=1\">diff<a/>", TESTMAN_URL, $offender["id2"], $offender["id1"]);
-        
+
         $body .="\n";
     }
-    
+
     $body .= "\nDetails: ";
-    
+
     $body .= sprintf("<a href=\"%s\">log</a>, ", BUILDER_URL . rawurlencode($_GET["builder"]) . "/builds/" . $_GET["build"] . "/steps/test/logs/stdio/text");
     $body .= sprintf("<a href=\"%scompare.php?ids=%d,%d\">testman</a>, ", TESTMAN_URL, $previous_run["id"], $current_run["id"]);
     $body .= sprintf("<a href=\"%s?view=rev&revision=%d\">svn</a>\n\n", VIEWVC, $current_run["revision"]);
-    
+
     $body .= "Have fun,\nTestman";
-    
-    $headers = 'From: testman@reactos.org\r\n';
-    $headers .= 'Reply-To: ros-dev@reactos.org\r\n';
-               
+
+    $headers = 'From: testman@reactos.org';
+
     mail("ros-builds@reactos.org", $subject, $body, $headers);
 
     echo "OK";
