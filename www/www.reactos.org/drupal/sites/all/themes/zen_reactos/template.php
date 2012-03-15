@@ -135,48 +135,49 @@ function zen_reactos_preprocess_comment(&$variables, $hook) {
  *   The name of the template being rendered ("block" in this case.)
  */
 function zen_reactos_preprocess_block(&$variables, $hook) {
-    // apply ReactOS' version number token
-    if (token_scan($variables['block']->title))
-    {
-        $variables['block']->subject = token_replace($variables['block']->title, array('custom'), array('clear'=>true));
-    }
+  // Apply ReactOS' version number token
+  if (token_scan($variables['block']->title)) {
+    $variables['block']->subject = token_replace($variables['block']->title, array('custom'), array('clear' => TRUE));
+  }
 }
 // */
 function zen_reactos_form_alter(&$form, &$form_state, $form_id) {
-    if ($form_id == 'search_block_form') {
-	$form['search_block_form']['#default_value'] = t('Search'); // Set a default value for the textfield
-	$form['actions']['submit']['#value'] = t('>'); // Change the text on the submit button
-        // Add extra attributes to the text box
-	$form['search_block_form']['#attributes']['onblur'] = "if (this.value == '') {this.value = '".t('Search')."';}";
-	$form['search_block_form']['#attributes']['onfocus'] = "if (this.value == '".t('Search')."') {this.value = '';}";
-    }
+  if ($form_id == 'search_block_form') {
+    // Set a default value for the textfield
+    $form['search_block_form']['#default_value'] = t('Search');
+    // Change the text on the submit button
+    $form['actions']['submit']['#value'] = t('>');
+    // Add extra attributes to the text box
+    $form['search_block_form']['#attributes']['onblur'] = "if (this.value == '') {this.value = '" . t('Search') . "';}";
+    $form['search_block_form']['#attributes']['onfocus'] = "if (this.value == '" . t('Search')."') {this.value = '';}";
+  }
 }
 
 function zen_reactos_form_user_register_form_alter(&$form, &$form_state, $form_id) {
-	$form['#theme'] = 'user_register_form';
+  $form['#theme'] = 'user_register_form';
 }
 
 function zen_reactos_form_user_login_alter(&$form, &$form_state, $form_id) {
-	$form['#theme'] = 'user_login';
+  $form['#theme'] = 'user_login';
 }
 
 function zen_reactos_form_user_pass_alter(&$form, &$form_state, $form_id) {
-	$form['#theme'] = 'user_pass';
+  $form['#theme'] = 'user_pass';
 }
 
 function zen_reactos_theme($existing, $type, $theme, $path) {
-	return array(
-		'user_register_form' => array(
-			'render element' => 'form',
-			'template' => 'templates/user-register-form'
-		),
-		'user_login' => array(
-			'render element' => 'form',
-			'template' => 'templates/user-login'
-		),
-		'user_pass' => array(
-			'render element' => 'form',
-			'template' => 'templates/user-pass'
-		),
-	);
+  return array(
+    'user_register_form' => array(
+      'render element' => 'form',
+      'template' => 'templates/user-register-form'
+    ),
+    'user_login' => array(
+      'render element' => 'form',
+      'template' => 'templates/user-login'
+    ),
+    'user_pass' => array(
+      'render element' => 'form',
+      'template' => 'templates/user-pass'
+    ),
+  );
 }
