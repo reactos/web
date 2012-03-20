@@ -23,7 +23,19 @@ function mcp_forum_view($id, $mode, $action, $forum_info)
 {
 	global $template, $db, $user, $auth, $cache, $module;
 	global $phpEx, $phpbb_root_path, $config;
+	//VB
+	if (defined('PHPBB_API_EMBEDDED'))
+	{
+		$action =_phpbbforum_get_cp_action_request($action);
+	}
 
+	//\VB
+	//VB
+	if (defined('PHPBB_API_EMBEDDED'))
+	{
+		$action =_phpbbforum_get_cp_action_request($action);
+	}
+	//\VB
 	$user->add_lang(array('viewtopic', 'viewforum'));
 
 	include_once($phpbb_root_path . 'includes/functions_display.' . $phpEx);

@@ -305,7 +305,25 @@ class mcp_warn
 		// Generate the appropriate user information for the user we are looking at
 		if (!function_exists('get_user_avatar'))
 		{
+			//VB
+			if (!defined('PHPBB_API_EMBEDDED'))
+			{
+			//VB
+			if (!defined('PHPBB_API_EMBEDDED'))
+			{
 			include($phpbb_root_path . 'includes/functions_display.' . $phpEx);
+		}
+			else
+			{
+			include_once($phpbb_root_path . 'includes/functions_display.' . $phpEx);
+			}
+			//\VB
+		}
+			else
+			{
+			include_once($phpbb_root_path . 'includes/functions_display.' . $phpEx);
+			}
+			//\VB
 		}
 
 		$rank_title = $rank_img = '';
@@ -410,7 +428,25 @@ class mcp_warn
 		// Generate the appropriate user information for the user we are looking at
 		if (!function_exists('get_user_avatar'))
 		{
+			//VB
+			if (!defined('PHPBB_API_EMBEDDED'))
+			{
+			//VB
+			if (!defined('PHPBB_API_EMBEDDED'))
+			{
 			include($phpbb_root_path . 'includes/functions_display.' . $phpEx);
+		}
+			else
+			{
+			include_once($phpbb_root_path . 'includes/functions_display.' . $phpEx);
+			}
+			//\VB
+		}
+			else
+			{
+			include_once($phpbb_root_path . 'includes/functions_display.' . $phpEx);
+			}
+			//\VB
 		}
 
 		$rank_title = $rank_img = '';
@@ -454,7 +490,25 @@ function add_warning($user_row, $warning, $send_pm = true, $post_id = 0)
 		include_once($phpbb_root_path . 'includes/message_parser.' . $phpEx);
 
 		$user_row['user_lang'] = (file_exists($phpbb_root_path . 'language/' . $user_row['user_lang'] . "/mcp.$phpEx")) ? $user_row['user_lang'] : $config['default_lang'];
+		//VB
+		if (!defined('PHPBB_API_EMBEDDED'))
+		{
+		//VB
+		if (!defined('PHPBB_API_EMBEDDED'))
+		{
 		include($phpbb_root_path . 'language/' . basename($user_row['user_lang']) . "/mcp.$phpEx");
+		}
+		else
+		{
+		include_once($phpbb_root_path . 'language/' . basename($user_row['user_lang']) . "/mcp.$phpEx");
+		}
+		//\VB
+		}
+		else
+		{
+		include_once($phpbb_root_path . 'language/' . basename($user_row['user_lang']) . "/mcp.$phpEx");
+		}
+		//\VB
 
 		$message_parser = new parse_message();
 

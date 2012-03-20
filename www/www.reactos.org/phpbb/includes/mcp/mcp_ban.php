@@ -27,12 +27,48 @@ class mcp_ban
 	{
 		global $config, $db, $user, $auth, $template, $cache;
 		global $phpbb_root_path, $phpEx;
+		//VB
+		if (!defined('PHPBB_API_EMBEDDED'))
+		{
 
+		//VB
+		if (!defined('PHPBB_API_EMBEDDED'))
+		{
 		include($phpbb_root_path . 'includes/functions_user.' . $phpEx);
+		}
+		else
+		{
+		include_once($phpbb_root_path . 'includes/functions_user.' . $phpEx);
+		}
 
+		//\VB
+		}
+		else
+		{
+		include_once($phpbb_root_path . 'includes/functions_user.' . $phpEx);
+		}
+		//\VB
 		// Include the admin banning interface...
+		//VB
+		if (!defined('PHPBB_API_EMBEDDED'))
+		{
+		//VB
+		if (!defined('PHPBB_API_EMBEDDED'))
+		{
 		include($phpbb_root_path . 'includes/acp/acp_ban.' . $phpEx);
+		}
+		else
+		{
+		include_once($phpbb_root_path . 'includes/acp/acp_ban.' . $phpEx);
+		}
 
+		//\VB
+		}
+		else
+		{
+		include_once($phpbb_root_path . 'includes/acp/acp_ban.' . $phpEx);
+		}
+		//\VB
 		$bansubmit		= (isset($_POST['bansubmit'])) ? true : false;
 		$unbansubmit	= (isset($_POST['unbansubmit'])) ? true : false;
 		$current_time	= time();

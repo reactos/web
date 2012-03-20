@@ -1,0 +1,757 @@
+/* proSilver RTL definitions
+---------------------------------------- */
+
+/**
+* common.css 
+*/
+#phpbbforum-page .rtl h1 {
+	margin-right: 0;
+	margin-left: 200px;
+}
+
+#phpbbforum-page .rtl p.right {
+	text-align: left;
+}
+
+#phpbbforum-page .rtl div.rules ul {
+	margin-left: 0;
+	margin-right: 20px;
+}
+
+/* Main blocks
+---------------------------------------- */
+#phpbbforum-page .rtl #logo {
+	float: right;
+	padding: 10px 10px 0 13px;
+}
+
+/* Search box
+--------------------------------------------- */
+#phpbbforum-page .rtl #search-box {
+	float: left;
+	text-align: left;
+	margin-right: 0;
+	margin-left: 5px;
+}
+
+#phpbbforum-page .rtl #search-box li {
+	text-align: left;
+}
+
+#phpbbforum-page .rtl #search-box img {
+	margin-right: 0;
+	margin-left: 3px;
+}
+
+#phpbbforum-page .rtl #site-description {
+	float: right;
+}
+
+#phpbbforum-page .rtl #site-description h1 {
+	margin-left: 0;
+}
+
+/* Round cornered boxes and backgrounds
+---------------------------------------- */
+#phpbbforum-page .rtl .post {
+	background-position: 0 0;
+}
+
+/* Horizontal lists
+----------------------------------------*/
+#phpbbforum-page .rtl ul.linklist li {
+	float: right;
+	margin-right: 0;
+	margin-left: 5px;
+}
+
+#phpbbforum-page .rtl ul.linklist li.rightside, #phpbbforum-page .rtl p.rightside {
+	float: left;
+	margin-right: 5px;
+	margin-left: 0;
+	text-align: left;
+}
+
+#phpbbforum-page .rtl ul.leftside li, #phpbbforum-page .rtl ul.rightside li {
+	float: left;
+}
+
+#phpbbforum-page .rtl ul.leftside {
+	float: right;
+	margin-left: 5px;
+	margin-right: 0;
+	text-align: right;
+}
+
+#phpbbforum-page .rtl ul.rightside {
+	float: left;
+	margin-left: -5px;
+	margin-right: 5px;
+	text-align: left;
+}
+
+/* Table styles
+----------------------------------------*/
+#phpbbforum-page .rtl table.table1 thead th {
+	padding: 0 3px 4px 0;
+}
+
+#phpbbforum-page .rtl table.table1 thead th span {
+	padding-left: 0;
+	padding-right: 7px;
+}
+
+#phpbbforum-page .rtl table.table1 tbody th {
+	text-align: right;
+}
+
+/* Specific column styles */
+#phpbbforum-page .rtl table.table1 .name		{ text-align: right; }
+#phpbbforum-page .rtl table.table1 .joined	{ text-align: right; }
+#phpbbforum-page .rtl table.table1 .active	{ text-align: right; }
+#phpbbforum-page .rtl table.table1 .info		{ text-align: right; }
+#phpbbforum-page .rtl table.table1 thead .autocol { padding-left: 0; padding-right: 1em; }
+
+#phpbbforum-page .rtl table.table1 span.rank-img {
+	float: left;
+}
+
+#phpbbforum-page .rtl table.info tbody th {
+	text-align: left;
+}
+
+#phpbbforum-page .rtl .forumbg table.table1 {
+	margin: 0 -1px -1px -2px;
+}
+
+/* Misc layout styles
+---------------------------------------- */
+/* column[1-2] styles are containers for two column layouts 
+   Also see tweaks.css */
+#phpbbforum-page .rtl .column1 {
+	float: right;
+	clear: right;
+}
+
+#phpbbforum-page .rtl .column2 {
+	float: left;
+	clear: left;
+}
+
+/* General classes for placing floating blocks */
+#phpbbforum-page .rtl .left-box {
+	float: right;
+	text-align: right;
+}
+
+#phpbbforum-page .rtl .right-box {
+	float: left;
+	text-align: left;
+}
+
+#phpbbforum-page .rtl dl.details dt {
+	float: right;
+	clear: right;
+	text-align: left;
+}
+
+#phpbbforum-page .rtl dl.details dd {
+	margin-right: 0;
+	margin-left: 0;
+	padding-right: 5px;
+	padding-left: 0;
+	float: right;
+}
+
+#phpbbforum-page *:first-child+html dl.details dd {
+	margin-right: 30%;
+	float: none;
+}
+
+#phpbbforum-page * html dl.details dd {
+	margin-right: 30%;
+	float: none;
+}
+
+/* Pagination
+---------------------------------------- */
+#phpbbforum-page .rtl .pagination {
+	text-align: left;
+	float: left;
+	padding-left: 5px;
+}
+
+/* Pagination in viewforum for multipage topics */
+#phpbbforum-page .rtl .row .pagination {
+	float: left;
+	padding: 1px 0 1px 15px;
+}
+
+#phpbbforum-page .rtl .pagination span {
+	direction: ltr;
+}
+
+#phpbbforum-page .rtl .pagination span.page-sep {
+	display: inline;
+	visibility: hidden;
+	position: absolute;
+}
+
+/* Miscellaneous styles
+---------------------------------------- */
+#phpbbforum-page .rtl #forum-permissions {
+	float: left;
+	padding-right: 5px;
+	padding-left: 0;
+	margin-right: 5px;
+	margin-left: 0;
+	text-align: left;
+}
+
+#phpbbforum-page .rtl .forabg {
+	width: 99%;	/* fix for IE6 */
+}
+
+#phpbbforum-page .rtl .forumbg {
+	width: 99%;	/* fix for IE6 */
+}
+
+/**
+* links.css
+*/
+
+/* Back to top of page */
+#phpbbforum-page .rtl .back2top {
+	text-align: left;
+}
+
+/* Links adjustment to correctly display an order of rtl/ltr mixed content */
+#phpbbforum-page .rtl a {
+	direction: rtl;
+	unicode-bidi: embed;
+}
+
+#phpbbforum-page .rtl a.top {
+	float: left;
+}
+
+#phpbbforum-page .rtl a.top2 {
+  background-position: 100% 50%;
+	padding-left: 0;
+	padding-right: 15px;
+}
+
+#phpbbforum-page .rtl .skiplink {
+	/* invisible skip link, used for accessibility  */
+	position: relative;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+	display: block;
+	left: 0;
+}
+
+#phpbbforum-page .rtl a.feed-icon-forum {
+	float: left;
+}
+
+/**
+* content.css
+*/
+#phpbbforum-page .rtl ul.topiclist dfn {
+	/* Labels for post/view counts */
+	position: relative;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+	display: block;
+	left: 0;
+}
+
+#phpbbforum-page .rtl ul.topiclist dt {
+	float: right;
+}
+
+#phpbbforum-page .rtl ul.topiclist dl {
+	position: static;	/* fix for IE6 */
+}
+
+#phpbbforum-page .rtl ul.topiclist dd {
+	float: right;
+	border-right-width: 1px;
+	border-right-style: solid;
+	border-left: none;
+}
+
+#phpbbforum-page .rtl ul.topiclist li.row dt a.subforum {
+	padding-right: 12px;
+	background-position: right;
+	position: static;
+}
+
+#phpbbforum-page .rtl .forum-image {
+	float: right;
+	margin-right: 0;
+	margin-left: 5px;
+}
+
+#phpbbforum-page .rtl li.header dt, #phpbbforum-page .rtl li.header dd {
+	border-right-width: 0;
+}
+
+#phpbbforum-page .rtl li.header dd {
+	margin-left: 0;
+	margin-right: 1px;
+}
+
+#phpbbforum-page .rtl dl.icon {
+	background-position: 99.5% 50%;
+}
+
+#phpbbforum-page .rtl li.header dl.icon dt {
+	/* Tweak for headers alignment when folder icon used */
+	padding-right: 0;
+	padding-left: 50px;
+}
+
+#phpbbforum-page .rtl dl.icon dt {
+	padding-left: 0;
+	padding-right: 45px;					/* Space for folder icon */
+	background-position: 99.5% 95%;			/* Position of topic icon */
+}
+
+#phpbbforum-page .rtl dd.lastpost span, #phpbbforum-page .rtl ul.topiclist dd.searchby span, #phpbbforum-page .rtl ul.topiclist dd.info span, #phpbbforum-page .rtl ul.topiclist dd.time span, #phpbbforum-page .rtl dd.redirect span, #phpbbforum-page .rtl dd.moderation span {
+	padding-left: 0;
+	padding-right: 5px;
+}
+
+#phpbbforum-page .rtl dd.mark {
+	float: left !important;
+}
+
+#phpbbforum-page .rtl ul.topiclist dd.searchextra {
+	margin-left: 0;
+	margin-right: 5px;
+	border-right: none;
+}
+
+/* Post body styles
+----------------------------------------*/
+#phpbbforum-page .rtl .postbody {
+	float: right;
+}
+
+/* Topic review panel
+----------------------------------------*/
+#phpbbforum-page .rtl #topicreview {
+	padding-right: 0;
+	padding-left: 5px;
+}
+
+/* Content container styles
+----------------------------------------*/
+#phpbbforum-page .rtl .content ul, #phpbbforum-page .rtl .content ol {
+	margin-right: 3em;
+	margin-left: 0;
+}
+
+/* Post author */
+#phpbbforum-page .rtl p.author {
+	margin: 0 0 0.6em 15em;
+}
+
+#phpbbforum-page .rtl .signature {
+	clear: right;
+}
+
+#phpbbforum-page .rtl .notice {
+	clear: right;
+}
+
+/* Jump to post link for now */
+#phpbbforum-page .rtl ul.searchresults {
+	text-align: left;
+}
+
+/* BB Code styles
+----------------------------------------*/
+/* Quote block */
+#phpbbforum-page .rtl blockquote {
+	margin: 0.5em 25px 0 1px;
+	background-position: 99% 8px;
+}
+
+#phpbbforum-page .rtl blockquote blockquote {
+	/* Nested quotes */
+	margin: 0.5em 15px 0 1px;
+}
+
+#phpbbforum-page .rtl blockquote cite {
+	/* Username/source of quoter */
+	margin-right: 20px;
+	margin-left: 0;
+}
+
+#phpbbforum-page .rtl blockquote dl.codebox {
+	margin-right: 0;
+}
+
+#phpbbforum-page .rtl code {
+	direction: ltr;
+}
+
+/* Attachments
+----------------------------------------*/
+#phpbbforum-page .rtl .attachbox {
+	float: right;
+	margin: 5px 0 5px 5px;
+	clear: right;
+}
+
+#phpbbforum-page .rtl .attachbox dd {
+	clear: right;
+}
+
+#phpbbforum-page .rtl .attachbox p {
+	clear: right;
+}
+
+#phpbbforum-page .rtl .attachbox p.stats {
+	clear: right;
+}
+
+/* Post poll styles
+----------------------------------------*/
+#phpbbforum-page .rtl fieldset.polls dt {
+	text-align: right;
+	float: right;
+	border-left: none;
+}
+
+#phpbbforum-page .rtl fieldset.polls dd {
+	float: right;
+	border-right: none;
+	margin-right: 0;
+}
+
+#phpbbforum-page .rtl fieldset.polls dd div {
+	text-align: left;
+}
+
+#phpbbforum-page .rtl .pollbar1, #phpbbforum-page .rtl .pollbar2, #phpbbforum-page .rtl .pollbar3, #phpbbforum-page .rtl .pollbar4, #phpbbforum-page .rtl .pollbar5 {
+	border-left-width: 1px;
+	border-left-style: solid;
+	border-right: none;
+}
+
+/* Poster profile block
+----------------------------------------*/
+#phpbbforum-page .rtl .postprofile {
+	border-left: none;
+	border-right-width: 1px;
+	border-right-style: solid;
+	float: left;
+/*	text-align: right; */
+}
+
+#phpbbforum-page .rtl .pm .postprofile {
+	border-right-width: 1px;
+	border-right-style: solid;
+	border-left: none;
+}
+
+#phpbbforum-page .rtl .postprofile dd, #phpbbforum-page .rtl .postprofile dt {
+	margin-left: 0;
+	margin-right: 8px;
+}
+
+#phpbbforum-page .rtl .online {
+	background-position: 0 0;
+}
+
+#phpbbforum-page .rtl dl.pmlist dd {
+	margin-right: 61% !important;
+	margin-left: 0 !important;
+}
+
+/**
+* buttons.css
+*/
+/* Rollover buttons
+   Based on: http://wellstyled.com/css-nopreload-rollovers.html
+----------------------------------------*/
+#phpbbforum-page .rtl .buttons {
+	float: right;
+}
+
+/* Rollover state */
+#phpbbforum-page .rtl .buttons div {
+	margin: 0 1px 0 5px;
+}
+
+/* Sub-header (navigation bar)
+--------------------------------------------- */
+#phpbbforum-page .rtl a.print, #phpbbforum-page .rtl a.sendemail, #phpbbforum-page .rtl a.fontsize {
+	text-align: right;
+}
+
+/* Icon images
+---------------------------------------- */
+#phpbbforum-page .rtl .sitehome, #phpbbforum-page .rtl .icon-faq, #phpbbforum-page .rtl .icon-members, #phpbbforum-page .rtl .icon-home, #phpbbforum-page .rtl .icon-ucp, #phpbbforum-page .rtl .icon-register, #phpbbforum-page .rtl .icon-logout,
+#phpbbforum-page .rtl .icon-bookmark, #phpbbforum-page .rtl .icon-bump, #phpbbforum-page .rtl .icon-subscribe, #phpbbforum-page .rtl .icon-unsubscribe, #phpbbforum-page .rtl .icon-pages, #phpbbforum-page .rtl .icon-search {
+	background-position: 100% 50%;
+	padding: 1px 17px 0 0;
+}
+
+/* Poster profile icons
+----------------------------------------*/
+/* Rollover state */
+#phpbbforum-page .rtl .postprofile ul.profile-icons li {
+	float: right;
+	margin: 0 0 3px 6px;
+}
+
+/* Positioning of moderator icons */
+#phpbbforum-page .rtl .postbody ul.profile-icons {
+	float: left;
+}
+
+/**
+* cp.css
+*/
+/* proSilver Control Panel Styles
+---------------------------------------- */
+
+
+/* Main CP box
+----------------------------------------*/
+#phpbbforum-page .rtl #cp-menu {
+	float: right;
+}
+
+#phpbbforum-page .rtl #cp-main {
+	float: right;
+}
+
+#phpbbforum-page .rtl #cp-main .panel ol {
+	margin-right: 2em;
+	margin-left: 0;
+}
+
+#phpbbforum-page .rtl #cp-main .pagination {
+	float: left;
+}
+
+#phpbbforum-page .rtl #cp-main .buttons {
+	margin-right: 0;
+	margin-left: 0;
+}
+
+/* CP tabbed menu
+----------------------------------------*/
+#phpbbforum-page .rtl #tabs {
+	margin: 20px 7px -1px 0;
+}
+
+#phpbbforum-page .rtl #tabs a {
+	float: right;
+}
+
+/*.rtl #tabs a span {
+	float: right;
+}*/
+
+/* Mini tabbed menu used in MCP
+----------------------------------------*/
+#phpbbforum-page .rtl #minitabs {
+	margin: -20px 0 0 7px;
+}
+
+#phpbbforum-page .rtl #minitabs li {
+	float: left;
+	margin-right: 2px;
+	margin-left: 0;
+}
+
+/* UCP navigation menu
+----------------------------------------*/
+
+/* Preferences pane layout
+----------------------------------------*/
+#phpbbforum-page .rtl #cp-main h2 {
+	margin-left: 0;
+	margin-right: 10px;
+}
+
+/* Friends list */
+#phpbbforum-page .rtl .cp-mini {
+	margin: 10px 5px 10px 15px;
+}
+
+/* PM Styles
+----------------------------------------*/
+
+/* Defined rules list for PM options */
+#phpbbforum-page .rtl ol.def-rules {
+	padding-right: 0;
+}
+
+/* PM marking colours */
+#phpbbforum-page .rtl .pm-legend {
+	border-right-width: 10px;
+	border-right-style: solid;
+	border-left-width: 0;
+	padding-left: 0;
+	padding-right: 3px;
+}
+
+/* Avatar gallery */
+#phpbbforum-page .rtl #gallery label {
+	float: right;
+}
+
+/**
+* forms.css
+*/
+
+/* General form styles
+----------------------------------------*/
+
+#phpbbforum-page .rtl option {
+	padding-right: 0;
+	padding-left: 1em;
+}
+
+#phpbbforum-page .rtl label {
+	padding-right: 0;
+	padding-left: 5px;
+}
+
+/* Definition list layout for forms
+---------------------------------------- */
+#phpbbforum-page .rtl fieldset dt {
+	float: right;
+	text-align: right;
+}
+
+#phpbbforum-page .rtl fieldset dd {
+	margin-left: 0;
+	margin-right: 41%;
+}
+
+/* Specific layout 1 */
+#phpbbforum-page .rtl fieldset.fields1 dt {
+	border-left-width: 0;
+	border-right-width: 1px;
+}
+
+#phpbbforum-page .rtl fieldset.fields1 dd {
+	margin-right: 10em;
+	margin-left: 0;
+	border-right-width: 0;
+	border-left-width: 1px;
+}
+
+/* Specific layout 2 */
+#phpbbforum-page .rtl fieldset.fields2 dt {
+	border-right-width: 1px;
+	border-left-width: 0;
+}
+
+#phpbbforum-page .rtl fieldset.fields2 dd {
+	margin-right: 16em;
+	margin-left: 0;
+	border-left-width: 1px;
+	border-right-width: 0;
+}
+
+/* Form elements */
+#phpbbforum-page .rtl dt label {
+	text-align: right;
+}
+
+#phpbbforum-page .rtl dd input, #phpbbforum-page .rtl dd textarea {
+	margin-left: 3px;
+	margin-right: 0;
+}
+
+/* Quick-login on index page */
+#phpbbforum-page .rtl fieldset.quick-login input.inputbox {
+	margin-left: 5px;
+	margin-right: 0;
+}
+
+#phpbbforum-page .rtl fieldset.quick-login label {
+	padding-left: 2px;
+	padding-right: 0;
+}
+
+/* Display options on viewtopic/viewforum pages  */
+#phpbbforum-page .rtl fieldset.display-options label {
+	padding-left: 2px;
+	padding-right: 0;
+}
+
+/* Display actions for ucp and mcp pages */
+#phpbbforum-page .rtl fieldset.display-actions {
+	text-align: left;
+	padding-left: 1em;
+	padding-right: 0;
+}
+
+#phpbbforum-page .rtl fieldset.display-actions label {
+	padding-left: 2px;
+	padding-right: 0;
+}
+
+/* MCP forum selection*/
+#phpbbforum-page .rtl fieldset.forum-selection {
+	float: left;
+}
+
+#phpbbforum-page .rtl fieldset.forum-selection2 {
+	float: left;
+}
+
+/* Jumpbox */
+#phpbbforum-page .rtl fieldset.jumpbox {
+	text-align: left;
+}
+
+#phpbbforum-page .rtl fieldset.quickmod {
+	float: left;
+	text-align: left;
+}
+
+/* Posting page styles
+----------------------------------------*/
+
+/* Emoticons panel */
+#phpbbforum-page .rtl #smiley-box {
+	float: left;
+}
+
+/* Form button styles
+---------------------------------------- */
+
+/* Topic and forum Search */
+#phpbbforum-page .rtl .search-box {
+	margin-right: 5px;
+	margin-left: 0;
+	float: right;
+}
+
+#phpbbforum-page .rtl input.search {
+	background-position: right 1px;
+	padding-right: 17px;
+	padding-left: 0;
+}
+
+/**
+* tweaks.css
+*/
+
+/** Reference: Bug #27155 */
+#phpbbforum-page .rtl #wrap, #phpbbforum-page .rtl .headerbar, #phpbbforum-page .rtl #site-description, #phpbbforum-page .rtl .navbar {
+	position: relative;
+}

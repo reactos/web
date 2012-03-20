@@ -30,17 +30,31 @@ function token_token_info_alter(&$info) {
   unset($info['tokens']['node']['type']);
   unset($info['tokens']['node']['type-name']);
 
-  // Add [token:path] tokens for any URI-able entities.
+  // Support 'url' type tokens for core tokens.
+  if (isset($info['tokens']['comment']['url']) && module_exists('comment')) {
+    $info['tokens']['comment']['url']['type'] = 'url';
+  }
+  $info['tokens']['node']['url']['type'] = 'url';
+  if (isset($info['tokens']['term']['url']) && module_exists('taxonomy')) {
+    $info['tokens']['term']['url']['type'] = 'url';
+  }
+  $info['tokens']['user']['url']['type'] = 'url';
+
+  // Add [token:url] tokens for any URI-able entities.
   $entities = entity_get_info();
   foreach ($entities as $entity => $entity_info) {
     if (!isset($entity_info['token type'])) {
       continue;
     }
+
     $token_type = $entity_info['token type'];
+    if (!isset($info['types'][$token_type]) || !isset($info['tokens'][$token_type])) {
+      continue;
+    }
 
     // Add [entity:url] tokens if they do not already exist.
     // @todo Support entity:label
-    if (!isset($info['tokens'][$token_type]['url']) && (!empty($entity_info['uri callback']) || !empty($entity_info['bundles'][$entity]['uri callback']))) {
+    if (!isset($info['tokens'][$token_type]['url']) && !empty($entity_info['uri callback'])) {
       $info['tokens'][$token_type]['url'] = array(
         'name' => t('URL'),
         'description' => t('The URL of the @entity.', array('@entity' => drupal_strtolower($entity_info['label']))),
@@ -49,13 +63,6 @@ function token_token_info_alter(&$info) {
       );
     }
   }
-
-  $info['tokens']['comment']['url']['type'] = 'url';
-  //$info['tokens']['file']['url']['type'] = 'url';
-  $info['tokens']['node']['url']['type'] = 'url';
-  $info['tokens']['term']['url']['type'] = 'url';
-  $info['tokens']['user']['url']['type'] = 'url';
-  // @todo Support other tokens not named 'url'
 
   // Add support for custom date formats.
   // @todo Remove when http://drupal.org/node/1173706 is fixed.
@@ -125,6 +132,11 @@ function token_token_info() {
       'name' => t('Edit URL'),
       'description' => t("The URL of the taxonomy term's edit page."),
       //'type' => 'url',
+    );
+    $info['tokens']['term']['parents'] = array(
+      'name' => t('Parents'),
+      'description' => t("An array of all the term's parents, starting with the root."),
+      'type' => 'array',
     );
     $info['tokens']['term']['root'] = array(
       'name' => t('Root term'),
@@ -209,6 +221,11 @@ function token_token_info() {
     'name' => t('Parent'),
     'description' => t("The menu link's parent."),
     'type' => 'menu-link',
+  );
+  $info['tokens']['menu-link']['parents'] = array(
+    'name' => t('Parents'),
+    'description' => t("An array of all the menu link's parents, starting with the root."),
+    'type' => 'array',
   );
   $info['tokens']['menu-link']['root'] = array(
     'name' => t('Root'),
@@ -450,6 +467,12 @@ function token_tokens($type, $tokens, array $data = array(), array $options = ar
           $replacements[$original] = url("taxonomy/term/{$term->tid}/edit", $url_options);
           break;
 
+        case 'parents':
+          if ($parents = token_taxonomy_term_load_all_parents($term->tid)) {
+            $replacements[$original] = token_render_array($parents, $options);
+          }
+          break;
+
         case 'root':
           $parents = taxonomy_get_parents_all($term->tid);
           $root_term = end($parents);
@@ -463,6 +486,12 @@ function token_tokens($type, $tokens, array $data = array(), array $options = ar
     // Chained token relationships.
     if (($url_tokens = token_find_with_prefix($tokens, 'url'))) {
       $replacements += token_generate('url', $url_tokens, entity_uri('taxonomy_term', $term), $options);
+    }
+    // [term:parents:*] chained tokens.
+    if ($parents_tokens = token_find_with_prefix($tokens, 'parents')) {
+      if ($parents = token_taxonomy_term_load_all_parents($term->tid)) {
+        $replacements += token_generate('array', $parents_tokens, array('array' => $parents), $options);
+      }
     }
     if ($root_tokens = token_find_with_prefix($tokens, 'root')) {
       $parents = taxonomy_get_parents_all($term->tid);
@@ -519,7 +548,10 @@ function token_tokens($type, $tokens, array $data = array(), array $options = ar
           }
           break;
         case 'roles':
-          $replacements[$original] = token_render_array($account->roles, $options);
+          // The roles array may be set from checkbox values so ensure it always
+          // has 'proper' data with the role names.
+          $roles = array_intersect_key(user_roles(), $account->roles);
+          $replacements[$original] = token_render_array($roles, $options);
           break;
       }
     }
@@ -534,7 +566,10 @@ function token_tokens($type, $tokens, array $data = array(), array $options = ar
       $replacements += token_generate('url', $url_tokens, entity_uri('user', $account), $options);
     }
     if ($role_tokens = token_find_with_prefix($tokens, 'roles')) {
-      $replacements += token_generate('array', $role_tokens, array('array' => $account->roles), $options);
+      // The roles array may be set from checkbox values so ensure it always
+      // has 'proper' data with the role names.
+      $roles = array_intersect_key(user_roles(), $account->roles);
+      $replacements += token_generate('array', $role_tokens, array('array' => $roles), $options);
     }
   }
 
@@ -575,6 +610,11 @@ function token_tokens($type, $tokens, array $data = array(), array $options = ar
             $replacements[$original] = $sanitize ? check_plain($parent['title']) : $parent['title'];
           }
           break;
+        case 'parents':
+          if ($parents = token_menu_link_load_all_parents($link['mlid'])) {
+            $replacements[$original] = token_render_array($parents, $options);
+          }
+          break;
         case 'root';
           if (!empty($link['p1']) && $link['p1'] != $link['mlid'] && $root = token_menu_link_load($link['p1'])) {
             $replacements[$original] = $sanitize ? check_plain($root['title']) : $root['title'];
@@ -586,6 +626,12 @@ function token_tokens($type, $tokens, array $data = array(), array $options = ar
     // Chained token relationships.
     if (!empty($link['plid']) && ($source_tokens = token_find_with_prefix($tokens, 'parent')) && $parent = token_menu_link_load($link['plid'])) {
       $replacements += token_generate('menu-link', $source_tokens, array('menu-link' => $parent), $options);
+    }
+    // [menu-link:parents:*] chained tokens.
+    if ($parents_tokens = token_find_with_prefix($tokens, 'parents')) {
+      if ($parents = token_menu_link_load_all_parents($link['mlid'])) {
+        $replacements += token_generate('array', $parents_tokens, array('array' => $parents), $options);
+      }
     }
     if (!empty($link['p1']) && $link['p1'] != $link['mlid'] && ($root_tokens = token_find_with_prefix($tokens, 'root')) && $root = token_menu_link_load($link['p1'])) {
       $replacements += token_generate('menu-link', $root_tokens, array('menu-link' => $root), $options);
@@ -602,7 +648,8 @@ function token_tokens($type, $tokens, array $data = array(), array $options = ar
     foreach ($tokens as $name => $original) {
       switch ($name) {
         case 'title':
-          $replacements[$original] = drupal_get_title();
+          $title = drupal_get_title();
+          $replacements[$original] = $sanitize ? $title : decode_entities($title);
           break;
         case 'url':
           $replacements[$original] = url($current_path, $url_options);
@@ -678,7 +725,7 @@ function token_tokens($type, $tokens, array $data = array(), array $options = ar
           break;
         case 'args':
           $value = empty($url_options['alias']) ? drupal_get_path_alias($path, $language_code) : $path;
-          $replacements[$original] = token_render_array(arg(NULL, $args), $options);
+          $replacements[$original] = token_render_array(arg(NULL, $value), $options);
           break;
       }
     }
@@ -737,23 +784,25 @@ function token_tokens($type, $tokens, array $data = array(), array $options = ar
   if ($type == 'array' && !empty($data['array']) && is_array($data['array'])) {
     $array = $data['array'];
 
+    $sort = isset($options['array sort']) ? $options['array sort'] : TRUE;
+    $keys = element_children($array, $sort);
+
     foreach ($tokens as $name => $original) {
       switch ($name) {
         case 'first':
-          $first = reset($array);
-          $replacements[$original] = token_render_array_value($first, $options);
-          reset($array);
+          $value = $array[$keys[0]];
+          $value = is_array($value) ? render($value) : (string) $value;
+          $replacements[$original] = $sanitize ? check_plain($value) : $value;
           break;
         case 'last':
-          $last = end($array);
-          $replacements[$original] = token_render_array_value($last, $options);
-          reset($array);
+          $value = $array[$keys[count($keys) - 1]];
+          $value = is_array($value) ? render($value) : (string) $value;
+          $replacements[$original] = $sanitize ? check_plain($value) : $value;
           break;
         case 'count':
-          $replacements[$original] = count($array);
+          $replacements[$original] = count($keys);
           break;
         case 'keys':
-          $keys = array_keys($array);
           $replacements[$original] = token_render_array($keys, $options);
           break;
         case 'reversed':
@@ -769,7 +818,7 @@ function token_tokens($type, $tokens, array $data = array(), array $options = ar
     // [array:value:*] dynamic tokens.
     if ($value_tokens = token_find_with_prefix($tokens, 'value')) {
       foreach ($value_tokens as $key => $original) {
-        if (isset($array[$key])) {
+        if ($key[0] !== '#' && isset($array[$key])) {
           $replacements[$original] = token_render_array_value($array[$key], $options);
         }
       }
@@ -782,12 +831,14 @@ function token_tokens($type, $tokens, array $data = array(), array $options = ar
       }
     }
 
-    // Chained token relationships.
+    // [array:keys:*] chained tokens.
     if ($key_tokens = token_find_with_prefix($tokens, 'keys')) {
-      $replacements += token_generate('array', $key_tokens, array('array' => array_keys($array)), $options);
+      $replacements += token_generate('array', $key_tokens, array('array' => $keys), $options);
     }
+
+    // [array:reversed:*] chained tokens.
     if ($reversed_tokens = token_find_with_prefix($tokens, 'reversed')) {
-      $replacements += token_generate('array', $reversed_tokens, array('array' => array_reverse($array, TRUE)), $options);
+      $replacements += token_generate('array', $reversed_tokens, array('array' => array_reverse($array, TRUE)), array('array sort' => FALSE) + $options);
     }
 
     // @todo Handle if the array values are not strings and could be chained.
@@ -843,14 +894,8 @@ function token_tokens($type, $tokens, array $data = array(), array $options = ar
 function token_tokens_alter(array &$replacements, array $context) {
   $options = $context['options'];
 
-  if (isset($options['language'])) {
-    $url_options['language'] = $options['language'];
-    $language_code = $options['language']->language;
-  }
-  else {
-    $language_code = NULL;
-  }
   $sanitize = !empty($options['sanitize']);
+  $langcode = !empty($options['language']->language) ? $options['language']->language : NULL;
 
   // Comment token fixes.
   if ($context['type'] == 'comment' && !empty($context['data']['comment'])) {
@@ -882,10 +927,12 @@ function token_tokens_alter(array &$replacements, array $context) {
     foreach ($context['tokens'] as $name => $original) {
       switch ($name) {
         case 'author':
-          // @todo Remove when http://drupal.org/node/1185842 is fixed.
-          $account = user_load($node->uid);
-          $name = format_username($account);
-          $replacements[$original] = $sanitize ? check_plain($name) : $name;
+          // http://drupal.org/node/1185842 was fixed in core release 7.9.
+          if (version_compare(VERSION, '7.9', '<')) {
+            $account = user_load($node->uid);
+            $name = format_username($account);
+            $replacements[$original] = $sanitize ? check_plain($name) : $name;
+          }
           break;
       }
     }
@@ -898,10 +945,12 @@ function token_tokens_alter(array &$replacements, array $context) {
     foreach ($context['tokens'] as $name => $original) {
       switch ($name) {
         case 'owner':
-          // @todo Remove when http://drupal.org/node/978028 is fixed.
-          $account = user_load($file->uid);
-          $name = format_username($account);
-          $replacements[$original] = $sanitize ? check_plain($name) : $name;
+          // http://drupal.org/node/978028 was fixed in core release 7.7.
+          if (version_compare(VERSION, '7.7', '<')) {
+            $account = user_load($file->uid);
+            $name = format_username($account);
+            $replacements[$original] = $sanitize ? check_plain($name) : $name;
+          }
           break;
       }
     }
@@ -1022,25 +1071,20 @@ function menu_tokens($type, $tokens, array $data = array(), array $options = arr
   if ($type == 'node' && !empty($data['node'])) {
     $node = $data['node'];
 
-    if (!isset($node->menu)) {
-      // Nodes do not have their menu links loaded via menu_node_load().
-      menu_node_prepare($node);
-    }
-
-    if (!empty($node->menu['mlid'])) {
-      $link = token_menu_link_load($node->menu['mlid']);
-
-      foreach ($tokens as $name => $original) {
-        switch ($name) {
-          case 'menu-link':
+    foreach ($tokens as $name => $original) {
+      switch ($name) {
+        case 'menu-link':
+          if ($link = token_node_menu_link_load($node)) {
             $replacements[$original] = $sanitize ? check_plain($link['title']) : $link['title'];
-            break;
-        }
+          }
+          break;
       }
 
       // Chained token relationships.
       if ($menu_tokens = token_find_with_prefix($tokens, 'menu-link')) {
-        $replacements += token_generate('menu-link', $menu_tokens, array('menu-link' => $link), $options);
+        if ($link = token_node_menu_link_load($node)) {
+          $replacements += token_generate('menu-link', $menu_tokens, array('menu-link' => $link), $options);
+        }
       }
     }
   }
@@ -1233,8 +1277,7 @@ function _token_field_info($field_name = NULL) {
             }
 
             $info[$key]['token types'][] = $token_type;
-            $info[$key]['labels'] = array();
-            $info[$key]['bundles'] = array();
+            $info[$key] += array('labels' => array(), 'bundles' => array());
 
             // Find which label is most commonly used.
             foreach ($field['bundles'][$entity] as $bundle) {
@@ -1249,20 +1292,24 @@ function _token_field_info($field_name = NULL) {
               $info[$key]['labels'][] = $instances[$entity][$bundle][$key]['label'];
               $info[$key]['bundles'][$token_type][$bundle] = $entity_info[$entity]['bundles'][$bundle]['label'];
             }
-            $labels = array_count_values($info[$key]['labels']);
-            arsort($labels);
-            $info[$key]['label'] = key($labels);
+          }
+        }
 
-            // Generate a description for the token.
-            $info[$key]['description'] = t('@type field.', array('@type' => $type_info[$field['type']]['label']));
-            if ($also_known_as = array_unique(array_diff($info[$key]['labels'], array($info[$key]['label'])))) {
-              $info[$key]['description'] .= ' ' . t('Also known as %labels.', array('%labels' => implode(', ', $also_known_as)));
-            }
+        if (isset($info[$key])) {
+          $labels = array_count_values($info[$key]['labels']);
+          arsort($labels);
+          $info[$key]['label'] = key($labels);
+
+          // Generate a description for the token.
+          $info[$key]['description'] = t('@type field.', array('@type' => $type_info[$field['type']]['label']));
+          if ($also_known_as = array_unique(array_diff($info[$key]['labels'], array($info[$key]['label'])))) {
+            $info[$key]['description'] .= ' ' . t('Also known as %labels.', array('%labels' => implode(', ', $also_known_as)));
           }
         }
       }
 
       drupal_alter('token_field_info', $info);
+      cache_set('field:info', $info, 'cache_token');
     }
   }
 
@@ -1287,6 +1334,11 @@ function field_token_info_alter(&$info) {
     foreach (array_keys($field['bundles']) as $token_type) {
       // If a token already exists for this field, then don't add it.
       if (isset($info['tokens'][$token_type][$field_name])) {
+        continue;
+      }
+
+      // Ensure the tokens exist.
+      if (!isset($info['types'][$token_type]) || !isset($info['tokens'][$token_type])) {
         continue;
       }
 

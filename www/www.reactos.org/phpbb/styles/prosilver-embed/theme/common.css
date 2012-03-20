@@ -1,0 +1,632 @@
+/* General proSilver Markup Styles
+---------------------------------------- */
+
+#phpbbforum-page * {
+	/* Reset browsers default margin, padding and font sizes */
+	margin: 0;
+	padding: 0;
+}
+/*
+#phpbbforum-page html {
+	font-size: 100%;
+	height: 101%;
+}
+*/ 
+/*#phpbbforum-page body   {*/
+#phpbbforum-page {
+	/* Text-Sizing with ems: http://www.clagnut.com/blog/348/ */
+	font-family: Verdana, Helvetica, Arial, sans-serif;
+	color: #828282;
+	background-color: #FFFFFF;
+	/*font-size: 62.5%;			 This sets the default font size to be equivalent to 10px */
+	font-size: 10px;
+	margin: 0;
+	padding: 12px 0;
+}
+
+#phpbbforum-page h1 {
+	/* Forum name */
+	font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+	margin-right: 200px;
+	color: #FFFFFF;
+	margin-top: 15px;
+	font-weight: bold;
+	font-size: 2em;
+}
+
+#phpbbforum-page h2 {
+	/* Forum header titles */
+	font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+	font-weight: normal;
+	color: #3f3f3f;
+	font-size: 2em;
+	margin: 0.8em 0 0.2em 0;
+}
+
+#phpbbforum-page h2.solo {
+	margin-bottom: 1em;
+}
+
+#phpbbforum-page h3 {
+	/* Sub-headers (also used as post headers, but defined later) */
+	font-family: Arial, Helvetica, sans-serif;
+	font-weight: bold;
+	text-transform: uppercase;
+	border-bottom: 1px solid #CCCCCC;
+	margin-bottom: 3px;
+	padding-bottom: 2px;
+	font-size: 1.05em;
+	color: #989898;
+	margin-top: 20px;
+}
+
+#phpbbforum-page h4 {
+	/* Forum and topic list titles */
+	font-family: "Trebuchet MS", Verdana, Helvetica, Arial, Sans-serif;
+	font-size: 1.3em;
+}
+
+#phpbbforum-page p {
+	line-height: 1.3em;
+	font-size: 1.1em;
+	margin-bottom: 1.5em;
+}
+
+#phpbbforum-page img {
+	border-width: 0;
+}
+
+#phpbbforum-page hr {
+	/* Also see tweaks.css */
+	border: 0 none #FFFFFF;
+	border-top: 1px solid #CCCCCC;
+	height: 1px;
+	margin: 5px 0;
+	display: block;
+	clear: both;
+}
+
+#phpbbforum-page hr.dashed {
+	border-top: 1px dashed #CCCCCC;
+	margin: 10px 0;
+}
+
+#phpbbforum-page hr.divider {
+	display: none;
+}
+
+#phpbbforum-page p.right {
+	text-align: right;
+}
+
+/* Main blocks
+---------------------------------------- */
+#phpbbforum-page #wrap {
+	padding: 0 20px;
+	min-width: 650px;
+}
+
+#phpbbforum-page #simple-wrap {
+	padding: 6px 10px;
+}
+
+#phpbbforum-page #page-body {
+	margin: 4px 0;
+	clear: both;
+}
+
+#phpbbforum-page #page-footer {
+	clear: both;
+}
+
+#phpbbforum-page #page-footer h3 {
+	margin-top: 20px;
+}
+
+#phpbbforum-page #logo {
+	float: left;
+	width: auto;
+	padding: 10px 13px 0 10px;
+}
+
+#phpbbforum-page a#logo:hover {
+	text-decoration: none;
+}
+
+/* Search box
+--------------------------------------------- */
+#phpbbforum-page #search-box {
+	color: #FFFFFF;
+	position: relative;
+	margin-top: 30px;
+	margin-right: 5px;
+	display: block;
+	float: right;
+	text-align: right;
+	white-space: nowrap; /* For Opera */
+}
+
+#phpbbforum-page #search-box #keywords {
+	width: 95px;
+	background-color: #FFF;
+}
+
+#phpbbforum-page #search-box input {
+	border: 1px solid #b0b0b0;
+}
+
+/* .button1 style defined later, just a few tweaks for the search button version */
+#phpbbforum-page #search-box input.button1 {
+	padding: 1px 5px;
+}
+
+#phpbbforum-page #search-box li {
+	text-align: right;
+	margin-top: 4px;
+}
+
+#phpbbforum-page #search-box img {
+	vertical-align: middle;
+	margin-right: 3px;
+}
+
+/* Site description and logo */
+#phpbbforum-page #site-description {
+	float: left;
+	width: 70%;
+}
+
+#phpbbforum-page #site-description h1 {
+	margin-right: 0;
+}
+
+/* Round cornered boxes and backgrounds
+---------------------------------------- */
+#phpbbforum-page .headerbar {
+	background: #ebebeb none repeat-x 0 0;
+	color: #FFFFFF;
+	margin-bottom: 4px;
+	padding: 0 5px;
+}
+
+#phpbbforum-page .navbar {
+	background-color: #ebebeb;
+	padding: 0 10px;
+}
+
+#phpbbforum-page .forabg {
+	background: #b1b1b1 none repeat-x 0 0;
+	margin-bottom: 4px;
+	padding: 0 5px;
+	clear: both;
+}
+
+#phpbbforum-page .forumbg {
+	background: #ebebeb none repeat-x 0 0;
+	margin-bottom: 4px;
+	padding: 0 5px;
+	clear: both;
+}
+
+#phpbbforum-page .panel {
+	margin-bottom: 4px;
+	padding: 0 10px;
+	background-color: #f3f3f3;
+	color: #3f3f3f;
+}
+
+#phpbbforum-page .post {
+	padding: 0 10px;
+	margin-bottom: 4px;
+	background-repeat: no-repeat;
+	background-position: 100% 0;
+}
+
+#phpbbforum-page .post:target .content {
+	color: #000000;
+}
+
+#phpbbforum-page .post:target h3 a {
+	color: #000000;
+}
+
+#phpbbforum-page .bg1	{ background-color: #f7f7f7;}
+#phpbbforum-page .bg2	{ background-color: #f2f2f2; }
+#phpbbforum-page .bg3	{ background-color: #ebebeb; }
+
+#phpbbforum-page .rowbg {
+	margin: 5px 5px 2px 5px;
+}
+
+#phpbbforum-page .ucprowbg {
+	background-color: #e2e2e2;
+}
+
+#phpbbforum-page .fieldsbg {
+	/*border: 1px #DBDEE2 solid;*/
+	background-color: #eaeaea;
+}
+
+#phpbbforum-page span.corners-top, #phpbbforum-page span.corners-bottom, #phpbbforum-page span.corners-top span, #phpbbforum-page span.corners-bottom span {
+	font-size: 1px;
+	line-height: 1px;
+	display: block;
+	height: 5px;
+	background-repeat: no-repeat;
+}
+
+#phpbbforum-page span.corners-top {
+	background-image: none;
+	background-position: 0 0;
+	margin: 0 -5px;
+}
+
+#phpbbforum-page span.corners-top span {
+	background-image: none;
+	background-position: 100% 0;
+}
+
+#phpbbforum-page span.corners-bottom {
+	background-image: none;
+	background-position: 0 100%;
+	margin: 0 -5px;
+	clear: both;
+}
+
+#phpbbforum-page span.corners-bottom span {
+	background-image: none;
+	background-position: 100% 100%;
+}
+
+#phpbbforum-page .headbg span.corners-bottom {
+	margin-bottom: -1px;
+}
+
+#phpbbforum-page .post span.corners-top, #phpbbforum-page .post span.corners-bottom, #phpbbforum-page .panel span.corners-top, #phpbbforum-page .panel span.corners-bottom, #phpbbforum-page .navbar span.corners-top, #phpbbforum-page .navbar span.corners-bottom {
+	margin: 0 -10px;
+}
+
+#phpbbforum-page .rules span.corners-top {
+	margin: 0 -10px 5px -10px;
+}
+
+#phpbbforum-page .rules span.corners-bottom {
+	margin: 5px -10px 0 -10px;
+}
+
+/* Horizontal lists
+----------------------------------------*/
+#phpbbforum-page ul.linklist {
+	display: block;
+	margin: 0;
+}
+
+#phpbbforum-page ul.linklist li {
+	display: block;
+	list-style-type: none;
+	float: left;
+	width: auto;
+	margin-right: 5px;
+	font-size: 1.1em;
+	line-height: 2.2em;
+}
+
+#phpbbforum-page ul.linklist li.rightside, #phpbbforum-page p.rightside {
+	float: right;
+	margin-right: 0;
+	margin-left: 5px;
+	text-align: right;
+}
+
+#phpbbforum-page ul.navlinks {
+	padding-bottom: 1px;
+	margin-bottom: 1px;
+	border-bottom: 1px solid #FFFFFF;
+	font-weight: bold;
+}
+
+#phpbbforum-page ul.leftside {
+	float: left;
+	margin-left: 0;
+	margin-right: 5px;
+	text-align: left;
+}
+
+#phpbbforum-page ul.rightside {
+	float: right;
+	margin-left: 5px;
+	margin-right: -5px;
+	text-align: right;
+}
+
+/* Table styles
+----------------------------------------*/
+#phpbbforum-page table.table1 {
+	/* See tweaks.css */
+}
+
+#phpbbforum-page #ucp-main table.table1 {
+	padding: 2px;
+}
+
+#phpbbforum-page table.table1 thead th {
+	font-weight: normal;
+	text-transform: uppercase;
+	color: #FFFFFF;
+	line-height: 1.3em;
+	font-size: 1em;
+	padding: 0 0 4px 3px;
+}
+
+#phpbbforum-page table.table1 thead th span {
+	padding-left: 7px;
+}
+
+#phpbbforum-page table.table1 tbody tr {
+	border: 1px solid #cfcfcf;
+}
+
+#phpbbforum-page table.table1 tbody tr:hover, #phpbbforum-page table.table1 tbody tr.hover {
+	background-color: #f6f6f6;
+	color: #000;
+}
+
+#phpbbforum-page table.table1 td {
+	color: #6a6a6a;
+	font-size: 1.1em;
+}
+
+#phpbbforum-page table.table1 tbody td {
+	padding: 5px;
+	border-top: 1px solid #FAFAFA;
+}
+
+#phpbbforum-page table.table1 tbody th {
+	padding: 5px;
+	border-bottom: 1px solid #000000;
+	text-align: left;
+	color: #333333;
+	background-color: #FFFFFF;
+}
+
+/* Specific column styles */
+#phpbbforum-page table.table1 .name		{ text-align: left; }
+#phpbbforum-page table.table1 .posts		{ text-align: center !important; width: 7%; }
+#phpbbforum-page table.table1 .joined	{ text-align: left; width: 15%; }
+#phpbbforum-page table.table1 .active	{ text-align: left; width: 15%; }
+#phpbbforum-page table.table1 .mark		{ text-align: center; width: 7%; }
+#phpbbforum-page table.table1 .info		{ text-align: left; width: 30%; }
+#phpbbforum-page table.table1 .info div	{ width: 100%; white-space: normal; overflow: hidden; }
+#phpbbforum-page table.table1 .autocol	{ line-height: 2em; white-space: nowrap; }
+#phpbbforum-page table.table1 thead .autocol { padding-left: 1em; }
+
+#phpbbforum-page table.table1 span.rank-img {
+	float: right;
+	width: auto;
+}
+
+#phpbbforum-page table.info td {
+	padding: 3px;
+}
+
+#phpbbforum-page table.info tbody th {
+	padding: 3px;
+	text-align: right;
+	vertical-align: top;
+	color: #000000;
+	font-weight: normal;
+}
+
+#phpbbforum-page .forumbg table.table1 {
+	margin: 0 -2px -1px -1px;
+}
+
+/* Misc layout styles
+---------------------------------------- */
+/* column[1-2] styles are containers for two column layouts 
+   Also see tweaks.css */
+#phpbbforum-page .column1 {
+	float: left;
+	clear: left;
+	width: 49%;
+}
+
+#phpbbforum-page .column2 {
+	float: right;
+	clear: right;
+	width: 49%;
+}
+
+/* General classes for placing floating blocks */
+#phpbbforum-page .left-box {
+	float: left;
+	width: auto;
+	text-align: left;
+}
+
+#phpbbforum-page .right-box {
+	float: right;
+	width: auto;
+	text-align: right;
+}
+
+#phpbbforum-page dl.details {
+	/*font-family: "Lucida Grande", Verdana, Helvetica, Arial, sans-serif;*/
+	font-size: 1.1em;
+}
+
+#phpbbforum-page dl.details dt {
+	float: left;
+	clear: left;
+	width: 30%;
+	text-align: right;
+	color: #000000;
+	display: block;
+}
+
+#phpbbforum-page dl.details dd {
+	margin-left: 0;
+	padding-left: 5px;
+	margin-bottom: 5px;
+	color: #828282;
+	float: left;
+	width: 65%;
+}
+
+/* Pagination
+---------------------------------------- */
+#phpbbforum-page .pagination {
+	height: 1%; /* IE tweak (holly hack) */
+	width: auto;
+	text-align: right;
+	margin-top: 5px;
+	float: right;
+}
+
+#phpbbforum-page .pagination span.page-sep {
+	display: none;
+}
+
+#phpbbforum-page li.pagination {
+	margin-top: 0;
+}
+
+#phpbbforum-page .pagination strong, #phpbbforum-page .pagination b {
+	font-weight: normal;
+}
+
+#phpbbforum-page .pagination span strong {
+	padding: 0 2px;
+	margin: 0 2px;
+	font-weight: normal;
+	color: #FFFFFF;
+	background-color: #bfbfbf;
+	border: 1px solid #bfbfbf;
+	font-size: 0.9em;
+}
+
+#phpbbforum-page .pagination span a, #phpbbforum-page .pagination span a:link, #phpbbforum-page .pagination span a:visited, #phpbbforum-page .pagination span a:active {
+	font-weight: normal;
+	text-decoration: none;
+	color: #747474;
+	margin: 0 2px;
+	padding: 0 2px;
+	background-color: #eeeeee;
+	border: 1px solid #bababa;
+	font-size: 0.9em;
+	line-height: 1.5em;
+}
+
+#phpbbforum-page .pagination span a:hover {
+	border-color: #d2d2d2;
+	background-color: #d2d2d2;
+	color: #FFF;
+	text-decoration: none;
+}
+
+#phpbbforum-page .pagination img {
+	vertical-align: middle;
+}
+
+/* Pagination in viewforum for multipage topics */
+#phpbbforum-page .row .pagination {
+	display: block;
+	float: right;
+	width: auto;
+	margin-top: 0;
+	padding: 1px 0 1px 15px;
+	font-size: 0.9em;
+	background: none 0 50% no-repeat;
+}
+
+#phpbbforum-page .row .pagination span a, #phpbbforum-page li.pagination span a {
+	background-color: #FFFFFF;
+}
+
+#phpbbforum-page .row .pagination span a:hover, #phpbbforum-page li.pagination span a:hover {
+	background-color: #d2d2d2;
+}
+
+/* Miscellaneous styles
+---------------------------------------- */
+#phpbbforum-page #forum-permissions {
+	float: right;
+	width: auto;
+	padding-left: 5px;
+	margin-left: 5px;
+	margin-top: 10px;
+	text-align: right;
+}
+
+#phpbbforum-page .copyright {
+	padding: 5px;
+	text-align: center;
+	color: #555555;
+}
+
+#phpbbforum-page .small {
+	font-size: 0.9em !important;
+}
+
+#phpbbforum-page .titlespace {
+	margin-bottom: 15px;
+}
+
+#phpbbforum-page .headerspace {
+	margin-top: 20px;
+}
+
+#phpbbforum-page .error {
+	color: #bcbcbc;
+	font-weight: bold;
+	font-size: 1em;
+}
+
+#phpbbforum-page .reported {
+	background-color: #f7f7f7;
+}
+
+#phpbbforum-page li.reported:hover {
+	background-color: #ececec;
+}
+
+#phpbbforum-page div.rules {
+	background-color: #ececec;
+	color: #bcbcbc;
+	padding: 0 10px;
+	margin: 10px 0;
+	font-size: 1.1em;
+}
+
+#phpbbforum-page div.rules ul, #phpbbforum-page div.rules ol {
+	margin-left: 20px;
+}
+
+#phpbbforum-page p.rules {
+	background-color: #ececec;
+	background-image: none;
+	padding: 5px;
+}
+
+#phpbbforum-page p.rules img {
+	vertical-align: middle;
+	padding-top: 5px;
+}
+
+#phpbbforum-page p.rules a {
+	vertical-align: middle;
+	clear: both;
+}
+
+#phpbbforum-page #top {
+	position: absolute;
+	top: -20px;
+}
+
+#phpbbforum-page .clear {
+	display: block;
+	clear: both;
+	font-size: 1px;
+	line-height: 1px;
+	background: transparent;
+}

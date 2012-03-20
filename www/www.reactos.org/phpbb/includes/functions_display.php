@@ -55,6 +55,12 @@ function display_forums($root_data = '', $display_moderators = true, $return_mod
 	if ($mark_read == 'all')
 	{
 		$redirect = build_url(array('mark', 'hash'));
+		//VB
+		if (defined('PHPBB_API_EMBEDDED'))
+		{
+			$redirect = _phpbbforum_replace_urls($redirect);
+		}
+		//VB
 		meta_refresh(3, $redirect);
 
 		if (check_link_hash(request_var('hash', ''), 'global'))
@@ -278,6 +284,12 @@ function display_forums($root_data = '', $display_moderators = true, $return_mod
 	if ($mark_read == 'forums')
 	{
 		$redirect = build_url(array('mark', 'hash'));
+		//VB
+		if (defined('PHPBB_API_EMBEDDED'))
+		{
+			$redirect = _phpbbforum_replace_urls($redirect);
+		}
+		//VB
 		$token = request_var('hash', '');
 		if (check_link_hash($token, 'global'))
 		{

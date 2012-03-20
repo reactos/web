@@ -11,10 +11,20 @@
 /**
 * @ignore
 */
+//VB
+if (!defined('PHPBB_API_EMBEDDED'))
+{
+//VB
+if (!defined('PHPBB_API_EMBEDDED'))
+{
 define('IN_PHPBB', true);
 $phpbb_root_path = (defined('PHPBB_ROOT_PATH')) ? PHPBB_ROOT_PATH : './';
 $phpEx = substr(strrchr(__FILE__, '.'), 1);
 include($phpbb_root_path . 'common.' . $phpEx);
+}
+//\VB
+}
+//\VB
 
 // Start session management
 $user->session_begin();
@@ -279,8 +289,26 @@ if ($keywords || $author || $author_id || $search_id || $submit)
 	{
 		trigger_error('NO_SUCH_SEARCH_MODULE');
 	}
+	//VB
+	if (!defined('PHPBB_API_EMBEDDED'))
+	{
 
+	//VB
+	if (!defined('PHPBB_API_EMBEDDED'))
+	{
 	require("{$phpbb_root_path}includes/search/$search_type.$phpEx");
+	}
+	else
+	{
+	require_once("{$phpbb_root_path}includes/search/$search_type.$phpEx");
+	}
+	//\VB
+	}
+	else
+	{
+	require_once("{$phpbb_root_path}includes/search/$search_type.$phpEx");
+	}
+	//\VB
 
 	// We do some additional checks in the module to ensure it can actually be utilised
 	$error = false;
@@ -530,11 +558,47 @@ if ($keywords || $author || $author_id || $search_id || $submit)
 
 	if ($show_results == 'posts')
 	{
+		//VB
+		if (defined('PHPBB_API_EMBEDDED'))
+		{
+		include_once($phpbb_root_path . 'includes/functions_posting.' . $phpEx);
+		}
+		else
+		{
+		//VB
+		if (defined('PHPBB_API_EMBEDDED'))
+		{
+		include_once($phpbb_root_path . 'includes/functions_posting.' . $phpEx);
+		}
+		else
+		{
 		include($phpbb_root_path . 'includes/functions_posting.' . $phpEx);
+		}
+		//\VB
 	}
 	else
 	{
+		//VB
+		if (defined('PHPBB_API_EMBEDDED'))
+		{
+		include_once($phpbb_root_path . 'includes/functions_display.' . $phpEx);
+		}
+		//\VB
+	}
+	else
+	{
+		//VB
+		if (defined('PHPBB_API_EMBEDDED'))
+		{
+		include_once($phpbb_root_path . 'includes/functions_display.' . $phpEx);
+		}
+	else
+	{
 		include($phpbb_root_path . 'includes/functions_display.' . $phpEx);
+		}
+		//\VB
+	}
+		//\VB
 	}
 
 	$user->add_lang('viewtopic');

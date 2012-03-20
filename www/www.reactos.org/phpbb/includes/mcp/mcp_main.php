@@ -35,6 +35,18 @@ class mcp_main
 	{
 		global $auth, $db, $user, $template, $action;
 		global $config, $phpbb_root_path, $phpEx;
+		//VB
+		if (defined('PHPBB_API_EMBEDDED'))
+		{
+			$action =_phpbbforum_get_cp_action_request($action);
+		}
+		//\VB
+		//VB
+		if (defined('PHPBB_API_EMBEDDED'))
+		{
+			$action =_phpbbforum_get_cp_action_request($action);
+		}
+		//\VB
 
 		$quickmod = ($mode == 'quickmod') ? true : false;
 
@@ -136,7 +148,25 @@ class mcp_main
 		switch ($mode)
 		{
 			case 'front':
+				//VB
+				if (!defined('PHPBB_API_EMBEDDED'))
+				{
+				//VB
+				if (!defined('PHPBB_API_EMBEDDED'))
+				{
 				include($phpbb_root_path . 'includes/mcp/mcp_front.' . $phpEx);
+				}
+				else
+				{
+				include_once($phpbb_root_path . 'includes/mcp/mcp_front.' . $phpEx);
+				}
+				//\VB
+				}
+				else
+				{
+				include_once($phpbb_root_path . 'includes/mcp/mcp_front.' . $phpEx);
+				}
+				//\VB
 
 				$user->add_lang('acp/common');
 
@@ -147,7 +177,25 @@ class mcp_main
 			break;
 
 			case 'forum_view':
+				//VB
+				if (!defined('PHPBB_API_EMBEDDED'))
+				{
+				//VB
+				if (!defined('PHPBB_API_EMBEDDED'))
+				{
 				include($phpbb_root_path . 'includes/mcp/mcp_forum.' . $phpEx);
+				}
+				else
+				{
+				include_once($phpbb_root_path . 'includes/mcp/mcp_forum.' . $phpEx);
+				}
+				//\VB
+				}
+				else
+				{
+				include_once($phpbb_root_path . 'includes/mcp/mcp_forum.' . $phpEx);
+				}
+				//\VB
 
 				$user->add_lang('viewforum');
 
@@ -170,7 +218,25 @@ class mcp_main
 			break;
 
 			case 'topic_view':
+				//VB
+				if (!defined('PHPBB_API_EMBEDDED'))
+				{
+				//VB
+				if (!defined('PHPBB_API_EMBEDDED'))
+				{
 				include($phpbb_root_path . 'includes/mcp/mcp_topic.' . $phpEx);
+				}
+				else
+				{
+				include_once($phpbb_root_path . 'includes/mcp/mcp_topic.' . $phpEx);
+				}
+				//\VB
+				}
+				else
+				{
+				include_once($phpbb_root_path . 'includes/mcp/mcp_topic.' . $phpEx);
+				}
+				//\VB
 
 				mcp_topic_view($id, $mode, $action);
 
@@ -179,7 +245,25 @@ class mcp_main
 			break;
 
 			case 'post_details':
+				//VB
+				if (!defined('PHPBB_API_EMBEDDED'))
+				{
+				//VB
+				if (!defined('PHPBB_API_EMBEDDED'))
+				{
 				include($phpbb_root_path . 'includes/mcp/mcp_post.' . $phpEx);
+				}
+				else
+				{
+				include_once($phpbb_root_path . 'includes/mcp/mcp_post.' . $phpEx);
+				}
+				//\VB
+				}
+				else
+				{
+				include_once($phpbb_root_path . 'includes/mcp/mcp_post.' . $phpEx);
+				}
+				//\VB
 
 				mcp_post_details($id, $mode, $action);
 
