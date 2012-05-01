@@ -143,5 +143,21 @@ body {
 }
 
 #fundraising2012 {
-	position:absolute; width:300px; height:103px; z-index:104; top: 10px; left: 400px;
+	position: absolute;
+	width: 300px;
+	height: 103px;
+	z-index: 104;
+	top: 10px;
+	left: 400px;
+	color: black;
+	font-size: 12px;
+}
+
+#fundraising2012 a {
+	color: #006090;
+}
+
+#fundraising2012 a:hover {
+	background-color: #DDEEFF;
+	color: #000000;
 }
