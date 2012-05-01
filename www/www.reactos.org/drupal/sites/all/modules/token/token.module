@@ -197,6 +197,34 @@ function token_form_alter(&$form, $form_state, $form_id) {
 }
 
 /**
+ * Implements hook_block_view_alter().
+ */
+function token_block_view_alter(&$data, $block) {
+  if (!empty($block->title) && $block->title != '<none>') {
+    // Perform unsanitized token replacement since _block_render_blocks() will
+    // call check_plain() on $block->title.
+    $block->title = token_replace($block->title, array(), array('sanitize' => FALSE));
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function token_form_block_add_block_form_alter(&$form, $form_state) {
+  token_form_block_admin_configure_alter($form, $form_state);
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function token_form_block_admin_configure_alter(&$form, $form_state) {
+  $form['settings']['title']['#description'] .= ' ' . t('This field supports tokens.');
+  // @todo Figure out why this token validation does not seem to be working here.
+  $form['settings']['title']['#element_validate'][] = 'token_element_validate';
+  $form['settings']['title']['#token_types'] = array();
+}
+
+/**
  * Implements hook_field_info_alter().
  */
 function token_field_info_alter(&$info) {
@@ -265,7 +293,9 @@ function token_field_delete_instance($instance) {
  * Clear token caches and static variables.
  */
 function token_clear_cache() {
-  cache_clear_all('*', 'cache_token', TRUE);
+  if (db_table_exists('cache_token')) {
+    cache_clear_all('*', 'cache_token', TRUE);
+  }
   drupal_static_reset('token_get_info');
   drupal_static_reset('token_get_global_token_types');
   drupal_static_reset('token_get_entity_mapping');
@@ -369,7 +399,9 @@ function token_module_implements_alter(&$implementations, $hook) {
  * Implements hook_flush_caches().
  */
 function token_flush_caches() {
-  return array('cache_token');
+  if (db_table_exists('cache_token')) {
+    return array('cache_token');
+  }
 }
 
 /**
