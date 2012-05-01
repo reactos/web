@@ -105,3 +105,43 @@ body {
 	border-left: 1px solid #3F3849;
 	font-size: 13px;
 }
+
+/* Fundraiser 2012 */
+.pb_frame {
+	border: 2px inset #000; /* full 3d variant */
+	padding: 1px;
+	text-align: left;
+	border: 1px solid #000; 
+}
+
+.pb_red {
+	border: 2px outset #ff6c6c;
+	color: #fff;
+	background-color: #ff6c6c;
+}
+
+.pb_blue {
+	border: 2px outset #5984c3;
+	color: #fff;
+	background-color: #5984c3;
+}
+
+.pb_green {
+	border: 2px outset #59c359;
+	color: #fff;
+	background-color: #59c359;
+}
+
+.pb_orange {
+	border: 2px outset #FFCC33;
+	color: #fff;
+	background-color: #FFCC33;
+}
+
+.progress_bar {
+	text-align: center;
+}
+
+#fundraising2012 {
+	position:absolute; width:300px; height:103px; z-index:104; top: 10px; left: 400px;
+}
