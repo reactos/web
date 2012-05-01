@@ -50,7 +50,7 @@
 	$patterns[1] = "#^([a-zA-Z0-9]+.[a-z]+):([0-9]+)(: )#m";
 
 	$replacements[0] = '$1<a href="' . VIEWVC_TRUNK . '/reactos/$2?revision=' . $row["revision"] . '&amp;view=markup#l$3">$2:$3</a>$4';
-	$replacements[1] = '<a href="' . VIEWVC_TRUNK . '/rostests/winetests/' . $row["module"] . '/$1?revision=' . $row["revision"] . '&amp;view=markup#l$2">$1:$2</a>$3';
+	$replacements[1] = '<a href="' . VIEWVC_TRUNK . '/rostests/apitests/' . $row["module"] . '/$1?revision=' . $row["revision"] . '&amp;view=markup#l$2">$1:$2</a>$3';
 	
 	$log = preg_replace($patterns, $replacements, htmlspecialchars($row["log"]));
 	
