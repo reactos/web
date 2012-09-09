@@ -93,8 +93,9 @@ class HTML_User_LostPassword extends HTML_User
       $user_id = $stmt->fetchColumn();
 
       // set new account password
-      $stmt=&DBConnection::getInstance()->prepare("UPDATE ".ROSCMST_USERS." SET activation_password = '', password = MD5( :password ), modified = NOW() WHERE id = :user_id");
+      $stmt=&DBConnection::getInstance()->prepare("UPDATE ".ROSCMST_USERS." SET activation_password = '', password = MD5( :password ), password_ldap = CONCAT('{MD5}',:password_ldap), modified = NOW() WHERE id = :user_id");
       $stmt->bindParam('password',$_POST['userpwd1'],PDO::PARAM_STR);
+      $stmt->bindParam('password_ldap', base64_encode(MD5($_POST['userpwd1'], TRUE)),PDO::PARAM_STR);
       $stmt->bindParam('user_id',$user_id,PDO::PARAM_INT);
       $stmt->execute();
 
