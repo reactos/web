@@ -70,7 +70,7 @@ function openid_help($path, $arg) {
     case 'admin/help#openid':
       $output = '';
       $output .= '<h3>' . t('About') . '</h3>';
-      $output .= '<p>' . t('The OpenID module allows users to log in using the OpenID single sign on service. <a href="@openid-net">OpenID</a> is a secure method for logging into many websites with a single username and password. It does not require special software, and it does not share passwords with any site to which it is associated, including the site being logged into. The main benefit to users is that they can have a single password that they can use on many websites. This means they can easily update their single password from a centralized location, rather than having to change dozens of passwords individually. For more information, see the online handbook entry for <a href="@handbook">OpenID module</a>.', array('@openid-net' => 'http://openid.net', '@handbook' => 'http://drupal.org/handbook/modules/openid')) . '</p>';
+      $output .= '<p>' . t('The OpenID module allows users to log in using the OpenID single sign on service. <a href="@openid-net">OpenID</a> is a secure method for logging into many websites with a single username and password. It does not require special software, and it does not share passwords with any site to which it is associated, including the site being logged into. The main benefit to users is that they can have a single password that they can use on many websites. This means they can easily update their single password from a centralized location, rather than having to change dozens of passwords individually. For more information, see the online handbook entry for <a href="@handbook">OpenID module</a>.', array('@openid-net' => 'http://openid.net', '@handbook' => 'http://drupal.org/documentation/modules/openid')) . '</p>';
       $output .= '<h3>' . t('Uses') . '</h3>';
       $output .= '<dl>';
       $output .= '<dt>' . t('Logging in with OpenID') . '</dt>';
@@ -428,7 +428,7 @@ function openid_discovery($claimed_id) {
 }
 
 /**
- * Implementation of hook_openid_discovery_method_info().
+ * Implements hook_openid_discovery_method_info().
  *
  * Define standard discovery methods.
  */
@@ -566,7 +566,7 @@ function _openid_xrds_discovery($claimed_id) {
 }
 
 /**
- * Implementation of hook_openid_normalization_method_info().
+ * Implements hook_openid_normalization_method_info().
  *
  * Define standard normalization methods.
  */
@@ -1010,7 +1010,7 @@ function openid_verify_assertion_return_url($service, $response) {
 /**
  * Remove expired nonces from the database.
  *
- * Implementation of hook_cron().
+ * Implements hook_cron().
  */
 function openid_cron() {
   db_delete('openid_nonce')

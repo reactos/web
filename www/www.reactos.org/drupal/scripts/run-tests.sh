@@ -253,14 +253,14 @@ function simpletest_script_init($server_software) {
   if (!empty($args['php'])) {
     $php = $args['php'];
   }
-  elseif (!empty($_ENV['_'])) {
+  elseif ($php_env = getenv('_')) {
     // '_' is an environment variable set by the shell. It contains the command that was executed.
-    $php = $_ENV['_'];
+    $php = $php_env;
   }
-  elseif (!empty($_ENV['SUDO_COMMAND'])) {
+  elseif ($sudo = getenv('SUDO_COMMAND')) {
     // 'SUDO_COMMAND' is an environment variable set by the sudo program.
     // Extract only the PHP interpreter, not the rest of the command.
-    list($php, ) = explode(' ', $_ENV['SUDO_COMMAND'], 2);
+    list($php, ) = explode(' ', $sudo, 2);
   }
   else {
     simpletest_script_print_error('Unable to automatically determine the path to the PHP interpreter. Supply the --php command line argument.');
@@ -268,14 +268,14 @@ function simpletest_script_init($server_software) {
     exit();
   }
 
-  // Get url from arguments.
+  // Get URL from arguments.
   if (!empty($args['url'])) {
     $parsed_url = parse_url($args['url']);
     $host = $parsed_url['host'] . (isset($parsed_url['port']) ? ':' . $parsed_url['port'] : '');
     $path = isset($parsed_url['path']) ? $parsed_url['path'] : '';
 
     // If the passed URL schema is 'https' then setup the $_SERVER variables
-    // properly so that testing will run under https.
+    // properly so that testing will run under HTTPS.
     if ($parsed_url['scheme'] == 'https') {
       $_SERVER['HTTPS'] = 'on';
     }
@@ -597,9 +597,9 @@ function simpletest_script_reporter_display_results() {
           echo "\n\n---- $result->test_class ----\n\n\n";
           $test_class = $result->test_class;
 
-  // Print table header.
-  echo "Status    Group      Filename          Line Function                            \n";
-  echo "--------------------------------------------------------------------------------\n";
+          // Print table header.
+          echo "Status    Group      Filename          Line Function                            \n";
+          echo "--------------------------------------------------------------------------------\n";
         }
 
         simpletest_script_format_result($result);

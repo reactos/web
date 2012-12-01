@@ -2065,6 +2065,7 @@ class DatabaseSelectComplexTestCase extends DatabaseTestCase {
   function testHavingCountQuery() {
     $query = db_select('test')
       ->extend('PagerDefault')
+      ->groupBy('age')
       ->having('age + 1 > 0');
     $query->addField('test', 'age');
     $query->addExpression('age + 1');
@@ -2802,14 +2803,17 @@ class DatabaseLoggingTestCase extends DatabaseTestCase {
    * Test that we can log the existence of a query.
    */
   function testEnableLogging() {
-    Database::startLog('testing');
+    $log = Database::startLog('testing');
 
     db_query('SELECT name FROM {test} WHERE age > :age', array(':age' => 25))->fetchCol();
     db_query('SELECT age FROM {test} WHERE name = :name', array(':name' => 'Ringo'))->fetchCol();
 
+    // Trigger a call that does not have file in the backtrace.
+    call_user_func_array('db_query', array('SELECT age FROM {test} WHERE name = :name', array(':name' => 'Ringo')))->fetchCol();
+
     $queries = Database::getLog('testing', 'default');
 
-    $this->assertEqual(count($queries), 2, t('Correct number of queries recorded.'));
+    $this->assertEqual(count($queries), 3, t('Correct number of queries recorded.'));
 
     foreach ($queries as $query) {
       $this->assertEqual($query['caller']['function'], __FUNCTION__, t('Correct function in query log.'));
@@ -3117,6 +3121,39 @@ class DatabaseBasicSyntaxTestCase extends DatabaseTestCase {
       ->execute()
       ->fetchField();
     $this->assertIdentical($num_matches, '1', t('Found 1 record.'));
+  }
+}
+
+/**
+ * Test case sensitivity handling.
+ */
+class DatabaseCaseSensitivityTestCase extends DatabaseTestCase {
+  public static function getInfo() {
+    return array(
+      'name' => 'Case sensitivity',
+      'description' => 'Test handling case sensitive collation.',
+      'group' => 'Database',
+    );
+  }
+
+  /**
+   * Test BINARY collation in MySQL.
+   */
+  function testCaseSensitiveInsert() {
+    $num_records_before = db_query('SELECT COUNT(*) FROM {test}')->fetchField();
+
+    $john = db_insert('test')
+      ->fields(array(
+        'name' => 'john', // <- A record already exists with name 'John'.
+        'age' => 2,
+        'job' => 'Baby',
+      ))
+      ->execute();
+
+    $num_records_after = db_query('SELECT COUNT(*) FROM {test}')->fetchField();
+    $this->assertIdentical($num_records_before + 1, (int) $num_records_after, t('Record inserts correctly.'));
+    $saved_age = db_query('SELECT age FROM {test} WHERE name = :name', array(':name' => 'john'))->fetchField();
+    $this->assertIdentical($saved_age, '2', t('Can retrieve after inserting.'));
   }
 }
 
@@ -3712,9 +3749,9 @@ class DatabaseTransactionTestCase extends DatabaseTestCase {
 class DatabaseNextIdCase extends DrupalWebTestCase {
   public static function getInfo() {
     return array(
-      'name' => t('Sequences API'),
-      'description' => t('Test the secondary sequences API.'),
-      'group' => t('Database'),
+      'name' => 'Sequences API',
+      'description' => 'Test the secondary sequences API.',
+      'group' => 'Database',
     );
   }
 
@@ -3739,9 +3776,9 @@ class DatabaseNextIdCase extends DrupalWebTestCase {
 class DatabaseEmptyStatementTestCase extends DrupalWebTestCase {
   public static function getInfo() {
     return array(
-      'name' => t('Empty statement'),
-      'description' => t('Test the empty pseudo-statement class.'),
-      'group' => t('Database'),
+      'name' => 'Empty statement',
+      'description' => 'Test the empty pseudo-statement class.',
+      'group' => 'Database',
     );
   }
 
