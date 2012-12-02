@@ -175,14 +175,14 @@ color:#3A935B;
   padding:0;
   list-style-type:none;
   background-color:#eeeeee;
-  border-top:#3f3849 0 solid;
+  /*border-top:#3f3849 0 solid;
   border-right:#3f3849 1px solid;
-  border-left:#3f3849 1px solid;
+  border-left:#3f3849 1px solid;*/
 }
 #page .region-sidebar-first .block-menu .content ul li {
   font-size:13px;
   font-weight:bold;
-  border-bottom:#3f3849 1px solid;
+  border-bottom:#9DB1D8 1px solid;
 }
 #page .region-sidebar-first .block-menu .content ul li ul {
   border-left:none;
