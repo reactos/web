@@ -28,7 +28,7 @@ function SetLoading(value)
 function AjaxCall()
 {
 	SetLoading(true);
-	AjaxGet("ajax-getfiles.php", "GetFilesCallback", data);
+	AjaxGet("/getbuilds/ajax-getfiles.php", "GetFilesCallback", data);
 }
 
 function GetFilesCallback(HttpRequest)
@@ -132,7 +132,7 @@ function GetFilesCallback(HttpRequest)
 				var flink = '<a href="<?php echo $ISO_DOWNLOAD_URL; ?>' + fname.substr(0, 6) + "/" + fname + '">';
 				
 				html += '<tr class="' + (oddeven ? "odd" : "even") + '" onmouseover="tr_mouseover(this);" onmouseout="tr_mouseout(this);">';
-				html += '<td>' + flink + '<img src="images/cd.gif" alt=""> ' + fname + '<\/a><\/td>';
+				html += '<td>' + flink + '<img src="/getbuilds/images/cd.gif" alt=""> ' + fname + '<\/a><\/td>';
 				html += '<td>' + flink + fsize + '<\/a><\/td>';
 				html += '<td>' + flink + fdate + '<\/a><\/td>';
 				html += '<\/tr>';

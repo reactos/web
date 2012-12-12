@@ -7,7 +7,7 @@
 */
 
 	define("ROOT_PATH", "../");
-	define("SHARED_PATH", ROOT_PATH . "shared/");
+	define("SHARED_PATH", ROOT_PATH . "drupal/shared/");
 	
 	// Configuration
 	$AJAX_GETFILES_PROVIDER_URL = "http://iso.reactos.org/scripts/ajax-getfiles-provider.php";
