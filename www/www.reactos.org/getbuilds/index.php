@@ -53,7 +53,6 @@
 		<?php echo $getbuilds_langres["latestrev"]; ?>: <strong><?php echo $rev; ?></strong>
 		<ul class="web">
 			<li><a href="http://svn.reactos.org/svn/reactos"><?php echo $getbuilds_langres["browsesvn"]; ?></a></li>
-			<li><a href="http://cia.vc/stats/project/ReactOS"><?php echo $getbuilds_langres["cia"]; ?></a></li>
 		</ul>
 		
 		<?php echo $getbuilds_langres["buildbot_status"]; ?>:
