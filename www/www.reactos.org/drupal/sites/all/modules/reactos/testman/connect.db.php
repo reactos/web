@@ -6,5 +6,5 @@
   COPYRIGHT:  Copyright 2008-2009 Colin Finck <colin@reactos.org>
 */
 
-	require_once(TESTMAN_PATH . "../../www.reactos.org_config/testman-connect.php");
+	require_once(ROOT_PATH . "../www.reactos.org_config/testman-connect.php");
 ?>

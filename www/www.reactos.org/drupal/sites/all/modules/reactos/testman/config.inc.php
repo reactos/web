@@ -6,9 +6,9 @@
   COPYRIGHT:  Copyright 2008-2011 Colin Finck <colin@reactos.org>
 */
 
-	define("ROOT_PATH", "../");
+	define("TESTMAN_PATH", realpath(__DIR__));
+	define("ROOT_PATH", TESTMAN_PATH . "/../../../../../../");
 	define("SHARED_PATH", ROOT_PATH . "drupal/sites/default/shared/");
-	define("TESTMAN_PATH", "/srv/www/www.reactos.org/testman/");
 
 	define("DEFAULT_SEARCH_LIMIT", 10);
 	define("DEFAULT_SEARCH_SOURCE", "CMake_x86_GCCLin (KVM)");

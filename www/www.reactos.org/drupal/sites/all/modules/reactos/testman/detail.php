@@ -60,8 +60,8 @@
 <head>
 	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 	<title><?php echo $testman_langres["detail_title"]; ?></title>
-	<link rel="stylesheet" type="text/css" href="../shared/css/basic.css" />
-	<link rel="stylesheet" type="text/css" href="../shared/css/reactos.css" />
+	<link rel="stylesheet" type="text/css" href="/sites/default/shared/css/basic.css" />
+	<link rel="stylesheet" type="text/css" href="/sites/default/shared/css/reactos.css" />
 	<link rel="stylesheet" type="text/css" href="css/detail.css" />
 	<script type="text/javascript" src="js/detail.js"></script>
 </head>
