@@ -1,0 +1,62 @@
+td {
+    padding: 2px;
+    font-family: Monospace;
+    font-size: 1em;
+}
+
+ins, del {
+    text-decoration: none;
+}
+
+.Differences {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+thead th {
+    text-align: center;
+    background: white;
+    padding: 4px;
+    font-size: 1.5em;
+}
+
+tbody th {
+    text-align: right;
+    vertical-align: top;
+    padding: 1px 4px;
+    font-family: Monospace;
+    font-weight: normal;
+    background: #D4D4D4;
+}
+
+.Skipped {
+    background: #EBEBEB;
+}
+
+.ChangeDelete td.Left {
+    background: #FF7575;
+}
+
+.ChangeDelete td.Right {
+    background: #F0CACA;
+}
+
+.ChangeInsert td.Left {
+    background: #D0F5CF;
+}
+
+.ChangeInsert td.Right {
+    background: #9DFB91;
+}
+
+.ChangeReplace .Left {
+    background: #F0A65E;
+}
+
+.ChangeReplace .Right {
+    background: #F7F89A;
+}
+
+.ChangeReplace del, .ChangeReplace ins {
+	background: #F0D65C;
+}
