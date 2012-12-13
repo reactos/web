@@ -248,6 +248,7 @@ function PrevRev()
 		return;
 	
 	document.getElementById("revnum").value = inputbox_startrev;
+	ShowRev();
 }
 
 function NextRev()
@@ -257,6 +258,7 @@ function NextRev()
 	
 	inputbox_startrev++;
 	document.getElementById("revnum").value = inputbox_startrev;
+	ShowRev();
 }
 
 function ShowRev()
