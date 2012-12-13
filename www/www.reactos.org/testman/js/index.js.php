@@ -166,7 +166,7 @@ function GetRevNums()
 function SearchCall()
 {
 	document.getElementById("ajax_loading_search").style.visibility = "visible";
-	AjaxGet("ajax-search.php", "SearchCallback", data);
+	AjaxGet("/sites/all/modules/reactos/testman/ajax-search.php", "SearchCallback", data);
 }
 
 function SearchButton_OnClick()
@@ -444,13 +444,13 @@ function OpenComparePage(ResultArray)
 	
 	if(document.getElementById("opennewwindow").checked || DetectObsoleteIE())
 	{
-		window.open("compare.php?" + parameters);
+		window.open("/sites/all/modules/reactos/testman/compare.php?" + parameters);
 	}
 	else
 	{
 		var iframe = document.getElementById("comparepage_frame");
 		
-		iframe.src = "compare.php?" + parameters;
+		iframe.src = "/sites/all/modules/reactos/testman/compare.php?" + parameters;
 		iframe.style.display = "block";
 	}
 }

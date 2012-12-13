@@ -7,9 +7,8 @@
 */
 
 	define("ROOT_PATH", "../");
-	define("ROSCMS_PATH", ROOT_PATH . "roscms/");
-	define("SHARED_PATH", ROOT_PATH . "shared/");
-	define("TESTMAN_PATH", "");
+	define("SHARED_PATH", ROOT_PATH . "drupal/sites/default/shared/");
+	define("TESTMAN_PATH", "/srv/www/www.reactos.org/testman/");
 
 	define("DEFAULT_SEARCH_LIMIT", 10);
 	define("DEFAULT_SEARCH_SOURCE", "CMake_x86_GCCLin (KVM)");
