@@ -28,15 +28,15 @@
 	// Prepare the WHERE clause
 	$where = "WHERE r.finished = 1 ";
 	
-	if($_GET["startrev"] || $_GET["source"] || $_GET["platform"])
+	if(isset($_GET["startrev"]) || isset($_GET["source"]) || isset($_GET["platform"]))
 	{
-		if($_GET["startrev"])
+		if(isset($_GET["startrev"]))
 			$where .= "AND r.revision >= " . (int)$_GET["startrev"] . " AND r.revision <= " . (int)$_GET["endrev"] . " ";
 		
-		if($_GET["source"])
+		if(isset($_GET["source"]))
 			$where .= "AND src.name LIKE " . $dbh->quote($_GET["source"] . "%") . " ";
 		
-		if($_GET["platform"])
+		if(isset($_GET["platform"]))
 			$where .= "AND r.platform LIKE " . $dbh->quote($_GET["platform"] . "%") . " ";
 	}
 	
@@ -53,10 +53,10 @@
 	// First determine how many results we would get in total with this query
 	$stmt = $dbh->query("SELECT COUNT(*) " . $tables . $where) or die("<error>Query failed #1</error>");
 	$limit_offset = ((int)$_GET["page"] - 1) * RESULTS_PER_PAGE;
-	$limit_count = ($_GET["limit"] ? (int)$_GET["limit"] : RESULTS_PER_PAGE);
+	$limit_count = (isset($_GET["limit"]) ? (int)$_GET["limit"] : RESULTS_PER_PAGE);
 	$result_count = $stmt->fetchColumn() - $limit_offset;
 	
-	if($_GET["limit"] && $result_count > $_GET["limit"])
+	if(isset($_GET["limit"]) && $result_count > $_GET["limit"])
 	{
 		// Stop looking for more pages if the results are limited by a supplied manual limit
 		$result_count = (int)$_GET["limit"];
