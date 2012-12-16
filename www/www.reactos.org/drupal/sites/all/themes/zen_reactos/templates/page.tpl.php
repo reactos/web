@@ -64,7 +64,9 @@
 
   <div id="header">
     <?php if ($logo): ?>
+      <a href="<?php print $front_page ?>">
       <img id="logo" src="<?php print $logo; ?>" alt="<?php print t('Home'); ?>" />
+      </a>
     <?php endif; ?>
 
     <?php if ($main_menu): ?>
