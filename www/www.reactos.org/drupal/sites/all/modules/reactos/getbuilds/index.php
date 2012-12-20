@@ -34,7 +34,6 @@
 			Load();
 		});
 	</script>
-<h1><?php echo $getbuilds_langres["header"]; ?></h1>
 <h2><?php echo $getbuilds_langres["title"]; ?></h2>
 
 <p><?php echo $getbuilds_langres["intro"]; ?></p>

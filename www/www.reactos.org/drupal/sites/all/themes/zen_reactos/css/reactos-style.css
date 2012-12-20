@@ -104,58 +104,48 @@ width:100px;
 }
 #footer {
 	font: italic 9px Verdana;
-	border-top: 1px solid black;
+	border-top: 1px dotted #bbb;
 	text-align: center;
 	padding: 6px 0px;
 }
 
 .greenButton {
-	width: 232px;
-	height: 50px;
+	width: 90%;
+	/*height: 50px;*/
+	margin:20px auto;
 }
 
-#greenButtonDownload {
-	background: url('../images/button_download.jpg') no-repeat;
-}
-#greenButtonDownload:hover {
-        background-image: url('../images/button_download_m.jpg');
-}
+#greenButtonDownload:before{background:url(../images/frontpage_sprite.png) no-repeat; background-position:0 -82px!important; content:" "; display:block; float:left; height:32px; margin-left:-40px; margin-top:-6px; width:32px}
+#greenButtonDonate:before{background:url(../images/frontpage_sprite.png) no-repeat; background-position:0 -236px!important; content:" "; display:block; float:left; height:32px; margin-left:-40px; margin-top:-6px; width:32px}
+#greenButtonCompat:before{background:url(../images/frontpage_sprite.png) no-repeat; background-position:0 0!important; content:" "; display:block; float:left; height:32px; margin-left:-40px; margin-top:-6px; width:32px}
 
-#greenButtonDonate {
-	background: url('../images/button_donate.jpg') no-repeat;
-}
-#greenButtonDonate:hover {
-        background-image: url('../images/button_donate_m.jpg');
-}
-
-#greenButtonCompat {
-	background: url('../images/button_comp_home.jpg') no-repeat;
-}
-#greenButtonCompat:hover {
-        background-image: url('../images/button_comp_home_m.jpg');
-}
-#greenButtons{
-margin-top:8px;
-}
-.greenButton{
-margin:2px auto;
-}
 #greenButtons a {
-	font-size: 16px;
-	color: #367D10;
-	height: 41px;
-	width: 185px;
+	background-color: #A2E274;
+	border: 1px solid #60925F;
+	border-radius: 3px;
+	color: #006090;
 	display: block;
-	padding-top: 8px;
-	padding-left: 50px;
-	text-align: center;
-	font: normal 16px Verdana;
-	font-weight: 700;
-	line-height: 28px;
+	font-size: 18px;
+	margin: 5px;
+	padding: 12px 12px 12px 42px;
+	text-decoration: none!important;
+	width: auto;
+	background: #A2E274;
+	background: -moz-linear-gradient(top,#A2E274 0%,#84DD40 100%);
+	background: -webkit-gradient(linear,left top,left bottom,color-stop(0%,#A2E274),color-stop(100%,#84DD40));
+	background: -webkit-linear-gradient(top,#A2E274 0%,#84DD40 100%);
+	background: -o-linear-gradient(top,#A2E274 0%,#84DD40 100%);
+	background: -ms-linear-gradient(top,#A2E274 0%,#84DD40 100%);
+	background: linear-gradient(to bottom,#A2E274 0%,#84DD40 100%);
+	-webkit-transition: background 500ms linear;
+	-moz-transition: background 500ms linear;
+	-ms-transition: background 500ms linear;
+	-o-transition: background 500ms linear;
+	transition: background 500ms linear;
 }
 
 #greenButtons a:hover {
-color:#3A935B;
+	background:#F6AF39!important
 }
 
 /* BELOW ARE CONTENTS OF THE REACTOS-STYLE.CSS FROM /SITES/DEFAULT/ */
