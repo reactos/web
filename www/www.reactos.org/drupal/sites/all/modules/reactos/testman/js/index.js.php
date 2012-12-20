@@ -210,7 +210,7 @@ function ResizeIFrame()
 		return;
 	
 	var iframe = document.getElementById("comparepage_frame");
-	iframe.height = iframe.contentDocument.body.offsetHeight + 16;
+	iframe.height = iframe.contentDocument.body.offsetHeight + 40;
 }
 
 function Load()

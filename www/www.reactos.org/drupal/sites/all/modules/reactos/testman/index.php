@@ -121,5 +121,5 @@
 		</div>
 	</div><br />
 	
-	<iframe id="comparepage_frame" frameborder="0" onload="ResizeIFrame()" scrolling="no"></iframe>
+	<iframe id="comparepage_frame" frameborder="0" onload="ResizeIFrame()" scrolling="yes"></iframe>
 </div>
