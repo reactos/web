@@ -76,7 +76,10 @@
             /* Render the main menu links */
             $html = '';
             foreach ($main_menu as $link) {
-              $html .= '<a href="'. $base_path . $link["href"] . '">';
+              if(strpos($link["href"], "http://") !== false)
+                 $html .= '<a href="'. $link["href"] . '">';
+              else
+                 $html .= '<a href="'. $base_path . $link["href"] . '">';
               $html .= $link["title"] . '</a>' . ' | ';
             }
             /* Remove the extra separator */
