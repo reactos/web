@@ -298,7 +298,32 @@ img.icon, p.icon_p img {
 .view-News .views-row {
   color:#666666;
   font-weight:bold;
+  padding:5px;
 }
+.views-field-title a{
+text-decoration:none !important;
+}
+.view-content span{
+font-size: 11px
+}
+.view-content li{
+margin: 2px;
+}
+.main-newsletter-region .views-field-title a, .ros-news-news .views-field-title a{
+font-size: 13px !important;
+padding: 1px 5px 2px 5px;
+margin: 3px;
+margin-right: 20px;
+border-bottom: 1px dashed #ccc;
+display: block;
+}
+.views-row-even {
+margin-top: 20px;
+}
+.main-newsletter-region, .ros-news-news{
+min-height: 200px;
+}
+
 #block-views-random-screenshot-block{
 text-align:center;
 }
