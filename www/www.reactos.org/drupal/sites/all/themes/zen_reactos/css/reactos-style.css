@@ -522,3 +522,11 @@ vertical-align:middle;
 	height: 35px;
 }
 
+#bsod
+{
+	background: #000099;
+	color: white;
+	font-family: Lucida Console;
+	font-size: 10pt;
+	margin-left: 25px;
+}

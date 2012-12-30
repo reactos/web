@@ -12,13 +12,10 @@
 		$address = $_SERVER["SERVER_NAME"];
 		if(array_key_exists('HTTP_REFERER', $_SERVER))
   		$address .= ' base at ' . $_SERVER["HTTP_REFERER"];
-  	
+
+/*	<title><?php echo $http_error; ?> - <?php echo $code; ?></title>  	*/
 ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
-	<title><?php echo $http_error; ?> - <?php echo $code; ?></title>
+
 	<style type="text/css">
 		body
 		{
@@ -29,7 +26,7 @@
 		}
 	</style>
 </head>
-<body>
+<div id="bsod">
 	<p>A problem has been detected and RosCMS has been shut down to prevent damage to your computer.</p>
 
 	<p><?php echo $code; ?></p>
@@ -49,7 +46,6 @@
 
 
 	<p><br />***&nbsp;&nbsp;&nbsp;<?php printf('%s - Address %s, DateStamp %08x', $_SERVER["REQUEST_URI"], $address, date("U")); ?></p>
-</body>
-</html>
+</div>
 <?php
 	}
