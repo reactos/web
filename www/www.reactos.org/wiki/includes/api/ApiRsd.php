@@ -25,10 +25,6 @@
  * @file
  */
 
-if ( !defined( 'MEDIAWIKI' ) ) {
-	require_once( 'ApiBase.php' );
-}
-
 /**
  * API module for sending out RSD information
  * @ingroup API
@@ -47,7 +43,8 @@ class ApiRsd extends ApiBase {
 
 		$service = array( 'apis' => $this->formatRsdApiList() );
 		ApiResult::setContent( $service, 'MediaWiki', 'engineName' );
-		ApiResult::setContent( $service, 'http://www.mediawiki.org/', 'engineLink' );
+		ApiResult::setContent( $service, 'https://www.mediawiki.org/', 'engineLink' );
+		ApiResult::setContent( $service, Title::newMainPage()->getCanonicalUrl(), 'homePageLink' );
 
 		$result->setIndexedTagName( $service['apis'], 'api' );
 
@@ -67,10 +64,10 @@ class ApiRsd extends ApiBase {
 	}
 
 	public function getDescription() {
-		return 'Export an RSD schema';
+		return 'Export an RSD (Really Simple Discovery) schema';
 	}
 
-	protected function getExamples() {
+	public function getExamples() {
 		return array(
 			'api.php?action=rsd'
 		);
@@ -97,10 +94,10 @@ class ApiRsd extends ApiBase {
 		$apis = array(
 			'MediaWiki' => array(
 				// The API link is required for all RSD API entries.
-				'apiLink' => wfExpandUrl( wfScript( 'api' ) ),
+				'apiLink' => wfExpandUrl( wfScript( 'api' ), PROTO_CURRENT ),
 
 				// Docs link is optional, but recommended.
-				'docs' => 'http://mediawiki.org/wiki/API',
+				'docs' => 'https://www.mediawiki.org/wiki/API',
 
 				// Some APIs may need a blog ID, but it may be left blank.
 				'blogID' => '',
@@ -160,7 +157,7 @@ class ApiRsd extends ApiBase {
 	}
 
 	public function getVersion() {
-		return __CLASS__ . ': $Id: ApiRsd.php 76195 2010-11-06 15:57:15Z btongminh $';
+		return __CLASS__ . ': $Id$';
 	}
 }
 
@@ -169,12 +166,12 @@ class ApiFormatXmlRsd extends ApiFormatXml {
 		parent::__construct( $main, $format );
 		$this->setRootElement( 'rsd' );
 	}
-	
+
 	public function getMimeType() {
 		return 'application/rsd+xml';
 	}
 
 	public function getVersion() {
-		return __CLASS__ . ': $Id: ApiRsd.php 76195 2010-11-06 15:57:15Z btongminh $';
+		return __CLASS__ . ': $Id$';
 	}
 }

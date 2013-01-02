@@ -1,6 +1,6 @@
 <?php
 /**
- * MediaWiki page data importer
+ * MediaWiki page data importer.
  *
  * Copyright © 2003,2005 Brion Vibber <brion@pobox.com>
  * http://www.mediawiki.org/
@@ -33,18 +33,25 @@
 class WikiImporter {
 	private $reader = null;
 	private $mLogItemCallback, $mUploadCallback, $mRevisionCallback, $mPageCallback;
-	private $mSiteInfoCallback, $mTargetNamespace, $mPageOutCallback;
-	private $mDebug;
+	private $mSiteInfoCallback, $mTargetNamespace, $mTargetRootPage, $mPageOutCallback;
+	private $mNoticeCallback, $mDebug;
+	private $mImportUploads, $mImageBasePath;
+	private $mNoUpdates = false;
 
 	/**
 	 * Creates an ImportXMLReader drawing from the source provided
-	*/
+	 * @param $source
+	 */
 	function __construct( $source ) {
 		$this->reader = new XMLReader();
 
 		stream_wrapper_register( 'uploadsource', 'UploadSourceAdapter' );
 		$id = UploadSourceAdapter::registerSource( $source );
-		$this->reader->open( "uploadsource://$id" );
+		if (defined( 'LIBXML_PARSEHUGE' ) ) {
+			$this->reader->open( "uploadsource://$id", null, LIBXML_PARSEHUGE );
+		} else {
+			$this->reader->open( "uploadsource://$id" );
+		}
 
 		// Default callbacks
 		$this->setRevisionCallback( array( $this, "importRevision" ) );
@@ -68,21 +75,41 @@ class WikiImporter {
 		wfDebug( "IMPORT: $data\n" );
 	}
 
-	private function notice( $data ) {
-		global $wgCommandLineMode;
-		if( $wgCommandLineMode ) {
-			print "$data\n";
-		} else {
-			global $wgOut;
-			$wgOut->addHTML( "<li>" . htmlspecialchars( $data ) . "</li>\n" );
+	private function notice( $msg /*, $param, ...*/ ) {
+		$params = func_get_args();
+		array_shift( $params );
+
+		if ( is_callable( $this->mNoticeCallback ) ) {
+			call_user_func( $this->mNoticeCallback, $msg, $params );
+		} else { # No ImportReporter -> CLI
+			echo wfMessage( $msg, $params )->text() . "\n";
 		}
 	}
 
 	/**
 	 * Set debug mode...
+	 * @param $debug bool
 	 */
 	function setDebug( $debug ) {
 		$this->mDebug = $debug;
+	}
+
+	/**
+	 * Set 'no updates' mode. In this mode, the link tables will not be updated by the importer
+	 * @param $noupdates bool
+	 */
+	function setNoUpdates( $noupdates ) {
+		$this->mNoUpdates = $noupdates;
+	}
+
+	/**
+	 * Set a callback that displays notice messages
+	 *
+	 * @param $callback callback
+	 * @return callback
+	 */
+	public function setNoticeCallback( $callback ) {
+		return wfSetVar( $this->mNoticeCallback, $callback );
 	}
 
 	/**
@@ -157,13 +184,15 @@ class WikiImporter {
 
 	/**
 	 * Set a target namespace to override the defaults
+	 * @param $namespace
+	 * @return bool
 	 */
 	public function setTargetNamespace( $namespace ) {
 		if( is_null( $namespace ) ) {
 			// Don't override namespaces
 			$this->mTargetNamespace = null;
 		} elseif( $namespace >= 0 ) {
-			// FIXME: Check for validity
+			// @todo FIXME: Check for validity
 			$this->mTargetNamespace = intval( $namespace );
 		} else {
 			return false;
@@ -171,8 +200,56 @@ class WikiImporter {
 	}
 
 	/**
+	 * Set a target root page under which all pages are imported
+	 * @param $rootpage
+	 * @return status object
+	 */
+	public function setTargetRootPage( $rootpage ) {
+		$status = Status::newGood();
+		if( is_null( $rootpage ) ) {
+			// No rootpage
+			$this->mTargetRootPage = null;
+		} elseif( $rootpage !== '' ) {
+			$rootpage = rtrim( $rootpage, '/' ); //avoid double slashes
+			$title = Title::newFromText( $rootpage, !is_null( $this->mTargetNamespace ) ? $this->mTargetNamespace : NS_MAIN );
+			if( !$title || $title->isExternal() ) {
+				$status->fatal( 'import-rootpage-invalid' );
+			} else {
+				if( !MWNamespace::hasSubpages( $title->getNamespace() ) ) {
+					global $wgContLang;
+
+					$displayNSText = $title->getNamespace() == NS_MAIN
+						? wfMessage( 'blanknamespace' )->text()
+						: $wgContLang->getNsText( $title->getNamespace() );
+					$status->fatal( 'import-rootpage-nosubpage', $displayNSText );
+				} else {
+					// set namespace to 'all', so the namespace check in processTitle() can passed
+					$this->setTargetNamespace( null );
+					$this->mTargetRootPage = $title->getPrefixedDBKey();
+				}
+			}
+		}
+		return $status;
+	}
+
+	/**
+	 * @param $dir
+	 */
+	public function setImageBasePath( $dir ) {
+		$this->mImageBasePath = $dir;
+	}
+
+	/**
+	 * @param $import
+	 */
+	public function setImportUploads( $import ) {
+		$this->mImportUploads = $import;
+	}
+
+	/**
 	 * Default per-revision callback, performs the import.
 	 * @param $revision WikiRevision
+	 * @return bool
 	 */
 	public function importRevision( $revision ) {
 		$dbw = wfGetDB( DB_MASTER );
@@ -182,6 +259,7 @@ class WikiImporter {
 	/**
 	 * Default per-revision callback, performs the import.
 	 * @param $rev WikiRevision
+	 * @return bool
 	 */
 	public function importLogItem( $rev ) {
 		$dbw = wfGetDB( DB_MASTER );
@@ -190,15 +268,22 @@ class WikiImporter {
 
 	/**
 	 * Dummy for now...
+	 * @param $revision
+	 * @return bool
 	 */
 	public function importUpload( $revision ) {
-		//$dbw = wfGetDB( DB_MASTER );
-		//return $dbw->deadlockLoop( array( $revision, 'importUpload' ) );
-		return false;
+		$dbw = wfGetDB( DB_MASTER );
+		return $dbw->deadlockLoop( array( $revision, 'importUpload' ) );
 	}
 
 	/**
 	 * Mostly for hook use
+	 * @param $title
+	 * @param $origTitle
+	 * @param $revCount
+	 * @param $sRevCount
+	 * @param $pageInfo
+	 * @return
 	 */
 	public function finishImportPage( $title, $origTitle, $revCount, $sRevCount, $pageInfo ) {
 		$args = func_get_args();
@@ -223,7 +308,7 @@ class WikiImporter {
 	}
 
 	/**
-	 * Notify the callback function when a new <page> is reached.
+	 * Notify the callback function when a new "<page>" is reached.
 	 * @param $title Title
 	 */
 	function pageCallback( $title ) {
@@ -233,7 +318,7 @@ class WikiImporter {
 	}
 
 	/**
-	 * Notify the callback function when a </page> is closed.
+	 * Notify the callback function when a "</page>" is closed.
 	 * @param $title Title
 	 * @param $origTitle Title
 	 * @param $revCount Integer
@@ -249,7 +334,8 @@ class WikiImporter {
 
 	/**
 	 * Notify the callback function of a revision
-	 * @param $revision A WikiRevision object
+	 * @param $revision WikiRevision object
+	 * @return bool|mixed
 	 */
 	private function revisionCallback( $revision ) {
 		if ( isset( $this->mRevisionCallback ) ) {
@@ -262,7 +348,8 @@ class WikiImporter {
 
 	/**
 	 * Notify the callback function of a new log item
-	 * @param $revision A WikiRevision object
+	 * @param $revision WikiRevision object
+	 * @return bool|mixed
 	 */
 	private function logItemCallback( $revision ) {
 		if ( isset( $this->mLogItemCallback ) ) {
@@ -295,7 +382,7 @@ class WikiImporter {
 				return $buffer;
 			}
 		}
-		
+
 		$this->reader->close();
 		return '';
 	}
@@ -342,6 +429,7 @@ class WikiImporter {
 
 	/**
 	 * Primary entry point
+	 * @return bool
 	 */
 	public function doImport() {
 		$this->reader->read();
@@ -388,6 +476,10 @@ class WikiImporter {
 		return true;
 	}
 
+	/**
+	 * @return bool
+	 * @throws MWException
+	 */
 	private function handleSiteInfo() {
 		// Site info is useful, but not actually used for dump imports.
 		// Includes a quick short-circuit to save performance.
@@ -429,6 +521,10 @@ class WikiImporter {
 		$this->processLogItem( $logInfo );
 	}
 
+	/**
+	 * @param $logInfo
+	 * @return bool|mixed
+	 */
 	private function processLogItem( $logInfo ) {
 		$revision = new WikiRevision;
 
@@ -438,6 +534,7 @@ class WikiImporter {
 		$revision->setTimestamp( $logInfo['timestamp'] );
 		$revision->setParams( $logInfo['params'] );
 		$revision->setTitle( Title::newFromText( $logInfo['logtitle'] ) );
+		$revision->setNoUpdates( $this->mNoUpdates );
 
 		if ( isset( $logInfo['comment'] ) ) {
 			$revision->setComment( $logInfo['comment'] );
@@ -507,6 +604,9 @@ class WikiImporter {
 					$pageInfo );
 	}
 
+	/**
+	 * @param $pageInfo array
+	 */
 	private function handleRevision( &$pageInfo ) {
 		$this->debug( "Enter revision handler" );
 		$revisionInfo = array();
@@ -542,37 +642,56 @@ class WikiImporter {
 		}
 	}
 
+	/**
+	 * @param $pageInfo
+	 * @param $revisionInfo
+	 * @return bool|mixed
+	 */
 	private function processRevision( $pageInfo, $revisionInfo ) {
 		$revision = new WikiRevision;
 
-		$revision->setID( $revisionInfo['id'] );
-		$revision->setText( $revisionInfo['text'] );
+		if( isset( $revisionInfo['id'] ) ) {
+			$revision->setID( $revisionInfo['id'] );
+		}
+		if ( isset( $revisionInfo['text'] ) ) {
+			$revision->setText( $revisionInfo['text'] );
+		}
 		$revision->setTitle( $pageInfo['_title'] );
-		$revision->setTimestamp( $revisionInfo['timestamp'] );
+
+		if ( isset( $revisionInfo['timestamp'] ) ) {
+			$revision->setTimestamp( $revisionInfo['timestamp'] );
+		} else {
+			$revision->setTimestamp( wfTimestampNow() );
+		}
 
 		if ( isset( $revisionInfo['comment'] ) ) {
 			$revision->setComment( $revisionInfo['comment'] );
 		}
 
-		if ( isset( $revisionInfo['minor'] ) )
+		if ( isset( $revisionInfo['minor'] ) ) {
 			$revision->setMinor( true );
-
+		}
 		if ( isset( $revisionInfo['contributor']['ip'] ) ) {
 			$revision->setUserIP( $revisionInfo['contributor']['ip'] );
 		}
 		if ( isset( $revisionInfo['contributor']['username'] ) ) {
 			$revision->setUserName( $revisionInfo['contributor']['username'] );
 		}
+		$revision->setNoUpdates( $this->mNoUpdates );
 
 		return $this->revisionCallback( $revision );
 	}
 
+	/**
+	 * @param $pageInfo
+	 * @return mixed
+	 */
 	private function handleUpload( &$pageInfo ) {
 		$this->debug( "Enter upload handler" );
 		$uploadInfo = array();
 
 		$normalFields = array( 'timestamp', 'comment', 'filename', 'text',
-					'src', 'size' );
+					'src', 'size', 'sha1base36', 'archivename', 'rel' );
 
 		$skip = false;
 
@@ -591,24 +710,67 @@ class WikiImporter {
 				$uploadInfo[$tag] = $this->nodeContents();
 			} elseif ( $tag == 'contributor' ) {
 				$uploadInfo['contributor'] = $this->handleContributor();
+			} elseif ( $tag == 'contents' ) {
+				$contents = $this->nodeContents();
+				$encoding = $this->reader->getAttribute( 'encoding' );
+				if ( $encoding === 'base64' ) {
+					$uploadInfo['fileSrc'] = $this->dumpTemp( base64_decode( $contents ) );
+					$uploadInfo['isTempSrc'] = true;
+				}
 			} elseif ( $tag != '#text' ) {
 				$this->warn( "Unhandled upload XML tag $tag" );
 				$skip = true;
 			}
 		}
 
-		return $this->processUpload( $pageInfo, $uploadInfo );
+		if ( $this->mImageBasePath && isset( $uploadInfo['rel'] ) ) {
+			$path = "{$this->mImageBasePath}/{$uploadInfo['rel']}";
+			if ( file_exists( $path ) ) {
+				$uploadInfo['fileSrc'] = $path;
+				$uploadInfo['isTempSrc'] = false;
+			}
+		}
+
+		if ( $this->mImportUploads ) {
+			return $this->processUpload( $pageInfo, $uploadInfo );
+		}
 	}
 
+	/**
+	 * @param $contents
+	 * @return string
+	 */
+	private function dumpTemp( $contents ) {
+		$filename = tempnam( wfTempDir(), 'importupload' );
+		file_put_contents( $filename, $contents );
+		return $filename;
+	}
+
+	/**
+	 * @param $pageInfo
+	 * @param $uploadInfo
+	 * @return mixed
+	 */
 	private function processUpload( $pageInfo, $uploadInfo ) {
 		$revision = new WikiRevision;
+		$text = isset( $uploadInfo['text'] ) ? $uploadInfo['text'] : '';
 
 		$revision->setTitle( $pageInfo['_title'] );
-		$revision->setID( $uploadInfo['id'] );
+		$revision->setID( $pageInfo['id'] );
 		$revision->setTimestamp( $uploadInfo['timestamp'] );
-		$revision->setText( $uploadInfo['text'] );
+		$revision->setText( $text );
 		$revision->setFilename( $uploadInfo['filename'] );
+		if ( isset( $uploadInfo['archivename'] ) ) {
+			$revision->setArchiveName( $uploadInfo['archivename'] );
+		}
 		$revision->setSrc( $uploadInfo['src'] );
+		if ( isset( $uploadInfo['fileSrc'] ) ) {
+			$revision->setFileSrc( $uploadInfo['fileSrc'],
+				!empty( $uploadInfo['isTempSrc'] ) );
+		}
+		if ( isset( $uploadInfo['sha1base36'] ) ) {
+			$revision->setSha1Base36( $uploadInfo['sha1base36'] );
+		}
 		$revision->setSize( intval( $uploadInfo['size'] ) );
 		$revision->setComment( $uploadInfo['comment'] );
 
@@ -618,10 +780,14 @@ class WikiImporter {
 		if ( isset( $uploadInfo['contributor']['username'] ) ) {
 			$revision->setUserName( $uploadInfo['contributor']['username'] );
 		}
+		$revision->setNoUpdates( $this->mNoUpdates );
 
-		return $this->uploadCallback( $revision );
+		return call_user_func( $this->mUploadCallback, $revision );
 	}
 
+	/**
+	 * @return array
+	 */
 	private function handleContributor() {
 		$fields = array( 'id', 'ip', 'username' );
 		$info = array();
@@ -642,23 +808,45 @@ class WikiImporter {
 		return $info;
 	}
 
+	/**
+	 * @param $text string
+	 * @return Array or false
+	 */
 	private function processTitle( $text ) {
+		global $wgCommandLineMode;
+
 		$workTitle = $text;
 		$origTitle = Title::newFromText( $workTitle );
 
 		if( !is_null( $this->mTargetNamespace ) && !is_null( $origTitle ) ) {
-			$title = Title::makeTitle( $this->mTargetNamespace,
+			# makeTitleSafe, because $origTitle can have a interwiki (different setting of interwiki map)
+			# and than dbKey can begin with a lowercase char
+			$title = Title::makeTitleSafe( $this->mTargetNamespace,
 				$origTitle->getDBkey() );
 		} else {
+			if( !is_null( $this->mTargetRootPage ) ) {
+				$workTitle = $this->mTargetRootPage . '/' . $workTitle;
+			}
 			$title = Title::newFromText( $workTitle );
 		}
 
 		if( is_null( $title ) ) {
-			// Invalid page title? Ignore the page
-			$this->notice( "Skipping invalid page title '$workTitle'" );
+			# Invalid page title? Ignore the page
+			$this->notice( 'import-error-invalid', $workTitle );
 			return false;
-		} elseif( $title->getInterwiki() != '' ) {
-			$this->notice( "Skipping interwiki page title '$workTitle'" );
+		} elseif( $title->isExternal() ) {
+			$this->notice( 'import-error-interwiki', $title->getPrefixedText() );
+			return false;
+		} elseif( !$title->canExist() ) {
+			$this->notice( 'import-error-special', $title->getPrefixedText() );
+			return false;
+		} elseif( !$title->userCan( 'edit' ) && !$wgCommandLineMode ) {
+			# Do not import if the importing wiki user cannot edit this page
+			$this->notice( 'import-error-edit', $title->getPrefixedText() );
+			return false;
+		} elseif( !$title->exists() && !$title->userCan( 'create' ) && !$wgCommandLineMode ) {
+			# Do not import if the importing wiki user cannot create this page
+			$this->notice( 'import-error-create', $title->getPrefixedText() );
 			return false;
 		}
 
@@ -674,14 +862,25 @@ class UploadSourceAdapter {
 	private $mBuffer;
 	private $mPosition;
 
+	/**
+	 * @param $source
+	 * @return string
+	 */
 	static function registerSource( $source ) {
-		$id = wfGenerateToken();
+		$id = wfRandomString();
 
 		self::$sourceRegistrations[$id] = $source;
 
 		return $id;
 	}
 
+	/**
+	 * @param $path
+	 * @param $mode
+	 * @param $options
+	 * @param $opened_path
+	 * @return bool
+	 */
 	function stream_open( $path, $mode, $options, &$opened_path ) {
 		$url = parse_url($path);
 		$id = $url['host'];
@@ -695,6 +894,10 @@ class UploadSourceAdapter {
 		return true;
 	}
 
+	/**
+	 * @param $count
+	 * @return string
+	 */
 	function stream_read( $count ) {
 		$return = '';
 		$leave = false;
@@ -720,18 +923,31 @@ class UploadSourceAdapter {
 		return $return;
 	}
 
+	/**
+	 * @param $data
+	 * @return bool
+	 */
 	function stream_write( $data ) {
 		return false;
 	}
 
+	/**
+	 * @return mixed
+	 */
 	function stream_tell() {
 		return $this->mPosition;
 	}
 
+	/**
+	 * @return bool
+	 */
 	function stream_eof() {
 		return $this->mSource->atEnd();
 	}
 
+	/**
+	 * @return array
+	 */
 	function url_stat() {
 		$result = array();
 
@@ -754,6 +970,10 @@ class UploadSourceAdapter {
 }
 
 class XMLReader2 extends XMLReader {
+
+	/**
+	 * @return bool|string
+	 */
 	function nodeContents() {
 		if( $this->isEmptyElement ) {
 			return "";
@@ -778,6 +998,11 @@ class XMLReader2 extends XMLReader {
  * @ingroup SpecialPage
  */
 class WikiRevision {
+	var $importer = null;
+
+	/**
+	 * @var Title
+	 */
 	var $title = null;
 	var $id = 0;
 	var $timestamp = "20010115000000";
@@ -789,7 +1014,17 @@ class WikiRevision {
 	var $type = "";
 	var $action = "";
 	var $params = "";
+	var $fileSrc = '';
+	var $sha1base36 = false;
+	var $isTemp = false;
+	var $archiveName = '';
+	var $fileIsTemp;
+	private $mNoUpdates = false;
 
+	/**
+	 * @param $title
+	 * @throws MWException
+	 */
 	function setTitle( $title ) {
 		if( is_object( $title ) ) {
 			$this->title = $title;
@@ -800,111 +1035,253 @@ class WikiRevision {
 		}
 	}
 
+	/**
+	 * @param $id
+	 */
 	function setID( $id ) {
 		$this->id = $id;
 	}
 
+	/**
+	 * @param $ts
+	 */
 	function setTimestamp( $ts ) {
 		# 2003-08-05T18:30:02Z
 		$this->timestamp = wfTimestamp( TS_MW, $ts );
 	}
 
+	/**
+	 * @param $user
+	 */
 	function setUsername( $user ) {
 		$this->user_text = $user;
 	}
 
+	/**
+	 * @param $ip
+	 */
 	function setUserIP( $ip ) {
 		$this->user_text = $ip;
 	}
 
+	/**
+	 * @param $text
+	 */
 	function setText( $text ) {
 		$this->text = $text;
 	}
 
+	/**
+	 * @param $text
+	 */
 	function setComment( $text ) {
 		$this->comment = $text;
 	}
 
+	/**
+	 * @param $minor
+	 */
 	function setMinor( $minor ) {
 		$this->minor = (bool)$minor;
 	}
 
+	/**
+	 * @param $src
+	 */
 	function setSrc( $src ) {
 		$this->src = $src;
 	}
 
+	/**
+	 * @param $src
+	 * @param $isTemp
+	 */
+	function setFileSrc( $src, $isTemp ) {
+		$this->fileSrc = $src;
+		$this->fileIsTemp = $isTemp;
+	}
+
+	/**
+	 * @param $sha1base36
+	 */
+	function setSha1Base36( $sha1base36 ) {
+		$this->sha1base36 = $sha1base36;
+	}
+
+	/**
+	 * @param $filename
+	 */
 	function setFilename( $filename ) {
 		$this->filename = $filename;
 	}
 
+	/**
+	 * @param $archiveName
+	 */
+	function setArchiveName( $archiveName ) {
+		$this->archiveName = $archiveName;
+	}
+
+	/**
+	 * @param $size
+	 */
 	function setSize( $size ) {
 		$this->size = intval( $size );
 	}
-	
+
+	/**
+	 * @param $type
+	 */
 	function setType( $type ) {
 		$this->type = $type;
 	}
-	
+
+	/**
+	 * @param $action
+	 */
 	function setAction( $action ) {
 		$this->action = $action;
 	}
-	
+
+	/**
+	 * @param $params
+	 */
 	function setParams( $params ) {
 		$this->params = $params;
 	}
 
+	/**
+	 * @param $noupdates
+	 */
+	public function setNoUpdates( $noupdates ) {
+		$this->mNoUpdates = $noupdates;
+	}
+
+	/**
+	 * @return Title
+	 */
 	function getTitle() {
 		return $this->title;
 	}
 
+	/**
+	 * @return int
+	 */
 	function getID() {
 		return $this->id;
 	}
 
+	/**
+	 * @return string
+	 */
 	function getTimestamp() {
 		return $this->timestamp;
 	}
 
+	/**
+	 * @return string
+	 */
 	function getUser() {
 		return $this->user_text;
 	}
 
+	/**
+	 * @return string
+	 */
 	function getText() {
 		return $this->text;
 	}
 
+	/**
+	 * @return string
+	 */
 	function getComment() {
 		return $this->comment;
 	}
 
+	/**
+	 * @return bool
+	 */
 	function getMinor() {
 		return $this->minor;
 	}
 
+	/**
+	 * @return mixed
+	 */
 	function getSrc() {
 		return $this->src;
 	}
 
+	/**
+	 * @return bool|String
+	 */
+	function getSha1() {
+		if ( $this->sha1base36 ) {
+			return wfBaseConvert( $this->sha1base36, 36, 16 );
+		}
+		return false;
+	}
+
+	/**
+	 * @return string
+	 */
+	function getFileSrc() {
+		return $this->fileSrc;
+	}
+
+	/**
+	 * @return bool
+	 */
+	function isTempSrc() {
+		return $this->isTemp;
+	}
+
+	/**
+	 * @return mixed
+	 */
 	function getFilename() {
 		return $this->filename;
 	}
 
+	/**
+	 * @return string
+	 */
+	function getArchiveName() {
+		return $this->archiveName;
+	}
+
+	/**
+	 * @return mixed
+	 */
 	function getSize() {
 		return $this->size;
 	}
-	
+
+	/**
+	 * @return string
+	 */
 	function getType() {
 		return $this->type;
 	}
-	
+
+	/**
+	 * @return string
+	 */
 	function getAction() {
 		return $this->action;
 	}
-	
+
+	/**
+	 * @return string
+	 */
 	function getParams() {
 		return $this->params;
 	}
 
+	/**
+	 * @return bool
+	 */
 	function importOldRevision() {
 		$dbw = wfGetDB( DB_MASTER );
 
@@ -913,22 +1290,25 @@ class WikiRevision {
 		if( $user ) {
 			$userId = intval( $user->getId() );
 			$userText = $user->getName();
+			$userObj = $user;
 		} else {
 			$userId = 0;
 			$userText = $this->getUser();
+			$userObj = new User;
 		}
 
 		// avoid memory leak...?
 		$linkCache = LinkCache::singleton();
 		$linkCache->clear();
 
-		$article = new Article( $this->title );
-		$pageId = $article->getId();
-		if( $pageId == 0 ) {
+		$page = WikiPage::factory( $this->title );
+		if( !$page->exists() ) {
 			# must create the page...
-			$pageId = $article->insertOn( $dbw );
+			$pageId = $page->insertOn( $dbw );
 			$created = true;
+			$oldcountable = null;
 		} else {
+			$pageId = $page->getId();
 			$created = false;
 
 			$prior = $dbw->selectField( 'revision', '1',
@@ -939,14 +1319,15 @@ class WikiRevision {
 				__METHOD__
 			);
 			if( $prior ) {
-				// FIXME: this could fail slightly for multiple matches :P
+				// @todo FIXME: This could fail slightly for multiple matches :P
 				wfDebug( __METHOD__ . ": skipping existing revision for [[" .
 					$this->title->getPrefixedText() . "]], timestamp " . $this->timestamp . "\n" );
 				return false;
 			}
+			$oldcountable = $page->isCountable();
 		}
 
-		# FIXME: Use original rev_id optionally (better for backups)
+		# @todo FIXME: Use original rev_id optionally (better for backups)
 		# Insert the row
 		$revision = new Revision( array(
 			'page'       => $pageId,
@@ -957,47 +1338,30 @@ class WikiRevision {
 			'timestamp'  => $this->timestamp,
 			'minor_edit' => $this->minor,
 			) );
-		$revId = $revision->insertOn( $dbw );
-		$changed = $article->updateIfNewerOn( $dbw, $revision );
-		
-		# To be on the safe side...
-		$tempTitle = $GLOBALS['wgTitle'];
-		$GLOBALS['wgTitle'] = $this->title;
+		$revision->insertOn( $dbw );
+		$changed = $page->updateIfNewerOn( $dbw, $revision );
 
-		if( $created ) {
-			wfDebug( __METHOD__ . ": running onArticleCreate\n" );
-			Article::onArticleCreate( $this->title );
-
-			wfDebug( __METHOD__ . ": running create updates\n" );
-			$article->createUpdates( $revision );
-
-		} elseif( $changed ) {
-			wfDebug( __METHOD__ . ": running onArticleEdit\n" );
-			Article::onArticleEdit( $this->title );
-
-			wfDebug( __METHOD__ . ": running edit updates\n" );
-			$article->editUpdates(
-				$this->getText(),
-				$this->getComment(),
-				$this->minor,
-				$this->timestamp,
-				$revId );
+		if ( $changed !== false && !$this->mNoUpdates ) {
+			wfDebug( __METHOD__ . ": running updates\n" );
+			$page->doEditUpdates( $revision, $userObj, array( 'created' => $created, 'oldcountable' => $oldcountable ) );
 		}
-		$GLOBALS['wgTitle'] = $tempTitle;
 
 		return true;
 	}
-	
+
+	/**
+	 * @return mixed
+	 */
 	function importLogItem() {
 		$dbw = wfGetDB( DB_MASTER );
-		# FIXME: this will not record autoblocks
+		# @todo FIXME: This will not record autoblocks
 		if( !$this->getTitle() ) {
-			wfDebug( __METHOD__ . ": skipping invalid {$this->type}/{$this->action} log time, timestamp " . 
+			wfDebug( __METHOD__ . ": skipping invalid {$this->type}/{$this->action} log time, timestamp " .
 				$this->timestamp . "\n" );
 			return;
 		}
 		# Check if it exists already
-		// FIXME: use original log ID (better for backups)
+		// @todo FIXME: Use original log ID (better for backups)
 		$prior = $dbw->selectField( 'logging', '1',
 			array( 'log_type' => $this->getType(),
 				'log_action'    => $this->getAction(),
@@ -1009,11 +1373,11 @@ class WikiRevision {
 				'log_params'    => $this->params ),
 			__METHOD__
 		);
-		// FIXME: this could fail slightly for multiple matches :P
+		// @todo FIXME: This could fail slightly for multiple matches :P
 		if( $prior ) {
-			wfDebug( __METHOD__ . ": skipping existing item for Log:{$this->type}/{$this->action}, timestamp " . 
+			wfDebug( __METHOD__ . ": skipping existing item for Log:{$this->type}/{$this->action}, timestamp " .
 				$this->timestamp . "\n" );
-			return false;
+			return;
 		}
 		$log_id = $dbw->nextSequenceValue( 'logging_log_id_seq' );
 		$data = array(
@@ -1031,63 +1395,75 @@ class WikiRevision {
 		$dbw->insert( 'logging', $data, __METHOD__ );
 	}
 
+	/**
+	 * @return bool
+	 */
 	function importUpload() {
-		wfDebug( __METHOD__ . ": STUB\n" );
-
-		/**
-			// from file revert...
-			$source = $this->file->getArchiveVirtualUrl( $this->oldimage );
-			$comment = $wgRequest->getText( 'wpComment' );
-			// TODO: Preserve file properties from database instead of reloading from file
-			$status = $this->file->upload( $source, $comment, $comment );
-			if( $status->isGood() ) {
-		*/
-
-		/**
-			// from file upload...
-		$this->mLocalFile = wfLocalFile( $nt );
-		$this->mDestName = $this->mLocalFile->getName();
-		//....
-			$status = $this->mLocalFile->upload( $this->mTempPath, $this->mComment, $pageText,
-			File::DELETE_SOURCE, $this->mFileProps );
-			if ( !$status->isGood() ) {
-				$resultDetails = array( 'internal' => $status->getWikiText() );
-		*/
-
-		// @todo Fixme: upload() uses $wgUser, which is wrong here
-		// it may also create a page without our desire, also wrong potentially.
-		// and, it will record a *current* upload, but we might want an archive version here
-
-		$file = wfLocalFile( $this->getTitle() );
+		# Construct a file
+		$archiveName = $this->getArchiveName();
+		if ( $archiveName ) {
+			wfDebug( __METHOD__ . "Importing archived file as $archiveName\n" );
+			$file = OldLocalFile::newFromArchiveName( $this->getTitle(),
+				RepoGroup::singleton()->getLocalRepo(), $archiveName );
+		} else {
+			$file = wfLocalFile( $this->getTitle() );
+			wfDebug( __METHOD__ . 'Importing new file as ' . $file->getName() . "\n" );
+			if ( $file->exists() && $file->getTimestamp() > $this->getTimestamp() ) {
+				$archiveName = $file->getTimestamp() . '!' . $file->getName();
+				$file = OldLocalFile::newFromArchiveName( $this->getTitle(),
+					RepoGroup::singleton()->getLocalRepo(), $archiveName );
+				wfDebug( __METHOD__ . "File already exists; importing as $archiveName\n" );
+			}
+		}
 		if( !$file ) {
-			wfDebug( "IMPORT: Bad file. :(\n" );
+			wfDebug( __METHOD__ . ': Bad file for ' . $this->getTitle() . "\n" );
 			return false;
 		}
 
-		$source = $this->downloadSource();
+		# Get the file source or download if necessary
+		$source = $this->getFileSrc();
+		$flags = $this->isTempSrc() ? File::DELETE_SOURCE : 0;
+		if ( !$source ) {
+			$source = $this->downloadSource();
+			$flags |= File::DELETE_SOURCE;
+		}
 		if( !$source ) {
-			wfDebug( "IMPORT: Could not fetch remote file. :(\n" );
+			wfDebug( __METHOD__ . ": Could not fetch remote file.\n" );
+			return false;
+		}
+		$sha1 = $this->getSha1();
+		if ( $sha1 && ( $sha1 !== sha1_file( $source ) ) ) {
+			if ( $flags & File::DELETE_SOURCE ) {
+				# Broken file; delete it if it is a temporary file
+				unlink( $source );
+			}
+			wfDebug( __METHOD__ . ": Corrupt file $source.\n" );
 			return false;
 		}
 
-		$status = $file->upload( $source,
-			$this->getComment(),
-			$this->getComment(), // Initial page, if none present...
-			File::DELETE_SOURCE,
-			false, // props...
-			$this->getTimestamp() );
+		$user = User::newFromName( $this->user_text );
 
-		if( $status->isGood() ) {
-			// yay?
-			wfDebug( "IMPORT: is ok?\n" );
-			return true;
+		# Do the actual upload
+		if ( $archiveName ) {
+			$status = $file->uploadOld( $source, $archiveName,
+				$this->getTimestamp(), $this->getComment(), $user, $flags );
+		} else {
+			$status = $file->upload( $source, $this->getComment(), $this->getComment(),
+				$flags, false, $this->getTimestamp(), $user );
 		}
 
-		wfDebug( "IMPORT: is bad? " . $status->getXml() . "\n" );
-		return false;
-
+		if ( $status->isGood() ) {
+			wfDebug( __METHOD__ . ": Succesful\n" );
+			return true;
+		} else {
+			wfDebug( __METHOD__ . ': failed: ' . $status->getXml() . "\n" );
+			return false;
+		}
 	}
 
+	/**
+	 * @return bool|string
+	 */
 	function downloadSource() {
 		global $wgEnableUploads;
 		if( !$wgEnableUploads ) {
@@ -1101,7 +1477,7 @@ class WikiRevision {
 			return false;
 		}
 
-		// @todo Fixme!
+		// @todo FIXME!
 		$src = $this->getSrc();
 		$data = Http::get( $src );
 		if( !$data ) {
@@ -1129,17 +1505,22 @@ class ImportStringSource {
 		$this->mRead = false;
 	}
 
+	/**
+	 * @return bool
+	 */
 	function atEnd() {
 		return $this->mRead;
 	}
 
+	/**
+	 * @return bool|string
+	 */
 	function readChunk() {
 		if( $this->atEnd() ) {
 			return false;
-		} else {
-			$this->mRead = true;
-			return $this->mString;
 		}
+		$this->mRead = true;
+		return $this->mString;
 	}
 }
 
@@ -1152,22 +1533,38 @@ class ImportStreamSource {
 		$this->mHandle = $handle;
 	}
 
+	/**
+	 * @return bool
+	 */
 	function atEnd() {
 		return feof( $this->mHandle );
 	}
 
+	/**
+	 * @return string
+	 */
 	function readChunk() {
 		return fread( $this->mHandle, 32768 );
 	}
 
+	/**
+	 * @param $filename string
+	 * @return Status
+	 */
 	static function newFromFile( $filename ) {
-		$file = @fopen( $filename, 'rt' );
+		wfSuppressWarnings();
+		$file = fopen( $filename, 'rt' );
+		wfRestoreWarnings();
 		if( !$file ) {
 			return Status::newFatal( "importcantopen" );
 		}
 		return Status::newGood( new ImportStreamSource( $file ) );
 	}
 
+	/**
+	 * @param $fieldname string
+	 * @return Status
+	 */
 	static function newFromUpload( $fieldname = "xmlimport" ) {
 		$upload =& $_FILES[$fieldname];
 
@@ -1196,13 +1593,18 @@ class ImportStreamSource {
 		}
 	}
 
+	/**
+	 * @param $url
+	 * @param $method string
+	 * @return Status
+	 */
 	static function newFromURL( $url, $method = 'GET' ) {
 		wfDebug( __METHOD__ . ": opening $url\n" );
 		# Use the standard HTTP fetch function; it times out
 		# quicker and sorts out user-agent problems which might
 		# otherwise prevent importing from large sites, such
 		# as the Wikimedia cluster, etc.
-		$data = Http::request( $method, $url );
+		$data = Http::request( $method, $url, array( 'followRedirects' => true ) );
 		if( $data !== false ) {
 			$file = tmpfile();
 			fwrite( $file, $data );
@@ -1214,6 +1616,14 @@ class ImportStreamSource {
 		}
 	}
 
+	/**
+	 * @param $interwiki
+	 * @param $page
+	 * @param $history bool
+	 * @param $templates bool
+	 * @param $pageLinkDepth int
+	 * @return Status
+	 */
 	public static function newFromInterwiki( $interwiki, $page, $history = false, $templates = false, $pageLinkDepth = 0 ) {
 		if( $page == '' ) {
 			return Status::newFatal( 'import-noarticle' );

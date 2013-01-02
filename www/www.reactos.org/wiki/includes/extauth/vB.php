@@ -34,7 +34,7 @@
  *       'username' => 'forum',
  *       'password' => 'udE,jSqDJ<""p=fI.K9',
  *       'dbname' => 'forum',
- *       'tableprefix' => '',
+ *       'tablePrefix' => '',
  *       'cookieprefix' => 'bb'
  *   );
  *
@@ -103,13 +103,14 @@ class ExternalUser_vB extends ExternalUser {
 
 	private function getDb() {
 		global $wgExternalAuthConf;
-		return new Database(
-			$wgExternalAuthConf['server'],
-			$wgExternalAuthConf['username'],
-			$wgExternalAuthConf['password'],
-			$wgExternalAuthConf['dbname'],
-			false, 0,
-			$wgExternalAuthConf['tableprefix']
+		return DatabaseBase::factory( 'mysql',
+			array(
+				'host' => $wgExternalAuthConf['server'],
+				'user' => $wgExternalAuthConf['username'],
+				'password' => $wgExternalAuthConf['password'],
+				'dbname' => $wgExternalAuthConf['dbname'],
+				'tablePrefix' => $wgExternalAuthConf['tablePrefix'],
+			)
 		);
 	}
 

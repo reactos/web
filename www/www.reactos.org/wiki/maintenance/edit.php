@@ -1,6 +1,6 @@
 <?php
 /**
- * Make an edit
+ * Make a page edit.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,32 +17,38 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  * http://www.gnu.org/copyleft/gpl.html
  *
+ * @file
  * @ingroup Maintenance
  */
 
-require_once( dirname( __FILE__ ) . '/Maintenance.php' );
+require_once( __DIR__ . '/Maintenance.php' );
 
+/**
+ * Maintenance script to make a page edit.
+ *
+ * @ingroup Maintenance
+ */
 class EditCLI extends Maintenance {
 	public function __construct() {
 		parent::__construct();
 		$this->mDescription = "Edit an article from the command line, text is from stdin";
-		$this->addOption( 'u', 'Username', false, true );
-		$this->addOption( 's', 'Edit summary', false, true );
-		$this->addOption( 'm', 'Minor edit' );
-		$this->addOption( 'b', 'Bot edit' );
-		$this->addOption( 'a', 'Enable autosummary' );
-		$this->addOption( 'no-rc', 'Do not show the change in recent changes' );
+		$this->addOption( 'user', 'Username', false, true, 'u' );
+		$this->addOption( 'summary', 'Edit summary', false, true, 's' );
+		$this->addOption( 'minor', 'Minor edit', false, false, 'm' );
+		$this->addOption( 'bot', 'Bot edit', false, false, 'b' );
+		$this->addOption( 'autosummary', 'Enable autosummary', false, false, 'a' );
+		$this->addOption( 'no-rc', 'Do not show the change in recent changes', false, false, 'r' );
 		$this->addArg( 'title', 'Title of article to edit' );
 	}
 
 	public function execute() {
 		global $wgUser, $wgTitle;
 
-		$userName = $this->getOption( 'u', 'Maintenance script' );
-		$summary = $this->getOption( 's', '' );
-		$minor = $this->hasOption( 'm' );
-		$bot = $this->hasOption( 'b' );
-		$autoSummary = $this->hasOption( 'a' );
+		$userName = $this->getOption( 'user', 'Maintenance script' );
+		$summary = $this->getOption( 'summary', '' );
+		$minor = $this->hasOption( 'minor' );
+		$bot = $this->hasOption( 'bot' );
+		$autoSummary = $this->hasOption( 'autosummary' );
 		$noRC = $this->hasOption( 'no-rc' );
 
 		$wgUser = User::newFromName( $userName );
@@ -58,14 +64,14 @@ class EditCLI extends Maintenance {
 			$this->error( "Invalid title", true );
 		}
 
-		$article = new Article( $wgTitle );
+		$page = WikiPage::factory( $wgTitle );
 
 		# Read the text
 		$text = $this->getStdin( Maintenance::STDIN_ALL );
 
 		# Do the edit
 		$this->output( "Saving... " );
-		$status = $article->doEdit( $text, $summary,
+		$status = $page->doEdit( $text, $summary,
 			( $minor ? EDIT_MINOR : 0 ) |
 			( $bot ? EDIT_FORCE_BOT : 0 ) |
 			( $autoSummary ? EDIT_AUTOSUMMARY : 0 ) |

@@ -1,10 +1,10 @@
 <?php
 /**
- * API for MediaWiki 1.8+
+ *
  *
  * Created on Feb 13, 2009
  *
- * Copyright © 2009 Roan Kattouw <Firstname>.<Lastname>@home.nl
+ * Copyright © 2009 Roan Kattouw "<Firstname>.<Lastname>@gmail.com"
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,11 +23,6 @@
  *
  * @file
  */
-
-if ( !defined( 'MEDIAWIKI' ) ) {
-	// Eclipse helper - will be ignored in production
-	require_once( 'ApiQueryBase.php' );
-}
 
 /**
  * Query module to enumerate all create-protected pages.
@@ -48,6 +43,10 @@ class ApiQueryProtectedTitles extends ApiQueryGeneratorBase {
 		$this->run( $resultPageSet );
 	}
 
+	/**
+	 * @param $resultPageSet ApiPageSet
+	 * @return void
+	 */
 	private function run( $resultPageSet = null ) {
 		$params = $this->extractRequestParams();
 
@@ -60,7 +59,7 @@ class ApiQueryProtectedTitles extends ApiQueryGeneratorBase {
 		$this->addFieldsIf( 'pt_expiry', isset( $prop['expiry'] ) );
 		$this->addFieldsIf( 'pt_create_perm', isset( $prop['level'] ) );
 
-		$this->addWhereRange( 'pt_timestamp', $params['dir'], $params['start'], $params['end'] );
+		$this->addTimestampWhereRange( 'pt_timestamp', $params['dir'], $params['start'], $params['end'] );
 		$this->addWhereFld( 'pt_namespace', $params['namespace'] );
 		$this->addWhereFld( 'pt_create_perm', $params['level'] );
 
@@ -77,6 +76,9 @@ class ApiQueryProtectedTitles extends ApiQueryGeneratorBase {
 
 		$count = 0;
 		$result = $this->getResult();
+
+		$titles = array();
+
 		foreach ( $res as $row ) {
 			if ( ++ $count > $params['limit'] ) {
 				// We've reached the one extra which shows that there are additional pages to be had. Stop here...
@@ -105,12 +107,12 @@ class ApiQueryProtectedTitles extends ApiQueryGeneratorBase {
 				}
 
 				if ( isset( $prop['parsedcomment'] ) ) {
-					global $wgUser;
-					$vals['parsedcomment'] = $wgUser->getSkin()->formatComment( $row->pt_reason, $title );
+					$vals['parsedcomment'] = Linker::formatComment( $row->pt_reason, $title );
 				}
 
 				if ( isset( $prop['expiry'] ) ) {
-					$vals['expiry'] = Block::decodeExpiry( $row->pt_expiry, TS_ISO_8601 );
+					global $wgContLang;
+					$vals['expiry'] = $wgContLang->formatExpiry( $row->pt_expiry, TS_ISO_8601 );
 				}
 
 				if ( isset( $prop['level'] ) ) {
@@ -137,7 +139,7 @@ class ApiQueryProtectedTitles extends ApiQueryGeneratorBase {
 
 	public function getCacheMode( $params ) {
 		if ( !is_null( $params['prop'] ) && in_array( 'parsedcomment', $params['prop'] ) ) {
-			// formatComment() calls wfMsg() among other things
+			// formatComment() calls wfMessage() among other things
 			return 'anon-public-user-private';
 		} else {
 			return 'public';
@@ -165,8 +167,8 @@ class ApiQueryProtectedTitles extends ApiQueryGeneratorBase {
 			'dir' => array(
 				ApiBase::PARAM_DFLT => 'older',
 				ApiBase::PARAM_TYPE => array(
-					'older',
-					'newer'
+					'newer',
+					'older'
 				)
 			),
 			'start' => array(
@@ -196,13 +198,13 @@ class ApiQueryProtectedTitles extends ApiQueryGeneratorBase {
 			'namespace' => 'Only list titles in these namespaces',
 			'start' => 'Start listing at this protection timestamp',
 			'end' => 'Stop listing at this protection timestamp',
-			'dir' => 'The direction in which to list',
+			'dir' => $this->getDirectionDescription( $this->getModulePrefix() ),
 			'limit' => 'How many total pages to return',
 			'prop' => array(
 				'Which properties to get',
 				' timestamp      - Adds the timestamp of when protection was added',
-				' user           - Adds the user to add the protection',
-				' userid         - Adds the user id to add the protection',
+				' user           - Adds the user that added the protection',
+				' userid         - Adds the user id that added the protection',
 				' comment        - Adds the comment for the protection',
 				' parsedcomment  - Adds the parsed comment for the protection',
 				' expiry         - Adds the timestamp of when the protection will be lifted',
@@ -212,17 +214,55 @@ class ApiQueryProtectedTitles extends ApiQueryGeneratorBase {
 		);
 	}
 
+	public function getResultProperties() {
+		global $wgRestrictionLevels;
+		return array(
+			'' => array(
+				'ns' => 'namespace',
+				'title' => 'string'
+			),
+			'timestamp' => array(
+				'timestamp' => 'timestamp'
+			),
+			'user' => array(
+				'user' => array(
+					ApiBase::PROP_TYPE => 'string',
+					ApiBase::PROP_NULLABLE => true
+				),
+				'userid' => 'integer'
+			),
+			'comment' => array(
+				'comment' => 'string'
+			),
+			'parsedcomment' => array(
+				'parsedcomment' => 'string'
+			),
+			'expiry' => array(
+				'expiry' => 'timestamp'
+			),
+			'level' => array(
+				'level' => array(
+					ApiBase::PROP_TYPE => array_diff( $wgRestrictionLevels, array( '' ) )
+				)
+			)
+		);
+	}
+
 	public function getDescription() {
 		return 'List all titles protected from creation';
 	}
 
-	protected function getExamples() {
+	public function getExamples() {
 		return array(
 			'api.php?action=query&list=protectedtitles',
 		);
 	}
 
+	public function getHelpUrls() {
+		return 'https://www.mediawiki.org/wiki/API:Protectedtitles';
+	}
+
 	public function getVersion() {
-		return __CLASS__ . ': $Id: ApiQueryProtectedTitles.php 71838 2010-08-28 01:18:18Z reedy $';
+		return __CLASS__ . ': $Id$';
 	}
 }

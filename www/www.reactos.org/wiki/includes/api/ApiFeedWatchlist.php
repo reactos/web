@@ -1,10 +1,10 @@
 <?php
 /**
- * API for MediaWiki 1.8+
+ *
  *
  * Created on Oct 13, 2006
  *
- * Copyright © 2006 Yuri Astrakhan <Firstname><Lastname>@gmail.com
+ * Copyright © 2006 Yuri Astrakhan "<Firstname><Lastname>@gmail.com"
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,11 +24,6 @@
  * @file
  */
 
-if ( !defined( 'MEDIAWIKI' ) ) {
-	// Eclipse helper - will be ignored in production
-	require_once( "ApiBase.php" );
-}
-
 /**
  * This action allows users to get their watchlist items in RSS/Atom formats.
  * When executed, it performs a nested call to the API to get the needed data,
@@ -44,6 +39,8 @@ class ApiFeedWatchlist extends ApiBase {
 
 	/**
 	 * This module uses a custom feed wrapper printer.
+	 *
+	 * @return ApiFormatFeedWrapper
 	 */
 	public function getCustomPrinter() {
 		return new ApiFormatFeedWrapper( $this->getMain() );
@@ -56,10 +53,21 @@ class ApiFeedWatchlist extends ApiBase {
 	 * Wrap the result as an RSS/Atom feed.
 	 */
 	public function execute() {
-		global $wgFeedClasses, $wgFeedLimit, $wgSitename, $wgLanguageCode;
+		global $wgFeed, $wgFeedClasses, $wgFeedLimit, $wgSitename, $wgLanguageCode;
 
 		try {
 			$params = $this->extractRequestParams();
+
+			if( !$wgFeed ) {
+				$this->dieUsage( 'Syndication feeds are not available', 'feed-unavailable' );
+			}
+
+			if( !isset( $wgFeedClasses[ $params['feedformat'] ] ) ) {
+				$this->dieUsage( 'Invalid subscription feed type', 'feed-invalid' );
+			}
+			if ( !is_null( $params['wlexcludeuser'] ) ) {
+				$fauxReqArr['wlexcludeuser'] = $params['wlexcludeuser'];
+			}
 
 			// limit to the number of hours going from now back
 			$endTime = wfTimestamp( TS_MW, time() - intval( $params['hours'] * 60 * 60 ) );
@@ -90,7 +98,7 @@ class ApiFeedWatchlist extends ApiBase {
 			}
 
 			// Check for 'allrev' parameter, and if found, show all revisions to each page on wl.
-			if ( !is_null( $params['allrev'] ) ) {
+			if ( $params['allrev'] ) {
 				$fauxReqArr['wlallrev'] = '';
 			}
 
@@ -109,10 +117,12 @@ class ApiFeedWatchlist extends ApiBase {
 				$feedItems[] = $this->createFeedItem( $info );
 			}
 
-			$feedTitle = $wgSitename . ' - ' . wfMsgForContent( 'watchlist' ) . ' [' . $wgLanguageCode . ']';
+			$msg = wfMessage( 'watchlist' )->inContentLanguage()->text();
+
+			$feedTitle = $wgSitename . ' - ' . $msg . ' [' . $wgLanguageCode . ']';
 			$feedUrl = SpecialPage::getTitleFor( 'Watchlist' )->getFullURL();
 
-			$feed = new $wgFeedClasses[$params['feedformat']] ( $feedTitle, htmlspecialchars( wfMsgForContent( 'watchlist' ) ), $feedUrl );
+			$feed = new $wgFeedClasses[$params['feedformat']] ( $feedTitle, htmlspecialchars( $msg ), $feedUrl );
 
 			ApiFormatFeedWrapper::setResult( $this->getResult(), $feed, $feedItems );
 
@@ -121,11 +131,12 @@ class ApiFeedWatchlist extends ApiBase {
 			// Error results should not be cached
 			$this->getMain()->setCacheMaxAge( 0 );
 
-			$feedTitle = $wgSitename . ' - Error - ' . wfMsgForContent( 'watchlist' ) . ' [' . $wgLanguageCode . ']';
+			$feedTitle = $wgSitename . ' - Error - ' . wfMessage( 'watchlist' )->inContentLanguage()->text() . ' [' . $wgLanguageCode . ']';
 			$feedUrl = SpecialPage::getTitleFor( 'Watchlist' )->getFullURL();
 
 			$feedFormat = isset( $params['feedformat'] ) ? $params['feedformat'] : 'rss';
-			$feed = new $wgFeedClasses[$feedFormat] ( $feedTitle, htmlspecialchars( wfMsgForContent( 'watchlist' ) ), $feedUrl );
+			$msg = wfMessage( 'watchlist' )->inContentLanguage()->escaped();
+			$feed = new $wgFeedClasses[$feedFormat] ( $feedTitle, $msg, $feedUrl );
 
 			if ( $e instanceof UsageException ) {
 				$errorCode = $e->getCodeString();
@@ -140,6 +151,10 @@ class ApiFeedWatchlist extends ApiBase {
 		}
 	}
 
+	/**
+	 * @param $info array
+	 * @return FeedItem
+	 */
 	private function createFeedItem( $info ) {
 		$titleStr = $info['title'];
 		$title = Title::newFromText( $titleStr );
@@ -171,12 +186,15 @@ class ApiFeedWatchlist extends ApiBase {
 				ApiBase::PARAM_MIN => 1,
 				ApiBase::PARAM_MAX => 72,
 			),
-			'allrev' => null,
+			'allrev' => false,
 			'wlowner' => array(
 				ApiBase::PARAM_TYPE => 'user'
 			),
 			'wltoken' => array(
 				ApiBase::PARAM_TYPE => 'string'
+			),
+			'wlexcludeuser' => array(
+				ApiBase::PARAM_TYPE => 'user'
 			),
 			'linktodiffs' => false,
 		);
@@ -187,24 +205,36 @@ class ApiFeedWatchlist extends ApiBase {
 			'feedformat' => 'The format of the feed',
 			'hours'      => 'List pages modified within this many hours from now',
 			'allrev'     => 'Include multiple revisions of the same page within given timeframe',
-			'wlowner'    => "The user whose watchlist you want (must be accompanied by {$this->getModulePrefix()}token if it's not you)",
+			'wlowner'    => "The user whose watchlist you want (must be accompanied by {$this->getModulePrefix()}wltoken if it's not you)",
 			'wltoken'    => 'Security token that requested user set in their preferences',
-			'linktodiffs'=> 'Link to change differences instead of article pages'
+			'wlexcludeuser' => 'A user whose edits should not be shown in the watchlist',
+			'linktodiffs' => 'Link to change differences instead of article pages',
 		);
 	}
 
 	public function getDescription() {
-		return 'This module returns a watchlist feed';
+		return 'Returns a watchlist feed';
 	}
 
-	protected function getExamples() {
+	public function getPossibleErrors() {
+		return array_merge( parent::getPossibleErrors(), array(
+			array( 'code' => 'feed-unavailable', 'info' => 'Syndication feeds are not available' ),
+			array( 'code' => 'feed-invalid', 'info' => 'Invalid subscription feed type' ),
+		) );
+	}
+
+	public function getExamples() {
 		return array(
 			'api.php?action=feedwatchlist',
-			'api.php?action=feedwatchlist&allrev=allrev&linktodiffs=&hours=6'
+			'api.php?action=feedwatchlist&allrev=&linktodiffs=&hours=6'
 		);
 	}
 
+	public function getHelpUrls() {
+		return 'https://www.mediawiki.org/wiki/API:Watchlist_feed';
+	}
+
 	public function getVersion() {
-		return __CLASS__ . ': $Id: ApiFeedWatchlist.php 77674 2010-12-03 19:47:22Z catrope $';
+		return __CLASS__ . ': $Id$';
 	}
 }

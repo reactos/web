@@ -1,10 +1,10 @@
 <?php
 /**
- * API for MediaWiki 1.8+
+ *
  *
  * Created on May 13, 2007
  *
- * Copyright © 2006 Yuri Astrakhan <Firstname><Lastname>@gmail.com
+ * Copyright © 2006 Yuri Astrakhan "<Firstname><Lastname>@gmail.com"
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,11 +24,6 @@
  * @file
  */
 
-if ( !defined( 'MEDIAWIKI' ) ) {
-	// Eclipse helper - will be ignored in production
-	require_once( "ApiQueryBase.php" );
-}
-
 /**
  * A query module to list all langlinks (links to correspanding foreign language pages).
  *
@@ -46,6 +41,11 @@ class ApiQueryLangLinks extends ApiQueryBase {
 		}
 
 		$params = $this->extractRequestParams();
+
+		if ( isset( $params['title'] ) && !isset( $params['lang'] ) ) {
+			$this->dieUsageMsg( array( 'missingparam', 'lang' ) );
+		}
+
 		$this->addFields( array(
 			'll_from',
 			'll_lang',
@@ -60,21 +60,40 @@ class ApiQueryLangLinks extends ApiQueryBase {
 				$this->dieUsage( 'Invalid continue param. You should pass the ' .
 					'original value returned by the previous query', '_badcontinue' );
 			}
+			$op = $params['dir'] == 'descending' ? '<' : '>';
 			$llfrom = intval( $cont[0] );
-			$lllang = $this->getDB()->strencode( $cont[1] );
+			$lllang = $this->getDB()->addQuotes( $cont[1] );
 			$this->addWhere(
-				"ll_from > $llfrom OR " .
+				"ll_from $op $llfrom OR " .
 				"(ll_from = $llfrom AND " .
-				"ll_lang >= '$lllang')"
+				"ll_lang $op= $lllang)"
 			);
 		}
 
-		// Don't order by ll_from if it's constant in the WHERE clause
-		if ( count( $this->getPageSet()->getGoodTitles() ) == 1 ) {
-			$this->addOption( 'ORDER BY', 'll_lang' );
+			$sort = ( $params['dir'] == 'descending' ? ' DESC' : '' );
+			if ( isset( $params['lang'] ) ) {
+			$this->addWhereFld( 'll_lang', $params['lang'] );
+			if ( isset( $params['title'] ) ) {
+				$this->addWhereFld( 'll_title', $params['title'] );
+				$this->addOption( 'ORDER BY', 'll_from' . $sort );
+			} else {
+				$this->addOption( 'ORDER BY', array(
+							'll_title' . $sort,
+							'll_from' . $sort
+				));
+			}
 		} else {
-			$this->addOption( 'ORDER BY', 'll_from, ll_lang' );
+			// Don't order by ll_from if it's constant in the WHERE clause
+			if ( count( $this->getPageSet()->getGoodTitles() ) == 1 ) {
+				$this->addOption( 'ORDER BY', 'll_lang' . $sort );
+			} else {
+				$this->addOption( 'ORDER BY', array(
+							'll_from' . $sort,
+							'll_lang' . $sort
+				));
+			}
 		}
+
 		$this->addOption( 'LIMIT', $params['limit'] + 1 );
 		$res = $this->select( __METHOD__ );
 
@@ -90,7 +109,7 @@ class ApiQueryLangLinks extends ApiQueryBase {
 			if ( $params['url'] ) {
 				$title = Title::newFromText( "{$row->ll_lang}:{$row->ll_title}" );
 				if ( $title ) {
-					$entry['url'] = $title->getFullURL();
+					$entry['url'] = wfExpandUrl( $title->getFullURL(), PROTO_CURRENT );
 				}
 			}
 			ApiResult::setContent( $entry, $row->ll_title );
@@ -117,6 +136,15 @@ class ApiQueryLangLinks extends ApiQueryBase {
 			),
 			'continue' => null,
 			'url' => false,
+			'lang' => null,
+			'title' => null,
+			'dir' => array(
+				ApiBase::PARAM_DFLT => 'ascending',
+				ApiBase::PARAM_TYPE => array(
+					'ascending',
+					'descending'
+				)
+			),
 		);
 	}
 
@@ -125,6 +153,22 @@ class ApiQueryLangLinks extends ApiQueryBase {
 			'limit' => 'How many langlinks to return',
 			'continue' => 'When more results are available, use this to continue',
 			'url' => 'Whether to get the full URL',
+			'lang' => 'Language code',
+			'title' => "Link to search for. Must be used with {$this->getModulePrefix()}lang",
+			'dir' => 'The direction in which to list',
+		);
+	}
+
+	public function getResultProperties() {
+		return array(
+			'' => array(
+				'lang' => 'string',
+				'url' => array(
+					ApiBase::PROP_TYPE => 'string',
+					ApiBase::PROP_NULLABLE => true
+				),
+				'*' => 'string'
+			)
 		);
 	}
 
@@ -134,18 +178,22 @@ class ApiQueryLangLinks extends ApiQueryBase {
 
 	public function getPossibleErrors() {
 		return array_merge( parent::getPossibleErrors(), array(
+			array( 'missingparam', 'lang' ),
 			array( 'code' => '_badcontinue', 'info' => 'Invalid continue param. You should pass the original value returned by the previous query' ),
 		) );
 	}
 
-	protected function getExamples() {
+	public function getExamples() {
 		return array(
-			'Get interlanguage links from the [[Main Page]]:',
-			'  api.php?action=query&prop=langlinks&titles=Main%20Page&redirects=',
+			'api.php?action=query&prop=langlinks&titles=Main%20Page&redirects=' => 'Get interlanguage links from the [[Main Page]]',
 		);
 	}
 
+	public function getHelpUrls() {
+		return 'https://www.mediawiki.org/wiki/API:Properties#langlinks_.2F_ll';
+	}
+
 	public function getVersion() {
-		return __CLASS__ . ': $Id: ApiQueryLangLinks.php 77660 2010-12-03 14:44:07Z catrope $';
+		return __CLASS__ . ': $Id$';
 	}
 }

@@ -2,6 +2,21 @@
 /**
  * Generator for LocalSettings.php file.
  *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ * http://www.gnu.org/copyleft/gpl.html
+ *
  * @file
  * @ingroup Deployment
  */
@@ -14,16 +29,16 @@
  */
 class LocalSettingsGenerator {
 
-	private $extensions = array();
-	private $values = array();
-	private $groupPermissions = array();
-	private $dbSettings = '';
-	private $safeMode = false;
+	protected $extensions = array();
+	protected $values = array();
+	protected $groupPermissions = array();
+	protected $dbSettings = '';
+	protected $safeMode = false;
 
 	/**
 	 * @var Installer
 	 */
-	private $installer;
+	protected $installer;
 
 	/**
 	 * Constructor.
@@ -39,12 +54,12 @@ class LocalSettingsGenerator {
 
 		$confItems = array_merge(
 			array(
-				'wgScriptPath', 'wgScriptExtension',
+				'wgServer', 'wgScriptPath', 'wgScriptExtension',
 				'wgPasswordSender', 'wgImageMagickConvertCommand', 'wgShellLocale',
 				'wgLanguageCode', 'wgEnableEmail', 'wgEnableUserEmail', 'wgDiff3',
 				'wgEnotifUserTalk', 'wgEnotifWatchlist', 'wgEmailAuthentication',
 				'wgDBtype', 'wgSecretKey', 'wgRightsUrl', 'wgSitename', 'wgRightsIcon',
-				'wgRightsText', 'wgRightsCode', 'wgMainCacheType', 'wgEnableUploads',
+				'wgRightsText', 'wgMainCacheType', 'wgEnableUploads',
 				'wgMainCacheType', '_MemCachedServers', 'wgDBserver', 'wgDBuser',
 				'wgDBpassword', 'wgUseInstantCommons', 'wgUpgradeKey', 'wgDefaultSkin',
 				'wgMetaNamespace', 'wgResourceLoaderMaxQueryLength'
@@ -129,7 +144,7 @@ class LocalSettingsGenerator {
 
 			foreach( $this->extensions as $extName ) {
 				$encExtName = self::escapePhpString( $extName );
-				$localSettings .= "require( \"extensions/$encExtName/$encExtName.php\" );\n";
+				$localSettings .= "require_once( \"\$IP/extensions/$encExtName/$encExtName.php\" );\n";
 			}
 		}
 
@@ -151,7 +166,7 @@ class LocalSettingsGenerator {
 	/**
 	 * @return String
 	 */
-	private function buildMemcachedServerList() {
+	protected function buildMemcachedServerList() {
 		$servers = $this->values['_MemCachedServers'];
 
 		if( !$servers ) {
@@ -172,7 +187,7 @@ class LocalSettingsGenerator {
 	/**
 	 * @return String
 	 */
-	private function getDefaultText() {
+	protected function getDefaultText() {
 		if( !$this->values['wgImageMagickConvertCommand'] ) {
 			$this->values['wgImageMagickConvertCommand'] = '/usr/bin/convert';
 			$magic = '#';
@@ -187,7 +202,7 @@ class LocalSettingsGenerator {
 			$locale = '';
 		}
 
-		$rightsUrl = $this->values['wgRightsUrl'] ? '' : '#';
+		//$rightsUrl = $this->values['wgRightsUrl'] ? '' : '#'; // TODO: Fixme, I'm unused!
 		$hashedUploads = $this->safeMode ? '' : '#';
 		$metaNamespace = '';
 		if( $this->values['wgMetaNamespace'] !== $this->values['wgSitename'] ) {
@@ -244,10 +259,14 @@ if ( !defined( 'MEDIAWIKI' ) ) {
 {$metaNamespace}
 ## The URL base path to the directory containing the wiki;
 ## defaults for all runtime URL paths are based off of this.
-## For more information on customizing the URLs please see:
+## For more information on customizing the URLs
+## (like /w/index.php/Page_title to /wiki/Page_title) please see:
 ## http://www.mediawiki.org/wiki/Manual:Short_URL
 \$wgScriptPath       = \"{$this->values['wgScriptPath']}\";
 \$wgScriptExtension  = \"{$this->values['wgScriptExtension']}\";
+
+## The protocol and server name to use in fully-qualified URLs
+\$wgServer           = \"{$this->values['wgServer']}\";
 
 ## The relative URL path to the skins directory
 \$wgStylePath        = \"\$wgScriptPath/skins\";
@@ -301,16 +320,12 @@ if ( !defined( 'MEDIAWIKI' ) ) {
 ## this, if it's not already uncommented:
 {$hashedUploads}\$wgHashedUploadDirectory = false;
 
-## If you have the appropriate support software installed
-## you can enable inline LaTeX equations:
-\$wgUseTeX           = false;
-
 ## Set \$wgCacheDirectory to a writable directory on the web server
 ## to make your wiki go slightly faster. The directory should not
 ## be publically accessible from the web.
 #\$wgCacheDirectory = \"\$IP/cache\";
 
-# Site language code, should be one of ./languages/Language(.*).php
+# Site language code, should be one of the list in ./languages/Names.php
 \$wgLanguageCode = \"{$this->values['wgLanguageCode']}\";
 
 \$wgSecretKey = \"{$this->values['wgSecretKey']}\";
@@ -326,24 +341,21 @@ if ( !defined( 'MEDIAWIKI' ) ) {
 ## For attaching licensing metadata to pages, and displaying an
 ## appropriate copyright notice / icon. GNU Free Documentation
 ## License and Creative Commons licenses are supported so far.
-{$rightsUrl}\$wgEnableCreativeCommonsRdf = true;
 \$wgRightsPage = \"\"; # Set to the title of a wiki page that describes your license/copyright
 \$wgRightsUrl  = \"{$this->values['wgRightsUrl']}\";
 \$wgRightsText = \"{$this->values['wgRightsText']}\";
 \$wgRightsIcon = \"{$this->values['wgRightsIcon']}\";
-# \$wgRightsCode = \"{$this->values['wgRightsCode']}\"; # Not yet used
 
 # Path to the GNU diff3 utility. Used for conflict resolution.
 \$wgDiff3 = \"{$this->values['wgDiff3']}\";
-
-{$groupRights}
 
 # Query string length limit for ResourceLoader. You should only set this if
 # your web server has a query string length limit (then set it to that limit),
 # or if you have suhosin.get.max_value_length set in php.ini (then set it to
 # that value)
 \$wgResourceLoaderMaxQueryLength = {$this->values['wgResourceLoaderMaxQueryLength']};
-";
+
+{$groupRights}";
 	}
 
 }

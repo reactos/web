@@ -17,13 +17,20 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  * http://www.gnu.org/copyleft/gpl.html
  *
+ * @file
  * @ingroup Maintenance
  * @author Rob Church <robchur@gmail.com>
  * @licence GNU General Public Licence 2.0 or later
  */
 
-require_once( dirname( __FILE__ ) . '/Maintenance.php' );
+require_once( __DIR__ . '/Maintenance.php' );
 
+/**
+ * Maintenance script that reassigns edits from a user or IP address
+ * to another user.
+ *
+ * @ingroup Maintenance
+ */
 class ReassignEdits extends Maintenance {
 	public function __construct() {
 		parent::__construct();
@@ -62,13 +69,13 @@ class ReassignEdits extends Maintenance {
 	 *
 	 * @param $from User to take edits from
 	 * @param $to User to assign edits to
-	 * @param $rc Update the recent changes table
-	 * @param $report Don't change things; just echo numbers
+	 * @param $rc bool Update the recent changes table
+	 * @param $report bool Don't change things; just echo numbers
 	 * @return integer Number of entries changed, or that would be changed
 	 */
 	private function doReassignEdits( &$from, &$to, $rc = false, $report = false ) {
 		$dbw = wfGetDB( DB_MASTER );
-		$dbw->begin();
+		$dbw->begin( __METHOD__ );
 
 		# Count things
 		$this->output( "Checking current edits..." );
@@ -117,7 +124,7 @@ class ReassignEdits extends Maintenance {
 			}
 		}
 
-		$dbw->commit();
+		$dbw->commit( __METHOD__ );
 		return (int)$total;
 	}
 
@@ -126,8 +133,8 @@ class ReassignEdits extends Maintenance {
 	 * i.e. a user => id mapping, or a user_text => text mapping
 	 *
 	 * @param $user User for the condition
-	 * @param $idfield Field name containing the identifier
-	 * @param $utfield Field name containing the user text
+	 * @param $idfield string Field name containing the identifier
+	 * @param $utfield string Field name containing the user text
 	 * @return array
 	 */
 	private function userConditions( &$user, $idfield, $utfield ) {
@@ -139,8 +146,8 @@ class ReassignEdits extends Maintenance {
 	 * i.e. user => id, user_text => text
 	 *
 	 * @param $user User for the spec
-	 * @param $idfield Field name containing the identifier
-	 * @param $utfield Field name containing the user text
+	 * @param $idfield string Field name containing the identifier
+	 * @param $utfield string Field name containing the user text
 	 * @return array
 	 */
 	private function userSpecification( &$user, $idfield, $utfield ) {
@@ -150,7 +157,7 @@ class ReassignEdits extends Maintenance {
 	/**
 	 * Initialise the user object
 	 *
-	 * @param $username Username or IP address
+	 * @param $username string Username or IP address
 	 * @return User
 	 */
 	private function initialiseUser( $username ) {
@@ -160,6 +167,9 @@ class ReassignEdits extends Maintenance {
 			$user->setName( $username );
 		} else {
 			$user = User::newFromName( $username );
+			if ( !$user ) {
+				$this->error( "Invalid username", true );
+			}
 		}
 		$user->load();
 		return $user;

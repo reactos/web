@@ -1,7 +1,7 @@
 <?php
 /**
- * Maintenance script to provide a better count of the number of articles
- * and update the site statistics table, if desired
+ * Provide a better count of the number of articles
+ * and update the site statistics table, if desired.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,12 +23,15 @@
  * @author Rob Church <robchur@gmail.com>
  */
 
-require_once( dirname( __FILE__ ) . '/Maintenance.php' );
+require_once( __DIR__ . '/Maintenance.php' );
 
+/**
+ * Maintenance script to provide a better count of the number of articles
+ * and update the site statistics table, if desired.
+ *
+ * @ingroup Maintenance
+ */
 class UpdateArticleCount extends Maintenance {
-
-	// Content namespaces
-	private $namespaces;
 
 	public function __construct() {
 		parent::__construct();
@@ -37,63 +40,20 @@ class UpdateArticleCount extends Maintenance {
 	}
 
 	public function execute() {
-		global $wgContentNamespaces;
-		$this->namespaces = $wgContentNamespaces;
 		$this->output( "Counting articles..." );
-		$result = $this->count();
 
-		if ( $result !== false ) {
-			$this->output( "found {$result}.\n" );
-			if ( $this->hasOption( 'update' ) ) {
-				$this->output( "Updating site statistics table... " );
-				$dbw = wfGetDB( DB_MASTER );
-				$dbw->update( 'site_stats', array( 'ss_good_articles' => $result ), array( 'ss_row_id' => 1 ), __METHOD__ );
-				$this->output( "done.\n" );
-			} else {
-				$this->output( "To update the site statistics table, run the script with the --update option.\n" );
-			}
+		$counter = new SiteStatsInit( false );
+		$result = $counter->articles();
+
+		$this->output( "found {$result}.\n" );
+		if ( $this->hasOption( 'update' ) ) {
+			$this->output( "Updating site statistics table... " );
+			$dbw = wfGetDB( DB_MASTER );
+			$dbw->update( 'site_stats', array( 'ss_good_articles' => $result ), array( 'ss_row_id' => 1 ), __METHOD__ );
+			$this->output( "done.\n" );
 		} else {
-			$this->output( "failed.\n" );
+			$this->output( "To update the site statistics table, run the script with the --update option.\n" );
 		}
-	}
-
-	/**
-	 * Produce a comma-delimited set of namespaces
-	 * Includes paranoia
-	 *
-	 * @return string
-	 */
-	private function makeNsSet() {
-		foreach ( $this->namespaces as $namespace )
-			$namespaces[] = intval( $namespace );
-		return implode( ', ', $namespaces );
-	}
-
-	/**
-	 * Produce SQL for the query
-	 *
-	 * @param $dbr Database handle
-	 * @return string
-	 */
-	private function makeSql( $dbr ) {
-		list( $page, $pagelinks ) = $dbr->tableNamesN( 'page', 'pagelinks' );
-		$nsset = $this->makeNsSet();
-		return "SELECT COUNT(DISTINCT page_id) AS pagecount " .
-			"FROM $page, $pagelinks " .
-			"WHERE pl_from=page_id and page_namespace IN ( $nsset ) " .
-			"AND page_is_redirect = 0 AND page_len > 0";
-	}
-
-	/**
-	 * Count the number of valid content pages in the wiki
-	 *
-	 * @return mixed Integer, or false if there's a problem
-	 */
-	private function count() {
-		$dbr = wfGetDB( DB_SLAVE );
-		$res = $dbr->query( $this->makeSql( $dbr ), __METHOD__ );
-		$row = $dbr->fetchObject( $res );
-		return $row ? $row->pagecount : false;
 	}
 }
 

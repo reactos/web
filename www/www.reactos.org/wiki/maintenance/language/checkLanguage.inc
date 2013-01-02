@@ -1,4 +1,25 @@
 <?php
+/**
+ * Helper class for checkLanguage.php script.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ * http://www.gnu.org/copyleft/gpl.html
+ *
+ * @file
+ * @ingroup MaintenanceLanguage
+ */
 
 /**
  * @ingroup MaintenanceLanguage
@@ -20,7 +41,7 @@ class CheckLanguageCLI {
 
 	/**
 	 * Constructor.
-	 * @param $options Options for script.
+	 * @param $options array Options for script.
 	 */
 	public function __construct( Array $options ) {
 		if ( isset( $options['help'] ) ) {
@@ -73,7 +94,7 @@ class CheckLanguageCLI {
 
 	/**
 	 * Get the default checks.
-	 * @return A list of the default checks.
+	 * @return array A list of the default checks.
 	 */
 	protected function defaultChecks() {
 		return array(
@@ -86,7 +107,7 @@ class CheckLanguageCLI {
 
 	/**
 	 * Get the checks which check other things than messages.
-	 * @return A list of the non-message checks.
+	 * @return array A list of the non-message checks.
 	 */
 	protected function nonMessageChecks() {
 		return array(
@@ -97,7 +118,7 @@ class CheckLanguageCLI {
 
 	/**
 	 * Get the checks that can easily be treated by non-speakers of the language.
-	 * @return A list of the easy checks.
+	 * @return Array A list of the easy checks.
 	 */
 	protected function easyChecks() {
 		return array(
@@ -108,7 +129,7 @@ class CheckLanguageCLI {
 
 	/**
 	 * Get all checks.
-	 * @return An array of all check names mapped to their function names.
+	 * @return array An array of all check names mapped to their function names.
 	 */
 	protected function getChecks() {
 		return array(
@@ -136,7 +157,7 @@ class CheckLanguageCLI {
 
 	/**
 	 * Get total count for each check non-messages check.
-	 * @return An array of all check names mapped to a two-element array:
+	 * @return array An array of all check names mapped to a two-element array:
 	 * function name to get the total count and language code or null
 	 * for checked code.
 	 */
@@ -155,7 +176,7 @@ class CheckLanguageCLI {
 
 	/**
 	 * Get all check descriptions.
-	 * @return An array of all check names mapped to their descriptions.
+	 * @return array An array of all check names mapped to their descriptions.
 	 */
 	protected function getDescriptions() {
 		return array(
@@ -183,7 +204,7 @@ class CheckLanguageCLI {
 
 	/**
 	 * Get help.
-	 * @return The help string.
+	 * @return string The help string.
 	 */
 	protected function help() {
 		return <<<ENDS
@@ -201,17 +222,17 @@ Parameters:
 	--links: Link the message values (default off).
 	--prefix: prefix to add to links.
 	--wikilang: For the links, what is the content language of the wiki to display the output in (default en).
-	--noexif: Don't check for EXIF messages (a bit hard and boring to translate), if you know
+	--noexif: Do not check for EXIF messages (a bit hard and boring to translate), if you know
 		that they are currently not translated and want to focus on other problems (default off).
 	--whitelist: Do only the following checks (form: code,code).
-	--blacklist: Don't do the following checks (form: code,code).
+	--blacklist: Do not do the following checks (form: code,code).
 	--easy: Do only the easy checks, which can be treated by non-speakers of the language.
 
 Check codes (ideally, all of them should result 0; all the checks are executed by default (except language-specific check blacklists in checkLanguage.inc):
 	* untranslated: Messages which are required to translate, but are not translated.
 	* duplicate: Messages which translation equal to fallback
 	* obsolete: Messages which are untranslatable or do not exist, but are translated.
-	* variables: Messages without variables which should be used, or with variables which shouldn't be used.
+	* variables: Messages without variables which should be used, or with variables which should not be used.
 	* empty: Empty messages and messages that contain only -.
 	* whitespace: Messages which have trailing whitespace.
 	* xhtml: Messages which are not well-formed XHTML (checks only few common errors).
@@ -274,7 +295,7 @@ ENDS;
 
 	/**
 	 * Get the check blacklist.
-	 * @return The list of checks which should not be executed.
+	 * @return array The list of checks which should not be executed.
 	 */
 	protected function getCheckBlacklist() {
 		global $checkBlacklist;
@@ -283,17 +304,17 @@ ENDS;
 
 	/**
 	 * Check a language.
-	 * @param $code The language code.
-	 * @return The results.
+	 * @param $code string The language code.
+	 * @return array The results.
 	 */
 	protected function checkLanguage( $code ) {
 		# Syntax check only
+		$results = array();
 		if ( $this->level === 0 ) {
 			$this->L->getMessages( $code );
-			return;
+			return $results;
 		}
 
-		$results = array();
 		$checkFunctions = $this->getChecks();
 		$checkBlacklist = $this->getCheckBlacklist();
 		foreach ( $this->checks as $check ) {
@@ -315,9 +336,9 @@ ENDS;
 
 	/**
 	 * Format a message key.
-	 * @param $key The message key.
-	 * @param $code The language code.
-	 * @return The formatted message key.
+	 * @param $key string The message key.
+	 * @param $code string The language code.
+	 * @return string The formatted message key.
 	 */
 	protected function formatKey( $key, $code ) {
 		if ( $this->doLinks ) {
@@ -334,7 +355,6 @@ ENDS;
 
 	/**
 	 * Output the checks results as plain text.
-	 * @return The checks results as plain text.
 	 */
 	protected function outputText() {
 		foreach ( $this->results as $code => $results ) {
@@ -380,10 +400,8 @@ ENDS;
 
 	/**
 	 * Output the checks results as wiki text.
-	 * @return The checks results as wiki text.
 	 */
 	function outputWiki() {
-		global $wgContLang;
 		$detailText = '';
 		$rows[] = '! Language !! Code !! Total !! ' . implode( ' !! ', array_diff( $this->checks, $this->nonMessageChecks() ) );
 		foreach ( $this->results as $code => $results ) {
@@ -419,7 +437,7 @@ ENDS;
 				# Don't list languages without problems
 				continue;
 			}
-			$language = $wgContLang->getLanguageName( $code );
+			$language = Language::fetchLanguageName( $code );
 			$rows[] = "| $language || $code || $problems || " . implode( ' || ', $numbers );
 		}
 
@@ -441,7 +459,7 @@ EOL;
 
 	/**
 	 * Check if there are any results for the checks, in any language.
-	 * @return True if there are any results, false if not.
+	 * @return bool True if there are any results, false if not.
 	 */
 	protected function isEmpty() {
 		foreach( $this->results as $results ) {
@@ -463,8 +481,8 @@ class CheckExtensionsCLI extends CheckLanguageCLI {
 
 	/**
 	 * Constructor.
-	 * @param $options Options for script.
-	 * @param $extension The extension name (or names).
+	 * @param $options array Options for script.
+	 * @param $extension string The extension name (or names).
 	 */
 	public function __construct( Array $options, $extension ) {
 		if ( isset( $options['help'] ) ) {
@@ -548,7 +566,7 @@ class CheckExtensionsCLI extends CheckLanguageCLI {
 
 	/**
 	 * Get the default checks.
-	 * @return A list of the default checks.
+	 * @return array A list of the default checks.
 	 */
 	protected function defaultChecks() {
 		return array(
@@ -559,7 +577,7 @@ class CheckExtensionsCLI extends CheckLanguageCLI {
 
 	/**
 	 * Get the checks which check other things than messages.
-	 * @return A list of the non-message checks.
+	 * @return array A list of the non-message checks.
 	 */
 	protected function nonMessageChecks() {
 		return array();
@@ -567,7 +585,7 @@ class CheckExtensionsCLI extends CheckLanguageCLI {
 
 	/**
 	 * Get the checks that can easily be treated by non-speakers of the language.
-	 * @return A list of the easy checks.
+	 * @return arrayA list of the easy checks.
 	 */
 	protected function easyChecks() {
 		return array(
@@ -577,7 +595,7 @@ class CheckExtensionsCLI extends CheckLanguageCLI {
 
 	/**
 	 * Get help.
-	 * @return The help string.
+	 * @return string The help string.
 	 */
 	protected function help() {
 		return <<<ENDS
@@ -622,7 +640,7 @@ ENDS;
 
 	/**
 	 * Check a language and show the results.
-	 * @param $code The language code.
+	 * @param $code string The language code.
 	 */
 	protected function checkLanguage( $code ) {
 		foreach( $this->extensions as $extension ) {

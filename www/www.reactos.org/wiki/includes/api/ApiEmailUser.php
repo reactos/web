@@ -1,6 +1,6 @@
 <?php
 /**
- * API for MediaWiki 1.8+
+ *
  *
  * Created on June 1, 2008
  *
@@ -24,11 +24,6 @@
  * @file
  */
 
-if ( !defined( 'MEDIAWIKI' ) ) {
-	// Eclipse helper - will be ignored in production
-	require_once( "ApiBase.php" );
-}
-
 /**
  * API Module to facilitate sending of emails to users
  * @ingroup API
@@ -40,8 +35,6 @@ class ApiEmailUser extends ApiBase {
 	}
 
 	public function execute() {
-		global $wgUser;
-
 		$params = $this->extractRequestParams();
 
 		// Validate target
@@ -51,7 +44,7 @@ class ApiEmailUser extends ApiBase {
 		}
 
 		// Check permissions and errors
-		$error = SpecialEmailUser::getPermissionsError( $wgUser, $params['token'] );
+		$error = SpecialEmailUser::getPermissionsError( $this->getUser(), $params['token'] );
 		if ( $error ) {
 			$this->dieUsageMsg( array( $error ) );
 		}
@@ -62,7 +55,7 @@ class ApiEmailUser extends ApiBase {
 			'Subject' => $params['subject'],
 			'CCMe' => $params['ccme'],
 		);
-		$retval = SpecialEmailUser::submit( $data );
+		$retval = SpecialEmailUser::submit( $data, $this->getContext() );
 
 		if ( $retval instanceof Status ) {
 			// SpecialEmailUser sometimes returns a status
@@ -105,7 +98,10 @@ class ApiEmailUser extends ApiBase {
 				ApiBase::PARAM_TYPE => 'string',
 				ApiBase::PARAM_REQUIRED => true
 			),
-			'token' => null,
+			'token' => array(
+				ApiBase::PARAM_TYPE => 'string',
+				ApiBase::PARAM_REQUIRED => true
+			),
 			'ccme' => false,
 		);
 	}
@@ -117,6 +113,23 @@ class ApiEmailUser extends ApiBase {
 			'text' => 'Mail body',
 			'token' => 'A token previously acquired via prop=info',
 			'ccme' => 'Send a copy of this mail to me',
+		);
+	}
+
+	public function getResultProperties() {
+		return array(
+			'' => array(
+				'result' => array(
+					ApiBase::PROP_TYPE => array(
+						'Success',
+						'Failure'
+					),
+				),
+				'message' => array(
+					ApiBase::PROP_TYPE => 'string',
+					ApiBase::PROP_NULLABLE => true
+				)
+			)
 		);
 	}
 
@@ -138,13 +151,17 @@ class ApiEmailUser extends ApiBase {
 		return '';
 	}
 
-	protected function getExamples() {
+	public function getExamples() {
 		return array(
-			'api.php?action=emailuser&target=WikiSysop&text=Content'
+			'api.php?action=emailuser&target=WikiSysop&text=Content' => 'Send an email to the User "WikiSysop" with the text "Content"',
 		);
 	}
 
+	public function getHelpUrls() {
+		return 'https://www.mediawiki.org/wiki/API:E-mail';
+	}
+
 	public function getVersion() {
-		return __CLASS__ . ': $Id: ApiEmailUser.php 85354 2011-04-04 18:25:31Z demon $';
+		return __CLASS__ . ': $Id$';
 	}
 }

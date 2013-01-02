@@ -31,41 +31,26 @@
  */
 class MostimagesPage extends ImageQueryPage {
 
-	function getName() { return 'Mostimages'; }
+	function __construct( $name = 'Mostimages' ) {
+		parent::__construct( $name );
+	}
+
 	function isExpensive() { return true; }
 	function isSyndicated() { return false; }
 
-	function getSQL() {
-		$dbr = wfGetDB( DB_SLAVE );
-		$imagelinks = $dbr->tableName( 'imagelinks' );
-		return
-			"
-			SELECT
-				'Mostimages' as type,
-				" . NS_FILE . " as namespace,
-				il_to as title,
-				COUNT(*) as value
-			FROM $imagelinks
-			GROUP BY il_to
-			HAVING COUNT(*) > 1
-			";
+	function getQueryInfo() {
+		return array (
+			'tables' => array ( 'imagelinks' ),
+			'fields' => array ( 'namespace' => NS_FILE,
+					'title' => 'il_to',
+					'value' => 'COUNT(*)' ),
+			'options' => array ( 'GROUP BY' => 'il_to',
+					'HAVING' => 'COUNT(*) > 1' )
+		);
 	}
 
 	function getCellHtml( $row ) {
-		global $wgLang;
-		return wfMsgExt( 'nimagelinks',  array( 'parsemag', 'escape' ),
-			$wgLang->formatNum( $row->value ) ) . '<br />';
+		return $this->msg( 'nimagelinks' )->numParams( $row->value )->escaped() . '<br />';
 	}
 
-}
-
-/**
- * Constructor
- */
-function wfSpecialMostimages() {
-	list( $limit, $offset ) = wfCheckLimits();
-
-	$wpp = new MostimagesPage();
-
-	$wpp->doQuery( $offset, $limit );
 }

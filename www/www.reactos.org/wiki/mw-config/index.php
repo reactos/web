@@ -8,15 +8,19 @@
 define( 'MW_CONFIG_CALLBACK', 'Installer::overrideConfig' );
 define( 'MEDIAWIKI_INSTALL', true );
 
-chdir( dirname( dirname( __FILE__ ) ) );
-require( dirname( dirname( __FILE__ ) ) . '/includes/WebStart.php' );
+chdir( dirname( __DIR__ ) );
+if ( isset( $_SERVER['MW_COMPILED'] ) ) {
+	require ( 'core/includes/WebStart.php' );
+} else {
+	require( dirname( __DIR__ ) . '/includes/WebStart.php' );
+}
 
 wfInstallerMain();
 
 function wfInstallerMain() {
 	global $wgRequest, $wgLang, $wgMetaNamespace, $wgCanonicalNamespaceNames;
 
-	$installer = new WebInstaller( $wgRequest );
+	$installer = InstallerOverrides::getWebInstaller( $wgRequest );
 
 	if ( !$installer->startSession() ) {
 		$installer->finish();
@@ -30,10 +34,10 @@ function wfInstallerMain() {
 		$session = array();
 	}
 
-	if ( isset( $session['settings']['_UserLang'] ) ) {
+	if ( !is_null( $wgRequest->getVal( 'uselang' ) ) ) {
+		$langCode = $wgRequest->getVal( 'uselang' );
+	} elseif ( isset( $session['settings']['_UserLang'] ) ) {
 		$langCode = $session['settings']['_UserLang'];
-	} elseif ( !is_null( $wgRequest->getVal( 'UserLang' ) ) ) {
-		$langCode = $wgRequest->getVal( 'UserLang' );
 	} else {
 		$langCode = 'en';
 	}

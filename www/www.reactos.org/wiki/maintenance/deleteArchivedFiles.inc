@@ -17,14 +17,20 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  * http://www.gnu.org/copyleft/gpl.html
  *
+ * @file
  * @ingroup Maintenance
  */
 
+/**
+ * Core functions for deleteArchivedFiles.php
+ *
+ * @ingroup Maintenance
+ */
 class DeleteArchivedFilesImplementation {
 	static public function doDelete( $output, $force ) {
 		# Data should come off the master, wrapped in a transaction
 		$dbw = wfGetDB( DB_MASTER );
-		$dbw->begin();
+		$dbw->begin( __METHOD__ );
 		$tbl_arch = $dbw->tableName( 'filearchive' );
 		$repo = RepoGroup::singleton()->getLocalRepo();
 		# Get "active" revisions from the filearchive table
@@ -44,10 +50,13 @@ class DeleteArchivedFilesImplementation {
 				__METHOD__,
 				array( 'FOR UPDATE' )
 			);
-			if ( $path && file_exists( $path ) && !$inuse ) {
-				unlink( $path ); // delete
-				$count++;
-				$dbw->query( "DELETE FROM $tbl_arch WHERE fa_id = $id" );
+			if ( $path && $repo->fileExists( $path ) && !$inuse ) {
+				if ( $repo->quickPurge( $path ) ) {
+					$count++;
+					$dbw->query( "DELETE FROM $tbl_arch WHERE fa_id = $id" );
+				} else {
+					$output->handleOutput( "Unable to remove file $path, skipping\n" );
+				}
 			} else {
 				$output->handleOutput( "Notice - file '$key' not found in group '$group'\n" );
 				if ( $force ) {
@@ -56,7 +65,7 @@ class DeleteArchivedFilesImplementation {
 				}
 			}
 		}
-		$dbw->commit();
+		$dbw->commit( __METHOD__ );
 		$output->handleOutput( "Done! [$count file(s)]\n" );
 	}
 }

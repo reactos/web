@@ -2,6 +2,21 @@
 /**
  * Basic search engine
  *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ * http://www.gnu.org/copyleft/gpl.html
+ *
  * @file
  * @ingroup Search
  */
@@ -21,6 +36,14 @@ class SearchEngine {
 	var $searchTerms = array();
 	var $namespaces = array( NS_MAIN );
 	var $showRedirects = false;
+
+	/// Feature values
+	protected $features = array();
+
+	/**
+	 * @var DatabaseBase
+	 */
+	protected $db;
 
 	function __construct($db = null) {
 		if ( $db ) {
@@ -54,9 +77,40 @@ class SearchEngine {
 		return null;
 	}
 
-	/** If this search backend can list/unlist redirects */
+	/**
+	 * If this search backend can list/unlist redirects
+	 * @deprecated since 1.18 Call supports( 'list-redirects' );
+	 * @return bool
+	 */
 	function acceptListRedirects() {
-		return true;
+		wfDeprecated( __METHOD__, '1.18' );
+		return $this->supports( 'list-redirects' );
+	}
+
+	/**
+	 * @since 1.18
+	 * @param $feature String
+	 * @return Boolean
+	 */
+	public function supports( $feature ) {
+		switch( $feature ) {
+		case 'list-redirects':
+			return true;
+		case 'title-suffix-filter':
+		default:
+			return false;
+		}
+	}
+
+	/**
+	 * Way to pass custom data for engines
+	 * @since 1.18
+	 * @param $feature String
+	 * @param $data Mixed
+	 * @return bool
+	 */
+	public function setFeatureData( $feature, $data ) {
+		$this->features[$feature] = $data;
 	}
 
 	/**
@@ -95,11 +149,11 @@ class SearchEngine {
 		wfRunHooks( 'SearchGetNearMatchComplete', array( $searchterm, &$title ) );
 		return $title;
 	}
-	
+
 	/**
-	 * Do a near match (see SearchEngine::getNearMatch) and wrap it into a 
+	 * Do a near match (see SearchEngine::getNearMatch) and wrap it into a
 	 * SearchResultSet.
-	 * 
+	 *
 	 * @param $searchterm string
 	 * @return SearchResultSet
 	 */
@@ -109,9 +163,10 @@ class SearchEngine {
 
 	/**
 	 * Really find the title match.
+	 * @return null|\Title
 	 */
 	private static function getNearMatchInternal( $searchterm ) {
-		global $wgContLang;
+		global $wgContLang, $wgEnableSearchContributorsByIP;
 
 		$allSearchTerms = array( $searchterm );
 
@@ -128,16 +183,17 @@ class SearchEngine {
 
 			# Exact match? No need to look further.
 			$title = Title::newFromText( $term );
-			if ( is_null( $title ) )
+			if ( is_null( $title ) ){
 				return null;
+			}
 
-			if ( $title->getNamespace() == NS_SPECIAL || $title->isExternal() || $title->exists() ) {
+			if ( $title->isSpecialPage() || $title->isExternal() || $title->exists() ) {
 				return $title;
 			}
 
 			# See if it still otherwise has content is some sane sense
-			$article = MediaWiki::articleFromTitle( $title );
-			if ( $article->hasViewableContent() ) {
+			$page = WikiPage::factory( $title );
+			if ( $page->hasViewableContent() ) {
 				return $title;
 			}
 
@@ -177,10 +233,13 @@ class SearchEngine {
 
 		$title = Title::newFromText( $searchterm );
 
+
 		# Entering an IP address goes to the contributions page
-		if ( ( $title->getNamespace() == NS_USER && User::isIP( $title->getText() ) )
-			|| User::isIP( trim( $searchterm ) ) ) {
-			return SpecialPage::getTitleFor( 'Contributions', $title->getDBkey() );
+		if ( $wgEnableSearchContributorsByIP ) {
+			if ( ( $title->getNamespace() == NS_USER && User::isIP( $title->getText() ) )
+				|| User::isIP( trim( $searchterm ) ) ) {
+				return SpecialPage::getTitleFor( 'Contributions', $title->getDBkey() );
+			}
 		}
 
 
@@ -245,6 +304,7 @@ class SearchEngine {
 	 * or namespace names
 	 *
 	 * @param $query String
+	 * @return string
 	 */
 	function replacePrefixes( $query ) {
 		global $wgContLang;
@@ -255,11 +315,11 @@ class SearchEngine {
 			return $parsed;
 		}
 
-		$allkeyword = wfMsgForContent( 'searchall' ) . ":";
+		$allkeyword = wfMessage( 'searchall' )->inContentLanguage()->text() . ":";
 		if ( strncmp( $query, $allkeyword, strlen( $allkeyword ) ) == 0 ) {
 			$this->namespaces = null;
 			$parsed = substr( $query, strlen( $allkeyword ) );
-		} else if ( strpos( $query, ':' ) !== false ) {
+		} elseif ( strpos( $query, ':' ) !== false ) {
 			$prefix = substr( $query, 0, strpos( $query, ':' ) );
 			$index = $wgContLang->getNsIndex( $prefix );
 			if ( $index !== false ) {
@@ -302,33 +362,32 @@ class SearchEngine {
 	public static function userNamespaces( $user ) {
 		global $wgSearchEverythingOnlyLoggedIn;
 
-		// get search everything preference, that can be set to be read for logged-in users
-		$searcheverything = false;
-		if ( ( $wgSearchEverythingOnlyLoggedIn && $user->isLoggedIn() )
-		    || !$wgSearchEverythingOnlyLoggedIn )
-			$searcheverything = $user->getOption( 'searcheverything' );
-
-		// searcheverything overrides other options
-		if ( $searcheverything )
-			return array_keys( SearchEngine::searchableNamespaces() );
-
-		$arr = Preferences::loadOldSearchNs( $user );
 		$searchableNamespaces = SearchEngine::searchableNamespaces();
 
-		$arr = array_intersect( $arr, array_keys( $searchableNamespaces ) ); // Filter
+		// get search everything preference, that can be set to be read for logged-in users
+		// it overrides other options
+		if ( !$wgSearchEverythingOnlyLoggedIn || $user->isLoggedIn() ) {
+			if ( $user->getOption( 'searcheverything' ) ) {
+				return array_keys( $searchableNamespaces );
+			}
+		}
+
+		$arr = array();
+		foreach ( $searchableNamespaces as $ns => $name ) {
+			if ( $user->getOption( 'searchNs' . $ns ) ) {
+				$arr[] = $ns;
+			}
+		}
 
 		return $arr;
 	}
 
 	/**
-	 * Find snippet highlight settings for a given user
+	 * Find snippet highlight settings for all users
 	 *
-	 * @param $user User
 	 * @return Array contextlines, contextchars
 	 */
-	public static function userHighlightPrefs( &$user ) {
-		// $contextlines = $user->getOption( 'contextlines',  5 );
-		// $contextchars = $user->getOption( 'contextchars', 50 );
+	public static function userHighlightPrefs() {
 		$contextlines = 2; // Hardcode this. Old defaults sucked. :)
 		$contextchars = 75; // same as above.... :P
 		return array( $contextlines, $contextchars );
@@ -350,6 +409,7 @@ class SearchEngine {
 	 * and preferences
 	 *
 	 * @param $namespaces Array
+	 * @return array
 	 */
 	public static function namespacesAsText( $namespaces ) {
 		global $wgContLang;
@@ -357,7 +417,7 @@ class SearchEngine {
 		$formatted = array_map( array( $wgContLang, 'getFormattedNsText' ), $namespaces );
 		foreach ( $formatted as $key => $ns ) {
 			if ( empty( $ns ) )
-				$formatted[$key] = wfMsg( 'blanknamespace' );
+				$formatted[$key] = wfMessage( 'blanknamespace' )->text();
 		}
 		return $formatted;
 	}
@@ -434,27 +494,16 @@ class SearchEngine {
 	 * @return String
 	 */
 	public static function getOpenSearchTemplate() {
-		global $wgOpenSearchTemplate, $wgServer;
-		if ( $wgOpenSearchTemplate )	{
+		global $wgOpenSearchTemplate, $wgCanonicalServer;
+		if ( $wgOpenSearchTemplate ) {
 			return $wgOpenSearchTemplate;
 		} else {
 			$ns = implode( '|', SearchEngine::defaultNamespaces() );
-			if ( !$ns ) $ns = "0";
-			return $wgServer . wfScript( 'api' ) . '?action=opensearch&search={searchTerms}&namespace=' . $ns;
+			if ( !$ns ) {
+				$ns = "0";
+			}
+			return $wgCanonicalServer . wfScript( 'api' ) . '?action=opensearch&search={searchTerms}&namespace=' . $ns;
 		}
-	}
-
-	/**
-	 * Get internal MediaWiki Suggest template
-	 *
-	 * @return String
-	 */
-	public static function getMWSuggestTemplate() {
-		global $wgMWSuggestTemplate, $wgServer;
-		if ( $wgMWSuggestTemplate )
-			return $wgMWSuggestTemplate;
-		else
-			return $wgServer . wfScript( 'api' ) . '?action=opensearch&search={searchTerms}&namespace={namespaces}&suggest';
 	}
 }
 
@@ -575,6 +624,9 @@ class SearchResultSet {
  * This class is used for different SQL-based search engines shipped with MediaWiki
  */
 class SqlSearchResultSet extends SearchResultSet {
+
+	protected $mResultSet;
+
 	function __construct( $resultSet, $terms ) {
 		$this->mResultSet = $resultSet;
 		$this->mTerms = $terms;
@@ -598,7 +650,7 @@ class SqlSearchResultSet extends SearchResultSet {
 		$row = $this->mResultSet->fetchObject();
 		if ( $row === false )
 			return false;
-			
+
 		return SearchResult::newFromRow( $row );
 	}
 
@@ -619,19 +671,33 @@ class SearchResultTooMany {
 
 
 /**
- * @todo Fixme: This class is horribly factored. It would probably be better to
+ * @todo FIXME: This class is horribly factored. It would probably be better to
  * have a useful base class to which you pass some standard information, then
  * let the fancy self-highlighters extend that.
  * @ingroup Search
  */
 class SearchResult {
+
+	/**
+	 * @var Revision
+	 */
 	var $mRevision = null;
 	var $mImage = null;
 
 	/**
+	 * @var Title
+	 */
+	var $mTitle;
+
+	/**
+	 * @var String
+	 */
+	var $mText;
+
+	/**
 	 * Return a new SearchResult and initializes it with a title.
-	 * 
-	 * @param $title Title 
+	 *
+	 * @param $title Title
 	 * @return SearchResult
 	 */
 	public static function newFromTitle( $title ) {
@@ -641,7 +707,7 @@ class SearchResult {
 	}
 	/**
 	 * Return a new SearchResult and initializes it with a row.
-	 * 
+	 *
 	 * @param $row object
 	 * @return SearchResult
 	 */
@@ -650,34 +716,37 @@ class SearchResult {
 		$result->initFromRow( $row );
 		return $result;
 	}
-	
+
 	public function __construct( $row = null ) {
 		if ( !is_null( $row ) ) {
 			// Backwards compatibility with pre-1.17 callers
 			$this->initFromRow( $row );
 		}
 	}
-	
+
 	/**
 	 * Initialize from a database row. Makes a Title and passes that to
 	 * initFromTitle.
-	 * 
+	 *
 	 * @param $row object
 	 */
 	protected function initFromRow( $row ) {
 		$this->initFromTitle( Title::makeTitle( $row->page_namespace, $row->page_title ) );
 	}
-	
+
 	/**
 	 * Initialize from a Title and if possible initializes a corresponding
 	 * Revision and File.
-	 * 
+	 *
 	 * @param $title Title
 	 */
 	protected function initFromTitle( $title ) {
 		$this->mTitle = $title;
 		if ( !is_null( $this->mTitle ) ) {
-			$this->mRevision = Revision::newFromTitle( $this->mTitle );
+			$id = false;
+			wfRunHooks( 'SearchResultInitFromTitle', array( $title, &$id ) );
+			$this->mRevision = Revision::newFromTitle(
+				$this->mTitle, $id, Revision::READ_NORMAL );
 			if ( $this->mTitle->getNamespace() === NS_FILE )
 				$this->mImage = wfFindFile( $this->mTitle );
 		}
@@ -711,7 +780,7 @@ class SearchResult {
 	}
 
 	/**
-	 * @return Double or null if not supported
+	 * @return float|null if not supported
 	 */
 	function getScore() {
 		return null;
@@ -788,7 +857,7 @@ class SearchResult {
 	function getTimestamp() {
 		if ( $this->mRevision )
 			return $this->mRevision->getTimestamp();
-		else if ( $this->mImage )
+		elseif ( $this->mImage )
 			return $this->mImage->getTimestamp();
 		return '';
 	}
@@ -886,7 +955,7 @@ class SearchHighlighter {
 			2 => '/(\[\[)|(\]\])/', // image
 			3 => "/(\n\\{\\|)|(\n\\|\\})/" ); // table
 
-		// FIXME: this should prolly be a hook or something
+		// @todo FIXME: This should prolly be a hook or something
 		if ( function_exists( 'wfCite' ) ) {
 			$spat .= '|(<ref>)'; // references via cite extension
 			$endPatterns[4] = '/(<ref>)|(<\/ref>)/';
@@ -972,7 +1041,7 @@ class SearchHighlighter {
 		$anyterm = implode( '|', $terms );
 		$phrase = implode( "$wgSearchHighlightBoundaries+", $terms );
 
-		// FIXME: a hack to scale contextchars, a correct solution
+		// @todo FIXME: A hack to scale contextchars, a correct solution
 		// would be to have contextchars actually be char and not byte
 		// length, and do proper utf-8 substrings and lengths everywhere,
 		// but PHP is making that very hard and unclean to implement :(
@@ -1041,7 +1110,7 @@ class SearchHighlighter {
 		} else {
 			// if begin of the article contains the whole phrase, show only that !!
 			if ( array_key_exists( $first, $snippets ) && preg_match( $pat1, $snippets[$first] )
-			    && $offsets[$first] < $contextchars * 2 ) {
+				&& $offsets[$first] < $contextchars * 2 ) {
 				$snippets = array ( $first => $snippets[$first] );
 			}
 
@@ -1062,10 +1131,10 @@ class SearchHighlighter {
 				// add more lines
 				$add = $index + 1;
 				while ( $len < $targetchars - 20
-				       && array_key_exists( $add, $all )
-				       && !array_key_exists( $add, $snippets ) ) {
-				    $offsets[$add] = 0;
-				    $tt = "\n" . $this->extract( $all[$add], 0, $targetchars - $len, $offsets[$add] );
+					   && array_key_exists( $add, $all )
+					   && !array_key_exists( $add, $snippets ) ) {
+					$offsets[$add] = 0;
+					$tt = "\n" . $this->extract( $all[$add], 0, $targetchars - $len, $offsets[$add] );
 					$extended[$add] = $tt;
 					$len += strlen( $tt );
 					$add++;
@@ -1095,7 +1164,7 @@ class SearchHighlighter {
 			if ( ! isset( $processed[$term] ) ) {
 				$pat3 = "/$patPre(" . $term . ")$patPost/ui"; // highlight word
 				$extract = preg_replace( $pat3,
-			  		"\\1<span class='searchmatch'>\\2</span>\\3", $extract );
+					"\\1<span class='searchmatch'>\\2</span>\\3", $extract );
 				$processed[$term] = true;
 			}
 		}
@@ -1125,13 +1194,15 @@ class SearchHighlighter {
 	 * Do manual case conversion for non-ascii chars
 	 *
 	 * @param $matches Array
+	 * @return string
 	 */
 	function caseCallback( $matches ) {
 		global $wgContLang;
 		if ( strlen( $matches[0] ) > 1 ) {
 			return '[' . $wgContLang->lc( $matches[0] ) . $wgContLang->uc( $matches[0] ) . ']';
-		} else
+		} else {
 			return $matches[0];
+		}
 	}
 
 	/**
@@ -1145,22 +1216,27 @@ class SearchHighlighter {
 	 * @return String
 	 */
 	function extract( $text, $start, $end, &$posStart = null, &$posEnd = null ) {
-		if ( $start != 0 )
+		if ( $start != 0 ) {
 			$start = $this->position( $text, $start, 1 );
-		if ( $end >= strlen( $text ) )
+		}
+		if ( $end >= strlen( $text ) ) {
 			$end = strlen( $text );
-		else
+		} else {
 			$end = $this->position( $text, $end );
+		}
 
-		if ( !is_null( $posStart ) )
+		if ( !is_null( $posStart ) ) {
 			$posStart = $start;
-		if ( !is_null( $posEnd ) )
+		}
+		if ( !is_null( $posEnd ) ) {
 			$posEnd = $end;
+		}
 
-		if ( $end > $start )
+		if ( $end > $start )  {
 			return substr( $text, $start, $end - $start );
-		else
+		} else {
 			return '';
+		}
 	}
 
 	/**
@@ -1239,6 +1315,7 @@ class SearchHighlighter {
 	/**
 	 * Basic wikitext removal
 	 * @protected
+	 * @return mixed
 	 */
 	function removeWiki( $text ) {
 		$fname = __METHOD__;
@@ -1285,66 +1362,67 @@ class SearchHighlighter {
 	}
 
 	/**
-     * Simple & fast snippet extraction, but gives completely unrelevant
-     * snippets
-     *
-     * @param $text String
-     * @param $terms Array
-     * @param $contextlines Integer
-     * @param $contextchars Integer
-     * @return String
-     */
-    public function highlightSimple( $text, $terms, $contextlines, $contextchars ) {
-        global $wgContLang;
-        $fname = __METHOD__;
+	 * Simple & fast snippet extraction, but gives completely unrelevant
+	 * snippets
+	 *
+	 * @param $text String
+	 * @param $terms Array
+	 * @param $contextlines Integer
+	 * @param $contextchars Integer
+	 * @return String
+	 */
+	public function highlightSimple( $text, $terms, $contextlines, $contextchars ) {
+		global $wgContLang;
+		$fname = __METHOD__;
 
-        $lines = explode( "\n", $text );
+		$lines = explode( "\n", $text );
 
-        $terms = implode( '|', $terms );
-        $max = intval( $contextchars ) + 1;
-        $pat1 = "/(.*)($terms)(.{0,$max})/i";
+		$terms = implode( '|', $terms );
+		$max = intval( $contextchars ) + 1;
+		$pat1 = "/(.*)($terms)(.{0,$max})/i";
 
-        $lineno = 0;
+		$lineno = 0;
 
-        $extract = "";
-        wfProfileIn( "$fname-extract" );
-        foreach ( $lines as $line ) {
-            if ( 0 == $contextlines ) {
-                break;
-            }
-            ++$lineno;
-            $m = array();
-            if ( ! preg_match( $pat1, $line, $m ) ) {
-                continue;
-            }
-            --$contextlines;
-            $pre = $wgContLang->truncate( $m[1], - $contextchars );
+		$extract = "";
+		wfProfileIn( "$fname-extract" );
+		foreach ( $lines as $line ) {
+			if ( 0 == $contextlines ) {
+				break;
+			}
+			++$lineno;
+			$m = array();
+			if ( ! preg_match( $pat1, $line, $m ) ) {
+				continue;
+			}
+			--$contextlines;
+			// truncate function changes ... to relevant i18n message.
+			$pre = $wgContLang->truncate( $m[1], - $contextchars, '...', false );
 
-            if ( count( $m ) < 3 ) {
-                $post = '';
-            } else {
-                $post = $wgContLang->truncate( $m[3], $contextchars );
-            }
+			if ( count( $m ) < 3 ) {
+				$post = '';
+			} else {
+				$post = $wgContLang->truncate( $m[3], $contextchars, '...', false );
+			}
 
-            $found = $m[2];
+			$found = $m[2];
 
-            $line = htmlspecialchars( $pre . $found . $post );
-            $pat2 = '/(' . $terms . ")/i";
-            $line = preg_replace( $pat2,
-              "<span class='searchmatch'>\\1</span>", $line );
+			$line = htmlspecialchars( $pre . $found . $post );
+			$pat2 = '/(' . $terms . ")/i";
+			$line = preg_replace( $pat2,
+			  "<span class='searchmatch'>\\1</span>", $line );
 
-            $extract .= "${line}\n";
-        }
-        wfProfileOut( "$fname-extract" );
+			$extract .= "${line}\n";
+		}
+		wfProfileOut( "$fname-extract" );
 
-        return $extract;
-    }
+		return $extract;
+	}
 
 }
 
 /**
  * Dummy class to be used when non-supported Database engine is present.
- * @todo Fixme: dummy class should probably try something at least mildly useful,
+ * @todo FIXME: Dummy class should probably try something at least mildly useful,
  * such as a LIKE search through titles.
  * @ingroup Search
  */

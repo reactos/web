@@ -25,7 +25,7 @@
 -- in early 2002 after a lot of trouble with the fields
 -- auto-updating.
 --
--- The Postgres backend uses DATETIME fields for timestamps,
+-- The Postgres backend uses TIMESTAMPTZ fields for timestamps,
 -- and we will migrate the MySQL definitions at some point as
 -- well.
 --
@@ -86,12 +86,6 @@ CREATE TABLE /*_*/user (
   -- Same with passwords.
   user_email tinytext NOT NULL,
 
-  -- Newline-separated list of name=value defining the user
-  -- preferences
-  -- Now obsolete in favour of user_properties table;
-  -- old values will be migrated from here transparently.
-  user_options blob NOT NULL,
-
   -- This is a timestamp which is updated when a user
   -- logs in, logs out, changes preferences, or performs
   -- some other action requiring HTML cache invalidation
@@ -135,6 +129,7 @@ CREATE TABLE /*_*/user (
 
 CREATE UNIQUE INDEX /*i*/user_name ON /*_*/user (user_name);
 CREATE INDEX /*i*/user_email_token ON /*_*/user (user_email_token);
+CREATE INDEX /*i*/user_email ON /*_*/user (user_email(50));
 
 
 --
@@ -157,12 +152,22 @@ CREATE TABLE /*_*/user_groups (
   -- with particular permissions. A user will have the combined
   -- permissions of any group they're explicitly in, plus
   -- the implicit '*' and 'user' groups.
-  ug_group varbinary(16) NOT NULL default ''
+  ug_group varbinary(32) NOT NULL default ''
 ) /*$wgDBTableOptions*/;
 
 CREATE UNIQUE INDEX /*i*/ug_user_group ON /*_*/user_groups (ug_user,ug_group);
 CREATE INDEX /*i*/ug_group ON /*_*/user_groups (ug_group);
 
+-- Stores the groups the user has once belonged to.
+-- The user may still belong to these groups (check user_groups).
+-- Users are not autopromoted to groups from which they were removed.
+CREATE TABLE /*_*/user_former_groups (
+  -- Key to user_id
+  ufg_user int unsigned NOT NULL default 0,
+  ufg_group varbinary(32) NOT NULL default ''
+) /*$wgDBTableOptions*/;
+
+CREATE UNIQUE INDEX /*i*/ufg_user_group ON /*_*/user_former_groups (ufg_user,ufg_group);
 
 --
 -- Stores notifications of user talk page changes, for the display
@@ -176,7 +181,7 @@ CREATE TABLE /*_*/user_newtalk (
   user_ip varbinary(40) NOT NULL default '',
   -- The highest timestamp of revisions of the talk page viewed
   -- by this user
-  user_last_timestamp binary(14) NOT NULL default ''
+  user_last_timestamp varbinary(14) NULL default NULL
 ) /*$wgDBTableOptions*/;
 
 -- Indexes renamed for SQLite in 1.14
@@ -198,7 +203,7 @@ CREATE TABLE /*_*/user_properties (
   up_user int NOT NULL,
 
   -- Name of the option being saved. This is indexed for bulk lookup.
-  up_property varbinary(32) NOT NULL,
+  up_property varbinary(255) NOT NULL,
 
   -- Property value as a string.
   up_value blob
@@ -261,7 +266,7 @@ CREATE TABLE /*_*/page (
 CREATE UNIQUE INDEX /*i*/name_title ON /*_*/page (page_namespace,page_title);
 CREATE INDEX /*i*/page_random ON /*_*/page (page_random);
 CREATE INDEX /*i*/page_len ON /*_*/page (page_len);
-
+CREATE INDEX /*i*/page_redirect_namespace_len ON /*_*/page (page_is_redirect, page_namespace, page_len);
 
 --
 -- Every edit of a page creates also a revision row.
@@ -269,6 +274,7 @@ CREATE INDEX /*i*/page_len ON /*_*/page (page_len);
 -- to the text storage backend.
 --
 CREATE TABLE /*_*/revision (
+  -- Unique ID to identify each revision
   rev_id int unsigned NOT NULL PRIMARY KEY AUTO_INCREMENT,
 
   -- Key to page_id. This should _never_ be invalid.
@@ -292,14 +298,14 @@ CREATE TABLE /*_*/revision (
   -- Text username or IP address of the editor.
   rev_user_text varchar(255) binary NOT NULL default '',
 
-  -- Timestamp
+  -- Timestamp of when revision was created
   rev_timestamp binary(14) NOT NULL default '',
 
   -- Records whether the user marked the 'minor edit' checkbox.
   -- Many automated edits are marked as minor.
   rev_minor_edit tinyint unsigned NOT NULL default 0,
 
-  -- Not yet used; reserved for future changes to the deletion system.
+  -- Restrictions on who can access this revision
   rev_deleted tinyint unsigned NOT NULL default 0,
 
   -- Length of this revision in bytes
@@ -307,7 +313,10 @@ CREATE TABLE /*_*/revision (
 
   -- Key to revision.rev_id
   -- This field is used to add support for a tree structure (The Adjacency List Model)
-  rev_parent_id int unsigned default NULL
+  rev_parent_id int unsigned default NULL,
+
+  -- SHA-1 text content hash in base-36
+  rev_sha1 varbinary(32) NOT NULL default ''
 
 ) /*$wgDBTableOptions*/ MAX_ROWS=10000000 AVG_ROW_LENGTH=1024;
 -- In case tables are created as MyISAM, use row hints for MySQL <5.0 to avoid 4GB limit
@@ -317,6 +326,7 @@ CREATE INDEX /*i*/rev_timestamp ON /*_*/revision (rev_timestamp);
 CREATE INDEX /*i*/page_timestamp ON /*_*/revision (rev_page,rev_timestamp);
 CREATE INDEX /*i*/user_timestamp ON /*_*/revision (rev_user,rev_timestamp);
 CREATE INDEX /*i*/usertext_timestamp ON /*_*/revision (rev_user_text,rev_timestamp);
+CREATE INDEX /*i*/page_user_timestamp ON /*_*/revision (rev_page,rev_user,rev_timestamp);
 
 --
 -- Holds text of individual page revisions.
@@ -414,7 +424,10 @@ CREATE TABLE /*_*/archive (
   ar_page_id int unsigned,
 
   -- Original previous revision
-  ar_parent_id int unsigned default NULL
+  ar_parent_id int unsigned default NULL,
+
+  -- SHA-1 text content hash in base-36
+  ar_sha1 varbinary(32) NOT NULL default ''
 ) /*$wgDBTableOptions*/;
 
 CREATE INDEX /*i*/name_title_timestamp ON /*_*/archive (ar_namespace,ar_title,ar_timestamp);
@@ -502,6 +515,8 @@ CREATE TABLE /*_*/categorylinks (
   -- concatenated with a line break followed by the page title before the sortkey
   -- conversion algorithm is run.  We store this so that we can update
   -- collations without reparsing all pages.
+  -- Note: If you change the length of this field, you also need to change
+  -- code in LinksUpdate.php. See bug 25254.
   cl_sortkey_prefix varchar(255) binary NOT NULL default '',
 
   -- This isn't really used at present. Provided for an optional
@@ -556,10 +571,7 @@ CREATE TABLE /*_*/category (
   -- ing is not.
   cat_pages int signed NOT NULL default 0,
   cat_subcats int signed NOT NULL default 0,
-  cat_files int signed NOT NULL default 0,
-
-  -- Reserved for future use
-  cat_hidden tinyint unsigned NOT NULL default 0
+  cat_files int signed NOT NULL default 0
 ) /*$wgDBTableOptions*/;
 
 CREATE UNIQUE INDEX /*i*/cat_title ON /*_*/category (cat_title);
@@ -757,7 +769,13 @@ CREATE TABLE /*_*/ipblocks (
   ipb_block_email bool NOT NULL default 0,
 
   -- Block allows user to edit their own talk page
-  ipb_allow_usertalk bool NOT NULL default 0
+  ipb_allow_usertalk bool NOT NULL default 0,
+
+  -- ID of the block that caused this block to exist
+  -- Autoblocks set this to the original block
+  -- so that the original block being deleted also
+  -- deletes the autoblocks
+  ipb_parent_block_id int default NULL
 
 ) /*$wgDBTableOptions*/;
 
@@ -769,6 +787,7 @@ CREATE INDEX /*i*/ipb_user ON /*_*/ipblocks (ipb_user);
 CREATE INDEX /*i*/ipb_range ON /*_*/ipblocks (ipb_range_start(8), ipb_range_end(8));
 CREATE INDEX /*i*/ipb_timestamp ON /*_*/ipblocks (ipb_timestamp);
 CREATE INDEX /*i*/ipb_expiry ON /*_*/ipblocks (ipb_expiry);
+CREATE INDEX /*i*/ipb_parent_block_id ON /*_*/ipblocks (ipb_parent_block_id);
 
 
 --
@@ -927,6 +946,60 @@ CREATE INDEX /*i*/fa_user_timestamp ON /*_*/filearchive (fa_user_text,fa_timesta
 
 
 --
+-- Store information about newly uploaded files before they're
+-- moved into the actual filestore
+--
+CREATE TABLE /*_*/uploadstash (
+  us_id int unsigned NOT NULL PRIMARY KEY AUTO_INCREMENT,
+
+  -- the user who uploaded the file.
+  us_user int unsigned NOT NULL,
+
+  -- file key. this is how applications actually search for the file.
+  -- this might go away, or become the primary key.
+  us_key varchar(255) NOT NULL,
+
+  -- the original path
+  us_orig_path varchar(255) NOT NULL,
+
+  -- the temporary path at which the file is actually stored
+  us_path varchar(255) NOT NULL,
+
+  -- which type of upload the file came from (sometimes)
+  us_source_type varchar(50),
+
+  -- the date/time on which the file was added
+  us_timestamp varbinary(14) NOT NULL,
+
+  us_status varchar(50) NOT NULL,
+
+  -- chunk counter starts at 0, current offset is stored in us_size
+  us_chunk_inx int unsigned NULL,
+
+  -- file properties from File::getPropsFromPath.  these may prove unnecessary.
+  --
+  us_size int unsigned NOT NULL,
+  -- this hash comes from File::sha1Base36(), and is 31 characters
+  us_sha1 varchar(31) NOT NULL,
+  us_mime varchar(255),
+  -- Media type as defined by the MEDIATYPE_xxx constants, should duplicate definition in the image table
+  us_media_type ENUM("UNKNOWN", "BITMAP", "DRAWING", "AUDIO", "VIDEO", "MULTIMEDIA", "OFFICE", "TEXT", "EXECUTABLE", "ARCHIVE") default NULL,
+  -- image-specific properties
+  us_image_width int unsigned,
+  us_image_height int unsigned,
+  us_image_bits smallint unsigned
+
+) /*$wgDBTableOptions*/;
+
+-- sometimes there's a delete for all of a user's stuff.
+CREATE INDEX /*i*/us_user ON /*_*/uploadstash (us_user);
+-- pick out files by key, enforce key uniqueness
+CREATE UNIQUE INDEX /*i*/us_key ON /*_*/uploadstash (us_key);
+-- the abandoned upload cleanup script needs this
+CREATE INDEX /*i*/us_timestamp ON /*_*/uploadstash (us_timestamp);
+
+
+--
 -- Primarily a summary table for Special:Recentchanges,
 -- this table contains some additional info on edits from
 -- the last few days, see Article::editUpdates()
@@ -934,6 +1007,8 @@ CREATE INDEX /*i*/fa_user_timestamp ON /*_*/filearchive (fa_user_text,fa_timesta
 CREATE TABLE /*_*/recentchanges (
   rc_id int NOT NULL PRIMARY KEY AUTO_INCREMENT,
   rc_timestamp varbinary(14) NOT NULL default '',
+
+  -- This is no longer used
   rc_cur_time varbinary(14) NOT NULL default '',
 
   -- As in revision
@@ -953,6 +1028,7 @@ CREATE TABLE /*_*/recentchanges (
   -- default view.
   rc_bot tinyint unsigned NOT NULL default 0,
 
+  -- Set if this change corresponds to a page creation
   rc_new tinyint unsigned NOT NULL default 0,
 
   -- Key to page_id (was cur_id prior to 1.5).
@@ -966,8 +1042,10 @@ CREATE TABLE /*_*/recentchanges (
   -- rev_id of the prior revision, for generating diff links.
   rc_last_oldid int unsigned NOT NULL default 0,
 
-  -- These may no longer be used, with the new move log.
+  -- The type of change entry (RC_EDIT,RC_NEW,RC_LOG)
   rc_type tinyint unsigned NOT NULL default 0,
+
+  -- These may no longer be used, with the new move log.
   rc_moved_to_ns tinyint unsigned NOT NULL default 0,
   rc_moved_to_title varchar(255) binary NOT NULL default '',
 
@@ -1026,31 +1104,6 @@ CREATE TABLE /*_*/watchlist (
 
 CREATE UNIQUE INDEX /*i*/wl_user ON /*_*/watchlist (wl_user, wl_namespace, wl_title);
 CREATE INDEX /*i*/namespace_title ON /*_*/watchlist (wl_namespace, wl_title);
-
-
---
--- Used by the math module to keep track
--- of previously-rendered items.
---
-CREATE TABLE /*_*/math (
-  -- Binary MD5 hash of the latex fragment, used as an identifier key.
-  math_inputhash varbinary(16) NOT NULL,
-
-  -- Not sure what this is, exactly...
-  math_outputhash varbinary(16) NOT NULL,
-
-  -- texvc reports how well it thinks the HTML conversion worked;
-  -- if it's a low level the PNG rendering may be preferred.
-  math_html_conservativeness tinyint NOT NULL,
-
-  -- HTML output from texvc, if any
-  math_html text,
-
-  -- MathML output from texvc, if any
-  math_mathml text
-) /*$wgDBTableOptions*/;
-
-CREATE UNIQUE INDEX /*i*/math_inputhash ON /*_*/math (math_inputhash);
 
 
 --
@@ -1188,6 +1241,7 @@ CREATE INDEX /*i*/page_time ON /*_*/logging (log_namespace, log_title, log_times
 CREATE INDEX /*i*/times ON /*_*/logging (log_timestamp);
 CREATE INDEX /*i*/log_user_type_time ON /*_*/logging (log_user, log_type, log_timestamp);
 CREATE INDEX /*i*/log_page_id_time ON /*_*/logging (log_page,log_timestamp);
+CREATE INDEX /*i*/type_action ON /*_*/logging (log_type, log_action, log_timestamp);
 
 
 CREATE TABLE /*_*/log_search (
@@ -1200,17 +1254,6 @@ CREATE TABLE /*_*/log_search (
 ) /*$wgDBTableOptions*/;
 CREATE UNIQUE INDEX /*i*/ls_field_val ON /*_*/log_search (ls_field,ls_value,ls_log_id);
 CREATE INDEX /*i*/ls_log_id ON /*_*/log_search (ls_log_id);
-
-
-CREATE TABLE /*_*/trackbacks (
-  tb_id int PRIMARY KEY AUTO_INCREMENT,
-  tb_page int REFERENCES /*_*/page(page_id) ON DELETE CASCADE,
-  tb_title varchar(255) NOT NULL,
-  tb_url blob NOT NULL,
-  tb_ex text,
-  tb_name varchar(255)
-) /*$wgDBTableOptions*/;
-CREATE INDEX /*i*/tb_page ON /*_*/trackbacks (tb_page);
 
 
 -- Jobs performed by parallel apache threads or a command-line daemon
@@ -1226,12 +1269,17 @@ CREATE TABLE /*_*/job (
   job_namespace int NOT NULL,
   job_title varchar(255) binary NOT NULL,
 
+  -- Timestamp of when the job was inserted
+  -- NULL for jobs added before addition of the timestamp
+  job_timestamp varbinary(14) NULL default NULL,
+
   -- Any other parameters to the command
   -- Stored as a PHP serialized array, or an empty string if there are no parameters
   job_params blob NOT NULL
 ) /*$wgDBTableOptions*/;
 
 CREATE INDEX /*i*/job_cmd ON /*_*/job (job_cmd, job_namespace, job_title, job_params(128));
+CREATE INDEX /*i*/job_timestamp ON /*_*/job (job_timestamp);
 
 
 -- Details of updates to cached special pages
@@ -1397,7 +1445,7 @@ CREATE TABLE /*_*/l10n_cache (
 ) /*$wgDBTableOptions*/;
 CREATE INDEX /*i*/lc_lang_key ON /*_*/l10n_cache (lc_lang, lc_key);
 
--- Table for storing JSON message blobs for the resource loader
+-- Table for caching JSON message blobs for the resource loader
 CREATE TABLE /*_*/msg_resource (
   -- Resource name
   mr_resource varbinary(255) NOT NULL,
@@ -1418,8 +1466,8 @@ CREATE TABLE /*_*/msg_resource_links (
 ) /*$wgDBTableOptions*/;
 CREATE UNIQUE INDEX /*i*/mrl_message_resource ON /*_*/msg_resource_links (mrl_message, mrl_resource);
 
--- Table for tracking which local files a module depends on that aren't
--- registered directly.
+-- Table caching which local files a module depends on that aren't
+-- registered directly, used for fast retrieval of file dependency.
 -- Currently only used for tracking images that CSS depends on
 CREATE TABLE /*_*/module_deps (
   -- Module name

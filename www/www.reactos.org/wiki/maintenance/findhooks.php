@@ -12,7 +12,7 @@
  *
  * Any instance of wfRunHooks that doesn't meet these parameters will be noted.
  *
- * Copyright © Ashar Voultoiz
+ * Copyright © Antoine Musso
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,16 +31,21 @@
  *
  * @file
  * @ingroup Maintenance
- * @author Ashar Voultoiz <hashar at free dot fr>
+ * @author Antoine Musso <hashar at free dot fr>
  */
 
-require_once( dirname( __FILE__ ) . '/Maintenance.php' );
+require_once( __DIR__ . '/Maintenance.php' );
 
+/**
+ * Maintenance script that compares documented and actually present mismatches.
+ *
+ * @ingroup Maintenance
+ */
 class FindHooks extends Maintenance {
 	public function __construct() {
 		parent::__construct();
-		$this->mDescription = "Find hooks that are undocumented, missing, or just plain wrong";
-		$this->addOption( 'online', 'Check against mediawiki.org hook documentation' );
+		$this->mDescription = 'Find hooks that are undocumented, missing, or just plain wrong';
+		$this->addOption( 'online', 'Check against MediaWiki.org hook documentation' );
 	}
 
 	public function getDbType() {
@@ -56,11 +61,18 @@ class FindHooks extends Maintenance {
 		$pathinc = array(
 			$IP . '/',
 			$IP . '/includes/',
+			$IP . '/includes/actions/',
 			$IP . '/includes/api/',
+			$IP . '/includes/cache/',
+			$IP . '/includes/context/',
 			$IP . '/includes/db/',
 			$IP . '/includes/diff/',
 			$IP . '/includes/filerepo/',
+			$IP . '/includes/filerepo/file/',
 			$IP . '/includes/installer/',
+			$IP . '/includes/interwiki/',
+			$IP . '/includes/logging/',
+			$IP . '/includes/media/',
 			$IP . '/includes/parser/',
 			$IP . '/includes/resourceloader/',
 			$IP . '/includes/revisiondelete/',
@@ -69,8 +81,9 @@ class FindHooks extends Maintenance {
 			$IP . '/includes/upload/',
 			$IP . '/languages/',
 			$IP . '/maintenance/',
-			$IP . '/maintenance/tests/',
-			$IP . '/maintenance/tests/parser/',
+			$IP . '/tests/',
+			$IP . '/tests/parser/',
+			$IP . '/tests/phpunit/suites/',
 			$IP . '/skins/',
 		);
 
@@ -90,15 +103,40 @@ class FindHooks extends Maintenance {
 		$this->printArray( 'Unclear hook calls', $bad );
 
 		if ( count( $todo ) == 0 && count( $deprecated ) == 0 && count( $bad ) == 0 )
+		{
 			$this->output( "Looks good!\n" );
+		}
 	}
 
 	/**
-	 * Get the hook documentation, either locally or from mediawiki.org
+	 * Get the hook documentation, either locally or from MediaWiki.org
 	 * @return array of documented hooks
 	 */
 	private function getHooksFromDoc( $doc ) {
 		if ( $this->hasOption( 'online' ) ) {
+			return $this->getHooksFromOnlineDoc( );
+		} else {
+			return $this->getHooksFromLocalDoc( $doc );
+		}
+	}
+
+	/**
+	 * Get hooks from a local file (for example docs/hooks.txt)
+	 * @param $doc string: filename to look in
+	 * @return array of documented hooks
+	 */
+	private function getHooksFromLocalDoc( $doc ) {
+			$m = array();
+			$content = file_get_contents( $doc );
+			preg_match_all( "/\n'(.*?)'/", $content, $m );
+			return array_unique( $m[1] );
+	}
+
+	/**
+	 * Get hooks from www.mediawiki.org using the API
+	 * @return array of documented hooks
+	 */
+	private function getHooksFromOnlineDoc( ) {
 			// All hooks
 			$allhookdata = Http::get( 'http://www.mediawiki.org/w/api.php?action=query&list=categorymembers&cmtitle=Category:MediaWiki_hooks&cmlimit=500&format=php' );
 			$allhookdata = unserialize( $allhookdata );
@@ -122,23 +160,17 @@ class FindHooks extends Maintenance {
 				}
 			}
 			return array_diff( $allhooks, $removed );
-		} else {
-			$m = array();
-			$content = file_get_contents( $doc );
-			preg_match_all( "/\n'(.*?)'/", $content, $m );
-			return array_unique( $m[1] );
-		}
 	}
 
 	/**
 	 * Get hooks from a PHP file
-	 * @param $file Full filename to the PHP file.
+	 * @param $file string Full filename to the PHP file.
 	 * @return array of hooks found.
 	 */
 	private function getHooksFromFile( $file ) {
 		$content = file_get_contents( $file );
 		$m = array();
-		preg_match_all( '/wfRunHooks\(\s*([\'"])(.*?)\1/', $content, $m );
+		preg_match_all( '/(?:wfRunHooks|Hooks\:\:run)\(\s*([\'"])(.*?)\1/', $content, $m );
 		return $m[2];
 	}
 
@@ -163,7 +195,7 @@ class FindHooks extends Maintenance {
 
 	/**
 	 * Get bad hooks (where the hook name could not be determined) from a PHP file
-	 * @param $file Full filename to the PHP file.
+	 * @param $file string Full filename to the PHP file.
 	 * @return array of bad wfRunHooks() lines
 	 */
 	private function getBadHooksFromFile( $file ) {
@@ -200,15 +232,19 @@ class FindHooks extends Maintenance {
 
 	/**
 	 * Nicely output the array
-	 * @param $msg A message to show before the value
-	 * @param $arr An array
-	 * @param $sort Boolean : wheter to sort the array (Default: true)
+	 * @param $msg String: a message to show before the value
+	 * @param $arr Array: an array
+	 * @param $sort Boolean: whether to sort the array (Default: true)
 	 */
 	private function printArray( $msg, $arr, $sort = true ) {
-		if ( $sort ) asort( $arr );
-		foreach ( $arr as $v ) $this->output( "$msg: $v\n" );
+		if ( $sort ) {
+			asort( $arr );
+		}
+		foreach ( $arr as $v ) {
+			$this->output( "$msg: $v\n" );
+		}
 	}
 }
 
-$maintClass = "FindHooks";
+$maintClass = 'FindHooks';
 require_once( RUN_MAINTENANCE_IF_MAIN );

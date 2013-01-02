@@ -1,6 +1,27 @@
 <?php
+/**
+ * Script to fix bug 20757.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ * http://www.gnu.org/copyleft/gpl.html
+ *
+ * @file
+ * @ingroup Maintenance ExternalStorage
+ */
 
-require_once( dirname( __FILE__ ) . '/../Maintenance.php' );
+require_once( __DIR__ . '/../Maintenance.php' );
 
 class FixBug20757 extends Maintenance {
 	var $batchSize = 10000;
@@ -192,7 +213,7 @@ class FixBug20757 extends Maintenance {
 
 				if ( !$dryRun ) {
 					// Reset the text row to point to the original copy
-					$dbw->begin();
+					$dbw->begin( __METHOD__ );
 					$dbw->update(
 						'text',
 						// SET
@@ -220,7 +241,7 @@ class FixBug20757 extends Maintenance {
 						),
 						__METHOD__
 					);
-					$dbw->commit();
+					$dbw->commit( __METHOD__ );
 					$this->waitForSlaves();
 				}
 
@@ -239,7 +260,7 @@ class FixBug20757 extends Maintenance {
 		static $iteration = 0;
 		++$iteration;
 		if ( ++$iteration > 50 == 0 ) {
-			wfWaitForSlaves( 5 );
+			wfWaitForSlaves();
 			$iteration = 0;
 		}
 	}
@@ -281,6 +302,9 @@ class FixBug20757 extends Maintenance {
 	/**
 	 * This is based on part of HistoryBlobStub::getText().
 	 * Determine if the text can be retrieved from the row in the normal way.
+	 * @param $stub
+	 * @param $secondaryRow
+	 * @return bool
 	 */
 	function isUnbrokenStub( $stub, $secondaryRow ) {
 		$flags = explode( ',', $secondaryRow->old_flags );

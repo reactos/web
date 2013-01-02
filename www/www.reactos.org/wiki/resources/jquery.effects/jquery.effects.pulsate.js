@@ -1,22 +1,22 @@
-/*
- * jQuery UI Effects Pulsate 1.8.2
+/*!
+ * jQuery UI Effects Pulsate 1.8.23
  *
- * Copyright (c) 2010 AUTHORS.txt (http://jqueryui.com/about)
- * Dual licensed under the MIT (MIT-LICENSE.txt)
- * and GPL (GPL-LICENSE.txt) licenses.
+ * Copyright 2012, AUTHORS.txt (http://jqueryui.com/about)
+ * Dual licensed under the MIT or GPL Version 2 licenses.
+ * http://jquery.org/license
  *
  * http://docs.jquery.com/UI/Effects/Pulsate
  *
  * Depends:
  *	jquery.effects.core.js
  */
-(function($) {
+(function( $, undefined ) {
 
 $.effects.pulsate = function(o) {
 	return this.queue(function() {
 		var elem = $(this),
-			mode = $.effects.setMode(elem, o.options.mode || 'show');
-			times = ((o.options.times || 5) * 2) - 1;
+			mode = $.effects.setMode(elem, o.options.mode || 'show'),
+			times = ((o.options.times || 5) * 2) - 1,
 			duration = o.duration ? o.duration / 2 : $.fx.speeds._default / 2,
 			isVisible = elem.is(':visible'),
 			animateTo = 0;

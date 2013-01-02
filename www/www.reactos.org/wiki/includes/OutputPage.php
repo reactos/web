@@ -1,66 +1,235 @@
 <?php
-if ( !defined( 'MEDIAWIKI' ) ) {
-	die( 1 );
-}
+/**
+ * Preparation for the final page rendering.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ * http://www.gnu.org/copyleft/gpl.html
+ *
+ * @file
+ */
 
 /**
+ * This class should be covered by a general architecture document which does
+ * not exist as of January 2011.  This is one of the Core classes and should
+ * be read at least once by any new developers.
+ *
+ * This class is used to prepare the final rendering. A skin is then
+ * applied to the output parameters (links, javascript, html, categories ...).
+ *
+ * @todo FIXME: Another class handles sending the whole page to the client.
+ *
+ * Some comments comes from a pairing session between Zak Greant and Antoine Musso
+ * in November 2010.
+ *
  * @todo document
  */
-class OutputPage {
-	var $mMetatags = array(), $mKeywords = array(), $mLinktags = array();
+class OutputPage extends ContextSource {
+	/// Should be private. Used with addMeta() which adds "<meta>"
+	var $mMetatags = array();
+
+	/// "<meta keywords='stuff'>" most of the time the first 10 links to an article
+	var $mKeywords = array();
+
+	var $mLinktags = array();
+
+	/// Additional stylesheets. Looks like this is for extensions. Might be replaced by resource loader.
 	var $mExtStyles = array();
-	var $mPagetitle = '', $mBodytext = '';
+
+	/// Should be private - has getter and setter. Contains the HTML title
+	var $mPagetitle = '';
+
+	/// Contains all of the "<body>" content. Should be private we got set/get accessors and the append() method.
+	var $mBodytext = '';
 
 	/**
-	 * Holds the debug lines that will be outputted as comments in page source if
+	 * Holds the debug lines that will be output as comments in page source if
 	 * $wgDebugComments is enabled. See also $wgShowDebug.
-	 * TODO: make a getter method for this
+	 * @deprecated since 1.20; use MWDebug class instead.
 	 */
 	public $mDebugtext = '';
 
-	var $mHTMLtitle = '', $mIsarticle = true, $mPrintable = false;
-	var $mSubtitle = '', $mRedirect = '', $mStatusCode;
-	var $mLastModified = '', $mETag = false;
-	var $mCategoryLinks = array(), $mCategories = array(), $mLanguageLinks = array();
+	/// Should be private. Stores contents of "<title>" tag
+	var $mHTMLtitle = '';
 
-	var $mScripts = '', $mInlineStyles = '', $mLinkColours, $mPageLinkTitle = '', $mHeadItems = array();
+	/// Should be private. Is the displayed content related to the source of the corresponding wiki article.
+	var $mIsarticle = false;
+
+	/**
+	 * Should be private. Has get/set methods properly documented.
+	 * Stores "article flag" toggle.
+	 */
+	var $mIsArticleRelated = true;
+
+	/**
+	 * Should be private. We have to set isPrintable(). Some pages should
+	 * never be printed (ex: redirections).
+	 */
+	var $mPrintable = false;
+
+	/**
+	 * Should be private. We have set/get/append methods.
+	 *
+	 * Contains the page subtitle. Special pages usually have some links here.
+	 * Don't confuse with site subtitle added by skins.
+	 */
+	private $mSubtitle = array();
+
+	var $mRedirect = '';
+	var $mStatusCode;
+
+	/**
+	 * mLastModified and mEtag are used for sending cache control.
+	 * The whole caching system should probably be moved into its own class.
+	 */
+	var $mLastModified = '';
+
+	/**
+	 * Should be private. No getter but used in sendCacheControl();
+	 * Contains an HTTP Entity Tags (see RFC 2616 section 3.13) which is used
+	 * as a unique identifier for the content. It is later used by the client
+	 * to compare its cached version with the server version. Client sends
+	 * headers If-Match and If-None-Match containing its locally cached ETAG value.
+	 *
+	 * To get more information, you will have to look at HTTP/1.1 protocol which
+	 * is properly described in RFC 2616 : http://tools.ietf.org/html/rfc2616
+	 */
+	var $mETag = false;
+
+	var $mCategoryLinks = array();
+	var $mCategories = array();
+
+	/// Should be private. Array of Interwiki Prefixed (non DB key) Titles (e.g. 'fr:Test page')
+	var $mLanguageLinks = array();
+
+	/**
+	 * Should be private. Used for JavaScript (pre resource loader)
+	 * We should split js / css.
+	 * mScripts content is inserted as is in "<head>" by Skin. This might
+	 * contains either a link to a stylesheet or inline css.
+	 */
+	var $mScripts = '';
+
+	/**
+	 * Inline CSS styles. Use addInlineStyle() sparsingly
+	 */
+	var $mInlineStyles = '';
+
+	//
+	var $mLinkColours;
+
+	/**
+	 * Used by skin template.
+	 * Example: $tpl->set( 'displaytitle', $out->mPageLinkTitle );
+	 */
+	var $mPageLinkTitle = '';
+
+	/// Array of elements in "<head>". Parser might add its own headers!
+	var $mHeadItems = array();
+
+	// @todo FIXME: Next variables probably comes from the resource loader
 	var $mModules = array(), $mModuleScripts = array(), $mModuleStyles = array(), $mModuleMessages = array();
 	var $mResourceLoader;
+	var $mJsConfigVars = array();
+
+	/** @todo FIXME: Is this still used ?*/
 	var $mInlineMsg = array();
 
 	var $mTemplateIds = array();
+	var $mImageTimeKeys = array();
 
-	var $mAllowUserJs;
-	var $mSuppressQuickbar = false;
+	var $mRedirectCode = '';
+
+	var $mFeedLinksAppendQuery = null;
+
+	# What level of 'untrustworthiness' is allowed in CSS/JS modules loaded on this page?
+	# @see ResourceLoaderModule::$origin
+	# ResourceLoaderModule::ORIGIN_ALL is assumed unless overridden;
+	protected $mAllowedModules = array(
+		ResourceLoaderModule::TYPE_COMBINED => ResourceLoaderModule::ORIGIN_ALL,
+	);
+
+	/**
+	 * @EasterEgg I just love the name for this self documenting variable.
+	 * @todo document
+	 */
 	var $mDoNothing = false;
-	var $mContainsOldMagic = 0, $mContainsNewMagic = 0;
-	var $mIsArticleRelated = true;
-	protected $mParserOptions = null; // lazy initialised, use parserOptions()
 
+	// Parser related.
+	var $mContainsOldMagic = 0, $mContainsNewMagic = 0;
+
+	/**
+	 * lazy initialised, use parserOptions()
+	 * @var ParserOptions
+	 */
+	protected $mParserOptions = null;
+
+	/**
+	 * Handles the atom / rss links.
+	 * We probably only support atom in 2011.
+	 * Looks like a private variable.
+	 * @see $wgAdvertisedFeedTypes
+	 */
 	var $mFeedLinks = array();
 
+	// Gwicke work on squid caching? Roughly from 2003.
 	var $mEnableClientCache = true;
+
+	/**
+	 * Flag if output should only contain the body of the article.
+	 * Should be private.
+	 */
 	var $mArticleBodyOnly = false;
 
 	var $mNewSectionLink = false;
 	var $mHideNewSectionLink = false;
+
+	/**
+	 * Comes from the parser. This was probably made to load CSS/JS only
+	 * if we had "<gallery>". Used directly in CategoryPage.php
+	 * Looks like resource loader can replace this.
+	 */
 	var $mNoGallery = false;
+
+	// should be private.
 	var $mPageTitleActionText = '';
 	var $mParseWarnings = array();
+
+	// Cache stuff. Looks like mEnableClientCache
 	var $mSquidMaxage = 0;
+
+	// @todo document
 	var $mPreventClickjacking = true;
+
+	/// should be private. To include the variable {{REVISIONID}}
 	var $mRevisionId = null;
-	protected $mTitle = null;
+	private $mRevisionTimestamp = null;
+
+	var $mFileVersion = null;
 
 	/**
 	 * An array of stylesheet filenames (relative from skins path), with options
 	 * for CSS media, IE conditions, and RTL/LTR direction.
 	 * For internal use; add settings in the skin via $this->addStyle()
+	 *
+	 * Style again! This seems like a code duplication since we already have
+	 * mStyles. This is what makes OpenSource amazing.
 	 */
 	var $styles = array();
 
 	/**
-	 * Whether to load jQuery core.
+	 * Whether jQuery is already handled.
 	 */
 	protected $mJQueryDone = false;
 
@@ -68,16 +237,28 @@ class OutputPage {
 	private $mFollowPolicy = 'follow';
 	private $mVaryHeader = array(
 		'Accept-Encoding' => array( 'list-contains=gzip' ),
-		'Cookie' => null
 	);
 
 	/**
-	 * Constructor
-	 * Initialise private variables
+	 * If the current page was reached through a redirect, $mRedirectedFrom contains the Title
+	 * of the redirect.
+	 *
+	 * @var Title
 	 */
-	function __construct() {
-		global $wgAllowUserJs;
-		$this->mAllowUserJs = $wgAllowUserJs;
+	private $mRedirectedFrom = null;
+
+	/**
+	 * Constructor for OutputPage. This should not be called directly.
+	 * Instead a new RequestContext should be created and it will implicitly create
+	 * a OutputPage tied to that context.
+	 */
+	function __construct( IContextSource $context = null ) {
+		if ( $context === null ) {
+			# Extensions should use `new RequestContext` instead of `new OutputPage` now.
+			wfDeprecated( __METHOD__ );
+		} else {
+			$this->setContext( $context );
+		}
 	}
 
 	/**
@@ -105,18 +286,17 @@ class OutputPage {
 	 * Set the HTTP status code to send with the output.
 	 *
 	 * @param $statusCode Integer
-	 * @return nothing
 	 */
 	public function setStatusCode( $statusCode ) {
 		$this->mStatusCode = $statusCode;
 	}
 
 	/**
-	 * Add a new <meta> tag
+	 * Add a new "<meta>" tag
 	 * To add an http-equiv meta tag, precede the name with "http:"
 	 *
-	 * @param $name tag name
-	 * @param $val tag value
+	 * @param $name String tag name
+	 * @param $val String tag value
 	 */
 	function addMeta( $name, $val ) {
 		array_push( $this->mMetatags, array( $name, $val ) );
@@ -152,11 +332,24 @@ class OutputPage {
 	 *                 "rel" attribute will be automatically added
 	 */
 	function addMetadataLink( $linkarr ) {
+		$linkarr['rel'] = $this->getMetadataAttribute();
+		$this->addLink( $linkarr );
+	}
+
+	/**
+	 * Get the value of the "rel" attribute for metadata links
+	 *
+	 * @return String
+	 */
+	public function getMetadataAttribute() {
 		# note: buggy CC software only reads first "meta" link
 		static $haveMeta = false;
-		$linkarr['rel'] = $haveMeta ? 'alternate meta' : 'meta';
-		$this->addLink( $linkarr );
-		$haveMeta = true;
+		if ( $haveMeta ) {
+			return 'alternate meta';
+		} else {
+			$haveMeta = true;
+			return 'meta';
+		}
 	}
 
 	/**
@@ -181,7 +374,7 @@ class OutputPage {
 	}
 
 	/**
-	 * Get all links added by extensions
+	 * Get all styles added by extensions
 	 *
 	 * @return Array
 	 */
@@ -212,7 +405,7 @@ class OutputPage {
 	/**
 	 * Add a self-contained script tag with the given contents
 	 *
-	 * @param $script String: JavaScript text, no <script> tags
+	 * @param $script String: JavaScript text, no "<script>" tags
 	 */
 	public function addInlineScript( $script ) {
 		$this->mScripts .= Html::inlineScript( "\n$script\n" ) . "\n";
@@ -228,12 +421,41 @@ class OutputPage {
 	}
 
 	/**
+	 * Filter an array of modules to remove insufficiently trustworthy members, and modules
+	 * which are no longer registered (eg a page is cached before an extension is disabled)
+	 * @param $modules Array
+	 * @param $position String if not null, only return modules with this position
+	 * @param $type string
+	 * @return Array
+	 */
+	protected function filterModules( $modules, $position = null, $type = ResourceLoaderModule::TYPE_COMBINED ){
+		$resourceLoader = $this->getResourceLoader();
+		$filteredModules = array();
+		foreach( $modules as $val ){
+			$module = $resourceLoader->getModule( $val );
+			if( $module instanceof ResourceLoaderModule
+				&& $module->getOrigin() <= $this->getAllowedModules( $type )
+				&& ( is_null( $position ) || $module->getPosition() == $position ) )
+			{
+				$filteredModules[] = $val;
+			}
+		}
+		return $filteredModules;
+	}
+
+	/**
 	 * Get the list of modules to include on this page
 	 *
+	 * @param $filter Bool whether to filter out insufficiently trustworthy modules
+	 * @param $position String if not null, only return modules with this position
+	 * @param $param string
 	 * @return Array of module names
 	 */
-	public function getModules() {
-		return array_values( array_unique( $this->mModules ) );
+	public function getModules( $filter = false, $position = null, $param = 'mModules' ) {
+		$modules = array_values( array_unique( $this->$param ) );
+		return $filter
+			? $this->filterModules( $modules, $position )
+			: $modules;
 	}
 
 	/**
@@ -249,10 +471,14 @@ class OutputPage {
 
 	/**
 	 * Get the list of module JS to include on this page
+	 *
+	 * @param $filter
+	 * @param $position
+	 *
 	 * @return array of module names
 	 */
-	public function getModuleScripts() {
-		return array_values( array_unique( $this->mModuleScripts ) );
+	public function getModuleScripts( $filter = false, $position = null ) {
+		return $this->getModules( $filter, $position, 'mModuleScripts' );
 	}
 
 	/**
@@ -269,10 +495,13 @@ class OutputPage {
 	/**
 	 * Get the list of module CSS to include on this page
 	 *
+	 * @param $filter
+	 * @param $position
+	 *
 	 * @return Array of module names
 	 */
-	public function getModuleStyles() {
-		return array_values( array_unique( $this->mModuleStyles ) );
+	public function getModuleStyles( $filter = false, $position = null ) {
+		return $this->getModules( $filter,  $position, 'mModuleStyles' );
 	}
 
 	/**
@@ -289,10 +518,13 @@ class OutputPage {
 	/**
 	 * Get the list of module messages to include on this page
 	 *
+	 * @param $filter
+	 * @param $position
+	 *
 	 * @return Array of module names
 	 */
-	public function getModuleMessages() {
-		return array_values( array_unique( $this->mModuleMessages ) );
+	public function getModuleMessages( $filter = false, $position = null ) {
+		return $this->getModules( $filter, $position, 'mModuleMessages' );
 	}
 
 	/**
@@ -304,6 +536,15 @@ class OutputPage {
 	 */
 	public function addModuleMessages( $modules ) {
 		$this->mModuleMessages = array_merge( $this->mModuleMessages, (array)$modules );
+	}
+
+	/**
+	 * Get an array of head items
+	 *
+	 * @return Array
+	 */
+	function getHeadItemsArray() {
+		return $this->mHeadItems;
 	}
 
 	/**
@@ -375,10 +616,12 @@ class OutputPage {
 	 *
 	 * Side effect: sets mLastModified for Last-Modified header
 	 *
+	 * @param $timestamp string
+	 *
 	 * @return Boolean: true iff cache-ok headers was sent.
 	 */
 	public function checkLastModified( $timestamp ) {
-		global $wgCachePages, $wgCacheEpoch, $wgUser, $wgRequest;
+		global $wgCachePages, $wgCacheEpoch;
 
 		if ( !$timestamp || $timestamp == '19700101000000' ) {
 			wfDebug( __METHOD__ . ": CACHE DISABLED, NO TIMESTAMP\n" );
@@ -388,7 +631,7 @@ class OutputPage {
 			wfDebug( __METHOD__ . ": CACHE DISABLED\n", false );
 			return false;
 		}
-		if( $wgUser->getOption( 'nocache' ) ) {
+		if( $this->getUser()->getOption( 'nocache' ) ) {
 			wfDebug( __METHOD__ . ": USER DISABLED CACHE\n", false );
 			return false;
 		}
@@ -396,7 +639,7 @@ class OutputPage {
 		$timestamp = wfTimestamp( TS_MW, $timestamp );
 		$modifiedTimes = array(
 			'page' => $timestamp,
-			'user' => $wgUser->getTouched(),
+			'user' => $this->getUser()->getTouched(),
 			'epoch' => $wgCacheEpoch
 		);
 		wfRunHooks( 'OutputPageCheckLastModified', array( &$modifiedTimes ) );
@@ -404,24 +647,16 @@ class OutputPage {
 		$maxModified = max( $modifiedTimes );
 		$this->mLastModified = wfTimestamp( TS_RFC2822, $maxModified );
 
-		if( empty( $_SERVER['HTTP_IF_MODIFIED_SINCE'] ) ) {
+		$clientHeader = $this->getRequest()->getHeader( 'If-Modified-Since' );
+		if ( $clientHeader === false ) {
 			wfDebug( __METHOD__ . ": client did not send If-Modified-Since header\n", false );
 			return false;
-		}
-
-		# Make debug info
-		$info = '';
-		foreach ( $modifiedTimes as $name => $value ) {
-			if ( $info !== '' ) {
-				$info .= ', ';
-			}
-			$info .= "$name=" . wfTimestamp( TS_ISO_8601, $value );
 		}
 
 		# IE sends sizes after the date like this:
 		# Wed, 20 Aug 2003 06:51:19 GMT; length=5202
 		# this breaks strtotime().
-		$clientHeader = preg_replace( '/;.*$/', '', $_SERVER["HTTP_IF_MODIFIED_SINCE"] );
+		$clientHeader = preg_replace( '/;.*$/', '', $clientHeader );
 
 		wfSuppressWarnings(); // E_STRICT system time bitching
 		$clientHeaderTime = strtotime( $clientHeader );
@@ -431,6 +666,15 @@ class OutputPage {
 			return false;
 		}
 		$clientHeaderTime = wfTimestamp( TS_MW, $clientHeaderTime );
+
+		# Make debug info
+		$info = '';
+		foreach ( $modifiedTimes as $name => $value ) {
+			if ( $info !== '' ) {
+				$info .= ', ';
+			}
+			$info .= "$name=" . wfTimestamp( TS_ISO_8601, $value );
+		}
 
 		wfDebug( __METHOD__ . ": client sent If-Modified-Since: " .
 			wfTimestamp( TS_ISO_8601, $clientHeaderTime ) . "\n", false );
@@ -445,7 +689,7 @@ class OutputPage {
 		# Give a 304 response code and disable body output
 		wfDebug( __METHOD__ . ": NOT MODIFIED, $info\n", false );
 		ini_set( 'zlib.output_compression', 0 );
-		$wgRequest->response()->header( "HTTP/1.1 304 Not Modified" );
+		$this->getRequest()->response()->header( "HTTP/1.1 304 Not Modified" );
 		$this->sendCacheControl();
 		$this->disable();
 
@@ -536,15 +780,21 @@ class OutputPage {
 	}
 
 	/**
-	 * "HTML title" means the contents of <title>.
+	 * "HTML title" means the contents of "<title>".
 	 * It is stored as plain, unescaped text and will be run through htmlspecialchars in the skin file.
+	 *
+	 * @param $name string
 	 */
 	public function setHTMLTitle( $name ) {
-		$this->mHTMLtitle = $name;
+		if ( $name instanceof Message ) {
+			$this->mHTMLtitle = $name->setContext( $this->getContext() )->text();
+		} else {
+			$this->mHTMLtitle = $name;
+		}
 	}
 
 	/**
-	 * Return the "HTML title", i.e. the content of the <title> tag.
+	 * Return the "HTML title", i.e. the content of the "<title>" tag.
 	 *
 	 * @return String
 	 */
@@ -553,19 +803,34 @@ class OutputPage {
 	}
 
 	/**
+	 * Set $mRedirectedFrom, the Title of the page which redirected us to the current page.
+	 *
+	 * @param $t Title
+	 */
+	public function setRedirectedFrom( $t ) {
+		$this->mRedirectedFrom = $t;
+	}
+
+	/**
 	 * "Page title" means the contents of \<h1\>. It is stored as a valid HTML fragment.
 	 * This function allows good tags like \<sup\> in the \<h1\> tag, but not bad tags like \<script\>.
 	 * This function automatically sets \<title\> to the same content as \<h1\> but with all tags removed.
 	 * Bad tags that were escaped in \<h1\> will still be escaped in \<title\>, and good tags like \<i\> will be dropped entirely.
+	 *
+	 * @param $name string|Message
 	 */
 	public function setPageTitle( $name ) {
+		if ( $name instanceof Message ) {
+			$name = $name->setContext( $this->getContext() )->text();
+		}
+
 		# change "<script>foo&bar</script>" to "&lt;script&gt;foo&amp;bar&lt;/script&gt;"
 		# but leave "<i>foobar</i>" alone
 		$nameWithTags = Sanitizer::normalizeCharReferences( Sanitizer::removeHTMLtags( $name ) );
 		$this->mPagetitle = $nameWithTags;
 
 		# change "<i>foo&amp;bar</i>" to "foo&bar"
-		$this->setHTMLTitle( wfMsg( 'pagetitle', Sanitizer::stripAllTags( $nameWithTags ) ) );
+		$this->setHTMLTitle( $this->msg( 'pagetitle' )->rawParams( Sanitizer::stripAllTags( $nameWithTags ) ) );
 	}
 
 	/**
@@ -582,41 +847,62 @@ class OutputPage {
 	 *
 	 * @param $t Title object
 	 */
-	public function setTitle( $t ) {
-		$this->mTitle = $t;
+	public function setTitle( Title $t ) {
+		$this->getContext()->setTitle( $t );
 	}
 
-	/**
-	 * Get the Title object used in this instance
-	 *
-	 * @return Title
-	 */
-	public function getTitle() {
-		if ( $this->mTitle instanceof Title ) {
-			return $this->mTitle;
-		} else {
-			wfDebug( __METHOD__ . " called and \$mTitle is null. Return \$wgTitle for sanity\n" );
-			global $wgTitle;
-			return $wgTitle;
-		}
-	}
 
 	/**
 	 * Replace the subtile with $str
 	 *
-	 * @param $str String: new value of the subtitle
+	 * @param $str String|Message: new value of the subtitle
 	 */
 	public function setSubtitle( $str ) {
-		$this->mSubtitle = /*$this->parse(*/ $str /*)*/; // @bug 2514
+		$this->clearSubtitle();
+		$this->addSubtitle( $str );
 	}
 
 	/**
 	 * Add $str to the subtitle
 	 *
-	 * @param $str String to add to the subtitle
+	 * @deprecated in 1.19; use addSubtitle() instead
+	 * @param $str String|Message to add to the subtitle
 	 */
 	public function appendSubtitle( $str ) {
-		$this->mSubtitle .= /*$this->parse(*/ $str /*)*/; // @bug 2514
+		$this->addSubtitle( $str );
+	}
+
+	/**
+	 * Add $str to the subtitle
+	 *
+	 * @param $str String|Message to add to the subtitle
+	 */
+	public function addSubtitle( $str ) {
+		if ( $str instanceof Message ) {
+			$this->mSubtitle[] = $str->setContext( $this->getContext() )->parse();
+		} else {
+			$this->mSubtitle[] = $str;
+		}
+	}
+
+	/**
+	 * Add a subtitle containing a backlink to a page
+	 *
+	 * @param $title Title to link to
+	 */
+	public function addBacklinkSubtitle( Title $title ) {
+		$query = array();
+		if ( $title->isRedirect() ) {
+			$query['redirect'] = 'no';
+		}
+		$this->addSubtitle( $this->msg( 'backlinksubtitle' )->rawParams( Linker::link( $title, null, array(), $query ) ) );
+	}
+
+	/**
+	 * Clear the subtitles
+	 */
+	public function clearSubtitle() {
+		$this->mSubtitle = array();
 	}
 
 	/**
@@ -625,7 +911,7 @@ class OutputPage {
 	 * @return String
 	 */
 	public function getSubtitle() {
-		return $this->mSubtitle;
+		return implode( "<br />\n\t\t\t\t", $this->mSubtitle );
 	}
 
 	/**
@@ -806,7 +1092,7 @@ class OutputPage {
 	/**
 	 * Add new language links
 	 *
-	 * @param $newLinkArray Associative array mapping language code to the page
+	 * @param $newLinkArray array Associative array mapping language code to the page
 	 *                      name
 	 */
 	public function addLanguageLinks( $newLinkArray ) {
@@ -816,7 +1102,7 @@ class OutputPage {
 	/**
 	 * Reset the language links and add new language links
 	 *
-	 * @param $newLinkArray Associative array mapping language code to the page
+	 * @param $newLinkArray array Associative array mapping language code to the page
 	 *                      name
 	 */
 	public function setLanguageLinks( $newLinkArray ) {
@@ -826,7 +1112,7 @@ class OutputPage {
 	/**
 	 * Get the list of language links
 	 *
-	 * @return Associative array mapping language code to the page name
+	 * @return Array of Interwiki Prefixed (non DB key) Titles (e.g. 'fr:Test page')
 	 */
 	public function getLanguageLinks() {
 		return $this->mLanguageLinks;
@@ -835,10 +1121,10 @@ class OutputPage {
 	/**
 	 * Add an array of categories, with names in the keys
 	 *
-	 * @param $categories Associative array mapping category name to its sort key
+	 * @param $categories Array mapping category name => sort key
 	 */
 	public function addCategoryLinks( $categories ) {
-		global $wgUser, $wgContLang;
+		global $wgContLang;
 
 		if ( !is_array( $categories ) || count( $categories ) == 0 ) {
 			return;
@@ -851,12 +1137,13 @@ class OutputPage {
 
 		# Fetch existence plus the hiddencat property
 		$dbr = wfGetDB( DB_SLAVE );
-		$pageTable = $dbr->tableName( 'page' );
-		$where = $lb->constructSet( 'page', $dbr );
-		$propsTable = $dbr->tableName( 'page_props' );
-		$sql = "SELECT page_id, page_namespace, page_title, page_len, page_is_redirect, page_latest, pp_value
-			FROM $pageTable LEFT JOIN $propsTable ON pp_propname='hiddencat' AND pp_page=page_id WHERE $where";
-		$res = $dbr->query( $sql, __METHOD__ );
+		$res = $dbr->select( array( 'page', 'page_props' ),
+			array( 'page_id', 'page_namespace', 'page_title', 'page_len', 'page_is_redirect', 'page_latest', 'pp_value' ),
+			$lb->constructSet( 'page', $dbr ),
+			__METHOD__,
+			array(),
+			array( 'page_props' => array( 'LEFT JOIN', array( 'pp_propname' => 'hiddencat', 'pp_page = page_id' ) ) )
+		);
 
 		# Add the results to the link cache
 		$lb->addResultToCache( LinkCache::singleton(), $res );
@@ -876,7 +1163,6 @@ class OutputPage {
 
 		# Add the remaining categories to the skin
 		if ( wfRunHooks( 'OutputPageMakeCategoryLinks', array( &$this, $categories, &$this->mCategoryLinks ) ) ) {
-			$sk = $wgUser->getSkin();
 			foreach ( $categories as $category => $type ) {
 				$origcategory = $category;
 				$title = Title::makeTitleSafe( NS_CATEGORY, $category );
@@ -888,7 +1174,7 @@ class OutputPage {
 				}
 				$text = $wgContLang->convertHtml( $title->getText() );
 				$this->mCategories[] = $title->getText();
-				$this->mCategoryLinks[$type][] = $sk->link( $title, $text );
+				$this->mCategoryLinks[$type][] = Linker::link( $title, $text );
 			}
 		}
 	}
@@ -896,7 +1182,7 @@ class OutputPage {
 	/**
 	 * Reset the category links (but not the category list) and add $categories
 	 *
-	 * @param $categories Associative array mapping category name to its sort key
+	 * @param $categories Array mapping category name => sort key
 	 */
 	public function setCategoryLinks( $categories ) {
 		$this->mCategoryLinks = array();
@@ -925,36 +1211,60 @@ class OutputPage {
 	}
 
 	/**
-	 * Suppress the quickbar from the output, only for skin supporting
-	 * the quickbar
-	 */
-	public function suppressQuickbar() {
-		$this->mSuppressQuickbar = true;
-	}
-
-	/**
-	 * Return whether the quickbar should be suppressed from the output
-	 *
-	 * @return Boolean
-	 */
-	public function isQuickbarSuppressed() {
-		return $this->mSuppressQuickbar;
-	}
-
-	/**
-	 * Remove user JavaScript from scripts to load
+	 * Do not allow scripts which can be modified by wiki users to load on this page;
+	 * only allow scripts bundled with, or generated by, the software.
 	 */
 	public function disallowUserJs() {
-		$this->mAllowUserJs = false;
+		$this->reduceAllowedModules(
+			ResourceLoaderModule::TYPE_SCRIPTS,
+			ResourceLoaderModule::ORIGIN_CORE_INDIVIDUAL
+		);
 	}
 
 	/**
 	 * Return whether user JavaScript is allowed for this page
-	 *
+	 * @deprecated since 1.18 Load modules with ResourceLoader, and origin and
+	 *     trustworthiness is identified and enforced automagically.
+	 *     Will be removed in 1.20.
 	 * @return Boolean
 	 */
 	public function isUserJsAllowed() {
-		return $this->mAllowUserJs;
+		wfDeprecated( __METHOD__, '1.18' );
+		return $this->getAllowedModules( ResourceLoaderModule::TYPE_SCRIPTS ) >= ResourceLoaderModule::ORIGIN_USER_INDIVIDUAL;
+	}
+
+	/**
+	 * Show what level of JavaScript / CSS untrustworthiness is allowed on this page
+	 * @see ResourceLoaderModule::$origin
+	 * @param $type String ResourceLoaderModule TYPE_ constant
+	 * @return Int ResourceLoaderModule ORIGIN_ class constant
+	 */
+	public function getAllowedModules( $type ){
+		if( $type == ResourceLoaderModule::TYPE_COMBINED ){
+			return min( array_values( $this->mAllowedModules ) );
+		} else {
+			return isset( $this->mAllowedModules[$type] )
+				? $this->mAllowedModules[$type]
+				: ResourceLoaderModule::ORIGIN_ALL;
+		}
+	}
+
+	/**
+	 * Set the highest level of CSS/JS untrustworthiness allowed
+	 * @param  $type String ResourceLoaderModule TYPE_ constant
+	 * @param  $level Int ResourceLoaderModule class constant
+	 */
+	public function setAllowedModules( $type, $level ){
+		$this->mAllowedModules[$type] = $level;
+	}
+
+	/**
+	 * As for setAllowedModules(), but don't inadvertantly make the page more accessible
+	 * @param  $type String
+	 * @param  $level Int ResourceLoaderModule class constant
+	 */
+	public function reduceAllowedModules( $type, $level ){
+		$this->mAllowedModules[$type] = min( $this->getAllowedModules($type), $level );
 	}
 
 	/**
@@ -976,6 +1286,19 @@ class OutputPage {
 	}
 
 	/**
+	 * Shortcut for adding an Html::element via addHTML.
+	 *
+	 * @since 1.19
+	 *
+	 * @param $element string
+	 * @param $attribs array
+	 * @param $contents string
+	 */
+	public function addElement( $element, $attribs = array(), $contents = '' ) {
+		$this->addHTML( Html::element( $element, $attribs, $contents ) );
+	}
+
+	/**
 	 * Clear the body HTML
 	 */
 	public function clearHTML() {
@@ -992,32 +1315,16 @@ class OutputPage {
 	}
 
 	/**
-	 * Add $text to the debug output
-	 *
-	 * @param $text String: debug text
-	 */
-	public function debug( $text ) {
-		$this->mDebugtext .= $text;
-	}
-
-	/**
-	 * @deprecated use parserOptions() instead
-	 */
-	public function setParserOptions( $options ) {
-		wfDeprecated( __METHOD__ );
-		return $this->parserOptions( $options );
-	}
-
-	/**
 	 * Get/set the ParserOptions object to use for wikitext parsing
 	 *
-	 * @param $options either the ParserOption to use or null to only get the
+	 * @param $options ParserOptions|null either the ParserOption to use or null to only get the
 	 *                 current ParserOption object
-	 * @return current ParserOption object
+	 * @return ParserOptions object
 	 */
 	public function parserOptions( $options = null ) {
 		if ( !$this->mParserOptions ) {
-			$this->mParserOptions = new ParserOptions;
+			$this->mParserOptions = ParserOptions::newFromContext( $this->getContext() );
+			$this->mParserOptions->setEditSection( false );
 		}
 		return wfSetVar( $this->mParserOptions, $options );
 	}
@@ -1035,7 +1342,7 @@ class OutputPage {
 	}
 
 	/**
-	 * Get the current revision ID
+	 * Get the displayed revision ID
 	 *
 	 * @return Integer
 	 */
@@ -1044,15 +1351,80 @@ class OutputPage {
 	}
 
 	/**
+	 * Set the timestamp of the revision which will be displayed. This is used
+	 * to avoid a extra DB call in Skin::lastModified().
+	 *
+	 * @param $timestamp Mixed: string, or null
+	 * @return Mixed: previous value
+	 */
+	public function setRevisionTimestamp( $timestamp) {
+		return wfSetVar( $this->mRevisionTimestamp, $timestamp );
+	}
+
+	/**
+	 * Get the timestamp of displayed revision.
+	 * This will be null if not filled by setRevisionTimestamp().
+	 *
+	 * @return String or null
+	 */
+	public function getRevisionTimestamp() {
+		return $this->mRevisionTimestamp;
+	}
+
+	/**
+	 * Set the displayed file version
+	 *
+	 * @param $file File|bool
+	 * @return Mixed: previous value
+	 */
+	public function setFileVersion( $file ) {
+		$val = null;
+		if ( $file instanceof File && $file->exists() ) {
+			$val = array( 'time' => $file->getTimestamp(), 'sha1' => $file->getSha1() );
+		}
+		return wfSetVar( $this->mFileVersion, $val, true );
+	}
+
+	/**
+	 * Get the displayed file version
+	 *
+	 * @return Array|null ('time' => MW timestamp, 'sha1' => sha1)
+	 */
+	public function getFileVersion() {
+		return $this->mFileVersion;
+	}
+
+	/**
+	 * Get the templates used on this page
+	 *
+	 * @return Array (namespace => dbKey => revId)
+	 * @since 1.18
+	 */
+	public function getTemplateIds() {
+		return $this->mTemplateIds;
+	}
+
+	/**
+	 * Get the files used on this page
+	 *
+	 * @return Array (dbKey => array('time' => MW timestamp or null, 'sha1' => sha1 or ''))
+	 * @since 1.18
+	 */
+	public function getFileSearchOptions() {
+		return $this->mImageTimeKeys;
+	}
+
+	/**
 	 * Convert wikitext to HTML and add it to the buffer
 	 * Default assumes that the current page title will be used.
 	 *
 	 * @param $text String
 	 * @param $linestart Boolean: is this the start of a line?
+	 * @param $interface Boolean: is this text in the user interface language?
 	 */
-	public function addWikiText( $text, $linestart = true ) {
+	public function addWikiText( $text, $linestart = true, $interface = true ) {
 		$title = $this->getTitle(); // Work arround E_STRICT
-		$this->addWikiTextTitle( $text, $title, $linestart );
+		$this->addWikiTextTitle( $text, $title, $linestart, /*tidy*/false, $interface );
 	}
 
 	/**
@@ -1067,7 +1439,7 @@ class OutputPage {
 	}
 
 	/**
-	 * Add wikitext with a custom Title object and
+	 * Add wikitext with a custom Title object and tidy enabled.
 	 *
 	 * @param $text String: wikitext
 	 * @param $title Title object
@@ -1095,16 +1467,17 @@ class OutputPage {
 	 * @param $title Title object
 	 * @param $linestart Boolean: is this the start of a line?
 	 * @param $tidy Boolean: whether to use tidy
+	 * @param $interface Boolean: whether it is an interface message
+	 *								(for example disables conversion)
 	 */
-	public function addWikiTextTitle( $text, &$title, $linestart, $tidy = false ) {
+	public function addWikiTextTitle( $text, &$title, $linestart, $tidy = false, $interface = false ) {
 		global $wgParser;
 
 		wfProfileIn( __METHOD__ );
 
-		wfIncrStats( 'pcache_not_possible' );
-
 		$popts = $this->parserOptions();
 		$oldTidy = $popts->setTidy( $tidy );
+		$popts->setInterfaceMessage( (bool) $interface );
 
 		$parserOutput = $wgParser->parse(
 			$text, $title, $popts,
@@ -1116,43 +1489,6 @@ class OutputPage {
 		$this->addParserOutput( $parserOutput );
 
 		wfProfileOut( __METHOD__ );
-	}
-
-	/**
-	 * Add wikitext to the buffer, assuming that this is the primary text for a page view
-	 * Saves the text into the parser cache if possible.
-	 *
-	 * @param $text String: wikitext
-	 * @param $article Article object
-	 * @param $cache Boolean
-	 * @deprecated Use Article::outputWikitext
-	 */
-	public function addPrimaryWikiText( $text, $article, $cache = true ) {
-		global $wgParser;
-
-		wfDeprecated( __METHOD__ );
-
-		$popts = $this->parserOptions();
-		$popts->setTidy( true );
-		$parserOutput = $wgParser->parse(
-			$text, $article->mTitle,
-			$popts, true, true, $this->mRevisionId
-		);
-		$popts->setTidy( false );
-		if ( $cache && $article && $parserOutput->isCacheable() ) {
-			$parserCache = ParserCache::singleton();
-			$parserCache->save( $parserOutput, $article, $popts );
-		}
-
-		$this->addParserOutput( $parserOutput );
-	}
-
-	/**
-	 * @deprecated use addWikiTextTidy()
-	 */
-	public function addSecondaryWikiText( $text, $linestart = true ) {
-		wfDeprecated( __METHOD__ );
-		$this->addWikiTextTitleTidy( $text, $this->getTitle(), $linestart );
 	}
 
 	/**
@@ -1173,13 +1509,21 @@ class OutputPage {
 		$this->mNoGallery = $parserOutput->getNoGallery();
 		$this->mHeadItems = array_merge( $this->mHeadItems, $parserOutput->getHeadItems() );
 		$this->addModules( $parserOutput->getModules() );
-		// Versioning...
-		foreach ( (array)$parserOutput->mTemplateIds as $ns => $dbks ) {
+		$this->addModuleScripts( $parserOutput->getModuleScripts() );
+		$this->addModuleStyles( $parserOutput->getModuleStyles() );
+		$this->addModuleMessages( $parserOutput->getModuleMessages() );
+
+		// Template versioning...
+		foreach ( (array)$parserOutput->getTemplateIds() as $ns => $dbks ) {
 			if ( isset( $this->mTemplateIds[$ns] ) ) {
 				$this->mTemplateIds[$ns] = $dbks + $this->mTemplateIds[$ns];
 			} else {
 				$this->mTemplateIds[$ns] = $dbks;
 			}
+		}
+		// File versioning...
+		foreach ( (array)$parserOutput->getFileSearchOptions() as $dbk => $data ) {
+			$this->mImageTimeKeys[$dbk] = $data;
 		}
 
 		// Hooks registered in the object
@@ -1226,25 +1570,39 @@ class OutputPage {
 	 * @param $linestart Boolean: is this the start of a line?
 	 * @param $interface Boolean: use interface language ($wgLang instead of
 	 *                   $wgContLang) while parsing language sensitive magic
-	 *                   words like GRAMMAR and PLURAL
+	 *                   words like GRAMMAR and PLURAL. This also disables
+	 *					 LanguageConverter.
+	 * @param $language  Language object: target language object, will override
+	 *                   $interface
 	 * @return String: HTML
 	 */
-	public function parse( $text, $linestart = true, $interface = false ) {
+	public function parse( $text, $linestart = true, $interface = false, $language = null ) {
 		global $wgParser;
+
 		if( is_null( $this->getTitle() ) ) {
 			throw new MWException( 'Empty $mTitle in ' . __METHOD__ );
 		}
+
 		$popts = $this->parserOptions();
 		if ( $interface ) {
 			$popts->setInterfaceMessage( true );
 		}
+		if ( $language !== null ) {
+			$oldLang = $popts->setTargetLanguage( $language );
+		}
+
 		$parserOutput = $wgParser->parse(
 			$text, $this->getTitle(), $popts,
 			$linestart, true, $this->mRevisionId
 		);
+
 		if ( $interface ) {
 			$popts->setInterfaceMessage( false );
 		}
+		if ( $language !== null ) {
+			$popts->setTargetLanguage( $oldLang );
+		}
+
 		return $parserOutput->getText();
 	}
 
@@ -1270,24 +1628,6 @@ class OutputPage {
 	}
 
 	/**
-	 * @deprecated
-	 *
-	 * @param $article Article
-	 * @return Boolean: true if successful, else false.
-	 */
-	public function tryParserCache( &$article ) {
-		wfDeprecated( __METHOD__ );
-		$parserOutput = ParserCache::singleton()->get( $article, $article->getParserOptions() );
-
-		if ( $parserOutput !== false ) {
-			$this->addParserOutput( $parserOutput );
-			return true;
-		} else {
-			return false;
-		}
-	}
-
-	/**
 	 * Set the value of the "s-maxage" part of the "Cache-control" HTTP header
 	 *
 	 * @param $maxage Integer: maximum cache time on the Squid, in seconds.
@@ -1299,7 +1639,9 @@ class OutputPage {
 	/**
 	 * Use enableClientCache(false) to force it to send nocache headers
 	 *
-	 * @param $state ??
+	 * @param $state bool
+	 *
+	 * @return bool
 	 */
 	public function enableClientCache( $state ) {
 		return wfSetVar( $this->mEnableClientCache, $state );
@@ -1328,26 +1670,13 @@ class OutputPage {
 	}
 
 	/**
-	 * Return whether this page is not cacheable because "useskin" or "uselang"
-	 * URL parameters were passed.
-	 *
-	 * @return Boolean
-	 */
-	function uncacheableBecauseRequestVars() {
-		global $wgRequest;
-		return $wgRequest->getText( 'useskin', false ) === false
-			&& $wgRequest->getText( 'uselang', false ) === false;
-	}
-
-	/**
 	 * Check if the request has a cache-varying cookie header
 	 * If it does, it's very important that we don't allow public caching
 	 *
 	 * @return Boolean
 	 */
 	function haveCacheVaryCookies() {
-		global $wgRequest;
-		$cookieHeader = $wgRequest->getHeader( 'cookie' );
+		$cookieHeader = $this->getRequest()->getHeader( 'cookie' );
 		if ( $cookieHeader === false ) {
 			return false;
 		}
@@ -1367,8 +1696,8 @@ class OutputPage {
 	 * Add an HTTP header that will influence on the cache
 	 *
 	 * @param $header String: header name
-	 * @param $option either an Array or null
-	 * @fixme Document the $option parameter; it appears to be for
+	 * @param $option Array|null
+	 * @todo FIXME: Document the $option parameter; it appears to be for
 	 *        X-Vary-Options but what format is acceptable?
 	 */
 	public function addVaryHeader( $header, $option = null ) {
@@ -1381,7 +1710,17 @@ class OutputPage {
 				$this->mVaryHeader[$header] = $option;
 			}
 		}
-		$this->mVaryHeader[$header] = array_unique( $this->mVaryHeader[$header] );
+		$this->mVaryHeader[$header] = array_unique( (array)$this->mVaryHeader[$header] );
+	}
+
+	/**
+	 * Return a Vary: header on which to vary caches. Based on the keys of $mVaryHeader,
+	 * such as Accept-Encoding or Cookie
+	 *
+	 * @return String
+	 */
+	public function getVaryHeader() {
+		return 'Vary: ' . join( ', ', array_keys( $this->mVaryHeader ) );
 	}
 
 	/**
@@ -1401,7 +1740,7 @@ class OutputPage {
 		$headers = array();
 		foreach( $this->mVaryHeader as $header => $option ) {
 			$newheader = $header;
-			if( is_array( $option ) ) {
+			if ( is_array( $option ) && count( $option ) > 0 ) {
 				$newheader .= ';' . implode( ';', $option );
 			}
 			$headers[] = $newheader;
@@ -1420,16 +1759,16 @@ class OutputPage {
 	 *   /w/index.php?title=Main_page&variant=zh-cn should never be served.
 	 */
 	function addAcceptLanguage() {
-		global $wgRequest, $wgContLang;
-		if( !$wgRequest->getCheck( 'variant' ) && $wgContLang->hasVariants() ) {
-			$variants = $wgContLang->getVariants();
+		$lang = $this->getTitle()->getPageLanguage();
+		if( !$this->getRequest()->getCheck( 'variant' ) && $lang->hasVariants() ) {
+			$variants = $lang->getVariants();
 			$aloption = array();
 			foreach ( $variants as $variant ) {
-				if( $variant === $wgContLang->getCode() ) {
+				if( $variant === $lang->getCode() ) {
 					continue;
 				} else {
 					$aloption[] = 'string-contains=' . $variant;
-					
+
 					// IE and some other browsers use another form of language code
 					// in their Accept-Language header, like "zh-CN" or "zh-TW".
 					// We should handle these too.
@@ -1446,12 +1785,14 @@ class OutputPage {
 	}
 
 	/**
-	 * Set a flag which will cause an X-Frame-Options header appropriate for 
-	 * edit pages to be sent. The header value is controlled by 
+	 * Set a flag which will cause an X-Frame-Options header appropriate for
+	 * edit pages to be sent. The header value is controlled by
 	 * $wgEditPageFrameOptions.
 	 *
-	 * This is the default for special pages. If you display a CSRF-protected 
+	 * This is the default for special pages. If you display a CSRF-protected
 	 * form on an ordinary view page, then you need to call this function.
+	 *
+	 * @param $enable bool
 	 */
 	public function preventClickjacking( $enable = true ) {
 		$this->mPreventClickjacking = $enable;
@@ -1467,9 +1808,11 @@ class OutputPage {
 	}
 
 	/**
-	 * Get the X-Frame-Options header value (without the name part), or false 
-	 * if there isn't one. This is used by Skin to determine whether to enable 
+	 * Get the X-Frame-Options header value (without the name part), or false
+	 * if there isn't one. This is used by Skin to determine whether to enable
 	 * JavaScript frame-breaking, for clients that don't support X-Frame-Options.
+	 *
+	 * @return string
 	 */
 	public function getFrameOptions() {
 		global $wgBreakFrames, $wgEditPageFrameOptions;
@@ -1478,31 +1821,33 @@ class OutputPage {
 		} elseif ( $this->mPreventClickjacking && $wgEditPageFrameOptions ) {
 			return $wgEditPageFrameOptions;
 		}
+		return false;
 	}
 
 	/**
 	 * Send cache control HTTP headers
 	 */
 	public function sendCacheControl() {
-		global $wgUseSquid, $wgUseESI, $wgUseETag, $wgSquidMaxage, $wgRequest, $wgUseXVO;
+		global $wgUseSquid, $wgUseESI, $wgUseETag, $wgSquidMaxage, $wgUseXVO;
 
-		$response = $wgRequest->response();
+		$response = $this->getRequest()->response();
 		if ( $wgUseETag && $this->mETag ) {
 			$response->header( "ETag: $this->mETag" );
 		}
 
+		$this->addVaryHeader( 'Cookie' );
 		$this->addAcceptLanguage();
 
 		# don't serve compressed data to clients who can't handle it
 		# maintain different caches for logged-in users and non-logged in ones
-		$response->header( 'Vary: ' . join( ', ', array_keys( $this->mVaryHeader ) ) );
+		$response->header( $this->getVaryHeader() );
 
 		if ( $wgUseXVO ) {
 			# Add an X-Vary-Options header for Squid with Wikimedia patches
 			$response->header( $this->getXVO() );
 		}
 
-		if( !$this->uncacheableBecauseRequestVars() && $this->mEnableClientCache ) {
+		if( $this->mEnableClientCache ) {
 			if(
 				$wgUseSquid && session_id() == '' && !$this->isPrintable() &&
 				$this->mSquidMaxage != 0 && !$this->haveCacheVaryCookies()
@@ -1554,57 +1899,12 @@ class OutputPage {
 	 * @param $code Integer: status code
 	 * @return String or null: message or null if $code is not in the list of
 	 *         messages
+	 *
+	 * @deprecated since 1.18 Use HttpStatus::getMessage() instead.
 	 */
 	public static function getStatusMessage( $code ) {
-		static $statusMessage = array(
-			100 => 'Continue',
-			101 => 'Switching Protocols',
-			102 => 'Processing',
-			200 => 'OK',
-			201 => 'Created',
-			202 => 'Accepted',
-			203 => 'Non-Authoritative Information',
-			204 => 'No Content',
-			205 => 'Reset Content',
-			206 => 'Partial Content',
-			207 => 'Multi-Status',
-			300 => 'Multiple Choices',
-			301 => 'Moved Permanently',
-			302 => 'Found',
-			303 => 'See Other',
-			304 => 'Not Modified',
-			305 => 'Use Proxy',
-			307 => 'Temporary Redirect',
-			400 => 'Bad Request',
-			401 => 'Unauthorized',
-			402 => 'Payment Required',
-			403 => 'Forbidden',
-			404 => 'Not Found',
-			405 => 'Method Not Allowed',
-			406 => 'Not Acceptable',
-			407 => 'Proxy Authentication Required',
-			408 => 'Request Timeout',
-			409 => 'Conflict',
-			410 => 'Gone',
-			411 => 'Length Required',
-			412 => 'Precondition Failed',
-			413 => 'Request Entity Too Large',
-			414 => 'Request-URI Too Large',
-			415 => 'Unsupported Media Type',
-			416 => 'Request Range Not Satisfiable',
-			417 => 'Expectation Failed',
-			422 => 'Unprocessable Entity',
-			423 => 'Locked',
-			424 => 'Failed Dependency',
-			500 => 'Internal Server Error',
-			501 => 'Not Implemented',
-			502 => 'Bad Gateway',
-			503 => 'Service Unavailable',
-			504 => 'Gateway Timeout',
-			505 => 'HTTP Version Not Supported',
-			507 => 'Insufficient Storage'
-		);
-		return isset( $statusMessage[$code] ) ? $statusMessage[$code] : null;
+		wfDeprecated( __METHOD__ );
+		return HttpStatus::getMessage( $code );
 	}
 
 	/**
@@ -1612,118 +1912,86 @@ class OutputPage {
 	 * the object, let's actually output it:
 	 */
 	public function output() {
-		global $wgUser, $wgOutputEncoding, $wgRequest;
-		global $wgLanguageCode, $wgDebugRedirects, $wgMimeType;
-		global $wgUseAjax, $wgAjaxWatch;
-		global $wgEnableMWSuggest, $wgUniversalEditButton;
-		global $wgArticle;
+		global $wgLanguageCode, $wgDebugRedirects, $wgMimeType, $wgVaryOnXFP;
 
 		if( $this->mDoNothing ) {
 			return;
 		}
+
 		wfProfileIn( __METHOD__ );
+
+		$response = $this->getRequest()->response();
+
 		if ( $this->mRedirect != '' ) {
 			# Standards require redirect URLs to be absolute
-			$this->mRedirect = wfExpandUrl( $this->mRedirect );
-			if( $this->mRedirectCode == '301' || $this->mRedirectCode == '303' ) {
-				if( !$wgDebugRedirects ) {
-					$message = self::getStatusMessage( $this->mRedirectCode );
-					$wgRequest->response()->header( "HTTP/1.1 {$this->mRedirectCode} $message" );
-				}
-				$this->mLastModified = wfTimestamp( TS_RFC2822 );
-			}
-			$this->sendCacheControl();
+			$this->mRedirect = wfExpandUrl( $this->mRedirect, PROTO_CURRENT );
 
-			$wgRequest->response()->header( "Content-Type: text/html; charset=utf-8" );
-			if( $wgDebugRedirects ) {
-				$url = htmlspecialchars( $this->mRedirect );
-				print "<html>\n<head>\n<title>Redirect</title>\n</head>\n<body>\n";
-				print "<p>Location: <a href=\"$url\">$url</a></p>\n";
-				print "</body>\n</html>\n";
-			} else {
-				$wgRequest->response()->header( 'Location: ' . $this->mRedirect );
+			$redirect = $this->mRedirect;
+			$code = $this->mRedirectCode;
+
+			if( wfRunHooks( "BeforePageRedirect", array( $this, &$redirect, &$code ) ) ) {
+				if( $code == '301' || $code == '303' ) {
+					if( !$wgDebugRedirects ) {
+						$message = HttpStatus::getMessage( $code );
+						$response->header( "HTTP/1.1 $code $message" );
+					}
+					$this->mLastModified = wfTimestamp( TS_RFC2822 );
+				}
+				if ( $wgVaryOnXFP ) {
+					$this->addVaryHeader( 'X-Forwarded-Proto' );
+				}
+				$this->sendCacheControl();
+
+				$response->header( "Content-Type: text/html; charset=utf-8" );
+				if( $wgDebugRedirects ) {
+					$url = htmlspecialchars( $redirect );
+					print "<html>\n<head>\n<title>Redirect</title>\n</head>\n<body>\n";
+					print "<p>Location: <a href=\"$url\">$url</a></p>\n";
+					print "</body>\n</html>\n";
+				} else {
+					$response->header( 'Location: ' . $redirect );
+				}
 			}
+
 			wfProfileOut( __METHOD__ );
 			return;
 		} elseif ( $this->mStatusCode ) {
-			$message = self::getStatusMessage( $this->mStatusCode );
+			$message = HttpStatus::getMessage( $this->mStatusCode );
 			if ( $message ) {
-				$wgRequest->response()->header( 'HTTP/1.1 ' . $this->mStatusCode . ' ' . $message );
+				$response->header( 'HTTP/1.1 ' . $this->mStatusCode . ' ' . $message );
 			}
 		}
-
-		$sk = $wgUser->getSkin();
-
-		// Add base resources
-		$this->addModules( 'mediawiki.util' );
-		global $wgIncludeLegacyJavaScript;
-		if( $wgIncludeLegacyJavaScript ){
-			$this->addModules( 'mediawiki.legacy.wikibits' );
-		}
-
-		// Add various resources if required
-		if ( $wgUseAjax ) {
-			$this->addModules( 'mediawiki.legacy.ajax' );
-
-			wfRunHooks( 'AjaxAddScript', array( &$this ) );
-
-			if( $wgAjaxWatch && $wgUser->isLoggedIn() ) {
-				$this->addModules( 'mediawiki.legacy.ajaxwatch' );
-			}
-
-			if ( $wgEnableMWSuggest && !$wgUser->getOption( 'disablesuggest', false ) ) {
-				$this->addModules( 'mediawiki.legacy.mwsuggest' );
-			}
-		}
-
-		if( $wgUser->getBoolOption( 'editsectiononrightclick' ) ) {
-			$this->addModules( 'mediawiki.action.view.rightClickEdit' );
-		}
-
-		if( $wgUniversalEditButton ) {
-			if( isset( $wgArticle ) && $this->getTitle() && $this->getTitle()->quickUserCan( 'edit' )
-				&& ( $this->getTitle()->exists() || $this->getTitle()->quickUserCan( 'create' ) ) ) {
-				// Original UniversalEditButton
-				$msg = wfMsg( 'edit' );
-				$this->addLink( array(
-					'rel' => 'alternate',
-					'type' => 'application/x-wiki',
-					'title' => $msg,
-					'href' => $this->getTitle()->getLocalURL( 'action=edit' )
-				) );
-				// Alternate edit link
-				$this->addLink( array(
-					'rel' => 'edit',
-					'title' => $msg,
-					'href' => $this->getTitle()->getLocalURL( 'action=edit' )
-				) );
-			}
-		}
-
 
 		# Buffer output; final headers may depend on later processing
 		ob_start();
 
-		$wgRequest->response()->header( "Content-type: $wgMimeType; charset={$wgOutputEncoding}" );
-		$wgRequest->response()->header( 'Content-language: ' . $wgLanguageCode );
+		$response->header( "Content-type: $wgMimeType; charset=UTF-8" );
+		$response->header( 'Content-language: ' . $wgLanguageCode );
 
 		// Prevent framing, if requested
 		$frameOptions = $this->getFrameOptions();
 		if ( $frameOptions ) {
-			$wgRequest->response()->header( "X-Frame-Options: $frameOptions" );
+			$response->header( "X-Frame-Options: $frameOptions" );
 		}
 
 		if ( $this->mArticleBodyOnly ) {
 			$this->out( $this->mBodytext );
 		} else {
+			$this->addDefaultModules();
+
+			$sk = $this->getSkin();
+
 			// Hook that allows last minute changes to the output page, e.g.
 			// adding of CSS or Javascript by extensions.
 			wfRunHooks( 'BeforePageDisplay', array( &$this, &$sk ) );
 
 			wfProfileIn( 'Output-skin' );
-			$sk->outputPage( $this );
+			$sk->outputPage();
 			wfProfileOut( 'Output-skin' );
 		}
+
+		// This hook allows last minute changes to final overall output by modifying output buffer
+		wfRunHooks( 'AfterFinalPageOutput', array( $this ) );
 
 		$this->sendCacheControl();
 		ob_end_flush();
@@ -1731,143 +1999,68 @@ class OutputPage {
 	}
 
 	/**
-	 * Actually output something with print(). Performs an iconv to the
-	 * output encoding, if needed.
+	 * Actually output something with print().
 	 *
 	 * @param $ins String: the string to output
 	 */
 	public function out( $ins ) {
-		global $wgInputEncoding, $wgOutputEncoding, $wgContLang;
-		if ( 0 == strcmp( $wgInputEncoding, $wgOutputEncoding ) ) {
-			$outs = $ins;
-		} else {
-			$outs = $wgContLang->iconv( $wgInputEncoding, $wgOutputEncoding, $ins );
-			if ( false === $outs ) {
-				$outs = $ins;
-			}
-		}
-		print $outs;
-	}
-
-	/**
-	 * @todo document
-	 */
-	public static function setEncodings() {
-		global $wgInputEncoding, $wgOutputEncoding;
-
-		$wgInputEncoding = strtolower( $wgInputEncoding );
-
-		if ( empty( $_SERVER['HTTP_ACCEPT_CHARSET'] ) ) {
-			$wgOutputEncoding = strtolower( $wgOutputEncoding );
-			return;
-		}
-		$wgOutputEncoding = $wgInputEncoding;
-	}
-
-	/**
-	 * @deprecated use wfReportTime() instead.
-	 *
-	 * @return String
-	 */
-	public function reportTime() {
-		wfDeprecated( __METHOD__ );
-		$time = wfReportTime();
-		return $time;
+		print $ins;
 	}
 
 	/**
 	 * Produce a "user is blocked" page.
-	 *
-	 * @param $return Boolean: whether to have a "return to $wgTitle" message or not.
-	 * @return nothing
+	 * @deprecated since 1.18
 	 */
-	function blockedPage( $return = true ) {
-		global $wgUser, $wgContLang, $wgLang;
+	function blockedPage() {
+		throw new UserBlockedError( $this->getUser()->mBlock );
+	}
 
-		$this->setPageTitle( wfMsg( 'blockedtitle' ) );
+	/**
+	 * Prepare this object to display an error page; disable caching and
+	 * indexing, clear the current text and redirect, set the page's title
+	 * and optionally an custom HTML title (content of the "<title>" tag).
+	 *
+	 * @param $pageTitle String|Message will be passed directly to setPageTitle()
+	 * @param $htmlTitle String|Message will be passed directly to setHTMLTitle();
+	 *                   optional, if not passed the "<title>" attribute will be
+	 *                   based on $pageTitle
+	 */
+	public function prepareErrorPage( $pageTitle, $htmlTitle = false ) {
+		$this->setPageTitle( $pageTitle );
+		if ( $htmlTitle !== false ) {
+			$this->setHTMLTitle( $htmlTitle );
+		}
 		$this->setRobotPolicy( 'noindex,nofollow' );
 		$this->setArticleRelated( false );
-
-		$name = User::whoIs( $wgUser->blockedBy() );
-		$reason = $wgUser->blockedFor();
-		if( $reason == '' ) {
-			$reason = wfMsg( 'blockednoreason' );
-		}
-		$blockTimestamp = $wgLang->timeanddate(
-			wfTimestamp( TS_MW, $wgUser->mBlock->mTimestamp ), true
-		);
-		$ip = wfGetIP();
-
-		$link = '[[' . $wgContLang->getNsText( NS_USER ) . ":{$name}|{$name}]]";
-
-		$blockid = $wgUser->mBlock->mId;
-
-		$blockExpiry = $wgUser->mBlock->mExpiry;
-		if ( $blockExpiry == 'infinity' ) {
-			// Entry in database (table ipblocks) is 'infinity' but 'ipboptions' uses 'infinite' or 'indefinite'
-			// Search for localization in 'ipboptions'
-			$scBlockExpiryOptions = wfMsg( 'ipboptions' );
-			foreach ( explode( ',', $scBlockExpiryOptions ) as $option ) {
-				if ( strpos( $option, ':' ) === false ) {
-					continue;
-				}
-				list( $show, $value ) = explode( ':', $option );
-				if ( $value == 'infinite' || $value == 'indefinite' ) {
-					$blockExpiry = $show;
-					break;
-				}
-			}
-		} else {
-			$blockExpiry = $wgLang->timeanddate(
-				wfTimestamp( TS_MW, $blockExpiry ),
-				true
-			);
-		}
-
-		if ( $wgUser->mBlock->mAuto ) {
-			$msg = 'autoblockedtext';
-		} else {
-			$msg = 'blockedtext';
-		}
-
-		/* $ip returns who *is* being blocked, $intended contains who was meant to be blocked.
-		 * This could be a username, an IP range, or a single IP. */
-		$intended = $wgUser->mBlock->mAddress;
-
-		$this->addWikiMsg(
-			$msg, $link, $reason, $ip, $name, $blockid, $blockExpiry,
-			$intended, $blockTimestamp
-		);
-
-		# Don't auto-return to special pages
-		if( $return ) {
-			$return = $this->getTitle()->getNamespace() > -1 ? $this->getTitle() : null;
-			$this->returnToMain( null, $return );
-		}
+		$this->enableClientCache( false );
+		$this->mRedirect = '';
+		$this->clearSubtitle();
+		$this->clearHTML();
 	}
 
 	/**
 	 * Output a standard error page
 	 *
-	 * @param $title String: message key for page title
-	 * @param $msg String: message key for page text
-	 * @param $params Array: message parameters
+	 * showErrorPage( 'titlemsg', 'pagetextmsg', array( 'param1', 'param2' ) );
+	 * showErrorPage( 'titlemsg', $messageObject );
+	 * showErrorPage( $titleMessageObj, $messageObject );
+	 *
+	 * @param $title Mixed: message key (string) for page title, or a Message object
+	 * @param $msg Mixed: message key (string) for page text, or a Message object
+	 * @param $params Array: message parameters; ignored if $msg is a Message object
 	 */
 	public function showErrorPage( $title, $msg, $params = array() ) {
-		if ( $this->getTitle() ) {
-			$this->mDebugtext .= 'Original title: ' . $this->getTitle()->getPrefixedText() . "\n";
+		if( !$title instanceof Message ) {
+			$title = $this->msg( $title );
 		}
-		$this->setPageTitle( wfMsg( $title ) );
-		$this->setHTMLTitle( wfMsg( 'errorpagetitle' ) );
-		$this->setRobotPolicy( 'noindex,nofollow' );
-		$this->setArticleRelated( false );
-		$this->enableClientCache( false );
-		$this->mRedirect = '';
-		$this->mBodytext = '';
 
-		array_unshift( $params, 'parse' );
-		array_unshift( $params, $msg );
-		$this->addHTML( call_user_func_array( 'wfMsgExt', $params ) );
+		$this->prepareErrorPage( $title );
+
+		if ( $msg instanceof Message ){
+			$this->addHTML( $msg->parse() );
+		} else {
+			$this->addWikiMsgArray( $msg, $params );
+		}
 
 		$this->returnToMain();
 	}
@@ -1879,16 +2072,71 @@ class OutputPage {
 	 * @param $action String: action that was denied or null if unknown
 	 */
 	public function showPermissionsErrorPage( $errors, $action = null ) {
-		$this->mDebugtext .= 'Original title: ' .
-		$this->getTitle()->getPrefixedText() . "\n";
-		$this->setPageTitle( wfMsg( 'permissionserrors' ) );
-		$this->setHTMLTitle( wfMsg( 'permissionserrors' ) );
-		$this->setRobotPolicy( 'noindex,nofollow' );
-		$this->setArticleRelated( false );
-		$this->enableClientCache( false );
-		$this->mRedirect = '';
-		$this->mBodytext = '';
-		$this->addWikiText( $this->formatPermissionsErrorMessage( $errors, $action ) );
+		global $wgGroupPermissions;
+
+		// For some action (read, edit, create and upload), display a "login to do this action"
+		// error if all of the following conditions are met:
+		// 1. the user is not logged in
+		// 2. the only error is insufficient permissions (i.e. no block or something else)
+		// 3. the error can be avoided simply by logging in
+		if ( in_array( $action, array( 'read', 'edit', 'createpage', 'createtalk', 'upload' ) )
+			&& $this->getUser()->isAnon() && count( $errors ) == 1 && isset( $errors[0][0] )
+			&& ( $errors[0][0] == 'badaccess-groups' || $errors[0][0] == 'badaccess-group0' )
+			&& ( ( isset( $wgGroupPermissions['user'][$action] ) && $wgGroupPermissions['user'][$action] )
+			|| ( isset( $wgGroupPermissions['autoconfirmed'][$action] ) && $wgGroupPermissions['autoconfirmed'][$action] ) )
+		) {
+			$displayReturnto = null;
+
+			# Due to bug 32276, if a user does not have read permissions,
+			# $this->getTitle() will just give Special:Badtitle, which is
+			# not especially useful as a returnto parameter. Use the title
+			# from the request instead, if there was one.
+			$request = $this->getRequest();
+			$returnto = Title::newFromURL( $request->getVal( 'title', '' ) );
+			if ( $action == 'edit' ) {
+				$msg = 'whitelistedittext';
+				$displayReturnto = $returnto;
+			} elseif ( $action == 'createpage' || $action == 'createtalk' ) {
+				$msg = 'nocreatetext';
+			} elseif ( $action == 'upload' ) {
+				$msg = 'uploadnologintext';
+			} else { # Read
+				$msg = 'loginreqpagetext';
+				$displayReturnto = Title::newMainPage();
+			}
+
+			$query = array();
+
+			if ( $returnto ) {
+				$query['returnto'] = $returnto->getPrefixedText();
+
+				if ( !$request->wasPosted() ) {
+					$returntoquery = $request->getValues();
+					unset( $returntoquery['title'] );
+					unset( $returntoquery['returnto'] );
+					unset( $returntoquery['returntoquery'] );
+					$query['returntoquery'] = wfArrayToCGI( $returntoquery );
+				}
+			}
+			$loginLink = Linker::linkKnown(
+				SpecialPage::getTitleFor( 'Userlogin' ),
+				$this->msg( 'loginreqlink' )->escaped(),
+				array(),
+				$query
+			);
+
+			$this->prepareErrorPage( $this->msg( 'loginreqtitle' ) );
+			$this->addHTML( $this->msg( $msg )->rawParams( $loginLink )->parse() );
+
+			# Don't return to a page the user can't read otherwise
+			# we'll end up in a pointless loop
+			if ( $displayReturnto && $displayReturnto->userCan( 'read', $this->getUser() ) ) {
+				$this->returnToMain( null, $displayReturnto );
+			}
+		} else {
+			$this->prepareErrorPage( $this->msg( 'permissionserrors' ) );
+			$this->addWikiText( $this->formatPermissionsErrorMessage( $errors, $action ) );
+		}
 	}
 
 	/**
@@ -1898,11 +2146,7 @@ class OutputPage {
 	 * @param $version Mixed: the version of MediaWiki needed to use the page
 	 */
 	public function versionRequired( $version ) {
-		$this->setPageTitle( wfMsg( 'versionrequired', $version ) );
-		$this->setHTMLTitle( wfMsg( 'versionrequired', $version ) );
-		$this->setRobotPolicy( 'noindex,nofollow' );
-		$this->setArticleRelated( false );
-		$this->mBodytext = '';
+		$this->prepareErrorPage( $this->msg( 'versionrequired', $version ) );
 
 		$this->addWikiMsg( 'versionrequiredtext', $version );
 		$this->returnToMain();
@@ -1910,86 +2154,39 @@ class OutputPage {
 
 	/**
 	 * Display an error page noting that a given permission bit is required.
-	 *
+	 * @deprecated since 1.18, just throw the exception directly
 	 * @param $permission String: key required
 	 */
 	public function permissionRequired( $permission ) {
-		global $wgLang;
-
-		$this->setPageTitle( wfMsg( 'badaccess' ) );
-		$this->setHTMLTitle( wfMsg( 'errorpagetitle' ) );
-		$this->setRobotPolicy( 'noindex,nofollow' );
-		$this->setArticleRelated( false );
-		$this->mBodytext = '';
-
-		$groups = array_map( array( 'User', 'makeGroupLinkWiki' ),
-			User::getGroupsWithPermission( $permission ) );
-		if( $groups ) {
-			$this->addWikiMsg(
-				'badaccess-groups',
-				$wgLang->commaList( $groups ),
-				count( $groups )
-			);
-		} else {
-			$this->addWikiMsg( 'badaccess-group0' );
-		}
-		$this->returnToMain();
+		throw new PermissionsError( $permission );
 	}
 
 	/**
 	 * Produce the stock "please login to use the wiki" page
+	 *
+	 * @deprecated in 1.19; throw the exception directly
 	 */
 	public function loginToUse() {
-		global $wgUser;
-
-		if( $wgUser->isLoggedIn() ) {
-			$this->permissionRequired( 'read' );
-			return;
-		}
-
-		$skin = $wgUser->getSkin();
-
-		$this->setPageTitle( wfMsg( 'loginreqtitle' ) );
-		$this->setHtmlTitle( wfMsg( 'errorpagetitle' ) );
-		$this->setRobotPolicy( 'noindex,nofollow' );
-		$this->setArticleFlag( false );
-
-		$loginTitle = SpecialPage::getTitleFor( 'Userlogin' );
-		$loginLink = $skin->link(
-			$loginTitle,
-			wfMsgHtml( 'loginreqlink' ),
-			array(),
-			array( 'returnto' => $this->getTitle()->getPrefixedText() ),
-			array( 'known', 'noclasses' )
-		);
-		$this->addHTML( wfMsgWikiHtml( 'loginreqpagetext', $loginLink ) );
-		$this->addHTML( "\n<!--" . $this->getTitle()->getPrefixedUrl() . '-->' );
-
-		# Don't return to the main page if the user can't read it
-		# otherwise we'll end up in a pointless loop
-		$mainPage = Title::newMainPage();
-		if( $mainPage->userCanRead() ) {
-			$this->returnToMain( null, $mainPage );
-		}
+		throw new PermissionsError( 'read' );
 	}
 
 	/**
 	 * Format a list of error messages
 	 *
-	 * @param $errors An array of arrays returned by Title::getUserPermissionsErrors
+	 * @param $errors Array of arrays returned by Title::getUserPermissionsErrors
 	 * @param $action String: action that was denied or null if unknown
 	 * @return String: the wikitext error-messages, formatted into a list.
 	 */
 	public function formatPermissionsErrorMessage( $errors, $action = null ) {
 		if ( $action == null ) {
-			$text = wfMsgNoTrans( 'permissionserrorstext', count( $errors ) ) . "\n\n";
+			$text = $this->msg( 'permissionserrorstext', count( $errors ) )->plain() . "\n\n";
 		} else {
-			$action_desc = wfMsgNoTrans( "action-$action" );
-			$text = wfMsgNoTrans(
+			$action_desc = $this->msg( "action-$action" )->plain();
+			$text = $this->msg(
 				'permissionserrorstext-withaction',
 				count( $errors ),
 				$action_desc
-			) . "\n\n";
+			)->plain() . "\n\n";
 		}
 
 		if ( count( $errors ) > 1 ) {
@@ -1997,13 +2194,13 @@ class OutputPage {
 
 			foreach( $errors as $error ) {
 				$text .= '<li>';
-				$text .= call_user_func_array( 'wfMsgNoTrans', $error );
+				$text .= call_user_func_array( array( $this, 'msg' ), $error )->plain();
 				$text .= "</li>\n";
 			}
 			$text .= '</ul>';
 		} else {
 			$text .= "<div class=\"permissions-errors\">\n" .
-					call_user_func_array( 'wfMsgNoTrans', reset( $errors ) ) .
+					call_user_func_array( array( $this, 'msg' ), reset( $errors ) )->plain() .
 					"\n</div>";
 		}
 
@@ -2031,9 +2228,6 @@ class OutputPage {
 	 * @param $action    String: action that was denied or null if unknown
 	 */
 	public function readOnlyPage( $source = null, $protected = false, $reasons = array(), $action = null ) {
-		global $wgUser;
-		$skin = $wgUser->getSkin();
-
 		$this->setRobotPolicy( 'noindex,nofollow' );
 		$this->setArticleRelated( false );
 
@@ -2046,39 +2240,37 @@ class OutputPage {
 		if ( !empty( $reasons ) ) {
 			// Permissions error
 			if( $source ) {
-				$this->setPageTitle( wfMsg( 'viewsource' ) );
-				$this->setSubtitle(
-					wfMsg( 'viewsourcefor', $skin->linkKnown( $this->getTitle() ) )
-				);
+				$this->setPageTitle( $this->msg( 'viewsource-title', $this->getTitle()->getPrefixedText() ) );
+				$this->addBacklinkSubtitle( $this->getTitle() );
 			} else {
-				$this->setPageTitle( wfMsg( 'badaccess' ) );
+				$this->setPageTitle( $this->msg( 'badaccess' ) );
 			}
 			$this->addWikiText( $this->formatPermissionsErrorMessage( $reasons, $action ) );
 		} else {
 			// Wiki is read only
-			$this->setPageTitle( wfMsg( 'readonly' ) );
-			$reason = wfReadOnlyReason();
-			$this->wrapWikiMsg( "<div class='mw-readonly-error'>\n$1\n</div>", array( 'readonlytext', $reason ) );
+			throw new ReadOnlyError;
 		}
 
 		// Show source, if supplied
 		if( is_string( $source ) ) {
 			$this->addWikiMsg( 'viewsourcetext' );
 
+			$pageLang = $this->getTitle()->getPageLanguage();
 			$params = array(
 				'id'   => 'wpTextbox1',
 				'name' => 'wpTextbox1',
-				'cols' => $wgUser->getOption( 'cols' ),
-				'rows' => $wgUser->getOption( 'rows' ),
-				'readonly' => 'readonly'
+				'cols' => $this->getUser()->getOption( 'cols' ),
+				'rows' => $this->getUser()->getOption( 'rows' ),
+				'readonly' => 'readonly',
+				'lang' => $pageLang->getHtmlCode(),
+				'dir' => $pageLang->getDir(),
 			);
 			$this->addHTML( Html::element( 'textarea', $params, $source ) );
 
 			// Show templates used by this article
-			$skin = $wgUser->getSkin();
-			$article = new Article( $this->getTitle() );
+			$templates = Linker::formatTemplates( $this->getTitle()->getTemplateLinksFrom() );
 			$this->addHTML( "<div class='templatesUsed'>
-{$skin->formatTemplates( $article->getUsedTemplates() )}
+$templates
 </div>
 " );
 		}
@@ -2091,96 +2283,71 @@ class OutputPage {
 		}
 	}
 
-	/** @deprecated */
-	public function errorpage( $title, $msg ) {
-		wfDeprecated( __METHOD__ );
-		throw new ErrorPageError( $title, $msg );
+	/**
+	 * Turn off regular page output and return an error reponse
+	 * for when rate limiting has triggered.
+	 */
+	public function rateLimited() {
+		throw new ThrottledError;
 	}
 
-	/** @deprecated */
-	public function databaseError( $fname, $sql, $error, $errno ) {
-		throw new MWException( "OutputPage::databaseError is obsolete\n" );
-	}
-
-	/** @deprecated */
-	public function fatalError( $message ) {
-		wfDeprecated( __METHOD__ );
-		throw new FatalError( $message );
-	}
-
-	/** @deprecated */
-	public function unexpectedValueError( $name, $val ) {
-		wfDeprecated( __METHOD__ );
-		throw new FatalError( wfMsg( 'unexpected', $name, $val ) );
-	}
-
-	/** @deprecated */
-	public function fileCopyError( $old, $new ) {
-		wfDeprecated( __METHOD__ );
-		throw new FatalError( wfMsg( 'filecopyerror', $old, $new ) );
-	}
-
-	/** @deprecated */
-	public function fileRenameError( $old, $new ) {
-		wfDeprecated( __METHOD__ );
-		throw new FatalError( wfMsg( 'filerenameerror', $old, $new ) );
-	}
-
-	/** @deprecated */
-	public function fileDeleteError( $name ) {
-		wfDeprecated( __METHOD__ );
-		throw new FatalError( wfMsg( 'filedeleteerror', $name ) );
-	}
-
-	/** @deprecated */
-	public function fileNotFoundError( $name ) {
-		wfDeprecated( __METHOD__ );
-		throw new FatalError( wfMsg( 'filenotfound', $name ) );
+	/**
+	 * Show a warning about slave lag
+	 *
+	 * If the lag is higher than $wgSlaveLagCritical seconds,
+	 * then the warning is a bit more obvious. If the lag is
+	 * lower than $wgSlaveLagWarning, then no warning is shown.
+	 *
+	 * @param $lag Integer: slave lag
+	 */
+	public function showLagWarning( $lag ) {
+		global $wgSlaveLagWarning, $wgSlaveLagCritical;
+		if( $lag >= $wgSlaveLagWarning ) {
+			$message = $lag < $wgSlaveLagCritical
+				? 'lag-warn-normal'
+				: 'lag-warn-high';
+			$wrap = Html::rawElement( 'div', array( 'class' => "mw-{$message}" ), "\n$1\n" );
+			$this->wrapWikiMsg( "$wrap\n", array( $message, $this->getLanguage()->formatNum( $lag ) ) );
+		}
 	}
 
 	public function showFatalError( $message ) {
-		$this->setPageTitle( wfMsg( 'internalerror' ) );
-		$this->setRobotPolicy( 'noindex,nofollow' );
-		$this->setArticleRelated( false );
-		$this->enableClientCache( false );
-		$this->mRedirect = '';
-		$this->mBodytext = $message;
+		$this->prepareErrorPage( $this->msg( 'internalerror' ) );
+
+		$this->addHTML( $message );
 	}
 
 	public function showUnexpectedValueError( $name, $val ) {
-		$this->showFatalError( wfMsg( 'unexpected', $name, $val ) );
+		$this->showFatalError( $this->msg( 'unexpected', $name, $val )->text() );
 	}
 
 	public function showFileCopyError( $old, $new ) {
-		$this->showFatalError( wfMsg( 'filecopyerror', $old, $new ) );
+		$this->showFatalError( $this->msg( 'filecopyerror', $old, $new )->text() );
 	}
 
 	public function showFileRenameError( $old, $new ) {
-		$this->showFatalError( wfMsg( 'filerenameerror', $old, $new ) );
+		$this->showFatalError( $this->msg( 'filerenameerror', $old, $new )->text() );
 	}
 
 	public function showFileDeleteError( $name ) {
-		$this->showFatalError( wfMsg( 'filedeleteerror', $name ) );
+		$this->showFatalError( $this->msg( 'filedeleteerror', $name )->text() );
 	}
 
 	public function showFileNotFoundError( $name ) {
-		$this->showFatalError( wfMsg( 'filenotfound', $name ) );
+		$this->showFatalError( $this->msg( 'filenotfound', $name )->text() );
 	}
 
 	/**
 	 * Add a "return to" link pointing to a specified title
 	 *
 	 * @param $title Title to link
-	 * @param $query String: query string
+	 * @param $query Array query string parameters
 	 * @param $text String text of the link (input is not escaped)
 	 */
 	public function addReturnTo( $title, $query = array(), $text = null ) {
-		global $wgUser;
 		$this->addLink( array( 'rel' => 'next', 'href' => $title->getFullURL() ) );
-		$link = wfMsgHtml(
-			'returnto',
-			$wgUser->getSkin()->link( $title, $text, array(), $query )
-		);
+		$link = $this->msg( 'returnto' )->rawParams(
+			Linker::link( $title, $text, array(), $query ) )->escaped();
 		$this->addHTML( "<p id=\"mw-returnto\">{$link}</p>\n" );
 	}
 
@@ -2188,19 +2355,17 @@ class OutputPage {
 	 * Add a "return to" link pointing to a specified title,
 	 * or the title indicated in the request, or else the main page
 	 *
-	 * @param $unused No longer used
+	 * @param $unused
 	 * @param $returnto Title or String to return to
 	 * @param $returntoquery String: query string for the return to link
 	 */
 	public function returnToMain( $unused = null, $returnto = null, $returntoquery = null ) {
-		global $wgRequest;
-
 		if ( $returnto == null ) {
-			$returnto = $wgRequest->getText( 'returnto' );
+			$returnto = $this->getRequest()->getText( 'returnto' );
 		}
 
 		if ( $returntoquery == null ) {
-			$returntoquery = $wgRequest->getText( 'returntoquery' );
+			$returntoquery = $this->getRequest()->getText( 'returntoquery' );
 		}
 
 		if ( $returnto === '' ) {
@@ -2216,29 +2381,28 @@ class OutputPage {
 			$titleObj = Title::newMainPage();
 		}
 
-		$this->addReturnTo( $titleObj, $returntoquery );
+		$this->addReturnTo( $titleObj, wfCgiToArray( $returntoquery ) );
 	}
 
 	/**
 	 * @param $sk Skin The given Skin
 	 * @param $includeStyle Boolean: unused
-	 * @return String: The doctype, opening <html>, and head element.
+	 * @return String: The doctype, opening "<html>", and head element.
 	 */
 	public function headElement( Skin $sk, $includeStyle = true ) {
-		global $wgOutputEncoding, $wgMimeType;
-		global $wgUseTrackbacks, $wgHtml5;
-		global $wgUser, $wgRequest, $wgLang;
+		global $wgContLang;
+
+		$userdir = $this->getLanguage()->getDir();
+		$sitedir = $wgContLang->getDir();
 
 		if ( $sk->commonPrintStylesheet() ) {
 			$this->addModuleStyles( 'mediawiki.legacy.wikiprintable' );
 		}
-		$sk->setupUserCss( $this );
 
-		$lang = wfUILang();
-		$ret = Html::htmlHeader( array( 'lang' => $lang->getCode(), 'dir' => $lang->getDir() ) );
+		$ret = Html::htmlHeader( array( 'lang' => $this->getLanguage()->getHtmlCode(), 'dir' => $userdir, 'class' => 'client-nojs' ) );
 
 		if ( $this->getHTMLTitle() == '' ) {
-			$this->setHTMLTitle( wfMsg( 'pagetitle', $this->getPageTitle() ) );
+			$this->setHTMLTitle( $this->msg( 'pagetitle', $this->getPageTitle() ) );
 		}
 
 		$openHead = Html::openElement( 'head' );
@@ -2247,25 +2411,14 @@ class OutputPage {
 			$ret .= "$openHead\n";
 		}
 
-		if ( $wgHtml5 ) {
-			# More succinct than <meta http-equiv=Content-Type>, has the
-			# same effect
-			$ret .= Html::element( 'meta', array( 'charset' => $wgOutputEncoding ) ) . "\n";
-		} else {
-			$this->addMeta( 'http:Content-Type', "$wgMimeType; charset=$wgOutputEncoding" );
-		}
-
 		$ret .= Html::element( 'title', null, $this->getHTMLTitle() ) . "\n";
 
 		$ret .= implode( "\n", array(
-			$this->getHeadLinks( $sk ),
-			$this->buildCssLinks( $sk ),
+			$this->getHeadLinks( null, true ),
+			$this->buildCssLinks(),
+			$this->getHeadScripts(),
 			$this->getHeadItems()
 		) );
-
-		if ( $wgUseTrackbacks && $this->isArticleRelated() ) {
-			$ret .= $this->getTitle()->trackbackRDF();
-		}
 
 		$closeHead = Html::closeElement( 'head' );
 		if ( $closeHead ) {
@@ -2274,38 +2427,16 @@ class OutputPage {
 
 		$bodyAttrs = array();
 
-		# Crazy edit-on-double-click stuff
-		$action = $wgRequest->getVal( 'action', 'view' );
+		# Classes for LTR/RTL directionality support
+		$bodyAttrs['class'] = "mediawiki $userdir sitedir-$sitedir";
 
-		if (
-			$this->getTitle()->getNamespace() != NS_SPECIAL &&
-			!in_array( $action, array( 'edit', 'submit' ) ) &&
-			$wgUser->getOption( 'editondblclick' )
-		)
-		{
-			$editUrl = $this->getTitle()->getLocalUrl( $sk->editUrlOptions() );
-			$bodyAttrs['ondblclick'] = "document.location = '" .
-				Xml::escapeJsString( $editUrl ) . "'";
-		}
-
-		# Class bloat
-		$dir = wfUILang()->getDir();
-		$bodyAttrs['class'] = "mediawiki $dir";
-
-		if ( $wgLang->capitalizeAllNouns() ) {
+		if ( $this->getLanguage()->capitalizeAllNouns() ) {
 			# A <body> class is probably not the best way to do this . . .
 			$bodyAttrs['class'] .= ' capitalize-all-nouns';
 		}
-		$bodyAttrs['class'] .= ' ns-' . $this->getTitle()->getNamespace();
-		if ( $this->getTitle()->getNamespace() == NS_SPECIAL ) {
-			$bodyAttrs['class'] .= ' ns-special';
-		} elseif ( $this->getTitle()->isTalkPage() ) {
-			$bodyAttrs['class'] .= ' ns-talk';
-		} else {
-			$bodyAttrs['class'] .= ' ns-subject';
-		}
-		$bodyAttrs['class'] .= ' ' . Sanitizer::escapeClass( 'page-' . $this->getTitle()->getPrefixedText() );
-		$bodyAttrs['class'] .= ' skin-' . Sanitizer::escapeClass( $wgUser->getSkin()->getSkinName() );
+		$bodyAttrs['class'] .= ' ' . $sk->getPageClasses( $this->getTitle() );
+		$bodyAttrs['class'] .= ' skin-' . Sanitizer::escapeClass( $sk->getSkinName() );
+		$bodyAttrs['class'] .= ' action-' . Sanitizer::escapeClass( Action::getActionName( $this->getContext() ) );
 
 		$sk->addToBodyAttributes( $this, $bodyAttrs ); // Allow skins to add body attributes they need
 		wfRunHooks( 'OutputPageBodyAttributes', array( $this, $sk, &$bodyAttrs ) );
@@ -2316,67 +2447,114 @@ class OutputPage {
 	}
 
 	/**
+	 * Add the default ResourceLoader modules to this object
+	 */
+	private function addDefaultModules() {
+		global $wgIncludeLegacyJavaScript, $wgPreloadJavaScriptMwUtil, $wgUseAjax,
+			$wgAjaxWatch;
+
+		// Add base resources
+		$this->addModules( array(
+			'mediawiki.user',
+			'mediawiki.page.startup',
+			'mediawiki.page.ready',
+		) );
+		if ( $wgIncludeLegacyJavaScript ){
+			$this->addModules( 'mediawiki.legacy.wikibits' );
+		}
+
+		if ( $wgPreloadJavaScriptMwUtil ) {
+			$this->addModules( 'mediawiki.util' );
+		}
+
+		MWDebug::addModules( $this );
+
+		// Add various resources if required
+		if ( $wgUseAjax ) {
+			$this->addModules( 'mediawiki.legacy.ajax' );
+
+			wfRunHooks( 'AjaxAddScript', array( &$this ) );
+
+			if( $wgAjaxWatch && $this->getUser()->isLoggedIn() ) {
+				$this->addModules( 'mediawiki.page.watch.ajax' );
+			}
+
+			if ( !$this->getUser()->getOption( 'disablesuggest', false ) ) {
+				$this->addModules( 'mediawiki.searchSuggest' );
+			}
+		}
+
+		if ( $this->getUser()->getBoolOption( 'editsectiononrightclick' ) ) {
+			$this->addModules( 'mediawiki.action.view.rightClickEdit' );
+		}
+
+		# Crazy edit-on-double-click stuff
+		if ( $this->isArticle() && $this->getUser()->getOption( 'editondblclick' ) ) {
+			$this->addModules( 'mediawiki.action.view.dblClickEdit' );
+		}
+	}
+
+	/**
 	 * Get a ResourceLoader object associated with this OutputPage
+	 *
+	 * @return ResourceLoader
 	 */
 	public function getResourceLoader() {
 		if ( is_null( $this->mResourceLoader ) ) {
 			$this->mResourceLoader = new ResourceLoader();
 		}
 		return $this->mResourceLoader;
-	}		
+	}
 
 	/**
 	 * TODO: Document
-	 * @param $skin Skin
-	 * @param $modules Array/string with the module name
-	 * @param $only string May be styles, messages or scripts
+	 * @param $modules Array/string with the module name(s)
+	 * @param $only String ResourceLoaderModule TYPE_ class constant
 	 * @param $useESI boolean
-	 * @return string html <script> and <style> tags
+	 * @param $extraQuery Array with extra query parameters to add to each request. array( param => value )
+	 * @param $loadCall boolean If true, output an (asynchronous) mw.loader.load() call rather than a "<script src='...'>" tag
+	 * @return string html "<script>" and "<style>" tags
 	 */
-	protected function makeResourceLoaderLink( Skin $skin, $modules, $only, $useESI = false ) {
-		global $wgUser, $wgLang, $wgLoadScript, $wgResourceLoaderUseESI,
-			$wgResourceLoaderInlinePrivateModules, $wgRequest;
-		// Lazy-load ResourceLoader
-		// TODO: Should this be a static function of ResourceLoader instead?
-		$baseQuery = array(
-			'lang' => $wgLang->getCode(),
-			'debug' => ResourceLoader::inDebugMode() ? 'true' : 'false',
-			'skin' => $skin->getSkinName(),
-			'only' => $only,
-		);
-		// Propagate printable and handheld parameters if present
-		if ( $wgRequest->getBool( 'printable' ) ) {
-			$baseQuery['printable'] = 1;
-		}
-		if ( $wgRequest->getBool( 'handheld' ) ) {
-			$baseQuery['handheld'] = 1;
-		}
-		
+	protected function makeResourceLoaderLink( $modules, $only, $useESI = false, array $extraQuery = array(), $loadCall = false ) {
+		global $wgResourceLoaderUseESI;
+
+		$modules = (array) $modules;
+
 		if ( !count( $modules ) ) {
 			return '';
 		}
-		
+
 		if ( count( $modules ) > 1 ) {
 			// Remove duplicate module requests
-			$modules = array_unique( (array) $modules );
+			$modules = array_unique( $modules );
 			// Sort module names so requests are more uniform
 			sort( $modules );
-		
+
 			if ( ResourceLoader::inDebugMode() ) {
 				// Recursively call us for every item
 				$links = '';
 				foreach ( $modules as $name ) {
-					$links .= $this->makeResourceLoaderLink( $skin, $name, $only, $useESI );
+					$links .= $this->makeResourceLoaderLink( $name, $only, $useESI );
 				}
 				return $links;
 			}
 		}
-		
+
 		// Create keyed-by-group list of module objects from modules list
 		$groups = array();
 		$resourceLoader = $this->getResourceLoader();
-		foreach ( (array) $modules as $name ) {
+		foreach ( $modules as $name ) {
 			$module = $resourceLoader->getModule( $name );
+			# Check that we're allowed to include this module on this page
+			if ( !$module
+				|| ( $module->getOrigin() > $this->getAllowedModules( ResourceLoaderModule::TYPE_SCRIPTS )
+					&& $only == ResourceLoaderModule::TYPE_SCRIPTS )
+				|| ( $module->getOrigin() > $this->getAllowedModules( ResourceLoaderModule::TYPE_STYLES )
+					&& $only == ResourceLoaderModule::TYPE_STYLES )
+				)
+			{
+				continue;
+			}
 
 			$group = $module->getGroup();
 			if ( !isset( $groups[$group] ) ) {
@@ -2384,43 +2562,74 @@ class OutputPage {
 			}
 			$groups[$group][$name] = $module;
 		}
+
 		$links = '';
-		foreach ( $groups as $group => $modules ) {
-			$query = $baseQuery;
+		foreach ( $groups as $group => $grpModules ) {
 			// Special handling for user-specific groups
-			if ( ( $group === 'user' || $group === 'private' ) && $wgUser->isLoggedIn() ) {
-				$query['user'] = $wgUser->getName();
+			$user = null;
+			if ( ( $group === 'user' || $group === 'private' ) && $this->getUser()->isLoggedIn() ) {
+				$user = $this->getUser()->getName();
 			}
-			
+
 			// Create a fake request based on the one we are about to make so modules return
 			// correct timestamp and emptiness data
+			$query = ResourceLoader::makeLoaderQuery(
+				array(), // modules; not determined yet
+				$this->getLanguage()->getCode(),
+				$this->getSkin()->getSkinName(),
+				$user,
+				null, // version; not determined yet
+				ResourceLoader::inDebugMode(),
+				$only === ResourceLoaderModule::TYPE_COMBINED ? null : $only,
+				$this->isPrintable(),
+				$this->getRequest()->getBool( 'handheld' ),
+				$extraQuery
+			);
 			$context = new ResourceLoaderContext( $resourceLoader, new FauxRequest( $query ) );
-			// Drop modules that know they're empty
-			foreach ( $modules as $key => $module ) {
+			// Extract modules that know they're empty
+			$emptyModules = array ();
+			foreach ( $grpModules as $key => $module ) {
 				if ( $module->isKnownEmpty( $context ) ) {
-					unset( $modules[$key] );
+					$emptyModules[$key] = 'ready';
+					unset( $grpModules[$key] );
 				}
 			}
+			// Inline empty modules: since they're empty, just mark them as 'ready'
+			if ( count( $emptyModules ) > 0 && $only !== ResourceLoaderModule::TYPE_STYLES ) {
+				// If we're only getting the styles, we don't need to do anything for empty modules.
+				$links .= Html::inlineScript(
+
+						ResourceLoader::makeLoaderConditionalScript(
+
+								ResourceLoader::makeLoaderStateScript( $emptyModules )
+
+						)
+
+				) . "\n";
+			}
+
 			// If there are no modules left, skip this group
-			if ( $modules === array() ) {
+			if ( count( $grpModules ) === 0 ) {
 				continue;
 			}
-			
-			$query['modules'] = ResourceLoader::makePackedModulesString( array_keys( $modules ) );
-			
-			// Support inlining of private modules if configured as such
-			if ( $group === 'private' && $wgResourceLoaderInlinePrivateModules ) {
-				if ( $only == 'styles' ) {
+
+			// Inline private modules. These can't be loaded through load.php for security
+			// reasons, see bug 34907. Note that these modules should be loaded from
+			// getHeadScripts() before the first loader call. Otherwise other modules can't
+			// properly use them as dependencies (bug 30914)
+			if ( $group === 'private' ) {
+				if ( $only == ResourceLoaderModule::TYPE_STYLES ) {
 					$links .= Html::inlineStyle(
-						$resourceLoader->makeModuleResponse( $context, $modules )
+						$resourceLoader->makeModuleResponse( $context, $grpModules )
 					);
 				} else {
 					$links .= Html::inlineScript(
 						ResourceLoader::makeLoaderConditionalScript(
-							$resourceLoader->makeModuleResponse( $context, $modules )
+							$resourceLoader->makeModuleResponse( $context, $grpModules )
 						)
 					);
 				}
+				$links .= "\n";
 				continue;
 			}
 			// Special handling for the user group; because users might change their stuff
@@ -2428,125 +2637,424 @@ class OutputPage {
 			// timestamp of these user-changable modules so we can ensure cache misses on change
 			// This should NOT be done for the site group (bug 27564) because anons get that too
 			// and we shouldn't be putting timestamps in Squid-cached HTML
+			$version = null;
 			if ( $group === 'user' ) {
 				// Get the maximum timestamp
 				$timestamp = 1;
-				foreach ( $modules as $module ) {
+				foreach ( $grpModules as $module ) {
 					$timestamp = max( $timestamp, $module->getModifiedTime( $context ) );
 				}
 				// Add a version parameter so cache will break when things change
-				$query['version'] = wfTimestamp( TS_ISO_8601_BASIC, $timestamp );
+				$version = wfTimestamp( TS_ISO_8601_BASIC, $timestamp );
 			}
-			// Make queries uniform in order
-			ksort( $query );
 
-			$url = wfAppendQuery( $wgLoadScript, $query );
-			// Prevent the IE6 extension check from being triggered (bug 28840)
-			// by appending a character that's invalid in Windows extensions ('*')
-			$url .= '&*';
+			$url = ResourceLoader::makeLoaderURL(
+				array_keys( $grpModules ),
+				$this->getLanguage()->getCode(),
+				$this->getSkin()->getSkinName(),
+				$user,
+				$version,
+				ResourceLoader::inDebugMode(),
+				$only === ResourceLoaderModule::TYPE_COMBINED ? null : $only,
+				$this->isPrintable(),
+				$this->getRequest()->getBool( 'handheld' ),
+				$extraQuery
+			);
 			if ( $useESI && $wgResourceLoaderUseESI ) {
 				$esi = Xml::element( 'esi:include', array( 'src' => $url ) );
-				if ( $only == 'styles' ) {
-					$links .= Html::inlineStyle( $esi );
+				if ( $only == ResourceLoaderModule::TYPE_STYLES ) {
+					$link = Html::inlineStyle( $esi );
 				} else {
-					$links .= Html::inlineScript( $esi );
+					$link = Html::inlineScript( $esi );
 				}
 			} else {
 				// Automatically select style/script elements
-				if ( $only === 'styles' ) {
-					$links .= Html::linkedStyle( $url ) . "\n";
+				if ( $only === ResourceLoaderModule::TYPE_STYLES ) {
+					$link = Html::linkedStyle( $url );
+				} else if ( $loadCall ) {
+					$link = Html::inlineScript(
+						ResourceLoader::makeLoaderConditionalScript(
+							Xml::encodeJsCall( 'mw.loader.load', array( $url, 'text/javascript', true ) )
+						)
+					);
 				} else {
-					$links .= Html::linkedScript( $url ) . "\n";
+					$link = Html::linkedScript( $url );
 				}
+			}
+
+			if( $group == 'noscript' ){
+				$links .= Html::rawElement( 'noscript', array(), $link ) . "\n";
+			} else {
+				$links .= $link . "\n";
 			}
 		}
 		return $links;
 	}
 
 	/**
-	 * Gets the global variables and mScripts; also adds userjs to the end if
-	 * enabled. Despite the name, these scripts are no longer put in the
-	 * <head> but at the bottom of the <body>
+	 * JS stuff to put in the "<head>". This is the startup module, config
+	 * vars and modules marked with position 'top'
 	 *
-	 * @param $sk Skin object to use
 	 * @return String: HTML fragment
 	 */
-	function getHeadScripts( Skin $sk ) {
-		global $wgUser, $wgRequest, $wgUseSiteJs;
+	function getHeadScripts() {
+		global $wgResourceLoaderExperimentalAsyncLoading;
 
 		// Startup - this will immediately load jquery and mediawiki modules
-		$scripts = $this->makeResourceLoaderLink( $sk, 'startup', 'scripts', true );
+		$scripts = $this->makeResourceLoaderLink( 'startup', ResourceLoaderModule::TYPE_SCRIPTS, true );
 
-		// Configuration -- This could be merged together with the load and go, but
-		// makeGlobalVariablesScript returns a whole script tag -- grumble grumble...
-		$scripts .= Skin::makeGlobalVariablesScript( $sk->getSkinName() ) . "\n";
+		// Load config before anything else
+		$scripts .= Html::inlineScript(
+			ResourceLoader::makeLoaderConditionalScript(
+				ResourceLoader::makeConfigSetScript( $this->getJSVars() )
+			)
+		);
 
-		// Script and Messages "only" requests
-		$scripts .= $this->makeResourceLoaderLink( $sk, $this->getModuleScripts(), 'scripts' );
-		$scripts .= $this->makeResourceLoaderLink( $sk, $this->getModuleMessages(), 'messages' );
+		// Load embeddable private modules before any loader links
+		// This needs to be TYPE_COMBINED so these modules are properly wrapped
+		// in mw.loader.implement() calls and deferred until mw.user is available
+		$embedScripts = array( 'user.options', 'user.tokens' );
+		$scripts .= $this->makeResourceLoaderLink( $embedScripts, ResourceLoaderModule::TYPE_COMBINED );
+
+		// Script and Messages "only" requests marked for top inclusion
+		// Messages should go first
+		$scripts .= $this->makeResourceLoaderLink( $this->getModuleMessages( true, 'top' ), ResourceLoaderModule::TYPE_MESSAGES );
+		$scripts .= $this->makeResourceLoaderLink( $this->getModuleScripts( true, 'top' ), ResourceLoaderModule::TYPE_SCRIPTS );
 
 		// Modules requests - let the client calculate dependencies and batch requests as it likes
-		if ( $this->getModules() ) {
+		// Only load modules that have marked themselves for loading at the top
+		$modules = $this->getModules( true, 'top' );
+		if ( $modules ) {
 			$scripts .= Html::inlineScript(
 				ResourceLoader::makeLoaderConditionalScript(
-					Xml::encodeJsCall( 'mediaWiki.loader.load', array( $this->getModules() ) ) .
-					Xml::encodeJsCall( 'mediaWiki.loader.go', array() )
+					Xml::encodeJsCall( 'mw.loader.load', array( $modules ) )
 				)
-			) . "\n";
+			);
+		}
+
+		if ( $wgResourceLoaderExperimentalAsyncLoading ) {
+			$scripts .= $this->getScriptsForBottomQueue( true );
+		}
+
+		return $scripts;
+	}
+
+	/**
+	 * JS stuff to put at the 'bottom', which can either be the bottom of the "<body>"
+	 * or the bottom of the "<head>" depending on $wgResourceLoaderExperimentalAsyncLoading:
+	 * modules marked with position 'bottom', legacy scripts ($this->mScripts),
+	 * user preferences, site JS and user JS
+	 *
+	 * @param $inHead boolean If true, this HTML goes into the "<head>", if false it goes into the "<body>"
+	 * @return string
+	 */
+	function getScriptsForBottomQueue( $inHead ) {
+		global $wgUseSiteJs, $wgAllowUserJs;
+
+		// Script and Messages "only" requests marked for bottom inclusion
+		// If we're in the <head>, use load() calls rather than <script src="..."> tags
+		// Messages should go first
+		$scripts = $this->makeResourceLoaderLink( $this->getModuleMessages( true, 'bottom' ),
+			ResourceLoaderModule::TYPE_MESSAGES, /* $useESI = */ false, /* $extraQuery = */ array(),
+			/* $loadCall = */ $inHead
+		);
+		$scripts .= $this->makeResourceLoaderLink( $this->getModuleScripts( true, 'bottom' ),
+			ResourceLoaderModule::TYPE_SCRIPTS, /* $useESI = */ false, /* $extraQuery = */ array(),
+			/* $loadCall = */ $inHead
+		);
+
+		// Modules requests - let the client calculate dependencies and batch requests as it likes
+		// Only load modules that have marked themselves for loading at the bottom
+		$modules = $this->getModules( true, 'bottom' );
+		if ( $modules ) {
+			$scripts .= Html::inlineScript(
+				ResourceLoader::makeLoaderConditionalScript(
+					Xml::encodeJsCall( 'mw.loader.load', array( $modules, null, true ) )
+				)
+			);
 		}
 
 		// Legacy Scripts
 		$scripts .= "\n" . $this->mScripts;
 
+		$defaultModules = array();
+
 		// Add site JS if enabled
 		if ( $wgUseSiteJs ) {
-			$scripts .= $this->makeResourceLoaderLink( $sk, 'site', 'scripts' );
+			$scripts .= $this->makeResourceLoaderLink( 'site', ResourceLoaderModule::TYPE_SCRIPTS,
+				/* $useESI = */ false, /* $extraQuery = */ array(), /* $loadCall = */ $inHead
+			);
+			$defaultModules['site'] = 'loading';
+		} else {
+			// The wiki is configured to not allow a site module.
+			$defaultModules['site'] = 'missing';
 		}
 
-		// Add user JS if enabled - trying to load user.options as a bundle if possible
-		$userOptionsAdded = false;
-		if ( $this->isUserJsAllowed() && $wgUser->isLoggedIn() ) {
-			$action = $wgRequest->getVal( 'action', 'view' );
-			if( $this->mTitle && $this->mTitle->isJsSubpage() && $sk->userCanPreview( $action ) ) {
-				# XXX: additional security check/prompt?
-				$scripts .= Html::inlineScript( "\n" . $wgRequest->getText( 'wpTextbox1' ) . "\n" ) . "\n";
+		// Add user JS if enabled
+		if ( $wgAllowUserJs ) {
+			if ( $this->getUser()->isLoggedIn() ) {
+				if( $this->getTitle() && $this->getTitle()->isJsSubpage() && $this->userCanPreview() ) {
+					# XXX: additional security check/prompt?
+					// We're on a preview of a JS subpage
+					// Exclude this page from the user module in case it's in there (bug 26283)
+					$scripts .= $this->makeResourceLoaderLink( 'user', ResourceLoaderModule::TYPE_SCRIPTS, false,
+						array( 'excludepage' => $this->getTitle()->getPrefixedDBkey() ), $inHead
+					);
+					// Load the previewed JS
+					$scripts .= Html::inlineScript( "\n" . $this->getRequest()->getText( 'wpTextbox1' ) . "\n" ) . "\n";
+					// FIXME: If the user is previewing, say, ./vector.js, his ./common.js will be loaded
+					// asynchronously and may arrive *after* the inline script here. So the previewed code
+					// may execute before ./common.js runs. Normally, ./common.js runs before ./vector.js...
+				} else {
+					// Include the user module normally, i.e., raw to avoid it being wrapped in a closure.
+					$scripts .= $this->makeResourceLoaderLink( 'user', ResourceLoaderModule::TYPE_SCRIPTS,
+						/* $useESI = */ false, /* $extraQuery = */ array(), /* $loadCall = */ $inHead
+					);
+				}
+				$defaultModules['user'] = 'loading';
 			} else {
-				$scripts .= $this->makeResourceLoaderLink(
-					$sk, array( 'user', 'user.options' ), 'scripts'
+				// Non-logged-in users have no user module. Treat it as empty and 'ready' to avoid
+				// blocking default gadgets that might depend on it. Although arguably default-enabled
+				// gadgets should not depend on the user module, it's harmless and less error-prone to
+				// handle this case.
+				$defaultModules['user'] = 'ready';
+			}
+		} else {
+			// User JS disabled
+			$defaultModules['user'] = 'missing';
+		}
+
+		// Group JS is only enabled if site JS is enabled.
+		if ( $wgUseSiteJs ) {
+			if ( $this->getUser()->isLoggedIn() ) {
+				$scripts .= $this->makeResourceLoaderLink( 'user.groups', ResourceLoaderModule::TYPE_COMBINED,
+					/* $useESI = */ false, /* $extraQuery = */ array(), /* $loadCall = */ $inHead
 				);
-				$userOptionsAdded = true;
+				$defaultModules['user.groups'] = 'loading';
+			} else {
+				// Non-logged-in users have no user.groups module. Treat it as empty and 'ready' to
+				// avoid blocking gadgets that might depend upon the module.
+				$defaultModules['user.groups'] = 'ready';
+			}
+		} else {
+			// Site (and group JS) disabled
+			$defaultModules['user.groups'] = 'missing';
+		}
+
+		$loaderInit = '';
+		if ( $inHead ) {
+			// We generate loader calls anyway, so no need to fix the client-side loader's state to 'loading'.
+			foreach ( $defaultModules as $m => $state ) {
+				if ( $state == 'loading' ) {
+					unset( $defaultModules[$m] );
+				}
 			}
 		}
-		if ( !$userOptionsAdded ) {
-			$scripts .= $this->makeResourceLoaderLink( $sk, 'user.options', 'scripts' );
+		if ( count( $defaultModules ) > 0 ) {
+			$loaderInit = Html::inlineScript(
+				ResourceLoader::makeLoaderConditionalScript(
+					ResourceLoader::makeLoaderStateScript( $defaultModules )
+				)
+			) . "\n";
 		}
-		
-		return $scripts;
+		return $loaderInit . $scripts;
 	}
 
 	/**
-	 * Add default \<meta\> tags
+	 * JS stuff to put at the bottom of the "<body>"
+	 * @return string
 	 */
-	protected function addDefaultMeta() {
-		global $wgVersion, $wgHtml5;
+	function getBottomScripts() {
+		global $wgResourceLoaderExperimentalAsyncLoading;
+		if ( !$wgResourceLoaderExperimentalAsyncLoading ) {
+			return $this->getScriptsForBottomQueue( false );
+		} else {
+			return '';
+		}
+	}
 
-		static $called = false;
-		if ( $called ) {
-			# Don't run this twice
+	/**
+	 * Add one or more variables to be set in mw.config in JavaScript.
+	 *
+	 * @param $keys {String|Array} Key or array of key/value pairs.
+	 * @param $value {Mixed} [optional] Value of the configuration variable.
+	 */
+	public function addJsConfigVars( $keys, $value = null ) {
+		if ( is_array( $keys ) ) {
+			foreach ( $keys as $key => $value ) {
+				$this->mJsConfigVars[$key] = $value;
+			}
 			return;
 		}
-		$called = true;
 
-		if ( !$wgHtml5 ) {
-			$this->addMeta( 'http:Content-Style-Type', 'text/css' ); // bug 15835
+		$this->mJsConfigVars[$keys] = $value;
+	}
+
+
+	/**
+	 * Get an array containing the variables to be set in mw.config in JavaScript.
+	 *
+	 * DO NOT CALL THIS FROM OUTSIDE OF THIS CLASS OR Skin::makeGlobalVariablesScript().
+	 * This is only public until that function is removed. You have been warned.
+	 *
+	 * Do not add things here which can be evaluated in ResourceLoaderStartupScript
+	 * - in other words, page-independent/site-wide variables (without state).
+	 * You will only be adding bloat to the html page and causing page caches to
+	 * have to be purged on configuration changes.
+	 * @return array
+	 */
+	public function getJSVars() {
+		global $wgUseAjax, $wgContLang;
+
+		$latestRevID = 0;
+		$pageID = 0;
+		$canonicalName = false; # bug 21115
+
+		$title = $this->getTitle();
+		$ns = $title->getNamespace();
+		$nsname = MWNamespace::exists( $ns ) ? MWNamespace::getCanonicalName( $ns ) : $title->getNsText();
+
+		// Get the relevant title so that AJAX features can use the correct page name
+		// when making API requests from certain special pages (bug 34972).
+		$relevantTitle = $this->getSkin()->getRelevantTitle();
+
+		if ( $ns == NS_SPECIAL ) {
+			list( $canonicalName, /*...*/ ) = SpecialPageFactory::resolveAlias( $title->getDBkey() );
+		} elseif ( $this->canUseWikiPage() ) {
+			$wikiPage = $this->getWikiPage();
+			$latestRevID = $wikiPage->getLatest();
+			$pageID = $wikiPage->getId();
 		}
-		$this->addMeta( 'generator', "MediaWiki $wgVersion" );
+
+		$lang = $title->getPageLanguage();
+
+		// Pre-process information
+		$separatorTransTable = $lang->separatorTransformTable();
+		$separatorTransTable = $separatorTransTable ? $separatorTransTable : array();
+		$compactSeparatorTransTable = array(
+			implode( "\t", array_keys( $separatorTransTable ) ),
+			implode( "\t", $separatorTransTable ),
+		);
+		$digitTransTable = $lang->digitTransformTable();
+		$digitTransTable = $digitTransTable ? $digitTransTable : array();
+		$compactDigitTransTable = array(
+			implode( "\t", array_keys( $digitTransTable ) ),
+			implode( "\t", $digitTransTable ),
+		);
+
+		$vars = array(
+			'wgCanonicalNamespace' => $nsname,
+			'wgCanonicalSpecialPageName' => $canonicalName,
+			'wgNamespaceNumber' => $title->getNamespace(),
+			'wgPageName' => $title->getPrefixedDBKey(),
+			'wgTitle' => $title->getText(),
+			'wgCurRevisionId' => $latestRevID,
+			'wgArticleId' => $pageID,
+			'wgIsArticle' => $this->isArticle(),
+			'wgAction' => Action::getActionName( $this->getContext() ),
+			'wgUserName' => $this->getUser()->isAnon() ? null : $this->getUser()->getName(),
+			'wgUserGroups' => $this->getUser()->getEffectiveGroups(),
+			'wgCategories' => $this->getCategories(),
+			'wgBreakFrames' => $this->getFrameOptions() == 'DENY',
+			'wgPageContentLanguage' => $lang->getCode(),
+			'wgSeparatorTransformTable' => $compactSeparatorTransTable,
+			'wgDigitTransformTable' => $compactDigitTransTable,
+			'wgDefaultDateFormat' => $lang->getDefaultDateFormat(),
+			'wgMonthNames' => $lang->getMonthNamesArray(),
+			'wgMonthNamesShort' => $lang->getMonthAbbreviationsArray(),
+			'wgRelevantPageName' => $relevantTitle->getPrefixedDBKey(),
+		);
+		if ( $wgContLang->hasVariants() ) {
+			$vars['wgUserVariant'] = $wgContLang->getPreferredVariant();
+ 		}
+		foreach ( $title->getRestrictionTypes() as $type ) {
+			$vars['wgRestriction' . ucfirst( $type )] = $title->getRestrictions( $type );
+		}
+		if ( $title->isMainPage() ) {
+			$vars['wgIsMainPage'] = true;
+		}
+		if ( $this->mRedirectedFrom ) {
+			$vars['wgRedirectedFrom'] = $this->mRedirectedFrom->getPrefixedDBKey();
+		}
+
+		// Allow extensions to add their custom variables to the mw.config map.
+		// Use the 'ResourceLoaderGetConfigVars' hook if the variable is not
+		// page-dependant but site-wide (without state).
+		// Alternatively, you may want to use OutputPage->addJsConfigVars() instead.
+		wfRunHooks( 'MakeGlobalVariablesScript', array( &$vars, $this ) );
+
+		// Merge in variables from addJsConfigVars last
+		return array_merge( $vars, $this->mJsConfigVars );
+	}
+
+	/**
+	 * To make it harder for someone to slip a user a fake
+	 * user-JavaScript or user-CSS preview, a random token
+	 * is associated with the login session. If it's not
+	 * passed back with the preview request, we won't render
+	 * the code.
+	 *
+	 * @return bool
+	 */
+	public function userCanPreview() {
+		if ( $this->getRequest()->getVal( 'action' ) != 'submit'
+			|| !$this->getRequest()->wasPosted()
+			|| !$this->getUser()->matchEditToken(
+				$this->getRequest()->getVal( 'wpEditToken' ) )
+		) {
+			return false;
+		}
+		if ( !$this->getTitle()->isJsSubpage() && !$this->getTitle()->isCssSubpage() ) {
+			return false;
+		}
+
+		return !count( $this->getTitle()->getUserPermissionsErrors( 'edit', $this->getUser() ) );
+	}
+
+	/**
+	 * @param $addContentType bool: Whether "<meta>" specifying content type should be returned
+	 *
+	 * @return array in format "link name or number => 'link html'".
+	 */
+	public function getHeadLinksArray( $addContentType = false ) {
+		global $wgUniversalEditButton, $wgFavicon, $wgAppleTouchIcon, $wgEnableAPI,
+			$wgSitename, $wgVersion, $wgHtml5, $wgMimeType,
+			$wgFeed, $wgOverrideSiteFeed, $wgAdvertisedFeedTypes,
+			$wgDisableLangConversion, $wgCanonicalLanguageLinks,
+			$wgRightsPage, $wgRightsUrl;
+
+		$tags = array();
+
+		if ( $addContentType ) {
+			if ( $wgHtml5 ) {
+				# More succinct than <meta http-equiv=Content-Type>, has the
+				# same effect
+				$tags['meta-charset'] = Html::element( 'meta', array( 'charset' => 'UTF-8' ) );
+			} else {
+				$tags['meta-content-type'] = Html::element( 'meta', array(
+					'http-equiv' => 'Content-Type',
+					'content' => "$wgMimeType; charset=UTF-8"
+				) );
+				$tags['meta-content-style-type'] = Html::element( 'meta', array(  // bug 15835
+					'http-equiv' => 'Content-Style-Type',
+					'content' => 'text/css'
+				) );
+			}
+		}
+
+		$tags['meta-generator'] = Html::element( 'meta', array(
+			'name' => 'generator',
+			'content' => "MediaWiki $wgVersion",
+		) );
 
 		$p = "{$this->mIndexPolicy},{$this->mFollowPolicy}";
 		if( $p !== 'index,follow' ) {
 			// http://www.robotstxt.org/wc/meta-user.html
 			// Only show if it's different from the default robots policy
-			$this->addMeta( 'robots', $p );
+			$tags['meta-robots'] = Html::element( 'meta', array(
+				'name' => 'robots',
+				'content' => $p,
+			) );
 		}
 
 		if ( count( $this->mKeywords ) > 0 ) {
@@ -2554,27 +3062,15 @@ class OutputPage {
 				"/<.*?" . ">/" => '',
 				"/_/" => ' '
 			);
-			$this->addMeta(
-				'keywords',
-				preg_replace(
+			$tags['meta-keywords'] = Html::element( 'meta', array(
+				'name' => 'keywords',
+				'content' =>  preg_replace(
 					array_keys( $strip ),
 					array_values( $strip ),
 					implode( ',', $this->mKeywords )
 				)
-			);
+			) );
 		}
-	}
-
-	/**
-	 * @return string HTML tag links to be put in the header.
-	 */
-	public function getHeadLinks( Skin $sk ) {
-		global $wgFeed;
-
-		// Ideally this should happen earlier, somewhere. :P
-		$this->addDefaultMeta();
-
-		$tags = array();
 
 		foreach ( $this->mMetatags as $tag ) {
 			if ( 0 == strcasecmp( 'http:', substr( $tag[0], 0, 5 ) ) ) {
@@ -2583,29 +3079,138 @@ class OutputPage {
 			} else {
 				$a = 'name';
 			}
-			$tags[] = Html::element( 'meta',
+			$tagName = "meta-{$tag[0]}";
+			if ( isset( $tags[$tagName] ) ) {
+				$tagName .= $tag[1];
+			}
+			$tags[$tagName] = Html::element( 'meta',
 				array(
 					$a => $tag[0],
 					'content' => $tag[1]
 				)
 			);
 		}
+
 		foreach ( $this->mLinktags as $tag ) {
 			$tags[] = Html::element( 'link', $tag );
 		}
 
-		if( $wgFeed ) {
+		# Universal edit button
+		if ( $wgUniversalEditButton && $this->isArticleRelated() ) {
+			$user = $this->getUser();
+			if ( $this->getTitle()->quickUserCan( 'edit', $user )
+				&& ( $this->getTitle()->exists() || $this->getTitle()->quickUserCan( 'create', $user ) ) ) {
+				// Original UniversalEditButton
+				$msg = $this->msg( 'edit' )->text();
+				$tags['universal-edit-button'] = Html::element( 'link', array(
+					'rel' => 'alternate',
+					'type' => 'application/x-wiki',
+					'title' => $msg,
+					'href' => $this->getTitle()->getLocalURL( 'action=edit' )
+				) );
+				// Alternate edit link
+				$tags['alternative-edit'] = Html::element( 'link', array(
+					'rel' => 'edit',
+					'title' => $msg,
+					'href' => $this->getTitle()->getLocalURL( 'action=edit' )
+				) );
+			}
+		}
+
+		# Generally the order of the favicon and apple-touch-icon links
+		# should not matter, but Konqueror (3.5.9 at least) incorrectly
+		# uses whichever one appears later in the HTML source. Make sure
+		# apple-touch-icon is specified first to avoid this.
+		if ( $wgAppleTouchIcon !== false ) {
+			$tags['apple-touch-icon'] = Html::element( 'link', array( 'rel' => 'apple-touch-icon', 'href' => $wgAppleTouchIcon ) );
+		}
+
+		if ( $wgFavicon !== false ) {
+			$tags['favicon'] = Html::element( 'link', array( 'rel' => 'shortcut icon', 'href' => $wgFavicon ) );
+		}
+
+		# OpenSearch description link
+		$tags['opensearch'] = Html::element( 'link', array(
+			'rel' => 'search',
+			'type' => 'application/opensearchdescription+xml',
+			'href' => wfScript( 'opensearch_desc' ),
+			'title' => $this->msg( 'opensearch-desc' )->inContentLanguage()->text(),
+		) );
+
+		if ( $wgEnableAPI ) {
+			# Real Simple Discovery link, provides auto-discovery information
+			# for the MediaWiki API (and potentially additional custom API
+			# support such as WordPress or Twitter-compatible APIs for a
+			# blogging extension, etc)
+			$tags['rsd'] = Html::element( 'link', array(
+				'rel' => 'EditURI',
+				'type' => 'application/rsd+xml',
+				// Output a protocol-relative URL here if $wgServer is protocol-relative
+				// Whether RSD accepts relative or protocol-relative URLs is completely undocumented, though
+				'href' => wfExpandUrl( wfAppendQuery( wfScript( 'api' ), array( 'action' => 'rsd' ) ), PROTO_RELATIVE ),
+			) );
+		}
+
+
+		# Language variants
+		if ( !$wgDisableLangConversion && $wgCanonicalLanguageLinks ) {
+			$lang = $this->getTitle()->getPageLanguage();
+			if ( $lang->hasVariants() ) {
+
+				$urlvar = $lang->getURLVariant();
+
+				if ( !$urlvar ) {
+					$variants = $lang->getVariants();
+					foreach ( $variants as $_v ) {
+						$tags["variant-$_v"] = Html::element( 'link', array(
+							'rel' => 'alternate',
+							'hreflang' => $_v,
+							'href' => $this->getTitle()->getLocalURL( array( 'variant' => $_v ) ) )
+						);
+					}
+				} else {
+					$tags['canonical'] = Html::element( 'link', array(
+						'rel' => 'canonical',
+						'href' => $this->getTitle()->getCanonicalUrl()
+					) );
+				}
+			}
+		}
+
+		# Copyright
+		$copyright = '';
+		if ( $wgRightsPage ) {
+			$copy = Title::newFromText( $wgRightsPage );
+
+			if ( $copy ) {
+				$copyright = $copy->getLocalURL();
+			}
+		}
+
+		if ( !$copyright && $wgRightsUrl ) {
+			$copyright = $wgRightsUrl;
+		}
+
+		if ( $copyright ) {
+			$tags['copyright'] = Html::element( 'link', array(
+				'rel' => 'copyright',
+				'href' => $copyright )
+			);
+		}
+
+		# Feeds
+		if ( $wgFeed ) {
 			foreach( $this->getSyndicationLinks() as $format => $link ) {
-				# Use the page name for the title (accessed through $wgTitle since
-				# there's no other way).  In principle, this could lead to issues
-				# with having the same name for different feeds corresponding to
-				# the same page, but we can't avoid that at this low a level.
+				# Use the page name for the title.  In principle, this could
+				# lead to issues with having the same name for different feeds
+				# corresponding to the same page, but we can't avoid that at
+				# this low a level.
 
 				$tags[] = $this->feedLink(
 					$format,
 					$link,
 					# Used messages: 'page-rss-feed' and 'page-atom-feed' (for an easier grep)
-					wfMsg( "page-{$format}-feed", $this->getTitle()->getPrefixedText() )
+					$this->msg( "page-{$format}-feed", $this->getTitle()->getPrefixedText() )->text()
 				);
 			}
 
@@ -2616,34 +3221,41 @@ class OutputPage {
 			# like to promote instead of the RC feed (maybe like a "Recent New Articles"
 			# or "Breaking news" one). For this, we see if $wgOverrideSiteFeed is defined.
 			# If so, use it instead.
-
-			global $wgOverrideSiteFeed, $wgSitename, $wgAdvertisedFeedTypes;
-			$rctitle = SpecialPage::getTitleFor( 'Recentchanges' );
-
 			if ( $wgOverrideSiteFeed ) {
 				foreach ( $wgOverrideSiteFeed as $type => $feedUrl ) {
+					// Note, this->feedLink escapes the url.
 					$tags[] = $this->feedLink(
 						$type,
-						htmlspecialchars( $feedUrl ),
-						wfMsg( "site-{$type}-feed", $wgSitename )
+						$feedUrl,
+						$this->msg( "site-{$type}-feed", $wgSitename )->text()
 					);
 				}
-			} elseif ( $this->getTitle()->getPrefixedText() != $rctitle->getPrefixedText() ) {
+			} elseif ( !$this->getTitle()->isSpecial( 'Recentchanges' ) ) {
+				$rctitle = SpecialPage::getTitleFor( 'Recentchanges' );
 				foreach ( $wgAdvertisedFeedTypes as $format ) {
 					$tags[] = $this->feedLink(
 						$format,
 						$rctitle->getLocalURL( "feed={$format}" ),
-						wfMsg( "site-{$format}-feed", $wgSitename ) # For grep: 'site-rss-feed', 'site-atom-feed'.
+						$this->msg( "site-{$format}-feed", $wgSitename )->text() # For grep: 'site-rss-feed', 'site-atom-feed'.
 					);
 				}
 			}
 		}
-
-		return implode( "\n", $tags );
+		return $tags;
 	}
 
 	/**
-	 * Generate a <link rel/> for a feed.
+	 * @param $unused
+	 * @param $addContentType bool: Whether "<meta>" specifying content type should be returned
+	 *
+	 * @return string HTML tag links to be put in the header.
+	 */
+	public function getHeadLinks( $unused = null, $addContentType = false ) {
+		return implode( "\n", $this->getHeadLinksArray( $addContentType ) );
+	}
+
+	/**
+	 * Generate a "<link rel/>" for a feed.
 	 *
 	 * @param $type String: feed type
 	 * @param $url String: URL to the feed
@@ -2687,24 +3299,79 @@ class OutputPage {
 	/**
 	 * Adds inline CSS styles
 	 * @param $style_css Mixed: inline CSS
+	 * @param $flip String: Set to 'flip' to flip the CSS if needed
 	 */
-	public function addInlineStyle( $style_css ){
+	public function addInlineStyle( $style_css, $flip = 'noflip' ) {
+		if( $flip === 'flip' && $this->getLanguage()->isRTL() ) {
+			# If wanted, and the interface is right-to-left, flip the CSS
+			$style_css = CSSJanus::transform( $style_css, true, false );
+		}
 		$this->mInlineStyles .= Html::inlineStyle( $style_css );
 	}
 
 	/**
-	 * Build a set of <link>s for the stylesheets specified in the $this->styles array.
+	 * Build a set of "<link>" elements for the stylesheets specified in the $this->styles array.
 	 * These will be applied to various media & IE conditionals.
-	 * @param $sk Skin object
+	 *
+	 * @return string
 	 */
-	public function buildCssLinks( $sk ) {
-		$ret = '';
+	public function buildCssLinks() {
+		global $wgUseSiteCss, $wgAllowUserCss, $wgAllowUserCssPrefs,
+			$wgLang, $wgContLang;
+
+		$this->getSkin()->setupSkinUserCss( $this );
+
 		// Add ResourceLoader styles
 		// Split the styles into four groups
-		$styles = array( 'other' => array(), 'user' => array(), 'site' => array(), 'private' => array() );
+		$styles = array( 'other' => array(), 'user' => array(), 'site' => array(), 'private' => array(), 'noscript' => array() );
+		$otherTags = ''; // Tags to append after the normal <link> tags
 		$resourceLoader = $this->getResourceLoader();
-		foreach ( $this->getModuleStyles() as $name ) {
-			$group = $resourceLoader->getModule( $name )->getGroup();
+
+		$moduleStyles = $this->getModuleStyles();
+
+		// Per-site custom styles
+		if ( $wgUseSiteCss ) {
+			$moduleStyles[] = 'site';
+			$moduleStyles[] = 'noscript';
+			if( $this->getUser()->isLoggedIn() ){
+				$moduleStyles[] = 'user.groups';
+			}
+		}
+
+		// Per-user custom styles
+		if ( $wgAllowUserCss ) {
+			if ( $this->getTitle()->isCssSubpage() && $this->userCanPreview() ) {
+				// We're on a preview of a CSS subpage
+				// Exclude this page from the user module in case it's in there (bug 26283)
+				$otherTags .= $this->makeResourceLoaderLink( 'user', ResourceLoaderModule::TYPE_STYLES, false,
+					array( 'excludepage' => $this->getTitle()->getPrefixedDBkey() )
+				);
+
+				// Load the previewed CSS
+				// If needed, Janus it first. This is user-supplied CSS, so it's
+				// assumed to be right for the content language directionality.
+				$previewedCSS = $this->getRequest()->getText( 'wpTextbox1' );
+				if ( $wgLang->getDir() !== $wgContLang->getDir() ) {
+					$previewedCSS = CSSJanus::transform( $previewedCSS, true, false );
+				}
+				$otherTags .= Html::inlineStyle( $previewedCSS );
+			} else {
+				// Load the user styles normally
+				$moduleStyles[] = 'user';
+			}
+		}
+
+		// Per-user preference styles
+		if ( $wgAllowUserCssPrefs ) {
+			$moduleStyles[] = 'user.cssprefs';
+		}
+
+		foreach ( $moduleStyles as $name ) {
+			$module = $resourceLoader->getModule( $name );
+			if ( !$module ) {
+				continue;
+			}
+			$group = $module->getGroup();
 			// Modules in groups named "other" or anything different than "user", "site" or "private"
 			// will be placed in the "other" group
 			$styles[isset( $styles[$group] ) ? $group : 'other'][] = $name;
@@ -2714,26 +3381,39 @@ class OutputPage {
 		// dynamically added styles to override statically added styles from other modules. So the order
 		// has to be other, dynamic, site, private, user
 		// Add statically added styles for other modules
-		$ret .= $this->makeResourceLoaderLink( $sk, $styles['other'], 'styles' );
+		$ret = $this->makeResourceLoaderLink( $styles['other'], ResourceLoaderModule::TYPE_STYLES );
 		// Add normal styles added through addStyle()/addInlineStyle() here
 		$ret .= implode( "\n", $this->buildCssLinksArray() ) . $this->mInlineStyles;
 		// Add marker tag to mark the place where the client-side loader should inject dynamic styles
 		// We use a <meta> tag with a made-up name for this because that's valid HTML
-		$ret .= Html::element( 'meta', array( 'name' => 'ResourceLoaderDynamicStyles', 'content' => '' ) );
-		
+		$ret .= Html::element( 'meta', array( 'name' => 'ResourceLoaderDynamicStyles', 'content' => '' ) ) . "\n";
+
 		// Add site, private and user styles
 		// 'private' at present only contains user.options, so put that before 'user'
 		// Any future private modules will likely have a similar user-specific character
-		foreach ( array( 'site', 'private', 'user' ) as $group ) {
-			$ret .= $this->makeResourceLoaderLink(
-				$sk, array_merge( $styles['site'], $styles['user'] ), 'styles'
+		foreach ( array( 'site', 'noscript', 'private', 'user' ) as $group ) {
+			$ret .= $this->makeResourceLoaderLink( $styles[$group],
+					ResourceLoaderModule::TYPE_STYLES
 			);
 		}
+
+		// Add stuff in $otherTags (previewed user CSS if applicable)
+		$ret .= $otherTags;
 		return $ret;
 	}
 
+	/**
+	 * @return Array
+	 */
 	public function buildCssLinksArray() {
 		$links = array();
+
+		// Add any extension CSS
+		foreach ( $this->mExtStyles as $url ) {
+			$this->addStyle( $url );
+		}
+		$this->mExtStyles = array();
+
 		foreach( $this->styles as $file => $options ) {
 			$link = $this->styleLink( $file, $options );
 			if( $link ) {
@@ -2753,8 +3433,7 @@ class OutputPage {
 	 */
 	protected function styleLink( $style, $options ) {
 		if( isset( $options['dir'] ) ) {
-			$siteDir = wfUILang()->getDir();
-			if( $siteDir != $options['dir'] ) {
+			if( $this->getLanguage()->getDir() != $options['dir'] ) {
 				return '';
 			}
 		}
@@ -2826,47 +3505,10 @@ class OutputPage {
 	}
 
 	/**
-	 * Turn off regular page output and return an error reponse
-	 * for when rate limiting has triggered.
-	 */
-	public function rateLimited() {
-		$this->setPageTitle( wfMsg( 'actionthrottled' ) );
-		$this->setRobotPolicy( 'noindex,follow' );
-		$this->setArticleRelated( false );
-		$this->enableClientCache( false );
-		$this->mRedirect = '';
-		$this->clearHTML();
-		$this->setStatusCode( 503 );
-		$this->addWikiMsg( 'actionthrottledtext' );
-
-		$this->returnToMain( null, $this->getTitle() );
-	}
-
-	/**
-	 * Show a warning about slave lag
-	 *
-	 * If the lag is higher than $wgSlaveLagCritical seconds,
-	 * then the warning is a bit more obvious. If the lag is
-	 * lower than $wgSlaveLagWarning, then no warning is shown.
-	 *
-	 * @param $lag Integer: slave lag
-	 */
-	public function showLagWarning( $lag ) {
-		global $wgSlaveLagWarning, $wgSlaveLagCritical, $wgLang;
-		if( $lag >= $wgSlaveLagWarning ) {
-			$message = $lag < $wgSlaveLagCritical
-				? 'lag-warn-normal'
-				: 'lag-warn-high';
-			$wrap = Html::rawElement( 'div', array( 'class' => "mw-{$message}" ), "\n$1\n" );
-			$this->wrapWikiMsg( "$wrap\n", array( $message, $wgLang->formatNum( $lag ) ) );
-		}
-	}
-
-	/**
 	 * Add a wikitext-formatted message to the output.
 	 * This is equivalent to:
 	 *
-	 *    $wgOut->addWikiText( wfMsgNoTrans( ... ) )
+	 *    $wgOut->addWikiText( wfMessage( ... )->plain() )
 	 */
 	public function addWikiMsg( /*...*/ ) {
 		$args = func_get_args();
@@ -2879,12 +3521,11 @@ class OutputPage {
 	 * Like addWikiMsg() except the parameters are taken as an array
 	 * instead of a variable argument list.
 	 *
-	 * $options is passed through to wfMsgExt(), see that function for details.
+	 * @param $name string
+	 * @param $args array
 	 */
-	public function addWikiMsgArray( $name, $args, $options = array() ) {
-		$options[] = 'parse';
-		$text = wfMsgExt( $name, $options, $args );
-		$this->addHTML( $text );
+	public function addWikiMsgArray( $name, $args ) {
+		$this->addHTML( $this->msg( $name, $args )->parseAsBlock() );
 	}
 
 	/**
@@ -2896,9 +3537,6 @@ class OutputPage {
 	 * message names, or arrays, in which case the first element is the message name,
 	 * and subsequent elements are the parameters to that message.
 	 *
-	 * The special named parameter 'options' in a message specification array is passed
-	 * through to the $options parameter of wfMsgExt().
-	 *
 	 * Don't use this for messages that are not in users interface language.
 	 *
 	 * For example:
@@ -2907,9 +3545,11 @@ class OutputPage {
 	 *
 	 * Is equivalent to:
 	 *
-	 *    $wgOut->addWikiText( "<div class='error'>\n" . wfMsgNoTrans( 'some-error' ) . "\n</div>" );
+	 *    $wgOut->addWikiText( "<div class='error'>\n" . wfMessage( 'some-error' )->plain() . "\n</div>" );
 	 *
 	 * The newline after opening div is needed in some wikitext. See bug 19226.
+	 *
+	 * @param $wrap string
 	 */
 	public function wrapWikiMsg( $wrap /*, ...*/ ) {
 		$msgSpecs = func_get_args();
@@ -2922,16 +3562,19 @@ class OutputPage {
 				$args = $spec;
 				$name = array_shift( $args );
 				if ( isset( $args['options'] ) ) {
-					$options = $args['options'];
 					unset( $args['options'] );
+					wfDeprecated(
+						'Adding "options" to ' . __METHOD__ . ' is no longer supported',
+						'1.20'
+					);
 				}
 			}  else {
 				$args = array();
 				$name = $spec;
 			}
-			$s = str_replace( '$' . ( $n + 1 ), wfMsgExt( $name, $options, $args ), $s );
+			$s = str_replace( '$' . ( $n + 1 ), $this->msg( $name, $args )->plain(), $s );
 		}
-		$this->addHTML( $this->parse( $s, /*linestart*/true, /*uilang*/true ) );
+		$this->addWikiText( $s );
 	}
 
 	/**
@@ -2941,7 +3584,7 @@ class OutputPage {
 	 * @param $modules Array: list of jQuery modules which should be loaded
 	 * @return Array: the list of modules which were not loaded.
 	 * @since 1.16
-	 * @deprecated No longer needed as of 1.17
+	 * @deprecated since 1.17
 	 */
 	public function includeJQuery( $modules = array() ) {
 		return array();

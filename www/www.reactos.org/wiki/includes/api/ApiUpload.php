@@ -1,6 +1,6 @@
 <?php
 /**
- * API for MediaWiki 1.8+
+ *
  *
  * Created on Aug 21, 2008
  *
@@ -24,16 +24,16 @@
  * @file
  */
 
-if ( !defined( 'MEDIAWIKI' ) ) {
-	// Eclipse helper - will be ignored in production
-	require_once( "ApiBase.php" );
-}
-
 /**
  * @ingroup API
  */
 class ApiUpload extends ApiBase {
+
+	/**
+	 * @var UploadBase
+	 */
 	protected $mUpload = null;
+
 	protected $mParams;
 
 	public function __construct( $main, $action ) {
@@ -41,18 +41,24 @@ class ApiUpload extends ApiBase {
 	}
 
 	public function execute() {
-		global $wgUser;
-
 		// Check whether upload is enabled
 		if ( !UploadBase::isEnabled() ) {
-			$this->dieUsageMsg( array( 'uploaddisabled' ) );
+			$this->dieUsageMsg( 'uploaddisabled' );
 		}
+
+		$user = $this->getUser();
 
 		// Parameter handling
 		$this->mParams = $this->extractRequestParams();
 		$request = $this->getMain()->getRequest();
 		// Add the uploaded file to the params array
 		$this->mParams['file'] = $request->getFileName( 'file' );
+		$this->mParams['chunk'] = $request->getFileName( 'chunk' );
+
+		// Copy the session key to the file key, for backward compatibility.
+		if( !$this->mParams['filekey'] && $this->mParams['sessionkey'] ) {
+			$this->mParams['filekey'] = $this->mParams['sessionkey'];
+		}
 
 		// Select an upload module
 		if ( !$this->selectUploadModule() ) {
@@ -64,7 +70,7 @@ class ApiUpload extends ApiBase {
 		}
 
 		// First check permission to upload
-		$this->checkPermissions( $wgUser );
+		$this->checkPermissions( $user );
 
 		// Fetch the file
 		$status = $this->mUpload->fetchFile();
@@ -75,90 +81,215 @@ class ApiUpload extends ApiBase {
 		}
 
 		// Check if the uploaded file is sane
-		$this->verifyUpload();
-
-		// Check permission to upload this file
-		$permErrors = $this->mUpload->verifyPermissions( $wgUser );
-		if ( $permErrors !== true ) {
-			// TODO: stash the upload and allow choosing a new name
-			$this->dieUsageMsg( array( 'badaccess-groups' ) );
-		}
-
-		// Prepare the API result
-		$result = array();
-		
-		$warnings = $this->getApiWarnings();
-		if ( $warnings ) { 
-			$result['result'] = 'Warning';
-			$result['warnings'] = $warnings;
-			// in case the warnings can be fixed with some further user action, let's stash this upload
-			// and return a key they can use to restart it
-			try { 
-				$result['sessionkey'] = $this->performStash();
-			} catch ( MWException $e ) { 
-				$result['warnings']['stashfailed'] = $e->getMessage();
-			}
-		} elseif ( $this->mParams['stash'] ) { 
-			// Some uploads can request they be stashed, so as not to publish them immediately.
-			// In this case, a failure to stash ought to be fatal
-			try {
-				$result['result'] = 'Success'; 
-				$result['sessionkey'] = $this->performStash();
-			} catch ( MWException $e ) { 
-				$this->dieUsage( $e->getMessage(), 'stashfailed' );
+		if ( $this->mParams['chunk'] ) {
+			$maxSize = $this->mUpload->getMaxUploadSize( );
+			if( $this->mParams['filesize'] > $maxSize ) {
+				$this->dieUsage( 'The file you submitted was too large', 'file-too-large' );
 			}
 		} else {
-			// This is the most common case -- a normal upload with no warnings
-			// $result will be formatted properly for the API already, with a status
-			$result = $this->performUpload();
+			$this->verifyUpload();
 		}
+ 
+		// Check if the user has the rights to modify or overwrite the requested title
+		// (This check is irrelevant if stashing is already requested, since the errors
+		//  can always be fixed by changing the title)
+		if ( ! $this->mParams['stash'] ) {
+			$permErrors = $this->mUpload->verifyTitlePermissions( $user );
+			if ( $permErrors !== true ) {
+				$this->dieRecoverableError( $permErrors[0], 'filename' );
+			}
+		}
+		// Get the result based on the current upload context: 
+		$result = $this->getContextResult();
 
-		if ( $result['result'] === 'Success' ) { 
+		if ( $result['result'] === 'Success' ) {
 			$result['imageinfo'] = $this->mUpload->getImageInfo( $this->getResult() );
 		}
 
 		$this->getResult()->addValue( null, $this->getModuleName(), $result );
-		
+
 		// Cleanup any temporary mess
 		$this->mUpload->cleanupTempFile();
 	}
-
 	/**
-	 * Stash the file and return the session key
+	 * Get an uplaod result based on upload context
+	 * @return array
+	 */
+	private function getContextResult(){
+		$warnings = $this->getApiWarnings();
+		if ( $warnings && !$this->mParams['ignorewarnings'] ) {
+			// Get warnings formated in result array format
+			return $this->getWarningsResult( $warnings );
+		} elseif ( $this->mParams['chunk'] ) {
+			// Add chunk, and get result
+			return $this->getChunkResult( $warnings );
+		} elseif ( $this->mParams['stash'] ) {
+			// Stash the file and get stash result
+			return $this->getStashResult( $warnings );
+		}
+		// This is the most common case -- a normal upload with no warnings
+		// performUpload will return a formatted properly for the API with status
+		return $this->performUpload( $warnings );
+	}
+	/**
+	 * Get Stash Result, throws an expetion if the file could not be stashed.
+	 * @param $warnings array Array of Api upload warnings
+	 * @return array
+	 */
+	private function getStashResult( $warnings ){
+		$result = array ();
+		// Some uploads can request they be stashed, so as not to publish them immediately.
+		// In this case, a failure to stash ought to be fatal
+		try {
+			$result['result'] = 'Success';
+			$result['filekey'] = $this->performStash();
+			$result['sessionkey'] = $result['filekey']; // backwards compatibility
+			if ( $warnings && count( $warnings ) > 0 ) {
+				$result['warnings'] = $warnings;
+			}
+		} catch ( MWException $e ) {
+			$this->dieUsage( $e->getMessage(), 'stashfailed' );
+		}
+		return $result;
+	}
+	/**
+	 * Get Warnings Result
+	 * @param $warnings array Array of Api upload warnings
+	 * @return array
+	 */
+	private function getWarningsResult( $warnings ){
+		$result = array();
+		$result['result'] = 'Warning';
+		$result['warnings'] = $warnings;
+		// in case the warnings can be fixed with some further user action, let's stash this upload
+		// and return a key they can use to restart it
+		try {
+			$result['filekey'] = $this->performStash();
+			$result['sessionkey'] = $result['filekey']; // backwards compatibility
+		} catch ( MWException $e ) {
+			$result['warnings']['stashfailed'] = $e->getMessage();
+		}
+		return $result;
+	}
+	/**
+	 * Get the result of a chunk upload.
+	 * @param $warnings array Array of Api upload warnings
+	 * @return array
+	 */
+	private function getChunkResult( $warnings ){
+		$result = array();
+
+		$result['result'] = 'Continue';
+		if ( $warnings && count( $warnings ) > 0 ) {
+			$result['warnings'] = $warnings;
+		}
+		$request = $this->getMain()->getRequest();
+		$chunkPath = $request->getFileTempname( 'chunk' );
+		$chunkSize = $request->getUpload( 'chunk' )->getSize();
+		if ($this->mParams['offset'] == 0) {
+			$result['filekey'] = $this->performStash();
+		} else {
+			$status = $this->mUpload->addChunk($chunkPath, $chunkSize,
+										$this->mParams['offset']);
+			if ( !$status->isGood() ) {
+				$this->dieUsage( $status->getWikiText(), 'stashfailed' );
+				return array();
+			}
+
+			// Check we added the last chunk: 
+			if( $this->mParams['offset'] + $chunkSize == $this->mParams['filesize'] ) {
+				$status = $this->mUpload->concatenateChunks();
+
+				if ( !$status->isGood() ) {
+					$this->dieUsage( $status->getWikiText(), 'stashfailed' );
+					return array();
+				}
+
+				// We have a new filekey for the fully concatenated file.
+				$result['filekey'] =  $this->mUpload->getLocalFile()->getFileKey();
+
+				// Remove chunk from stash. (Checks against user ownership of chunks.)
+				$this->mUpload->stash->removeFile( $this->mParams['filekey'] );
+
+				$result['result'] = 'Success';
+
+			} else {
+
+				// Continue passing through the filekey for adding further chunks.
+				$result['filekey'] = $this->mParams['filekey'];
+			}
+		}
+		$result['offset'] = $this->mParams['offset'] + $chunkSize;
+		return $result;
+	}
+	
+	/**
+	 * Stash the file and return the file key
 	 * Also re-raises exceptions with slightly more informative message strings (useful for API)
 	 * @throws MWException
-	 * @return {String} session key
+	 * @return String file key
 	 */
 	function performStash() {
 		try {
-			$sessionKey = $this->mUpload->stashSessionFile()->getSessionKey();
+			$stashFile = $this->mUpload->stashFile();
+
+			if ( !$stashFile ) {
+				throw new MWException( 'Invalid stashed file' );
+			}
+			$fileKey = $stashFile->getFileKey();
 		} catch ( MWException $e ) {
-			throw new MWException( 'Stashing temporary file failed: ' . get_class($e) . ' ' . $e->getMessage() );
+			$message = 'Stashing temporary file failed: ' . get_class( $e ) . ' ' . $e->getMessage();
+			wfDebug( __METHOD__ . ' ' . $message . "\n");
+			throw new MWException( $message );
 		}
-		return $sessionKey;
+		return $fileKey;
 	}
 
+	/**
+	 * Throw an error that the user can recover from by providing a better
+	 * value for $parameter
+	 *
+	 * @param $error array Error array suitable for passing to dieUsageMsg()
+	 * @param $parameter string Parameter that needs revising
+	 * @param $data array Optional extra data to pass to the user
+	 * @throws UsageException
+	 */
+	function dieRecoverableError( $error, $parameter, $data = array() ) {
+		try {
+			$data['filekey'] = $this->performStash();
+			$data['sessionkey'] = $data['filekey'];
+		} catch ( MWException $e ) {
+			$data['stashfailed'] = $e->getMessage();
+		}
+		$data['invalidparameter'] = $parameter;
+
+		$parsed = $this->parseMsg( $error );
+		$this->dieUsage( $parsed['info'], $parsed['code'], 0, $data );
+	}
 
 	/**
 	 * Select an upload module and set it to mUpload. Dies on failure. If the
-	 * request was a status request and not a true upload, returns false; 
+	 * request was a status request and not a true upload, returns false;
 	 * otherwise true
-	 * 
+	 *
 	 * @return bool
 	 */
 	protected function selectUploadModule() {
-		global $wgAllowAsyncCopyUploads;
 		$request = $this->getMain()->getRequest();
 
-		// One and only one of the following parameters is needed
-		$this->requireOnlyOneParameter( $this->mParams,
-			'sessionkey', 'file', 'url', 'statuskey' );
+		// chunk or one and only one of the following parameters is needed
+		if( !$this->mParams['chunk'] ) {
+			$this->requireOnlyOneParameter( $this->mParams,
+				'filekey', 'file', 'url', 'statuskey' );
+		}
 
-		if ( $wgAllowAsyncCopyUploads && $this->mParams['statuskey'] ) {
+		if ( $this->mParams['statuskey'] ) {
+			$this->checkAsyncDownloadEnabled();
+
 			// Status request for an async upload
 			$sessionData = UploadFromUrlJob::getSessionData( $this->mParams['statuskey'] );
 			if ( !isset( $sessionData['result'] ) ) {
-				$this->dieUsage( 'No result in session data', 'missingresult');
+				$this->dieUsage( 'No result in session data', 'missingresult' );
 			}
 			if ( $sessionData['result'] == 'Warning' ) {
 				$sessionData['warnings'] = $this->transformWarnings( $sessionData['warnings'] );
@@ -166,29 +297,40 @@ class ApiUpload extends ApiBase {
 			}
 			$this->getResult()->addValue( null, $this->getModuleName(), $sessionData );
 			return false;
-			
-		} 
 
+		}
 
 		// The following modules all require the filename parameter to be set
 		if ( is_null( $this->mParams['filename'] ) ) {
 			$this->dieUsageMsg( array( 'missingparam', 'filename' ) );
 		}
-			
 
-		if ( $this->mParams['sessionkey'] ) {
+		if ( $this->mParams['chunk'] ) {
+			// Chunk upload
+			$this->mUpload = new UploadFromChunks();
+			if( isset( $this->mParams['filekey'] ) ){
+				// handle new chunk
+				$this->mUpload->continueChunks(
+					$this->mParams['filename'],
+					$this->mParams['filekey'],
+					$request->getUpload( 'chunk' )
+				);
+			} else {
+				// handle first chunk
+				$this->mUpload->initialize(
+					$this->mParams['filename'],
+					$request->getUpload( 'chunk' )
+				);
+			}
+		} elseif ( isset( $this->mParams['filekey'] ) ) {
 			// Upload stashed in a previous request
-			$sessionData = $request->getSessionData( UploadBase::getSessionKeyName() );
-			if ( !UploadFromStash::isValidSessionKey( $this->mParams['sessionkey'], $sessionData ) ) {
-				$this->dieUsageMsg( array( 'invalid-session-key' ) );
+			if ( !UploadFromStash::isValidKey( $this->mParams['filekey'] ) ) {
+				$this->dieUsageMsg( 'invalid-file-key' );
 			}
 
-			$this->mUpload = new UploadFromStash();
-			$this->mUpload->initialize( $this->mParams['filename'],
-				$this->mParams['sessionkey'],
-				$sessionData[$this->mParams['sessionkey']] );
+			$this->mUpload = new UploadFromStash( $this->getUser() );
 
-
+			$this->mUpload->initialize( $this->mParams['filekey'], $this->mParams['filename'] );
 		} elseif ( isset( $this->mParams['file'] ) ) {
 			$this->mUpload = new UploadFromFile();
 			$this->mUpload->initialize(
@@ -198,16 +340,22 @@ class ApiUpload extends ApiBase {
 		} elseif ( isset( $this->mParams['url'] ) ) {
 			// Make sure upload by URL is enabled:
 			if ( !UploadFromUrl::isEnabled() ) {
-				$this->dieUsageMsg( array( 'copyuploaddisabled' ) );
+				$this->dieUsageMsg( 'copyuploaddisabled' );
+			}
+
+			if ( !UploadFromUrl::isAllowedHost( $this->mParams['url'] ) ) {
+				$this->dieUsageMsg( 'copyuploadbaddomain' );
 			}
 
 			$async = false;
 			if ( $this->mParams['asyncdownload'] ) {
+				$this->checkAsyncDownloadEnabled();
+
 				if ( $this->mParams['leavemessage'] && !$this->mParams['ignorewarnings'] ) {
 					$this->dieUsage( 'Using leavemessage without ignorewarnings is not supported',
 						'missing-ignorewarnings' );
 				}
-				
+
 				if ( $this->mParams['leavemessage'] ) {
 					$async = 'async-leavemessage';
 				} else {
@@ -217,9 +365,8 @@ class ApiUpload extends ApiBase {
 			$this->mUpload = new UploadFromUrl;
 			$this->mUpload->initialize( $this->mParams['filename'],
 				$this->mParams['url'], $async );
-
 		}
-		
+
 		return true;
 	}
 
@@ -236,7 +383,7 @@ class ApiUpload extends ApiBase {
 			if ( !$user->isLoggedIn() ) {
 				$this->dieUsageMsg( array( 'mustbeloggedin', 'upload' ) );
 			} else {
-				$this->dieUsageMsg( array( 'badaccess-groups' ) );
+				$this->dieUsageMsg( 'badaccess-groups' );
 			}
 		}
 	}
@@ -254,28 +401,48 @@ class ApiUpload extends ApiBase {
 
 		// TODO: Move them to ApiBase's message map
 		switch( $verification['status'] ) {
+			// Recoverable errors
+			case UploadBase::MIN_LENGTH_PARTNAME:
+				$this->dieRecoverableError( 'filename-tooshort', 'filename' );
+				break;
+			case UploadBase::ILLEGAL_FILENAME:
+				$this->dieRecoverableError( 'illegal-filename', 'filename',
+						array( 'filename' => $verification['filtered'] ) );
+				break;
+			case UploadBase::FILENAME_TOO_LONG:
+				$this->dieRecoverableError( 'filename-toolong', 'filename' );
+				break;
+			case UploadBase::FILETYPE_MISSING:
+				$this->dieRecoverableError( 'filetype-missing', 'filename' );
+				break;
+			case UploadBase::WINDOWS_NONASCII_FILENAME:
+				$this->dieRecoverableError( 'windows-nonascii-filename', 'filename' );
+				break;
+
+			// Unrecoverable errors
 			case UploadBase::EMPTY_FILE:
 				$this->dieUsage( 'The file you submitted was empty', 'empty-file' );
 				break;
 			case UploadBase::FILE_TOO_LARGE:
 				$this->dieUsage( 'The file you submitted was too large', 'file-too-large' );
 				break;
-			case UploadBase::FILETYPE_MISSING:
-				$this->dieUsage( 'The file is missing an extension', 'filetype-missing' );
-				break;
+
 			case UploadBase::FILETYPE_BADTYPE:
-				$this->dieUsage( 'This type of file is banned', 'filetype-banned',
-						0, array(
-							'filetype' => $verification['finalExt'],
-							'allowed' => $wgFileExtensions
-						) );
-				break;
-			case UploadBase::MIN_LENGTH_PARTNAME:
-				$this->dieUsage( 'The filename is too short', 'filename-tooshort' );
-				break;
-			case UploadBase::ILLEGAL_FILENAME:
-				$this->dieUsage( 'The filename is not allowed', 'illegal-filename',
-						0, array( 'filename' => $verification['filtered'] ) );
+				$extradata = array(
+					'filetype' => $verification['finalExt'],
+					'allowed' => $wgFileExtensions
+				);
+				$this->getResult()->setIndexedTagName( $extradata['allowed'], 'ext' );
+
+				$msg = "Filetype not permitted: ";
+				if ( isset( $verification['blacklistedExt'] ) ) {
+					$msg .= join( ', ', $verification['blacklistedExt'] );
+					$extradata['blacklisted'] = array_values( $verification['blacklistedExt'] );
+					$this->getResult()->setIndexedTagName( $extradata['blacklisted'], 'ext' );
+				} else {
+					$msg .= $verification['finalExt'];
+				}
+				$this->dieUsage( $msg, 'filetype-banned', 0, $extradata );
 				break;
 			case UploadBase::VERIFICATION_ERROR:
 				$this->getResult()->setIndexedTagName( $verification['details'], 'detail' );
@@ -295,48 +462,51 @@ class ApiUpload extends ApiBase {
 
 
 	/**
-	 * Check warnings if ignorewarnings is not set.
+	 * Check warnings.
 	 * Returns a suitable array for inclusion into API results if there were warnings
 	 * Returns the empty array if there were no warnings
 	 *
 	 * @return array
 	 */
 	protected function getApiWarnings() {
-		$warnings = array();
+		$warnings = $this->mUpload->checkWarnings();
 
-		if ( !$this->mParams['ignorewarnings'] ) {
-			$warnings = $this->mUpload->checkWarnings();
-			if ( $warnings ) {
-				// Add indices
-				$this->getResult()->setIndexedTagName( $warnings, 'warning' );
+		return $this->transformWarnings( $warnings );
+	}
 
-				if ( isset( $warnings['duplicate'] ) ) {
-					$dupes = array();
-					foreach ( $warnings['duplicate'] as $dupe ) {
-						$dupes[] = $dupe->getName();
-					}
-					$this->getResult()->setIndexedTagName( $dupes, 'duplicate' );
-					$warnings['duplicate'] = $dupes;
+	protected function transformWarnings( $warnings ) {
+		if ( $warnings ) {
+			// Add indices
+			$result = $this->getResult();
+			$result->setIndexedTagName( $warnings, 'warning' );
+
+			if ( isset( $warnings['duplicate'] ) ) {
+				$dupes = array();
+				foreach ( $warnings['duplicate'] as $dupe ) {
+					$dupes[] = $dupe->getName();
 				}
+				$result->setIndexedTagName( $dupes, 'duplicate' );
+				$warnings['duplicate'] = $dupes;
+			}
 
-				if ( isset( $warnings['exists'] ) ) {
-					$warning = $warnings['exists'];
-					unset( $warnings['exists'] );
-					$warnings[$warning['warning']] = $warning['file']->getName();
-				}
+			if ( isset( $warnings['exists'] ) ) {
+				$warning = $warnings['exists'];
+				unset( $warnings['exists'] );
+				$warnings[$warning['warning']] = $warning['file']->getName();
 			}
 		}
-
 		return $warnings;
 	}
+
 
 	/**
 	 * Perform the actual upload. Returns a suitable result array on success;
 	 * dies on failure.
+	 *
+	 * @param $warnings array Array of Api upload warnings
+	 * @return array
 	 */
-	protected function performUpload() {
-		global $wgUser;
-
+	protected function performUpload( $warnings ) {
 		// Use comment as initial page text by default
 		if ( is_null( $this->mParams['text'] ) ) {
 			$this->mParams['text'] = $this->mParams['comment'];
@@ -352,7 +522,7 @@ class ApiUpload extends ApiBase {
 
 		// No errors, no warnings: do the upload
 		$status = $this->mUpload->performUpload( $this->mParams['comment'],
-			$this->mParams['text'], $watch, $wgUser );
+			$this->mParams['text'], $watch, $this->getUser() );
 
 		if ( !$status->isGood() ) {
 			$error = $status->getErrorsArray();
@@ -375,9 +545,21 @@ class ApiUpload extends ApiBase {
 
 		$result['result'] = 'Success';
 		$result['filename'] = $file->getName();
-
+		if ( $warnings && count( $warnings ) > 0 ) {
+			$result['warnings'] = $warnings;
+		}
 
 		return $result;
+	}
+
+	/**
+	 * Checks if asynchronous copy uploads are enabled and throws an error if they are not.
+	 */
+	protected function checkAsyncDownloadEnabled() {
+		global $wgAllowAsyncCopyUploads;
+		if ( !$wgAllowAsyncCopyUploads ) {
+			$this->dieUsage( 'Asynchronous copy uploads disabled', 'asynccopyuploaddisabled');
+		}
 	}
 
 	public function mustBePosted() {
@@ -397,7 +579,10 @@ class ApiUpload extends ApiBase {
 				ApiBase::PARAM_DFLT => ''
 			),
 			'text' => null,
-			'token' => null,
+			'token' => array(
+				ApiBase::PARAM_TYPE => 'string',
+				ApiBase::PARAM_REQUIRED => true
+			),
 			'watch' => array(
 				ApiBase::PARAM_DFLT => false,
 				ApiBase::PARAM_DEPRECATED => true,
@@ -413,18 +598,22 @@ class ApiUpload extends ApiBase {
 			'ignorewarnings' => false,
 			'file' => null,
 			'url' => null,
-			'sessionkey' => null,
+			'filekey' => null,
+			'sessionkey' => array(
+				ApiBase::PARAM_DFLT => null,
+				ApiBase::PARAM_DEPRECATED => true,
+			),
 			'stash' => false,
+
+			'filesize' => null,
+			'offset' => null,
+			'chunk' => null,
+
+			'asyncdownload' => false,
+			'leavemessage' => false,
+			'statuskey' => null,
 		);
 
-		global $wgAllowAsyncCopyUploads;
-		if ( $wgAllowAsyncCopyUploads ) {
-			$params += array(
-				'asyncdownload' => false,
-				'leavemessage' => false,
-				'statuskey' => null,
-			);
-		}
 		return $params;
 	}
 
@@ -438,22 +627,57 @@ class ApiUpload extends ApiBase {
 			'watchlist' => 'Unconditionally add or remove the page from your watchlist, use preferences or do not change watch',
 			'ignorewarnings' => 'Ignore any warnings',
 			'file' => 'File contents',
-			'url' => 'Url to fetch the file from',
-			'sessionkey' => 'Session key that identifies a previous upload that was stashed temporarily.',
-			'stash' => 'If set, the server will not add the file to the repository and stash it temporarily.'
-		);
+			'url' => 'URL to fetch the file from',
+			'filekey' => 'Key that identifies a previous upload that was stashed temporarily.',
+			'sessionkey' => 'Same as filekey, maintained for backward compatibility.',
+			'stash' => 'If set, the server will not add the file to the repository and stash it temporarily.',
 
-		global $wgAllowAsyncCopyUploads;
-		if ( $wgAllowAsyncCopyUploads ) {
-			$params += array(
-				'asyncdownload' => 'Make fetching a URL asynchronous',
-				'leavemessage' => 'If asyncdownload is used, leave a message on the user talk page if finished',
-				'statuskey' => 'Fetch the upload status for this session key',
-			);
-		}
+			'chunk' => 'Chunk contents',
+			'offset' => 'Offset of chunk in bytes',
+			'filesize' => 'Filesize of entire upload',
+
+			'asyncdownload' => 'Make fetching a URL asynchronous',
+			'leavemessage' => 'If asyncdownload is used, leave a message on the user talk page if finished',
+			'statuskey' => 'Fetch the upload status for this file key',
+		);
 
 		return $params;
 
+	}
+
+	public function getResultProperties() {
+		return array(
+			'' => array(
+				'result' => array(
+					ApiBase::PROP_TYPE => array(
+						'Success',
+						'Warning',
+						'Continue',
+						'Queued'
+					),
+				),
+				'filekey' => array(
+					ApiBase::PROP_TYPE => 'string',
+					ApiBase::PROP_NULLABLE => true
+				),
+				'sessionkey' => array(
+					ApiBase::PROP_TYPE => 'string',
+					ApiBase::PROP_NULLABLE => true
+				),
+				'offset' => array(
+					ApiBase::PROP_TYPE => 'integer',
+					ApiBase::PROP_NULLABLE => true
+				),
+				'statuskey' => array(
+					ApiBase::PROP_TYPE => 'string',
+					ApiBase::PROP_NULLABLE => true
+				),
+				'filename' => array(
+					ApiBase::PROP_TYPE => 'string',
+					ApiBase::PROP_NULLABLE => true
+				)
+			)
+		);
 	}
 
 	public function getDescription() {
@@ -461,32 +685,34 @@ class ApiUpload extends ApiBase {
 			'Upload a file, or get the status of pending uploads. Several methods are available:',
 			' * Upload file contents directly, using the "file" parameter',
 			' * Have the MediaWiki server fetch a file from a URL, using the "url" parameter',
-			' * Complete an earlier upload that failed due to warnings, using the "sessionkey" parameter',
+			' * Complete an earlier upload that failed due to warnings, using the "filekey" parameter',
 			'Note that the HTTP POST must be done as a file upload (i.e. using multipart/form-data) when',
-			'sending the "file". Note also that queries using session keys must be',
-			'done in the same login session as the query that originally returned the key (i.e. do not',
-			'log out and then log back in). Also you must get and send an edit token before doing any upload stuff'
+			'sending the "file".  Also you must get and send an edit token before doing any upload stuff'
 		);
 	}
 
 	public function getPossibleErrors() {
-		return array_merge( parent::getPossibleErrors(), array(
-			array( 'uploaddisabled' ),
-			array( 'invalid-session-key' ),
-			array( 'uploaddisabled' ),
-			array( 'badaccess-groups' ),
-			array( 'mustbeloggedin', 'upload' ),
-			array( 'badaccess-groups' ),
-			array( 'badaccess-groups' ),
-			array( 'code' => 'fetchfileerror', 'info' => '' ),
-			array( 'code' => 'nomodule', 'info' => 'No upload module set' ),
-			array( 'code' => 'empty-file', 'info' => 'The file you submitted was empty' ),
-			array( 'code' => 'filetype-missing', 'info' => 'The file is missing an extension' ),
-			array( 'code' => 'filename-tooshort', 'info' => 'The filename is too short' ),
-			array( 'code' => 'overwrite', 'info' => 'Overwriting an existing file is not allowed' ),
-			array( 'code' => 'stashfailed', 'info' => 'Stashing temporary file failed' ),
-			array( 'code' => 'internal-error', 'info' => 'An internal error occurred' ),
-		) );
+		return array_merge( parent::getPossibleErrors(),
+			$this->getRequireOnlyOneParameterErrorMessages( array( 'filekey', 'file', 'url', 'statuskey' ) ),
+			array(
+				array( 'uploaddisabled' ),
+				array( 'invalid-file-key' ),
+				array( 'uploaddisabled' ),
+				array( 'mustbeloggedin', 'upload' ),
+				array( 'badaccess-groups' ),
+				array( 'code' => 'fetchfileerror', 'info' => '' ),
+				array( 'code' => 'nomodule', 'info' => 'No upload module set' ),
+				array( 'code' => 'empty-file', 'info' => 'The file you submitted was empty' ),
+				array( 'code' => 'filetype-missing', 'info' => 'The file is missing an extension' ),
+				array( 'code' => 'filename-tooshort', 'info' => 'The filename is too short' ),
+				array( 'code' => 'overwrite', 'info' => 'Overwriting an existing file is not allowed' ),
+				array( 'code' => 'stashfailed', 'info' => 'Stashing temporary file failed' ),
+				array( 'code' => 'internal-error', 'info' => 'An internal error occurred' ),
+				array( 'code' => 'asynccopyuploaddisabled', 'info' => 'Asynchronous copy uploads disabled' ),
+				array( 'fileexists-forbidden' ),
+				array( 'fileexists-shared-forbidden' ),
+			)
+		);
 	}
 
 	public function needsToken() {
@@ -497,16 +723,20 @@ class ApiUpload extends ApiBase {
 		return '';
 	}
 
-	protected function getExamples() {
+	public function getExamples() {
 		return array(
-			'Upload from a URL:',
-			'    api.php?action=upload&filename=Wiki.png&url=http%3A//upload.wikimedia.org/wikipedia/en/b/bc/Wiki.png',
-			'Complete an upload that failed due to warnings:',
-			'    api.php?action=upload&filename=Wiki.png&sessionkey=sessionkey&ignorewarnings=1',
+			'api.php?action=upload&filename=Wiki.png&url=http%3A//upload.wikimedia.org/wikipedia/en/b/bc/Wiki.png'
+				=> 'Upload from a URL',
+			'api.php?action=upload&filename=Wiki.png&filekey=filekey&ignorewarnings=1'
+				=> 'Complete an upload that failed due to warnings',
 		);
 	}
 
+	public function getHelpUrls() {
+		return 'https://www.mediawiki.org/wiki/API:Upload';
+	}
+
 	public function getVersion() {
-		return __CLASS__ . ': $Id: ApiUpload.php 51812 2009-06-12 23:45:20Z dale $';
+		return __CLASS__ . ': $Id$';
 	}
 }

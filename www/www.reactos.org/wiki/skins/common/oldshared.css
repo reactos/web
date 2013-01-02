@@ -1,11 +1,12 @@
-/*
+/**
  * oldshared.css
  * This file contains CSS settings common to Wikistandard, Nostalgia and
  * CologneBlue, the old pre-Monobook skins
  */
 
-/* For clarity, explicitly state some recommendations from <http://www.w3.org/
-   TR/CSS21/sample.html> to make sure the editsection links scale right */
+/* For clarity, explicitly state some recommendations from
+ * http://www.w3.org/TR/CSS21/sample.html to make sure the editsection links scale right
+ */
 
 h1 { font-size: 2em; }
 h2 { font-size: 1.5em; }
@@ -30,30 +31,28 @@ h6 .editsection { font-size: 133%; }
 
 #footer { clear: both }
 /* images */
+/* @noflip */
 div.floatright {
 	float: right;
 	clear: right;
 	margin: 0 0 1em 1em;
 }
 
+/* @noflip */
 div.floatright p {
 	font-style: italic;
 }
 
+/* @noflip */
 div.floatleft {
 	float: left;
 	clear: left;
 	margin: 0.3em 0.5em 0.5em 0;
 }
 
+/* @noflip */
 div.floatleft p {
 	font-style: italic;
-}
-
-
-/* Print-specific things to hide */
-.printfooter {
-	display: none;
 }
 
 /* table standards */
@@ -95,16 +94,19 @@ div.magnify {
 	border: none !important;
 	background: none !important;
 }
-div.magnify a, div.magnify img {
+div.magnify a,
+div.magnify img {
 	display: block;
 	border: none !important;
 	background: none !important;
 }
+/* @noflip */
 div.tright {
 	clear: right;
 	float: right;
 	border-width: .5em 0 .8em 1.4em;
 }
+/* @noflip */
 div.tleft {
 	float: left;
 	clear: left;
@@ -141,8 +143,7 @@ img { border: none; }
 .toc ul {
 	list-style-type: none;
 	list-style-image: none;
-	margin-left: 0;
-	padding-left: 0;
+	padding: 0;
 	text-align: left;
 }
 #toc ul ul,
@@ -208,7 +209,7 @@ fieldset.operaprefsection {
 }
 
 /* small for tables and similar */
-.small, .small * {
+.small {
 	font-size: 94%;
 }
 table.small {
@@ -301,7 +302,8 @@ table.mw_metadata {
 	border: none;
 	border-collapse: collapse;
 }
-table.mw_metadata td, table.mw_metadata th {
+table.mw_metadata td,
+table.mw_metadata th {
 	border: 1px solid #aaaaaa;
 	padding-left: 4px;
 	padding-right: 4px;
@@ -381,7 +383,9 @@ table.multipageimage td {
 .TablePager {
 	border-collapse: collapse;
 }
-.TablePager, .TablePager td, .TablePager th {
+.TablePager,
+.TablePager td,
+.TablePager th {
 	border: 0.15em solid #777777;
 	padding: 0 0.15em 0 0.15em;
 }
@@ -395,7 +399,8 @@ table.multipageimage td {
 	background-color: #eeeeff;
 }
 
-.imagelist td, .imagelist th {
+.imagelist td,
+.imagelist th {
 	white-space: nowrap;
 }
 .imagelist .TablePager_col_links {
@@ -428,8 +433,29 @@ form#specialpages {
 }
 
 body {
+	direction: ltr;
+	unicode-bidi: embed;
 	background-color: #ffffec;
 }
 body.ns-0 {
 	background-color: white;
 }
+
+/** RTL specific CSS starts here **/
+
+/**
+ * Lists:
+ * The following lines don't have a visible effect on non-Gecko browsers
+ * They fix a problem with Gecko browsers rendering lists to the right of
+ * left-floated objects in an RTL layout.
+ */
+/* @noflip */
+html > body.rtl div#article ul {
+	display: table;
+}
+/* @noflip */
+html > body.rtl div#bodyContent ul#filetoc {
+	display: block;
+}
+
+/* RTL specific CSS ends here **/

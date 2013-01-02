@@ -63,15 +63,20 @@ window.fixalpha = function( logoId ) {
 	}
 };
 
+if ( isMSIE55 ) {
+	// ondomready
+	$( fixalpha );
+}
+
 // fix ie6 disappering float bug
 window.relativeforfloats = function() {
 	var bc = document.getElementById( 'bodyContent' );
 	if ( bc ) {
 		var tables = bc.getElementsByTagName( 'table' );
 		var divs = bc.getElementsByTagName( 'div' );
+		setrelative( tables );
+		setrelative( divs );
 	}
-	setrelative( tables );
-	setrelative( divs );
 };
 
 window.setrelative = function( nodes ) {

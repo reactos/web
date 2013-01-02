@@ -22,7 +22,7 @@
  * @ingroup Maintenance
  */
 
-require_once( dirname( __FILE__ ) . '/Maintenance.php' );
+require_once( __DIR__ . '/Maintenance.php' );
 
 class InitEditCount extends Maintenance {
 	public function __construct() {
@@ -93,7 +93,7 @@ in the load balancer, usually indicating a replication environment.' );
 					$delta,
 					$rate ) );
 
-				wfWaitForSlaves( 10 );
+				wfWaitForSlaves();
 			}
 		} else {
 			// Subselect should work on modern MySQLs etc

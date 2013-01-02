@@ -1,10 +1,10 @@
 <?php
 /**
- * API for MediaWiki 1.8+
+ *
  *
  * Created on Jan 4, 2008
  *
- * Copyright © 2008 Yuri Astrakhan <Firstname><Lastname>@gmail.com,
+ * Copyright © 2008 Yuri Astrakhan "<Firstname><Lastname>@gmail.com",
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,11 +24,6 @@
  * @file
  */
 
-if ( !defined( 'MEDIAWIKI' ) ) {
-	// Eclipse helper - will be ignored in production
-	require_once( 'ApiBase.php' );
-}
-
 /**
  * API module to allow users to watch a page
  *
@@ -41,38 +36,49 @@ class ApiWatch extends ApiBase {
 	}
 
 	public function execute() {
-		global $wgUser;
-		if ( !$wgUser->isLoggedIn() ) {
+		$user = $this->getUser();
+		if ( !$user->isLoggedIn() ) {
 			$this->dieUsage( 'You must be logged-in to have a watchlist', 'notloggedin' );
 		}
 
 		$params = $this->extractRequestParams();
 		$title = Title::newFromText( $params['title'] );
 
-		if ( !$title ) {
+		if ( !$title || $title->getNamespace() < 0 ) {
 			$this->dieUsageMsg( array( 'invalidtitle', $params['title'] ) );
 		}
 
-		$article = new Article( $title );
 		$res = array( 'title' => $title->getPrefixedText() );
 
 		if ( $params['unwatch'] ) {
 			$res['unwatched'] = '';
-			$res['message'] = wfMsgExt( 'removedwatchtext', array( 'parse' ), $title->getPrefixedText() );
-			$success = $article->doUnwatch();
+			$res['message'] = $this->msg( 'removedwatchtext', $title->getPrefixedText() )->title( $title )->parseAsBlock();
+			$success = UnwatchAction::doUnwatch( $title, $user );
 		} else {
 			$res['watched'] = '';
-			$res['message'] = wfMsgExt( 'addedwatchtext', array( 'parse' ), $title->getPrefixedText() );
-			$success = $article->doWatch();
+			$res['message'] = $this->msg( 'addedwatchtext', $title->getPrefixedText() )->title( $title )->parseAsBlock();
+			$success = WatchAction::doWatch( $title, $user );
 		}
 		if ( !$success ) {
-			$this->dieUsageMsg( array( 'hookaborted' ) );
+			$this->dieUsageMsg( 'hookaborted' );
 		}
 		$this->getResult()->addValue( null, $this->getModuleName(), $res );
 	}
 
+	public function mustBePosted() {
+		return true;
+	}
+
 	public function isWriteMode() {
 		return true;
+	}
+
+	public function needsToken() {
+		return true;
+	}
+
+	public function getTokenSalt() {
+		return 'watch';
 	}
 
 	public function getAllowedParams() {
@@ -81,8 +87,11 @@ class ApiWatch extends ApiBase {
 				ApiBase::PARAM_TYPE => 'string',
 				ApiBase::PARAM_REQUIRED => true
 			),
-
 			'unwatch' => false,
+			'token' => array(
+				ApiBase::PARAM_TYPE => 'string',
+				ApiBase::PARAM_REQUIRED => true
+			),
 		);
 	}
 
@@ -90,6 +99,18 @@ class ApiWatch extends ApiBase {
 		return array(
 			'title' => 'The page to (un)watch',
 			'unwatch' => 'If set the page will be unwatched rather than watched',
+			'token' => 'A token previously acquired via prop=info',
+		);
+	}
+
+	public function getResultProperties() {
+		return array(
+			'' => array(
+				'title' => 'string',
+				'unwatched' => 'boolean',
+				'watched' => 'boolean',
+				'message' => 'string'
+			)
 		);
 	}
 
@@ -105,14 +126,18 @@ class ApiWatch extends ApiBase {
 		) );
 	}
 
-	protected function getExamples() {
+	public function getExamples() {
 		return array(
-			'api.php?action=watch&title=Main_Page',
-			'api.php?action=watch&title=Main_Page&unwatch=',
+			'api.php?action=watch&title=Main_Page' => 'Watch the page "Main Page"',
+			'api.php?action=watch&title=Main_Page&unwatch=' => 'Unwatch the page "Main Page"',
 		);
 	}
 
+	public function getHelpUrls() {
+		return 'https://www.mediawiki.org/wiki/API:Watch';
+	}
+
 	public function getVersion() {
-		return __CLASS__ . ': $Id: ApiWatch.php 77192 2010-11-23 22:05:27Z btongminh $';
+		return __CLASS__ . ': $Id$';
 	}
 }

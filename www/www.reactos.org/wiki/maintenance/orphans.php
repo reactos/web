@@ -1,11 +1,11 @@
 <?php
 /**
- * Look for 'orphan' revisions hooked to pages which don't exist
- * And 'childless' pages with no revisions.
+ * Look for 'orphan' revisions hooked to pages which don't exist and
+ * 'childless' pages with no revisions.
  * Then, kill the poor widows and orphans.
  * Man this is depressing.
  *
- * Copyright (C) 2005 Brion Vibber <brion@pobox.com>
+ * Copyright © 2005 Brion Vibber <brion@pobox.com>
  * http://www.mediawiki.org/
  *
  * This program is free software; you can redistribute it and/or modify
@@ -23,17 +23,24 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  * http://www.gnu.org/copyleft/gpl.html
  *
+ * @file
  * @author <brion@pobox.com>
  * @ingroup Maintenance
  */
 
-require_once( dirname( __FILE__ ) . '/Maintenance.php' );
+require_once( __DIR__ . '/Maintenance.php' );
 
+/**
+ * Maintenance script that looks for 'orphan' revisions hooked to pages which
+ * don't exist and 'childless' pages with no revisions.
+ *
+ * @ingroup Maintenance
+ */
 class Orphans extends Maintenance {
 	public function __construct() {
 		parent::__construct();
 		$this->mDescription = "Look for 'orphan' revisions hooked to pages which don't exist\n" .
-								"And 'childless' pages with no revisions\n" .
+								"and 'childless' pages with no revisions\n" .
 								"Then, kill the poor widows and orphans\n" .
 								"Man this is depressing";
 		$this->addOption( 'fix', 'Actually fix broken entries' );
@@ -50,13 +57,14 @@ class Orphans extends Maintenance {
 
 	/**
 	 * Lock the appropriate tables for the script
-	 * @param $db Database object
+	 * @param $db DatabaseBase object
 	 * @param $extraTable String The name of any extra tables to lock (eg: text)
 	 */
-	private function lockTables( &$db, $extraTable = null ) {
+	private function lockTables( $db, $extraTable = array() ) {
 		$tbls = array( 'page', 'revision', 'redirect' );
-		if ( $extraTable )
-			$tbls[] = $extraTable;
+		if ( $extraTable ) {
+			$tbls = array_merge( $tbls, $extraTable );
+		}
 		$db->lockTables( array(), $tbls, __METHOD__, false );
 	}
 
@@ -167,7 +175,7 @@ class Orphans extends Maintenance {
 		$revision = $dbw->tableName( 'revision' );
 
 		if ( $fix ) {
-			$dbw->lockTables( $dbw, 'text', __METHOD__ );
+			$this->lockTables( $dbw, array( 'user', 'text' ) );
 		}
 
 		$this->output( "\nChecking for pages whose page_latest links are incorrect... (this may take a while on a large wiki)\n" );
@@ -206,7 +214,7 @@ class Orphans extends Maintenance {
 						$this->output( "... updating to revision $maxId\n" );
 						$maxRev = Revision::newFromId( $maxId );
 						$title = Title::makeTitle( $row->page_namespace, $row->page_title );
-						$article = new Article( $title );
+						$article = WikiPage::factory( $title );
 						$article->updateRevisionOn( $dbw, $maxRev );
 					}
 				}

@@ -1,10 +1,10 @@
 <?php
 /**
- * API for MediaWiki 1.8+
+ *
  *
  * Created on Sep 25, 2006
  *
- * Copyright © 2006 Yuri Astrakhan <Firstname><Lastname>@gmail.com
+ * Copyright © 2006 Yuri Astrakhan "<Firstname><Lastname>@gmail.com"
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,17 +24,12 @@
  * @file
  */
 
-if ( !defined( 'MEDIAWIKI' ) ) {
-	// Eclipse helper - will be ignored in production
-	require_once( 'ApiQueryBase.php' );
-}
-
 /**
  * Query module to enumerate all available pages.
  *
  * @ingroup API
  */
-class ApiQueryAllpages extends ApiQueryGeneratorBase {
+class ApiQueryAllPages extends ApiQueryGeneratorBase {
 
 	public function __construct( $query, $moduleName ) {
 		parent::__construct( $query, $moduleName, 'ap' );
@@ -48,6 +43,10 @@ class ApiQueryAllpages extends ApiQueryGeneratorBase {
 		return 'public';
 	}
 
+	/**
+	 * @param $resultPageSet ApiPageSet
+	 * @return void
+	 */
 	public function executeGenerator( $resultPageSet ) {
 		if ( $resultPageSet->isResolvingRedirects() ) {
 			$this->dieUsage( 'Use "gapfilterredir=nonredirects" option instead of "redirects" when using allpages as a generator', 'params' );
@@ -56,6 +55,10 @@ class ApiQueryAllpages extends ApiQueryGeneratorBase {
 		$this->run( $resultPageSet );
 	}
 
+	/**
+	 * @param $resultPageSet ApiPageSet
+	 * @return void
+	 */
 	private function run( $resultPageSet = null ) {
 		$db = $this->getDB();
 
@@ -63,6 +66,17 @@ class ApiQueryAllpages extends ApiQueryGeneratorBase {
 
 		// Page filters
 		$this->addTables( 'page' );
+
+		if ( !is_null( $params['continue'] ) ) {
+			$cont = explode( '|', $params['continue'] );
+			if ( count( $cont ) != 1 ) {
+				$this->dieUsage( "Invalid continue param. You should pass the " .
+					"original value returned by the previous query", "_badcontinue" );
+			}
+			$op = $params['dir'] == 'descending' ? '<' : '>';
+			$cont_from = $db->addQuotes( $cont[0] );
+			$this->addWhere( "page_title $op= $cont_from" );
+		}
 
 		if ( $params['filterredir'] == 'redirects' ) {
 			$this->addWhereFld( 'page_is_redirect', 1 );
@@ -75,7 +89,7 @@ class ApiQueryAllpages extends ApiQueryGeneratorBase {
 		$from = ( is_null( $params['from'] ) ? null : $this->titlePartToKey( $params['from'] ) );
 		$to = ( is_null( $params['to'] ) ? null : $this->titlePartToKey( $params['to'] ) );
 		$this->addWhereRange( 'page_title', $dir, $from, $to );
-		
+
 		if ( isset( $params['prefix'] ) ) {
 			$this->addWhere( 'page_title' . $db->buildLike( $this->titlePartToKey( $params['prefix'] ), $db->anyString() ) );
 		}
@@ -103,29 +117,37 @@ class ApiQueryAllpages extends ApiQueryGeneratorBase {
 		}
 
 		// Page protection filtering
-		if ( !empty( $params['prtype'] ) ) {
+		if ( count( $params['prtype'] ) || $params['prexpiry'] != 'all' ) {
 			$this->addTables( 'page_restrictions' );
 			$this->addWhere( 'page_id=pr_page' );
 			$this->addWhere( 'pr_expiry>' . $db->addQuotes( $db->timestamp() ) );
-			$this->addWhereFld( 'pr_type', $params['prtype'] );
 
-			if ( isset( $params['prlevel'] ) ) {
-				// Remove the empty string and '*' from the prlevel array
-				$prlevel = array_diff( $params['prlevel'], array( '', '*' ) );
+			if ( count( $params['prtype'] ) ) {
+				$this->addWhereFld( 'pr_type', $params['prtype'] );
 
-				if ( !empty( $prlevel ) ) {
-					$this->addWhereFld( 'pr_level', $prlevel );
+				if ( isset( $params['prlevel'] ) ) {
+					// Remove the empty string and '*' from the prlevel array
+					$prlevel = array_diff( $params['prlevel'], array( '', '*' ) );
+
+					if ( count( $prlevel ) ) {
+						$this->addWhereFld( 'pr_level', $prlevel );
+					}
 				}
-			}
-			if ( $params['prfiltercascade'] == 'cascading' ) {
-				$this->addWhereFld( 'pr_cascade', 1 );
-			} elseif ( $params['prfiltercascade'] == 'noncascading' ) {
-				$this->addWhereFld( 'pr_cascade', 0 );
-			}
+				if ( $params['prfiltercascade'] == 'cascading' ) {
+					$this->addWhereFld( 'pr_cascade', 1 );
+				} elseif ( $params['prfiltercascade'] == 'noncascading' ) {
+					$this->addWhereFld( 'pr_cascade', 0 );
+				}
 
-			$this->addOption( 'DISTINCT' );
-
+				$this->addOption( 'DISTINCT' );
+			}
 			$forceNameTitleIndex = false;
+
+			if ( $params['prexpiry'] == 'indefinite' ) {
+				$this->addWhere( "pr_expiry = {$db->addQuotes( $db->getInfinity() )} OR pr_expiry IS NULL" );
+			} elseif ( $params['prexpiry'] == 'definite' ) {
+				$this->addWhere( "pr_expiry != {$db->addQuotes( $db->getInfinity() )}" );
+			}
 
 		} elseif ( isset( $params['prlevel'] ) ) {
 			$this->dieUsage( 'prlevel may not be used without prtype', 'params' );
@@ -142,7 +164,7 @@ class ApiQueryAllpages extends ApiQueryGeneratorBase {
 			$this->addOption( 'STRAIGHT_JOIN' );
 			// We have to GROUP BY all selected fields to stop
 			// PostgreSQL from whining
-			$this->addOption( 'GROUP BY', implode( ', ', $selectFields ) );
+			$this->addOption( 'GROUP BY', $selectFields );
 			$forceNameTitleIndex = false;
 		}
 
@@ -154,13 +176,22 @@ class ApiQueryAllpages extends ApiQueryGeneratorBase {
 		$this->addOption( 'LIMIT', $limit + 1 );
 		$res = $this->select( __METHOD__ );
 
+		//Get gender information
+		if( MWNamespace::hasGenderDistinction( $params['namespace'] ) ) {
+			$users = array();
+			foreach ( $res as $row ) {
+				$users[] = $row->page_title;
+			}
+			GenderCache::singleton()->doQuery( $users, __METHOD__ );
+			$res->rewind(); //reset
+		}
+
 		$count = 0;
 		$result = $this->getResult();
 		foreach ( $res as $row ) {
 			if ( ++ $count > $limit ) {
 				// We've reached the one extra which shows that there are additional pages to be had. Stop here...
-				// TODO: Security issue - if the user has no right to view next title, it will still be shown
-				$this->setContinueEnumParameter( 'from', $this->keyToTitle( $row->page_title ) );
+				$this->setContinueEnumParameter( 'continue', $row->page_title );
 				break;
 			}
 
@@ -173,7 +204,7 @@ class ApiQueryAllpages extends ApiQueryGeneratorBase {
 				);
 				$fit = $result->addValue( array( 'query', $this->getModuleName() ), null, $vals );
 				if ( !$fit ) {
-					$this->setContinueEnumParameter( 'from', $this->keyToTitle( $row->page_title ) );
+					$this->setContinueEnumParameter( 'continue', $row->page_title );
 					break;
 				}
 			} else {
@@ -191,6 +222,7 @@ class ApiQueryAllpages extends ApiQueryGeneratorBase {
 
 		return array(
 			'from' => null,
+			'continue' => null,
 			'to' => null,
 			'prefix' => null,
 			'namespace' => array(
@@ -248,7 +280,15 @@ class ApiQueryAllpages extends ApiQueryGeneratorBase {
 					'all'
 				),
 				ApiBase::PARAM_DFLT => 'all'
-			)
+			),
+			'prexpiry' => array(
+				ApiBase::PARAM_TYPE => array(
+					'indefinite',
+					'definite',
+					'all'
+				),
+				ApiBase::PARAM_DFLT => 'all'
+			),
 		);
 	}
 
@@ -256,6 +296,7 @@ class ApiQueryAllpages extends ApiQueryGeneratorBase {
 		$p = $this->getModulePrefix();
 		return array(
 			'from' => 'The page title to start enumerating from',
+			'continue' => 'When more results are available, use this to continue',
 			'to' => 'The page title to stop enumerating at',
 			'prefix' => 'Search for all page titles that begin with this value',
 			'namespace' => 'The namespace to enumerate',
@@ -267,7 +308,23 @@ class ApiQueryAllpages extends ApiQueryGeneratorBase {
 			'prlevel' => "The protection level (must be used with {$p}prtype= parameter)",
 			'prfiltercascade' => "Filter protections based on cascadingness (ignored when {$p}prtype isn't set)",
 			'filterlanglinks' => 'Filter based on whether a page has langlinks',
-			'limit' => 'How many total pages to return.'
+			'limit' => 'How many total pages to return.',
+			'prexpiry' => array(
+				'Which protection expiry to filter the page on',
+				' indefinite - Get only pages with indefinite protection expiry',
+				' definite - Get only pages with a definite (specific) protection expiry',
+				' all - Get pages with any protections expiry'
+			),
+		);
+	}
+
+	public function getResultProperties() {
+		return array(
+			'' => array(
+				'pageid' => 'integer',
+				'ns' => 'namespace',
+				'title' => 'string'
+			)
 		);
 	}
 
@@ -279,23 +336,31 @@ class ApiQueryAllpages extends ApiQueryGeneratorBase {
 		return array_merge( parent::getPossibleErrors(), array(
 			array( 'code' => 'params', 'info' => 'Use "gapfilterredir=nonredirects" option instead of "redirects" when using allpages as a generator' ),
 			array( 'code' => 'params', 'info' => 'prlevel may not be used without prtype' ),
+			array( 'code' => '_badcontinue', 'info' => 'Invalid continue param. You should pass the original value returned by the previous query' ),
 		) );
 	}
 
-	protected function getExamples() {
+	public function getExamples() {
 		return array(
-			'Simple Use',
-			' Show a list of pages starting at the letter "B"',
-			'  api.php?action=query&list=allpages&apfrom=B',
-			'Using as Generator',
-			' Show info about 4 pages starting at the letter "T"',
-			'  api.php?action=query&generator=allpages&gaplimit=4&gapfrom=T&prop=info',
-			' Show content of first 2 non-redirect pages begining at "Re"',
-			'  api.php?action=query&generator=allpages&gaplimit=2&gapfilterredir=nonredirects&gapfrom=Re&prop=revisions&rvprop=content'
+			'api.php?action=query&list=allpages&apfrom=B' => array(
+				'Simple Use',
+				'Show a list of pages starting at the letter "B"',
+			),
+			'api.php?action=query&generator=allpages&gaplimit=4&gapfrom=T&prop=info' => array(
+				'Using as Generator',
+				'Show info about 4 pages starting at the letter "T"',
+			),
+			'api.php?action=query&generator=allpages&gaplimit=2&gapfilterredir=nonredirects&gapfrom=Re&prop=revisions&rvprop=content' => array(
+				'Show content of first 2 non-redirect pages begining at "Re"',
+			)
 		);
 	}
 
+	public function getHelpUrls() {
+		return 'https://www.mediawiki.org/wiki/API:Allpages';
+	}
+
 	public function getVersion() {
-		return __CLASS__ . ': $Id: ApiQueryAllpages.php 85354 2011-04-04 18:25:31Z demon $';
+		return __CLASS__ . ': $Id$';
 	}
 }

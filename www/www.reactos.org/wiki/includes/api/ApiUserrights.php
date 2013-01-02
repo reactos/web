@@ -1,11 +1,11 @@
 <?php
 
 /**
- * API for MediaWiki 1.8+
+ *
  *
  * Created on Mar 24, 2009
  *
- * Copyright © 2009 Roan Kattouw <Firstname>.<Lastname>@home.nl
+ * Copyright © 2009 Roan Kattouw "<Firstname>.<Lastname>@gmail.com"
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,11 +25,6 @@
  * @file
  */
 
-if ( !defined( 'MEDIAWIKI' ) ) {
-	// Eclipse helper - will be ignored in production
-	require_once( "ApiBase.php" );
-}
-
 /**
  * @ingroup API
  */
@@ -44,24 +39,26 @@ class ApiUserrights extends ApiBase {
 	public function execute() {
 		$params = $this->extractRequestParams();
 
-		$user = $this->getUser();
+		$user = $this->getUrUser();
 
 		$form = new UserrightsPage;
 		$r['user'] = $user->getName();
+		$r['userid'] = $user->getId();
 		list( $r['added'], $r['removed'] ) =
 			$form->doSaveUserGroups(
 				$user, (array)$params['add'],
 				(array)$params['remove'], $params['reason'] );
 
-		$this->getResult()->setIndexedTagName( $r['added'], 'group' );
-		$this->getResult()->setIndexedTagName( $r['removed'], 'group' );
-		$this->getResult()->addValue( null, $this->getModuleName(), $r );
+		$result = $this->getResult();
+		$result->setIndexedTagName( $r['added'], 'group' );
+		$result->setIndexedTagName( $r['removed'], 'group' );
+		$result->addValue( null, $this->getModuleName(), $r );
 	}
 
 	/**
 	 * @return User
 	 */
-	private function getUser() {
+	private function getUrUser() {
 		if ( $this->mUser !== null ) {
 			return $this->mUser;
 		}
@@ -103,7 +100,10 @@ class ApiUserrights extends ApiBase {
 				ApiBase::PARAM_TYPE => User::getAllGroups(),
 				ApiBase::PARAM_ISMULTI => true
 			),
-			'token' => null,
+			'token' => array(
+				ApiBase::PARAM_TYPE => 'string',
+				ApiBase::PARAM_REQUIRED => true
+			),
 			'reason' => array(
 				ApiBase::PARAM_DFLT => ''
 			)
@@ -129,16 +129,20 @@ class ApiUserrights extends ApiBase {
 	}
 
 	public function getTokenSalt() {
-		return $this->getUser()->getName();
+		return $this->getUrUser()->getName();
 	}
 
-	protected function getExamples() {
+	public function getExamples() {
 		return array(
 			'api.php?action=userrights&user=FooBot&add=bot&remove=sysop|bureaucrat&token=123ABC'
 		);
 	}
 
+	public function getHelpUrls() {
+		return 'https://www.mediawiki.org/wiki/API:User_group_membership';
+	}
+
 	public function getVersion() {
-		return __CLASS__ . ': $Id: ApiUserrights.php 75602 2010-10-28 00:04:48Z reedy $';
+		return __CLASS__ . ': $Id$';
 	}
 }

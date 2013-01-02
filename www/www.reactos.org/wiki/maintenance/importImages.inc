@@ -1,7 +1,21 @@
 <?php
-
 /**
- * Support functions for the importImages script
+ * Support functions for the importImages.php script
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ * http://www.gnu.org/copyleft/gpl.html
  *
  * @file
  * @ingroup Maintenance
@@ -12,7 +26,7 @@
 /**
  * Search a directory for files with one of a set of extensions
  *
- * @param $dir Path to directory to search
+ * @param $dir string Path to directory to search
  * @param $exts Array of extensions to search for
  * @return mixed Array of filenames on success, or false on failure
  */
@@ -40,7 +54,7 @@ function findFiles( $dir, $exts ) {
 /**
  * Split a filename into filename and extension
  *
- * @param $filename Filename
+ * @param $filename string Filename
  * @return array
  */
 function splitFilename( $filename ) {
@@ -60,9 +74,9 @@ function splitFilename( $filename ) {
  * files for acme.foo.bar and the extension ".txt". With $maxStrip = 2,
  * acme.txt would also be acceptable.
  *
- * @param $file base path
- * @param $auxExtension the extension to be appended to the base path
- * @param $maxStrip the maximum number of extensions to strip from the base path (default: 1)
+ * @param $file string base path
+ * @param $auxExtension string the extension to be appended to the base path
+ * @param $maxStrip int the maximum number of extensions to strip from the base path (default: 1)
  * @return string or false
  */
 function findAuxFile( $file, $auxExtension, $maxStrip = 1 ) {

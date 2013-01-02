@@ -9,6 +9,20 @@
 BEGIN;
 SET client_min_messages = 'ERROR';
 
+DROP SEQUENCE IF EXISTS user_user_id_seq CASCADE;
+DROP SEQUENCE IF EXISTS page_page_id_seq CASCADE;
+DROP SEQUENCE IF EXISTS revision_rev_id_seq CASCADE;
+DROP SEQUENCE IF EXISTS page_restrictions_id_seq CASCADE;
+DROP SEQUENCE IF EXISTS ipblocks_ipb_id_seq CASCADE;
+DROP SEQUENCE IF EXISTS recentchanges_rc_id_seq CASCADE;
+DROP SEQUENCE IF EXISTS logging_log_id_seq CASCADE;
+DROP SEQUENCE IF EXISTS job_job_id_seq CASCADE;
+DROP SEQUENCE IF EXISTS category_cat_id_seq CASCADE;
+DROP FUNCTION IF EXISTS page_deleted() CASCADE;
+DROP FUNCTION IF EXISTS ts2_page_title() CASCADE;
+DROP FUNCTION IF EXISTS ts2_page_text() CASCADE;
+DROP FUNCTION IF EXISTS add_interwiki(TEXT,INT,SMALLINT) CASCADE;
+
 CREATE SEQUENCE user_user_id_seq MINVALUE 0 START WITH 0;
 CREATE TABLE mwuser ( -- replace reserved word 'user'
   user_id                   INTEGER  NOT NULL  PRIMARY KEY DEFAULT nextval('user_user_id_seq'),
@@ -22,7 +36,6 @@ CREATE TABLE mwuser ( -- replace reserved word 'user'
   user_email_token          TEXT,
   user_email_token_expires  TIMESTAMPTZ,
   user_email_authenticated  TIMESTAMPTZ,
-  user_options              TEXT,
   user_touched              TIMESTAMPTZ,
   user_registration         TIMESTAMPTZ,
   user_editcount            INTEGER
@@ -38,6 +51,12 @@ CREATE TABLE user_groups (
   ug_group  TEXT     NOT NULL
 );
 CREATE UNIQUE INDEX user_groups_unique ON user_groups (ug_user, ug_group);
+
+CREATE TABLE user_former_groups (
+  ufg_user   INTEGER      NULL  REFERENCES mwuser(user_id) ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
+  ufg_group  TEXT     NOT NULL
+);
+CREATE UNIQUE INDEX ufg_user_group ON user_former_groups (ufg_user, ufg_group);
 
 CREATE TABLE user_newtalk (
   user_id              INTEGER      NOT NULL  REFERENCES mwuser(user_id) ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
@@ -63,12 +82,12 @@ CREATE TABLE page (
   page_len           INTEGER        NOT NULL
 );
 CREATE UNIQUE INDEX page_unique_name ON page (page_namespace, page_title);
-CREATE INDEX page_main_title         ON page (page_title) WHERE page_namespace = 0;
-CREATE INDEX page_talk_title         ON page (page_title) WHERE page_namespace = 1;
-CREATE INDEX page_user_title         ON page (page_title) WHERE page_namespace = 2;
-CREATE INDEX page_utalk_title        ON page (page_title) WHERE page_namespace = 3;
-CREATE INDEX page_project_title      ON page (page_title) WHERE page_namespace = 4;
-CREATE INDEX page_mediawiki_title    ON page (page_title) WHERE page_namespace = 8;
+CREATE INDEX page_main_title         ON page (page_title text_pattern_ops) WHERE page_namespace = 0;
+CREATE INDEX page_talk_title         ON page (page_title text_pattern_ops) WHERE page_namespace = 1;
+CREATE INDEX page_user_title         ON page (page_title text_pattern_ops) WHERE page_namespace = 2;
+CREATE INDEX page_utalk_title        ON page (page_title text_pattern_ops) WHERE page_namespace = 3;
+CREATE INDEX page_project_title      ON page (page_title text_pattern_ops) WHERE page_namespace = 4;
+CREATE INDEX page_mediawiki_title    ON page (page_title text_pattern_ops) WHERE page_namespace = 8;
 CREATE INDEX page_random_idx         ON page (page_random);
 CREATE INDEX page_len_idx            ON page (page_len);
 
@@ -95,7 +114,8 @@ CREATE TABLE revision (
   rev_minor_edit  SMALLINT     NOT NULL  DEFAULT 0,
   rev_deleted     SMALLINT     NOT NULL  DEFAULT 0,
   rev_len         INTEGER          NULL,
-  rev_parent_id   INTEGER          NULL
+  rev_parent_id   INTEGER          NULL,
+  rev_sha1        TEXT         NOT NULL DEFAULT ''
 );
 CREATE UNIQUE INDEX revision_unique ON revision (rev_page, rev_id);
 CREATE INDEX rev_text_id_idx        ON revision (rev_text_id);
@@ -138,6 +158,7 @@ CREATE TABLE archive (
   ar_text        TEXT, -- technically should be bytea, but not used anymore
   ar_page_id     INTEGER          NULL,
   ar_parent_id   INTEGER          NULL,
+  ar_sha1        TEXT         NOT NULL DEFAULT '',
   ar_comment     TEXT,
   ar_user        INTEGER          NULL  REFERENCES mwuser(user_id) ON DELETE SET NULL DEFERRABLE INITIALLY DEFERRED,
   ar_user_text   TEXT         NOT NULL,
@@ -256,12 +277,14 @@ CREATE TABLE ipblocks (
   ipb_range_end         TEXT,
   ipb_deleted           SMALLINT     NOT NULL  DEFAULT 0,
   ipb_block_email       SMALLINT     NOT NULL  DEFAULT 0,
-  ipb_allow_usertalk    SMALLINT     NOT NULL  DEFAULT 0
+  ipb_allow_usertalk    SMALLINT     NOT NULL  DEFAULT 0,
+  ipb_parent_block_id             INTEGER          NULL  REFERENCES ipblocks(ipb_id) ON DELETE SET NULL DEFERRABLE INITIALLY DEFERRED
 
 );
 CREATE UNIQUE INDEX ipb_address_unique ON ipblocks (ipb_address,ipb_user,ipb_auto,ipb_anon_only);
 CREATE INDEX ipb_user    ON ipblocks (ipb_user);
 CREATE INDEX ipb_range   ON ipblocks (ipb_range_start,ipb_range_end);
+CREATE INDEX ipb_parent_block_id   ON ipblocks (ipb_parent_block_id);
 
 
 CREATE TABLE image (
@@ -337,6 +360,32 @@ CREATE INDEX fa_dupe      ON filearchive (fa_storage_group, fa_storage_key);
 CREATE INDEX fa_notime    ON filearchive (fa_deleted_timestamp);
 CREATE INDEX fa_nouser    ON filearchive (fa_deleted_user);
 
+CREATE SEQUENCE uploadstash_us_id_seq;
+CREATE TYPE media_type AS ENUM ('UNKNOWN','BITMAP','DRAWING','AUDIO','VIDEO','MULTIMEDIA','OFFICE','TEXT','EXECUTABLE','ARCHIVE');
+
+CREATE TABLE uploadstash (
+  us_id           INTEGER PRIMARY KEY NOT NULL DEFAULT nextval('uploadstash_us_id_seq'),
+  us_user         INTEGER,
+  us_key          TEXT,
+  us_orig_path    TEXT,
+  us_path         TEXT,
+  us_source_type  TEXT,
+  us_timestamp    TIMESTAMPTZ,
+  us_status       TEXT,
+  us_chunk_inx    INTEGER NULL,
+  us_size         INTEGER,
+  us_sha1         TEXT,
+  us_mime         TEXT,
+  us_media_type   media_type DEFAULT NULL,
+  us_image_width  INTEGER,
+  us_image_height INTEGER,
+  us_image_bits   SMALLINT
+);
+
+CREATE INDEX us_user_idx ON uploadstash (us_user);
+CREATE UNIQUE INDEX us_key_idx ON uploadstash (us_key);
+CREATE INDEX us_timestamp_idx ON uploadstash (us_timestamp);
+
 
 CREATE SEQUENCE recentchanges_rc_id_seq;
 CREATE TABLE recentchanges (
@@ -383,14 +432,6 @@ CREATE TABLE watchlist (
 );
 CREATE UNIQUE INDEX wl_user_namespace_title ON watchlist (wl_namespace, wl_title, wl_user);
 CREATE INDEX wl_user ON watchlist (wl_user);
-
-CREATE TABLE math (
-  math_inputhash              BYTEA     NOT NULL  UNIQUE,
-  math_outputhash             BYTEA     NOT NULL,
-  math_html_conservativeness  SMALLINT  NOT NULL,
-  math_html                   TEXT,
-  math_mathml                 TEXT
-);
 
 
 CREATE TABLE interwiki (
@@ -472,17 +513,6 @@ CREATE TABLE log_search (
 );
 CREATE INDEX ls_log_id ON log_search (ls_log_id);
 
-CREATE SEQUENCE trackbacks_tb_id_seq;
-CREATE TABLE trackbacks (
-  tb_id     INTEGER  NOT NULL  PRIMARY KEY DEFAULT nextval('trackbacks_tb_id_seq'),
-  tb_page   INTEGER            REFERENCES page(page_id) ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED,
-  tb_title  TEXT     NOT NULL,
-  tb_url    TEXT     NOT NULL,
-  tb_ex     TEXT,
-  tb_name   TEXT
-);
-CREATE INDEX trackback_page ON trackbacks (tb_page);
-
 
 CREATE SEQUENCE job_job_id_seq;
 CREATE TABLE job (
@@ -490,9 +520,11 @@ CREATE TABLE job (
   job_cmd        TEXT      NOT NULL,
   job_namespace  SMALLINT  NOT NULL,
   job_title      TEXT      NOT NULL,
+  job_timestamp  TIMESTAMPTZ,
   job_params     TEXT      NOT NULL
 );
 CREATE INDEX job_cmd_namespace_title ON job (job_cmd, job_namespace, job_title);
+CREATE INDEX job_timestamp_idx ON job (job_timestamp);
 
 -- Tsearch2 2 stuff. Will fail if we don't have proper access to the tsearch2 tables
 -- Version 8.3 or higher only. Previous versions would need another parmeter for to_tsvector.

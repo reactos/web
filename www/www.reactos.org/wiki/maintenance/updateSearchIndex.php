@@ -1,6 +1,6 @@
 <?php
 /**
- * Script for periodic off-peak updating of the search index
+ * Periodic off-peak updating of the search index.
  *
  * Usage: php updateSearchIndex.php [-s START] [-e END] [-p POSFILE] [-l LOCKTIME] [-q]
  * Where START is the starting timestamp
@@ -28,8 +28,13 @@
  * @ingroup Maintenance
  */
 
-require_once( dirname( __FILE__ ) . '/Maintenance.php' );
+require_once( __DIR__ . '/Maintenance.php' );
 
+/**
+ * Maintenance script for periodic off-peak updating of the search index.
+ *
+ * @ingroup Maintenance
+ */
 class UpdateSearchIndex extends Maintenance {
 
 	public function __construct() {
@@ -55,11 +60,10 @@ class UpdateSearchIndex extends Maintenance {
 			# We can safely delete the file when we're done though.
 			$start = file_get_contents( 'searchUpdate.pos' );
 			unlink( 'searchUpdate.pos' );
+		} elseif( is_readable( $posFile ) ) {
+			$start = file_get_contents( $posFile );
 		} else {
-			$start = @file_get_contents( $posFile );
-			if ( !$start ) {
-				$start = wfTimestamp( TS_MW, time() - 86400 );
-			}
+			$start = wfTimestamp( TS_MW, time() - 86400 );
 		}
 		$lockTime = $this->getOption( 'l', 20 );
 
@@ -70,10 +74,10 @@ class UpdateSearchIndex extends Maintenance {
 				fwrite( $file, $end );
 				fclose( $file );
 			} else {
-				$this->output( "*** Couldn't write to the $posFile!\n" );
+				$this->error( "*** Couldn't write to the $posFile!\n" );
 			}
 		} else {
-			$this->output( "*** Couldn't write to the $posFile!\n" );
+			$this->error( "*** Couldn't write to the $posFile!\n" );
 		}
 	}
 

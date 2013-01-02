@@ -1,6 +1,21 @@
 <?php
 /**
- * Job to fix double redirects after moving a page
+ * Job to fix double redirects after moving a page.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ * http://www.gnu.org/copyleft/gpl.html
  *
  * @file
  * @ingroup JobQueue
@@ -13,21 +28,25 @@
  */
 class DoubleRedirectJob extends Job {
 	var $reason, $redirTitle, $destTitleText;
+
+	/**
+	 * @var User
+	 */
 	static $user;
 
-	/** 
+	/**
 	 * Insert jobs into the job queue to fix redirects to the given title
-	 * @param $reason String: the reason for the fix, see message double-redirect-fixed-<reason>
+	 * @param $reason String: the reason for the fix, see message "double-redirect-fixed-<reason>"
 	 * @param $redirTitle Title: the title which has changed, redirects pointing to this title are fixed
-	 * @param $destTitle Not used
+	 * @param $destTitle bool Not used
 	 */
 	public static function fixRedirects( $reason, $redirTitle, $destTitle = false ) {
 		# Need to use the master to get the redirect table updated in the same transaction
 		$dbw = wfGetDB( DB_MASTER );
-		$res = $dbw->select( 
-			array( 'redirect', 'page' ), 
-			array( 'page_namespace', 'page_title' ), 
-			array( 
+		$res = $dbw->select(
+			array( 'redirect', 'page' ),
+			array( 'page_namespace', 'page_title' ),
+			array(
 				'page_id = rd_from',
 				'rd_namespace' => $redirTitle->getNamespace(),
 				'rd_title' => $redirTitle->getDBkey()
@@ -42,7 +61,7 @@ class DoubleRedirectJob extends Job {
 				continue;
 			}
 
-			$jobs[] = new self( $title, array( 
+			$jobs[] = new self( $title, array(
 				'reason' => $reason,
 				'redirTitle' => $redirTitle->getPrefixedDBkey() ) );
 			# Avoid excessive memory usage
@@ -53,6 +72,7 @@ class DoubleRedirectJob extends Job {
 		}
 		Job::batchInsert( $jobs );
 	}
+
 	function __construct( $title, $params = false, $id = 0 ) {
 		parent::__construct( 'fixDoubleRedirect', $title, $params, $id );
 		$this->reason = $params['reason'];
@@ -60,13 +80,16 @@ class DoubleRedirectJob extends Job {
 		$this->destTitleText = !empty( $params['destTitle'] ) ? $params['destTitle'] : '';
 	}
 
+	/**
+	 * @return bool
+	 */
 	function run() {
 		if ( !$this->redirTitle ) {
 			$this->setLastError( 'Invalid title' );
 			return false;
 		}
 
-		$targetRev = Revision::newFromTitle( $this->title );
+		$targetRev = Revision::newFromTitle( $this->title, false, Revision::READ_LATEST );
 		if ( !$targetRev ) {
 			wfDebug( __METHOD__.": target redirect already deleted, ignoring\n" );
 			return true;
@@ -98,13 +121,13 @@ class DoubleRedirectJob extends Job {
 		}
 
 		# Preserve fragment (bug 14904)
-		$newTitle = Title::makeTitle( $newTitle->getNamespace(), $newTitle->getDBkey(), 
+		$newTitle = Title::makeTitle( $newTitle->getNamespace(), $newTitle->getDBkey(),
 			$currentDest->getFragment() );
 
 		# Fix the text
 		# Remember that redirect pages can have categories, templates, etc.,
 		# so the regex has to be fairly general
-		$newText = preg_replace( '/ \[ \[  [^\]]*  \] \] /x', 
+		$newText = preg_replace( '/ \[ \[  [^\]]*  \] \] /x',
 			'[[' . $newTitle->getFullText() . ']]',
 			$text, 1 );
 
@@ -117,10 +140,11 @@ class DoubleRedirectJob extends Job {
 		global $wgUser;
 		$oldUser = $wgUser;
 		$wgUser = $this->getUser();
-		$article = new Article( $this->title );
-		$reason = wfMsgForContent( 'double-redirect-fixed-' . $this->reason, 
-			$this->redirTitle->getPrefixedText(), $newTitle->getPrefixedText() );
-		$article->doEdit( $newText, $reason, EDIT_UPDATE | EDIT_SUPPRESS_RC );
+		$article = WikiPage::factory( $this->title );
+		$reason = wfMessage( 'double-redirect-fixed-' . $this->reason,
+			$this->redirTitle->getPrefixedText(), $newTitle->getPrefixedText()
+		)->inContentLanguage()->text();
+		$article->doEdit( $newText, $reason, EDIT_UPDATE | EDIT_SUPPRESS_RC, false, $this->getUser() );
 		$wgUser = $oldUser;
 
 		return true;
@@ -128,7 +152,10 @@ class DoubleRedirectJob extends Job {
 
 	/**
 	 * Get the final destination of a redirect
-	 * @return false if the specified title is not a redirect, or if it is a circular redirect
+	 *
+	 * @param $title Title
+	 *
+	 * @return bool if the specified title is not a redirect, or if it is a circular redirect
 	 */
 	public static function getFinalDestination( $title ) {
 		$dbw = wfGetDB( DB_MASTER );
@@ -144,10 +171,10 @@ class DoubleRedirectJob extends Job {
 			}
 			$seenTitles[$titleText] = true;
 
-			$row = $dbw->selectRow( 
+			$row = $dbw->selectRow(
 				array( 'redirect', 'page' ),
 				array( 'rd_namespace', 'rd_title' ),
-				array( 
+				array(
 					'rd_from=page_id',
 					'page_namespace' => $title->getNamespace(),
 					'page_title' => $title->getDBkey()
@@ -164,10 +191,12 @@ class DoubleRedirectJob extends Job {
 
 	/**
 	 * Get a user object for doing edits, from a request-lifetime cache
+	 * @return User
 	 */
 	function getUser() {
 		if ( !self::$user ) {
-			self::$user = User::newFromName( wfMsgForContent( 'double-redirect-fixer' ), false );
+			self::$user = User::newFromName( wfMessage( 'double-redirect-fixer' )->inContentLanguage()->text(), false );
+			# FIXME: newFromName could return false on a badly configured wiki.
 			if ( !self::$user->isLoggedIn() ) {
 				self::$user->addToDatabase();
 			}

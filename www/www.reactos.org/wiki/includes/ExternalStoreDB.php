@@ -1,4 +1,24 @@
 <?php
+/**
+ * External storage in SQL database.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ * http://www.gnu.org/copyleft/gpl.html
+ *
+ * @file
+ */
 
 /**
  * DB accessable external objects
@@ -18,7 +38,7 @@ class ExternalStoreDB {
 	 */
 	function &getLoadBalancer( $cluster ) {
 		$wiki = isset($this->mParams['wiki']) ? $this->mParams['wiki'] : false;
-		
+
 		return wfGetLBFactory()->getExternalLB( $cluster, $wiki );
 	}
 
@@ -29,8 +49,18 @@ class ExternalStoreDB {
 	 * @return DatabaseBase object
 	 */
 	function &getSlave( $cluster ) {
+		global $wgDefaultExternalStore;
+
 		$wiki = isset($this->mParams['wiki']) ? $this->mParams['wiki'] : false;
 		$lb =& $this->getLoadBalancer( $cluster );
+
+		if ( !in_array( "DB://" . $cluster, (array)$wgDefaultExternalStore ) ) {
+			wfDebug( "read only external store" );
+			$lb->allowLagged(true);
+		} else {
+			wfDebug( "writable external store" );
+		}
+
 		return $lb->getConnection( DB_SLAVE, array(), $wiki );
 	}
 
@@ -63,6 +93,7 @@ class ExternalStoreDB {
 	/**
 	 * Fetch data from given URL
 	 * @param $url String: an url of the form DB://cluster/id or DB://cluster/id/itemid for concatened storage.
+	 * @return mixed
 	 */
 	function fetchFromURL( $url ) {
 		$path = explode( '/', $url );
@@ -110,12 +141,12 @@ class ExternalStoreDB {
 		wfDebug( "ExternalStoreDB::fetchBlob cache miss on $cacheID\n" );
 
 		$dbr =& $this->getSlave( $cluster );
-		$ret = $dbr->selectField( $this->getTable( $dbr ), 'blob_text', array( 'blob_id' => $id ) );
+		$ret = $dbr->selectField( $this->getTable( $dbr ), 'blob_text', array( 'blob_id' => $id ), __METHOD__ );
 		if ( $ret === false ) {
 			wfDebugLog( 'ExternalStoreDB', "ExternalStoreDB::fetchBlob master fallback on $cacheID\n" );
 			// Try the master
 			$dbw =& $this->getMaster( $cluster );
-			$ret = $dbw->selectField( $this->getTable( $dbw ), 'blob_text', array( 'blob_id' => $id ) );
+			$ret = $dbw->selectField( $this->getTable( $dbw ), 'blob_text', array( 'blob_id' => $id ), __METHOD__ );
 			if( $ret === false) {
 				wfDebugLog( 'ExternalStoreDB', "ExternalStoreDB::fetchBlob master failed to find $cacheID\n" );
 			}
@@ -139,15 +170,15 @@ class ExternalStoreDB {
 	function store( $cluster, $data ) {
 		$dbw = $this->getMaster( $cluster );
 		$id = $dbw->nextSequenceValue( 'blob_blob_id_seq' );
-		$dbw->insert( $this->getTable( $dbw ), 
-			array( 'blob_id' => $id, 'blob_text' => $data ), 
+		$dbw->insert( $this->getTable( $dbw ),
+			array( 'blob_id' => $id, 'blob_text' => $data ),
 			__METHOD__ );
 		$id = $dbw->insertId();
 		if ( !$id ) {
 			throw new MWException( __METHOD__.': no insert ID' );
 		}
 		if ( $dbw->getFlag( DBO_TRX ) ) {
-			$dbw->commit();
+			$dbw->commit( __METHOD__ );
 		}
 		return "DB://$cluster/$id";
 	}

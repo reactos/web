@@ -34,6 +34,12 @@
  * someone logs in who can be authenticated externally.
  */
 class AuthPlugin {
+
+	/**
+	 * @var string
+	 */
+	protected $domain;
+
 	/**
 	 * Check whether there exists a user account with the given name.
 	 * The name will be normalized to MediaWiki's requirements, so
@@ -67,7 +73,7 @@ class AuthPlugin {
 	 * Modify options in the login template.
 	 *
 	 * @param $template UserLoginTemplate object.
-	 * @param $type String 'signup' or 'login'.
+	 * @param $type String 'signup' or 'login'. Added in 1.16.
 	 */
 	public function modifyUITemplate( &$template, &$type ) {
 		# Override this!
@@ -81,6 +87,19 @@ class AuthPlugin {
 	 */
 	public function setDomain( $domain ) {
 		$this->domain = $domain;
+	}
+
+	/**
+	 * Get the user's domain
+	 *
+	 * @return string
+	 */
+	public function getDomain() {
+		if ( isset( $this->domain ) ) {
+			return $this->domain;
+		} else {
+			return 'invaliddomain';
+		}
 	}
 
 	/**
@@ -103,6 +122,7 @@ class AuthPlugin {
 	 * forget the & on your function declaration.
 	 *
 	 * @param $user User object
+	 * @return bool
 	 */
 	public function updateUser( &$user ) {
 		# Override this and do something
@@ -131,6 +151,8 @@ class AuthPlugin {
 	 * and use the same keys. 'Realname' 'Emailaddress' and 'Nickname'
 	 * all reference this.
 	 *
+	 * @param $prop string
+	 *
 	 * @return Boolean
 	 */
 	public function allowPropChange( $prop = '' ) {
@@ -151,6 +173,15 @@ class AuthPlugin {
 	 * @return bool
 	 */
 	public function allowPasswordChange() {
+		return true;
+	}
+
+	/**
+	 * Should MediaWiki store passwords in its local database?
+	 *
+	 * @return bool
+	 */
+	public function allowSetLocalPassword() {
 		return true;
 	}
 
@@ -245,6 +276,8 @@ class AuthPlugin {
 	/**
 	 * If you want to munge the case of an account name before the final
 	 * check, now is your chance.
+	 * @param $username string
+	 * @return string
 	 */
 	public function getCanonicalName( $username ) {
 		return $username;
@@ -254,9 +287,20 @@ class AuthPlugin {
 	 * Get an instance of a User object
 	 *
 	 * @param $user User
+	 *
+	 * @return AuthPluginUser
 	 */
 	public function getUserInstance( User &$user ) {
 		return new AuthPluginUser( $user );
+	}
+
+	/**
+	 * Get a list of domains (in HTMLForm options format) used.
+	 *
+	 * @return array
+	 */
+	public function domainList() {
+		return array();
 	}
 }
 

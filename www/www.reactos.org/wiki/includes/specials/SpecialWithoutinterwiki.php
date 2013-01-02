@@ -30,33 +30,43 @@
 class WithoutInterwikiPage extends PageQueryPage {
 	private $prefix = '';
 
-	function getName() {
-		return 'Withoutinterwiki';
+	function __construct( $name = 'Withoutinterwiki' ) {
+		parent::__construct( $name );
+	}
+
+	function execute( $par ) {
+		$this->prefix = Title::capitalize(
+			$this->getRequest()->getVal( 'prefix', $par ), NS_MAIN );
+		parent::execute( $par );
 	}
 
 	function getPageHeader() {
-		global $wgScript, $wgMiserMode;
+		global $wgScript;
 
-		# Do not show useless input form if wiki is running in misermode
-		if( $wgMiserMode ) {
+		# Do not show useless input form if special page is cached
+		if( $this->isCached() ) {
 			return '';
 		}
 
 		$prefix = $this->prefix;
-		$t = SpecialPage::getTitleFor( $this->getName() );
+		$t = $this->getTitle();
 
-		return 	Xml::openElement( 'form', array( 'method' => 'get', 'action' => $wgScript ) ) .
+		return Xml::openElement( 'form', array( 'method' => 'get', 'action' => $wgScript ) ) .
 			Xml::openElement( 'fieldset' ) .
-			Xml::element( 'legend', null, wfMsg( 'withoutinterwiki-legend' ) ) .
+			Xml::element( 'legend', null, $this->msg( 'withoutinterwiki-legend' )->text() ) .
 			Html::hidden( 'title', $t->getPrefixedText() ) .
-			Xml::inputLabel( wfMsg( 'allpagesprefix' ), 'prefix', 'wiprefix', 20, $prefix ) . ' ' .
-			Xml::submitButton( wfMsg( 'withoutinterwiki-submit' ) ) .
+			Xml::inputLabel( $this->msg( 'allpagesprefix' )->text(), 'prefix', 'wiprefix', 20, $prefix ) . ' ' .
+			Xml::submitButton( $this->msg( 'withoutinterwiki-submit' )->text() ) .
 			Xml::closeElement( 'fieldset' ) .
 			Xml::closeElement( 'form' );
 	}
 
 	function sortDescending() {
 		return false;
+	}
+
+	function getOrderFields() {
+		return array( 'page_namespace', 'page_title' );
 	}
 
 	function isExpensive() {
@@ -67,36 +77,22 @@ class WithoutInterwikiPage extends PageQueryPage {
 		return false;
 	}
 
-	function getSQL() {
-		$dbr = wfGetDB( DB_SLAVE );
-		list( $page, $langlinks ) = $dbr->tableNamesN( 'page', 'langlinks' );
-		$prefix = $this->prefix ? 'AND page_title' . $dbr->buildLike( $this->prefix , $dbr->anyString() ) : '';
-		return
-		  "SELECT 'Withoutinterwiki'  AS type,
-		          page_namespace AS namespace,
-		          page_title     AS title,
-		          page_title     AS value
-		     FROM $page
-		LEFT JOIN $langlinks
-		       ON ll_from = page_id
-		    WHERE ll_title IS NULL
-		      AND page_namespace=" . NS_MAIN . "
-		      AND page_is_redirect = 0
-			  {$prefix}";
+	function getQueryInfo() {
+		$query = array (
+			'tables' => array ( 'page', 'langlinks' ),
+			'fields' => array ( 'namespace' => 'page_namespace',
+					'title' => 'page_title',
+					'value' => 'page_title' ),
+			'conds' => array ( 'll_title IS NULL',
+					'page_namespace' => MWNamespace::getContentNamespaces(),
+					'page_is_redirect' => 0 ),
+			'join_conds' => array ( 'langlinks' => array (
+					'LEFT JOIN', 'll_from = page_id' ) )
+		);
+		if ( $this->prefix ) {
+			$dbr = wfGetDB( DB_SLAVE );
+			$query['conds'][] = 'page_title ' . $dbr->buildLike( $this->prefix, $dbr->anyString() );
+		}
+		return $query;
 	}
-
-	function setPrefix( $prefix = '' ) {
-		$this->prefix = $prefix;
-	}
-
-}
-
-function wfSpecialWithoutinterwiki() {
-	global $wgRequest;
-	list( $limit, $offset ) = wfCheckLimits();
-	// Only searching the mainspace anyway
-	$prefix = Title::capitalize( $wgRequest->getVal( 'prefix' ), NS_MAIN );
-	$wip = new WithoutInterwikiPage();
-	$wip->setPrefix( $prefix );
-	$wip->doQuery( $offset, $limit );
 }

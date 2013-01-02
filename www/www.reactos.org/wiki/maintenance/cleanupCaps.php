@@ -1,6 +1,6 @@
 <?php
 /**
- * Script to clean up broken page links when somebody turns on $wgCapitalLinks.
+ * Clean up broken page links when somebody turns on $wgCapitalLinks.
  *
  * Usage: php cleanupCaps.php [--dry-run]
  * Options:
@@ -29,8 +29,13 @@
  * @ingroup Maintenance
  */
 
-require_once( dirname( __FILE__ ) . '/cleanupTable.inc' );
+require_once( __DIR__ . '/cleanupTable.inc' );
 
+/**
+ * Maintenance script to clean up broken page links when somebody turns on $wgCapitalLinks.
+ *
+ * @ingroup Maintenance
+ */
 class CapsCleanup extends TableCleanup {
 	public function __construct() {
 		parent::__construct();
@@ -40,11 +45,15 @@ class CapsCleanup extends TableCleanup {
 
 	public function execute() {
 		global $wgCapitalLinks, $wgUser;
+
+		if ( $wgCapitalLinks ) {
+			$this->error( "\$wgCapitalLinks is on -- no need for caps links cleanup.", true );
+		}
+
+		$wgUser = User::newFromName( 'Conversion script' );
+
 		$this->namespace = intval( $this->getOption( 'namespace', 0 ) );
 		$this->dryrun = $this->hasOption( 'dry-run' );
-		$wgUser->setName( 'Conversion script' );
-		if ( $wgCapitalLinks )
-			$this->error( "\$wgCapitalLinks is on -- no need for caps links cleanup.", true );
 
 		$this->runTable( array(
 			'table' => 'page',
@@ -88,9 +97,8 @@ class CapsCleanup extends TableCleanup {
 					return $this->processRow( $row );
 				}
 			}
-		} else {
-			$this->progress( 0 );
 		}
+		return $this->progress( 0 );
 	}
 }
 

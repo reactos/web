@@ -9,11 +9,26 @@
  * much older versions, etc.
  * Run this, FOLLOWED BY update.php, for upgrading from 1.4.5 release to 1.5.
  *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ * http://www.gnu.org/copyleft/gpl.html
+ *
  * @file
  * @ingroup Maintenance
  */
 
-require_once( dirname( __FILE__ ) . '/Maintenance.php' );
+require_once( __DIR__ . '/Maintenance.php' );
 
 define( 'MW_UPGRADE_COPY',     false );
 define( 'MW_UPGRADE_ENCODE',   true  );
@@ -24,6 +39,12 @@ define( 'MW_UPGRADE_CALLBACK', null  ); // for self-documentation only
  * @ingroup Maintenance
  */
 class FiveUpgrade extends Maintenance {
+
+	/**
+	 * @var DatabaseBase
+	 */
+	protected $db;
+
 	function __construct() {
 		parent::__construct();
 
@@ -86,7 +107,6 @@ class FiveUpgrade extends Maintenance {
 
 		$this->cleanupSwaps = array();
 		$this->emailAuth = false; # don't preauthenticate emails
-		$this->maxLag    = 10; # if slaves are lagged more than 10 secs, wait
 		$this->step      = $this->getOption( 'step', null );
 	}
 
@@ -96,7 +116,7 @@ class FiveUpgrade extends Maintenance {
 
 	/**
 	 * Open a connection to the master server with the admin rights.
-	 * @return Database
+	 * @return DatabaseBase
 	 * @access private
 	 */
 	function newConnection() {
@@ -121,16 +141,14 @@ class FiveUpgrade extends Maintenance {
 	 * Open a second connection to the master server, with buffering off.
 	 * This will let us stream large datasets in and write in chunks on the
 	 * other end.
-	 * @return Database
+	 * @return DatabaseBase
 	 * @access private
 	 */
 	function streamConnection() {
-		global $wgDBtype;
-
 		$timeout = 3600 * 24;
 		$db = $this->newConnection();
 		$db->bufferResults( false );
-		if ( $wgDBtype == 'mysql' ) {
+		if ( $db->getType() == 'mysql' ) {
 			$db->query( "SET net_read_timeout=$timeout" );
 			$db->query( "SET net_write_timeout=$timeout" );
 		}
@@ -234,7 +252,7 @@ class FiveUpgrade extends Maintenance {
 		$this->chunkSize  = $chunksize;
 		$this->chunkFinal = $final;
 		$this->chunkCount = 0;
-		$this->chunkStartTime = wfTime();
+		$this->chunkStartTime = microtime( true );
 		$this->chunkOptions = array( 'IGNORE' );
 		$this->chunkTable = $table;
 		$this->chunkFunction = $fname;
@@ -255,7 +273,7 @@ class FiveUpgrade extends Maintenance {
 			$this->insertChunk( $chunk );
 
 			$this->chunkCount += count( $chunk );
-			$now = wfTime();
+			$now = microtime( true );
 			$delta = $now - $this->chunkStartTime;
 			$rate = $this->chunkCount / $delta;
 
@@ -303,10 +321,18 @@ class FiveUpgrade extends Maintenance {
 	 */
 	function insertChunk( &$chunk ) {
 		// Give slaves a chance to catch up
-		wfWaitForSlaves( $this->maxLag );
+		wfWaitForSlaves();
 		$this->dbw->insert( $this->chunkTable, $chunk, $this->chunkFunction, $this->chunkOptions );
 	}
 
+	/**
+	 * Helper function for copyTable array_filter
+	 * @param $x
+	 * @return bool
+	 */
+	static private function notUpgradeNull( $x ) {
+		return $x !== MW_UPGRADE_NULL;
+	}
 
 	/**
 	 * Copy and transcode a table to table_temp.
@@ -316,7 +342,7 @@ class FiveUpgrade extends Maintenance {
 	 *              MW_UPGRADE_COPY   - straight copy
 	 *              MW_UPGRADE_ENCODE - for old Latin1 wikis, conv to UTF-8
 	 *              MW_UPGRADE_NULL   - just put NULL
-	 * @param callable $callback An optional callback to modify the data
+	 * @param $callback callback An optional callback to modify the data
 	 *                           or perform other processing. Func should be
 	 *                           ( object $row, array $copy ) and return $copy
 	 * @access private
@@ -336,8 +362,7 @@ class FiveUpgrade extends Maintenance {
 		$this->setChunkScale( 100, $numRecords, $name_temp, __METHOD__ );
 
 		// Pull all records from the second, streaming database connection.
-		$sourceFields = array_keys( array_filter( $fields,
-			create_function( '$x', 'return $x !== MW_UPGRADE_NULL;' ) ) );
+		$sourceFields = array_keys( array_filter( $fields, 'FiveUpgrade::notUpgradeNull' ) );
 		$result = $this->dbr->select( $name,
 			$sourceFields,
 			'',
@@ -783,8 +808,10 @@ END;
 	 * Rename a given image or archived image file to the converted filename,
 	 * leaving a symlink for URL compatibility.
 	 *
-	 * @param string $oldname pre-conversion filename
-	 * @param string $basename pre-conversion base filename for dir hashing, if an archive
+	 * @param $oldname string pre-conversion filename
+	 * @param $subdirCallback string
+	 * @param $basename string pre-conversion base filename for dir hashing, if an archive
+	 * @return bool|string
 	 * @access private
 	 */
 	function renameFile( $oldname, $subdirCallback = 'wfImageDir', $basename = null ) {
@@ -1307,4 +1334,4 @@ END
 }
 
 $maintClass = 'FiveUpgrade';
-require( RUN_MAINTENANCE_IF_MAIN );
+require_once( RUN_MAINTENANCE_IF_MAIN );

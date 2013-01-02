@@ -1,6 +1,6 @@
 <?php
 /**
- * Deletes a batch of pages
+ * Deletes a batch of pages.
  * Usage: php deleteBatch.php [-u <user>] [-r <reason>] [-i <interval>] [listfile]
  * where
  *	[listfile] is a file where each line contains the title of a page to be
@@ -24,11 +24,17 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  * http://www.gnu.org/copyleft/gpl.html
  *
+ * @file
  * @ingroup Maintenance
  */
 
-require_once( dirname( __FILE__ ) . '/Maintenance.php' );
+require_once( __DIR__ . '/Maintenance.php' );
 
+/**
+ * Maintenance script to delete a batch of pages.
+ *
+ * @ingroup Maintenance
+ */
 class DeleteBatch extends Maintenance {
 
 	public function __construct() {
@@ -49,9 +55,16 @@ class DeleteBatch extends Maintenance {
 		chdir( $oldCwd );
 
 		# Options processing
-		$user = $this->getOption( 'u', 'Delete page script' );
+		$username = $this->getOption( 'u', 'Delete page script' );
 		$reason = $this->getOption( 'r', '' );
 		$interval = $this->getOption( 'i', 0 );
+
+		$user = User::newFromName( $username );
+		if ( !$user ) {
+			$this->error( "Invalid username", true );
+		}
+		$wgUser = $user;
+
 		if ( $this->hasArg() ) {
 			$file = fopen( $this->getArg(), 'r' );
 		} else {
@@ -62,7 +75,7 @@ class DeleteBatch extends Maintenance {
 		if ( !$file ) {
 			$this->error( "Unable to read file, exiting", true );
 		}
-		$wgUser = User::newFromName( $user );
+
 		$dbw = wfGetDB( DB_MASTER );
 
 		# Handle each entry
@@ -71,32 +84,30 @@ class DeleteBatch extends Maintenance {
 			if ( $line == '' ) {
 				continue;
 			}
-			$page = Title::newFromText( $line );
-			if ( is_null( $page ) ) {
+			$title = Title::newFromText( $line );
+			if ( is_null( $title ) ) {
 				$this->output( "Invalid title '$line' on line $linenum\n" );
 				continue;
 			}
-			if ( !$page->exists() ) {
+			if ( !$title->exists() ) {
 				$this->output( "Skipping nonexistent page '$line'\n" );
 				continue;
 			}
 
-
-			$this->output( $page->getPrefixedText() );
-			$dbw->begin();
-			if ( $page->getNamespace() == NS_FILE ) {
-				$art = new ImagePage( $page );
-				$img = wfFindFile( $art->mTitle );
-				if ( !$img || !$img->delete( $reason ) ) {
-					$this->output( "FAILED to delete image file... " );
+			$this->output( $title->getPrefixedText() );
+			$dbw->begin( __METHOD__ );
+			if ( $title->getNamespace() == NS_FILE ) {
+				$img = wfFindFile( $title );
+				if ( $img && $img->isLocal() && !$img->delete( $reason ) ) {
+					$this->output( " FAILED to delete associated file... " );
 				}
-			} else {
-				$art = new Article( $page );
 			}
-			$success = $art->doDeleteArticle( $reason );
-			$dbw->commit();
+			$page = WikiPage::factory( $title );
+			$error = '';
+			$success = $page->doDeleteArticle( $reason, false, 0, false, $error, $user );
+			$dbw->commit( __METHOD__ );
 			if ( $success ) {
-				$this->output( "\n" );
+				$this->output( " Deleted!\n" );
 			} else {
 				$this->output( " FAILED to delete article\n" );
 			}
@@ -104,8 +115,8 @@ class DeleteBatch extends Maintenance {
 			if ( $interval ) {
 				sleep( $interval );
 			}
-			wfWaitForSlaves( 5 );
-}
+			wfWaitForSlaves();
+		}
 	}
 }
 

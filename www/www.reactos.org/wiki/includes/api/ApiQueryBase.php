@@ -1,10 +1,10 @@
 <?php
 /**
- * API for MediaWiki 1.8+
+ *
  *
  * Created on Sep 7, 2006
  *
- * Copyright © 2006 Yuri Astrakhan <Firstname><Lastname>@gmail.com
+ * Copyright © 2006 Yuri Astrakhan "<Firstname><Lastname>@gmail.com"
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,11 +24,6 @@
  * @file
  */
 
-if ( !defined( 'MEDIAWIKI' ) ) {
-	// Eclipse helper - will be ignored in production
-	require_once( 'ApiBase.php' );
-}
-
 /**
  * This is a base class for all Query modules.
  * It provides some common functionality such as constructing various SQL
@@ -40,6 +35,11 @@ abstract class ApiQueryBase extends ApiBase {
 
 	private $mQueryModule, $mDb, $tables, $where, $fields, $options, $join_conds;
 
+	/**
+	 * @param $query ApiBase
+	 * @param $moduleName string
+	 * @param $paramPrefix string
+	 */
 	public function __construct( ApiBase $query, $moduleName, $paramPrefix = '' ) {
 		parent::__construct( $query->getMain(), $moduleName, $paramPrefix );
 		$this->mQueryModule = $query;
@@ -54,6 +54,9 @@ abstract class ApiQueryBase extends ApiBase {
 	 *
 	 * Public caching will only be allowed if *all* the modules that supply
 	 * data for a given request return a cache mode of public.
+	 *
+	 * @param $params
+	 * @return string
 	 */
 	public function getCacheMode( $params ) {
 		return 'private';
@@ -84,20 +87,11 @@ abstract class ApiQueryBase extends ApiBase {
 			$this->tables = array_merge( $this->tables, $tables );
 		} else {
 			if ( !is_null( $alias ) ) {
-				$tables = $this->getAliasedName( $tables, $alias );
+				$this->tables[$alias] = $tables;
+			} else {
+				$this->tables[] = $tables;
 			}
-			$this->tables[] = $tables;
 		}
-	}
-
-	/**
-	 * Get the SQL for a table name with alias
-	 * @param $table string Table name
-	 * @param $alias string Alias
-	 * @return string SQL
-	 */
-	protected function getAliasedName( $table, $alias ) {
-		return $this->getDB()->tableName( $table ) . ' ' . $alias;
 	}
 
 	/**
@@ -118,7 +112,7 @@ abstract class ApiQueryBase extends ApiBase {
 
 	/**
 	 * Add a set of fields to select to the internal array
-	 * @param $value mixed Field name or array of field names
+	 * @param $value array|string Field name or array of field names
 	 */
 	protected function addFields( $value ) {
 		if ( is_array( $value ) ) {
@@ -130,7 +124,7 @@ abstract class ApiQueryBase extends ApiBase {
 
 	/**
 	 * Same as addFields(), but add the fields only if a condition is met
-	 * @param $value mixed See addFields()
+	 * @param $value array|string See addFields()
 	 * @param $condition bool If false, do nothing
 	 * @return bool $condition
 	 */
@@ -220,12 +214,27 @@ abstract class ApiQueryBase extends ApiBase {
 
 		if ( $sort ) {
 			$order = $field . ( $isDirNewer ? '' : ' DESC' );
-			if ( !isset( $this->options['ORDER BY'] ) ) {
-				$this->addOption( 'ORDER BY', $order );
-			} else {
-				$this->addOption( 'ORDER BY', $this->options['ORDER BY'] . ', ' . $order );
-			}
+			// Append ORDER BY
+			$optionOrderBy = isset( $this->options['ORDER BY'] ) ? (array)$this->options['ORDER BY'] : array();
+			$optionOrderBy[] = $order;
+			$this->addOption( 'ORDER BY', $optionOrderBy );
 		}
+	}
+
+	/**
+	 * Add a WHERE clause corresponding to a range, similar to addWhereRange,
+	 * but converts $start and $end to database timestamps.
+	 * @see addWhereRange
+	 * @param $field
+	 * @param $dir
+	 * @param $start
+	 * @param $end
+	 * @param $sort bool
+	 */
+	protected function addTimestampWhereRange( $field, $dir, $start, $end, $sort = true ) {
+		$db = $this->getDb();
+		$this->addWhereRange( $field, $dir,
+			$db->timestampOrNull( $start ), $db->timestampOrNull( $end ), $sort );
 	}
 
 	/**
@@ -359,14 +368,15 @@ abstract class ApiQueryBase extends ApiBase {
 	protected function setContinueEnumParameter( $paramName, $paramValue ) {
 		$paramName = $this->encodeParamName( $paramName );
 		$msg = array( $paramName => $paramValue );
-		$this->getResult()->disableSizeCheck();
-		$this->getResult()->addValue( 'query-continue', $this->getModuleName(), $msg );
-		$this->getResult()->enableSizeCheck();
+		$result = $this->getResult();
+		$result->disableSizeCheck();
+		$result->addValue( 'query-continue', $this->getModuleName(), $msg );
+		$result->enableSizeCheck();
 	}
 
 	/**
 	 * Get the Query database connection (read-only)
-	 * @return Database
+	 * @return DatabaseBase
 	 */
 	protected function getDB() {
 		if ( is_null( $this->mDb ) ) {
@@ -382,7 +392,7 @@ abstract class ApiQueryBase extends ApiBase {
 	 * @param $name string Name to assign to the database connection
 	 * @param $db int One of the DB_* constants
 	 * @param $groups array Query groups
-	 * @return Database
+	 * @return DatabaseBase
 	 */
 	public function selectNamedDB( $name, $db, $groups ) {
 		$this->mDb = $this->getQuery()->getNamedDB( $name, $db, $groups );
@@ -450,6 +460,47 @@ abstract class ApiQueryBase extends ApiBase {
 	}
 
 	/**
+	 * Gets the personalised direction parameter description
+	 *
+	 * @param string $p ModulePrefix
+	 * @param string $extraDirText Any extra text to be appended on the description
+	 * @return array
+	 */
+	public function getDirectionDescription( $p = '', $extraDirText = '' ) {
+		return array(
+				"In which direction to enumerate{$extraDirText}",
+				" newer          - List oldest first. Note: {$p}start has to be before {$p}end.",
+				" older          - List newest first (default). Note: {$p}start has to be later than {$p}end.",
+			);
+	}
+
+	/**
+	 * @param $query String
+	 * @param $protocol String
+	 * @return null|string
+	 */
+	public function prepareUrlQuerySearchString( $query = null, $protocol = null) {
+		$db = $this->getDb();
+		if ( !is_null( $query ) || $query != '' ) {
+			if ( is_null( $protocol ) ) {
+				$protocol = 'http://';
+			}
+
+			$likeQuery = LinkFilter::makeLikeArray( $query, $protocol );
+			if ( !$likeQuery ) {
+				$this->dieUsage( 'Invalid query', 'bad_query' );
+			}
+
+			$likeQuery = LinkFilter::keepOneWildcard( $likeQuery );
+			return 'el_index ' . $db->buildLike( $likeQuery );
+		} elseif ( !is_null( $protocol ) ) {
+			return 'el_index ' . $db->buildLike( "$protocol", $db->anyString() );
+		}
+
+		return null;
+	}
+
+	/**
 	 * Filters hidden users (where the user doesn't have the right to view them)
 	 * Also adds relevant block information
 	 *
@@ -457,8 +508,7 @@ abstract class ApiQueryBase extends ApiBase {
 	 * @return void
 	 */
 	public function showHiddenUsersAddBlockInfo( $showBlockInfo ) {
-		global $wgUser;
-		$userCanViewHiddenUsers = $wgUser->isAllowed( 'hideuser' );
+		$userCanViewHiddenUsers = $this->getUser()->isAllowed( 'hideuser' );
 
 		if ( $showBlockInfo || !$userCanViewHiddenUsers ) {
 			$this->addTables( 'ipblocks' );
@@ -469,7 +519,7 @@ abstract class ApiQueryBase extends ApiBase {
 			$this->addFields( 'ipb_deleted' );
 
 			if ( $showBlockInfo ) {
-				$this->addFields( array( 'ipb_reason', 'ipb_by_text', 'ipb_expiry' ) );
+				$this->addFields( array( 'ipb_id', 'ipb_by', 'ipb_by_text', 'ipb_reason', 'ipb_expiry' ) );
 			}
 
 			// Don't show hidden names
@@ -479,6 +529,25 @@ abstract class ApiQueryBase extends ApiBase {
 		}
 	}
 
+	/**
+	 * @param $hash string
+	 * @return bool
+	 */
+	public function validateSha1Hash( $hash ) {
+		return preg_match( '/[a-fA-F0-9]{40}/', $hash );
+	}
+
+	/**
+	 * @param $hash string
+	 * @return bool
+	 */
+	public function validateSha1Base36Hash( $hash ) {
+		return preg_match( '/[a-zA-Z0-9]{31}/', $hash );
+	}
+
+	/**
+	 * @return array
+	 */
 	public function getPossibleErrors() {
 		return array_merge( parent::getPossibleErrors(), array(
 			array( 'invalidtitle', 'title' ),
@@ -491,7 +560,7 @@ abstract class ApiQueryBase extends ApiBase {
 	 * @return string
 	 */
 	public static function getBaseVersion() {
-		return __CLASS__ . ': $Id: ApiQueryBase.php 85435 2011-04-05 14:00:08Z demon $';
+		return __CLASS__ . ': $Id$';
 	}
 }
 
@@ -502,6 +571,11 @@ abstract class ApiQueryGeneratorBase extends ApiQueryBase {
 
 	private $mIsGenerator;
 
+	/**
+	 * @param $query ApiBase
+	 * @param $moduleName string
+	 * @param $paramPrefix string
+	 */
 	public function __construct( $query, $moduleName, $paramPrefix = '' ) {
 		parent::__construct( $query, $moduleName, $paramPrefix );
 		$this->mIsGenerator = false;

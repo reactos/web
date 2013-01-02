@@ -1,6 +1,6 @@
 <?php
 /**
- * This script remove all statistics tracking from the cache
+ * Removes all statistics tracking from the cache.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,8 +21,13 @@
  * @ingroup Maintenance
  */
 
-require_once( dirname( __FILE__ ) . '/Maintenance.php' );
+require_once( __DIR__ . '/Maintenance.php' );
 
+/**
+ * Maintenance script to remove all statistics tracking from the cache.
+ *
+ * @ingroup Maintenance
+ */
 class clear_stats extends Maintenance {
 
 	public function __construct() {
@@ -36,7 +41,6 @@ class clear_stats extends Maintenance {
 			$wgMemc->delete( "$db:stats:request_with_session" );
 			$wgMemc->delete( "$db:stats:request_without_session" );
 			$wgMemc->delete( "$db:stats:pcache_hit" );
-			$wgMemc->delete( "$db:stats:pcache_miss_invalid" );
 			$wgMemc->delete( "$db:stats:pcache_miss_expired" );
 			$wgMemc->delete( "$db:stats:pcache_miss_absent" );
 			$wgMemc->delete( "$db:stats:pcache_miss_stub" );
@@ -46,6 +50,8 @@ class clear_stats extends Maintenance {
 			$wgMemc->delete( "$db:stats:diff_cache_hit" );
 			$wgMemc->delete( "$db:stats:diff_cache_miss" );
 			$wgMemc->delete( "$db:stats:diff_uncacheable" );
+			$wgMemc->delete( "$db:stats:job-insert" );
+			$wgMemc->delete( "$db:stats:job-pop" );
 		}
 	}
 }

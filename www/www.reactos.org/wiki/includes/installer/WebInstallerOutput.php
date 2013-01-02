@@ -2,6 +2,21 @@
 /**
  * Output handler for the web installer.
  *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ * http://www.gnu.org/copyleft/gpl.html
+ *
  * @file
  * @ingroup Deployment
  */
@@ -93,31 +108,57 @@ class WebInstallerOutput {
 	 * @return String
 	 */
 	public function getCSS( $dir ) {
-		$skinDir = dirname( dirname( dirname( __FILE__ ) ) ) . '/skins';
-		$vectorCssFile = "$skinDir/vector/screen.css";
-		$configCssFile = "$skinDir/common/config.css";
-		$css = '';
-		wfSuppressWarnings();
-		$vectorCss = file_get_contents( $vectorCssFile );
-		$configCss = file_get_contents( $configCssFile );
-		wfRestoreWarnings();
-		if( !$vectorCss || !$configCss ) {
-			$css = "/** Your webserver cannot read $vectorCssFile or $configCssFile, please check file permissions */";
-		}
+		$skinDir = dirname( dirname( __DIR__ ) ) . '/skins';
 
-		$css .= str_replace( 'images/', '../skins/vector/images/', $vectorCss ) . "\n" . str_replace( 'images/', '../skins/common/images/', $configCss );
+		// All these files will be concatenated in sequence and loaded
+		// as one file.
+		// The string 'images/' in the files' contents will be replaced
+		// by '../skins/$skinName/images/', where $skinName is what appears
+		// before the last '/' in each of the strings.
+		$cssFileNames = array(
+
+			// Basically the "skins.vector" ResourceLoader module styles
+			'common/shared.css',
+			'common/commonElements.css',
+			'common/commonContent.css',
+			'common/commonInterface.css',
+			'vector/screen.css',
+
+			// mw-config specific
+			'common/config.css',
+		);
+
+		$css = '';
+
+		wfSuppressWarnings();
+		foreach ( $cssFileNames as $cssFileName ) {
+			$fullCssFileName = "$skinDir/$cssFileName";
+			$cssFileContents = file_get_contents( $fullCssFileName );
+			if ( $cssFileContents ) {
+				preg_match( "/^(\w+)\//", $cssFileName, $match );
+				$skinName = $match[1];
+				$css .= str_replace( 'images/', "../skins/$skinName/images/", $cssFileContents );
+			} else {
+				$css .= "/** Your webserver cannot read $fullCssFileName. Please check file permissions. */";
+			}
+
+			$css .= "\n";
+		}
+		wfRestoreWarnings();
+
 		if( $dir == 'rtl' ) {
 			$css = CSSJanus::transform( $css, true );
 		}
+
 		return $css;
 	}
 
 	/**
-	 * URL for index.php?css=foobar
+	 * "<link>" to index.php?css=foobar for the "<head>"
 	 * @return String
 	 */
 	private function getCssUrl( ) {
-		return $_SERVER['PHP_SELF'] . '?css=' . $this->getDir();
+		return Html::linkedStyle( $_SERVER['PHP_SELF'] . '?css=' . $this->getDir() );
 	}
 
 	public function useShortHeader( $use = true ) {
@@ -139,22 +180,25 @@ class WebInstallerOutput {
 		}
 	}
 
+	/**
+	 * @return string
+	 */
 	public function getDir() {
 		global $wgLang;
-		if( !is_object( $wgLang ) || !$wgLang->isRtl() )
-			return 'ltr';
-		else
-			return 'rtl';
+		return is_object( $wgLang ) ? $wgLang->getDir() : 'ltr';
 	}
 
+	/**
+	 * @return string
+	 */
 	public function getLanguageCode() {
 		global $wgLang;
-		if( !is_object( $wgLang ) )
-			return 'en';
-		else
-			return $wgLang->getCode();
+		return is_object( $wgLang ) ? $wgLang->getCode() : 'en';
 	}
 
+	/**
+	 * @return array
+	 */
 	public function getHeadAttribs() {
 		return array(
 			'dir' => $this->getDir(),
@@ -194,8 +238,7 @@ class WebInstallerOutput {
 	<meta name="robots" content="noindex, nofollow" />
 	<meta http-equiv="Content-type" content="text/html; charset=utf-8" />
 	<title><?php $this->outputTitle(); ?></title>
-	<?php echo Html::linkedStyle( '../skins/common/shared.css' ) . "\n"; ?>
-	<?php echo Html::linkedStyle( $this->getCssUrl() ) . "\n"; ?>
+	<?php echo $this->getCssUrl() . "\n"; ?>
 	<?php echo Html::inlineScript(  "var dbTypes = " . Xml::encodeJsVar( $dbTypes ) ) . "\n"; ?>
 	<?php echo $this->getJQuery() . "\n"; ?>
 	<?php echo Html::linkedScript( '../skins/common/config.js' ) . "\n"; ?>
@@ -229,10 +272,9 @@ class WebInstallerOutput {
 		href="http://www.mediawiki.org/"
 		title="Main Page"></a>
 	</div>
-	<script type="text/javascript"> if (window.isMSIE55) fixalpha(); </script>
 	<div class="portal"><div class="body">
 <?php
-	echo $this->parent->parse( wfMsgNoTrans( 'config-sidebar' ), true );
+	echo $this->parent->parse( wfMessage( 'config-sidebar' )->plain(), true );
 ?>
 	</div></div>
 </div>
@@ -249,7 +291,7 @@ class WebInstallerOutput {
 	<meta http-equiv="Content-type" content="text/html; charset=utf-8" />
 	<meta name="robots" content="noindex, nofollow" />
 	<title><?php $this->outputTitle(); ?></title>
-	<?php echo Html::linkedStyle( $this->getCssUrl() ) . "\n"; ?>
+	<?php echo $this->getCssUrl() . "\n"; ?>
 	<?php echo $this->getJQuery(); ?>
 	<?php echo Html::linkedScript( '../skins/common/config.js' ); ?>
 </head>
@@ -260,7 +302,7 @@ class WebInstallerOutput {
 
 	public function outputTitle() {
 		global $wgVersion;
-		echo htmlspecialchars( wfMsg( 'config-title', $wgVersion ) );
+		echo wfMessage( 'config-title', $wgVersion )->escaped();
 	}
 
 	public function getJQuery() {

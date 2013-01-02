@@ -1,10 +1,10 @@
 <?php
 /**
- * API for MediaWiki 1.8+
+ *
  *
  * Created on Sep 19, 2006
  *
- * Copyright © 2006 Yuri Astrakhan <Firstname><Lastname>@gmail.com
+ * Copyright © 2006 Yuri Astrakhan "<Firstname><Lastname>@gmail.com"
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,27 +24,14 @@
  * @file
  */
 
-if ( !defined( 'MEDIAWIKI' ) ) {
-	// Eclipse helper - will be ignored in production
-	require_once( 'ApiFormatBase.php' );
-}
-
 /**
  * API YAML output formatter
  * @ingroup API
  */
-class ApiFormatYaml extends ApiFormatBase {
-
-	public function __construct( $main, $format ) {
-		parent::__construct( $main, $format );
-	}
+class ApiFormatYaml extends ApiFormatJson {
 
 	public function getMimeType() {
 		return 'application/yaml';
-	}
-
-	public function execute() {
-		$this->printText( Spyc::YAMLDump( $this->getResultData() ) );
 	}
 
 	public function getDescription() {
@@ -52,6 +39,6 @@ class ApiFormatYaml extends ApiFormatBase {
 	}
 
 	public function getVersion() {
-		return __CLASS__ . ': $Id: ApiFormatYaml.php 70647 2010-08-07 19:59:42Z ialex $';
+		return __CLASS__ . ': $Id$';
 	}
 }

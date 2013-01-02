@@ -1,10 +1,10 @@
 <?php
 /**
- * API for MediaWiki 1.8+
+ *
  *
  * Created on Sep 19, 2006
  *
- * Copyright © 2006-2007 Yuri Astrakhan <Firstname><Lastname>@gmail.com,
+ * Copyright © 2006-2007 Yuri Astrakhan "<Firstname><Lastname>@gmail.com",
  * Daniel Cannon (cannon dot danielc at gmail dot com)
  *
  * This program is free software; you can redistribute it and/or modify
@@ -24,11 +24,6 @@
  *
  * @file
  */
-
-if ( !defined( 'MEDIAWIKI' ) ) {
-	// Eclipse helper - will be ignored in production
-	require_once( 'ApiBase.php' );
-}
 
 /**
  * Unit to authenticate log-in attempts to the current wiki.
@@ -55,37 +50,47 @@ class ApiLogin extends ApiBase {
 
 		$result = array();
 
-		$req = new FauxRequest( array(
-			'wpName' => $params['name'],
-			'wpPassword' => $params['password'],
-			'wpDomain' => $params['domain'],
-			'wpLoginToken' => $params['token'],
-			'wpRemember' => ''
-		) );
-
 		// Init session if necessary
 		if ( session_id() == '' ) {
 			wfSetupSession();
 		}
 
-		$loginForm = new LoginForm( $req );
+		$context = new DerivativeContext( $this->getContext() );
+		$context->setRequest( new DerivativeRequest(
+			$this->getContext()->getRequest(),
+			array(
+				'wpName' => $params['name'],
+				'wpPassword' => $params['password'],
+				'wpDomain' => $params['domain'],
+				'wpLoginToken' => $params['token'],
+				'wpRemember' => ''
+			)
+		) );
+		$loginForm = new LoginForm();
+		$loginForm->setContext( $context );
 
-		global $wgCookiePrefix, $wgUser, $wgPasswordAttemptThrottle;
+		global $wgCookiePrefix, $wgPasswordAttemptThrottle;
 
-		switch ( $authRes = $loginForm->authenticateUserData() ) {
+		$authRes = $loginForm->authenticateUserData();
+		switch ( $authRes ) {
 			case LoginForm::SUCCESS:
-				$wgUser->setOption( 'rememberpassword', 1 );
-				$wgUser->setCookies();
+				$user = $context->getUser();
+				$this->getContext()->setUser( $user );
+				$user->setOption( 'rememberpassword', 1 );
+				$user->setCookies( $this->getRequest() );
 
-				// Run hooks. FIXME: split back and frontend from this hook.
-				// FIXME: This hook should be placed in the backend
+				ApiQueryInfo::resetTokenCache();
+
+				// Run hooks.
+				// @todo FIXME: Split back and frontend from this hook.
+				// @todo FIXME: This hook should be placed in the backend
 				$injected_html = '';
-				wfRunHooks( 'UserLoginComplete', array( &$wgUser, &$injected_html ) );
+				wfRunHooks( 'UserLoginComplete', array( &$user, &$injected_html ) );
 
 				$result['result'] = 'Success';
-				$result['lguserid'] = intval( $wgUser->getId() );
-				$result['lgusername'] = $wgUser->getName();
-				$result['lgtoken'] = $wgUser->getToken();
+				$result['lguserid'] = intval( $user->getId() );
+				$result['lgusername'] = $user->getName();
+				$result['lgtoken'] = $user->getToken();
 				$result['cookieprefix'] = $wgCookiePrefix;
 				$result['sessionid'] = session_id();
 				break;
@@ -140,6 +145,11 @@ class ApiLogin extends ApiBase {
 				$result['result'] = 'Blocked';
 				break;
 
+			case LoginForm::ABORTED:
+				$result['result'] = 'Aborted';
+				$result['reason'] =  $loginForm->mAbortLoginErrorMsg;
+				break;
+
 			default:
 				ApiBase::dieDebug( __METHOD__, "Unhandled case value: {$authRes}" );
 		}
@@ -173,9 +183,69 @@ class ApiLogin extends ApiBase {
 		);
 	}
 
+	public function getResultProperties() {
+		return array(
+			'' => array(
+				'result' => array(
+					ApiBase::PROP_TYPE => array(
+						'Success',
+						'NeedToken',
+						'WrongToken',
+						'NoName',
+						'Illegal',
+						'WrongPluginPass',
+						'NotExists',
+						'WrongPass',
+						'EmptyPass',
+						'CreateBlocked',
+						'Throttled',
+						'Blocked',
+						'Aborted'
+					)
+				),
+				'lguserid' => array(
+					ApiBase::PROP_TYPE => 'integer',
+					ApiBase::PROP_NULLABLE => true
+				),
+				'lgusername' => array(
+					ApiBase::PROP_TYPE => 'string',
+					ApiBase::PROP_NULLABLE => true
+				),
+				'lgtoken' => array(
+					ApiBase::PROP_TYPE => 'string',
+					ApiBase::PROP_NULLABLE => true
+				),
+				'cookieprefix' => array(
+					ApiBase::PROP_TYPE => 'string',
+					ApiBase::PROP_NULLABLE => true
+				),
+				'sessionid' => array(
+					ApiBase::PROP_TYPE => 'string',
+					ApiBase::PROP_NULLABLE => true
+				),
+				'token' => array(
+					ApiBase::PROP_TYPE => 'string',
+					ApiBase::PROP_NULLABLE => true
+				),
+				'details' => array(
+					ApiBase::PROP_TYPE => 'string',
+					ApiBase::PROP_NULLABLE => true
+				),
+				'wait' => array(
+					ApiBase::PROP_TYPE => 'integer',
+					ApiBase::PROP_NULLABLE => true
+				),
+				'reason' => array(
+					ApiBase::PROP_TYPE => 'string',
+					ApiBase::PROP_NULLABLE => true
+				)
+			)
+		);
+	}
+
 	public function getDescription() {
 		return array(
-			'This module is used to login and get the authentication tokens. ',
+			'Log in and get the authentication tokens. ',
 			'In the event of a successful log-in, a cookie will be attached',
 			'to your session. In the event of a failed log-in, you will not ',
 			'be able to attempt another log-in through this method for 5 seconds.',
@@ -192,20 +262,24 @@ class ApiLogin extends ApiBase {
 			array( 'code' => 'NotExists', 'info' => ' The username you provided doesn\'t exist' ),
 			array( 'code' => 'EmptyPass', 'info' => ' You didn\'t set the lgpassword parameter or you left it empty' ),
 			array( 'code' => 'WrongPass', 'info' => ' The password you provided is incorrect' ),
-			array( 'code' => 'WrongPluginPass', 'info' => 'Same as `WrongPass", returned when an authentication plugin rather than MediaWiki itself rejected the password' ),
+			array( 'code' => 'WrongPluginPass', 'info' => 'Same as "WrongPass", returned when an authentication plugin rather than MediaWiki itself rejected the password' ),
 			array( 'code' => 'CreateBlocked', 'info' => 'The wiki tried to automatically create a new account for you, but your IP address has been blocked from account creation' ),
 			array( 'code' => 'Throttled', 'info' => 'You\'ve logged in too many times in a short time' ),
 			array( 'code' => 'Blocked', 'info' => 'User is blocked' ),
 		) );
 	}
 
-	protected function getExamples() {
+	public function getExamples() {
 		return array(
 			'api.php?action=login&lgname=user&lgpassword=password'
 		);
 	}
 
+	public function getHelpUrls() {
+		return 'https://www.mediawiki.org/wiki/API:Login';
+	}
+
 	public function getVersion() {
-		return __CLASS__ . ': $Id: ApiLogin.php 76080 2010-11-05 11:54:35Z catrope $';
+		return __CLASS__ . ': $Id$';
 	}
 }

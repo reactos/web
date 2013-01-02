@@ -1,6 +1,6 @@
 <?php
 /**
- * Generic table cleanup class. Already subclasses maintenance
+ * Generic class to cleanup a database table.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,8 +21,13 @@
  * @ingroup Maintenance
  */
 
-require_once( dirname( __FILE__ ) . '/Maintenance.php' );
+require_once( __DIR__ . '/Maintenance.php' );
 
+/**
+ * Generic class to cleanup a database table. Already subclasses Maintenance.
+ *
+ * @ingroup Maintenance
+ */
 class TableCleanup extends Maintenance {
 	protected $defaultParams = array(
 		'table' => 'page',
@@ -43,7 +48,7 @@ class TableCleanup extends Maintenance {
 
 	public function execute() {
 		global $wgUser;
-		$wgUser->setName( 'Conversion script' );
+		$wgUser = User::newFromName( 'Conversion script' );
 		$this->dryrun = $this->hasOption( 'dry-run' );
 		if ( $this->dryrun ) {
 			$this->output( "Checking for bad titles...\n" );
@@ -57,7 +62,7 @@ class TableCleanup extends Maintenance {
 		$this->processed = 0;
 		$this->updated = 0;
 		$this->count = $count;
-		$this->startTime = wfTime();
+		$this->startTime = microtime( true );
 		$this->table = $table;
 	}
 
@@ -70,7 +75,7 @@ class TableCleanup extends Maintenance {
 		$portion = $this->processed / $this->count;
 		$updateRate = $this->updated / $this->processed;
 
-		$now = wfTime();
+		$now = microtime( true );
 		$delta = $now - $this->startTime;
 		$estimatedTotalTime = $delta / $portion;
 		$eta = $this->startTime + $estimatedTotalTime;
@@ -101,7 +106,8 @@ class TableCleanup extends Maintenance {
 		}
 
 		$table = $params['table'];
-		$count = $dbr->selectField( $table, 'count(*)', $params['conds'], __METHOD__ );
+		// count(*) would melt the DB for huge tables, we can estimate here
+		$count = $dbr->estimateRowCount( $table, '*', '', __METHOD__ );
 		$this->init( $count, $table );
 		$this->output( "Processing $table...\n" );
 

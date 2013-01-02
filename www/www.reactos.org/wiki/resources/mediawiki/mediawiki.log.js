@@ -1,64 +1,71 @@
-/*
- * Implementation for mediaWiki.log stub
+/**
+ * Logger for MediaWiki javascript.
+ * Implements the stub left by the main 'mediawiki' module.
+ *
+ * @author Michael Dale <mdale@wikimedia.org>
+ * @author Trevor Parscal <tparscal@wikimedia.org>
  */
 
-(function ($, mw) {
+( function ( mw, $ ) {
 
 	/**
-	 * Log output to the console.
+	 * Logs a message to the console.
 	 *
-	 * In the case that the browser does not have a console available, one is created by appending a
-	 * <div> element to the bottom of the body and then appending a <div> element to that for each
-	 * message.
+	 * In the case the browser does not have a console API, a console is created on-the-fly by appending
+	 * a <div id="mw-log-console"> element to the bottom of the body and then appending this and future
+	 * messages to that, instead of the console.
 	 *
-	 * @author Michael Dale <mdale@wikimedia.org>
-	 * @author Trevor Parscal <tparscal@wikimedia.org>
-	 * @param {string} string Message to output to console
+	 * @param {String} First in list of variadic messages to output to console.
 	 */
-	mediaWiki.log = function( string ) {
-		// Allow log messages to use a configured prefix
-		if ( mw.config.exists( 'mw.log.prefix' ) ) {
-			string = mw.config.get( 'mw.log.prefix' ) + '> ' + string;
-		}
+	mw.log = function ( /* logmsg, logmsg, */ ) {
+		// Turn arguments into an array
+		var	args = Array.prototype.slice.call( arguments ),
+			// Allow log messages to use a configured prefix to identify the source window (ie. frame)
+			prefix = mw.config.exists( 'mw.log.prefix' ) ? mw.config.get( 'mw.log.prefix' ) + '> ' : '';
+
 		// Try to use an existing console
-		if ( typeof window.console !== 'undefined' && typeof window.console.log == 'function' ) {
-			window.console.log( string );
-		} else {
-			// Set timestamp
-			var d = new Date();
-			var time = ( d.getHours() < 10 ? '0' + d.getHours() : d.getHours() ) +
+		if ( window.console !== undefined && $.isFunction( window.console.log ) ) {
+			args.unshift( prefix );
+			window.console.log.apply( window.console, args );
+			return;
+		}
+
+		// If there is no console, use our own log box
+		mw.loader.using( 'jquery.footHovzer', function () {
+
+			var	hovzer,
+				d = new Date(),
+				// Create HH:MM:SS.MIL timestamp
+				time = ( d.getHours() < 10 ? '0' + d.getHours() : d.getHours() ) +
 				 ':' + ( d.getMinutes() < 10 ? '0' + d.getMinutes() : d.getMinutes() ) +
 				 ':' + ( d.getSeconds() < 10 ? '0' + d.getSeconds() : d.getSeconds() ) +
-				 '.' + ( d.getMilliseconds() < 10 ? '00' + d.getMilliseconds() : ( d.getMilliseconds() < 100 ? '0' + d.getMilliseconds() : d.getMilliseconds() ) );
-			// Show a log box for console-less browsers
-			var $log = $( '#mw-log-console' );
+				 '.' + ( d.getMilliseconds() < 10 ? '00' + d.getMilliseconds() : ( d.getMilliseconds() < 100 ? '0' + d.getMilliseconds() : d.getMilliseconds() ) ),
+				 $log = $( '#mw-log-console' );
+	
 			if ( !$log.length ) {
-				$log = $( '<div id="mw-log-console"></div>' )
-					.css( {
-						'position': 'absolute',
-						'overflow': 'auto',
-						'z-index': 500,
-						'bottom': '0px',
-						'left': '0px',
-						'right': '0px',
-						'height': '150px',
-						'background-color': 'white',
-						'border-top': 'solid 2px #ADADAD'
-					} )
-					.appendTo( 'body' );
+				$log = $( '<div id="mw-log-console"></div>' ).css( {
+						overflow: 'auto',
+						height: '150px',
+						backgroundColor: 'white',
+						borderTop: 'solid 2px #ADADAD'
+					} );
+				hovzer = $.getFootHovzer();
+				hovzer.$.append( $log );
+				hovzer.update();
 			}
 			$log.append(
 				$( '<div></div>' )
 					.css( {
-						'border-bottom': 'solid 1px #DDDDDD',
-						'font-size': 'small',
-						'font-family': 'monospace',
-						'padding': '0.125em 0.25em'
+						borderBottom: 'solid 1px #DDDDDD',
+						fontSize: 'small',
+						fontFamily: 'monospace',
+						whiteSpace: 'pre-wrap',
+						padding: '0.125em 0.25em'
 					} )
-					.text( string )
-					.append( '<span style="float:right">[' + time + ']</span>' )
+					.text( prefix + args.join( ', ' ) )
+					.prepend( '<span style="float: right;">[' + time + ']</span>' )
 			);
-		}
+		} );
 	};
 
-})(jQuery, mediaWiki);
+}( mediaWiki, jQuery ) );

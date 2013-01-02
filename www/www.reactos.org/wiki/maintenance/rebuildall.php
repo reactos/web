@@ -18,11 +18,17 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  * http://www.gnu.org/copyleft/gpl.html
  *
+ * @file
  * @ingroup Maintenance
  */
 
-require_once( dirname( __FILE__ ) . '/Maintenance.php' );
+require_once( __DIR__ . '/Maintenance.php' );
 
+/**
+ * Maintenance script that rebuilds link tracking tables from scratch.
+ *
+ * @ingroup Maintenance
+ */
 class RebuildAll extends Maintenance {
 	public function __construct() {
 		parent::__construct();
@@ -30,9 +36,8 @@ class RebuildAll extends Maintenance {
 	}
 
 	public function execute() {
-		global $wgDBtype;
 		// Rebuild the text index
-		if ( $wgDBtype != 'postgres' ) {
+		if ( wfGetDB( DB_SLAVE )->getType() != 'postgres' ) {
 			$this->output( "** Rebuilding fulltext search index (if you abort this will break searching; run this script again to fix):\n" );
 			$rebuildText = $this->runChild( 'RebuildTextIndex', 'rebuildtextindex.php' );
 			$rebuildText->execute();

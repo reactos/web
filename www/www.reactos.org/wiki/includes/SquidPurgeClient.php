@@ -1,5 +1,26 @@
 <?php
 /**
+ * Squid and Varnish cache purging.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ * http://www.gnu.org/copyleft/gpl.html
+ *
+ * @file
+ */
+
+/**
  * An HTTP 1.0 client built for the purposes of purging Squid and Varnish. 
  * Uses asynchronous I/O, allowing purges to be done in a highly parallel 
  * manner. 
@@ -23,7 +44,15 @@ class SquidPurgeClient {
 	 * The socket resource, or null for unconnected, or false for disabled due to error
 	 */
 	var $socket;
-	
+
+	var $readBuffer;
+
+	var $bodyRemaining;
+
+	/**
+	 * @param $server string
+	 * @param $options array
+	 */
 	public function __construct( $server, $options = array() ) {
 		$parts = explode( ':', $server, 2 );
 		$this->host = $parts[0];
@@ -33,6 +62,8 @@ class SquidPurgeClient {
 	/**
 	 * Open a socket if there isn't one open already, return it.
 	 * Returns false on error.
+	 *
+	 * @return bool|resource
 	 */
 	protected function getSocket() {
 		if ( $this->socket !== null ) {
@@ -64,6 +95,7 @@ class SquidPurgeClient {
 
 	/**
 	 * Get read socket array for select()
+	 * @return array
 	 */
 	public function getReadSocketsForSelect() {
 		if ( $this->readState == 'idle' ) {
@@ -78,6 +110,7 @@ class SquidPurgeClient {
 
 	/**
 	 * Get write socket array for select()
+	 * @return array
 	 */
 	public function getWriteSocketsForSelect() {
 		if ( !strlen( $this->writeBuffer ) ) {
@@ -139,9 +172,11 @@ class SquidPurgeClient {
 
 	/**
 	 * Queue a purge operation
+	 *
+	 * @param $url string
 	 */
 	public function queuePurge( $url ) {
-		$url = str_replace( "\n", '', $url );
+		$url = SquidUpdate::expand( str_replace( "\n", '', $url ) );
 		$this->requests[] = "PURGE $url HTTP/1.0\r\n" .
 			"Connection: Keep-Alive\r\n" .
 			"Proxy-Connection: Keep-Alive\r\n" .
@@ -151,6 +186,9 @@ class SquidPurgeClient {
 		}
 	}
 
+	/**
+	 * @return bool
+	 */
 	public function isIdle() {
 		return strlen( $this->writeBuffer ) == 0 && $this->readState == 'idle';
 	}
@@ -220,6 +258,10 @@ class SquidPurgeClient {
 		while ( $this->socket && $this->processReadBuffer() === 'continue' );
 	}
 
+	/**
+	 * @throws MWException
+	 * @return string
+	 */
 	protected function processReadBuffer() {
 		switch ( $this->readState ) {
 		case 'idle':
@@ -259,6 +301,10 @@ class SquidPurgeClient {
 		}
 	}
 
+	/**
+	 * @param $line
+	 * @return
+	 */
 	protected function processStatusLine( $line ) {
 		if ( !preg_match( '!^HTTP/(\d+)\.(\d+) (\d{3}) (.*)$!', $line, $m ) ) {
 			$this->log( 'invalid status line' );
@@ -275,6 +321,9 @@ class SquidPurgeClient {
 		$this->readState = 'header';
 	}
 
+	/**
+	 * @param $line string
+	 */
 	protected function processHeaderLine( $line ) {
 		if ( preg_match( '/^Content-Length: (\d+)$/i', $line, $m ) ) {
 			$this->bodyRemaining = intval( $m[1] );
@@ -299,21 +348,35 @@ class SquidPurgeClient {
 		$this->bodyRemaining = null;
 	}
 
+	/**
+	 * @param $msg string
+	 */
 	protected function log( $msg ) {
 		wfDebugLog( 'squid', __CLASS__." ($this->host): $msg\n" );
 	}
 }
 
 class SquidPurgeClientPool {
+
+	/**
+	 * @var array of SquidPurgeClient
+	 */
 	var $clients = array();
 	var $timeout = 5;
 
+	/**
+	 * @param $options array
+	 */
 	function __construct( $options = array() ) {
 		if ( isset( $options['timeout'] ) ) {
 			$this->timeout = $options['timeout'];
 		}
 	}
 
+	/**
+	 * @param $client SquidPurgeClient
+	 * @return void
+	 */
 	public function addClient( $client ) {
 		$this->clients[] = $client;
 	}
@@ -323,6 +386,9 @@ class SquidPurgeClientPool {
 		$startTime = microtime( true );
 		while ( !$done ) {
 			$readSockets = $writeSockets = array();
+			/**
+			 * @var $client SquidPurgeClient
+			 */
 			foreach ( $this->clients as $clientIndex => $client ) {
 				$sockets = $client->getReadSocketsForSelect();
 				foreach ( $sockets as $i => $socket ) {

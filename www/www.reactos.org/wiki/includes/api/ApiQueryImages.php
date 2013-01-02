@@ -1,10 +1,10 @@
 <?php
 /**
- * API for MediaWiki 1.8+
+ *
  *
  * Created on May 13, 2007
  *
- * Copyright © 2006 Yuri Astrakhan <Firstname><Lastname>@gmail.com
+ * Copyright © 2006 Yuri Astrakhan "<Firstname><Lastname>@gmail.com"
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,13 +24,9 @@
  * @file
  */
 
-if ( !defined( 'MEDIAWIKI' ) ) {
-	// Eclipse helper - will be ignored in production
-	require_once( "ApiQueryBase.php" );
-}
-
 /**
- * This query adds an <images> subelement to all pages with the list of images embedded into those pages.
+ * This query adds an "<images>" subelement to all pages with the list of
+ * images embedded into those pages.
  *
  * @ingroup API
  */
@@ -48,6 +44,9 @@ class ApiQueryImages extends ApiQueryGeneratorBase {
 		$this->run( $resultPageSet );
 	}
 
+	/**
+	 * @param $resultPageSet ApiPageSet
+	 */
 	private function run( $resultPageSet = null ) {
 		if ( $this->getPageSet()->getGoodTitleCount() == 0 ) {
 			return;	// nothing to do
@@ -67,22 +66,40 @@ class ApiQueryImages extends ApiQueryGeneratorBase {
 				$this->dieUsage( 'Invalid continue param. You should pass the ' .
 					'original value returned by the previous query', '_badcontinue' );
 			}
+			$op = $params['dir'] == 'descending' ? '<' : '>';
 			$ilfrom = intval( $cont[0] );
-			$ilto = $this->getDB()->strencode( $this->titleToKey( $cont[1] ) );
+			$ilto = $this->getDB()->addQuotes( $cont[1] );
 			$this->addWhere(
-				"il_from > $ilfrom OR " .
+				"il_from $op $ilfrom OR " .
 				"(il_from = $ilfrom AND " .
-				"il_to >= '$ilto')"
+				"il_to $op= $ilto)"
 			);
 		}
 
+		$sort = ( $params['dir'] == 'descending' ? ' DESC' : '' );
 		// Don't order by il_from if it's constant in the WHERE clause
 		if ( count( $this->getPageSet()->getGoodTitles() ) == 1 ) {
-			$this->addOption( 'ORDER BY', 'il_to' );
+			$this->addOption( 'ORDER BY', 'il_to' . $sort );
 		} else {
-			$this->addOption( 'ORDER BY', 'il_from, il_to' );
+			$this->addOption( 'ORDER BY', array(
+						'il_from' . $sort,
+						'il_to' . $sort
+			));
 		}
 		$this->addOption( 'LIMIT', $params['limit'] + 1 );
+
+		if ( !is_null( $params['images'] ) ) {
+			$images = array();
+			foreach ( $params['images'] as $img ) {
+				$title = Title::newFromText( $img );
+				if ( !$title || $title->getNamespace() != NS_FILE ) {
+					$this->setWarning( "\"$img\" is not a file" );
+				} else {
+					$images[] = $title->getDBkey();
+				}
+			}
+			$this->addWhereFld( 'il_to', $images );
+		}
 
 		$res = $this->select( __METHOD__ );
 
@@ -92,16 +109,14 @@ class ApiQueryImages extends ApiQueryGeneratorBase {
 				if ( ++$count > $params['limit'] ) {
 					// We've reached the one extra which shows that
 					// there are additional pages to be had. Stop here...
-					$this->setContinueEnumParameter( 'continue', $row->il_from .
-							'|' . $this->keyToTitle( $row->il_to ) );
+					$this->setContinueEnumParameter( 'continue', $row->il_from . '|' . $row->il_to );
 					break;
 				}
 				$vals = array();
 				ApiQueryBase::addTitleInfo( $vals, Title::makeTitle( NS_FILE, $row->il_to ) );
 				$fit = $this->addPageSubItem( $row->il_from, $vals );
 				if ( !$fit ) {
-					$this->setContinueEnumParameter( 'continue', $row->il_from .
-							'|' . $this->keyToTitle( $row->il_to ) );
+					$this->setContinueEnumParameter( 'continue', $row->il_from . '|' . $row->il_to );
 					break;
 				}
 			}
@@ -112,8 +127,7 @@ class ApiQueryImages extends ApiQueryGeneratorBase {
 				if ( ++$count > $params['limit'] ) {
 					// We've reached the one extra which shows that
 					// there are additional pages to be had. Stop here...
-					$this->setContinueEnumParameter( 'continue', $row->il_from .
-							'|' . $this->keyToTitle( $row->il_to ) );
+					$this->setContinueEnumParameter( 'continue', $row->il_from . '|' . $row->il_to );
 					break;
 				}
 				$titles[] = Title::makeTitle( NS_FILE, $row->il_to );
@@ -136,6 +150,16 @@ class ApiQueryImages extends ApiQueryGeneratorBase {
 				ApiBase::PARAM_MAX2 => ApiBase::LIMIT_BIG2
 			),
 			'continue' => null,
+			'images' => array(
+				ApiBase::PARAM_ISMULTI => true,
+			),
+			'dir' => array(
+				ApiBase::PARAM_DFLT => 'ascending',
+				ApiBase::PARAM_TYPE => array(
+					'ascending',
+					'descending'
+				)
+			),
 		);
 	}
 
@@ -143,6 +167,17 @@ class ApiQueryImages extends ApiQueryGeneratorBase {
 		return array(
 			'limit' => 'How many images to return',
 			'continue' => 'When more results are available, use this to continue',
+			'images' => 'Only list these images. Useful for checking whether a certain page has a certain Image.',
+			'dir' => 'The direction in which to list',
+		);
+	}
+
+	public function getResultProperties() {
+		return array(
+			'' => array(
+				'ns' => 'namespace',
+				'title' => 'string'
+			)
 		);
 	}
 
@@ -156,16 +191,18 @@ class ApiQueryImages extends ApiQueryGeneratorBase {
 		) );
 	}
 
-	protected function getExamples() {
+	public function getExamples() {
 		return array(
-			'Get a list of images used in the [[Main Page]]:',
-			'  api.php?action=query&prop=images&titles=Main%20Page',
-			'Get information about all images used in the [[Main Page]]:',
-			'  api.php?action=query&generator=images&titles=Main%20Page&prop=info'
+			'api.php?action=query&prop=images&titles=Main%20Page' => 'Get a list of images used in the [[Main Page]]',
+			'api.php?action=query&generator=images&titles=Main%20Page&prop=info' => 'Get information about all images used in the [[Main Page]]',
 		);
 	}
 
+	public function getHelpUrls() {
+		return 'https://www.mediawiki.org/wiki/API:Properties#images_.2F_im';
+	}
+
 	public function getVersion() {
-		return __CLASS__ . ': $Id: ApiQueryImages.php 73543 2010-09-22 16:50:09Z platonides $';
+		return __CLASS__ . ': $Id$';
 	}
 }

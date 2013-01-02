@@ -2,20 +2,35 @@
 /**
  * Statistics about the localisation.
  *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ * http://www.gnu.org/copyleft/gpl.html
+ *
  * @file
  * @ingroup MaintenanceLanguage
  *
  * @author Ævar Arnfjörð Bjarmason <avarab@gmail.com>
- * @author Ashar Voultoiz <hashar at free dot fr>
+ * @author Antoine Musso <hashar at free dot fr>
  *
  * Output is posted from time to time on:
  * http://www.mediawiki.org/wiki/Localisation_statistics
  */
 $optionsWithArgs = array( 'output' );
 
-require_once( dirname( __FILE__ ) . '/../commandLine.inc' );
+require_once( __DIR__ . '/../commandLine.inc' );
 require_once( 'languages.inc' );
-require_once( dirname( __FILE__ ) . '/StatOutputs.php' );
+require_once( __DIR__ . '/StatOutputs.php' );
 
 
 if ( isset( $options['help'] ) ) {
@@ -80,13 +95,14 @@ $wgGeneralMessages = $wgLanguages->getGeneralMessages();
 $wgRequiredMessagesNumber = count( $wgGeneralMessages['required'] );
 
 foreach ( $wgLanguages->getLanguages() as $code ) {
-	# Don't check English or RTL English
-	if ( $code == 'en' || $code == 'enRTL' ) {
+	# Don't check English, RTL English or dummy language codes
+	if ( $code == 'en' || $code == 'enRTL' || (is_array( $wgDummyLanguageCodes ) &&
+		isset( $wgDummyLanguageCodes[$code] ) ) ) {
 		continue;
 	}
 
 	# Calculate the numbers
-	$language = $wgContLang->getLanguageName( $code );
+	$language = Language::fetchLanguageName( $code );
 	$fallback = $wgLanguages->getFallback( $code );
 	$messages = $wgLanguages->getMessages( $code );
 	$messagesNumber = count( $messages['translated'] );
@@ -118,5 +134,3 @@ foreach ( $wgLanguages->getLanguages() as $code ) {
 
 # Footer
 $output->footer();
-
-

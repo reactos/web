@@ -1,5 +1,5 @@
-#!/usr/bin/python
-# -*- coding: utf-8  -*-
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 # @author Philip
 import tarfile as tf
 import zipfile as zf
@@ -30,21 +30,22 @@ def unichr3( *args ):
     return [unichr( int( i[2:7], 16 ) ) for i in args if i[2:7]]
 
 # DEFINE
-SF_MIRROR = 'easynews'
-SCIM_TABLES_VER = '0.5.9'
+UNIHAN_VER = '5.2.0'
+SF_MIRROR = 'dfn'
+SCIM_TABLES_VER = '0.5.10'
 SCIM_PINYIN_VER = '0.5.91'
 LIBTABE_VER = '0.2.3'
 # END OF DEFINE
 
 def download( url, dest ):
     if os.path.isfile( dest ):
-        print( 'File %s up to date.' % dest )
+        print( 'File %s is up to date.' % dest )
         return
     global islinux
     if islinux:
         # we use wget instead urlretrieve under Linux, 
         # because wget could display details like download progress
-        os.system('wget %s' % url)
+        os.system( 'wget %s -O %s' % ( url, dest ) )
     else:
         print( 'Downloading from [%s] ...' % url )
         urllib_request.urlretrieve( url, dest )
@@ -81,7 +82,8 @@ def parserCore( fp, pos, beginmark = None, endmark = None ):
             elems = line.split()
             if len( elems ) < 2:
                 continue
-            elif len( elems[0] ) > 1:
+            elif len( elems[0] ) > 1 and \
+                len( elems[pos] ) > 1: # words only
                 mlist.add( elems[pos] )
     return mlist
 
@@ -258,7 +260,7 @@ def PHPArray( table ):
 
 def main():
     #Get Unihan.zip:
-    url  = 'http://www.unicode.org/Public/UNIDATA/Unihan.zip'
+    url = 'http://www.unicode.org/Public/%s/ucd/Unihan.zip' % UNIHAN_VER
     han_dest = 'Unihan.zip'
     download( url, han_dest )
     
@@ -368,15 +370,15 @@ $zh2Hant = array(\n'''
         +  PHPArray( toCN ) \
         +  '\n);\n\n$zh2SG = array(\n' \
         +  PHPArray( toSG ) \
-        +  '\n);'
+        +  '\n);\n'
     
-    f = open( 'ZhConversion.php', 'wb', encoding = 'utf8' )
+    f = open( os.path.join( '..', 'ZhConversion.php' ), 'wb', encoding = 'utf8' )
     print ('Writing ZhConversion.php ... ')
     f.write( php )
     f.close()
     
-    #Remove temp files
-    print ('Deleting temp files ... ')
+    # Remove temporary files
+    print ('Deleting temporary files ... ')
     os.remove('EZ-Big.txt.in')
     os.remove('phrase_lib.txt')
     os.remove('tsi.src')

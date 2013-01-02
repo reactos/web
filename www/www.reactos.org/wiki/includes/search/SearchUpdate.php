@@ -4,6 +4,21 @@
  *
  * See deferred.txt
  *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ * http://www.gnu.org/copyleft/gpl.html
+ *
  * @file
  * @ingroup Search
  */
@@ -13,10 +28,10 @@
  *
  * @ingroup Search
  */
-class SearchUpdate {
+class SearchUpdate implements DeferrableUpdate {
 
-	/* private */ var $mId = 0, $mNamespace, $mTitle, $mText;
-	/* private */ var $mTitleWords;
+	private $mId = 0, $mNamespace, $mTitle, $mText;
+	private $mTitleWords;
 
 	function __construct( $id, $title, $text = false ) {
 		$nt = Title::newFromText( $title );
@@ -37,7 +52,7 @@ class SearchUpdate {
 		global $wgContLang, $wgDisableSearchUpdate;
 
 		if( $wgDisableSearchUpdate || !$this->mId ) {
-			return false;
+			return;
 		}
 
 		wfProfileIn( __METHOD__ );
@@ -62,7 +77,7 @@ class SearchUpdate {
 		  "\\1\\2 \\2 \\2\\3", $text ); # Emphasize headings
 
 		# Strip external URLs
-		$uc = "A-Za-z0-9_\\/:.,~%\\-+&;#?!=()@\\xA0-\\xFF";
+		$uc = "A-Za-z0-9_\\/:.,~%\\-+&;#?!=()@\\x80-\\xFF";
 		$protos = "http|https|ftp|mailto|news|gopher";
 		$pat = "/(^|[^\\[])({$protos}):[{$uc}]+([^{$uc}]|$)/";
 		$text = preg_replace( $pat, "\\1 \\3", $text );

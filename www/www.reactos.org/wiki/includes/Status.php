@@ -1,4 +1,24 @@
 <?php
+/**
+ * Generic operation result.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ * http://www.gnu.org/copyleft/gpl.html
+ *
+ * @file
+ */
 
 /**
  * Generic operation result class
@@ -17,7 +37,9 @@ class Status {
 	var $value;
 
 	/** Counters for batch operations */
-	var $successCount = 0, $failCount = 0;
+	public $successCount = 0, $failCount = 0;
+	/** Array to indicate which items of the batch operations were successful */
+	public $success = array();
 
 	/*semi-private*/ var $errors = array();
 	/*semi-private*/ var $cleanCallback = false;
@@ -26,6 +48,7 @@ class Status {
 	 * Factory function for fatal errors
 	 *
 	 * @param $message String: message name
+	 * @return Status
 	 */
 	static function newFatal( $message /*, parameters...*/ ) {
 		$params = func_get_args();
@@ -39,6 +62,7 @@ class Status {
 	 * Factory function for good results
 	 *
 	 * @param $value Mixed
+	 * @return Status
 	 */
 	static function newGood( $value = null ) {
 		$result = new self;
@@ -49,7 +73,7 @@ class Status {
 	/**
 	 * Change operation result
 	 *
-	 * @param $ok Boolean: whether to operation completed
+	 * @param $ok Boolean: whether the operation completed
 	 * @param $value Mixed
 	 */
 	function setResult( $ok, $value = null ) {
@@ -125,6 +149,10 @@ class Status {
 		$this->cleanCallback = false;
 	}
 
+	/**
+	 * @param $params array
+	 * @return array
+	 */
 	protected function cleanParams( $params ) {
 		if ( !$this->cleanCallback ) {
 			return $params;
@@ -134,30 +162,6 @@ class Status {
 			$cleanParams[$i] = call_user_func( $this->cleanCallback, $param );
 		}
 		return $cleanParams;
-	}
-
-	protected function getItemXML( $item ) {
-		$params = $this->cleanParams( $item['params'] );
-		$xml = "<{$item['type']}>\n" .
-			Xml::element( 'message', null, $item['message'] ) . "\n" .
-			Xml::element( 'text', null, wfMsgReal( $item['message'], $params ) ) ."\n";
-		foreach ( $params as $param ) {
-			$xml .= Xml::element( 'param', null, $param );
-		}
-		$xml .= "</{$this->type}>\n";
-		return $xml;
-	}
-
-	/**
-	 * Get the error list as XML
-	 */
-	function getXML() {
-		$xml = "<errors>\n";
-		foreach ( $this->errors as $error ) {
-			$xml .= $this->getItemXML( $error );
-		}
-		$xml .= "</errors>\n";
-		return $xml;
 	}
 
 	/**
@@ -181,17 +185,17 @@ class Status {
 		if ( count( $this->errors ) == 1 ) {
 			$s = $this->getWikiTextForError( $this->errors[0], $this->errors[0]  );
 			if ( $shortContext ) {
-				$s = wfMsgNoTrans( $shortContext, $s );
+				$s = wfMessage( $shortContext, $s )->plain();
 			} elseif ( $longContext ) {
-				$s = wfMsgNoTrans( $longContext, "* $s\n" );
+				$s = wfMessage( $longContext, "* $s\n" )->plain();
 			}
 		} else {
 			$s = '* '. implode("\n* ",
 				$this->getWikiTextArray( $this->errors ) ) . "\n";
 			if ( $longContext ) {
-				$s = wfMsgNoTrans( $longContext, $s );
+				$s = wfMessage( $longContext, $s )->plain();
 			} elseif ( $shortContext ) {
-				$s = wfMsgNoTrans( $shortContext, "\n$s\n" );
+				$s = wfMessage( $shortContext, "\n$s\n" )->plain();
 			}
 		}
 		return $s;
@@ -209,17 +213,15 @@ class Status {
 	protected function getWikiTextForError( $error ) {
 		if ( is_array( $error ) ) {
 			if ( isset( $error['message'] ) && isset( $error['params'] ) ) {
-				return wfMsgReal( $error['message'],
-					array_map( 'wfEscapeWikiText', $this->cleanParams( $error['params'] ) ),
-					true, false, false );
+				return wfMessage( $error['message'],
+					array_map( 'wfEscapeWikiText', $this->cleanParams( $error['params'] ) )  )->plain();
 			} else {
 				$message = array_shift($error);
-				return wfMsgReal( $message,
-					array_map( 'wfEscapeWikiText', $this->cleanParams( $error ) ),
-					true, false, false );
+				return wfMessage( $message,
+					array_map( 'wfEscapeWikiText', $this->cleanParams( $error ) ) )->plain();
 			}
 		} else {
-			return wfMsgReal( $error, array(), true, false, false);
+			return wfMessage( $error )->plain();
 		}
 	}
 
@@ -235,7 +237,7 @@ class Status {
 	/**
 	 * Merge another status object into this one
 	 *
-	 * @param $other Other Status object
+	 * @param $other Status Other Status object
 	 * @param $overwriteValue Boolean: whether to override the "value" member
 	 */
 	function merge( $other, $overwriteValue = false ) {
@@ -279,12 +281,31 @@ class Status {
 				if( $error['params'] ) {
 					$result[] = array_merge( array( $error['message'] ), $error['params'] );
 				} else {
-					$result[] = $error['message'];
+					$result[] = array( $error['message'] );
 				}
 			}
 		}
 		return $result;
 	}
+
+	/**
+	 * Returns a list of status messages of the given type, with message and
+	 * params left untouched, like a sane version of getStatusArray
+	 *
+	 * @param $type String
+	 *
+	 * @return Array
+	 */
+	public function getErrorsByType( $type ) {
+		$result = array();
+		foreach ( $this->errors as $error ) {
+			if ( $error['type'] === $type ) {
+				$result[] = $error;
+			}
+		}
+		return $result;
+	}
+
 	/**
 	 * Returns true if the specified message is present as a warning or error
 	 *
@@ -301,10 +322,12 @@ class Status {
 	}
 
 	/**
-	 * If the specified source message exists, replace it with the specified 
+	 * If the specified source message exists, replace it with the specified
 	 * destination message, but keep the same parameters as in the original error.
 	 *
 	 * Return true if the replacement was done, false otherwise.
+	 *
+	 * @return bool
 	 */
 	function replaceMessage( $source, $dest ) {
 		$replaced = false;
@@ -324,5 +347,12 @@ class Status {
 	 */
 	public function getMessage() {
 		return $this->getWikiText();
+	}
+
+	/**
+	 * @return mixed
+	 */
+	public function getValue() {
+		return $this->value;
 	}
 }

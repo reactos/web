@@ -1,7 +1,7 @@
 <?php
 /**
- * This script makes several 'set', 'incr' and 'get' requests on every
- * memcached server and shows a report.
+ * Makes several 'set', 'incr' and 'get' requests on every memcached
+ * server and shows a report.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,30 +18,41 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  * http://www.gnu.org/copyleft/gpl.html
  *
+ * @file
  * @ingroup Maintenance
  */
 
-require_once( dirname( __FILE__ ) . '/Maintenance.php' );
+require_once( __DIR__ . '/Maintenance.php' );
 
+/**
+ * Maintenance script that  makes several 'set', 'incr' and 'get' requests
+ * on every memcached server and shows a report.
+ *
+ * @ingroup Maintenance
+ */
 class mcTest extends Maintenance {
 	public function __construct() {
 		parent::__construct();
 		$this->mDescription = "Makes several 'set', 'incr' and 'get' requests on every"
 							  . " memcached server and shows a report";
 		$this->addOption( 'i', 'Number of iterations', false, true );
-		$this->addArg( 'server', 'Memcached server to test', false );
+		$this->addArg( 'server[:port]', 'Memcached server to test, with optional port', false );
 	}
 
 	public function execute() {
-		global $wgMemCachedServers;
+		global $wgMemCachedServers, $wgMemCachedTimeout;
 
 		$iterations = $this->getOption( 'i', 100 );
-		if ( $this->hasArg() )
+		if ( $this->hasArg() ) {
 			$wgMemCachedServers = array( $this->getArg() );
+		}
 
 		foreach ( $wgMemCachedServers as $server ) {
 			$this->output( $server . " ", $server );
-			$mcc = new MemCachedClientforWiki( array( 'persistant' => true ) );
+			$mcc = new MemCachedClientforWiki( array(
+				'persistant' => true,
+				'timeout' => $wgMemCachedTimeout
+			) );
 			$mcc->set_servers( array( $server ) );
 			$set = 0;
 			$incr = 0;

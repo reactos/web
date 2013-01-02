@@ -2,6 +2,21 @@
 /**
  * Oracle-specific installer.
  *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ * http://www.gnu.org/copyleft/gpl.html
+ *
  * @file
  * @ingroup Deployment
  */
@@ -27,7 +42,7 @@ class OracleInstaller extends DatabaseInstaller {
 		'_OracleTempTS' => 'TEMP',
 		'_InstallUser' => 'SYSDBA',
 	);
-	
+
 	public $minimumVersion = '9.0.1'; // 9iR1
 
 	protected $connError = null;
@@ -47,12 +62,12 @@ class OracleInstaller extends DatabaseInstaller {
 		return
 			$this->getTextBox( 'wgDBserver', 'config-db-host-oracle', array(), $this->parent->getHelpBox( 'config-db-host-oracle-help' ) ) .
 			Html::openElement( 'fieldset' ) .
-			Html::element( 'legend', array(), wfMsg( 'config-db-wiki-settings' ) ) .
+			Html::element( 'legend', array(), wfMessage( 'config-db-wiki-settings' )->text() ) .
 			$this->getTextBox( 'wgDBprefix', 'config-db-prefix' ) .
 			$this->getTextBox( '_OracleDefTS', 'config-oracle-def-ts' ) .
 			$this->getTextBox( '_OracleTempTS', 'config-oracle-temp-ts', array(), $this->parent->getHelpBox( 'config-db-oracle-help' ) ) .
 			Html::closeElement( 'fieldset' ) .
-			$this->parent->getWarningBox( wfMsg( 'config-db-account-oracle-warn' ) ).
+			$this->parent->getWarningBox( wfMessage( 'config-db-account-oracle-warn' )->text() ).
 			$this->getInstallUserBox().
 			$this->getWebUserBox();
 	}
@@ -92,7 +107,7 @@ class OracleInstaller extends DatabaseInstaller {
 		// Scenario 1: Install with a manually created account
 		$status = $this->getConnection();
 		if ( !$status->isOK() ) {
-			if ( $this->connError == 28009 ) { 
+			if ( $this->connError == 28009 ) {
 				// _InstallUser seems to be a SYSDBA
 				// Scenario 2: Create user with SYSDBA and install with new user
 				$status = $this->submitWebUserBox();
@@ -117,6 +132,10 @@ class OracleInstaller extends DatabaseInstaller {
 				return $statusIS3;
 			}
 		}
+
+		/**
+		 * @var $conn DatabaseBase
+		 */
 		$conn = $status->value;
 
 		// Check version
@@ -199,7 +218,7 @@ class OracleInstaller extends DatabaseInstaller {
 		// normaly only SYSDBA users can create accounts
 		$status = $this->openSYSDBAConnection();
 		if ( !$status->isOK() ) {
-			if ( $this->connError == 1031 ) { 
+			if ( $this->connError == 1031 ) {
 				// insufficient  privileges (looks like a normal user)
 				$status = $this->openConnection();
 				if ( !$status->isOK() ) {
@@ -226,6 +245,8 @@ class OracleInstaller extends DatabaseInstaller {
 			// user created or already existing, switching back to a normal connection
 			// as the new user has all needed privileges to setup the rest of the schema
 			// i will be using that user as _InstallUser from this point on
+			$this->db->close();
+			$this->db = false;
 			$this->parent->setVar( '_InstallUser', $this->getVar( 'wgDBuser' ) );
 			$this->parent->setVar( '_InstallPassword', $this->getVar( 'wgDBpassword' ) );
 			$this->parent->setVar( '_InstallDBname', $this->getVar( 'wgDBuser' ) );
@@ -237,11 +258,12 @@ class OracleInstaller extends DatabaseInstaller {
 
 	/**
 	 * Overload: after this action field info table has to be rebuilt
+	 * @return Status
 	 */
 	public function createTables() {
 		$this->setupSchemaVars();
-		$this->db->selectDB( $this->getVar( 'wgDBuser' ) );
 		$this->db->setFlag( DBO_DDLMODE );
+		$this->parent->setVar( 'wgDBname', $this->getVar( 'wgDBuser' ) );
 		$status = parent::createTables();
 		$this->db->clearFlag( DBO_DDLMODE );
 

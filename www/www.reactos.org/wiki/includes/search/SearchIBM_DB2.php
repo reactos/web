@@ -91,7 +91,7 @@ class SearchIBM_DB2 extends SearchEngine {
 	 * Return a LIMIT clause to limit results on the query.
 	 * @return String
 	 */
-	function queryLimit($sql) {
+	function queryLimit( $sql ) {
 		return $this->db->limitResult($sql, $this->limit, $this->offset);
 	}
 
@@ -111,6 +111,7 @@ class SearchIBM_DB2 extends SearchEngine {
 	 * The guts shoulds be constructed in queryMain()
 	 * @param $filteredTerm String
 	 * @param $fulltext Boolean
+	 * @return String
 	 */
 	function getQuery( $filteredTerm, $fulltext ) {
 		return $this->queryLimit($this->queryMain($filteredTerm, $fulltext) . ' ' .
@@ -145,13 +146,15 @@ class SearchIBM_DB2 extends SearchEngine {
 			'WHERE page_id=si_page AND ' . $match;
 	}
 
-	/** @todo document */
+	/** @todo document
+	 * @return string
+	 */
 	function parseQuery($filteredText, $fulltext) {
 		global $wgContLang;
 		$lc = SearchEngine::legalSearchChars();
 		$this->searchTerms = array();
 
-		# FIXME: This doesn't handle parenthetical expressions.
+		# @todo FIXME: This doesn't handle parenthetical expressions.
 		$m = array();
 		$q = array();
 

@@ -33,47 +33,55 @@ class SpecialFilepath extends SpecialPage {
 	}
 
 	function execute( $par ) {
-		global $wgRequest, $wgOut;
-
 		$this->setHeaders();
 		$this->outputHeader();
 
-		$file = !is_null( $par ) ? $par : $wgRequest->getText( 'file' );
+		$request = $this->getRequest();
+		$file = !is_null( $par ) ? $par : $request->getText( 'file' );
 
-		$title = Title::makeTitleSafe( NS_FILE, $file );
+		$title = Title::newFromText( $file, NS_FILE );
 
 		if ( ! $title instanceof Title || $title->getNamespace() != NS_FILE ) {
 			$this->showForm( $title );
 		} else {
 			$file = wfFindFile( $title );
+
 			if ( $file && $file->exists() ) {
+				// Default behaviour: Use the direct link to the file.
 				$url = $file->getURL();
-				$width = $wgRequest->getInt( 'width', -1 );
-				$height = $wgRequest->getInt( 'height', -1 );
+				$width = $request->getInt( 'width', -1 );
+				$height = $request->getInt( 'height', -1 );
+
+				// If a width is requested...
 				if ( $width != -1 ) {
 					$mto = $file->transform( array( 'width' => $width, 'height' => $height ) );
+					// ... and we can
 					if ( $mto && !$mto->isError() ) {
+						// ... change the URL to point to a thumbnail.
 						$url = $mto->getURL();
 					}
 				}
-				$wgOut->redirect( $url );
+				$this->getOutput()->redirect( $url );
 			} else {
-				$wgOut->setStatusCode( 404 );
+				$this->getOutput()->setStatusCode( 404 );
 				$this->showForm( $title );
 			}
 		}
 	}
 
+	/**
+	 * @param $title Title
+	 */
 	function showForm( $title ) {
-		global $wgOut, $wgScript;
+		global $wgScript;
 
-		$wgOut->addHTML(
+		$this->getOutput()->addHTML(
 			Html::openElement( 'form', array( 'method' => 'get', 'action' => $wgScript, 'id' => 'specialfilepath' ) ) .
 			Html::openElement( 'fieldset' ) .
-			Html::element( 'legend', null, wfMsg( 'filepath' ) ) .
+			Html::element( 'legend', null, $this->msg( 'filepath' )->text() ) .
 			Html::hidden( 'title', $this->getTitle()->getPrefixedText() ) .
-			Xml::inputLabel( wfMsg( 'filepath-page' ), 'file', 'file', 25, is_object( $title ) ? $title->getText() : '' ) . ' ' .
-			Xml::submitButton( wfMsg( 'filepath-submit' ) ) . "\n" .
+			Xml::inputLabel( $this->msg( 'filepath-page' )->text(), 'file', 'file', 25, is_object( $title ) ? $title->getText() : '' ) . ' ' .
+			Xml::submitButton( $this->msg( 'filepath-submit' )->text() ) . "\n" .
 			Html::closeElement( 'fieldset' ) .
 			Html::closeElement( 'form' )
 		);

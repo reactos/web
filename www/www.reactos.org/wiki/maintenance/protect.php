@@ -1,5 +1,7 @@
 <?php
 /**
+ * Protect or unprotect a page.
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -15,27 +17,34 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  * http://www.gnu.org/copyleft/gpl.html
  *
+ * @file
  * @ingroup Maintenance
  */
 
-require_once( dirname( __FILE__ ) . '/Maintenance.php' );
+require_once( __DIR__ . '/Maintenance.php' );
 
+/**
+ * Maintenance script that protects or unprotects a page.
+ *
+ * @ingroup Maintenance
+ */
 class Protect extends Maintenance {
 	public function __construct() {
 		parent::__construct();
-		$this->mDescription = "Protect or unprotect an article from the command line.";
+		$this->mDescription = "Protect or unprotect a page from the command line.";
 		$this->addOption( 'unprotect', 'Removes protection' );
 		$this->addOption( 'semiprotect', 'Adds semi-protection' );
-		$this->addOption( 'u', 'Username to protect with', false, true );
-		$this->addOption( 'r', 'Reason for un/protection', false, true );
+		$this->addOption( 'cascade', 'Add cascading protection' );
+		$this->addOption( 'user', 'Username to protect with', false, true, 'u' );
+		$this->addOption( 'reason', 'Reason for un/protection', false, true, 'r' );
 		$this->addArg( 'title', 'Title to protect', true );
 	}
 
 	public function execute() {
-		global $wgUser;
-
 		$userName = $this->getOption( 'u', 'Maintenance script' );
 		$reason = $this->getOption( 'r', '' );
+
+		$cascade = $this->hasOption( 'cascade' );
 
 		$protection = "sysop";
 		if ( $this->hasOption( 'semiprotect' ) ) {
@@ -44,7 +53,11 @@ class Protect extends Maintenance {
 			$protection = "";
 		}
 
-		$wgUser = User::newFromName( $userName );
+		$user = User::newFromName( $userName );
+		if ( !$user ) {
+			$this->error( "Invalid username", true );
+		}
+
 		$restrictions = array( 'edit' => $protection, 'move' => $protection );
 
 		$t = Title::newFromText( $this->getArg() );
@@ -52,12 +65,18 @@ class Protect extends Maintenance {
 			$this->error( "Invalid title", true );
 		}
 
-		$article = new Article( $t );
+		$restrictions = array();
+		foreach( $t->getRestrictionTypes() as $type ) {
+			$restrictions[$type] = $protection;
+		}
 
 		# un/protect the article
 		$this->output( "Updating protection status... " );
-		$success = $article->updateRestrictions( $restrictions, $reason );
-		if ( $success ) {
+
+		$page = WikiPage::factory( $t );
+		$status = $page->doUpdateRestrictions( $restrictions, array(), $cascade, $reason, $user );
+
+		if ( $status->isOK() ) {
 			$this->output( "done\n" );
 		} else {
 			$this->output( "failed\n" );

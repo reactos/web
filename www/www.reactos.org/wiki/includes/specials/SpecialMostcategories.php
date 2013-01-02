@@ -31,45 +31,67 @@
  */
 class MostcategoriesPage extends QueryPage {
 
-	function getName() { return 'Mostcategories'; }
+	function __construct( $name = 'Mostcategories' ) {
+		parent::__construct( $name );
+	}
+
 	function isExpensive() { return true; }
 	function isSyndicated() { return false; }
 
-	function getSQL() {
-		$dbr = wfGetDB( DB_SLAVE );
-		list( $categorylinks, $page) = $dbr->tableNamesN( 'categorylinks', 'page' );
-		return
-			"
-			SELECT
-			 	'Mostcategories' as type,
-				page_namespace as namespace,
-				page_title as title,
-				COUNT(*) as value
-			FROM $categorylinks
-			LEFT JOIN $page ON cl_from = page_id
-			WHERE page_namespace = " . NS_MAIN . "
-			GROUP BY page_namespace, page_title
-			HAVING COUNT(*) > 1
-			";
+	function getQueryInfo() {
+		return array (
+			'tables' => array ( 'categorylinks', 'page' ),
+			'fields' => array ( 'namespace' => 'page_namespace',
+					'title' => 'page_title',
+					'value' => 'COUNT(*)' ),
+			'conds' => array ( 'page_namespace' => MWNamespace::getContentNamespaces() ),
+			'options' => array ( 'HAVING' => 'COUNT(*) > 1',
+				'GROUP BY' => array( 'page_namespace', 'page_title' ) ),
+			'join_conds' => array ( 'page' => array ( 'LEFT JOIN',
+					'page_id = cl_from' ) )
+		);
 	}
 
+	/**
+	 * @param $db DatabaseBase
+	 * @param $res
+	 */
+	function preprocessResults( $db, $res ) {
+		# There's no point doing a batch check if we aren't caching results;
+		# the page must exist for it to have been pulled out of the table
+		if ( !$this->isCached() || !$res->numRows() ) {
+			return;
+		}
+
+		$batch = new LinkBatch();
+		foreach ( $res as $row ) {
+			$batch->add( $row->namespace, $row->title );
+		}
+		$batch->execute();
+
+		$res->seek( 0 );
+	}
+
+	/**
+	 * @param $skin Skin
+	 * @param $result
+	 * @return string
+	 */
 	function formatResult( $skin, $result ) {
-		global $wgLang;
 		$title = Title::makeTitleSafe( $result->namespace, $result->title );
+		if ( !$title ) {
+			return Html::element( 'span', array( 'class' => 'mw-invalidtitle' ),
+				Linker::getInvalidTitleDescription( $this->getContext(), $result->namespace, $result->title ) );
+		}
 
-		$count = wfMsgExt( 'ncategories', array( 'parsemag', 'escape' ), $wgLang->formatNum( $result->value ) );
-		$link = $skin->link( $title );
-		return wfSpecialList( $link, $count );
+		if ( $this->isCached() ) {
+			$link = Linker::link( $title );
+		} else {
+			$link = Linker::linkKnown( $title );
+		}
+
+		$count = $this->msg( 'ncategories' )->numParams( $result->value )->escaped();
+
+		return $this->getLanguage()->specialList( $link, $count );
 	}
-}
-
-/**
- * constructor
- */
-function wfSpecialMostcategories() {
-	list( $limit, $offset ) = wfCheckLimits();
-
-	$wpp = new MostcategoriesPage();
-
-	$wpp->doQuery( $offset, $limit );
 }

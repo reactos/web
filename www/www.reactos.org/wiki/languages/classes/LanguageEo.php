@@ -1,9 +1,31 @@
 <?php
+/**
+ * Esperanto (Esperanto) specific code.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ * http://www.gnu.org/copyleft/gpl.html
+ *
+ * @file
+ * @author Brion Vibber <brion@pobox.com>
+ * @ingroup Language
+ */
 
-/** Esperanto (Esperanto)
+/**
+ * Esperanto (Esperanto)
  *
  * @ingroup Language
- * @author Brion Vibber <brion@pobox.com>
  */
 class LanguageEo extends Language {
 	/**
@@ -42,7 +64,7 @@ class LanguageEo extends Language {
 			return preg_replace_callback (
 				'/([cghjsu]x?)((?:xx)*)(?!x)/i',
 				array( $this, 'strrtxuCallback' ), $string	);
-		} else if ( strcasecmp( $in, 'UTF-8' ) == 0 && strcasecmp( $out, 'x' ) == 0 ) {
+		} elseif ( strcasecmp( $in, 'UTF-8' ) == 0 && strcasecmp( $out, 'x' ) == 0 ) {
 			# Double Xs only if they follow cxapelutaj literoj.
 			return preg_replace_callback(
 				'/((?:[cghjsu]|\xc4[\x88\x89\x9c\x9d\xa4\xa5\xb4\xb5]|\xc5[\x9c\x9d\xac\xad])x*)/i',
@@ -51,6 +73,10 @@ class LanguageEo extends Language {
 		return parent::iconv( $in, $out, $string );
 	}
 
+	/**
+	 * @param $matches array
+	 * @return string
+	 */
 	function strrtuxCallback( $matches ) {
 		static $ux = array (
 			'x' => 'xx' , 'X' => 'Xx' ,
@@ -64,6 +90,10 @@ class LanguageEo extends Language {
 		return strtr( $matches[1], $ux );
 	}
 
+	/**
+	 * @param $matches array
+	 * @return string
+	 */
 	function strrtxuCallback( $matches ) {
 		static $xu = array (
 			'xx' => 'x' , 'xX' => 'x' ,
@@ -84,6 +114,10 @@ class LanguageEo extends Language {
 		return strtr( $matches[1], $xu ) . strtr( $matches[2], $xu );
 	}
 
+	/**
+	 * @param $s string
+	 * @return string
+	 */
 	function checkTitleEncoding( $s ) {
 		# Check for X-system backwards-compatibility URLs
 		$ishigh = preg_match( '/[\x80-\xff]/', $s );

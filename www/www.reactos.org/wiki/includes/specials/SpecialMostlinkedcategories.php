@@ -25,71 +25,69 @@
  */
 
 /**
- * A querypage to show categories ordered in descending order by the pages  in them
+ * A querypage to show categories ordered in descending order by the pages in them
  *
  * @ingroup SpecialPage
  */
 class MostlinkedCategoriesPage extends QueryPage {
 
-	function getName() { return 'Mostlinkedcategories'; }
-	function isExpensive() { return true; }
+	function __construct( $name = 'Mostlinkedcategories' ) {
+		parent::__construct( $name );
+	}
+
 	function isSyndicated() { return false; }
 
-	function getSQL() {
-		$dbr = wfGetDB( DB_SLAVE );
-		$categorylinks = $dbr->tableName( 'categorylinks' );
-		$name = $dbr->addQuotes( $this->getName() );
-		return
-			"
-			SELECT
-				$name as type,
-				" . NS_CATEGORY . " as namespace,
-				cl_to as title,
-				COUNT(*) as value
-			FROM $categorylinks
-			GROUP BY cl_to
-			";
+	function getQueryInfo() {
+		return array (
+			'tables' => array ( 'category' ),
+			'fields' => array ( 'title' => 'cat_title',
+					'namespace' => NS_CATEGORY,
+					'value' => 'cat_pages' ),
+		);
 	}
 
 	function sortDescending() { return true; }
 
 	/**
 	 * Fetch user page links and cache their existence
+	 *
+	 * @param $db DatabaseBase
+	 * @param $res DatabaseResult
 	 */
 	function preprocessResults( $db, $res ) {
+		if ( !$res->numRows() ) {
+			return;
+		}
+
 		$batch = new LinkBatch;
 		foreach ( $res as $row ) {
-			$batch->add( $row->namespace, $row->title );
+			$batch->add( NS_CATEGORY, $row->title );
 		}
 		$batch->execute();
 
 		// Back to start for display
-		if ( $db->numRows( $res ) > 0 )
-			// If there are no rows we get an error seeking.
-			$db->dataSeek( $res, 0 );
+		$res->seek( 0 );
 	}
 
+	/**
+	 * @param $skin Skin
+	 * @param  $result
+	 * @return string
+	 */
 	function formatResult( $skin, $result ) {
-		global $wgLang, $wgContLang;
+		global $wgContLang;
 
-		$nt = Title::makeTitle( $result->namespace, $result->title );
+		$nt = Title::makeTitleSafe( NS_CATEGORY, $result->title );
+		if ( !$nt ) {
+			return Html::element( 'span', array( 'class' => 'mw-invalidtitle' ),
+				Linker::getInvalidTitleDescription( $this->getContext(), NS_CATEGORY, $result->title ) );
+		}
+
 		$text = $wgContLang->convert( $nt->getText() );
 
-		$plink = $skin->link( $nt, htmlspecialchars( $text ) );
+		$plink = Linker::link( $nt, htmlspecialchars( $text ) );
 
-		$nlinks = wfMsgExt( 'nmembers', array( 'parsemag', 'escape'),
-			$wgLang->formatNum( $result->value ) );
-		return wfSpecialList($plink, $nlinks);
+		$nlinks = $this->msg( 'nmembers' )->numParams( $result->value )->escaped();
+		return $this->getLanguage()->specialList( $plink, $nlinks );
 	}
-}
-
-/**
- * constructor
- */
-function wfSpecialMostlinkedCategories() {
-	list( $limit, $offset ) = wfCheckLimits();
-
-	$wpp = new MostlinkedCategoriesPage();
-
-	$wpp->doQuery( $offset, $limit );
 }

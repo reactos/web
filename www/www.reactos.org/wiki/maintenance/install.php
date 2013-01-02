@@ -1,6 +1,7 @@
 <?php
-
 /**
+ * CLI-based MediaWiki installation and configuration.
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -16,12 +17,12 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  * http://www.gnu.org/copyleft/gpl.html
  *
+ * @file
  * @ingroup Maintenance
- * @see wfWaitForSlaves()
  */
 
-if ( !function_exists( 'version_compare' ) || ( version_compare( phpversion(), '5.2.3' ) < 0 ) ) {
-	echo "You are using PHP version " . phpversion() . " but MediaWiki needs PHP 5.2.3 or higher. ABORTING.\n" .
+if ( !function_exists( 'version_compare' ) || ( version_compare( phpversion(), '5.3.2' ) < 0 ) ) {
+	echo "You are using PHP version " . phpversion() . " but MediaWiki needs PHP 5.3.2 or higher. ABORTING.\n" .
 	"Check if you have a newer php executable with a different name, such as php5.\n";
 	die( 1 );
 }
@@ -29,8 +30,13 @@ if ( !function_exists( 'version_compare' ) || ( version_compare( phpversion(), '
 define( 'MW_CONFIG_CALLBACK', 'Installer::overrideConfig' );
 define( 'MEDIAWIKI_INSTALL', true );
 
-require_once( dirname( dirname( __FILE__ ) )."/maintenance/Maintenance.php" );
+require_once( dirname( __DIR__ )."/maintenance/Maintenance.php" );
 
+/**
+ * Maintenance script to install and configure MediaWiki
+ *
+ * @ingroup Maintenance
+ */
 class CommandLineInstaller extends Maintenance {
 	function __construct() {
 		parent::__construct();
@@ -39,8 +45,8 @@ class CommandLineInstaller extends Maintenance {
 		$this->addArg( 'name', 'The name of the wiki', true);
 
 		$this->addArg( 'admin', 'The username of the wiki administrator (WikiSysop)', true );
-		$this->addOption( 'pass', 'The password for the wiki administrator. You will be prompted for this if it isn\'t provided', false, true );
-		$this->addOption( 'email', 'The email for the wiki administrator', false, true );
+		$this->addOption( 'pass', 'The password for the wiki administrator.', true, true );
+		/* $this->addOption( 'email', 'The email for the wiki administrator', false, true ); */
 		$this->addOption( 'scriptpath', 'The relative path of the wiki in the web server (/wiki)', false, true );
 
 		$this->addOption( 'lang', 'The language to use (en)', false, true );
@@ -51,10 +57,12 @@ class CommandLineInstaller extends Maintenance {
 		$this->addOption( 'dbport', 'The database port; only for PostgreSQL (5432)', false, true );
 		$this->addOption( 'dbname', 'The database name (my_wiki)', false, true );
 		$this->addOption( 'dbpath', 'The path for the SQLite DB (/var/data)', false, true );
+		$this->addOption( 'dbprefix', 'Optional database table name prefix', false, true );
 		$this->addOption( 'installdbuser', 'The user to use for installing (root)', false, true );
 		$this->addOption( 'installdbpass', 'The pasword for the DB user to install as.', false, true );
 		$this->addOption( 'dbuser', 'The user to use for normal operations (wikiuser)', false, true );
 		$this->addOption( 'dbpass', 'The pasword for the DB user for normal operations', false, true );
+		$this->addOption( 'dbpassfile', 'An alternative way to provide dbpass option, as the contents of this file', false, true );
 		$this->addOption( 'confpath', "Path to write LocalSettings.php to, default $IP", false, true );
 		/* $this->addOption( 'dbschema', 'The schema for the MediaWiki DB in pg (mediawiki)', false, true ); */
 		/* $this->addOption( 'namespace', 'The project namespace (same as the name)', false, true ); */
@@ -67,8 +75,19 @@ class CommandLineInstaller extends Maintenance {
 		$adminName = isset( $this->mArgs[1] ) ? $this->mArgs[1] : null;
 		$wgTitle = Title::newFromText( 'Installer script' );
 
+		$dbpassfile = $this->getOption( 'dbpassfile', false );
+		if ( $dbpassfile !== false ) {
+			wfSuppressWarnings();
+			$dbpass = file_get_contents( $dbpassfile );
+			wfRestoreWarnings();
+			if ( $dbpass === false ) {
+				$this->error( "Couldn't open $dbpassfile", true );
+			}
+			$this->mOptions['dbpass'] = trim( $dbpass, "\r\n" );
+		}
+
 		$installer =
-			new CliInstaller( $siteName, $adminName, $this->mOptions );
+			InstallerOverrides::getCliInstaller( $siteName, $adminName, $this->mOptions );
 
 		$status = $installer->doEnvironmentChecks();
 		if( $status->isGood() ) {

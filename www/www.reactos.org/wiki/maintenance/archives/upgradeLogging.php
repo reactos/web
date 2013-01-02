@@ -1,14 +1,39 @@
 <?php
 /**
- * Replication-safe online upgrade script for log_id/log_deleted
+ * Replication-safe online upgrade for log_id/log_deleted fields.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ * http://www.gnu.org/copyleft/gpl.html
  *
  * @file
  * @ingroup MaintenanceArchive
  */
 
-require( dirname( __FILE__ ) . '/../commandLine.inc' );
+require( __DIR__ . '/../commandLine.inc' );
 
+/**
+ * Maintenance script that upgrade for log_id/log_deleted fields in a
+ * replication-safe way.
+ *
+ * @ingroup Maintenance
+ */
 class UpdateLogging {
+
+	/**
+	 * @var DatabaseBase
+	 */
 	var $dbw;
 	var $batchSize = 1000;
 	var $minTs = false;
@@ -44,21 +69,21 @@ CREATE TABLE $logging_1_10 (
   -- action field, but only the type controls categorization.
   log_type varbinary(10) NOT NULL default '',
   log_action varbinary(10) NOT NULL default '',
-  
+
   -- Timestamp. Duh.
   log_timestamp binary(14) NOT NULL default '19700101000000',
-  
+
   -- The user who performed this action; key to user_id
   log_user int unsigned NOT NULL default 0,
-  
+
   -- Key to the page affected. Where a user is the target,
   -- this will point to the user page.
   log_namespace int NOT NULL default 0,
   log_title varchar(255) binary NOT NULL default '',
-  
+
   -- Freeform text. Interpreted as edit history comments.
   log_comment varchar(255) NOT NULL default '',
-  
+
   -- LF separated list of miscellaneous parameters
   log_params blob NOT NULL,
 
@@ -105,7 +130,7 @@ EOT;
 		$minTs = $this->dbw->selectField( $srcTable, 'MIN(log_timestamp)', false, __METHOD__ );
 		$minTsUnix = wfTimestamp( TS_UNIX, $minTs );
 		$numRowsCopied = 0;
-		
+
 		while ( true ) {
 			$maxTs = $this->dbw->selectField( $srcTable, 'MAX(log_timestamp)', false, __METHOD__ );
 			$copyPos = $this->dbw->selectField( $dstTable, 'MAX(log_timestamp)', false, __METHOD__ );
@@ -118,7 +143,7 @@ EOT;
 				$percent = ( $copyPosUnix - $minTsUnix ) / ( $maxTsUnix - $minTsUnix ) * 100;
 			}
 			printf( "%s  %.2f%%\n", $copyPos, $percent );
-			
+
 			# Handle all entries with timestamp equal to $copyPos
 			if ( $copyPos !== null ) {
 				$numRowsCopied += $this->copyExactMatch( $srcTable, $dstTable, $copyPos );
@@ -145,7 +170,7 @@ EOT;
 			$this->dbw->insert( $dstTable, $batch, __METHOD__ );
 			$numRowsCopied += count( $batch );
 
-			wfWaitForSlaves( 5 );
+			wfWaitForSlaves();
 		}
 		echo "Copied $numRowsCopied rows\n";
 	}

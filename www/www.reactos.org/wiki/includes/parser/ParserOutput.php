@@ -1,107 +1,27 @@
 <?php
+
 /**
- * Output of the PHP parser
+ * Output of the PHP parser.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ * http://www.gnu.org/copyleft/gpl.html
  *
  * @file
  * @ingroup Parser
  */
- 
-/**
- * @todo document
- * @ingroup Parser
- */
-
-class CacheTime {
-	var	$mVersion = Parser::VERSION,  # Compatibility check
-		$mCacheTime = '',             # Time when this object was generated, or -1 for uncacheable. Used in ParserCache.
-		$mCacheExpiry = null,         # Seconds after which the object should expire, use 0 for uncachable. Used in ParserCache.
-		$mContainsOldMagic;           # Boolean variable indicating if the input contained variables like {{CURRENTDAY}}
-		
-	function getCacheTime()              { return $this->mCacheTime; }
-
-	function containsOldMagic()          { return $this->mContainsOldMagic; }
-	function setContainsOldMagic( $com ) { return wfSetVar( $this->mContainsOldMagic, $com ); }
-	
-	/** 
-	 * setCacheTime() sets the timestamp expressing when the page has been rendered. 
-	 * This doesn not control expiry, see updateCacheExpiry() for that!
-	 */
-	function setCacheTime( $t )          { return wfSetVar( $this->mCacheTime, $t ); } 
-
-		
-	/** 
-	 * Sets the number of seconds after which this object should expire.
-	 * This value is used with the ParserCache.
-	 * If called with a value greater than the value provided at any previous call, 
-	 * the new call has no effect. The value returned by getCacheExpiry is smaller
-	 * or equal to the smallest number that was provided as an argument to 
-	 * updateCacheExpiry().
-	 */
-	function updateCacheExpiry( $seconds ) { 
-		$seconds = (int)$seconds;
-
-		if ( $this->mCacheExpiry === null || $this->mCacheExpiry > $seconds ) 
-			$this->mCacheExpiry = $seconds; 
-
-		// hack: set old-style marker for uncacheable entries.
-		if ( $this->mCacheExpiry !== null && $this->mCacheExpiry <= 0 ) 
-			$this->mCacheTime = -1;
-	}
-	
-	/**
-	 * Returns the number of seconds after which this object should expire.
-	 * This method is used by ParserCache to determine how long the ParserOutput can be cached.
-	 * The timestamp of expiry can be calculated by adding getCacheExpiry() to getCacheTime().
-	 * The value returned by getCacheExpiry is smaller or equal to the smallest number 
-	 * that was provided to a call of updateCacheExpiry(), and smaller or equal to the
-	 * value of $wgParserCacheExpireTime.
-	 */
-	function getCacheExpiry() { 
-		global $wgParserCacheExpireTime;
-
-		if ( $this->mCacheTime < 0 ) return 0; // old-style marker for "not cachable"
-
-		$expire = $this->mCacheExpiry; 
-
-		if ( $expire === null ) 
-			$expire = $wgParserCacheExpireTime;
-		else
-			$expire = min( $expire, $wgParserCacheExpireTime );
-
-		if( $this->containsOldMagic() ) { //compatibility hack
-			$expire = min( $expire, 3600 ); # 1 hour
-		} 
-
-		if ( $expire <= 0 ) return 0; // not cachable
-		else return $expire;
-	}
-
-
-	function isCacheable() { 
-		return $this->getCacheExpiry() > 0;
-	}
-	
-	/**
-	 * Return true if this cached output object predates the global or
-	 * per-article cache invalidation timestamps, or if it comes from
-	 * an incompatible older version.
-	 *
-	 * @param $touched String: the affected article's last touched timestamp
-	 * @return Boolean
-	 */
-	public function expired( $touched ) {
-		global $wgCacheEpoch;
-		return !$this->isCacheable() || // parser says it's uncacheable
-		       $this->getCacheTime() < $touched ||
-		       $this->getCacheTime() <= $wgCacheEpoch ||
-		       $this->getCacheTime() < wfTimestamp( TS_MW, time() - $this->getCacheExpiry() ) || // expiry period has passed
-		       !isset( $this->mVersion ) ||
-		       version_compare( $this->mVersion, Parser::VERSION, "lt" );
-	}		
-}
- 
-class ParserOutput extends CacheTime
-{
+class ParserOutput extends CacheTime {
 	var $mText,                       # The output text
 		$mLanguageLinks,              # List of the full text of language links, in the order they appear
 		$mCategories,                 # Map of category names to sort keys
@@ -110,6 +30,7 @@ class ParserOutput extends CacheTime
 		$mTemplates = array(),        # 2-D map of NS/DBK to ID for the template references. ID=zero for broken.
 		$mTemplateIds = array(),      # 2-D map of NS/DBK to rev ID for the template references. ID=zero for broken.
 		$mImages = array(),           # DB keys of the images used, in the array key only
+		$mFileSearchOptions = array(), # DB keys of the images used mapped to sha1 and MW timestamp
 		$mExternalLinks = array(),    # External link URLs, in the key only
 		$mInterwikiLinks = array(),   # 2-D map of prefix/DBK (in keys only) for the inline interwiki links in the document.
 		$mNewSection = false,         # Show a new section link?
@@ -117,13 +38,21 @@ class ParserOutput extends CacheTime
 		$mNoGallery = false,          # No gallery on category page? (__NOGALLERY__)
 		$mHeadItems = array(),        # Items to put in the <head> section
 		$mModules = array(),          # Modules to be loaded by the resource loader
+		$mModuleScripts = array(),    # Modules of which only the JS will be loaded by the resource loader
+		$mModuleStyles = array(),     # Modules of which only the CSSS will be loaded by the resource loader
+		$mModuleMessages = array(),   # Modules of which only the messages will be loaded by the resource loader
 		$mOutputHooks = array(),      # Hook tags as per $wgParserOutputHooks
 		$mWarnings = array(),         # Warning text to be returned to the user. Wikitext formatted, in the key only
 		$mSections = array(),         # Table of contents
+		$mEditSectionTokens = false,  # prefix/suffix markers if edit sections were output as tokens
 		$mProperties = array(),       # Name/value pairs to be cached in the DB
-		$mTOCHTML = '';	              # HTML of the TOC
-	private $mIndexPolicy = '';	      # 'index' or 'noindex'?  Any other value will result in no change.
-	private $mAccessedOptions = null; # List of ParserOptions (stored in the keys)
+		$mTOCHTML = '',               # HTML of the TOC
+		$mTimestamp;                  # Timestamp of the revision
+		private $mIndexPolicy = '';       # 'index' or 'noindex'?  Any other value will result in no change.
+		private $mAccessedOptions = array(); # List of ParserOptions (stored in the keys)
+		private $mSecondaryDataUpdates = array(); # List of instances of SecondaryDataObject(), used to cause some information extracted from the page in a custom place.
+
+	const EDITSECTION_REGEX = '#<(?:mw:)?editsection page="(.*?)" section="(.*?)"(?:/>|>(.*?)(</(?:mw:)?editsection>))#';
 
 	function __construct( $text = '', $languageLinks = array(), $categoryLinks = array(),
 		$containsOldMagic = false, $titletext = '' )
@@ -135,25 +64,59 @@ class ParserOutput extends CacheTime
 		$this->mTitleText = $titletext;
 	}
 
-	function getText()                   { return $this->mText; }
+	function getText() {
+		if ( $this->mEditSectionTokens ) {
+			return preg_replace_callback( ParserOutput::EDITSECTION_REGEX,
+				array( &$this, 'replaceEditSectionLinksCallback' ), $this->mText );
+		}
+		return preg_replace( ParserOutput::EDITSECTION_REGEX, '', $this->mText );
+	}
+
+	/**
+	 * callback used by getText to replace editsection tokens
+	 * @private
+	 * @return mixed
+	 */
+	function replaceEditSectionLinksCallback( $m ) {
+		global $wgOut, $wgLang;
+		$args = array(
+			htmlspecialchars_decode($m[1]),
+			htmlspecialchars_decode($m[2]),
+			isset($m[4]) ? $m[3] : null,
+		);
+		$args[0] = Title::newFromText( $args[0] );
+		if ( !is_object($args[0]) ) {
+			throw new MWException("Bad parser output text.");
+		}
+		$args[] = $wgLang->getCode();
+		$skin = $wgOut->getSkin();
+		return call_user_func_array( array( $skin, 'doEditSectionLink' ), $args );
+	}
+
 	function &getLanguageLinks()         { return $this->mLanguageLinks; }
 	function getInterwikiLinks()         { return $this->mInterwikiLinks; }
 	function getCategoryLinks()          { return array_keys( $this->mCategories ); }
 	function &getCategories()            { return $this->mCategories; }
 	function getTitleText()              { return $this->mTitleText; }
 	function getSections()               { return $this->mSections; }
+	function getEditSectionTokens()      { return $this->mEditSectionTokens; }
 	function &getLinks()                 { return $this->mLinks; }
 	function &getTemplates()             { return $this->mTemplates; }
+	function &getTemplateIds()           { return $this->mTemplateIds; }
 	function &getImages()                { return $this->mImages; }
+	function &getFileSearchOptions()     { return $this->mFileSearchOptions; }
 	function &getExternalLinks()         { return $this->mExternalLinks; }
 	function getNoGallery()              { return $this->mNoGallery; }
 	function getHeadItems()              { return $this->mHeadItems; }
 	function getModules()                { return $this->mModules; }
-	function getSubtitle()               { return $this->mSubtitle; }
+	function getModuleScripts()          { return $this->mModuleScripts; }
+	function getModuleStyles()           { return $this->mModuleStyles; }
+	function getModuleMessages()         { return $this->mModuleMessages; }
 	function getOutputHooks()            { return (array)$this->mOutputHooks; }
 	function getWarnings()               { return array_keys( $this->mWarnings ); }
 	function getIndexPolicy()            { return $this->mIndexPolicy; }
 	function getTOCHTML()                { return $this->mTOCHTML; }
+	function getTimestamp()              { return $this->mTimestamp; }
 
 	function setText( $text )            { return wfSetVar( $this->mText, $text ); }
 	function setLanguageLinks( $ll )     { return wfSetVar( $this->mLanguageLinks, $ll ); }
@@ -161,8 +124,10 @@ class ParserOutput extends CacheTime
 
 	function setTitleText( $t )          { return wfSetVar( $this->mTitleText, $t ); }
 	function setSections( $toc )         { return wfSetVar( $this->mSections, $toc ); }
+	function setEditSectionTokens( $t )  { return wfSetVar( $this->mEditSectionTokens, $t ); }
 	function setIndexPolicy( $policy )   { return wfSetVar( $this->mIndexPolicy, $policy ); }
 	function setTOCHTML( $tochtml )      { return wfSetVar( $this->mTOCHTML, $tochtml ); }
+	function setTimestamp( $timestamp )  { return wfSetVar( $this->mTimestamp, $timestamp ); }
 
 	function addCategory( $c, $sort )    { $this->mCategories[$c] = $sort; }
 	function addLanguageLink( $t )       { $this->mLanguageLinks[] = $t; }
@@ -189,7 +154,7 @@ class ParserOutput extends CacheTime
 		# We don't register links pointing to our own server, unless... :-)
 		global $wgServer, $wgRegisterInternalExternals;
 		if( $wgRegisterInternalExternals or stripos($url,$wgServer.'/')!==0)
-			$this->mExternalLinks[$url] = 1; 
+			$this->mExternalLinks[$url] = 1;
 	}
 
 	/**
@@ -226,10 +191,27 @@ class ParserOutput extends CacheTime
 		$this->mLinks[$ns][$dbk] = $id;
 	}
 
-	function addImage( $name ) {
+	/**
+	 * Register a file dependency for this output
+	 * @param $name string Title dbKey
+	 * @param $timestamp string MW timestamp of file creation (or false if non-existing)
+	 * @param $sha1 string base 36 SHA-1 of file (or false if non-existing)
+	 * @return void
+	 */
+	function addImage( $name, $timestamp = null, $sha1 = null ) {
 		$this->mImages[$name] = 1;
+		if ( $timestamp !== null && $sha1 !== null ) {
+			$this->mFileSearchOptions[$name] = array( 'time' => $timestamp, 'sha1' => $sha1 );
+		}
 	}
 
+	/**
+	 * Register a template dependency for this output
+	 * @param $title Title
+	 * @param $page_id
+	 * @param $rev_id
+	 * @return void
+	 */
 	function addTemplate( $title, $page_id, $rev_id ) {
 		$ns = $title->getNamespace();
 		$dbk = $title->getDBkey();
@@ -242,7 +224,7 @@ class ParserOutput extends CacheTime
 		}
 		$this->mTemplateIds[$ns][$dbk] = $rev_id; // For versioning
 	}
-	
+
 	/**
 	 * @param $title Title object, must be an interwiki link
 	 * @throws MWException if given invalid input
@@ -259,7 +241,7 @@ class ParserOutput extends CacheTime
 	}
 
 	/**
-	 * Add some text to the <head>.
+	 * Add some text to the "<head>".
 	 * If $tag is set, the section with that tag will only be included once
 	 * in a given page.
 	 */
@@ -270,9 +252,35 @@ class ParserOutput extends CacheTime
 			$this->mHeadItems[] = $section;
 		}
 	}
-	
-	function addModules( $modules ) {
+
+	public function addModules( $modules ) {
 		$this->mModules = array_merge( $this->mModules, (array) $modules );
+	}
+
+	public function addModuleScripts( $modules ) {
+		$this->mModuleScripts = array_merge( $this->mModuleScripts, (array)$modules );
+	}
+
+	public function addModuleStyles( $modules ) {
+		$this->mModuleStyles = array_merge( $this->mModuleStyles, (array)$modules );
+	}
+
+	public function addModuleMessages( $modules ) {
+		$this->mModuleMessages = array_merge( $this->mModuleMessages, (array)$modules );
+	}
+
+	/**
+	 * Copy items from the OutputPage object into this one
+	 *
+	 * @param $out OutputPage object
+	 */
+	public function addOutputPageMetadata( OutputPage $out ) {
+		$this->addModules( $out->getModules() );
+		$this->addModuleScripts( $out->getModuleScripts() );
+		$this->addModuleStyles( $out->getModuleStyles() );
+		$this->addModuleMessages( $out->getModuleMessages() );
+
+		$this->mHeadItems = array_merge( $this->mHeadItems, $out->getHeadItemsArray() );
 	}
 
 	/**
@@ -293,7 +301,7 @@ class ParserOutput extends CacheTime
 	 * @return String
 	 */
 	public function getDisplayTitle() {
-		$t = $this->getTitleText( );
+		$t = $this->getTitleText();
 		if( $t === '' ) {
 			return false;
 		}
@@ -328,20 +336,20 @@ class ParserOutput extends CacheTime
 		}
 		return $this->mProperties;
 	}
-	
-	
+
+
 	/**
-	 * Returns the options from its ParserOptions which have been taken 
+	 * Returns the options from its ParserOptions which have been taken
 	 * into account to produce this output or false if not available.
-	 * @return mixed Array/false
+	 * @return mixed Array
 	 */
 	 public function getUsedOptions() {
 		if ( !isset( $this->mAccessedOptions ) ) {
-			return false;
+			return array();
 		}
 		return array_keys( $this->mAccessedOptions );
 	 }
-	 
+
 	 /**
 	  * Callback passed by the Parser to the ParserOptions to keep track of which options are used.
 	  * @access private
@@ -349,4 +357,45 @@ class ParserOutput extends CacheTime
 	 function recordOption( $option ) {
 		 $this->mAccessedOptions[$option] = true;
 	 }
+
+	/**
+	 * Adds an update job to the output. Any update jobs added to the output will eventually bexecuted in order to
+	 * store any secondary information extracted from the page's content.
+	 *
+	 * @since 1.20
+	 *
+	 * @param DataUpdate $update
+	 */
+	public function addSecondaryDataUpdate( DataUpdate $update ) {
+		$this->mSecondaryDataUpdates[] = $update;
+	}
+
+	/**
+	 * Returns any DataUpdate jobs to be executed in order to store secondary information
+	 * extracted from the page's content, including a LinksUpdate object for all links stored in
+	 * this ParserOutput object.
+	 *
+	 * @since 1.20
+	 *
+	 * @param $title Title of the page we're updating. If not given, a title object will be created based on $this->getTitleText()
+	 * @param $recursive Boolean: queue jobs for recursive updates?
+	 *
+	 * @return Array. An array of instances of DataUpdate
+	 */
+	public function getSecondaryDataUpdates( Title $title = null, $recursive = true ) {
+		if ( is_null( $title ) ) {
+			$title = Title::newFromText( $this->getTitleText() );
+		}
+
+		$linksUpdate = new LinksUpdate( $title, $this, $recursive );
+
+		if ( $this->mSecondaryDataUpdates === array() ) {
+			return array( $linksUpdate );
+		} else {
+			$updates = array_merge( $this->mSecondaryDataUpdates, array( $linksUpdate ) );
+		}
+
+		return $updates;
+	 }
+
 }

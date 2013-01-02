@@ -1,6 +1,6 @@
 <?php
 /**
- * Dump a the list of files uploaded, for feeding to tar or similar
+ * Dump a the list of files uploaded, for feeding to tar or similar.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,11 +17,18 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  * http://www.gnu.org/copyleft/gpl.html
  *
+ * @file
  * @ingroup Maintenance
  */
 
-require_once( dirname( __FILE__ ) . '/Maintenance.php' );
+require_once( __DIR__ . '/Maintenance.php' );
 
+/**
+ * Maintenance script to dump a the list of files uploaded,
+ * for feeding to tar or similar.
+ *
+ * @ingroup Maintenance
+ */
 class UploadDumper extends Maintenance {
 	public function __construct() {
 		parent::__construct();
@@ -104,7 +111,7 @@ By default, outputs relative paths against the parent directory of \$wgUploadDir
 	function outputItem( $name, $shared ) {
 		$file = wfFindFile( $name );
 		if ( $file && $this->filterItem( $file, $shared ) ) {
-			$filename = $file->getFullPath();
+			$filename = $file->getPath();
 			$rel = wfRelativePath( $filename, $this->mBasePath );
 			$this->output( "$rel\n" );
 		} else {

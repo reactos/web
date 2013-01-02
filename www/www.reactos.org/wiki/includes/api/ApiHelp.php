@@ -1,10 +1,10 @@
 <?php
 /**
- * API for MediaWiki 1.8+
+ *
  *
  * Created on Sep 6, 2006
  *
- * Copyright © 2006 Yuri Astrakhan <Firstname><Lastname>@gmail.com
+ * Copyright © 2006 Yuri Astrakhan "<Firstname><Lastname>@gmail.com"
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,11 +23,6 @@
  *
  * @file
  */
-
-if ( !defined( 'MEDIAWIKI' ) ) {
-	// Eclipse helper - will be ignored in production
-	require_once( 'ApiBase.php' );
-}
 
 /**
  * This is a simple class to handle action=help
@@ -93,6 +88,11 @@ class ApiHelp extends ApiBase {
 		$result->addValue( null, $this->getModuleName(), $r );
 	}
 
+	/**
+	 * @param  $module ApiBase
+	 * @param  $type String What type of request is this? e.g. action, query, list, prop, meta, format
+	 * @return string
+	 */
 	private function buildModuleHelp( $module, $type ) {
 		$msg = ApiMain::makeHelpMsgHeader( $module, $type );
 
@@ -134,22 +134,25 @@ class ApiHelp extends ApiBase {
 		return 'Display this help screen. Or the help screen for the specified module';
 	}
 
-	protected function getExamples() {
+	public function getExamples() {
 		return array(
-			'Whole help page:',
-			'  api.php?action=help',
-			'Module (action) help page:',
-			'  api.php?action=help&modules=protect',
-			'Query (list) modules help page:',
-			'  api.php?action=help&querymodules=categorymembers',
-			'Query (prop) modules help page:',
-			'  api.php?action=help&querymodules=info',
-			'Query (meta) modules help page:',
-			'  api.php?action=help&querymodules=siteinfo',
+			'api.php?action=help' => 'Whole help page',
+			'api.php?action=help&modules=protect' => 'Module (action) help page',
+			'api.php?action=help&querymodules=categorymembers' => 'Query (list) modules help page',
+			'api.php?action=help&querymodules=info' => 'Query (prop) modules help page',
+			'api.php?action=help&querymodules=siteinfo' => 'Query (meta) modules help page',
+		);
+	}
+
+	public function getHelpUrls() {
+		return array(
+			'https://www.mediawiki.org/wiki/API:Main_page',
+			'https://www.mediawiki.org/wiki/API:FAQ',
+			'https://www.mediawiki.org/wiki/API:Quick_start_guide',
 		);
 	}
 
 	public function getVersion() {
-		return __CLASS__ . ': $Id: ApiHelp.php 73863 2010-09-28 02:33:43Z brion $';
+		return __CLASS__ . ': $Id$';
 	}
 }

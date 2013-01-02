@@ -1,4 +1,25 @@
 <?php
+/**
+ * Functions to help implement an external link filter for spam control.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ * http://www.gnu.org/copyleft/gpl.html
+ *
+ * @file
+ */
+
 
 /**
  * Some functions to help implement an external link filter for spam control.
@@ -39,42 +60,6 @@ class LinkFilter {
 		}
 		$regex .= preg_quote( $filterEntry, '!' ) . '!Si';
 		return $regex;
-	}
-
-	/**
-	 * Make a string to go after an SQL LIKE, which will match the specified
-	 * string. There are several kinds of filter entry:
-	 *     *.domain.com    -  Produces http://com.domain.%, matches domain.com
-	 *                        and www.domain.com
-	 *     domain.com      -  Produces http://com.domain./%, matches domain.com
-	 *                        or domain.com/ but not www.domain.com
-	 *     *.domain.com/x  -  Produces http://com.domain.%/x%, matches
-	 *                        www.domain.com/xy
-	 *     domain.com/x    -  Produces http://com.domain./x%, matches
-	 *                        domain.com/xy but not www.domain.com/xy
-	 *
-	 * Asterisks in any other location are considered invalid.
-	 * 
-	 * @param $filterEntry String: domainparts
-	 * @param $prot        String: protocol
-	 * @return String
-	 * @deprecated Use makeLikeArray() and pass result to Database::buildLike() instead
-	 */
-	 public static function makeLike( $filterEntry , $prot = 'http://' ) {
-		wfDeprecated( __METHOD__ );
-
-		$like = self::makeLikeArray( $filterEntry , $prot );
-		if ( !$like ) {
-			return false;
-		}
-		$dbw = wfGetDB( DB_MASTER );
-		$s = $dbw->buildLike( $like );
-		$m = false;
-		if ( preg_match( "/^ *LIKE '(.*)' *$/", $s, $m ) ) {
-			return $m[1];
-		} else {
-			throw new MWException( __METHOD__.': this DBMS is not supported by this function.' );
-		}
 	}
 
 	/**
@@ -156,7 +141,7 @@ class LinkFilter {
 	 * Filters an array returned by makeLikeArray(), removing everything past first pattern placeholder.
 	 *
 	 * @param $arr array: array to filter
-	 * @return filtered array
+	 * @return array filtered array
 	 */
 	public static function keepOneWildcard( $arr ) {
 		if( !is_array( $arr ) ) {

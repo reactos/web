@@ -1,19 +1,118 @@
 <?php
-
 /**
- * The include paths change after this file is included from commandLine.inc,
- * meaning that require_once() fails to detect that it is including the same
- * file again. We use DIY C-style protection as a workaround.
+ * Configuration holder, particularly for multi-wiki sites.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ * http://www.gnu.org/copyleft/gpl.html
+ *
+ * @file
  */
 
-// Hide this pattern from Doxygen, which spazzes out at it
-/// @cond
-if( !defined( 'SITE_CONFIGURATION' ) ){
-define( 'SITE_CONFIGURATION', 1 );
-/// @endcond
-
 /**
- * This is a class used to hold configuration settings, particularly for multi-wiki sites.
+ * This is a class for holding configuration settings, particularly for
+ * multi-wiki sites.
+ *
+ * A basic synopsis:
+ *
+ * Consider a wikifarm having three sites: two production sites, one in English
+ * and one in German, and one testing site. You can assign them easy-to-remember
+ * identifiers - ISO 639 codes 'en' and 'de' for language wikis, and 'beta' for
+ * the testing wiki.
+ *
+ * You would thus initialize the site configuration by specifying the wiki
+ * identifiers:
+ *
+ * @code
+ * $conf = new SiteConfiguration;
+ * $conf->wikis = array( 'de', 'en', 'beta' );
+ * @endcode
+ *
+ * When configuring the MediaWiki global settings (the $wg variables),
+ * the identifiers will be available to specify settings on a per wiki basis.
+ *
+ * @code
+ * $conf->settings = array(
+ *	'wgSomeSetting' => array(
+ *
+ *		# production:
+ *		'de'     => false,
+ *		'en'     => false,
+ *
+ *		# test:
+ *		'beta    => true,
+ *	),
+ * );
+ * @endcode
+ *
+ * With three wikis, that is easy to manage. But what about a farm with
+ * hundreds of wikis? Site configuration provides a special keyword named
+ * 'default' which is the value used when a wiki is not found. Hence
+ * the above code could be written:
+ *
+ * @code
+ * $conf->settings = array(
+ *	'wgSomeSetting' => array(
+ *
+ *		'default' => false,
+ *
+ *		# Enable feature on test
+ *		'beta'    => true,
+ *	),
+ * );
+ * @endcode
+ *
+ *
+ * Since settings can contain arrays, site configuration provides a way
+ * to merge an array with the default. This is very useful to avoid
+ * repeating settings again and again while still maintaining specific changes
+ * on a per wiki basis.
+ *
+ * @code
+ * $conf->settings = array(
+ *	'wgMergeSetting' = array(
+ *		# Value that will be shared among all wikis:
+ *		'default' => array(  NS_USER => true ),
+ *
+ *		# Leading '+' means merging the array of value with the defaults
+ *		'+beta' => array( NS_HELP => true ),
+ *	),
+ * );
+ *
+ * # Get configuration for the German site:
+ * $conf->get( 'wgMergeSetting', 'de' );
+ * // --> array( NS_USER => true );
+ *
+ * # Get configuration for the testing site:
+ * $conf->get( 'wgMergeSetting', 'beta' );
+ * // --> array( NS_USER => true, NS_HELP => true );
+ * @endcode
+ *
+ * Finally, to load all configuration settings, extract them in global context:
+ *
+ * @code
+ * # Name / identifier of the wiki as set in $conf->wikis
+ * $wikiID = 'beta';
+ * $globals = $conf->getAll( $wikiID );
+ * extract( $globals );
+ * @endcode
+ *
+ * TODO: give examples for,
+ * suffixes:
+ * $conf->suffixes = array( 'wiki' );
+ * localVHosts
+ * callbacks!
  */
 class SiteConfiguration {
 
@@ -36,12 +135,13 @@ class SiteConfiguration {
 	 * Array of domains that are local and can be handled by the same server
 	 */
 	public $localVHosts = array();
-	
+
 	/**
 	 * Optional callback to load full configuration data.
+	 * @var string|array
 	 */
 	public $fullLoadCallback = null;
-	
+
 	/** Whether or not all data has been loaded */
 	public $fullLoadDone = false;
 
@@ -56,6 +156,8 @@ class SiteConfiguration {
 	 * argument and the wiki in the second one.
 	 * if suffix and lang are passed they will be used for the return value of
 	 * self::siteFromDB() and self::$suffixes will be ignored
+	 *
+	 * @var string|array
 	 */
 	public $siteParamsCallback = null;
 
@@ -90,7 +192,7 @@ class SiteConfiguration {
 				if( array_key_exists( $wiki, $thisSetting ) ) {
 					$retval = $thisSetting[$wiki];
 					break;
-				} elseif( array_key_exists( "+$wiki", $thisSetting ) && is_array( $thisSetting["+$wiki"] ) ) {
+				} elseif ( array_key_exists( "+$wiki", $thisSetting ) && is_array( $thisSetting["+$wiki"] ) ) {
 					$retval = $thisSetting["+$wiki"];
 				}
 
@@ -104,8 +206,9 @@ class SiteConfiguration {
 						}
 						break 2;
 					} elseif( array_key_exists( "+$tag", $thisSetting ) && is_array($thisSetting["+$tag"]) ) {
-						if( !isset( $retval ) )
+						if( !isset( $retval ) ) {
 							$retval = array();
+						}
 						$retval = self::arrayMerge( $retval, $thisSetting["+$tag"] );
 					}
 				}
@@ -119,9 +222,10 @@ class SiteConfiguration {
 							$retval = $thisSetting[$suffix];
 						}
 						break;
-					} elseif( array_key_exists( "+$suffix", $thisSetting ) && is_array($thisSetting["+$suffix"]) ) {
-						if (!isset($retval))
+					} elseif ( array_key_exists( "+$suffix", $thisSetting ) && is_array($thisSetting["+$suffix"]) ) {
+						if ( !isset( $retval ) ) {
 							$retval = array();
+						}
 						$retval = self::arrayMerge( $retval, $thisSetting["+$suffix"] );
 					}
 				}
@@ -149,6 +253,11 @@ class SiteConfiguration {
 	/**
 	 * Type-safe string replace; won't do replacements on non-strings
 	 * private?
+	 *
+	 * @param $from
+	 * @param $to
+	 * @param $in
+	 * @return string
 	 */
 	function doReplace( $from, $to, $in ) {
 		if( is_string( $in ) ) {
@@ -183,8 +292,9 @@ class SiteConfiguration {
 			}
 
 			$value = $this->getSetting( $varname, $wiki, $params );
-			if ( $append && is_array( $value ) && is_array( $GLOBALS[$var] ) )
+			if ( $append && is_array( $value ) && is_array( $GLOBALS[$var] ) ) {
 				$value = self::arrayMerge( $value, $GLOBALS[$var] );
+			}
 			if ( !is_null( $value ) ) {
 				$localSettings[$var] = $value;
 			}
@@ -204,13 +314,13 @@ class SiteConfiguration {
 		return (bool)($this->get( $setting, $wiki, $suffix, array(), $wikiTags ) );
 	}
 
-	/** Retrieves an array of local databases */
+	/**
+	 * Retrieves an array of local databases
+	 *
+	 * @return array
+	 */
 	function &getLocalDatabases() {
 		return $this->wikis;
-	}
-
-	/** A no-op */
-	function initialise() {
 	}
 
 	/**
@@ -218,7 +328,7 @@ class SiteConfiguration {
 	 * @param $setting String ID of the setting name to retrieve
 	 * @param $wiki String Wiki ID of the wiki in question.
 	 * @param $suffix String The suffix of the wiki in question.
-	 * @param $var Reference The variable to insert the value into.
+	 * @param $var array Reference The variable to insert the value into.
 	 * @param $params Array List of parameters. $.'key' is replaced by $value in all returned data.
 	 * @param $wikiTags Array The tags assigned to the wiki.
 	 */
@@ -242,6 +352,11 @@ class SiteConfiguration {
 		$this->extractGlobalSetting( $setting, $wiki, $params );
 	}
 
+	/**
+	 * @param $setting string
+	 * @param $wiki string
+	 * @param $params array
+	 */
 	public function extractGlobalSetting( $setting, $wiki, $params ) {
 		$value = $this->getSetting( $setting, $wiki, $params );
 		if ( !is_null( $value ) ) {
@@ -288,8 +403,9 @@ class SiteConfiguration {
 			'params' => array(),
 		);
 
-		if( !is_callable( $this->siteParamsCallback ) )
+		if( !is_callable( $this->siteParamsCallback ) ) {
 			return $default;
+		}
 
 		$ret = call_user_func_array( $this->siteParamsCallback, array( $this, $wiki ) );
 		# Validate the returned value
@@ -298,15 +414,16 @@ class SiteConfiguration {
 		}
 
 		foreach( $default as $name => $def ){
-			if( !isset( $ret[$name] ) || ( is_array( $default[$name] ) && !is_array( $ret[$name] ) ) )
+			if( !isset( $ret[$name] ) || ( is_array( $default[$name] ) && !is_array( $ret[$name] ) ) ) {
 				$ret[$name] = $default[$name];
+			}
 		}
 
 		return $ret;
 	}
 
 	/**
-	 * Merge params beetween the ones passed to the function and the ones given
+	 * Merge params between the ones passed to the function and the ones given
 	 * by self::$siteParamsCallback for backward compatibility
 	 * Values returned by self::getWikiParams() have the priority.
 	 *
@@ -320,18 +437,21 @@ class SiteConfiguration {
 	protected function mergeParams( $wiki, $suffix, /*array*/ $params, /*array*/ $wikiTags ){
 		$ret = $this->getWikiParams( $wiki );
 
-		if( is_null( $ret['suffix'] ) )
+		if( is_null( $ret['suffix'] ) ) {
 			$ret['suffix'] = $suffix;
+		}
 
 		$ret['tags'] = array_unique( array_merge( $ret['tags'], $wikiTags ) );
 
 		$ret['params'] += $params;
 
 		// Automatically fill that ones if needed
-		if( !isset( $ret['params']['lang'] ) && !is_null( $ret['lang'] ) )
+		if( !isset( $ret['params']['lang'] ) && !is_null( $ret['lang'] ) ){
 			$ret['params']['lang'] = $ret['lang'];
-		if( !isset( $ret['params']['site'] ) && !is_null( $ret['suffix'] ) )
+		}
+		if( !isset( $ret['params']['site'] ) && !is_null( $ret['suffix'] ) ) {
 			$ret['params']['site'] = $ret['suffix'];
+		}
 
 		return $ret;
 	}
@@ -339,12 +459,15 @@ class SiteConfiguration {
 	/**
 	 * Work out the site and language name from a database name
 	 * @param $db
+	 *
+	 * @return array
 	 */
 	public function siteFromDB( $db ) {
 		// Allow override
 		$def = $this->getWikiParams( $db );
-		if( !is_null( $def['suffix'] ) && !is_null( $def['lang'] ) )
+		if( !is_null( $def['suffix'] ) && !is_null( $def['lang'] ) ) {
 			return array( $def['suffix'], $def['lang'] );
+		}
 
 		$site = null;
 		$lang = null;
@@ -377,10 +500,14 @@ class SiteConfiguration {
 	 * On encountering duplicate keys, merge the two, but ONLY if they're arrays.
 	 * PHP's array_merge_recursive() merges ANY duplicate values into arrays,
 	 * which is not fun
+	 *
+	 * @param $array1 array
+	 *
+	 * @return array
 	 */
 	static function arrayMerge( $array1/* ... */ ) {
 		$out = $array1;
-		for( $i=1; $i < func_num_args(); $i++ ) {
+		for( $i = 1; $i < func_num_args(); $i++ ) {
 			foreach( func_get_arg( $i ) as $key => $value ) {
 				if ( isset($out[$key]) && is_array($out[$key]) && is_array($value) ) {
 					$out[$key] = self::arrayMerge( $out[$key], $value );
@@ -395,12 +522,11 @@ class SiteConfiguration {
 
 		return $out;
 	}
-	
+
 	public function loadFullData() {
-		if ($this->fullLoadCallback && !$this->fullLoadDone) {
+		if ( $this->fullLoadCallback && !$this->fullLoadDone ) {
 			call_user_func( $this->fullLoadCallback, $this );
 			$this->fullLoadDone = true;
 		}
 	}
 }
-} // End of multiple inclusion guard

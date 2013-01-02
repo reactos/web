@@ -1,6 +1,6 @@
 <?php
 /**
- * API for MediaWiki 1.8+
+ *
  *
  * Created on August 8, 2010
  *
@@ -23,11 +23,6 @@
  *
  * @file
  */
-
-if ( !defined( 'MEDIAWIKI' ) ) {
-	// Eclipse helper - will be ignored in production
-	require_once( 'ApiFormatBase.php' );
-}
 
 /**
  * API PHP's var_dump() output formatter

@@ -44,8 +44,14 @@ class WebRequest {
 	 */
 	private $response;
 
+	/**
+	 * Cached client IP address
+	 * @var String
+	 */
+	private $ip;
+
 	public function __construct() {
-		/// @todo Fixme: this preemptive de-quoting can interfere with other web libraries
+		/// @todo FIXME: This preemptive de-quoting can interfere with other web libraries
 		///        and increases our memory footprint. It would be cleaner to do on
 		///        demand; but currently we have no wrapper for $_SERVER etc.
 		$this->checkMagicQuotes();
@@ -56,66 +62,83 @@ class WebRequest {
 	}
 
 	/**
-	 * Check for title, action, and/or variant data in the URL
-	 * and interpolate it into the GET variables.
-	 * This should only be run after $wgContLang is available,
-	 * as we may need the list of language variants to determine
-	 * available variant URLs.
+	 * Extract relevant query arguments from the http request uri's path
+	 * to be merged with the normal php provided query arguments.
+	 * Tries to use the REQUEST_URI data if available and parses it
+	 * according to the wiki's configuration looking for any known pattern.
+	 *
+	 * If the REQUEST_URI is not provided we'll fall back on the PATH_INFO
+	 * provided by the server if any and use that to set a 'title' parameter.
+	 *
+	 * @param $want string: If this is not 'all', then the function
+	 * will return an empty array if it determines that the URL is
+	 * inside a rewrite path.
+	 *
+	 * @return Array: Any query arguments found in path matches.
 	 */
-	public function interpolateTitle() {
+	static public function getPathInfo( $want = 'all' ) {
 		global $wgUsePathInfo;
+		// PATH_INFO is mangled due to http://bugs.php.net/bug.php?id=31892
+		// And also by Apache 2.x, double slashes are converted to single slashes.
+		// So we will use REQUEST_URI if possible.
+		$matches = array();
+		if ( !empty( $_SERVER['REQUEST_URI'] ) ) {
+			// Slurp out the path portion to examine...
+			$url = $_SERVER['REQUEST_URI'];
+			if ( !preg_match( '!^https?://!', $url ) ) {
+				$url = 'http://unused' . $url;
+			}
+			wfSuppressWarnings();
+			$a = parse_url( $url );
+			wfRestoreWarnings();
+			if( $a ) {
+				$path = isset( $a['path'] ) ? $a['path'] : '';
 
-		// bug 16019: title interpolation on API queries is useless and possible harmful
-		if ( defined( 'MW_API' ) ) {
-			return;
-		}
-
-		if ( $wgUsePathInfo ) {
-			// PATH_INFO is mangled due to http://bugs.php.net/bug.php?id=31892
-			// And also by Apache 2.x, double slashes are converted to single slashes.
-			// So we will use REQUEST_URI if possible.
-			$matches = array();
-
-			if ( !empty( $_SERVER['REQUEST_URI'] ) ) {
-				// Slurp out the path portion to examine...
-				$url = $_SERVER['REQUEST_URI'];
-				if ( !preg_match( '!^https?://!', $url ) ) {
-					$url = 'http://unused' . $url;
+				global $wgScript;
+				if( $path == $wgScript && $want !== 'all' ) {
+					// Script inside a rewrite path?
+					// Abort to keep from breaking...
+					return $matches;
 				}
-				$a = parse_url( $url );
-				if( $a ) {
-					$path = isset( $a['path'] ) ? $a['path'] : '';
 
-					global $wgScript;
-					if( $path == $wgScript ) {
-						// Script inside a rewrite path?
-						// Abort to keep from breaking...
-						return;
-					}
-					// Raw PATH_INFO style
-					$matches = $this->extractTitle( $path, "$wgScript/$1" );
+				$router = new PathRouter;
 
-					global $wgArticlePath;
-					if( !$matches && $wgArticlePath ) {
-						$matches = $this->extractTitle( $path, $wgArticlePath );
-					}
+				// Raw PATH_INFO style
+				$router->add( "$wgScript/$1" );
 
-					global $wgActionPaths;
-					if( !$matches && $wgActionPaths ) {
-						$matches = $this->extractTitle( $path, $wgActionPaths, 'action' );
-					}
-
-					global $wgVariantArticlePath, $wgContLang;
-					if( !$matches && $wgVariantArticlePath ) {
-						$variantPaths = array();
-						foreach( $wgContLang->getVariants() as $variant ) {
-							$variantPaths[$variant] =
-								str_replace( '$2', $variant, $wgVariantArticlePath );
-						}
-						$matches = $this->extractTitle( $path, $variantPaths, 'variant' );
-					}
+				if( isset( $_SERVER['SCRIPT_NAME'] )
+					&& preg_match( '/\.php5?/', $_SERVER['SCRIPT_NAME'] ) )
+				{
+					# Check for SCRIPT_NAME, we handle index.php explicitly
+					# But we do have some other .php files such as img_auth.php
+					# Don't let root article paths clober the parsing for them
+					$router->add( $_SERVER['SCRIPT_NAME'] . "/$1" );
 				}
-			} elseif ( isset( $_SERVER['ORIG_PATH_INFO'] ) && $_SERVER['ORIG_PATH_INFO'] != '' ) {
+
+				global $wgArticlePath;
+				if( $wgArticlePath ) {
+					$router->add( $wgArticlePath );
+				}
+
+				global $wgActionPaths;
+				if( $wgActionPaths ) {
+					$router->add( $wgActionPaths, array( 'action' => '$key' ) );
+				}
+
+				global $wgVariantArticlePath, $wgContLang;
+				if( $wgVariantArticlePath ) {
+					$router->add( $wgVariantArticlePath,
+						array( 'variant' => '$2'),
+						array( '$2' => $wgContLang->getVariants() )
+					);
+				}
+
+				wfRunHooks( 'WebRequestPathInfoRouter', array( $router ) );
+
+				$matches = $router->parse( $path );
+			}
+		} elseif ( $wgUsePathInfo ) {
+			if ( isset( $_SERVER['ORIG_PATH_INFO'] ) && $_SERVER['ORIG_PATH_INFO'] != '' ) {
 				// Mangled PATH_INFO
 				// http://bugs.php.net/bug.php?id=31892
 				// Also reported when ini_get('cgi.fix_pathinfo')==false
@@ -125,14 +148,82 @@ class WebRequest {
 				// Regular old PATH_INFO yay
 				$matches['title'] = substr( $_SERVER['PATH_INFO'], 1 );
 			}
-			foreach( $matches as $key => $val) {
-				$this->data[$key] = $_GET[$key] = $_REQUEST[$key] = $val;
+		}
+
+		return $matches;
+	}
+
+	/**
+	 * Work out an appropriate URL prefix containing scheme and host, based on
+	 * information detected from $_SERVER
+	 *
+	 * @return string
+	 */
+	public static function detectServer() {
+		list( $proto, $stdPort ) = self::detectProtocolAndStdPort();
+
+		$varNames = array( 'HTTP_HOST', 'SERVER_NAME', 'HOSTNAME', 'SERVER_ADDR' );
+		$host = 'localhost';
+		$port = $stdPort;
+		foreach ( $varNames as $varName ) {
+			if ( !isset( $_SERVER[$varName] ) ) {
+				continue;
 			}
+			$parts = IP::splitHostAndPort( $_SERVER[$varName] );
+			if ( !$parts ) {
+				// Invalid, do not use
+				continue;
+			}
+			$host = $parts[0];
+			if ( $parts[1] === false ) {
+				if ( isset( $_SERVER['SERVER_PORT'] ) ) {
+					$port = $_SERVER['SERVER_PORT'];
+				} // else leave it as $stdPort
+			} else {
+				$port = $parts[1];
+			}
+			break;
+		}
+
+		return $proto . '://' . IP::combineHostAndPort( $host, $port, $stdPort );
+	}
+
+	/**
+	 * @return array
+	 */
+	public static function detectProtocolAndStdPort() {
+		return ( isset( $_SERVER['HTTPS'] ) && $_SERVER['HTTPS'] == 'on' ) ? array( 'https', 443 ) : array( 'http', 80 );
+	}
+
+	/**
+	 * @return string
+	 */
+	public static function detectProtocol() {
+		list( $proto, $stdPort ) = self::detectProtocolAndStdPort();
+		return $proto;
+	}
+
+	/**
+	 * Check for title, action, and/or variant data in the URL
+	 * and interpolate it into the GET variables.
+	 * This should only be run after $wgContLang is available,
+	 * as we may need the list of language variants to determine
+	 * available variant URLs.
+	 */
+	public function interpolateTitle() {
+		// bug 16019: title interpolation on API queries is useless and sometimes harmful
+		if ( defined( 'MW_API' ) ) {
+			return;
+		}
+
+		$matches = self::getPathInfo( 'title' );
+		foreach( $matches as $key => $val) {
+			$this->data[$key] = $_GET[$key] = $_REQUEST[$key] = $val;
 		}
 	}
 
 	/**
-	 * Internal URL rewriting function; tries to extract page title and,
+	 * URL rewriting function; tries to extract page title and,
 	 * optionally, one other fixed parameter value from a URL path.
 	 *
 	 * @param $path string: the URL path given from the client
@@ -141,7 +232,7 @@ class WebRequest {
 	 *             passed on as the value of this URL parameter
 	 * @return array of URL variables to interpolate; empty if no match
 	 */
-	private function extractTitle( $path, $bases, $key=false ) {
+	static function extractTitle( $path, $bases, $key = false ) {
 		foreach( (array)$bases as $keyValue => $base ) {
 			// Find the part after $wgArticlePath
 			$base = str_replace( '$1', '', $base );
@@ -165,16 +256,24 @@ class WebRequest {
 	 * used for undoing the evil that is magic_quotes_gpc.
 	 *
 	 * @param $arr array: will be modified
+	 * @param $topLevel bool Specifies if the array passed is from the top
+	 * level of the source. In PHP5 magic_quotes only escapes the first level
+	 * of keys that belong to an array.
 	 * @return array the original array
+	 * @see http://www.php.net/manual/en/function.get-magic-quotes-gpc.php#49612
 	 */
-	private function &fix_magic_quotes( &$arr ) {
+	private function &fix_magic_quotes( &$arr, $topLevel = true ) {
+		$clean = array();
 		foreach( $arr as $key => $val ) {
 			if( is_array( $val ) ) {
-				$this->fix_magic_quotes( $arr[$key] );
+				$cleanKey = $topLevel ? stripslashes( $key ) : $key;
+				$clean[$cleanKey] = $this->fix_magic_quotes( $arr[$key], false );
 			} else {
-				$arr[$key] = stripslashes( $val );
+				$cleanKey = stripslashes( $key );
+				$clean[$cleanKey] = stripslashes( $val );
 			}
 		}
+		$arr = $clean;
 		return $arr;
 	}
 
@@ -200,8 +299,8 @@ class WebRequest {
 	/**
 	 * Recursively normalizes UTF-8 strings in the given array.
 	 *
-	 * @param $data string or array
-	 * @return cleaned-up version of the given
+	 * @param $data string|array
+	 * @return array|string cleaned-up version of the given
 	 * @private
 	 */
 	function normalizeUnicode( $data ) {
@@ -211,7 +310,7 @@ class WebRequest {
 			}
 		} else {
 			global $wgContLang;
-			$data = $wgContLang->normalize( $data );
+			$data = isset( $wgContLang ) ? $wgContLang->normalize( $data ) : UtfNormal::cleanUp( $data );
 		}
 		return $data;
 	}
@@ -269,7 +368,7 @@ class WebRequest {
 	}
 
 	/**
-	 * Set an aribtrary value into our get/post data.
+	 * Set an arbitrary value into our get/post data.
 	 *
 	 * @param $key String: key name to use
 	 * @param $value Mixed: value to set
@@ -278,6 +377,23 @@ class WebRequest {
 	public function setVal( $key, $value ) {
 		$ret = isset( $this->data[$key] ) ? $this->data[$key] : null;
 		$this->data[$key] = $value;
+		return $ret;
+	}
+
+	
+	/**
+	 * Unset an arbitrary value from our get/post data.
+ 	 *
+	 * @param $key String: key name to use
+	 * @return Mixed: old value if one was present, null otherwise
+	 */
+	public function unsetVal( $key ) {
+		if ( !isset( $this->data[$key] ) ) {
+			$ret = null;
+		} else {
+			$ret = $this->data[$key];
+			unset( $this->data[$key] );
+		}
 		return $ret;
 	}
 
@@ -357,7 +473,7 @@ class WebRequest {
 	public function getBool( $name, $default = false ) {
 		return (bool)$this->getVal( $name, $default );
 	}
-	
+
 	/**
 	 * Fetch a boolean value from the input or return $default if not set.
 	 * Unlike getBool, the string "false" will result in boolean false, which is
@@ -382,17 +498,16 @@ class WebRequest {
 	public function getCheck( $name ) {
 		# Checkboxes and buttons are only present when clicked
 		# Presence connotes truth, abscense false
-		$val = $this->getVal( $name, null );
-		return isset( $val );
+		return $this->getVal( $name, null ) !== null;
 	}
 
 	/**
 	 * Fetch a text string from the given array or return $default if it's not
 	 * set. Carriage returns are stripped from the text, and with some language
 	 * modules there is an input transliteration applied. This should generally
-	 * be used for form <textarea> and <input> fields. Used for user-supplied
-	 * freeform text input (for which input transformations may be required - e.g.
-	 * Esperanto x-coding).
+	 * be used for form "<textarea>" and "<input>" fields. Used for
+	 * user-supplied freeform text input (for which input transformations may
+	 * be required - e.g.  Esperanto x-coding).
 	 *
 	 * @param $name String
 	 * @param $default String: optional
@@ -409,6 +524,8 @@ class WebRequest {
 	 * Extracts the given named values into an array.
 	 * If no arguments are given, returns all input values.
 	 * No transformation is performed on the values.
+	 *
+	 * @return array
 	 */
 	public function getValues() {
 		$names = func_get_args();
@@ -418,12 +535,41 @@ class WebRequest {
 
 		$retVal = array();
 		foreach ( $names as $name ) {
-			$value = $this->getVal( $name );
+			$value = $this->getGPCVal( $this->data, $name, null );
 			if ( !is_null( $value ) ) {
 				$retVal[$name] = $value;
 			}
 		}
 		return $retVal;
+	}
+
+	/**
+	 * Returns the names of all input values excluding those in $exclude.
+	 *
+	 * @param $exclude Array
+	 * @return array
+	 */
+	public function getValueNames( $exclude = array() ) {
+		return array_diff( array_keys( $this->getValues() ), $exclude );
+	}
+
+	/**
+	 * Get the values passed in the query string.
+	 * No transformation is performed on the values.
+	 *
+	 * @return Array
+	 */
+	 public function getQueryValues() {
+		return $_GET;
+	 }
+
+	/**
+	 * Get the HTTP method used for this request.
+	 *
+	 * @return String
+	 */
+	public function getMethod() {
+		return isset( $_SERVER['REQUEST_METHOD'] ) ? $_SERVER['REQUEST_METHOD'] : 'GET';
 	}
 
 	/**
@@ -436,7 +582,7 @@ class WebRequest {
 	 * @return Boolean
 	 */
 	public function wasPosted() {
-		return $_SERVER['REQUEST_METHOD'] == 'POST';
+		return $this->getMethod() == 'POST';
 	}
 
 	/**
@@ -471,15 +617,18 @@ class WebRequest {
 	}
 
 	/**
-	 * Return the path portion of the request URI.
+	 * Return the path and query string portion of the request URI.
+	 * This will be suitable for use as a relative link in HTML output.
 	 *
 	 * @return String
 	 */
 	public function getRequestURL() {
-		if( isset( $_SERVER['REQUEST_URI']) && strlen($_SERVER['REQUEST_URI']) ) {
+		if( isset( $_SERVER['REQUEST_URI'] ) && strlen( $_SERVER['REQUEST_URI'] ) ) {
 			$base = $_SERVER['REQUEST_URI'];
-		} elseif( isset( $_SERVER['SCRIPT_NAME'] ) ) {
+		} elseif ( isset( $_SERVER['HTTP_X_ORIGINAL_URL'] ) && strlen( $_SERVER['HTTP_X_ORIGINAL_URL'] ) ) {
 			// Probably IIS; doesn't set REQUEST_URI
+			$base = $_SERVER['HTTP_X_ORIGINAL_URL'];
+		} elseif( isset( $_SERVER['SCRIPT_NAME'] ) ) {
 			$base = $_SERVER['SCRIPT_NAME'];
 			if( isset( $_SERVER['QUERY_STRING'] ) && $_SERVER['QUERY_STRING'] != '' ) {
 				$base .= '?' . $_SERVER['QUERY_STRING'];
@@ -487,8 +636,8 @@ class WebRequest {
 		} else {
 			// This shouldn't happen!
 			throw new MWException( "Web server doesn't provide either " .
-				"REQUEST_URI or SCRIPT_NAME. Report details of your " .
-				"web server configuration to http://bugzilla.wikimedia.org/" );
+				"REQUEST_URI, HTTP_X_ORIGINAL_URL or SCRIPT_NAME. Report details " .
+				"of your web server configuration to http://bugzilla.wikimedia.org/" );
 		}
 		// User-agents should not send a fragment with the URI, but
 		// if they do, and the web server passes it on to us, we
@@ -498,7 +647,7 @@ class WebRequest {
 		if( $hash !== false ) {
 			$base = substr( $base, 0, $hash );
 		}
-		if( $base{0} == '/' ) {
+		if( $base[0] == '/' ) {
 			return $base;
 		} else {
 			// We may get paths with a host prepended; strip it.
@@ -507,13 +656,17 @@ class WebRequest {
 	}
 
 	/**
-	 * Return the request URI with the canonical service and hostname.
+	 * Return the request URI with the canonical service and hostname, path,
+	 * and query string. This will be suitable for use as an absolute link
+	 * in HTML or other output.
+	 *
+	 * If $wgServer is protocol-relative, this will return a fully
+	 * qualified URL with the protocol that was used for this request.
 	 *
 	 * @return String
 	 */
 	public function getFullRequestURL() {
-		global $wgServer;
-		return $wgServer . $this->getRequestURL();
+		return wfExpandUrl( $this->getRequestURL(), PROTO_CURRENT );
 	}
 
 	/**
@@ -523,27 +676,12 @@ class WebRequest {
 	 * @return String
 	 */
 	public function appendQuery( $query ) {
-		global $wgTitle;
-		$basequery = '';
-		foreach( $_GET as $var => $val ) {
-			if ( $var == 'title' )
-				continue;
-			if ( is_array( $val ) )
-				/* This will happen given a request like
-				 * http://en.wikipedia.org/w/index.php?title[]=Special:Userlogin&returnto[]=Main_Page
-				 */
-				continue;
-			$basequery .= '&' . urlencode( $var ) . '=' . urlencode( $val );
-		}
-		$basequery .= '&' . $query;
-
-		# Trim the extra &
-		$basequery = substr( $basequery, 1 );
-		return $wgTitle->getLocalURL( $basequery );
+		return $this->appendQueryArray( wfCgiToArray( $query ) );
 	}
 
 	/**
 	 * HTML-safe version of appendQuery().
+	 * @deprecated: Deprecated in 1.20, warnings in 1.21, remove in 1.22.
 	 *
 	 * @param $query String: query string fragment; do not include initial '?'
 	 * @return String
@@ -552,6 +690,12 @@ class WebRequest {
 		return htmlspecialchars( $this->appendQuery( $query ) );
 	}
 
+	/**
+	 * @param $key
+	 * @param $value
+	 * @param $onlyquery bool
+	 * @return String
+	 */
 	public function appendQueryValue( $key, $value, $onlyquery = false ) {
 		return $this->appendQueryArray( array( $key => $value ), $onlyquery );
 	}
@@ -566,7 +710,7 @@ class WebRequest {
 	 */
 	public function appendQueryArray( $array, $onlyquery = false ) {
 		global $wgTitle;
-		$newquery = $_GET;
+		$newquery = $this->getQueryValues();
 		unset( $newquery['title'] );
 		$newquery = array_merge( $newquery, $array );
 		$query = wfArrayToCGI( $newquery );
@@ -621,11 +765,12 @@ class WebRequest {
 	/**
 	 * Return the size of the upload, or 0.
 	 *
-	 * @deprecated
+	 * @deprecated since 1.17
 	 * @param $key String:
 	 * @return integer
 	 */
 	public function getFileSize( $key ) {
+		wfDeprecated( __METHOD__, '1.17' );
 		$file = new WebRequestUpload( $this, $key );
 		return $file->getSize();
 	}
@@ -660,7 +805,7 @@ class WebRequest {
 	/**
 	 * Return a WebRequestUpload object corresponding to the key
 	 *
-	 * @param @key string
+	 * @param $key string
 	 * @return WebRequestUpload
 	 */
 	public function getUpload( $key ) {
@@ -683,32 +828,52 @@ class WebRequest {
 	}
 
 	/**
-	 * Get a request header, or false if it isn't set
-	 * @param $name String: case-insensitive header name
+	 * Initialise the header list
 	 */
-	public function getHeader( $name ) {
-		$name = strtoupper( $name );
+	private function initHeaders() {
+		if ( count( $this->headers ) ) {
+			return;
+		}
+
 		if ( function_exists( 'apache_request_headers' ) ) {
-			if ( !$this->headers ) {
-				foreach ( apache_request_headers() as $tempName => $tempValue ) {
-					$this->headers[ strtoupper( $tempName ) ] = $tempValue;
-				}
-			}
-			if ( isset( $this->headers[$name] ) ) {
-				return $this->headers[$name];
-			} else {
-				return false;
+			foreach ( apache_request_headers() as $tempName => $tempValue ) {
+				$this->headers[ strtoupper( $tempName ) ] = $tempValue;
 			}
 		} else {
-			$name = 'HTTP_' . str_replace( '-', '_', $name );
-			if ( $name === 'HTTP_CONTENT_LENGTH' && !isset( $_SERVER[$name] ) ) {
-				$name = 'CONTENT_LENGTH';
+			foreach ( $_SERVER as $name => $value ) {
+				if ( substr( $name, 0, 5 ) === 'HTTP_' ) {
+					$name = str_replace( '_', '-',  substr( $name, 5 ) );
+					$this->headers[$name] = $value;
+				} elseif ( $name === 'CONTENT_LENGTH' ) {
+					$this->headers['CONTENT-LENGTH'] = $value;
+				}
 			}
-			if ( isset( $_SERVER[$name] ) ) {
-				return $_SERVER[$name];
-			} else {
-				return false;
-			}
+		}
+	}
+
+	/**
+	 * Get an array containing all request headers
+	 *
+	 * @return Array mapping header name to its value
+	 */
+	public function getAllHeaders() {
+		$this->initHeaders();
+		return $this->headers;
+	}
+
+	/**
+	 * Get a request header, or false if it isn't set
+	 * @param $name String: case-insensitive header name
+	 *
+	 * @return string|bool False on failure
+	 */
+	public function getHeader( $name ) {
+		$this->initHeaders();
+		$name = strtoupper( $name );
+		if ( isset( $this->headers[$name] ) ) {
+			return $this->headers[$name];
+		} else {
+			return false;
 		}
 	}
 
@@ -736,10 +901,13 @@ class WebRequest {
 	}
 
 	/**
-	 * Check if Internet Explorer will detect an incorrect cache extension in 
+	 * Check if Internet Explorer will detect an incorrect cache extension in
 	 * PATH_INFO or QUERY_STRING. If the request can't be allowed, show an error
 	 * message or redirect to a safer URL. Returns true if the URL is OK, and
 	 * false if an error message has been shown and the request should be aborted.
+	 *
+	 * @param $extWhitelist array
+	 * @return bool
 	 */
 	public function checkUrlExtension( $extWhitelist = array() ) {
 		global $wgScriptExtension;
@@ -753,17 +921,18 @@ class WebRequest {
 					return false;
 				}
 			}
-			wfHttpError( 403, 'Forbidden',
+			throw new HttpError( 403,
 				'Invalid file extension found in the path info or query string.' );
-			
-			return false;
 		}
 		return true;
 	}
 
 	/**
-	 * Attempt to redirect to a URL with a QUERY_STRING that's not dangerous in 
+	 * Attempt to redirect to a URL with a QUERY_STRING that's not dangerous in
 	 * IE 6. Returns true if it was successful, false otherwise.
+	 *
+	 * @param $url string
+	 * @return bool
 	 */
 	protected function doSecurityRedirect( $url ) {
 		header( 'Location: ' . $url );
@@ -777,11 +946,11 @@ class WebRequest {
 <body>
 <h1>Security redirect</h1>
 <p>
-We can't serve non-HTML content from the URL you have requested, because 
+We can't serve non-HTML content from the URL you have requested, because
 Internet Explorer would interpret it as an incorrect and potentially dangerous
 content type.</p>
-<p>Instead, please use <a href="$encUrl">this URL</a>, which is the same as the URL you have requested, except that 
-"&amp;*" is appended. This prevents Internet Explorer from seeing a bogus file 
+<p>Instead, please use <a href="$encUrl">this URL</a>, which is the same as the URL you have requested, except that
+"&amp;*" is appended. This prevents Internet Explorer from seeing a bogus file
 extension.
 </p>
 </body>
@@ -806,8 +975,15 @@ HTML;
 	 * Also checks for anything that looks like a file extension at the end of
 	 * QUERY_STRING, since IE 6 and earlier will use this to get the file type
 	 * if there was no dot before the question mark (bug 28235).
+	 *
+	 * @deprecated Use checkUrlExtension().
+	 *
+	 * @param $extWhitelist array
+	 *
+	 * @return bool
 	 */
-	public function isPathInfoBad() {
+	public function isPathInfoBad( $extWhitelist = array() ) {
+		wfDeprecated( __METHOD__, '1.17' );
 		global $wgScriptExtension;
 		$extWhitelist[] = ltrim( $wgScriptExtension, '.' );
 		return IEUrlExtension::areServerVarsBad( $_SERVER, $extWhitelist );
@@ -815,9 +991,11 @@ HTML;
 
 	/**
 	 * Parse the Accept-Language header sent by the client into an array
-	 * @return array( languageCode => q-value ) sorted by q-value in descending order
+	 * @return array array( languageCode => q-value ) sorted by q-value in descending order then
+	 *                                                appearing time in the header in ascending order.
 	 * May contain the "language" '*', which applies to languages other than those explicitly listed.
 	 * This is aligned with rfc2616 section 14.4
+	 * Preference for earlier languages appears in rfc3282 as an extension to HTTP/1.1.
 	 */
 	public function getAcceptLang() {
 		// Modified version of code found at http://www.thefutureoftheweb.com/blog/use-accept-language-header
@@ -831,27 +1009,104 @@ HTML;
 
 		// Break up string into pieces (languages and q factors)
 		$lang_parse = null;
-		preg_match_all( '/([a-z]{1,8}(-[a-z]{1,8})?|\*)\s*(;\s*q\s*=\s*(1|0(\.[0-9]+)?)?)?/',
+		preg_match_all( '/([a-z]{1,8}(-[a-z]{1,8})*|\*)\s*(;\s*q\s*=\s*(1(\.0{0,3})?|0(\.[0-9]{0,3})?)?)?/',
 			$acceptLang, $lang_parse );
 
 		if ( !count( $lang_parse[1] ) ) {
 			return array();
 		}
 
-		// Create a list like "en" => 0.8
-		$langs = array_combine( $lang_parse[1], $lang_parse[4] );
+		$langcodes = $lang_parse[1];
+		$qvalues = $lang_parse[4];
+		$indices = range( 0, count( $lang_parse[1] ) - 1 );
+
 		// Set default q factor to 1
-		foreach ( $langs as $lang => $val ) {
-			if ( $val === '' ) {
-				$langs[$lang] = 1;
-			} else if ( $val == 0 ) {
-				unset($langs[$lang]);
+		foreach ( $indices as $index ) {
+			if ( $qvalues[$index] === '' ) {
+				$qvalues[$index] = 1;
+			} elseif ( $qvalues[$index] == 0 ) {
+				unset( $langcodes[$index], $qvalues[$index], $indices[$index] );
 			}
 		}
 
-		// Sort list
-		arsort( $langs, SORT_NUMERIC );
+		// Sort list. First by $qvalues, then by order. Reorder $langcodes the same way
+		array_multisort( $qvalues, SORT_DESC, SORT_NUMERIC, $indices, $langcodes );
+
+		// Create a list like "en" => 0.8
+		$langs = array_combine( $langcodes, $qvalues );
+
 		return $langs;
+	}
+
+	/**
+	 * Fetch the raw IP from the request
+	 *
+	 * @since 1.19
+	 *
+	 * @return String
+	 */
+	protected function getRawIP() {
+		if ( isset( $_SERVER['REMOTE_ADDR'] ) ) {
+			return IP::canonicalize( $_SERVER['REMOTE_ADDR'] );
+		} else {
+			return null;
+		}
+	}
+
+	/**
+	 * Work out the IP address based on various globals
+	 * For trusted proxies, use the XFF client IP (first of the chain)
+	 * 
+	 * @since 1.19
+	 *
+	 * @return string
+	 */
+	public function getIP() {
+		global $wgUsePrivateIPs;
+
+		# Return cached result
+		if ( $this->ip !== null ) {
+			return $this->ip;
+		}
+
+		# collect the originating ips
+		$ip = $this->getRawIP();
+
+		# Append XFF
+		$forwardedFor = $this->getHeader( 'X-Forwarded-For' );
+		if ( $forwardedFor !== false ) {
+			$ipchain = array_map( 'trim', explode( ',', $forwardedFor ) );
+			$ipchain = array_reverse( $ipchain );
+			if ( $ip ) {
+				array_unshift( $ipchain, $ip );
+			}
+
+			# Step through XFF list and find the last address in the list which is a trusted server
+			# Set $ip to the IP address given by that trusted server, unless the address is not sensible (e.g. private)
+			foreach ( $ipchain as $i => $curIP ) {
+				$curIP = IP::canonicalize( $curIP );
+				if ( wfIsTrustedProxy( $curIP ) ) {
+					if ( isset( $ipchain[$i + 1] ) ) {
+						if ( $wgUsePrivateIPs || IP::isPublic( $ipchain[$i + 1 ] ) ) {
+							$ip = $ipchain[$i + 1];
+						}
+					}
+				} else {
+					break;
+				}
+			}
+		}
+
+		# Allow extensions to improve our guess
+		wfRunHooks( 'GetIP', array( &$ip ) );
+
+		if ( !$ip ) {
+			throw new MWException( "Unable to determine IP" );
+		}
+
+		wfDebug( "IP: $ip\n" );
+		$this->ip = $ip;
+		return $ip;
 	}
 }
 
@@ -984,7 +1239,7 @@ class FauxRequest extends WebRequest {
 	 * @param $wasPosted Bool: whether to treat the data as POST
 	 * @param $session Mixed: session array or null
 	 */
-	public function __construct( $data, $wasPosted = false, $session = null ) {
+	public function __construct( $data = array(), $wasPosted = false, $session = null ) {
 		if( is_array( $data ) ) {
 			$this->data = $data;
 		} else {
@@ -995,19 +1250,49 @@ class FauxRequest extends WebRequest {
 			$this->session = $session;
 	}
 
+	/**
+	 * @param $method string
+	 * @throws MWException
+	 */
 	private function notImplemented( $method ) {
 		throw new MWException( "{$method}() not implemented" );
 	}
 
+	/**
+	 * @param $name string
+	 * @param $default string
+	 * @return string
+	 */
 	public function getText( $name, $default = '' ) {
 		# Override; don't recode since we're using internal data
 		return (string)$this->getVal( $name, $default );
 	}
 
+	/**
+	 * @return Array
+	 */
 	public function getValues() {
 		return $this->data;
 	}
 
+	/**
+	 * @return array
+	 */
+	public function getQueryValues() {
+		if ( $this->wasPosted ) {
+			return array();
+		} else {
+			return $this->data;
+		}
+	}
+
+	public function getMethod() {
+		return $this->wasPosted ? 'POST' : 'GET';
+	}
+
+	/**
+	 * @return bool
+	 */
 	public function wasPosted() {
 		return $this->wasPosted;
 	}
@@ -1020,50 +1305,115 @@ class FauxRequest extends WebRequest {
 		$this->notImplemented( __METHOD__ );
 	}
 
-	public function appendQuery( $query ) {
-		global $wgTitle;
-		$basequery = '';
-		foreach( $this->data as $var => $val ) {
-			if ( $var == 'title' ) {
-				continue;
-			}
-			if ( is_array( $val ) ) {
-				/* This will happen given a request like
-				 * http://en.wikipedia.org/w/index.php?title[]=Special:Userlogin&returnto[]=Main_Page
-				 */
-				continue;
-			}
-			$basequery .= '&' . urlencode( $var ) . '=' . urlencode( $val );
-		}
-		$basequery .= '&' . $query;
-
-		# Trim the extra &
-		$basequery = substr( $basequery, 1 );
-		return $wgTitle->getLocalURL( $basequery );
-	}
-
+	/**
+	 * @param $name
+	 * @return bool|string
+	 */
 	public function getHeader( $name ) {
 		return isset( $this->headers[$name] ) ? $this->headers[$name] : false;
 	}
 
+	/**
+	 * @param $name string
+	 * @param $val string
+	 */
 	public function setHeader( $name, $val ) {
 		$this->headers[$name] = $val;
 	}
 
+	/**
+	 * @param $key
+	 * @return mixed
+	 */
 	public function getSessionData( $key ) {
 		if( isset( $this->session[$key] ) )
 			return $this->session[$key];
 	}
 
+	/**
+	 * @param $key
+	 * @param $data
+	 */
 	public function setSessionData( $key, $data ) {
 		$this->session[$key] = $data;
 	}
 
+	/**
+	 * @return array|Mixed|null
+	 */
+	public function getSessionArray() {
+		return $this->session;
+	}
+
+	/**
+	 * @param array $extWhitelist
+	 * @return bool
+	 */
 	public function isPathInfoBad( $extWhitelist = array() ) {
 		return false;
 	}
 
+	/**
+	 * @param array $extWhitelist
+	 * @return bool
+	 */
 	public function checkUrlExtension( $extWhitelist = array() ) {
 		return true;
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function getRawIP() {
+		return '127.0.0.1';
+	}
+}
+
+/**
+ * Similar to FauxRequest, but only fakes URL parameters and method
+ * (POST or GET) and use the base request for the remaining stuff
+ * (cookies, session and headers).
+ *
+ * @ingroup HTTP
+ * @since 1.19
+ */
+class DerivativeRequest extends FauxRequest {
+	private $base;
+
+	public function __construct( WebRequest $base, $data, $wasPosted = false ) {
+		$this->base = $base;
+		parent::__construct( $data, $wasPosted );
+	}
+
+	public function getCookie( $key, $prefix = null, $default = null ) {
+		return $this->base->getCookie( $key, $prefix, $default );
+	}
+
+	public function checkSessionCookie() {
+		return $this->base->checkSessionCookie();
+	}
+
+	public function getHeader( $name ) {
+		return $this->base->getHeader( $name );
+	}
+
+	public function getAllHeaders() {
+		return $this->base->getAllHeaders();
+	}
+
+	public function getSessionData( $key ) {
+		return $this->base->getSessionData( $key );
+	}
+
+	public function setSessionData( $key, $data ) {
+		$this->base->setSessionData( $key, $data );
+	}
+
+	public function getAcceptLang() {
+		return $this->base->getAcceptLang();
+	}
+
+	public function getIP() {
+		return $this->base->getIP();
 	}
 }

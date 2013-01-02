@@ -1,10 +1,10 @@
 <?php
 /**
- * API for MediaWiki 1.8+
+ *
  *
  * Created on Oct 22, 2006
  *
- * Copyright © 2006 Yuri Astrakhan <Firstname><Lastname>@gmail.com
+ * Copyright © 2006 Yuri Astrakhan "<Firstname><Lastname>@gmail.com"
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,11 +23,6 @@
  *
  * @file
  */
-
-if ( !defined( 'MEDIAWIKI' ) ) {
-	// Eclipse helper - will be ignored in production
-	require_once( 'ApiFormatBase.php' );
-}
 
 /**
  * API WDDX output formatter
@@ -69,6 +64,8 @@ class ApiFormatWddx extends ApiFormatBase {
 
 	/**
 	 * Recursively go through the object and output its data in WDDX format.
+	 * @param $elemValue
+	 * @param $indent int
 	 */
 	function slowWddxPrinter( $elemValue, $indent = 0 ) {
 		$indstr = ( $this->getIsHtml() ? '' : str_repeat( ' ', $indent ) );
@@ -117,6 +114,6 @@ class ApiFormatWddx extends ApiFormatBase {
 	}
 
 	public function getVersion() {
-		return __CLASS__ . ': $Id: ApiFormatWddx.php 70647 2010-08-07 19:59:42Z ialex $';
+		return __CLASS__ . ': $Id$';
 	}
 }

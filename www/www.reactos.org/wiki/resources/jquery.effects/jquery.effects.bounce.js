@@ -1,23 +1,23 @@
-/*
- * jQuery UI Effects Bounce 1.8.2
+/*!
+ * jQuery UI Effects Bounce 1.8.23
  *
- * Copyright (c) 2010 AUTHORS.txt (http://jqueryui.com/about)
- * Dual licensed under the MIT (MIT-LICENSE.txt)
- * and GPL (GPL-LICENSE.txt) licenses.
+ * Copyright 2012, AUTHORS.txt (http://jqueryui.com/about)
+ * Dual licensed under the MIT or GPL Version 2 licenses.
+ * http://jquery.org/license
  *
  * http://docs.jquery.com/UI/Effects/Bounce
  *
  * Depends:
  *	jquery.effects.core.js
  */
-(function($) {
+(function( $, undefined ) {
 
 $.effects.bounce = function(o) {
 
 	return this.queue(function() {
 
 		// Create element
-		var el = $(this), props = ['position','top','left'];
+		var el = $(this), props = ['position','top','bottom','left','right'];
 
 		// Set options
 		var mode = $.effects.setMode(el, o.options.mode || 'effect'); // Set Mode
@@ -32,7 +32,7 @@ $.effects.bounce = function(o) {
 		$.effects.createWrapper(el); // Create Wrapper
 		var ref = (direction == 'up' || direction == 'down') ? 'top' : 'left';
 		var motion = (direction == 'up' || direction == 'left') ? 'pos' : 'neg';
-		var distance = o.options.distance || (ref == 'top' ? el.outerHeight({margin:true}) / 3 : el.outerWidth({margin:true}) / 3);
+		var distance = o.options.distance || (ref == 'top' ? el.outerHeight(true) / 3 : el.outerWidth(true) / 3);
 		if (mode == 'show') el.css('opacity', 0).css(ref, motion == 'pos' ? -distance : distance); // Shift
 		if (mode == 'hide') distance = distance / (times * 2);
 		if (mode != 'hide') times--;

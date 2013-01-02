@@ -1,8 +1,27 @@
 <?php
 /**
+ * Classes to walk into a list of Title objects.
+ *
  * Note: this entire file is a byte-for-byte copy of UserArray.php with
  * s/User/Title/.  If anyone can figure out how to do this nicely with inheri-
  * tance or something, please do so.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ * http://www.gnu.org/copyleft/gpl.html
+ *
+ * @file
  */
 
 /**
@@ -11,10 +30,10 @@
  */
 abstract class TitleArray implements Iterator {
 	/**
-	 * @param $res result A MySQL result including at least page_namespace and
+	 * @param $res ResultWrapper A SQL result including at least page_namespace and
 	 *   page_title -- also can have page_id, page_len, page_is_redirect,
 	 *   page_latest (if those will be used).  See Title::newFromRow.
-	 * @return TitleArray
+	 * @return TitleArrayFromResult
 	 */
 	static function newFromResult( $res ) {
 		$array = null;
@@ -27,6 +46,10 @@ abstract class TitleArray implements Iterator {
 		return $array;
 	}
 
+	/**
+	 * @param $res ResultWrapper
+	 * @return TitleArrayFromResult
+	 */
 	protected static function newFromResult_internal( $res ) {
 		$array = new TitleArrayFromResult( $res );
 		return $array;
@@ -34,6 +57,10 @@ abstract class TitleArray implements Iterator {
 }
 
 class TitleArrayFromResult extends TitleArray {
+
+	/**
+	 * @var ResultWrapper
+	 */
 	var $res;
 	var $key, $current;
 
@@ -43,6 +70,10 @@ class TitleArrayFromResult extends TitleArray {
 		$this->setCurrent( $this->res->current() );
 	}
 
+	/**
+	 * @param $row ResultWrapper
+	 * @return void
+	 */
 	protected function setCurrent( $row ) {
 		if ( $row === false ) {
 			$this->current = false;
@@ -51,6 +82,9 @@ class TitleArrayFromResult extends TitleArray {
 		}
 	}
 
+	/**
+	 * @return int
+	 */
 	public function count() {
 		return $this->res->numRows();
 	}
@@ -75,6 +109,9 @@ class TitleArrayFromResult extends TitleArray {
 		$this->setCurrent( $this->res->current() );
 	}
 
+	/**
+	 * @return bool
+	 */
 	function valid() {
 		return $this->current !== false;
 	}

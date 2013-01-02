@@ -151,7 +151,7 @@ q {
 	font-style: italic;
 }
 code { background-color: #f9f9f9; }
-pre {
+pre, .mw-code {
 	padding: 1em;
 	border: 1px dashed #2f6fab;
 	color: black;
@@ -203,24 +203,6 @@ span.subpages { display: block; }
 }
 .catlinks { margin: 0; padding: 0; }
 
-
-/* currently unused, intended to be used by a metadata box
-in the bottom-right corner of the content area */
-.documentDescription {
-	/* The summary text describing the document */
-	font-weight: bold;
-	display: block;
-	margin: 1em 0em;
-	line-height: 1.5em;
-}
-.documentByLine {
-	text-align: right;
-	font-size: 90%;
-	clear: both;
-	font-weight: normal;
-	color: #76797c;
-}
-
 /* emulate center */
 .center {
 	width: 100%;
@@ -231,7 +213,7 @@ in the bottom-right corner of the content area */
 	margin-right: auto;
 }
 /* small for tables and similar */
-.small, .small * { font-size: 94%; }
+.small { font-size: 94%; }
 table.small { font-size: 100% }
 
 /*
@@ -245,7 +227,7 @@ table.small { font-size: 100% }
 	padding:5px;
 	font-size: 95%;
 }
-#toc ul { margin-left: 2em; }
+#toc ul { margin: 0 2em; }
 #toc .toctoggle { font-size: 94%; }
 #toc .editsection {
 	margin-top: 0.7em;
@@ -253,20 +235,14 @@ table.small { font-size: 100% }
 }
 
 /* images */
-div.floatright, table.floatright {
-	clear: right;
-	float: right;
+/* @noflip */div.floatright, table.floatright {
 	margin: 0;
-	position: relative;
 	border: 0.5em solid white;
 	border-width: 0.5em 0 0.8em 1.4em;
 }
 div.floatright p { font-style: italic; }
-div.floatleft, table.floatleft {
-	float: left;
-	clear: left;
+/* @noflip */div.floatleft, table.floatleft {
 	margin: 0.3em 0.5em 0.5em 0;
-	position: relative;
 	border: 0.5em solid white;
 	border-width: 0.5em 1.4em 0.8em 0;
 }
@@ -303,22 +279,14 @@ div.magnify a, div.magnify img {
 	border: none !important;
 	background: none !important;
 }
-div.tright {
-	clear: right;
-	float: right;
+/* @noflip */div.tright {
 	margin: 0.5em 0 1.3em 1.4em;
 }
-div.tleft {
-	float: left;
-	clear: left;
+/* @noflip */div.tleft {
 	margin: 0.5em 1.4em 1.3em 0;
 }
 img.thumbborder {
 	border: 1px solid #dddddd;
-}
-
-.hiddenStructure {
-	display: none;
 }
 
 /*
@@ -385,10 +353,6 @@ div.gallerybox {
 }
 
 .templatesUsed { margin-top: 1.5em; }
-
-.printfooter {
-	display: none;
-}
 
 #footer {
 	background-color: white;

@@ -1,6 +1,21 @@
 <?php
 /**
- * Generator of database load balancing objects
+ * Generator of database load balancing objects.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ * http://www.gnu.org/copyleft/gpl.html
  *
  * @file
  * @ingroup Database
@@ -11,6 +26,10 @@
  * @ingroup Database
  */
 abstract class LBFactory {
+
+	/**
+	 * @var LBFactory
+	 */
 	static $instance;
 
 	/**
@@ -23,15 +42,9 @@ abstract class LBFactory {
 	}
 
 	/**
-	 * Resets the singleton for use if it's been disabled. Does nothing otherwise
-	 */
-	public static function enableBackend() {
-		if( self::$instance instanceof LBFactory_Fake )
-			self::$instance = null;
-	}
-
-	/**
 	 * Get an LBFactory instance
+	 *
+	 * @return LBFactory
 	 */
 	static function &singleton() {
 		if ( is_null( self::$instance ) ) {
@@ -44,7 +57,6 @@ abstract class LBFactory {
 
 	/**
 	 * Shut down, close connections and destroy the cached instance.
-	 *
 	 */
 	static function destroyInstance() {
 		if ( self::$instance ) {
@@ -56,6 +68,8 @@ abstract class LBFactory {
 
 	/**
 	 * Set the instance to be the given object
+	 *
+	 * @param $instance LBFactory
 	 */
 	static function setInstance( $instance ) {
 		self::destroyInstance();
@@ -64,6 +78,7 @@ abstract class LBFactory {
 
 	/**
 	 * Construct a factory based on a configuration array (typically from $wgLBFactoryConf)
+	 * @param $conf
 	 */
 	abstract function __construct( $conf );
 
@@ -84,21 +99,25 @@ abstract class LBFactory {
 	 */
 	abstract function getMainLB( $wiki = false );
 
-	/*
+	/**
 	 * Create a new load balancer for external storage. The resulting object will be
 	 * untracked, not chronology-protected, and the caller is responsible for
 	 * cleaning it up.
 	 *
 	 * @param $cluster String: external storage cluster, or false for core
 	 * @param $wiki String: wiki ID, or false for the current wiki
+	 *
+	 * @return LoadBalancer
 	 */
 	abstract function newExternalLB( $cluster, $wiki = false );
 
-	/*
+	/**
 	 * Get a cached (tracked) load balancer for external storage
 	 *
 	 * @param $cluster String: external storage cluster, or false for core
 	 * @param $wiki String: wiki ID, or false for the current wiki
+	 *
+	 * @return LoadBalancer
 	 */
 	abstract function &getExternalLB( $cluster, $wiki = false );
 
@@ -106,6 +125,8 @@ abstract class LBFactory {
 	 * Execute a function for each tracked load balancer
 	 * The callback is called with the load balancer as the first parameter,
 	 * and $params passed as the subsequent parameters.
+	 * @param $callback string|array
+	 * @param array $params
 	 */
 	abstract function forEachLB( $callback, $params = array() );
 
@@ -117,6 +138,8 @@ abstract class LBFactory {
 
 	/**
 	 * Call a method of each tracked load balancer
+	 * @param $methodName string
+	 * @param $args array
 	 */
 	function forEachLBCallMethod( $methodName, $args = array() ) {
 		$this->forEachLB( array( $this, 'callMethod' ), array( $methodName, $args ) );
@@ -124,6 +147,9 @@ abstract class LBFactory {
 
 	/**
 	 * Private helper for forEachLBCallMethod
+	 * @param $loadBalancer
+	 * @param $methodName string
+	 * @param $args
 	 */
 	function callMethod( $loadBalancer, $methodName, $args ) {
 		call_user_func_array( array( $loadBalancer, $methodName ), $args );
@@ -141,6 +167,10 @@ abstract class LBFactory {
  * A simple single-master LBFactory that gets its configuration from the b/c globals
  */
 class LBFactory_Simple extends LBFactory {
+
+	/**
+	 * @var LoadBalancer
+	 */
 	var $mainLB;
 	var $extLBs = array();
 
@@ -151,12 +181,26 @@ class LBFactory_Simple extends LBFactory {
 		$this->chronProt = new ChronologyProtector;
 	}
 
+	/**
+	 * @param $wiki
+	 * @return LoadBalancer
+	 */
 	function newMainLB( $wiki = false ) {
 		global $wgDBservers, $wgMasterWaitTimeout;
 		if ( $wgDBservers ) {
 			$servers = $wgDBservers;
 		} else {
 			global $wgDBserver, $wgDBuser, $wgDBpassword, $wgDBname, $wgDBtype, $wgDebugDumpSql;
+			global $wgDBssl, $wgDBcompress;
+
+			$flags = ( $wgDebugDumpSql ? DBO_DEBUG : 0 ) | DBO_DEFAULT;
+			if ( $wgDBssl ) {
+				$flags |= DBO_SSL;
+			}
+			if ( $wgDBcompress ) {
+				$flags |= DBO_COMPRESS;
+			}
+
 			$servers = array(array(
 				'host' => $wgDBserver,
 				'user' => $wgDBuser,
@@ -164,7 +208,7 @@ class LBFactory_Simple extends LBFactory {
 				'dbname' => $wgDBname,
 				'type' => $wgDBtype,
 				'load' => 1,
-				'flags' => ($wgDebugDumpSql ? DBO_DEBUG : 0) | DBO_DEFAULT
+				'flags' => $flags
 			));
 		}
 
@@ -174,6 +218,10 @@ class LBFactory_Simple extends LBFactory {
 		));
 	}
 
+	/**
+	 * @param $wiki
+	 * @return LoadBalancer
+	 */
 	function getMainLB( $wiki = false ) {
 		if ( !isset( $this->mainLB ) ) {
 			$this->mainLB = $this->newMainLB( $wiki );
@@ -183,6 +231,12 @@ class LBFactory_Simple extends LBFactory {
 		return $this->mainLB;
 	}
 
+	/**
+	 * @throws MWException
+	 * @param $cluster
+	 * @param $wiki
+	 * @return LoadBalancer
+	 */
 	function newExternalLB( $cluster, $wiki = false ) {
 		global $wgExternalServers;
 		if ( !isset( $wgExternalServers[$cluster] ) ) {
@@ -193,6 +247,11 @@ class LBFactory_Simple extends LBFactory {
 		));
 	}
 
+	/**
+	 * @param $cluster
+	 * @param $wiki
+	 * @return array
+	 */
 	function &getExternalLB( $cluster, $wiki = false ) {
 		if ( !isset( $this->extLBs[$cluster] ) ) {
 			$this->extLBs[$cluster] = $this->newExternalLB( $cluster, $wiki );
@@ -205,6 +264,8 @@ class LBFactory_Simple extends LBFactory {
 	 * Execute a function for each tracked load balancer
 	 * The callback is called with the load balancer as the first parameter,
 	 * and $params passed as the subsequent parameters.
+	 * @param $callback
+	 * @param $params array
 	 */
 	function forEachLB( $callback, $params = array() ) {
 		if ( isset( $this->mainLB ) ) {

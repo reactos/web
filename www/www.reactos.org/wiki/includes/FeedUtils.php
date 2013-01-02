@@ -1,4 +1,25 @@
 <?php
+/**
+ * Helper functions for feeds.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ * http://www.gnu.org/copyleft/gpl.html
+ *
+ * @file
+ * @ingroup Feed
+ */
 
 /**
  * Helper functions for feeds
@@ -31,16 +52,15 @@ class FeedUtils {
 	 * @return Boolean
 	 */
 	public static function checkFeedOutput( $type ) {
-		global $wgFeed, $wgFeedClasses;
+		global $wgOut, $wgFeed, $wgFeedClasses;
 
 		if ( !$wgFeed ) {
-			global $wgOut;
 			$wgOut->addWikiMsg( 'feed-unavailable' );
 			return false;
 		}
 
 		if( !isset( $wgFeedClasses[$type] ) ) {
-			wfHttpError( 500, "Internal Server Error", "Unsupported feed type." );
+			$wgOut->addWikiMsg( 'feed-invalid' );
 			return false;
 		}
 
@@ -54,24 +74,21 @@ class FeedUtils {
 	 * @return String
 	 */
 	public static function formatDiff( $row ) {
-		global $wgUser;
-
 		$titleObj = Title::makeTitle( $row->rc_namespace, $row->rc_title );
 		$timestamp = wfTimestamp( TS_MW, $row->rc_timestamp );
 		$actiontext = '';
 		if( $row->rc_type == RC_LOG ) {
-			if( $row->rc_deleted & LogPage::DELETED_ACTION ) {
-				$actiontext = wfMsgHtml('rev-deleted-event');
-			} else {
-				$actiontext = LogPage::actionText( $row->rc_log_type, $row->rc_log_action,
-					$titleObj, $wgUser->getSkin(), LogPage::extractParams($row->rc_params,true,true) );
-			}
+			$rcRow = (array)$row; // newFromRow() only accepts arrays for RC rows
+			$actiontext = LogFormatter::newFromRow( $rcRow )->getActionText();
 		}
 		return self::formatDiffRow( $titleObj,
 			$row->rc_last_oldid, $row->rc_this_oldid,
 			$timestamp,
-			($row->rc_deleted & Revision::DELETED_COMMENT) ? wfMsgHtml('rev-deleted-comment') : $row->rc_comment,
-			$actiontext );
+			($row->rc_deleted & Revision::DELETED_COMMENT)
+				? wfMessage('rev-deleted-comment')->escaped()
+				: $row->rc_comment,
+			$actiontext 
+		);
 	}
 
 	/**
@@ -86,78 +103,102 @@ class FeedUtils {
 	 * @return String
 	 */
 	public static function formatDiffRow( $title, $oldid, $newid, $timestamp, $comment, $actiontext='' ) {
-		global $wgFeedDiffCutoff, $wgLang, $wgUser;
+		global $wgFeedDiffCutoff, $wgLang;
 		wfProfileIn( __METHOD__ );
 
-		$skin = $wgUser->getSkin();
 		# log enties
 		$completeText = '<p>' . implode( ' ',
 			array_filter(
 				array(
 					$actiontext,
-					$skin->formatComment( $comment ) ) ) ) . "</p>\n";
+					Linker::formatComment( $comment ) ) ) ) . "</p>\n";
 
-		//NOTE: Check permissions for anonymous users, not current user.
-		//      No "privileged" version should end up in the cache.
-		//      Most feed readers will not log in anway.
+		// NOTE: Check permissions for anonymous users, not current user.
+		//       No "privileged" version should end up in the cache.
+		//       Most feed readers will not log in anway.
 		$anon = new User();
 		$accErrors = $title->getUserPermissionsErrors( 'read', $anon, true );
 
-		if( $title->getNamespace() >= 0 && !$accErrors && $newid ) {
-			if( $oldid ) {
-				wfProfileIn( __METHOD__."-dodiff" );
+		// Can't diff special pages, unreadable pages or pages with no new revision
+		// to compare against: just return the text.
+		if( $title->getNamespace() < 0 || $accErrors || !$newid ) {
+			wfProfileOut( __METHOD__ );
+			return $completeText;
+		}
 
-				#$diffText = $de->getDiff( wfMsg( 'revisionasof',
-				#	$wgLang->timeanddate( $timestamp ),
-				#	$wgLang->date( $timestamp ),
-				#	$wgLang->time( $timestamp ) ),
-				#	wfMsg( 'currentrev' ) );
-				
-				// Don't bother generating the diff if we won't be able to show it
-				if ( $wgFeedDiffCutoff > 0 ) {
-					$de = new DifferenceEngine( $title, $oldid, $newid );
-					$diffText = $de->getDiff(
-						wfMsg( 'previousrevision' ), // hack
-						wfMsg( 'revisionasof',
-							$wgLang->timeanddate( $timestamp ),
-							$wgLang->date( $timestamp ),
-							$wgLang->time( $timestamp ) ) );
-				}
+		if( $oldid ) {
+			wfProfileIn( __METHOD__."-dodiff" );
 
-				if ( $wgFeedDiffCutoff <= 0 || ( strlen( $diffText ) > $wgFeedDiffCutoff ) ) {
-					// Omit large diffs
-					$diffLink = $title->escapeFullUrl(
-						'diff=' . $newid .
-						'&oldid=' . $oldid );
-					$diffText = '<a href="' .
-						$diffLink .
-						'">' .
-						htmlspecialchars( wfMsgForContent( 'showdiff' ) ) .
-						'</a>';
-				} elseif ( $diffText === false ) {
-					// Error in diff engine, probably a missing revision
-					$diffText = "<p>Can't load revision $newid</p>";
-				} else {
-					// Diff output fine, clean up any illegal UTF-8
-					$diffText = UtfNormal::cleanUp( $diffText );
-					$diffText = self::applyDiffStyle( $diffText );
-				}
-				wfProfileOut( __METHOD__."-dodiff" );
+			#$diffText = $de->getDiff( wfMessage( 'revisionasof',
+			#	$wgLang->timeanddate( $timestamp ),
+			#	$wgLang->date( $timestamp ),
+			#	$wgLang->time( $timestamp ) )->text(),
+			#	wfMessage( 'currentrev' )->text() );
+
+			$diffText = '';
+			// Don't bother generating the diff if we won't be able to show it
+			if ( $wgFeedDiffCutoff > 0 ) {
+				$de = new DifferenceEngine( $title, $oldid, $newid );
+				$diffText = $de->getDiff(
+					wfMessage( 'previousrevision' )->text(), // hack
+					wfMessage( 'revisionasof',
+					$wgLang->timeanddate( $timestamp ),
+					$wgLang->date( $timestamp ),
+					$wgLang->time( $timestamp ) )->text() );
+			}
+
+			if ( $wgFeedDiffCutoff <= 0 || ( strlen( $diffText ) > $wgFeedDiffCutoff ) ) {
+				// Omit large diffs
+				$diffText = self::getDiffLink( $title, $newid, $oldid );
+			} elseif ( $diffText === false ) {
+				// Error in diff engine, probably a missing revision
+				$diffText = "<p>Can't load revision $newid</p>";
 			} else {
-				$rev = Revision::newFromId( $newid );
-				if( is_null( $rev ) ) {
-					$newtext = '';
-				} else {
-					$newtext = $rev->getText();
-				}
-				$diffText = '<p><b>' . wfMsg( 'newpage' ) . '</b></p>' .
+				// Diff output fine, clean up any illegal UTF-8
+				$diffText = UtfNormal::cleanUp( $diffText );
+				$diffText = self::applyDiffStyle( $diffText );
+			}
+			wfProfileOut( __METHOD__."-dodiff" );
+		} else {
+			$rev = Revision::newFromId( $newid );
+			if( $wgFeedDiffCutoff <= 0 || is_null( $rev ) ) {
+				$newtext = '';
+			} else {
+				$newtext = $rev->getText();
+			}
+			if ( $wgFeedDiffCutoff <= 0 || strlen( $newtext ) > $wgFeedDiffCutoff ) {
+				// Omit large new page diffs, bug 29110
+				$diffText = self::getDiffLink( $title, $newid );
+			} else {
+				$diffText = '<p><b>' . wfMessage( 'newpage' )->text() . '</b></p>' .
 					'<div>' . nl2br( htmlspecialchars( $newtext ) ) . '</div>';
 			}
-			$completeText .= $diffText;
 		}
+		$completeText .= $diffText;
 
 		wfProfileOut( __METHOD__ );
 		return $completeText;
+	}
+
+	/**
+	 * Generates a diff link. Used when the full diff is not wanted for example
+	 * when $wgFeedDiffCutoff is 0.
+	 *
+	 * @param $title Title object: used to generate the diff URL
+	 * @param $newid Integer newid for this diff
+	 * @param $oldid Integer|null oldid for the diff. Null means it is a new article
+	 * @return string
+	 */
+	protected static function getDiffLink( Title $title, $newid, $oldid = null ) {
+		$queryParameters = ($oldid == null)
+			? "diff={$newid}"
+			: "diff={$newid}&oldid={$oldid}" ;
+		$diffUrl = $title->getFullUrl( $queryParameters );
+
+		$diffLink = Html::element( 'a', array( 'href' => $diffUrl ),
+			wfMessage( 'showdiff' )->inContentLanguage()->text() );
+
+		return $diffLink;
 	}
 
 	/**
@@ -167,7 +208,6 @@ class FeedUtils {
 	 *
 	 * @param $text String: diff's HTML output
 	 * @return String: modified HTML
-	 * @private
 	 */
 	public static function applyDiffStyle( $text ) {
 		$styles = array(

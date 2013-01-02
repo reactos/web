@@ -2,15 +2,30 @@
 /**
  * Modified version of the PHP parser with hooks for wiki links; experimental
  *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ * http://www.gnu.org/copyleft/gpl.html
+ *
  * @file
+ * @ingroup Parser
  */
 
 /**
  * Parser with LinkHooks experiment
  * @ingroup Parser
  */
-class Parser_LinkHooks extends Parser
-{
+class Parser_LinkHooks extends Parser {
 	/**
 	 * Update this version number when the ParserOutput format
 	 * changes in an incompatible way, so the parser cache
@@ -38,10 +53,8 @@ class Parser_LinkHooks extends Parser
 
 	/**
 	 * Constructor
-	 *
-	 * @public
 	 */
-	function __construct( $conf = array() ) {
+	public function __construct( $conf = array() ) {
 		parent::__construct( $conf );
 		$this->mLinkHooks = array();
 	}
@@ -82,16 +95,14 @@ class Parser_LinkHooks extends Parser
 	 * True) (Treat as link) Parse the link according to normal link rules
 	 * False) (Bad link) Just output the raw wikitext (You may modify the text first)
 	 *
-	 * @public
-	 *
 	 * @param $ns Integer or String: the Namespace ID or regex pattern if SLH_PATTERN is set
 	 * @param $callback Mixed: the callback function (and object) to use
 	 * @param $flags Integer: a combination of the following flags:
 	 *     SLH_PATTERN   Use a regex link pattern rather than a namespace
 	 *
-	 * @return The old callback function for this name, if any
+	 * @return callback|null The old callback function for this name, if any
 	 */
-	function setLinkHook( $ns, $callback, $flags = 0 ) {
+	public function setLinkHook( $ns, $callback, $flags = 0 ) {
 		if( $flags & SLH_PATTERN && !is_string($ns) )
 			throw new MWException( __METHOD__.'() expecting a regex string pattern.' );
 		elseif( $flags | ~SLH_PATTERN && !is_int($ns) )
@@ -215,7 +226,7 @@ class Parser_LinkHooks extends Parser
 		# Don't allow internal links to pages containing
 		# PROTO: where PROTO is a valid URL protocol; these
 		# should be external links.
-		if( preg_match('/^\b(?:' . wfUrlProtocols() . ')/', $titleText) ) {
+		if( preg_match('/^\b(?i:' . wfUrlProtocols() . ')/', $titleText) ) {
 			wfProfileOut( __METHOD__ );
 			return $wt;
 		}
@@ -232,7 +243,7 @@ class Parser_LinkHooks extends Parser
 		wfProfileOut( __METHOD__."-misc" );
 		# Make title object
 		wfProfileIn( __METHOD__."-title" );
-		$title = Title::newFromText( $this->mStripState->unstripNoWiki($titleText) );
+		$title = Title::newFromText( $this->mStripState->unstripNoWiki( $titleText ) );
 		if( !$title ) {
 			wfProfileOut( __METHOD__."-title" );
 			wfProfileOut( __METHOD__ );
@@ -244,7 +255,7 @@ class Parser_LinkHooks extends Parser
 		# Default for Namespaces is a default link
 		# ToDo: Default for patterns is plain wikitext
 		$return = true;
-		if( isset($this->mLinkHooks[$ns]) ) {
+		if( isset( $this->mLinkHooks[$ns] ) ) {
 			list( $callback, $flags ) = $this->mLinkHooks[$ns];
 			if( $flags & SLH_PATTERN ) {
 				$args = array( $parser, $holders, $markers, $titleText, &$paramText, &$leadingColon );
@@ -253,14 +264,14 @@ class Parser_LinkHooks extends Parser
 			}
 			# Workaround for PHP bug 35229 and similar
 			if ( !is_callable( $callback ) ) {
-				throw new MWException( "Tag hook for $name is not callable\n" );
+				throw new MWException( "Tag hook for namespace $ns is not callable\n" );
 			}
 			$return = call_user_func_array( $callback, $args );
 		}
 		if( $return === true ) {
 			# True (treat as plain link) was returned, call the defaultLinkHook
-			$args = array( $parser, $holders, $markers, $title, $titleText, &$paramText, &$leadingColon );
-			$return = call_user_func_array( array( 'CoreLinkFunctions', 'defaultLinkHook' ), $args );
+			$return = CoreLinkFunctions::defaultLinkHook( $parser, $holders, $markers, $title, 
+				$titleText, $paramText, $leadingColon );
 		}
 		if( $return === false ) {
 			# False (no link) was returned, output plain wikitext

@@ -1,10 +1,28 @@
 <?php
 /**
-* @file
-* @ingroup Maintenance
-* @author Nick Jenkins ( http://nickj.org/ ).
-* @copyright 2006 Nick Jenkins
-* @licence GNU General Public Licence 2.0
+ * Performs fuzz-style testing of MediaWiki's parser and forms.
+ *
+ * Copyright © 2006 Nick Jenkins
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ * http://www.gnu.org/copyleft/gpl.html
+ *
+ * @file
+ * @ingroup Maintenance
+ * @author Nick Jenkins ( http://nickj.org/ ).
+
 
 Started: 18 May 2006.
 
@@ -90,7 +108,6 @@ Wiki configuration for testing:
   $wgGroupPermissions['*']['reupload-shared'] = true;
   $wgGroupPermissions['*']['rollback']        = true;
   $wgGroupPermissions['*']['siteadmin']       = true;
-  $wgGroupPermissions['*']['trackback']       = true;
   $wgGroupPermissions['*']['unwatchedpages']  = true;
   $wgGroupPermissions['*']['upload']          = true;
   $wgGroupPermissions['*']['userrights']      = true;
@@ -103,7 +120,6 @@ Wiki configuration for testing:
   error_reporting (E_ALL);    // At a later date could be increased to E_ALL | E_STRICT
   $wgBlockOpenProxies = true; // Some block pages require this to be true in order to test.
   $wgEnableUploads = true;    // enable uploads.
-  //$wgUseTrackbacks = true;  // enable trackbacks; However this breaks the viewPageTest, so currently disabled.
   $wgDBerrorLog = "/root/mediawiki-db-error-log.txt";  // log DB errors, replace with suitable path.
   $wgShowSQLErrors = true;    // Show SQL errors (instead of saying the query was hidden).
   $wgShowExceptionDetails = true;  // want backtraces.
@@ -121,11 +137,7 @@ Wiki configuration for testing:
 
   // Install & enable Special Page extensions to increase code coverage. E.g.:
   require_once("extensions/Cite/SpecialCite.php");
-  require_once("extensions/Filepath/SpecialFilepath.php");
-  require_once("extensions/Makebot/Makebot.php");
-  require_once("extensions/Makesysop/SpecialMakesysop.php");
   require_once("extensions/Renameuser/SpecialRenameuser.php");
-  require_once("extensions/LinkSearch/LinkSearch.php");
   // --------- End ---------
 
   If you want to try E_STRICT error logging, add this to the above:
@@ -169,7 +181,7 @@ TODO:
 // ///////////////////////// COMMAND LINE HELP ////////////////////////////////////
 
 // This is a command line script, load MediaWiki env (gives command line options);
-require_once( dirname( __FILE__ ) . '/commandLine.inc' );
+require_once( __DIR__ . '/commandLine.inc' );
 
 // if the user asked for an explanation of command line options.
 if ( isset( $options["help"] ) ) {
@@ -369,7 +381,6 @@ class wikiFuzz {
 			"br"         => array( "CLASS", "ID", "STYLE", "title", "clear" ),
 			"cite"       => array( "CLASS", "ID", "STYLE", "lang", "dir", "title" ),
 			"var"        => array( "CLASS", "ID", "STYLE", "lang", "dir", "title" ),
-			"dl"         => array( "CLASS", "ID", "STYLE", "lang", "dir", "title" ),
 			"ruby"       => array( "CLASS", "ID", "STYLE", "lang", "dir", "title" ),
 			"rt"         => array( "CLASS", "ID", "STYLE", "lang", "dir", "title" ),
 			"rp"         => array( "CLASS", "ID", "STYLE", "lang", "dir", "title" ),
@@ -745,14 +756,18 @@ class wikiFuzz {
 	static private $maxparams = 10;
 
 	/**
-	 ** Returns random number between finish and start.
+	 * Returns random number between finish and start.
+	 * @param $finish
+	 * @param $start int
+	 * @return int
 	 */
 	static public function randnum( $finish, $start = 0 ) {
 		return mt_rand( $start, $finish );
 	}
 
 	/**
-	 ** Returns a mix of random text and random wiki syntax.
+	 * Returns a mix of random text and random wiki syntax.
+	 * @return string
 	 */
 	static private function randstring() {
 		$thestring = "";
@@ -782,42 +797,47 @@ class wikiFuzz {
 	}
 
 	/**
-	 ** Returns either random text, or random wiki syntax, or random data from "ints",
-	 **        or random data from "other".
+	 * Returns either random text, or random wiki syntax, or random data from "ints",
+	 *        or random data from "other".
+	 * @return string
 	 */
 	static private function makestring() {
 		$what = wikiFuzz::randnum( 2 );
 		if ( $what == 0 ) {
 			return wikiFuzz::randstring();
-		}
-		elseif ( $what == 1 ) {
+		} elseif ( $what == 1 ) {
 			return wikiFuzz::$ints[wikiFuzz::randnum( count( wikiFuzz::$ints ) - 1 )];
-		}
-		else {
+		} else {
 			return wikiFuzz::$other[wikiFuzz::randnum( count( wikiFuzz::$other ) - 1 )];
 		}
 	}
 
+	/**
+	 * Returns the matched character slash-escaped as in a C string
+	 * Helper for makeTitleSafe callback
+	 * @param $matches
+	 * @return string
+	 */
+	static private function stringEscape( $matches ) {
+		return sprintf( "\\x%02x", ord( $matches[1] ) );
+	}
 
 	/**
 	 ** Strips out the stuff that Mediawiki balks at in a page's title.
 	 **        Implementation copied/pasted from cleanupTable.inc & cleanupImages.php
+	 * @param $str string
+	 * @return string
 	 */
 	static public function makeTitleSafe( $str ) {
 		$legalTitleChars = " %!\"$&'()*,\\-.\\/0-9:;=?@A-Z\\\\^_`a-z~\\x80-\\xFF";
 		return preg_replace_callback(
-				"/([^$legalTitleChars])/",
-				create_function(
-					// single quotes are essential here,
-					// or alternative escape all $ as \$
-					'$matches',
-					'return sprintf( "\\x%02x", ord( $matches[1] ) );'
-					),
+				"/([^$legalTitleChars])/", 'wikiFuzz::stringEscape',
 				$str );
 	}
 
 	/**
 	 ** Returns a string of fuzz text.
+	 * @return string
 	 */
 	static private function loop() {
 		switch ( wikiFuzz::randnum( 3 ) ) {
@@ -845,7 +865,8 @@ class wikiFuzz {
 	}
 
 	/**
-	 ** Returns one of the three styles of random quote: ', ", and nothing.
+	 * Returns one of the three styles of random quote: ', ", and nothing.
+	 * @return string
 	 */
 	static private function getRandQuote() {
 		switch ( wikiFuzz::randnum( 3 ) ) {
@@ -857,6 +878,8 @@ class wikiFuzz {
 
 	/**
 	 ** Returns fuzz text, with the parameter indicating approximately how many lines of text you want.
+	 * @param $maxtypes int
+	 * @return string
 	 */
 	static public function makeFuzz( $maxtypes = 2 ) {
 		$page = "";
@@ -1027,18 +1050,18 @@ class prefixindexTest extends pageTest {
 
 		$this->params = array (
 				"title"         => "Special:Prefixindex",
-				"namespace"     => wikiFuzz::randnum( -10, 101 ),
+				"namespace"     => wikiFuzz::randnum( 101, -10 ),
 				"Go"            => wikiFuzz::makeFuzz( 2 )
 				);
 
 		// sometimes we want 'prefix', sometimes we want 'from', and sometimes we want nothing.
 		if ( wikiFuzz::randnum( 3 ) == 0 ) {
 			$this->params["prefix"] = wikiFuzz::chooseInput( array( "-1", "-----'--------0", "+++--+1",
-												 wikiFuzz::randnum( -10, 8134 ), wikiFuzz::makeFuzz( 2 ) ) );
+												 wikiFuzz::randnum( 8134, -10 ), wikiFuzz::makeFuzz( 2 ) ) );
 		}
 		if ( wikiFuzz::randnum( 3 ) == 0 ) {
 			$this->params["from"]   = wikiFuzz::chooseInput( array( "-1", "-----'--------0", "+++--+1",
-												wikiFuzz::randnum( -10, 8134 ), wikiFuzz::makeFuzz( 2 ) ) );
+												wikiFuzz::randnum( 8134, -10 ), wikiFuzz::makeFuzz( 2 ) ) );
 		}
 	}
 }
@@ -1336,6 +1359,7 @@ class viewPageTest extends pageTest {
 				"rdfrom"         => wikiFuzz::makeFuzz( 2 ),  // things from Article.php from here on:
 				"token"          => wikiFuzz::makeFuzz( 2 ),
 				"tbid"           => wikiFuzz::makeFuzz( 2 ),
+				// @todo FIXME: Duplicate array key.
 				"action"         => wikiFuzz::chooseInput( array( "purge", wikiFuzz::makeFuzz( 2 ) ) ),
 				"wpReason"       => wikiFuzz::makeFuzz( 2 ),
 				"wpEditToken"    => wikiFuzz::makeFuzz( 2 ),
@@ -1350,7 +1374,7 @@ class viewPageTest extends pageTest {
 
 		// Tidy does not know how to valid atom or rss, so exclude from testing for the time being.
 		if ( $this->params["feed"] == "atom" )     { unset( $this->params["feed"] ); }
-		else if ( $this->params["feed"] == "rss" ) { unset( $this->params["feed"] ); }
+		elseif ( $this->params["feed"] == "rss" ) { unset( $this->params["feed"] ); }
 
 		// Raw pages cannot really be validated
 		if ( $this->params["action"] == "raw" ) unset( $this->params["action"] );
@@ -1384,7 +1408,7 @@ class specialAllmessagesTest extends pageTest {
 /**
  ** a page test for "Special:Newpages".
  */
-class specialNewpages extends pageTest {
+class specialNewpagesPageTest extends pageTest {
 	function __construct() {
 		$this->pagePath = "index.php?title=Special:Newpages";
 
@@ -1397,7 +1421,7 @@ class specialNewpages extends pageTest {
 
 		// Tidy does not know how to valid atom or rss, so exclude from testing for the time being.
 		if ( $this->params["feed"] == "atom" )     { unset( $this->params["feed"] ); }
-		else if ( $this->params["feed"] == "rss" ) { unset( $this->params["feed"] ); }
+		elseif ( $this->params["feed"] == "rss" ) { unset( $this->params["feed"] ); }
 	}
 }
 
@@ -1470,7 +1494,7 @@ class specialBlockmeTest extends pageTest {
 
 		// sometimes we specify "ip", and sometimes we don't.
 		if ( wikiFuzz::randnum( 1 ) == 0 ) {
-			$this->params["ip"] = wikiFuzz::chooseInput( array( "10.12.41.213", wikiFuzz::randnum( -10, 8134 ), wikiFuzz::makeFuzz( 2 ) ) );
+			$this->params["ip"] = wikiFuzz::chooseInput( array( "10.12.41.213", wikiFuzz::randnum( 8134, -10 ), wikiFuzz::makeFuzz( 2 ) ) );
 		}
 	}
 }
@@ -1512,7 +1536,7 @@ class specialMovePage extends pageTest {
 /**
  ** a page test for "Special:Undelete"
  */
-class specialUndelete extends pageTest {
+class specialUndeletePageTest extends pageTest {
 	function __construct() {
 		$this->pagePath = "index.php?title=Special:Undelete";
 
@@ -1539,7 +1563,7 @@ class specialUndelete extends pageTest {
 /**
  ** a page test for "Special:Unlockdb"
  */
-class specialUnlockdb extends pageTest {
+class specialUnlockdbPageTest extends pageTest {
 	function __construct() {
 		$this->pagePath = "index.php?title=Special:Unlockdb";
 
@@ -1560,7 +1584,7 @@ class specialUnlockdb extends pageTest {
 /**
  ** a page test for "Special:Lockdb"
  */
-class specialLockdb extends pageTest {
+class specialLockdbPageTest extends pageTest {
 	function __construct() {
 		$this->pagePath = "index.php?title=Special:Lockdb";
 
@@ -1713,7 +1737,7 @@ class pageDeletion extends pageTest {
 /**
  ** a test for Revision Deletion.
  */
-class specialRevisionDelete extends pageTest {
+class specialRevisionDeletePageTest extends pageTest {
 	function __construct() {
 		$this->pagePath = "index.php?title=Special:Revisiondelete";
 
@@ -1744,7 +1768,7 @@ class specialRevisionDelete extends pageTest {
 /**
  ** a test for Special:Import.
  */
-class specialImport extends pageTest {
+class specialImportPageTest extends pageTest {
 	function __construct() {
 		$this->pagePath = "index.php?title=Special:Import";
 
@@ -1793,32 +1817,6 @@ class thumbTest extends pageTest {
 	}
 }
 
-
-/**
- ** a test for trackback.php
- */
-class trackbackTest extends pageTest {
-	function __construct() {
-		$this->pagePath = "trackback.php";
-
-		$this->params = array (
-				"url"       => wikiFuzz::makeFuzz( 2 ),
-				"blog_name" => wikiFuzz::chooseInput( array( "80", wikiFuzz::randnum( 6000, -200 ), wikiFuzz::makeFuzz( 2 ) ) ),
-				"article"   => wikiFuzz::chooseInput( array( "Main Page", wikiFuzz::makeFuzz( 2 ) ) ),
-				"title"     => wikiFuzz::chooseInput( array( "Main Page", wikiFuzz::makeFuzz( 2 ) ) ),
-				"excerpt"   => wikiFuzz::makeFuzz( 2 ),
-				);
-
-		// sometimes we don't want to specify certain parameters.
-		if ( wikiFuzz::randnum( 3 ) == 0 ) unset( $this->params["title"] );
-		if ( wikiFuzz::randnum( 3 ) == 0 ) unset( $this->params["excerpt"] );
-
-		// page does not produce HTML.
-		$this->tidyValidate = false;
-	}
-}
-
-
 /**
  ** a test for profileinfo.php
  */
@@ -1842,7 +1840,7 @@ class profileInfo extends pageTest {
 /**
  ** a test for Special:Cite (extension Special page).
  */
-class specialCite extends pageTest {
+class specialCitePageTest extends pageTest {
 	function __construct() {
 		$this->pagePath = "index.php?title=Special:Cite";
 
@@ -1861,7 +1859,7 @@ class specialCite extends pageTest {
 /**
  ** a test for Special:Filepath (extension Special page).
  */
-class specialFilepath extends pageTest {
+class specialFilepathPageTest extends pageTest {
 	function __construct() {
 		$this->pagePath = "index.php?title=Special:Filepath";
 
@@ -1873,55 +1871,9 @@ class specialFilepath extends pageTest {
 
 
 /**
- ** a test for Special:Makebot (extension Special page).
- */
-class specialMakebot extends pageTest {
-	function __construct() {
-		$this->pagePath = "index.php?title=Special:Makebot";
-
-		$this->params = array (
-				"username" => wikiFuzz::chooseInput( array( "Nickj2", "192.168.0.2", wikiFuzz::makeFuzz( 1 ) ) ),
-				"dosearch" => wikiFuzz::chooseInput( array( "0", "1", "++--34234", wikiFuzz::makeFuzz( 2 ) ) ),
-				"grant"    => wikiFuzz::chooseInput( array( "0", "1", "++--34234", wikiFuzz::makeFuzz( 2 ) ) ),
-				"comment"  => wikiFuzz::chooseInput( array( "20398702394", "", wikiFuzz::makeFuzz( 2 ) ) ),
-				"token"    => wikiFuzz::chooseInput( array( "20398702394", "", wikiFuzz::makeFuzz( 2 ) ) ),
-				);
-
-		// sometimes we don't want to specify certain parameters.
-		if ( wikiFuzz::randnum( 2 ) == 0 ) unset( $this->params["dosearch"] );
-		if ( wikiFuzz::randnum( 2 ) == 0 ) unset( $this->params["grant"] );
-		if ( wikiFuzz::randnum( 5 ) == 0 ) unset( $this->params["token"] );
-	}
-}
-
-
-/**
- ** a test for Special:Makesysop (extension Special page).
- */
-class specialMakesysop extends pageTest {
-	function __construct() {
-		$this->pagePath = "index.php?title=Special:Makesysop";
-
-		$this->params = array (
-				"wpMakesysopUser"   => wikiFuzz::chooseInput( array( "Nickj2", "192.168.0.2", wikiFuzz::makeFuzz( 1 ) ) ),
-				"action"            => wikiFuzz::chooseInput( array( "0", "1", "++--34234", wikiFuzz::makeFuzz( 2 ) ) ),
-				"wpMakesysopSubmit" => wikiFuzz::chooseInput( array( "0", "1", "++--34234", wikiFuzz::makeFuzz( 2 ) ) ),
-				"wpEditToken"       => wikiFuzz::chooseInput( array( "20398702394", "", wikiFuzz::makeFuzz( 2 ) ) ),
-				"wpSetBureaucrat"   => wikiFuzz::chooseInput( array( "20398702394", "", wikiFuzz::makeFuzz( 2 ) ) ),
-				);
-
-		// sometimes we don't want to specify certain parameters.
-		if ( wikiFuzz::randnum( 3 ) == 0 ) unset( $this->params["wpMakesysopSubmit"] );
-		if ( wikiFuzz::randnum( 3 ) == 0 ) unset( $this->params["wpEditToken"] );
-		if ( wikiFuzz::randnum( 3 ) == 0 ) unset( $this->params["wpSetBureaucrat"] );
-	}
-}
-
-
-/**
  ** a test for Special:Renameuser (extension Special page).
  */
-class specialRenameuser extends pageTest {
+class specialRenameuserPageTest extends pageTest {
 	function __construct() {
 		$this->pagePath = "index.php?title=Special:Renameuser";
 
@@ -2044,18 +1996,18 @@ class api extends pageTest {
 
 	// API watchlist feed mode.
 	private static function feedwatchlistMode() {
-		// FIXME: add "wikiFuzz::makeFuzz(2)" as possible value below?
+		// @todo FIXME: Add "wikiFuzz::makeFuzz(2)" as possible value below?
 		return array ( "feedformat"    => wikiFuzz::chooseInput( array( "rss", "atom" ) ) );
 	}
 
 	// API query mode.
 	private static function queryMode() {
-		// FIXME: add "wikiFuzz::makeFuzz(2)" as possible params for the elements below?
+		// @todo FIXME: Add "wikiFuzz::makeFuzz(2)" as possible params for the elements below?
 		//        Suspect this will stuff up the tests more, but need to check.
 		$params = array (
-					 // FIXME: More titles.
+					 // @todo FIXME: More titles.
 					 "titles"        => wikiFuzz::chooseInput( array( "Main Page" ) ),
-					 // FIXME: More pageids.
+					 // @todo FIXME: More pageids.
 					 "pageids"       => 1,
 					 "prop"          => wikiFuzz::chooseInput( array( "info", "revisions", "watchlist" ) ),
 					 "list"          => wikiFuzz::chooseInput( array( "allpages", "logevents", "watchlist", "usercontribs", "recentchanges", "backlinks", "embeddedin", "imagelinks" ) ),
@@ -2149,7 +2101,7 @@ class api extends pageTest {
 		$this->params["action"] = $action;
 
 		// Set the cookie:
-		// FIXME: need to get this cookie dynamically set, rather than hard-coded.
+		// @todo FIXME: Need to get this cookie dynamically set, rather than hard-coded.
 		$this->cookie = "wikidbUserID=10001; wikidbUserName=Test; wikidb_session=178df0fe68c75834643af65dec9ec98a; wikidbToken=1adc6753d62c44aec950c024d7ae0540";
 
 		// Output format
@@ -2173,7 +2125,7 @@ class GeSHi_Test extends pageTest {
 		return "<source lang=\"" . $this->getLang() . "\" "
 			   . ( wikiFuzz::randnum( 2 ) == 0 ? "line " : "" )
 			   . ( wikiFuzz::randnum( 2 ) == 0 ? "strict " : "" )
-			   . "start=" . wikiFuzz::chooseInput( array( wikiFuzz::randnum( -6000, 6000 ), wikiFuzz::makeFuzz( 2 ) ) )
+			   . "start=" . wikiFuzz::chooseInput( array( wikiFuzz::randnum( 6000, -6000 ), wikiFuzz::makeFuzz( 2 ) ) )
 			   . ">"
 			   . wikiFuzz::makeFuzz( 2 )
 			   . "</source>";
@@ -2205,9 +2157,10 @@ class GeSHi_Test extends pageTest {
 	}
 }
 
-
 /**
  ** selects a page test to run.
+ * @param $count
+ * @return \api|\confirmEmail|\contributionsTest|\editPageTest|\imagelistTest|\imagepageTest|\ipblocklistTest|\listusersTest|\mimeSearchTest|\newImagesTest|\pageDeletion|\pageHistoryTest|\pageProtectionForm|\prefixindexTest|\profileInfo|\recentchangesTest|\redirectTest|\searchTest|\specialAllmessagesTest|\specialAllpagesTest|\specialBlockip|\specialBlockmeTest|\specialBooksourcesTest|\specialCategoryTree|\specialChemicalsourcesTest|\specialCitePageTest|\specialExportTest|\specialFilepathPageTest|\specialImportPageTest|\specialLinksearch|\specialLockdbPageTest|\specialLogTest|\specialMovePage|\specialNewpagesPageTest|\specialRenameuserPageTest|\specialRevisionDeletePageTest|\specialUndeletePageTest|\specialUnlockdbPageTest|\specialUserrights|\successfulUserLoginTest|\thumbTest|\userLoginTest|\viewPageTest|\watchlistTest
  */
 function selectPageTest( $count ) {
 
@@ -2238,35 +2191,32 @@ function selectPageTest( $count ) {
 		case 15: return new contributionsTest();
 		case 16: return new viewPageTest();
 		case 17: return new specialAllmessagesTest();
-		case 18: return new specialNewpages();
+		case 18: return new specialNewpagesPageTest();
 		case 19: return new searchTest();
 		case 20: return new redirectTest();
 		case 21: return new confirmEmail();
 		case 22: return new watchlistTest();
 		case 23: return new specialBlockmeTest();
-		case 24: return new specialUndelete();
+		case 24: return new specialUndeletePageTest();
 		case 25: return new specialMovePage();
-		case 26: return new specialUnlockdb();
-		case 27: return new specialLockdb();
+		case 26: return new specialUnlockdbPageTest();
+		case 27: return new specialLockdbPageTest();
 		case 28: return new specialUserrights();
 		case 29: return new pageProtectionForm();
 		case 30: return new specialBlockip();
 		case 31: return new imagepageTest();
 		case 32: return new pageDeletion();
-		case 33: return new specialRevisionDelete();
-		case 34: return new specialImport();
+		case 33: return new specialRevisionDeletePageTest();
+		case 34: return new specialImportPageTest();
 		case 35: return new thumbTest();
-		case 36: return new trackbackTest();
 		case 37: return new profileInfo();
-		case 38: return new specialCite();
-		case 39: return new specialFilepath();
-		case 40: return new specialMakebot();
-		case 41: return new specialMakesysop();
-		case 42: return new specialRenameuser();
-		case 43: return new specialLinksearch();
-		case 44: return new specialCategoryTree();
-		case 45: return new api();
-		case 45: return new specialChemicalsourcesTest();
+		case 38: return new specialCitePageTest();
+		case 39: return new specialFilepathPageTest();
+		case 40: return new specialRenameuserPageTest();
+		case 41: return new specialLinksearch();
+		case 42: return new specialCategoryTree();
+		case 43: return new api();
+		case 44: return new specialChemicalsourcesTest();
 		default: return new editPageTest();
 	}
 }
@@ -2281,11 +2231,12 @@ function saveFile( $data, $name ) {
 	file_put_contents( $name, $data );
 }
 
-
 /**
  ** Returns a test as an experimental GET-to-POST URL.
  **        This doesn't seem to always work though, and sometimes the output is too long
  **        to be a valid GET URL, so we also save in other formats.
+ * @param $test pageTest
+ * @return string
  */
 function getAsURL( pageTest $test ) {
 	$used_question_mark = ( strpos( $test->getPagePath(), "?" ) !== false );
@@ -2333,15 +2284,16 @@ function saveTestAsPHP( pageTest $test, $filename ) {
 		. "\$result=curl_exec(\$ch);\n"
 		. "curl_close (\$ch);\n"
 		. "print \$result;\n"
-		. "?>\n";
+		. "\n";
 	saveFile( $str, $filename );
 }
 
-
 /**
- ** Escapes a value so that it can be used on the command line by Curl.
- **        Specifically, "<" and "@" need to be escaped if they are the first character,
- **        otherwise  curl interprets these as meaning that we want to insert a file.
+ * Escapes a value so that it can be used on the command line by Curl.
+ *        Specifically, "<" and "@" need to be escaped if they are the first character,
+ *        otherwise  curl interprets these as meaning that we want to insert a file.
+ * @param $input_params array
+ * @return array
  */
 function escapeForCurl( array $input_params ) {
 	$output_params = array();
@@ -2392,18 +2344,21 @@ function saveTest( pageTest $test, $testname ) {
 	saveTestData  ( $test, $base_name . DATA_FILE );
 }
 
-
 // ////////////////// MEDIAWIKI OUTPUT /////////////////////////
 
 /**
- ** Asks MediaWiki for the HTML output of a test.
+ * Asks MediaWiki for the HTML output of a test.
+ * @param $test pageTest
+ * @return string
  */
 function wikiTestOutput( pageTest $test ) {
 
 	$ch = curl_init();
 
 	// specify the cookie, if required.
-	if ( $test->getCookie() ) curl_setopt( $ch, CURLOPT_COOKIE, $test->getCookie() );
+	if ( $test->getCookie() ) {
+		curl_setopt( $ch, CURLOPT_COOKIE, $test->getCookie() );
+	}
 	curl_setopt( $ch, CURLOPT_POST, 1 );                          // save form using a POST
 
 	$params = escapeForCurl( $test->getParams() );
@@ -2428,8 +2383,10 @@ function wikiTestOutput( pageTest $test ) {
 
 // ////////////////// HTML VALIDATION /////////////////////////
 
-/*
- ** Asks the validator whether this is valid HTML, or not.
+/**
+ * Asks the validator whether this is valid HTML, or not.
+ * @param $text string
+ * @return array
  */
 function validateHTML( $text ) {
 
@@ -2453,14 +2410,15 @@ function validateHTML( $text ) {
 
 	curl_close ( $ch );
 
-	$valid = ( strpos( $result, "Failed validation" ) === false ? true : false );
+	$valid = ( strpos( $result, "Failed validation" ) === false );
 
 	return array( $valid, $result );
 }
 
-
 /**
- ** Get tidy to check for no HTML errors in the output file (e.g. unescaped strings).
+ * Get tidy to check for no HTML errors in the output file (e.g. unescaped strings).
+ * @param $name
+ * @return bool
  */
 function tidyCheckFile( $name ) {
 	$file = DIRECTORY . "/" . $name;
@@ -2479,10 +2437,10 @@ function tidyCheckFile( $name ) {
 	}
 }
 
-
 /**
  ** Returns whether or not an database error log file has changed in size since
  **        the last time this was run. This is used to tell if a test caused a DB error.
+ * @return bool
  */
 function dbErrorLogged() {
 	static $filesize;
@@ -2490,8 +2448,8 @@ function dbErrorLogged() {
 	// first time running this function
 	if ( !isset( $filesize ) ) {
 		// create log if it does not exist
-		if ( !file_exists( DB_ERROR_LOG_FILE ) ) {
-			saveFile( "", DB_ERROR_LOG_FILE );
+		if ( DB_ERROR_LOG_FILE && !file_exists( DB_ERROR_LOG_FILE ) ) {
+			saveFile( '', DB_ERROR_LOG_FILE );
 		}
 		$filesize = filesize( DB_ERROR_LOG_FILE );
 		return false;
@@ -2510,8 +2468,12 @@ function dbErrorLogged() {
 // //////////////// TOP-LEVEL PROBLEM-FINDING FUNCTION ////////////////////////
 
 /**
- ** takes a page test, and runs it and tests it for problems in the output.
- **        Returns: False on finding a problem, or True on no problems being found.
+ * takes a page test, and runs it and tests it for problems in the output.
+ *        Returns: False on finding a problem, or True on no problems being found.
+ * @param $test pageTest
+ * @param $testname
+ * @param $can_overwrite bool
+ * @return bool
  */
 function runWikiTest( pageTest $test, &$testname, $can_overwrite = false ) {
 
@@ -2683,7 +2645,7 @@ if ( !is_dir( DIRECTORY ) ) {
 	mkdir ( DIRECTORY, 0700 );
 }
 // otherwise, we first retest the things that we have found in previous runs
-else if ( RERUN_OLD_TESTS ) {
+elseif ( RERUN_OLD_TESTS ) {
 	rerunPreviousTests();
 }
 
@@ -2731,7 +2693,7 @@ for ( $count = 0; true; $count++ ) {
 		}
 		saveTest( $test, $testname );
 		$num_errors += 1;
-	} else if ( KEEP_PASSED_TESTS ) {
+	} elseif ( KEEP_PASSED_TESTS ) {
 		// print current time, with microseconds (matches "strace" format), and the test name.
 		print " " . date( "H:i:s." ) . substr( current( explode( " ", microtime() ) ), 2 ) . " " . $testname;
 		saveTest( $test, $testname );

@@ -33,27 +33,30 @@ class SpecialBlockme extends UnlistedSpecialPage {
 	}
 
 	function execute( $par ) {
-		global $wgRequest, $wgOut, $wgBlockOpenProxies, $wgProxyKey;
+		global $wgBlockOpenProxies, $wgProxyKey;
 
 		$this->setHeaders();
 		$this->outputHeader();
 
-		$ip = wfGetIP();
-		if( !$wgBlockOpenProxies || $wgRequest->getText( 'ip' ) != md5( $ip . $wgProxyKey ) ) {
-			$wgOut->addWikiMsg( 'proxyblocker-disabled' );
+		$ip = $this->getRequest()->getIP();
+		if( !$wgBlockOpenProxies || $this->getRequest()->getText( 'ip' ) != md5( $ip . $wgProxyKey ) ) {
+			$this->getOutput()->addWikiMsg( 'proxyblocker-disabled' );
 			return;
 		}
 
-		$user = User::newFromName( wfMsgForContent( 'proxyblocker' ) );
+		$user = User::newFromName( $this->msg( 'proxyblocker' )->inContentLanguage()->text() );
+		# FIXME: newFromName could return false on a badly configured wiki.
 		if ( !$user->isLoggedIn() ) {
 			$user->addToDatabase();
 		}
-		$id = $user->getId();
-		$reason = wfMsg( 'proxyblockreason' );
 
-		$block = new Block( $ip, 0, $id, $reason, wfTimestampNow() );
+		$block = new Block();
+		$block->setTarget( $ip );
+		$block->setBlocker( $user );
+		$block->mReason = $this->msg( 'proxyblockreason' )->inContentLanguage()->text();
+
 		$block->insert();
 
-		$wgOut->addWikiMsg( 'proxyblocksuccess' );
+		$this->getOutput()->addWikiMsg( 'proxyblocksuccess' );
 	}
 }

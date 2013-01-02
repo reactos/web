@@ -21,22 +21,17 @@
  * @ingroup SpecialPage
  * @author Rob Church <robchur@gmail.com>
  */
- 
+
 /**
  * Special page lists templates with a large number of
  * transclusion links, i.e. "most used" templates
  *
  * @ingroup SpecialPage
  */
-class SpecialMostlinkedtemplates extends QueryPage {
+class MostlinkedTemplatesPage extends QueryPage {
 
-	/**
-	 * Name of the report
-	 *
-	 * @return String
-	 */
-	public function getName() {
-		return 'Mostlinkedtemplates';
+	function __construct( $name = 'Mostlinkedtemplates' ) {
+		parent::__construct( $name );
 	}
 
 	/**
@@ -66,38 +61,35 @@ class SpecialMostlinkedtemplates extends QueryPage {
 		return true;
 	}
 
-	/**
-	 * Generate SQL for the report
-	 *
-	 * @return String
-	 */
-	public function getSql() {
-		$dbr = wfGetDB( DB_SLAVE );
-		$templatelinks = $dbr->tableName( 'templatelinks' );
-		$name = $dbr->addQuotes( $this->getName() );
-		return "SELECT {$name} AS type,
-			" . NS_TEMPLATE . " AS namespace,
-			tl_title AS title,
-			COUNT(*) AS value
-			FROM {$templatelinks}
-			WHERE tl_namespace = " . NS_TEMPLATE . "
-			GROUP BY tl_title";
+	public function getQueryInfo() {
+		return array (
+			'tables' => array ( 'templatelinks' ),
+			'fields' => array ( 'namespace' => 'tl_namespace',
+					'title' => 'tl_title',
+					'value' => 'COUNT(*)' ),
+			'conds' => array ( 'tl_namespace' => NS_TEMPLATE ),
+			'options' => array( 'GROUP BY' => array( 'tl_namespace', 'tl_title' ) )
+		);
 	}
 
 	/**
 	 * Pre-cache page existence to speed up link generation
 	 *
-	 * @param $db Database connection
+	 * @param $db DatabaseBase connection
 	 * @param $res ResultWrapper
 	 */
 	public function preprocessResults( $db, $res ) {
+		if ( !$res->numRows() ) {
+			return;
+		}
+
 		$batch = new LinkBatch();
 		foreach ( $res as $row ) {
 			$batch->add( $row->namespace, $row->title );
 		}
 		$batch->execute();
-		if( $db->numRows( $res ) > 0 )
-			$db->dataSeek( $res, 0 );
+
+		$res->seek( 0 );
 	}
 
 	/**
@@ -109,10 +101,14 @@ class SpecialMostlinkedtemplates extends QueryPage {
 	 */
 	public function formatResult( $skin, $result ) {
 		$title = Title::makeTitleSafe( $result->namespace, $result->title );
+		if ( !$title ) {
+			return Html::element( 'span', array( 'class' => 'mw-invalidtitle' ),
+				Linker::getInvalidTitleDescription( $this->getContext(), $result->namespace, $result->title ) );
+		}
 
-		return wfSpecialList(
-			$skin->link( $title ),
-			$this->makeWlhLink( $title, $skin, $result )
+		return $this->getLanguage()->specialList(
+			Linker::link( $title ),
+			$this->makeWlhLink( $title, $result )
 		);
 	}
 
@@ -120,26 +116,13 @@ class SpecialMostlinkedtemplates extends QueryPage {
 	 * Make a "what links here" link for a given title
 	 *
 	 * @param $title Title to make the link for
-	 * @param $skin Skin to use
 	 * @param $result Result row
 	 * @return String
 	 */
-	private function makeWlhLink( $title, $skin, $result ) {
-		global $wgLang;
-		$wlh = SpecialPage::getTitleFor( 'Whatlinkshere' );
-		$label = wfMsgExt( 'ntransclusions', array( 'parsemag', 'escape' ),
-			$wgLang->formatNum( $result->value ) );
-		return $skin->link( $wlh, $label, array(), array( 'target' => $title->getPrefixedText() ) );
+	private function makeWlhLink( $title, $result ) {
+		$wlh = SpecialPage::getTitleFor( 'Whatlinkshere', $title->getPrefixedText() );
+		$label = $this->msg( 'ntransclusions' )->numParams( $result->value )->escaped();
+		return Linker::link( $wlh, $label );
 	}
 }
 
-/**
- * Execution function
- *
- * @param $par Mixed: parameters passed to the page
- */
-function wfSpecialMostlinkedtemplates( $par = false ) {
-	list( $limit, $offset ) = wfCheckLimits();
-	$mlt = new SpecialMostlinkedtemplates();
-	$mlt->doQuery( $offset, $limit );
-}

@@ -1,5 +1,26 @@
 <?php
 /**
+ * Recent changes filtering by category.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ * http://www.gnu.org/copyleft/gpl.html
+ *
+ * @file
+ */
+
+/**
  * The "Categoryfinder" class takes a list of articles, creates an internal
  * representation of all their parent categories (as well as parents of
  * parents etc.). From this representation, it determines which of these
@@ -29,6 +50,10 @@ class Categoryfinder {
 	var $targets = array(); # Array of DBKEY category names
 	var $name2id = array();
 	var $mode; # "AND" or "OR"
+
+	/**
+	 * @var DatabaseBase
+	 */
 	var $dbr; # Read-DB slave
 
 	/**
@@ -42,6 +67,7 @@ class Categoryfinder {
 	 * @param $article_ids Array of article IDs
 	 * @param $categories FIXME
 	 * @param $mode String: FIXME, default 'AND'.
+	 * @todo FIXME: $categories/$mode
 	 */
 	function seed( $article_ids, $categories, $mode = 'AND' ) {
 		$this->articles = $article_ids;
@@ -85,9 +111,9 @@ class Categoryfinder {
 
 	/**
 	 * This functions recurses through the parent representation, trying to match the conditions
-	 * @param $id The article/category to check
-	 * @param $conds The array of categories to match
-	 * @param $path used to check for recursion loops
+	 * @param $id int The article/category to check
+	 * @param $conds array The array of categories to match
+	 * @param $path array used to check for recursion loops
 	 * @return bool Does this match the conditions?
 	 */
 	function check( $id, &$conds, $path = array() ) {

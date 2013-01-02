@@ -1,8 +1,8 @@
 <?php
 /**
- * This script starts pending jobs.
+ * Run pending jobs.
  *
- * Usage:
+ * Options:
  *  --maxjobs <num> (default 10000)
  *  --type <job_cmd>
  *
@@ -21,21 +21,31 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  * http://www.gnu.org/copyleft/gpl.html
  *
+ * @file
  * @ingroup Maintenance
  */
 
-require_once( dirname( __FILE__ ) . '/Maintenance.php' );
+require_once( __DIR__ . '/Maintenance.php' );
 
+/**
+ * Maintenance script that runs pending jobs.
+ *
+ * @ingroup Maintenance
+ */
 class RunJobs extends Maintenance {
 	public function __construct() {
 		parent::__construct();
 		$this->mDescription = "Run pending jobs";
 		$this->addOption( 'maxjobs', 'Maximum number of jobs to run', false, true );
+		$this->addOption( 'maxtime', 'Maximum amount of wall-clock time', false, true );
 		$this->addOption( 'type', 'Type of job to run', false, true );
 		$this->addOption( 'procs', 'Number of processes to use', false, true );
 	}
 
 	public function memoryLimit() {
+		if ( $this->hasOption( 'memory-limit' ) ) {
+			return parent::memoryLimit();
+		}
 		// Don't eat all memory on the machine if we get a bad job.
 		return "150M";
 	}
@@ -48,30 +58,37 @@ class RunJobs extends Maintenance {
 				$this->error( "Invalid argument to --procs", true );
 			}
 			$fc = new ForkController( $procs );
-			if ( $fc->start( $procs ) != 'child' ) {
+			if ( $fc->start() != 'child' ) {
 				exit( 0 );
 			}
 		}
-		$maxJobs = $this->getOption( 'maxjobs', 10000 );
+		$maxJobs = $this->getOption( 'maxjobs', false );
+		$maxTime = $this->getOption( 'maxtime', false );
+		$startTime = time();
 		$type = $this->getOption( 'type', false );
 		$wgTitle = Title::newFromText( 'RunJobs.php' );
 		$dbw = wfGetDB( DB_MASTER );
 		$n = 0;
-		$conds = '';
-		if ( $type !== false )
-			$conds = "job_cmd = " . $dbw->addQuotes( $type );
+
+		if ( $type === false ) {
+			$conds = Job::defaultQueueConditions( );
+		} else {
+			$conds = array( 'job_cmd' => $type );
+		}
 
 		while ( $dbw->selectField( 'job', 'job_id', $conds, 'runJobs.php' ) ) {
 			$offset = 0;
 			for ( ; ; ) {
 				$job = !$type ? Job::pop( $offset ) : Job::pop_type( $type );
 
-				if ( !$job )
+				if ( !$job ) {
 					break;
+				}
 
-				wfWaitForSlaves( 5 );
+				wfWaitForSlaves();
 				$t = microtime( true );
 				$offset = $job->id;
+				$this->runJobsLog( $job->toString() . " STARTING" );
 				$status = $job->run();
 				$t = microtime( true ) - $t;
 				$timeMs = intval( $t * 1000 );
@@ -80,7 +97,11 @@ class RunJobs extends Maintenance {
 				} else {
 					$this->runJobsLog( $job->toString() . " t=$timeMs good" );
 				}
+
 				if ( $maxJobs && ++$n > $maxJobs ) {
+					break 2;
+				}
+				if ( $maxTime && time() - $startTime > $maxTime ) {
 					break 2;
 				}
 			}

@@ -1,4 +1,24 @@
 <?php
+/**
+ * Representation of an user on a other locally-hosted wiki.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ * http://www.gnu.org/copyleft/gpl.html
+ *
+ * @file
+ */
 
 /**
  * Cut-down copy of User interface for local-interwiki-database
@@ -85,6 +105,13 @@ class UserRightsProxy {
 		return self::newFromLookup( $database, 'user_name', $name, $ignoreInvalidDB );
 	}
 
+	/**
+	 * @param $database
+	 * @param $field
+	 * @param $value
+	 * @param $ignoreInvalidDB bool
+	 * @return null|UserRightsProxy
+	 */
 	private static function newFromLookup( $database, $field, $value, $ignoreInvalidDB = false ) {
 		$db = self::getDB( $database, $ignoreInvalidDB );
 		if( $db ) {
@@ -122,10 +149,16 @@ class UserRightsProxy {
 		return null;
 	}
 
+	/**
+	 * @return int
+	 */
 	public function getId() {
 		return $this->id;
 	}
 
+	/**
+	 * @return bool
+	 */
 	public function isAnon() {
 		return $this->getId() == 0;
 	}
@@ -150,6 +183,7 @@ class UserRightsProxy {
 
 	/**
 	 * Replaces User::getUserGroups()
+	 * @return array
 	 */
 	function getGroups() {
 		$res = $this->db->select( 'user_groups',
@@ -187,14 +221,14 @@ class UserRightsProxy {
 			),
 			__METHOD__ );
 	}
-	
+
 	/**
 	 * Replaces User::setOption()
 	 */
 	public function setOption( $option, $value ) {
 		$this->newOptions[$option] = $value;
 	}
-	
+
 	public function saveSettings() {
 		$rows = array();
 		foreach ( $this->newOptions as $option => $value ) {

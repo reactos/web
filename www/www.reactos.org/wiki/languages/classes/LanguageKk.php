@@ -1,7 +1,28 @@
 <?php
+/**
+ * Kazakh (Қазақша) specific code.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ * http://www.gnu.org/copyleft/gpl.html
+ *
+ * @file
+ * @ingroup Language
+ */
 
-require_once( dirname( __FILE__ ) . '/../LanguageConverter.php' );
-require_once( dirname( __FILE__ ) . '/LanguageKk_cyrl.php' );
+require_once( __DIR__ . '/../LanguageConverter.php' );
+require_once( __DIR__ . '/LanguageKk_cyrl.php' );
 
 define( 'KK_C_UC', 'АӘБВГҒДЕЁЖЗИЙКҚЛМНҢОӨПРСТУҰҮФХҺЦЧШЩЪЫІЬЭЮЯ' ); # Kazakh Cyrillic uppercase
 define( 'KK_C_LC', 'аәбвгғдеёжзийкқлмнңоөпрстуұүфхһцчшщъыіьэюя' ); # Kazakh Cyrillic lowercase
@@ -11,13 +32,22 @@ define( 'KK_L_LC', 'aäbcçdeéfgğhıiïjklmnñoöpqrsştuüvwxyýz' ); # Kazak
 define( 'H_HAMZA', 'ٴ' ); # U+0674 ARABIC LETTER HIGH HAMZA
 // define( 'ZWNJ', '‌' ); # U+200C ZERO WIDTH NON-JOINER
 
-/** Kazakh (Қазақша)
- * converter routines
+/**
+ * Kazakh (Қазақша) converter routines
  *
  * @ingroup Language
  */
 class KkConverter extends LanguageConverter {
 
+	protected $mCyrl2Latn, $mLatn2Cyrl, $mCyLa2Arab;
+
+	/**
+	 * @param $langobj Language
+	 * @param $maincode string
+	 * @param $variants array
+	 * @param $variantfallbacks array
+	 * @param $flags array
+	 */
 	function __construct( $langobj, $maincode,
 								$variants = array(),
 								$variantfallbacks = array(),
@@ -32,7 +62,7 @@ class KkConverter extends LanguageConverter {
 	}
 
 	function loadDefaultTables() {
-		// require( dirname(__FILE__)."/../../includes/KkConversion.php" );
+		// require( __DIR__."/../../includes/KkConversion.php" );
 		// Placeholder for future implementing. Remove variables declarations
 		// after generating KkConversion.php
 		$kk2Cyrl = array();
@@ -104,7 +134,7 @@ class KkConverter extends LanguageConverter {
 			# # Punctuation
 			'/#|No\./' => '№',
 			# # Şç
-			'/ŞÇʹ/u' => 'ЩЬ', '/Şçʹ/u' => 'Щь', '/Şçʹ/u' => 'Щь',
+			'/ŞÇʹ/u' => 'ЩЬ', '/Şçʹ/u' => 'Щь',
 			'/Ş[Çç]/u' => 'Щ', '/şç/u' => 'щ',
 			# # soft and hard signs
 			'/([' . KK_L_UC . '])ʺ([' . KK_L_UC . '])/u' => '$1Ъ$2',
@@ -190,16 +220,23 @@ class KkConverter extends LanguageConverter {
 		);
 	}
 
-	/* rules should be defined as -{ekavian | iyekavian-} -or-
-		-{code:text | code:text | ...}-
-		update: delete all rule parsing because it's not used
-				currently, and just produces a couple of bugs
-	*/
+	/**
+	 * rules should be defined as -{ekavian | iyekavian-} -or-
+	 * -{code:text | code:text | ...}-
+	 *
+	 * update: delete all rule parsing because it's not used
+	 *      currently, and just produces a couple of bugs
+	 *
+	 * @param $rule string
+	 * @param $flags array
+	 * @return array
+	 */
 	function parseManualRule( $rule, $flags = array() ) {
 		if ( in_array( 'T', $flags ) ) {
 			return parent::parseManualRule( $rule, $flags );
 		}
 
+		$carray = array();
 		// otherwise ignore all formatting
 		foreach ( $this->mVariants as $v ) {
 			$carray[$v] = $rule;
@@ -208,11 +245,15 @@ class KkConverter extends LanguageConverter {
 		return $carray;
 	}
 
-	/*
+	/**
 	 * A function wrapper:
 	 *  - if there is no selected variant, leave the link
 	 *    names as they were
 	 *  - do not try to find variants for usernames
+	 *
+	 * @param $link string
+	 * @param $nt Title
+	 * @param bool $ignoreOtherCond
 	 */
 	function findVariantLink( &$link, &$nt, $ignoreOtherCond = false ) {
 		// check for user namespace
@@ -228,9 +269,14 @@ class KkConverter extends LanguageConverter {
 			$link = $oldlink;
 	}
 
-	/*
+	/**
 	 * An ugly function wrapper for parsing Image titles
 	 * (to prevent image name conversion)
+	 *
+	 * @param $text string
+	 * @param $toVariant bool
+	 *
+	 * @return string
 	 */
 	function autoConvert( $text, $toVariant = false ) {
 		global $wgTitle;
@@ -243,6 +289,11 @@ class KkConverter extends LanguageConverter {
 
 	/**
 	 *  It translates text into variant
+	 *
+	 * @param $text string
+	 * @param $toVariant string
+	 *
+	 * @return string
 	 */
 	function translate( $text, $toVariant ) {
 		global $wgLanguageCode;
@@ -282,6 +333,11 @@ class KkConverter extends LanguageConverter {
 		return $ret;
 	}
 
+	/**
+	 * @param $text string
+	 * @param $toVariant string
+	 * @return mixed|string
+	 */
 	function regsConverter( $text, $toVariant ) {
 		if ( $text == '' ) {
 			return $text;
@@ -334,9 +390,14 @@ class KkConverter extends LanguageConverter {
 		}
 	}
 
-	/*
+	/**
 	 * We want our external link captions to be converted in variants,
 	 * so we return the original text instead -{$text}-, except for URLs
+	 *
+	 * @param $text string
+	 * @param $noParse string|bool
+	 *
+	 * @return string
 	 */
 	function markNoConversion( $text, $noParse = false ) {
 		if ( $noParse || preg_match( "/^https?:\/\/|ftp:\/\/|irc:\/\//", $text ) )
@@ -344,6 +405,10 @@ class KkConverter extends LanguageConverter {
 		return $text;
 	}
 
+	/**
+	 * @param $key string
+	 * @return String
+	 */
 	function convertCategoryKey( $key ) {
 		return $this->autoConvert( $key, 'kk' );
 	}
@@ -379,22 +444,11 @@ class LanguageKk extends LanguageKk_cyrl {
 	}
 
 	/**
-	 * Work around for right-to-left direction support in kk-arab and kk-cn
-	 *
-	 * @return bool
-	 */
-	function isRTL() {
-		$variant = $this->getPreferredVariant();
-		if ( $variant == 'kk-arab' || $variant == 'kk-cn' ) {
-			return true;
-		} else {
-			return parent::isRTL();
-		}
-	}
-
-	/*
 	 * It fixes issue with ucfirst for transforming 'i' to 'İ'
 	 *
+	 * @param $string string
+	 *
+	 * @return string
 	 */
 	function ucfirst ( $string ) {
 		$variant = $this->getPreferredVariant();
@@ -406,9 +460,12 @@ class LanguageKk extends LanguageKk_cyrl {
 		return $string;
 	}
 
-	/*
+	/**
 	 * It fixes issue with  lcfirst for transforming 'I' to 'ı'
 	 *
+	 * @param $string string
+	 *
+	 * @return string
 	 */
 	function lcfirst ( $string ) {
 		$variant = $this->getPreferredVariant();
@@ -420,6 +477,11 @@ class LanguageKk extends LanguageKk_cyrl {
 		return $string;
 	}
 
+	/**
+	 * @param $word string
+	 * @param $case string
+	 * @return string
+	 */
 	function convertGrammar( $word, $case ) {
 		wfProfileIn( __METHOD__ );
 

@@ -1,10 +1,10 @@
 <?php
 /**
- * API for MediaWiki 1.8+
+ *
  *
  * Created on July 7, 2007
  *
- * Copyright © 2006 Yuri Astrakhan <Firstname><Lastname>@gmail.com
+ * Copyright © 2006 Yuri Astrakhan "<Firstname><Lastname>@gmail.com"
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,11 +23,6 @@
  *
  * @file
  */
-
-if ( !defined( 'MEDIAWIKI' ) ) {
-	// Eclipse helper - will be ignored in production
-	require_once( 'ApiQueryBase.php' );
-}
 
 /**
  * @ingroup API
@@ -50,45 +45,32 @@ class ApiQueryExtLinksUsage extends ApiQueryGeneratorBase {
 		$this->run( $resultPageSet );
 	}
 
+	/**
+	 * @param $resultPageSet ApiPageSet
+	 * @return void
+	 */
 	private function run( $resultPageSet = null ) {
 		$params = $this->extractRequestParams();
 
-		$protocol = $params['protocol'];
 		$query = $params['query'];
+		$protocol = self::getProtocolPrefix( $params['protocol'] );
 
-		// Find the right prefix
-		global $wgUrlProtocols;
-		if ( $protocol && !in_array( $protocol, $wgUrlProtocols ) ) {
-			foreach ( $wgUrlProtocols as $p ) {
-				if ( substr( $p, 0, strlen( $protocol ) ) === $protocol ) {
-					$protocol = $p;
-					break;
-				}
-			}
-		} else {
-			$protocol = null;
-		}
-
-		$db = $this->getDB();
 		$this->addTables( array( 'page', 'externallinks' ) );	// must be in this order for 'USE INDEX'
 		$this->addOption( 'USE INDEX', 'el_index' );
 		$this->addWhere( 'page_id=el_from' );
-		$this->addWhereFld( 'page_namespace', $params['namespace'] );
 
-		if ( !is_null( $query ) || $query != '' ) {
-			if ( is_null( $protocol ) ) {
-				$protocol = 'http://';
-			}
+		global $wgMiserMode;
+		$miser_ns = array();
+		if ( $wgMiserMode ) {
+			$miser_ns = $params['namespace'];
+		} else {
+			$this->addWhereFld( 'page_namespace', $params['namespace'] );
+		}
 
-			$likeQuery = LinkFilter::makeLikeArray( $query, $protocol );
-			if ( !$likeQuery ) {
-				$this->dieUsage( 'Invalid query', 'bad_query' );
-			}
+		$whereQuery = $this->prepareUrlQuerySearchString( $query, $protocol );
 
-			$likeQuery = LinkFilter::keepOneWildcard( $likeQuery );
-			$this->addWhere( 'el_index ' . $db->buildLike( $likeQuery ) );
-		} elseif ( !is_null( $protocol ) ) {
-			$this->addWhere( 'el_index ' . $db->buildLike( "$protocol", $db->anyString() ) );
+		if ( $whereQuery !== null ) {
+			$this->addWhere( $whereQuery );
 		}
 
 		$prop = array_flip( $params['prop'] );
@@ -125,6 +107,10 @@ class ApiQueryExtLinksUsage extends ApiQueryGeneratorBase {
 				break;
 			}
 
+			if ( count( $miser_ns ) && !in_array( $row->page_namespace, $miser_ns ) ) {
+				continue;
+			}
+
 			if ( is_null( $resultPageSet ) ) {
 				$vals = array();
 				if ( $fld_ids ) {
@@ -135,6 +121,7 @@ class ApiQueryExtLinksUsage extends ApiQueryGeneratorBase {
 					ApiQueryBase::addTitleInfo( $vals, $title );
 				}
 				if ( $fld_url ) {
+					// We *could* run this through wfExpandUrl() but I think it's better to output the link verbatim, even if it's protocol-relative --Roan
 					$vals['url'] = $row->el_to;
 				}
 				$fit = $result->addValue( array( 'query', $this->getModuleName() ), null, $vals );
@@ -154,12 +141,6 @@ class ApiQueryExtLinksUsage extends ApiQueryGeneratorBase {
 	}
 
 	public function getAllowedParams() {
-		global $wgUrlProtocols;
-		$protocols = array( '' );
-		foreach ( $wgUrlProtocols as $p ) {
-			$protocols[] = substr( $p, 0, strpos( $p, ':' ) );
-		}
-
 		return array(
 			'prop' => array(
 				ApiBase::PARAM_ISMULTI => true,
@@ -174,7 +155,7 @@ class ApiQueryExtLinksUsage extends ApiQueryGeneratorBase {
 				ApiBase::PARAM_TYPE => 'integer'
 			),
 			'protocol' => array(
-				ApiBase::PARAM_TYPE => $protocols,
+				ApiBase::PARAM_TYPE => self::prepareProtocols(),
 				ApiBase::PARAM_DFLT => '',
 			),
 			'query' => null,
@@ -192,13 +173,42 @@ class ApiQueryExtLinksUsage extends ApiQueryGeneratorBase {
 		);
 	}
 
+	public static function prepareProtocols() {
+		global $wgUrlProtocols;
+		$protocols = array( '' );
+		foreach ( $wgUrlProtocols as $p ) {
+			if ( $p !== '//' ) {
+				$protocols[] = substr( $p, 0, strpos( $p, ':' ) );
+			}
+		}
+		return $protocols;
+	}
+
+	public static function getProtocolPrefix( $protocol ) {
+		// Find the right prefix
+		global $wgUrlProtocols;
+		if ( $protocol && !in_array( $protocol, $wgUrlProtocols ) ) {
+			foreach ( $wgUrlProtocols as $p ) {
+				if ( substr( $p, 0, strlen( $protocol ) ) === $protocol ) {
+					$protocol = $p;
+					break;
+				}
+			}
+
+			return $protocol;
+		} else {
+			return null;
+		}
+	}
+
 	public function getParamDescription() {
+		global $wgMiserMode;
 		$p = $this->getModulePrefix();
-		return array(
+		$desc = array(
 			'prop' => array(
 				'What pieces of information to include',
-				' ids    - Adds the id of page',
-				' title  - Adds the title and namespace id of the page',
+				' ids    - Adds the ID of page',
+				' title  - Adds the title and namespace ID of the page',
 				' url    - Adds the URL used in the page',
 			),
 			'offset' => 'Used for paging. Use the value returned for "continue"',
@@ -209,6 +219,31 @@ class ApiQueryExtLinksUsage extends ApiQueryGeneratorBase {
 			'query' => 'Search string without protocol. See [[Special:LinkSearch]]. Leave empty to list all external links',
 			'namespace' => 'The page namespace(s) to enumerate.',
 			'limit' => 'How many pages to return.'
+		);
+
+		if ( $wgMiserMode ) {
+			$desc['namespace'] = array(
+				$desc['namespace'],
+				"NOTE: Due to \$wgMiserMode, using this may result in fewer than \"{$p}limit\" results",
+				'returned before continuing; in extreme cases, zero results may be returned',
+			);
+		}
+
+		return $desc;
+	}
+
+	public function getResultProperties() {
+		return array(
+			'ids' => array(
+				'pageid' => 'integer'
+			),
+			'title' => array(
+				'ns' => 'namespace',
+				'title' => 'string'
+			),
+			'url' => array(
+				'url' => 'string'
+			)
 		);
 	}
 
@@ -222,13 +257,17 @@ class ApiQueryExtLinksUsage extends ApiQueryGeneratorBase {
 		) );
 	}
 
-	protected function getExamples() {
+	public function getExamples() {
 		return array(
 			'api.php?action=query&list=exturlusage&euquery=www.mediawiki.org'
 		);
 	}
 
+	public function getHelpUrls() {
+		return 'https://www.mediawiki.org/wiki/API:Exturlusage';
+	}
+
 	public function getVersion() {
-		return __CLASS__ . ': $Id: ApiQueryExtLinksUsage.php 70647 2010-08-07 19:59:42Z ialex $';
+		return __CLASS__ . ': $Id$';
 	}
 }

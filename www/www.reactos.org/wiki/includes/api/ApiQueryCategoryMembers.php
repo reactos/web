@@ -1,10 +1,10 @@
 <?php
 /**
- * API for MediaWiki 1.8+
+ *
  *
  * Created on June 14, 2007
  *
- * Copyright © 2006 Yuri Astrakhan <Firstname><Lastname>@gmail.com
+ * Copyright © 2006 Yuri Astrakhan "<Firstname><Lastname>@gmail.com"
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,11 +23,6 @@
  *
  * @file
  */
-
-if ( !defined( 'MEDIAWIKI' ) ) {
-	// Eclipse helper - will be ignored in production
-	require_once( "ApiQueryBase.php" );
-}
 
 /**
  * A query module to enumerate pages that belong to a category.
@@ -52,12 +47,15 @@ class ApiQueryCategoryMembers extends ApiQueryGeneratorBase {
 		$this->run( $resultPageSet );
 	}
 
+	/**
+	 * @param $resultPageSet ApiPageSet
+	 * @return void
+	 */
 	private function run( $resultPageSet = null ) {
 		$params = $this->extractRequestParams();
 
-		$categoryTitle = Title::newFromText( $params['title'] );
-
-		if ( is_null( $categoryTitle ) || $categoryTitle->getNamespace() != NS_CATEGORY ) {
+		$categoryTitle = $this->getTitleOrPageId( $params )->getTitle();
+		if ( $categoryTitle->getNamespace() != NS_CATEGORY ) {
 			$this->dieUsage( 'The category name you entered is not valid', 'invalidcategory' );
 		}
 
@@ -96,10 +94,10 @@ class ApiQueryCategoryMembers extends ApiQueryGeneratorBase {
 			$this->addWhereFld( 'page_namespace', $params['namespace'] );
 		}
 
-		$dir = $params['dir'] == 'asc' ? 'newer' : 'older';
+		$dir = in_array( $params['dir'], array( 'asc', 'ascending', 'newer' ) ) ? 'newer' : 'older';
 
 		if ( $params['sort'] == 'timestamp' ) {
-			$this->addWhereRange( 'cl_timestamp',
+			$this->addTimestampWhereRange( 'cl_timestamp',
 				$dir,
 				$params['start'],
 				$params['end'] );
@@ -113,11 +111,11 @@ class ApiQueryCategoryMembers extends ApiQueryGeneratorBase {
 						'by the previous query', '_badcontinue'
 					);
 				}
-				
+
 				// Remove the types to skip from $queryTypes
 				$contTypeIndex = array_search( $cont[0], $queryTypes );
 				$queryTypes = array_slice( $queryTypes, $contTypeIndex );
-				
+
 				// Add a WHERE clause for sortkey and from
 				// pack( "H*", $foo ) is used to convert hex back to binary
 				$escSortkey = $this->getDB()->addQuotes( pack( "H*", $cont[1] ) );
@@ -127,13 +125,22 @@ class ApiQueryCategoryMembers extends ApiQueryGeneratorBase {
 				$contWhere = "cl_sortkey $op $escSortkey OR " .
 					"(cl_sortkey = $escSortkey AND " .
 					"cl_from $op= $from)";
-				
+				// The below produces ORDER BY cl_sortkey, cl_from, possibly with DESC added to each of them
+				$this->addWhereRange( 'cl_sortkey', $dir, null, null );
+				$this->addWhereRange( 'cl_from', $dir, null, null );
 			} else {
+				$startsortkey = $params['startsortkeyprefix'] !== null ?
+					Collation::singleton()->getSortkey( $params['startsortkeyprefix'] ) :
+					$params['startsortkey'];
+				$endsortkey = $params['endsortkeyprefix'] !== null ?
+					Collation::singleton()->getSortkey( $params['endsortkeyprefix'] ) :
+					$params['endsortkey'];
+
 				// The below produces ORDER BY cl_sortkey, cl_from, possibly with DESC added to each of them
 				$this->addWhereRange( 'cl_sortkey',
 					$dir,
-					$params['startsortkey'],
-					$params['endsortkey'] );
+					$startsortkey,
+					$endsortkey );
 				$this->addWhereRange( 'cl_from', $dir, null, null );
 			}
 			$this->addOption( 'USE INDEX', 'cl_sortkey' );
@@ -173,6 +180,8 @@ class ApiQueryCategoryMembers extends ApiQueryGeneratorBase {
 			$res = $this->select( __METHOD__ );
 			$rows = iterator_to_array( $res );
 		}
+
+		$result = $this->getResult();
 		$count = 0;
 		foreach ( $rows as $row ) {
 			if ( ++ $count > $limit ) {
@@ -218,7 +227,7 @@ class ApiQueryCategoryMembers extends ApiQueryGeneratorBase {
 				if ( $fld_timestamp ) {
 					$vals['timestamp'] = wfTimestamp( TS_ISO_8601, $row->cl_timestamp );
 				}
-				$fit = $this->getResult()->addValue( array( 'query', $this->getModuleName() ),
+				$fit = $result->addValue( array( 'query', $this->getModuleName() ),
 						null, $vals );
 				if ( !$fit ) {
 					if ( $params['sort'] == 'timestamp' ) {
@@ -237,7 +246,7 @@ class ApiQueryCategoryMembers extends ApiQueryGeneratorBase {
 		}
 
 		if ( is_null( $resultPageSet ) ) {
-			$this->getResult()->setIndexedTagName_internal(
+			$result->setIndexedTagName_internal(
 					 array( 'query', $this->getModuleName() ), 'cm' );
 		}
 	}
@@ -246,7 +255,9 @@ class ApiQueryCategoryMembers extends ApiQueryGeneratorBase {
 		return array(
 			'title' => array(
 				ApiBase::PARAM_TYPE => 'string',
-				ApiBase::PARAM_REQUIRED => true
+			),
+			'pageid' => array(
+				ApiBase::PARAM_TYPE => 'integer'
 			),
 			'prop' => array(
 				ApiBase::PARAM_DFLT => 'ids|title',
@@ -289,10 +300,15 @@ class ApiQueryCategoryMembers extends ApiQueryGeneratorBase {
 				)
 			),
 			'dir' => array(
-				ApiBase::PARAM_DFLT => 'asc',
+				ApiBase::PARAM_DFLT => 'ascending',
 				ApiBase::PARAM_TYPE => array(
 					'asc',
-					'desc'
+					'desc',
+					// Normalising with other modules
+					'ascending',
+					'descending',
+					'newer',
+					'older',
 				)
 			),
 			'start' => array(
@@ -303,6 +319,8 @@ class ApiQueryCategoryMembers extends ApiQueryGeneratorBase {
 			),
 			'startsortkey' => null,
 			'endsortkey' => null,
+			'startsortkeyprefix' => null,
+			'endsortkeyprefix' => null,
 		);
 	}
 
@@ -310,7 +328,8 @@ class ApiQueryCategoryMembers extends ApiQueryGeneratorBase {
 		global $wgMiserMode;
 		$p = $this->getModulePrefix();
 		$desc = array(
-			'title' => 'Which category to enumerate (required). Must include Category: prefix',
+			'title' => "Which category to enumerate (required). Must include Category: prefix. Cannot be used together with {$p}pageid",
+			'pageid' => "Page ID of the category to enumerate. Cannot be used together with {$p}title",
 			'prop' => array(
 				'What pieces of information to include',
 				' ids           - Adds the page ID',
@@ -326,20 +345,53 @@ class ApiQueryCategoryMembers extends ApiQueryGeneratorBase {
 			'dir' => 'In which direction to sort',
 			'start' => "Timestamp to start listing from. Can only be used with {$p}sort=timestamp",
 			'end' => "Timestamp to end listing at. Can only be used with {$p}sort=timestamp",
-			'startsortkey' => "Sortkey to start listing from. Can only be used with {$p}sort=sortkey",
-			'endsortkey' => "Sortkey to end listing at. Can only be used with {$p}sort=sortkey",
-			'continue' => 'For large categories, give the value retured from previous query',
+			'startsortkey' => "Sortkey to start listing from. Must be given in binary format. Can only be used with {$p}sort=sortkey",
+			'endsortkey' => "Sortkey to end listing at. Must be given in binary format. Can only be used with {$p}sort=sortkey",
+			'startsortkeyprefix' => "Sortkey prefix to start listing from. Can only be used with {$p}sort=sortkey. Overrides {$p}startsortkey",
+			'endsortkeyprefix' => "Sortkey prefix to end listing BEFORE (not at, if this value occurs it will not be included!). Can only be used with {$p}sort=sortkey. Overrides {$p}endsortkey",
+			'continue' => 'For large categories, give the value returned from previous query',
 			'limit' => 'The maximum number of pages to return.',
 		);
+
 		if ( $wgMiserMode ) {
 			$desc['namespace'] = array(
 				$desc['namespace'],
-				'NOTE: Due to $wgMiserMode, using this may result in fewer than "limit" results',
+				"NOTE: Due to \$wgMiserMode, using this may result in fewer than \"{$p}limit\" results",
 				'returned before continuing; in extreme cases, zero results may be returned.',
-				'Note that you can use cmtype=subcat or cmtype=file instead of cmnamespace=14 or 6.',
+				"Note that you can use {$p}type=subcat or {$p}type=file instead of {$p}namespace=14 or 6.",
 			);
 		}
 		return $desc;
+	}
+
+	public function getResultProperties() {
+		return array(
+			'ids' => array(
+				'pageid' => 'integer'
+			),
+			'title' => array(
+				'ns' => 'namespace',
+				'title' => 'string'
+			),
+			'sortkey' => array(
+				'sortkey' => 'string'
+			),
+			'sortkeyprefix' => array(
+				'sortkeyprefix' => 'string'
+			),
+			'type' => array(
+				'type' => array(
+					ApiBase::PROP_TYPE => array(
+						'page',
+						'subcat',
+						'file'
+					)
+				)
+			),
+			'timestamp' => array(
+				'timestamp' => 'timestamp'
+			)
+		);
 	}
 
 	public function getDescription() {
@@ -347,23 +399,27 @@ class ApiQueryCategoryMembers extends ApiQueryGeneratorBase {
 	}
 
 	public function getPossibleErrors() {
-		return array_merge( parent::getPossibleErrors(), array(
-			array( 'code' => 'notitle', 'info' => 'The cmtitle parameter is required' ),
-			array( 'code' => 'invalidcategory', 'info' => 'The category name you entered is not valid' ),
-			array( 'code' => 'badcontinue', 'info' => 'Invalid continue param. You should pass the original value returned by the previous query' ),
-		) );
-	}
-
-	protected function getExamples() {
-		return array(
-			'Get first 10 pages in [[Category:Physics]]:',
-			'  api.php?action=query&list=categorymembers&cmtitle=Category:Physics',
-			'Get page info about first 10 pages in [[Category:Physics]]:',
-			'  api.php?action=query&generator=categorymembers&gcmtitle=Category:Physics&prop=info',
+		return array_merge( parent::getPossibleErrors(),
+			$this->getTitleOrPageIdErrorMessage(),
+			array(
+				array( 'code' => 'invalidcategory', 'info' => 'The category name you entered is not valid' ),
+				array( 'code' => 'badcontinue', 'info' => 'Invalid continue param. You should pass the original value returned by the previous query' ),
+			)
 		);
 	}
 
+	public function getExamples() {
+		return array(
+			'api.php?action=query&list=categorymembers&cmtitle=Category:Physics' => 'Get first 10 pages in [[Category:Physics]]',
+			'api.php?action=query&generator=categorymembers&gcmtitle=Category:Physics&prop=info' => 'Get page info about first 10 pages in [[Category:Physics]]',
+		);
+	}
+
+	public function getHelpUrls() {
+		return 'https://www.mediawiki.org/wiki/API:Categorymembers';
+	}
+
 	public function getVersion() {
-		return __CLASS__ . ': $Id: ApiQueryCategoryMembers.php 86474 2011-04-20 13:22:05Z catrope $';
+		return __CLASS__ . ': $Id$';
 	}
 }

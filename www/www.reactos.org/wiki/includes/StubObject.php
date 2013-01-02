@@ -1,4 +1,24 @@
 <?php
+/**
+ * Delayed loading of global objects.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ * http://www.gnu.org/copyleft/gpl.html
+ *
+ * @file
+ */
 
 /**
  * Class to implement stub globals, which are globals that delay loading the
@@ -52,6 +72,7 @@ class StubObject {
 	 *
 	 * @param $name String: name of the function called
 	 * @param $args Array: arguments
+	 * @return mixed
 	 */
 	function _call( $name, $args ) {
 		$this->_unstub( $name, 5 );
@@ -60,9 +81,10 @@ class StubObject {
 
 	/**
 	 * Create a new object to replace this stub object.
+	 * @return object
 	 */
 	function _newObject() {
-		return wfCreateObject( $this->mClass, $this->mParams );
+		return MWFunction::newObj( $this->mClass, $this->mParams );
 	}
 
 	/**
@@ -71,6 +93,7 @@ class StubObject {
 	 *
 	 * @param $name String: name of the function called
 	 * @param $args Array: arguments
+	 * @return mixed
 	 */
 	function __call( $name, $args ) {
 		return $this->_call( $name, $args );
@@ -89,9 +112,10 @@ class StubObject {
 	function _unstub( $name = '_unstub', $level = 2 ) {
 		static $recursionLevel = 0;
 
-		if ( !($GLOBALS[$this->mGlobal] instanceof StubObject) )
+		if ( !($GLOBALS[$this->mGlobal] instanceof StubObject) ) {
 			return $GLOBALS[$this->mGlobal]; // already unstubbed.
-		
+		}
+
 		if ( get_class( $GLOBALS[$this->mGlobal] ) != $this->mClass ) {
 			$fname = __METHOD__.'-'.$this->mGlobal;
 			wfProfileIn( $fname );
@@ -110,10 +134,13 @@ class StubObject {
 /**
  * Stub object for the content language of this wiki. This object have to be in
  * $wgContLang global.
+ *
+ * @deprecated since 1.18
  */
 class StubContLang extends StubObject {
 
 	function __construct() {
+		wfDeprecated( __CLASS__, '1.18' );
 		parent::__construct( 'wgContLang' );
 	}
 
@@ -121,6 +148,9 @@ class StubContLang extends StubObject {
 		return $this->_call( $name, $args );
 	}
 
+	/**
+	 * @return Language
+	 */
 	function _newObject() {
 		global $wgLanguageCode;
 		$obj = Language::factory( $wgLanguageCode );
@@ -145,23 +175,10 @@ class StubUserLang extends StubObject {
 		return $this->_call( $name, $args );
 	}
 
+	/**
+	 * @return Language
+	 */
 	function _newObject() {
-		global $wgLanguageCode, $wgRequest, $wgUser, $wgContLang;
-		$code = $wgRequest->getVal( 'uselang', $wgUser->getOption( 'language' ) );
-		// BCP 47 - letter case MUST NOT carry meaning
-		$code = strtolower( $code );
-
-		# Validate $code
-		if( empty( $code ) || !Language::isValidCode( $code ) || ( $code === 'qqq' ) ) {
-			wfDebug( "Invalid user language code\n" );
-			$code = $wgLanguageCode;
-		}
-
-		if( $code === $wgLanguageCode ) {
-			return $wgContLang;
-		} else {
-			$obj = Language::factory( $code );
-			return $obj;
-		}
+		return RequestContext::getMain()->getLanguage();
 	}
 }

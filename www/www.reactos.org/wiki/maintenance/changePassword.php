@@ -24,19 +24,31 @@
  * @ingroup Maintenance
  */
 
-require_once( dirname( __FILE__ ) . '/Maintenance.php' );
+require_once( __DIR__ . '/Maintenance.php' );
 
+/**
+ * Maintenance script to change the password of a given user.
+ *
+ * @ingroup Maintenance
+ */
 class ChangePassword extends Maintenance {
 	public function __construct() {
 		parent::__construct();
-		$this->addOption( "user", "The username to operate on", true, true );
+		$this->addOption( "user", "The username to operate on", false, true );
+		$this->addOption( "userid", "The user id to operate on", false, true );
 		$this->addOption( "password", "The password to use", true, true );
 		$this->mDescription = "Change a user's password";
 	}
 
 	public function execute() {
-		$user = User::newFromName( $this->getOption( 'user' ) );
-		if ( !$user->getId() ) {
+		if ( $this->hasOption( "user" ) ) {
+			$user = User::newFromName( $this->getOption( 'user' ) );
+		} elseif ( $this->hasOption( "userid" ) ) {
+			$user = User::newFromId( $this->getOption( 'userid' ) );
+		} else {
+			$this->error( "A \"user\" or \"userid\" must be set to change the password for" , true );
+		}
+		if ( !$user || !$user->getId() ) {
 			$this->error( "No such user: " . $this->getOption( 'user' ), true );
 		}
 		try {

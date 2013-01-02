@@ -18,6 +18,8 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  * http://www.gnu.org/copyleft/gpl.html
+ *
+ * @file
  */
 
 /**
@@ -98,7 +100,7 @@ abstract class ExternalUser {
 	 * This is a wrapper around newFromId().
 	 *
 	 * @param $user User
-	 * @return mixed ExternalUser or false
+	 * @return ExternalUser|bool False on failure
 	 */
 	public static function newFromUser( $user ) {
 		global $wgExternalAuthType;
@@ -293,7 +295,7 @@ abstract class ExternalUser {
 	 * @return Mixed User if the account is linked, Null otherwise.
 	 */
 	public final function getLocalUser(){
-		$dbr = wfGetDb( DB_SLAVE );
+		$dbr = wfGetDB( DB_SLAVE );
 		$row = $dbr->selectRow(
 			'external_user',
 			'*',

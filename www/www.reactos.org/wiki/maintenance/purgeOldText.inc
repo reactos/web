@@ -3,6 +3,21 @@
 /**
  * Support functions for cleaning up redundant text records
  *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ * http://www.gnu.org/copyleft/gpl.html
+ *
  * @file
  * @ingroup Maintenance
  * @author Rob Church <robchur@gmail.com>
@@ -12,7 +27,7 @@ function PurgeRedundantText( $delete = false ) {
 
 	# Data should come off the master, wrapped in a transaction
 	$dbw = wfGetDB( DB_MASTER );
-	$dbw->begin();
+	$dbw->begin( __METHOD__ );
 
 	$tbl_arc = $dbw->tableName( 'archive' );
 	$tbl_rev = $dbw->tableName( 'revision' );
@@ -29,6 +44,7 @@ function PurgeRedundantText( $delete = false ) {
 	# Get "active" text records from the archive table
 	echo( "Searching for active text records in archive table..." );
 	$res = $dbw->query( "SELECT DISTINCT ar_text_id FROM $tbl_arc" );
+	$cur = array();
 	foreach ( $res as $row ) {
 		$cur[] = $row->ar_text_id;
 	}
@@ -57,6 +73,6 @@ function PurgeRedundantText( $delete = false ) {
 	}
 
 	# Done
-	$dbw->commit();
+	$dbw->commit( __METHOD__ );
 
 }

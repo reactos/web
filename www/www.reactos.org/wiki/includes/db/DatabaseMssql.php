@@ -2,6 +2,21 @@
 /**
  * This is the MS SQL Server Native database abstraction layer.
  *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ * http://www.gnu.org/copyleft/gpl.html
+ *
  * @file
  * @ingroup Database
  * @author Joel Penner <a-joelpe at microsoft dot com>
@@ -16,6 +31,8 @@ class DatabaseMssql extends DatabaseBase {
 	var $mInsertId = NULL;
 	var $mLastResult = NULL;
 	var $mAffectedRows = NULL;
+
+	var $mPort;
 
 	function cascadingDeletes() {
 		return true;
@@ -42,12 +59,9 @@ class DatabaseMssql extends DatabaseBase {
 		return false;
 	}
 
-	static function newFromParams( $server, $user, $password, $dbName, $flags = 0 ) {
-		return new DatabaseMssql( $server, $user, $password, $dbName, $flags );
-	}
-
 	/**
 	 * Usually aborts on failure
+	 * @return bool|DatabaseBase|null
 	 */
 	function open( $server, $user, $password, $dbName ) {
 		# Test for driver support, to avoid suppressed fatal error
@@ -83,7 +97,7 @@ class DatabaseMssql extends DatabaseBase {
 		$ntAuthPassTest = strtolower( $password );
 
 		// Decide which auth scenerio to use
-		if( ( $ntAuthPassTest == 'ntauth' && $ntAuthUserTest == 'ntauth' ) ){
+		if( $ntAuthPassTest == 'ntauth' && $ntAuthUserTest == 'ntauth' ){
 			// Don't add credentials to $connectionInfo
 		} else {
 			$connectionInfo['UID'] = $user;
@@ -91,7 +105,9 @@ class DatabaseMssql extends DatabaseBase {
 		}
 		// End NT Auth Hack
 
-		$this->mConn = @sqlsrv_connect( $server, $connectionInfo );
+		wfSuppressWarnings();
+		$this->mConn = sqlsrv_connect( $server, $connectionInfo );
+		wfRestoreWarnings();
 
 		if ( $this->mConn === false ) {
 			wfDebug( "DB connection error\n" );
@@ -107,17 +123,13 @@ class DatabaseMssql extends DatabaseBase {
 	/**
 	 * Closes a database connection, if it is open
 	 * Returns success, true if already closed
+	 * @return bool
 	 */
-	function close() {
-		$this->mOpened = false;
-		if ( $this->mConn ) {
-			return sqlsrv_close( $this->mConn );
-		} else {
-			return true;
-		}
+	protected function closeConnection() {
+		return sqlsrv_close( $this->mConn );
 	}
 
-	function doQuery( $sql ) {
+	protected function doQuery( $sql ) {
 		wfDebug( "SQL: [$sql]\n" );
 		$this->offset = 0;
 
@@ -226,6 +238,7 @@ class DatabaseMssql extends DatabaseBase {
 
 	/**
 	 * This must be called after nextSequenceVal
+	 * @return null
 	 */
 	function insertId() {
 		return $this->mInsertId;
@@ -241,16 +254,18 @@ class DatabaseMssql extends DatabaseBase {
 	function lastError() {
 		if ( $this->mConn ) {
 			return $this->getErrors();
-		}
-		else {
+		} else {
 			return "No database connection";
 		}
 	}
 
 	function lastErrno() {
 		$err = sqlsrv_errors( SQLSRV_ERR_ALL );
-		if ( $err[0] ) return $err[0]['code'];
-		else return 0;
+		if ( $err[0] ) {
+			return $err[0]['code'];
+		} else {
+			return 0;
+		}
 	}
 
 	function affectedRows() {
@@ -308,6 +323,7 @@ class DatabaseMssql extends DatabaseBase {
 	 * This is not necessarily an accurate estimate, so use sparingly
 	 * Returns -1 if count cannot be found
 	 * Takes same arguments as Database::select()
+	 * @return int
 	 */
 	function estimateRowCount( $table, $vars = '*', $conds = '', $fname = 'DatabaseMssql::estimateRowCount', $options = array() ) {
 		$options['EXPLAIN'] = true;// http://msdn2.microsoft.com/en-us/library/aa259203.aspx
@@ -321,10 +337,10 @@ class DatabaseMssql extends DatabaseBase {
 		return $rows;
 	}
 
-
 	/**
 	 * Returns information about an index
 	 * If errors are explicitly ignored, returns NULL on failure
+	 * @return array|bool|null
 	 */
 	function indexInfo( $table, $index, $fname = 'DatabaseMssql::indexExists' ) {
 		# This does not return the same info as MYSQL would, but that's OK because MediaWiki never uses the
@@ -344,7 +360,7 @@ class DatabaseMssql extends DatabaseBase {
 					$row->Column_name = trim( $col );
 					$result[] = clone $row;
 				}
-			} else if ( $index == 'PRIMARY' && stristr( $row->index_description, 'PRIMARY' ) ) {
+			} elseif ( $index == 'PRIMARY' && stristr( $row->index_description, 'PRIMARY' ) ) {
 				$row->Non_unique = 0;
 				$cols = explode( ", ", $row->index_keys );
 				foreach ( $cols as $col ) {
@@ -364,6 +380,7 @@ class DatabaseMssql extends DatabaseBase {
 	 *
 	 * Usually aborts on failure
 	 * If errors are explicitly ignored, returns success
+	 * @return bool
 	 */
 	function insert( $table, $arrToInsert, $fname = 'DatabaseMssql::insert', $options = array() ) {
 		# No rows to insert, easy just return now
@@ -382,7 +399,6 @@ class DatabaseMssql extends DatabaseBase {
 		}
 
 		$allOk = true;
-
 
 		// We know the table we're inserting into, get its identity column
 		$identity = null;
@@ -421,7 +437,6 @@ class DatabaseMssql extends DatabaseBase {
 
 			$keys = array_keys( $a );
 
-
 			// INSERT IGNORE is not supported by SQL Server
 			// remove IGNORE from options list and set ignore flag to true
 			$ignoreClause = false;
@@ -436,7 +451,7 @@ class DatabaseMssql extends DatabaseBase {
 			// example:
 			// MySQL: INSERT IGNORE INTO user_groups (ug_user,ug_group) VALUES ('1','sysop')
 			// MSSQL: IF NOT EXISTS (SELECT * FROM user_groups WHERE ug_user = '1') INSERT INTO user_groups (ug_user,ug_group) VALUES ('1','sysop')
-			if ( $ignoreClause == true ) {
+			if ( $ignoreClause ) {
 				$prival = $a[$keys[0]];
 				$sqlPre .= "IF NOT EXISTS (SELECT * FROM $table WHERE $keys[0] = '$prival')";
 			}
@@ -453,14 +468,14 @@ class DatabaseMssql extends DatabaseBase {
 					$sql .= ',';
 				}
 				if ( is_string( $value ) ) {
-					$sql .= $this->addIdentifierQuotes( $value );
+					$sql .= $this->addQuotes( $value );
 				} elseif ( is_null( $value ) ) {
 					$sql .= 'null';
 				} elseif ( is_array( $value ) || is_object( $value ) ) {
 					if ( is_object( $value ) && strtolower( get_class( $value ) ) == 'blob' ) {
-						$sql .= $this->addIdentifierQuotes( $value->fetch() );
+						$sql .= $this->addQuotes( $value );
 					}  else {
-						$sql .= $this->addIdentifierQuotes( serialize( $value ) );
+						$sql .= $this->addQuotes( serialize( $value ) );
 					}
 				} else {
 					$sql .= $value;
@@ -495,14 +510,14 @@ class DatabaseMssql extends DatabaseBase {
 	 * Source items may be literals rather than field names, but strings should be quoted with Database::addQuotes()
 	 * $conds may be "*" to copy the whole table
 	 * srcTable may be an array of tables.
+	 * @return null|\ResultWrapper
 	 */
 	function insertSelect( $destTable, $srcTable, $varMap, $conds, $fname = 'DatabaseMssql::insertSelect',
-		$insertOptions = array(), $selectOptions = array() )
-	{
+		$insertOptions = array(), $selectOptions = array() ) {
 		$ret = parent::insertSelect( $destTable, $srcTable, $varMap, $conds, $fname, $insertOptions, $selectOptions );
 
 		if ( $ret === false ) {
-			throw new DBQueryError( $this, $this->getErrors(), $this->lastErrno(), $sql, $fname );
+			throw new DBQueryError( $this, $this->getErrors(), $this->lastErrno(), /*$sql*/ '', $fname );
 		} elseif ( $ret != NULL ) {
 			// remember number of rows affected
 			$this->mAffectedRows = sqlsrv_rows_affected( $ret );
@@ -512,36 +527,8 @@ class DatabaseMssql extends DatabaseBase {
 	}
 
 	/**
-	 * Format a table name ready for use in constructing an SQL query
-	 *
-	 * This does two important things: it brackets table names which as necessary,
-	 * and it adds a table prefix if there is one.
-	 *
-	 * All functions of this object which require a table name call this function
-	 * themselves. Pass the canonical name to such functions. This is only needed
-	 * when calling query() directly.
-	 *
-	 * @param $name String: database table name
-	 */
-	function tableName( $name ) {
-		global $wgSharedDB;
-		# Skip quoted literals
-		if ( $name != '' && $name { 0 } != '[' ) {
-			if ( $this->mTablePrefix !== '' &&  strpos( '.', $name ) === false ) {
-				$name = "{$this->mTablePrefix}$name";
-			}
-			if ( isset( $wgSharedDB ) && "{$this->mTablePrefix}user" == $name ) {
-				$name = "[$wgSharedDB].[$name]";
-			} else {
-				# Standard quoting
-				if ( $name != '' ) $name = "[$name]";
-			}
-		}
-		return $name;
-	}
-
-	/**
 	 * Return the next in a sequence, save the value for retrieval via insertId()
+	 * @return
 	 */
 	function nextSequenceValue( $seqName ) {
 		if ( !$this->tableExists( 'sequence_' . $seqName ) ) {
@@ -558,6 +545,7 @@ class DatabaseMssql extends DatabaseBase {
 
 	/**
 	 * Return the current value of a sequence. Assumes it has ben nextval'ed in this session.
+	 * @return
 	 */
 	function currentSequenceValue( $seqName ) {
 		$ret = sqlsrv_query( $this->mConn, "SELECT TOP 1 id FROM [sequence_$seqName] ORDER BY id DESC" );
@@ -570,82 +558,6 @@ class DatabaseMssql extends DatabaseBase {
 		}
 	}
 
-
-	# REPLACE query wrapper
-	# MSSQL simulates this with a DELETE followed by INSERT
-	# $row is the row to insert, an associative array
-	# $uniqueIndexes is an array of indexes. Each element may be either a
-	# field name or an array of field names
-	#
-	# It may be more efficient to leave off unique indexes which are unlikely to collide.
-	# However if you do this, you run the risk of encountering errors which wouldn't have
-	# occurred in MySQL
-	function replace( $table, $uniqueIndexes, $rows, $fname = 'DatabaseMssql::replace' ) {
-		$table = $this->tableName( $table );
-
-		if ( count( $rows ) == 0 ) {
-			return;
-		}
-
-		# Single row case
-		if ( !is_array( reset( $rows ) ) ) {
-			$rows = array( $rows );
-		}
-
-		foreach ( $rows as $row ) {
-			# Delete rows which collide
-			if ( $uniqueIndexes ) {
-				$sql = "DELETE FROM $table WHERE ";
-				$first = true;
-				foreach ( $uniqueIndexes as $index ) {
-					if ( $first ) {
-						$first = false;
-						$sql .= "(";
-					} else {
-						$sql .= ') OR (';
-					}
-					if ( is_array( $index ) ) {
-						$first2 = true;
-						foreach ( $index as $col ) {
-							if ( $first2 ) {
-								$first2 = false;
-							} else {
-								$sql .= ' AND ';
-							}
-							$sql .= $col . '=' . $this->addQuotes( $row[$col] );
-						}
-					} else {
-						$sql .= $index . '=' . $this->addQuotes( $row[$index] );
-					}
-				}
-				$sql .= ')';
-				$this->query( $sql, $fname );
-			}
-
-			# Now insert the row
-			$sql = "INSERT INTO $table (" . $this->makeList( array_keys( $row ), LIST_NAMES ) . ') VALUES (' .
-				$this->makeList( $row, LIST_COMMA ) . ')';
-			$this->query( $sql, $fname );
-		}
-	}
-
-	# DELETE where the condition is a join
-	function deleteJoin( $delTable, $joinTable, $delVar, $joinVar, $conds, $fname = "DatabaseMssql::deleteJoin" ) {
-		if ( !$conds ) {
-			throw new DBUnexpectedError( $this, 'DatabaseMssql::deleteJoin() called with empty $conds' );
-		}
-
-		$delTable = $this->tableName( $delTable );
-		$joinTable = $this->tableName( $joinTable );
-		$sql = "DELETE FROM $delTable WHERE $delVar IN (SELECT $joinVar FROM $joinTable ";
-		if ( $conds != '*' ) {
-			$sql .= 'WHERE ' . $this->makeList( $conds, LIST_AND );
-		}
-		$sql .= ')';
-
-		$this->query( $sql, $fname );
-	}
-
 	# Returns the size of a text field, or -1 for "unlimited"
 	function textFieldSize( $table, $field ) {
 		$table = $this->tableName( $table );
@@ -654,7 +566,9 @@ class DatabaseMssql extends DatabaseBase {
 		$res = $this->query( $sql );
 		$row = $this->fetchRow( $res );
 		$size = -1;
-		if ( strtolower( $row['DATA_TYPE'] ) != 'text' ) $size = $row['CHARACTER_MAXIMUM_LENGTH'];
+		if ( strtolower( $row['DATA_TYPE'] ) != 'text' ) {
+			$size = $row['CHARACTER_MAXIMUM_LENGTH'];
+		}
 		return $size;
 	}
 
@@ -664,6 +578,7 @@ class DatabaseMssql extends DatabaseBase {
 	 * $sql string SQL query we will append the limit too
 	 * $limit integer the SQL limit
 	 * $offset integer the SQL offset (default false)
+	 * @return mixed|string
 	 */
 	function limitResult( $sql, $limit, $offset = false ) {
 		if ( $offset === false || $offset == 0 ) {
@@ -705,15 +620,6 @@ class DatabaseMssql extends DatabaseBase {
 		return $sql;
 	}
 
-	// MSSQL does support this, but documentation is too thin to make a generalized
-	// function for this. Apparently UPDATE TOP (N) works, but the sort order
-	// may not be what we're expecting so the top n results may be a random selection.
-	// TODO: Implement properly.
-	function limitResultForUpdate( $sql, $num ) {
-		return $sql;
-	}
-
-
 	function timestamp( $ts = 0 ) {
 		return wfTimestamp( TS_ISO_8601, $ts );
 	}
@@ -731,25 +637,29 @@ class DatabaseMssql extends DatabaseBase {
 	function getServerVersion() {
 		$server_info = sqlsrv_server_info( $this->mConn );
 		$version = 'Error';
-		if ( isset( $server_info['SQLServerVersion'] ) ) $version = $server_info['SQLServerVersion'];
+		if ( isset( $server_info['SQLServerVersion'] ) ) {
+			$version = $server_info['SQLServerVersion'];
+		}
 		return $version;
 	}
 
-	function tableExists ( $table, $schema = false ) {
+	function tableExists ( $table, $fname = __METHOD__, $schema = false ) {
 		$res = sqlsrv_query( $this->mConn, "SELECT * FROM information_schema.tables
 			WHERE table_type='BASE TABLE' AND table_name = '$table'" );
 		if ( $res === false ) {
 			print( "Error in tableExists query: " . $this->getErrors() );
 			return false;
 		}
-		if ( sqlsrv_fetch( $res ) )
+		if ( sqlsrv_fetch( $res ) ) {
 			return true;
-		else
+		} else {
 			return false;
+		}
 	}
 
 	/**
 	 * Query whether a given column exists in the mediawiki schema
+	 * @return bool
 	 */
 	function fieldExists( $table, $field, $fname = 'DatabaseMssql::fieldExists' ) {
 		$table = $this->tableName( $table );
@@ -759,10 +669,11 @@ class DatabaseMssql extends DatabaseBase {
 			print( "Error in fieldExists query: " . $this->getErrors() );
 			return false;
 		}
-		if ( sqlsrv_fetch( $res ) )
+		if ( sqlsrv_fetch( $res ) ) {
 			return true;
-		else
+		} else {
 			return false;
+		}
 	}
 
 	function fieldInfo( $table, $field ) {
@@ -780,14 +691,10 @@ class DatabaseMssql extends DatabaseBase {
 		return false;
 	}
 
-	public function unixTimestamp( $field ) {
-		return "DATEDIFF(s,CONVERT(datetime,'1/1/1970'),$field)";
-	}
-
 	/**
 	 * Begin a transaction, committing any previously open transaction
 	 */
-	function begin( $fname = 'DatabaseMssql::begin' ) {
+	protected function doBegin( $fname = 'DatabaseMssql::begin' ) {
 		sqlsrv_begin_transaction( $this->mConn );
 		$this->mTrxLevel = 1;
 	}
@@ -795,7 +702,7 @@ class DatabaseMssql extends DatabaseBase {
 	/**
 	 * End a transaction
 	 */
-	function commit( $fname = 'DatabaseMssql::commit' ) {
+	protected function doCommit( $fname = 'DatabaseMssql::commit' ) {
 		sqlsrv_commit( $this->mConn );
 		$this->mTrxLevel = 0;
 	}
@@ -804,57 +711,16 @@ class DatabaseMssql extends DatabaseBase {
 	 * Rollback a transaction.
 	 * No-op on non-transactional databases.
 	 */
-	function rollback( $fname = 'DatabaseMssql::rollback' ) {
+	protected function doRollback( $fname = 'DatabaseMssql::rollback' ) {
 		sqlsrv_rollback( $this->mConn );
 		$this->mTrxLevel = 0;
-	}
-
-	function setup_database() {
-		global $wgDBuser;
-
-		// Make sure that we can write to the correct schema
-		$ctest = "mediawiki_test_table";
-		if ( $this->tableExists( $ctest ) ) {
-			$this->doQuery( "DROP TABLE $ctest" );
-		}
-		$SQL = "CREATE TABLE $ctest (a int)";
-		$res = $this->doQuery( $SQL );
-		if ( !$res ) {
-			print "<b>FAILED</b>. Make sure that the user " . htmlspecialchars( $wgDBuser ) . " can write to the database</li>\n";
-			dieout( );
-		}
-		$this->doQuery( "DROP TABLE $ctest" );
-
-		$res = $this->sourceFile( "../maintenance/mssql/tables.sql" );
-		if ( $res !== true ) {
-			echo " <b>FAILED</b></li>";
-			dieout( htmlspecialchars( $res ) );
-		}
-
-		# Avoid the non-standard "REPLACE INTO" syntax
-		$f = fopen( "../maintenance/interwiki.sql", 'r' );
-		if ( $f == false ) {
-			dieout( "<li>Could not find the interwiki.sql file" );
-		}
-		# We simply assume it is already empty as we have just created it
-		$SQL = "INSERT INTO interwiki(iw_prefix,iw_url,iw_local) VALUES ";
-		while ( ! feof( $f ) ) {
-			$line = fgets( $f, 1024 );
-			$matches = array();
-			if ( !preg_match( '/^\s*(\(.+?),(\d)\)/', $line, $matches ) ) {
-				continue;
-			}
-			$this->query( "$SQL $matches[1],$matches[2])" );
-		}
-		print " (table interwiki successfully populated)...\n";
-
-		$this->commit();
 	}
 
 	/**
 	 * Escapes a identifier for use inm SQL.
 	 * Throws an exception if it is invalid.
 	 * Reference: http://msdn.microsoft.com/en-us/library/aa224033%28v=SQL.80%29.aspx
+	 * @return string
 	 */
 	private function escapeIdentifier( $identifier ) {
 		if ( strlen( $identifier ) == 0 ) {
@@ -943,6 +809,7 @@ class DatabaseMssql extends DatabaseBase {
 
 	/**
 	 * @private
+	 * @return string
 	 */
 	function tableNamesWithUseIndexOrJOIN( $tables, $use_index = array(), $join_conds = array() ) {
 		$ret = array();
@@ -957,12 +824,12 @@ class DatabaseMssql extends DatabaseBase {
 				$tableClause .= ' ON (' . $this->makeList( (array)$join_conds_safe[$table][1], LIST_AND ) . ')';
 				$retJOIN[] = $tableClause;
 			// Is there an INDEX clause?
-			} else if ( isset( $use_index_safe[$table] ) ) {
+			} elseif ( isset( $use_index_safe[$table] ) ) {
 				$tableClause = $this->tableName( $table );
 				$tableClause .= ' ' . $this->useIndexClause( implode( ',', (array)$use_index_safe[$table] ) );
 				$ret[] = $tableClause;
 			// Is there a JOIN clause?
-			} else if ( isset( $join_conds_safe[$table] ) ) {
+			} elseif ( isset( $join_conds_safe[$table] ) ) {
 				$tableClause = $join_conds_safe[$table][0] . ' ' . $this->tableName( $table );
 				$tableClause .= ' ON (' . $this->makeList( (array)$join_conds_safe[$table][1], LIST_AND ) . ')';
 				$retJOIN[] = $tableClause;
@@ -990,6 +857,15 @@ class DatabaseMssql extends DatabaseBase {
 		}
 	}
 
+	public function addIdentifierQuotes( $s ) {
+		// http://msdn.microsoft.com/en-us/library/aa223962.aspx
+		return '[' . $s . ']';
+	}
+
+	public function isQuotedIdentifier( $name ) {
+		return $name[0] == '[' && substr( $name, -1, 1 ) == ']';
+	}
+
 	function selectDB( $db ) {
 		return ( $this->query( "SET DATABASE $db" ) !== false );
 	}
@@ -1012,11 +888,19 @@ class DatabaseMssql extends DatabaseBase {
 			}
 		}
 
-		if ( isset( $options['GROUP BY'] ) ) $tailOpts .= " GROUP BY {$options['GROUP BY']}";
-		if ( isset( $options['HAVING'] ) )   $tailOpts .= " HAVING {$options['GROUP BY']}";
-		if ( isset( $options['ORDER BY'] ) ) $tailOpts .= " ORDER BY {$options['ORDER BY']}";
+		if ( isset( $options['GROUP BY'] ) ) {
+			$tailOpts .= " GROUP BY {$options['GROUP BY']}";
+		}
+		if ( isset( $options['HAVING'] ) ) {
+			$tailOpts .= " HAVING {$options['GROUP BY']}";
+		}
+		if ( isset( $options['ORDER BY'] ) ) {
+			$tailOpts .= " ORDER BY {$options['ORDER BY']}";
+		}
 
-		if ( isset( $noKeyOptions['DISTINCT'] ) && isset( $noKeyOptions['DISTINCTROW'] ) ) $startOpts .= 'DISTINCT';
+		if ( isset( $noKeyOptions['DISTINCT'] ) && isset( $noKeyOptions['DISTINCTROW'] ) ) {
+			$startOpts .= 'DISTINCT';
+		}
 
 		// we want this to be compatible with the output of parent::makeSelectOptions()
 		return array( $startOpts, '' , $tailOpts, '' );
@@ -1024,6 +908,7 @@ class DatabaseMssql extends DatabaseBase {
 
 	/**
 	 * Get the type of the DBMS, as it appears in $wgDBtype.
+	 * @return string
 	 */
 	function getType(){
 		return 'mssql';
@@ -1035,6 +920,15 @@ class DatabaseMssql extends DatabaseBase {
 
 	public function getSearchEngine() {
 		return "SearchMssql";
+	}
+
+	/**
+	 * Since MSSQL doesn't recognize the infinity keyword, set date manually.
+	 * @todo Remove magic date
+	 * @return string
+	 */
+	public function getInfinity() {
+		return '3000-01-31 00:00:00.000';
 	}
 
 } // end DatabaseMssql class
@@ -1051,9 +945,10 @@ class MssqlField implements Field {
 		$this->tablename = $info['TABLE_NAME'];
 		$this->default = $info['COLUMN_DEFAULT'];
 		$this->max_length = $info['CHARACTER_MAXIMUM_LENGTH'];
-		$this->nullable = ( strtolower( $info['IS_NULLABLE'] ) == 'no' ) ? false:true;
+		$this->nullable = !( strtolower( $info['IS_NULLABLE'] ) == 'no' );
 		$this->type = $info['DATA_TYPE'];
 	}
+
 	function name() {
 		return $this->name;
 	}
@@ -1087,26 +982,29 @@ class MssqlField implements Field {
  */
 class MssqlResult {
 
-  public function __construct( $queryresult = false ) {
-	$this->mCursor = 0;
-	$this->mRows = array();
-	$this->mNumFields = sqlsrv_num_fields( $queryresult );
-	$this->mFieldMeta = sqlsrv_field_metadata( $queryresult );
-	while ( $row = sqlsrv_fetch_array( $queryresult, SQLSRV_FETCH_ASSOC ) ) {
-		if ( $row !== null ) {
-			foreach ( $row as $k => $v ) {
-				if ( is_object( $v ) && method_exists( $v, 'format' ) ) {// DateTime Object
-					$row[$k] = $v->format( "Y-m-d\TH:i:s\Z" );
-				}
-			}
-			$this->mRows[] = $row;// read results into memory, cursors are not supported
-		}
-	}
-	$this->mRowCount = count( $this->mRows );
-	sqlsrv_free_stmt( $queryresult );
-  }
+	public function __construct( $queryresult = false ) {
+		$this->mCursor = 0;
+		$this->mRows = array();
+		$this->mNumFields = sqlsrv_num_fields( $queryresult );
+		$this->mFieldMeta = sqlsrv_field_metadata( $queryresult );
 
-  private function array_to_obj( $array, &$obj ) {
+		$rows = sqlsrv_fetch_array( $queryresult, SQLSRV_FETCH_ASSOC );
+
+		foreach( $rows as $row ) {
+			if ( $row !== null ) {
+				foreach ( $row as $k => $v ) {
+					if ( is_object( $v ) && method_exists( $v, 'format' ) ) {// DateTime Object
+						$row[$k] = $v->format( "Y-m-d\TH:i:s\Z" );
+					}
+				}
+				$this->mRows[] = $row;// read results into memory, cursors are not supported
+			}
+		}
+		$this->mRowCount = count( $this->mRows );
+		sqlsrv_free_stmt( $queryresult );
+	}
+
+	private function array_to_obj( $array, &$obj ) {
 		foreach ( $array as $key => $value ) {
 			if ( is_array( $value ) ) {
 				$obj->$key = new stdClass();
@@ -1118,109 +1016,108 @@ class MssqlResult {
 			}
 		}
 		return $obj;
-  }
-
-  public function fetch( $mode = SQLSRV_FETCH_BOTH, $object_class = 'stdClass' ) {
-	if ( $this->mCursor >= $this->mRowCount || $this->mRowCount == 0 ) {
-		return false;
 	}
-	$arrNum = array();
-	if ( $mode == SQLSRV_FETCH_NUMERIC || $mode == SQLSRV_FETCH_BOTH ) {
-		foreach ( $this->mRows[$this->mCursor] as $value ) {
-			$arrNum[] = $value;
+
+	public function fetch( $mode = SQLSRV_FETCH_BOTH, $object_class = 'stdClass' ) {
+		if ( $this->mCursor >= $this->mRowCount || $this->mRowCount == 0 ) {
+			return false;
 		}
-	}
-	switch( $mode ) {
-		case SQLSRV_FETCH_ASSOC:
-			$ret = $this->mRows[$this->mCursor];
-			break;
-		case SQLSRV_FETCH_NUMERIC:
-			$ret = $arrNum;
-			break;
-		case 'OBJECT':
-			$o = new $object_class;
-			$ret = $this->array_to_obj( $this->mRows[$this->mCursor], $o );
-			break;
-		case SQLSRV_FETCH_BOTH:
-		default:
-			$ret = $this->mRows[$this->mCursor] + $arrNum;
-			break;
-	}
-
-	$this->mCursor++;
-	return $ret;
-  }
-
-  public function get( $pos, $fld ) {
-	return $this->mRows[$pos][$fld];
-  }
-
-  public function numrows() {
-	return $this->mRowCount;
-  }
-
-  public function seek( $iRow ) {
-	$this->mCursor = min( $iRow, $this->mRowCount );
-  }
-
-  public function numfields() {
-	return $this->mNumFields;
-  }
-
-  public function fieldname( $nr ) {
-	$arrKeys = array_keys( $this->mRows[0] );
-	return $arrKeys[$nr];
-  }
-
-  public function fieldtype( $nr ) {
-	$i = 0;
-	$intType = -1;
-	foreach ( $this->mFieldMeta as $meta ) {
-		if ( $nr == $i ) {
-			$intType = $meta['Type'];
-			break;
+		$arrNum = array();
+		if ( $mode == SQLSRV_FETCH_NUMERIC || $mode == SQLSRV_FETCH_BOTH ) {
+			foreach ( $this->mRows[$this->mCursor] as $value ) {
+				$arrNum[] = $value;
+			}
 		}
-		$i++;
-	}
-	// http://msdn.microsoft.com/en-us/library/cc296183.aspx contains type table
-	switch( $intType ) {
-		case SQLSRV_SQLTYPE_BIGINT: 		$strType = 'bigint'; break;
-		case SQLSRV_SQLTYPE_BINARY: 		$strType = 'binary'; break;
-		case SQLSRV_SQLTYPE_BIT: 			$strType = 'bit'; break;
-		case SQLSRV_SQLTYPE_CHAR: 			$strType = 'char'; break;
-		case SQLSRV_SQLTYPE_DATETIME: 		$strType = 'datetime'; break;
-		case SQLSRV_SQLTYPE_DECIMAL/*($precision, $scale)*/: $strType = 'decimal'; break;
-		case SQLSRV_SQLTYPE_FLOAT: 			$strType = 'float'; break;
-		case SQLSRV_SQLTYPE_IMAGE: 			$strType = 'image'; break;
-		case SQLSRV_SQLTYPE_INT: 			$strType = 'int'; break;
-		case SQLSRV_SQLTYPE_MONEY: 			$strType = 'money'; break;
-		case SQLSRV_SQLTYPE_NCHAR/*($charCount)*/: $strType = 'nchar'; break;
-		case SQLSRV_SQLTYPE_NUMERIC/*($precision, $scale)*/: $strType = 'numeric'; break;
-		case SQLSRV_SQLTYPE_NVARCHAR/*($charCount)*/: $strType = 'nvarchar'; break;
-		// case SQLSRV_SQLTYPE_NVARCHAR('max'): $strType = 'nvarchar(MAX)'; break;
-		case SQLSRV_SQLTYPE_NTEXT: 			$strType = 'ntext'; break;
-		case SQLSRV_SQLTYPE_REAL: 			$strType = 'real'; break;
-		case SQLSRV_SQLTYPE_SMALLDATETIME: 	$strType = 'smalldatetime'; break;
-		case SQLSRV_SQLTYPE_SMALLINT: 		$strType = 'smallint'; break;
-		case SQLSRV_SQLTYPE_SMALLMONEY: 	$strType = 'smallmoney'; break;
-		case SQLSRV_SQLTYPE_TEXT: 			$strType = 'text'; break;
-		case SQLSRV_SQLTYPE_TIMESTAMP: 		$strType = 'timestamp'; break;
-		case SQLSRV_SQLTYPE_TINYINT: 		$strType = 'tinyint'; break;
-		case SQLSRV_SQLTYPE_UNIQUEIDENTIFIER: $strType = 'uniqueidentifier'; break;
-		case SQLSRV_SQLTYPE_UDT: 			$strType = 'UDT'; break;
-		case SQLSRV_SQLTYPE_VARBINARY/*($byteCount)*/: $strType = 'varbinary'; break;
-		// case SQLSRV_SQLTYPE_VARBINARY('max'): $strType = 'varbinary(MAX)'; break;
-		case SQLSRV_SQLTYPE_VARCHAR/*($charCount)*/: $strType = 'varchar'; break;
-		// case SQLSRV_SQLTYPE_VARCHAR('max'): $strType = 'varchar(MAX)'; break;
-		case SQLSRV_SQLTYPE_XML: 			$strType = 'xml'; break;
-		default: $strType = $intType;
-	}
-	return $strType;
-  }
+		switch( $mode ) {
+			case SQLSRV_FETCH_ASSOC:
+				$ret = $this->mRows[$this->mCursor];
+				break;
+			case SQLSRV_FETCH_NUMERIC:
+				$ret = $arrNum;
+				break;
+			case 'OBJECT':
+				$o = new $object_class;
+				$ret = $this->array_to_obj( $this->mRows[$this->mCursor], $o );
+				break;
+			case SQLSRV_FETCH_BOTH:
+			default:
+				$ret = $this->mRows[$this->mCursor] + $arrNum;
+				break;
+		}
 
-  public function free() {
-	unset( $this->mRows );
-	return;
-  }
+		$this->mCursor++;
+		return $ret;
+	}
 
+	public function get( $pos, $fld ) {
+		return $this->mRows[$pos][$fld];
+	}
+
+	public function numrows() {
+		return $this->mRowCount;
+	}
+
+	public function seek( $iRow ) {
+		$this->mCursor = min( $iRow, $this->mRowCount );
+	}
+
+	public function numfields() {
+		return $this->mNumFields;
+	}
+
+	public function fieldname( $nr ) {
+		$arrKeys = array_keys( $this->mRows[0] );
+		return $arrKeys[$nr];
+	}
+
+	public function fieldtype( $nr ) {
+		$i = 0;
+		$intType = -1;
+		foreach ( $this->mFieldMeta as $meta ) {
+			if ( $nr == $i ) {
+				$intType = $meta['Type'];
+				break;
+			}
+			$i++;
+		}
+		// http://msdn.microsoft.com/en-us/library/cc296183.aspx contains type table
+		switch( $intType ) {
+			case SQLSRV_SQLTYPE_BIGINT: 		$strType = 'bigint'; break;
+			case SQLSRV_SQLTYPE_BINARY: 		$strType = 'binary'; break;
+			case SQLSRV_SQLTYPE_BIT: 			$strType = 'bit'; break;
+			case SQLSRV_SQLTYPE_CHAR: 			$strType = 'char'; break;
+			case SQLSRV_SQLTYPE_DATETIME: 		$strType = 'datetime'; break;
+			case SQLSRV_SQLTYPE_DECIMAL/*($precision, $scale)*/: $strType = 'decimal'; break;
+			case SQLSRV_SQLTYPE_FLOAT: 			$strType = 'float'; break;
+			case SQLSRV_SQLTYPE_IMAGE: 			$strType = 'image'; break;
+			case SQLSRV_SQLTYPE_INT: 			$strType = 'int'; break;
+			case SQLSRV_SQLTYPE_MONEY: 			$strType = 'money'; break;
+			case SQLSRV_SQLTYPE_NCHAR/*($charCount)*/: $strType = 'nchar'; break;
+			case SQLSRV_SQLTYPE_NUMERIC/*($precision, $scale)*/: $strType = 'numeric'; break;
+			case SQLSRV_SQLTYPE_NVARCHAR/*($charCount)*/: $strType = 'nvarchar'; break;
+			// case SQLSRV_SQLTYPE_NVARCHAR('max'): $strType = 'nvarchar(MAX)'; break;
+			case SQLSRV_SQLTYPE_NTEXT: 			$strType = 'ntext'; break;
+			case SQLSRV_SQLTYPE_REAL: 			$strType = 'real'; break;
+			case SQLSRV_SQLTYPE_SMALLDATETIME: 	$strType = 'smalldatetime'; break;
+			case SQLSRV_SQLTYPE_SMALLINT: 		$strType = 'smallint'; break;
+			case SQLSRV_SQLTYPE_SMALLMONEY: 	$strType = 'smallmoney'; break;
+			case SQLSRV_SQLTYPE_TEXT: 			$strType = 'text'; break;
+			case SQLSRV_SQLTYPE_TIMESTAMP: 		$strType = 'timestamp'; break;
+			case SQLSRV_SQLTYPE_TINYINT: 		$strType = 'tinyint'; break;
+			case SQLSRV_SQLTYPE_UNIQUEIDENTIFIER: $strType = 'uniqueidentifier'; break;
+			case SQLSRV_SQLTYPE_UDT: 			$strType = 'UDT'; break;
+			case SQLSRV_SQLTYPE_VARBINARY/*($byteCount)*/: $strType = 'varbinary'; break;
+			// case SQLSRV_SQLTYPE_VARBINARY('max'): $strType = 'varbinary(MAX)'; break;
+			case SQLSRV_SQLTYPE_VARCHAR/*($charCount)*/: $strType = 'varchar'; break;
+			// case SQLSRV_SQLTYPE_VARCHAR('max'): $strType = 'varchar(MAX)'; break;
+			case SQLSRV_SQLTYPE_XML: 			$strType = 'xml'; break;
+			default: $strType = $intType;
+		}
+		return $strType;
+	}
+
+	public function free() {
+		unset( $this->mRows );
+		return;
+	}
 }

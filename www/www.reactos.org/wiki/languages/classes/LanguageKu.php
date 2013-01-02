@@ -1,6 +1,28 @@
 <?php
-require_once( dirname( __FILE__ ) . '/../LanguageConverter.php' );
-require_once( dirname( __FILE__ ) . '/LanguageKu_ku.php' );
+/**
+ * Kurdish specific code.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ * http://www.gnu.org/copyleft/gpl.html
+ *
+ * @file
+ * @ingroup Language
+ */
+
+require_once( __DIR__ . '/../LanguageConverter.php' );
+require_once( __DIR__ . '/LanguageKu_ku.php' );
 
 /**
  * Kurdish converter routines
@@ -55,8 +77,7 @@ class KuConverter extends LanguageConverter {
 		'h' => 'ه', 'j' => 'ژ', 'k' => 'ک', 'l' => 'ل',
 		'm' => 'م', 'n' => 'ن', 'p' => 'پ', 'q' => 'ق', 'r' => 'ر', 's' => 'س', 'ş' => 'ش',
 		't' => 'ت', 'v' => 'ڤ',
-                'x' => 'خ', 'y' => 'ی', 'z' => 'ز',
-
+		'x' => 'خ', 'y' => 'ی', 'z' => 'ز',
 
 		'B' => 'ب', 'C' => 'ج', 'Ç' => 'چ', 'D' => 'د', 'F' => 'ف', 'G' => 'گ', 'H' => 'ھ',
 		'H' => 'ہ', 'H' => 'ه', 'H' => 'ح', 'J' => 'ژ', 'K' => 'ك', 'K' => 'ک', 'L' => 'ل',
@@ -132,11 +153,15 @@ class KuConverter extends LanguageConverter {
 		);
 	}
 
-	/*
+	/**
 	 * A function wrapper:
 	 *   - if there is no selected variant, leave the link
 	 *     names as they were
 	 *   - do not try to find variants for usernames
+	 *
+	 * @param $link string
+	 * @param $nt Title
+	 * @param $ignoreOtherCond bool
 	 */
 	function findVariantLink( &$link, &$nt, $ignoreOtherCond = false ) {
 		// check for user namespace
@@ -152,9 +177,14 @@ class KuConverter extends LanguageConverter {
 			$link = $oldlink;
 	}
 
-	/*
+	/**
 	 * We want our external link captions to be converted in variants,
 	 * so we return the original text instead -{$text}-, except for URLs
+	 *
+	 * @param $text string
+	 * @param $noParse bool
+	 *
+	 * @return string
 	 */
 	function markNoConversion( $text, $noParse = false ) {
 		if ( $noParse || preg_match( "/^https?:\/\/|ftp:\/\/|irc:\/\//", $text ) )
@@ -162,9 +192,14 @@ class KuConverter extends LanguageConverter {
 		return $text;
 	}
 
-	/*
+	/**
 	 * An ugly function wrapper for parsing Image titles
 	 * (to prevent image name conversion)
+	 *
+	 * @param $text string
+	 * @param $toVariant bool
+	 *
+	 * @return string
 	 */
 	function autoConvert( $text, $toVariant = false ) {
 		global $wgTitle;
@@ -178,6 +213,12 @@ class KuConverter extends LanguageConverter {
 	/**
 	 *  It translates text into variant, specials:
 	 *    - ommiting roman numbers
+	 *
+	 * @param $text string
+	 * @param $toVariant bool
+	 *
+	 * @throws MWException
+	 * @return string
 	 */
 	function translate( $text, $toVariant ) {
 		/* From Kazakh interface, maybe we need it later

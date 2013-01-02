@@ -28,64 +28,46 @@
  */
 class PopularPagesPage extends QueryPage {
 
-	function getName() {
-		return "Popularpages";
+	function __construct( $name = 'Popularpages' ) {
+		parent::__construct( $name );
 	}
 
 	function isExpensive() {
 		# page_counter is not indexed
 		return true;
 	}
+
 	function isSyndicated() { return false; }
 
-	function getSQL() {
-		$dbr = wfGetDB( DB_SLAVE );
-		$page = $dbr->tableName( 'page' );
-
-		$query =
-			"SELECT 'Popularpages' as type,
-			        page_namespace as namespace,
-			        page_title as title,
-			        page_counter as value
-			FROM $page ";
-		$where =
-			"WHERE page_is_redirect=0 AND page_namespace";
-
-		global $wgContentNamespaces;
-		if( empty( $wgContentNamespaces ) ) {
-			$where .= '='.NS_MAIN;
-		} else if( count( $wgContentNamespaces ) > 1 ) {
-			$where .= ' in (' . implode( ', ', $wgContentNamespaces ) . ')';
-		} else {
-			$where .= '='.$wgContentNamespaces[0];
-		}
-
-		return $query . $where;
+	function getQueryInfo() {
+		return array (
+			'tables' => array( 'page' ),
+			'fields' => array( 'namespace' => 'page_namespace',
+					'title' => 'page_title',
+					'value' => 'page_counter'),
+			'conds' => array( 'page_is_redirect' => 0,
+					'page_namespace' => MWNamespace::getContentNamespaces() ) );
 	}
 
+	/**
+	 * @param $skin Skin
+	 * @param $result
+	 * @return string
+	 */
 	function formatResult( $skin, $result ) {
-		global $wgLang, $wgContLang;
-		$title = Title::makeTitle( $result->namespace, $result->title );
-		$link = $skin->linkKnown(
+		global $wgContLang;
+
+		$title = Title::makeTitleSafe( $result->namespace, $result->title );
+		if( !$title ) {
+			return Html::element( 'span', array( 'class' => 'mw-invalidtitle' ),
+				Linker::getInvalidTitleDescription( $this->getContext(), $result->namespace, $result->title ) );
+		}
+
+		$link = Linker::linkKnown(
 			$title,
 			htmlspecialchars( $wgContLang->convert( $title->getPrefixedText() ) )
 		);
-		$nv = wfMsgExt(
-			'nviews',
-			array( 'parsemag', 'escape'),
-			$wgLang->formatNum( $result->value )
-		);
-		return wfSpecialList($link, $nv);
+		$nv = $this->msg( 'nviews' )->numParams( $result->value )->escaped();
+		return $this->getLanguage()->specialList( $link, $nv );
 	}
-}
-
-/**
- * Constructor
- */
-function wfSpecialPopularpages() {
-	list( $limit, $offset ) = wfCheckLimits();
-
-	$ppp = new PopularPagesPage();
-
-	return $ppp->doQuery( $offset, $limit );
 }

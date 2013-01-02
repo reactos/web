@@ -1,6 +1,6 @@
 <?php
 /**
- * Show statistics from the cache
+ * Show statistics from the cache.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,11 +17,17 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  * http://www.gnu.org/copyleft/gpl.html
  *
+ * @file
  * @ingroup Maintenance
  */
 
-require_once( dirname( __FILE__ ) . '/Maintenance.php' );
+require_once( __DIR__ . '/Maintenance.php' );
 
+/**
+ * Maintenance script that shows statistics from the cache.
+ *
+ * @ingroup Maintenance
+ */
 class CacheStats extends Maintenance {
 
 	public function __construct() {
@@ -37,8 +43,8 @@ class CacheStats extends Maintenance {
 		global $wgMemc;
 
 		// Can't do stats if
-		if ( get_class( $wgMemc ) == 'FakeMemCachedClient' ) {
-			$this->error( "You are running FakeMemCachedClient, I can not provide any statistics.", true );
+		if ( get_class( $wgMemc ) == 'EmptyBagOStuff' ) {
+			$this->error( "You are running EmptyBagOStuff, I can not provide any statistics.", true );
 		}
 		$session = intval( $wgMemc->get( wfMemcKey( 'stats', 'request_with_session' ) ) );
 		$noSession = intval( $wgMemc->get( wfMemcKey( 'stats', 'request_without_session' ) ) );
@@ -54,35 +60,45 @@ class CacheStats extends Maintenance {
 
 		$this->output( "\nParser cache\n" );
 		$hits = intval( $wgMemc->get( wfMemcKey( 'stats', 'pcache_hit' ) ) );
-		$invalid = intval( $wgMemc->get( wfMemcKey( 'stats', 'pcache_miss_invalid' ) ) );
 		$expired = intval( $wgMemc->get( wfMemcKey( 'stats', 'pcache_miss_expired' ) ) );
 		$absent = intval( $wgMemc->get( wfMemcKey( 'stats', 'pcache_miss_absent' ) ) );
 		$stub = intval( $wgMemc->get( wfMemcKey( 'stats', 'pcache_miss_stub' ) ) );
-		$total = $hits + $invalid + $expired + $absent + $stub;
-		$this->output( sprintf( "hits:              %-10d %6.2f%%\n", $hits, $hits / $total * 100 ) );
-		$this->output( sprintf( "invalid:           %-10d %6.2f%%\n", $invalid, $invalid / $total * 100 ) );
-		$this->output( sprintf( "expired:           %-10d %6.2f%%\n", $expired, $expired / $total * 100 ) );
-		$this->output( sprintf( "absent:            %-10d %6.2f%%\n", $absent, $absent / $total * 100 ) );
-		$this->output( sprintf( "stub threshold:    %-10d %6.2f%%\n", $stub, $stub / $total * 100 ) );
-		$this->output( sprintf( "total:             %-10d %6.2f%%\n", $total, 100 ) );
+		$total = $hits + $expired + $absent + $stub;
+		if ( $total ) {
+			$this->output( sprintf( "hits:              %-10d %6.2f%%\n", $hits, $hits / $total * 100 ) );
+			$this->output( sprintf( "expired:           %-10d %6.2f%%\n", $expired, $expired / $total * 100 ) );
+			$this->output( sprintf( "absent:            %-10d %6.2f%%\n", $absent, $absent / $total * 100 ) );
+			$this->output( sprintf( "stub threshold:    %-10d %6.2f%%\n", $stub, $stub / $total * 100 ) );
+			$this->output( sprintf( "total:             %-10d %6.2f%%\n", $total, 100 ) );
+		} else {
+			$this->output( "no statistics available\n" );
+		}
 
+		$this->output( "\nImage cache\n" );
 		$hits = intval( $wgMemc->get( wfMemcKey( 'stats', 'image_cache_hit' ) ) );
 		$misses = intval( $wgMemc->get( wfMemcKey( 'stats', 'image_cache_miss' ) ) );
 		$updates = intval( $wgMemc->get( wfMemcKey( 'stats', 'image_cache_update' ) ) );
 		$total = $hits + $misses;
-		$this->output( "\nImage cache\n" );
-		$this->output( sprintf( "hits:              %-10d %6.2f%%\n", $hits, $hits / $total * 100 ) );
-		$this->output( sprintf( "misses:            %-10d %6.2f%%\n", $misses, $misses / $total * 100 ) );
-		$this->output( sprintf( "updates:           %-10d\n", $updates ) );
+		if ( $total ) {
+			$this->output( sprintf( "hits:              %-10d %6.2f%%\n", $hits, $hits / $total * 100 ) );
+			$this->output( sprintf( "misses:            %-10d %6.2f%%\n", $misses, $misses / $total * 100 ) );
+			$this->output( sprintf( "updates:           %-10d\n", $updates ) );
+		} else {
+			$this->output( "no statistics available\n" );
+		}
 
+		$this->output( "\nDiff cache\n" );
 		$hits = intval( $wgMemc->get( wfMemcKey( 'stats', 'diff_cache_hit' ) ) );
 		$misses = intval( $wgMemc->get( wfMemcKey( 'stats', 'diff_cache_miss' ) ) );
 		$uncacheable = intval( $wgMemc->get( wfMemcKey( 'stats', 'diff_uncacheable' ) ) );
 		$total = $hits + $misses + $uncacheable;
-		$this->output( "\nDiff cache\n" );
-		$this->output( sprintf( "hits:              %-10d %6.2f%%\n", $hits, $hits / $total * 100 ) );
-		$this->output( sprintf( "misses:            %-10d %6.2f%%\n", $misses, $misses / $total * 100 ) );
-		$this->output( sprintf( "uncacheable:       %-10d %6.2f%%\n", $uncacheable, $uncacheable / $total * 100 ) );
+		if ( $total ) {
+			$this->output( sprintf( "hits:              %-10d %6.2f%%\n", $hits, $hits / $total * 100 ) );
+			$this->output( sprintf( "misses:            %-10d %6.2f%%\n", $misses, $misses / $total * 100 ) );
+			$this->output( sprintf( "uncacheable:       %-10d %6.2f%%\n", $uncacheable, $uncacheable / $total * 100 ) );
+		} else {
+			$this->output( "no statistics available\n" );
+		}
 	}
 }
 

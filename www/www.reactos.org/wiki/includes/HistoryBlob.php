@@ -1,5 +1,25 @@
 <?php
-
+/**
+ * Efficient concatenated text storage.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ * http://www.gnu.org/copyleft/gpl.html
+ *
+ * @file
+ */
+ 
 /**
  * Base class for general text storage via the "object" flag in old_flags, or 
  * two-part external storage URLs. Used for represent efficient concatenated 
@@ -12,16 +32,20 @@ interface HistoryBlob
 	 * You must call setLocation() on the stub object before storing it to the
 	 * database
 	 *
+	 * @param $text string
+	 *
 	 * @return String: the key for getItem()
 	 */
-	public function addItem( $text );
+	function addItem( $text );
 
 	/**
 	 * Get item by key, or false if the key is not present
 	 *
+	 * @param $key string
+	 *
 	 * @return String or false
 	 */
-	public function getItem( $key );
+	function getItem( $key );
 
 	/**
 	 * Set the "default text"
@@ -30,8 +54,10 @@ interface HistoryBlob
 	 * be other revisions in the same object.
 	 *
 	 * Default text is not required for two-part external storage URLs.
+	 *
+	 * @param $text string
 	 */
-	public function setText( $text );
+	function setText( $text );
 
 	/**
 	 * Get default text. This is called from Revision::getRevisionText()
@@ -53,12 +79,16 @@ class ConcatenatedGzipHistoryBlob implements HistoryBlob
 	public $mMaxCount = 100;
 
 	/** Constructor */
-	public function ConcatenatedGzipHistoryBlob() {
+	public function __construct() {
 		if ( !function_exists( 'gzdeflate' ) ) {
 			throw new MWException( "Need zlib support to read or write this kind of history object (ConcatenatedGzipHistoryBlob)\n" );
 		}
 	}
 
+	/**
+	 * @param $text string
+	 * @return string
+	 */
 	public function addItem( $text ) {
 		$this->uncompress();
 		$hash = md5( $text );
@@ -69,6 +99,10 @@ class ConcatenatedGzipHistoryBlob implements HistoryBlob
 		return $hash;
 	}
 
+	/**
+	 * @param $hash string
+	 * @return array|bool
+	 */
 	public function getItem( $hash ) {
 		$this->uncompress();
 		if ( array_key_exists( $hash, $this->mItems ) ) {
@@ -78,11 +112,18 @@ class ConcatenatedGzipHistoryBlob implements HistoryBlob
 		}
 	}
 
+	/**
+	 * @param $text string
+	 * @return void
+	 */
 	public function setText( $text ) {
 		$this->uncompress();
 		$this->mDefaultHash = $this->addItem( $text );
 	}
 
+	/**
+	 * @return array|bool
+	 */
 	public function getText() {
 		$this->uncompress();
 		return $this->getItem( $this->mDefaultHash );
@@ -90,6 +131,8 @@ class ConcatenatedGzipHistoryBlob implements HistoryBlob
 
 	/**
 	 * Remove an item
+	 *
+	 * @param $hash string
 	 */
 	public function removeItem( $hash ) {
 		$this->mSize -= strlen( $this->mItems[$hash] );
@@ -116,7 +159,9 @@ class ConcatenatedGzipHistoryBlob implements HistoryBlob
 		}
 	}
 
-
+	/**
+	 * @return array
+	 */
 	function __sleep() {
 		$this->compress();
 		return array( 'mVersion', 'mCompressed', 'mItems', 'mDefaultHash' );
@@ -129,14 +174,14 @@ class ConcatenatedGzipHistoryBlob implements HistoryBlob
 	/**
 	 * Helper function for compression jobs
 	 * Returns true until the object is "full" and ready to be committed
+	 *
+	 * @return bool
 	 */
 	public function isHappy() {
 		return $this->mSize < $this->mMaxSize 
 			&& count( $this->mItems ) < $this->mMaxCount;
 	}
 }
-
-
 
 
 /**
@@ -154,8 +199,8 @@ class HistoryBlobStub {
 	var $mOldId, $mHash, $mRef;
 
 	/**
-	 * @param $hash Strng: the content hash of the text
-	 * @param $oldid Integer: the old_id for the CGZ object
+	 * @param $hash string the content hash of the text
+	 * @param $oldid Integer the old_id for the CGZ object
 	 */
 	function __construct( $hash = '', $oldid = 0 ) {
 		$this->mHash = $hash;
@@ -183,6 +228,9 @@ class HistoryBlobStub {
 		return $this->mRef;
 	}
 
+	/**
+	 * @return string
+	 */
 	function getText() {
 		$fname = 'HistoryBlobStub::getText';
 
@@ -197,12 +245,12 @@ class HistoryBlobStub {
 			$flags = explode( ',', $row->old_flags );
 			if( in_array( 'external', $flags ) ) {
 				$url=$row->old_text;
-				@list( /* $proto */ ,$path)=explode('://',$url,2);
-				if ($path=="") {
+				$parts = explode( '://', $url, 2 );
+				if ( !isset( $parts[1] ) || $parts[1] == '' ) {
 					wfProfileOut( $fname );
 					return false;
 				}
-				$row->old_text=ExternalStore::fetchFromUrl($url);
+				$row->old_text = ExternalStore::fetchFromUrl($url);
 
 			}
 			if( !in_array( 'object', $flags ) ) {
@@ -232,6 +280,8 @@ class HistoryBlobStub {
 
 	/**
 	 * Get the content hash
+	 *
+	 * @return string
 	 */
 	function getHash() {
 		return $this->mHash;
@@ -260,11 +310,16 @@ class HistoryBlobCurStub {
 	/**
 	 * Sets the location (cur_id) of the main object to which this object
 	 * points
+	 *
+	 * @param $id int
 	 */
 	function setLocation( $id ) {
 		$this->mCurId = $id;
 	}
 
+	/**
+	 * @return string|bool
+	 */
 	function getText() {
 		$dbr = wfGetDB( DB_SLAVE );
 		$row = $dbr->selectRow( 'cur', array( 'cur_text' ), array( 'cur_id' => $this->mCurId ) );
@@ -336,6 +391,11 @@ class DiffHistoryBlob implements HistoryBlob {
 		}
 	}
 
+	/**
+	 * @throws MWException
+	 * @param $text string
+	 * @return int
+	 */
 	function addItem( $text ) {
 		if ( $this->mFrozen ) {
 			throw new MWException( __METHOD__.": Cannot add more items after sleep/wakeup" );
@@ -347,18 +407,31 @@ class DiffHistoryBlob implements HistoryBlob {
 		return count( $this->mItems ) - 1;
 	}
 
+	/**
+	 * @param $key string
+	 * @return string
+	 */
 	function getItem( $key ) {
 		return $this->mItems[$key];
 	}
 
+	/**
+	 * @param $text string
+	 */
 	function setText( $text ) {
 		$this->mDefaultKey = $this->addItem( $text );
 	}
 
+	/**
+	 * @return string
+	 */
 	function getText() {
 		return $this->getItem( $this->mDefaultKey );
 	}
 
+	/**
+	 * @throws MWException
+	 */
 	function compress() {
 		if ( !function_exists( 'xdiff_string_rabdiff' ) ){ 
 			throw new MWException( "Need xdiff 1.5+ support to write DiffHistoryBlob\n" );
@@ -431,6 +504,11 @@ class DiffHistoryBlob implements HistoryBlob {
 		}
 	}
 
+	/**
+	 * @param $t1
+	 * @param $t2
+	 * @return string
+	 */
 	function diff( $t1, $t2 ) {
 		# Need to do a null concatenation with warnings off, due to bugs in the current version of xdiff
 		# "String is not zero-terminated"
@@ -440,6 +518,11 @@ class DiffHistoryBlob implements HistoryBlob {
 		return $diff;
 	}
 
+	/**
+	 * @param $base
+	 * @param $diff
+	 * @return bool|string
+	 */
 	function patch( $base, $diff ) {
 		if ( function_exists( 'xdiff_string_bpatch' ) ) {
 			wfSuppressWarnings();
@@ -452,13 +535,11 @@ class DiffHistoryBlob implements HistoryBlob {
 
 		$header = unpack( 'Vofp/Vcsize', substr( $diff, 0, 8 ) );
 		
-		# Check the checksum if mhash is available
-		if ( extension_loaded( 'mhash' ) ) {
-			$ofp = mhash( MHASH_ADLER32, $base );
-			if ( $ofp !== substr( $diff, 0, 4 ) ) {
-				wfDebug( __METHOD__. ": incorrect base checksum\n" );
-				return false;
-			}
+		# Check the checksum if hash/mhash is available
+		$ofp = $this->xdiffAdler32( $base );
+		if ( $ofp !== false && $ofp !== substr( $diff, 0, 4 ) ) {
+			wfDebug( __METHOD__. ": incorrect base checksum\n" );
+			return false;
 		}
 		if ( $header['csize'] != strlen( $base ) ) {
 			wfDebug( __METHOD__. ": incorrect base length\n" );
@@ -497,6 +578,30 @@ class DiffHistoryBlob implements HistoryBlob {
 		return $out;
 	}
 
+	/**
+	 * Compute a binary "Adler-32" checksum as defined by LibXDiff, i.e. with 
+	 * the bytes backwards and initialised with 0 instead of 1. See bug 34428.
+	 *
+	 * Returns false if no hashing library is available
+	 */
+	function xdiffAdler32( $s ) {
+		static $init;
+		if ( $init === null ) {
+			$init = str_repeat( "\xf0", 205 ) . "\xee" . str_repeat( "\xf0", 67 ) . "\x02";
+		}
+		// The real Adler-32 checksum of $init is zero, so it initialises the 
+		// state to zero, as it is at the start of LibXDiff's checksum 
+		// algorithm. Appending the subject string then simulates LibXDiff.
+		if ( function_exists( 'hash' ) ) {
+			$hash = hash( 'adler32', $init . $s, true );
+		} elseif ( function_exists( 'mhash' ) ) {
+			$hash = mhash( MHASH_ADLER32, $init . $s );
+		} else {
+			return false;
+		}
+		return strrev( $hash );
+	}
+
 	function uncompress() {
 		if ( !$this->mDiffs ) {
 			return;
@@ -510,6 +615,9 @@ class DiffHistoryBlob implements HistoryBlob {
 		}
 	}
 
+	/**
+	 * @return array
+	 */
 	function __sleep() {
 		$this->compress();
 		if ( !count( $this->mItems ) ) {
@@ -575,6 +683,8 @@ class DiffHistoryBlob implements HistoryBlob {
 	/**
 	 * Helper function for compression jobs
 	 * Returns true until the object is "full" and ready to be committed
+	 *
+	 * @return bool
 	 */
 	function isHappy() {
 		return $this->mSize < $this->mMaxSize 

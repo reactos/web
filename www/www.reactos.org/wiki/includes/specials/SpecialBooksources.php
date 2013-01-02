@@ -46,17 +46,16 @@ class SpecialBookSources extends SpecialPage {
 	/**
 	 * Show the special page
 	 *
-	 * @param $isbn ISBN passed as a subpage parameter
+	 * @param $isbn string ISBN passed as a subpage parameter
 	 */
 	public function execute( $isbn ) {
-		global $wgOut, $wgRequest;
 		$this->setHeaders();
-		$this->isbn = self::cleanIsbn( $isbn ? $isbn : $wgRequest->getText( 'isbn' ) );
-		$wgOut->addWikiMsg( 'booksources-summary' );
-		$wgOut->addHTML( $this->makeForm() );
+		$this->outputHeader();
+		$this->isbn = self::cleanIsbn( $isbn ? $isbn : $this->getRequest()->getText( 'isbn' ) );
+		$this->getOutput()->addHTML( $this->makeForm() );
 		if( strlen( $this->isbn ) > 0 ) {
 			if( !self::isValidISBN( $this->isbn ) ) {
-				$wgOut->wrapWikiMsg( "<div class=\"error\">\n$1\n</div>", 'booksources-invalid-isbn' );
+				$this->getOutput()->wrapWikiMsg( "<div class=\"error\">\n$1\n</div>", 'booksources-invalid-isbn' );
 			}
 			$this->showList();
 		}
@@ -64,7 +63,8 @@ class SpecialBookSources extends SpecialPage {
 
 	/**
 	 * Returns whether a given ISBN (10 or 13) is valid.  True indicates validity.
-	 * @param isbn ISBN passed for check
+	 * @param isbn string ISBN passed for check
+	 * @return bool
 	 */
 	public static function isValidISBN( $isbn ) {
 		$isbn = self::cleanIsbn( $isbn );
@@ -72,26 +72,26 @@ class SpecialBookSources extends SpecialPage {
 		if( strlen( $isbn ) == 13 ) {
 			for( $i = 0; $i < 12; $i++ ) {
 				if($i % 2 == 0) {
-					$sum += $isbn{$i};
+					$sum += $isbn[$i];
 				} else {
-					$sum += 3 * $isbn{$i};
+					$sum += 3 * $isbn[$i];
 				}
 			}
-		
+
 			$check = (10 - ($sum % 10)) % 10;
-			if ($check == $isbn{12}) {
+			if ($check == $isbn[12]) {
 				return true;
 			}
 		} elseif( strlen( $isbn ) == 10 ) {
 			for($i = 0; $i < 9; $i++) {
-				$sum += $isbn{$i} * ($i + 1);
+				$sum += $isbn[$i] * ($i + 1);
 			}
-		
+
 			$check = $sum % 11;
 			if($check == 10) {
 				$check = "X";
 			}
-			if($check == $isbn{9}) {
+			if($check == $isbn[9]) {
 				return true;
 			}
 		}
@@ -101,7 +101,7 @@ class SpecialBookSources extends SpecialPage {
 	/**
 	 * Trim ISBN and remove characters which aren't required
 	 *
-	 * @param $isbn Unclean ISBN
+	 * @param $isbn string Unclean ISBN
 	 * @return string
 	 */
 	private static function cleanIsbn( $isbn ) {
@@ -115,12 +115,12 @@ class SpecialBookSources extends SpecialPage {
 	 */
 	private function makeForm() {
 		global $wgScript;
-		$title = self::getTitleFor( 'Booksources' );
-		$form  = '<fieldset><legend>' . wfMsgHtml( 'booksources-search-legend' ) . '</legend>';
+
+		$form  = '<fieldset><legend>' . $this->msg( 'booksources-search-legend' )->escaped() . '</legend>';
 		$form .= Xml::openElement( 'form', array( 'method' => 'get', 'action' => $wgScript ) );
-		$form .= Html::hidden( 'title', $title->getPrefixedText() );
-		$form .= '<p>' . Xml::inputLabel( wfMsg( 'booksources-isbn' ), 'isbn', 'isbn', 20, $this->isbn );
-		$form .= '&#160;' . Xml::submitButton( wfMsg( 'booksources-go' ) ) . '</p>';
+		$form .= Html::hidden( 'title', $this->getTitle()->getPrefixedText() );
+		$form .= '<p>' . Xml::inputLabel( $this->msg( 'booksources-isbn' )->text(), 'isbn', 'isbn', 20, $this->isbn );
+		$form .= '&#160;' . Xml::submitButton( $this->msg( 'booksources-go' )->text() ) . '</p>';
 		$form .= Xml::closeElement( 'form' );
 		$form .= '</fieldset>';
 		return $form;
@@ -133,35 +133,36 @@ class SpecialBookSources extends SpecialPage {
 	 * @return string
 	 */
 	private function showList() {
-		global $wgOut, $wgContLang;
+		global $wgContLang;
 
 		# Hook to allow extensions to insert additional HTML,
 		# e.g. for API-interacting plugins and so on
-		wfRunHooks( 'BookInformation', array( $this->isbn, &$wgOut ) );
+		wfRunHooks( 'BookInformation', array( $this->isbn, $this->getOutput() ) );
 
 		# Check for a local page such as Project:Book_sources and use that if available
-		$title = Title::makeTitleSafe( NS_PROJECT, wfMsgForContent( 'booksources' ) ); # Show list in content language
+		$page = $this->msg( 'booksources' )->inContentLanguage()->text();
+		$title = Title::makeTitleSafe( NS_PROJECT, $page ); # Show list in content language
 		if( is_object( $title ) && $title->exists() ) {
-			$rev = Revision::newFromTitle( $title );
-			$wgOut->addWikiText( str_replace( 'MAGICNUMBER', $this->isbn, $rev->getText() ) );
+			$rev = Revision::newFromTitle( $title, false, Revision::READ_NORMAL );
+			$this->getOutput()->addWikiText( str_replace( 'MAGICNUMBER', $this->isbn, $rev->getText() ) );
 			return true;
 		}
 
 		# Fall back to the defaults given in the language file
-		$wgOut->addWikiMsg( 'booksources-text' );
-		$wgOut->addHTML( '<ul>' );
+		$this->getOutput()->addWikiMsg( 'booksources-text' );
+		$this->getOutput()->addHTML( '<ul>' );
 		$items = $wgContLang->getBookstoreList();
 		foreach( $items as $label => $url )
-			$wgOut->addHTML( $this->makeListItem( $label, $url ) );
-		$wgOut->addHTML( '</ul>' );
+			$this->getOutput()->addHTML( $this->makeListItem( $label, $url ) );
+		$this->getOutput()->addHTML( '</ul>' );
 		return true;
 	}
 
 	/**
 	 * Format a book source list item
 	 *
-	 * @param $label Book source label
-	 * @param $url Book source URL
+	 * @param $label string Book source label
+	 * @param $url string Book source URL
 	 * @return string
 	 */
 	private function makeListItem( $label, $url ) {

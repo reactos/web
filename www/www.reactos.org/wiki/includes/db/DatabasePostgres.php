@@ -2,19 +2,41 @@
 /**
  * This is the Postgres database abstraction layer.
  *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ * http://www.gnu.org/copyleft/gpl.html
+ *
  * @file
  * @ingroup Database
  */
 
 class PostgresField implements Field {
-	private $name, $tablename, $type, $nullable, $max_length, $deferred, $deferrable, $conname;
+	private $name, $tablename, $type, $nullable, $max_length, $deferred, $deferrable, $conname,
+		$has_default, $default;
 
-	static function fromText($db, $table, $field) {
-	global $wgDBmwschema;
-
+	/**
+	 * @param $db DatabaseBase
+	 * @param  $table
+	 * @param  $field
+	 * @return null|PostgresField
+	 */
+	static function fromText( $db, $table, $field ) {
 		$q = <<<SQL
 SELECT
- attnotnull, attlen, COALESCE(conname, '') AS conname,
+ attnotnull, attlen, conname AS conname,
+ atthasdef,
+ adsrc,
  COALESCE(condeferred, 'f') AS deferred,
  COALESCE(condeferrable, 'f') AS deferrable,
  CASE WHEN typname = 'int2' THEN 'smallint'
@@ -27,16 +49,17 @@ JOIN pg_namespace n ON (n.oid = c.relnamespace)
 JOIN pg_attribute a ON (a.attrelid = c.oid)
 JOIN pg_type t ON (t.oid = a.atttypid)
 LEFT JOIN pg_constraint o ON (o.conrelid = c.oid AND a.attnum = ANY(o.conkey) AND o.contype = 'f')
+LEFT JOIN pg_attrdef d on c.oid=d.adrelid and a.attnum=d.adnum
 WHERE relkind = 'r'
 AND nspname=%s
 AND relname=%s
 AND attname=%s;
 SQL;
 
-		$table = $db->tableName( $table );
+		$table = $db->tableName( $table, 'raw' );
 		$res = $db->query(
 			sprintf( $q,
-				$db->addQuotes( $wgDBmwschema ),
+				$db->addQuotes( $db->getCoreSchema() ),
 				$db->addQuotes( $table ),
 				$db->addQuotes( $field )
 			)
@@ -54,6 +77,8 @@ SQL;
 		$n->deferrable = ( $row->deferrable == 't' );
 		$n->deferred = ( $row->deferred == 't' );
 		$n->conname = $row->conname;
+		$n->has_default = ( $row->atthasdef === 't' );
+		$n->default = $row->adsrc;
 		return $n;
 	}
 
@@ -88,7 +113,169 @@ SQL;
 	function conname() {
 		return $this->conname;
 	}
+	/**
+	 * @since 1.19
+	 */
+	function defaultValue() {
+		if( $this->has_default ) {
+			return $this->default;
+		} else {
+			return false;
+		}
+	}
 
+}
+
+/**
+ * Used to debug transaction processing
+ * Only used if $wgDebugDBTransactions is true
+ *
+ * @since 1.19
+ * @ingroup Database
+ */
+class PostgresTransactionState {
+
+	static $WATCHED = array(
+		array(
+			"desc" => "%s: Connection state changed from %s -> %s\n",
+			"states" => array(
+				PGSQL_CONNECTION_OK       => "OK",
+				PGSQL_CONNECTION_BAD      => "BAD"
+			)
+		),
+		array(
+			"desc" => "%s: Transaction state changed from %s -> %s\n",
+			"states" => array(
+				PGSQL_TRANSACTION_IDLE    => "IDLE",
+				PGSQL_TRANSACTION_ACTIVE  => "ACTIVE",
+				PGSQL_TRANSACTION_INTRANS => "TRANS",
+				PGSQL_TRANSACTION_INERROR => "ERROR",
+				PGSQL_TRANSACTION_UNKNOWN => "UNKNOWN"
+			)
+		)
+	);
+
+	public function __construct( $conn ) {
+		$this->mConn = $conn;
+		$this->update();
+		$this->mCurrentState = $this->mNewState;
+	}
+
+	public function update() {
+		$this->mNewState = array(
+			pg_connection_status( $this->mConn ),
+			pg_transaction_status( $this->mConn )
+		);
+	}
+
+	public function check() {
+		global $wgDebugDBTransactions;
+		$this->update();
+		if ( $wgDebugDBTransactions ) {
+			if ( $this->mCurrentState !== $this->mNewState ) {
+				$old = reset( $this->mCurrentState );
+				$new = reset( $this->mNewState );
+				foreach ( self::$WATCHED as $watched ) {
+					if ($old !== $new) {
+						$this->log_changed($old, $new, $watched);
+					}
+					$old = next( $this->mCurrentState );
+					$new = next( $this->mNewState );
+
+				}
+			}
+		}
+		$this->mCurrentState = $this->mNewState;
+	}
+
+	protected function describe_changed( $status, $desc_table ) {
+		if( isset( $desc_table[$status] ) ) {
+			return $desc_table[$status];
+		} else {
+			return "STATUS " . $status;
+		}
+	}
+
+	protected function log_changed( $old, $new, $watched ) {
+		wfDebug(sprintf($watched["desc"],
+			$this->mConn,
+			$this->describe_changed( $old, $watched["states"] ),
+			$this->describe_changed( $new, $watched["states"] ))
+		);
+	}
+}
+
+/**
+ * Manage savepoints within a transaction
+ * @ingroup Database
+ * @since 1.19
+ */
+class SavepointPostgres {
+	/**
+	 * Establish a savepoint within a transaction
+	 */
+	protected $dbw;
+	protected $id;
+	protected $didbegin;
+
+	public function __construct ($dbw, $id) {
+		$this->dbw = $dbw;
+		$this->id = $id;
+		$this->didbegin = false;
+		/* If we are not in a transaction, we need to be for savepoint trickery */
+		if ( !$dbw->trxLevel() ) {
+				$dbw->begin( "FOR SAVEPOINT" );
+				$this->didbegin = true;
+		}
+	}
+
+	public function __destruct() {
+		if ( $this->didbegin ) {
+			$this->dbw->rollback();
+		}
+	}
+
+	public function commit() {
+		if ( $this->didbegin ) {
+			$this->dbw->commit();
+		}
+	}
+
+	protected function query( $keyword, $msg_ok, $msg_failed ) {
+		global $wgDebugDBTransactions;
+		if ( $this->dbw->doQuery( $keyword . " " . $this->id ) !== false ) {
+			if ( $wgDebugDBTransactions ) {
+				wfDebug( sprintf ($msg_ok, $this->id ) );
+			}
+		} else {
+			wfDebug( sprintf ($msg_failed, $this->id ) );
+		}
+	}
+
+	public function savepoint() {
+		$this->query("SAVEPOINT",
+			"Transaction state: savepoint \"%s\" established.\n",
+			"Transaction state: establishment of savepoint \"%s\" FAILED.\n"
+		);
+	}
+
+	public function release() {
+		$this->query("RELEASE",
+			"Transaction state: savepoint \"%s\" released.\n",
+			"Transaction state: release of savepoint \"%s\" FAILED.\n"
+		);
+	}
+
+	public function rollback() {
+		$this->query("ROLLBACK TO",
+			"Transaction state: savepoint \"%s\" rolled back.\n",
+			"Transaction state: rollback of savepoint \"%s\" FAILED.\n"
+		);
+	}
+
+	public function __toString() {
+		return (string)$this->id;
+	}
 }
 
 /**
@@ -130,19 +317,15 @@ class DatabasePostgres extends DatabaseBase {
 	}
 
 	function hasConstraint( $name ) {
-		global $wgDBmwschema;
 		$SQL = "SELECT 1 FROM pg_catalog.pg_constraint c, pg_catalog.pg_namespace n WHERE c.connamespace = n.oid AND conname = '" .
-				pg_escape_string( $this->mConn, $name ) . "' AND n.nspname = '" . pg_escape_string( $this->mConn, $wgDBmwschema ) ."'";
+				pg_escape_string( $this->mConn, $name ) . "' AND n.nspname = '" . pg_escape_string( $this->mConn, $this->getCoreSchema() ) ."'";
 		$res = $this->doQuery( $SQL );
 		return $this->numRows( $res );
 	}
 
-	static function newFromParams( $server, $user, $password, $dbName, $flags = 0 ) {
-		return new DatabasePostgres( $server, $user, $password, $dbName, $flags );
-	}
-
 	/**
 	 * Usually aborts on failure
+	 * @return DatabaseBase|null
 	 */
 	function open( $server, $user, $password, $dbName ) {
 		# Test for Postgres support, to avoid suppressed fatal error
@@ -155,9 +338,9 @@ class DatabasePostgres extends DatabaseBase {
 		if ( !strlen( $user ) ) { # e.g. the class is being loaded
 			return;
 		}
-		$this->close();
+
 		$this->mServer = $server;
-		$this->mPort = $port = $wgDBport;
+		$port = $wgDBport;
 		$this->mUser = $user;
 		$this->mPassword = $password;
 		$this->mDBname = $dbName;
@@ -173,10 +356,14 @@ class DatabasePostgres extends DatabaseBase {
 		if ( $port != false && $port != '' ) {
 			$connectVars['port'] = $port;
 		}
-		$connectString = $this->makeConnectionString( $connectVars, PGSQL_CONNECT_FORCE_NEW );
+		if ( $this->mFlags & DBO_SSL ) {
+			$connectVars['sslmode'] = 1;
+		}
 
+		$this->connectString = $this->makeConnectionString( $connectVars, PGSQL_CONNECT_FORCE_NEW );
+		$this->close();
 		$this->installErrorHandler();
-		$this->mConn = pg_connect( $connectString );
+		$this->mConn = pg_connect( $this->connectString );
 		$phpError = $this->restoreErrorHandler();
 
 		if ( !$this->mConn ) {
@@ -187,6 +374,7 @@ class DatabasePostgres extends DatabaseBase {
 		}
 
 		$this->mOpened = true;
+		$this->mTransactionState = new PostgresTransactionState( $this->mConn );
 
 		global $wgCommandLineMode;
 		# If called from the command-line (e.g. importDump), only show errors
@@ -194,19 +382,28 @@ class DatabasePostgres extends DatabaseBase {
 			$this->doQuery( "SET client_min_messages = 'ERROR'" );
 		}
 
-		$this->doQuery( "SET client_encoding='UTF8'" );
+		$this->query( "SET client_encoding='UTF8'", __METHOD__ );
+		$this->query( "SET datestyle = 'ISO, YMD'", __METHOD__ );
+		$this->query( "SET timezone = 'GMT'", __METHOD__ );
+		$this->query( "SET standard_conforming_strings = on", __METHOD__ );
 
-		global $wgDBmwschema, $wgDBts2schema;
-		if ( isset( $wgDBmwschema ) && isset( $wgDBts2schema )
-			&& $wgDBmwschema !== 'mediawiki'
-			&& preg_match( '/^\w+$/', $wgDBmwschema )
-			&& preg_match( '/^\w+$/', $wgDBts2schema )
-		) {
-			$safeschema = $this->addIdentifierQuotes( $wgDBmwschema );
-			$this->doQuery( "SET search_path = $safeschema, $wgDBts2schema, public" );
-		}
+		global $wgDBmwschema;
+		$this->determineCoreSchema( $wgDBmwschema );
 
 		return $this->mConn;
+	}
+
+	/**
+	 * Postgres doesn't support selectDB in the same way MySQL does. So if the
+	 * DB name doesn't match the open connection, open a new one
+	 * @return
+	 */
+	function selectDB( $db ) {
+		if ( $this->mDBname !== $db ) {
+			return (bool)$this->open( $this->mServer, $this->mUser, $this->mPassword, $db );
+		} else {
+			return true;
+		}
 	}
 
 	function makeConnectionString( $vars ) {
@@ -220,24 +417,61 @@ class DatabasePostgres extends DatabaseBase {
 	/**
 	 * Closes a database connection, if it is open
 	 * Returns success, true if already closed
+	 * @return bool
 	 */
-	function close() {
-		$this->mOpened = false;
-		if ( $this->mConn ) {
-			return pg_close( $this->mConn );
-		} else {
-			return true;
-		}
+	protected function closeConnection() {
+		return pg_close( $this->mConn );
 	}
 
-	function doQuery( $sql ) {
+	public function doQuery( $sql ) {
 		if ( function_exists( 'mb_convert_encoding' ) ) {
 			$sql = mb_convert_encoding( $sql, 'UTF-8' );
 		}
-		$this->mLastResult = pg_query( $this->mConn, $sql );
-		$this->mAffectedRows = null; // use pg_affected_rows(mLastResult)
+		$this->mTransactionState->check();
+		if( pg_send_query( $this->mConn, $sql ) === false ) {
+			throw new DBUnexpectedError( $this, "Unable to post new query to PostgreSQL\n" );
+		}
+		$this->mLastResult = pg_get_result( $this->mConn );
+		$this->mTransactionState->check();
+		$this->mAffectedRows = null;
+		if ( pg_result_error( $this->mLastResult ) ) {
+			return false;
+		}
 		return $this->mLastResult;
 	}
+
+	protected function dumpError () {
+		$diags = array( PGSQL_DIAG_SEVERITY,
+				PGSQL_DIAG_SQLSTATE,
+				PGSQL_DIAG_MESSAGE_PRIMARY,
+				PGSQL_DIAG_MESSAGE_DETAIL,
+				PGSQL_DIAG_MESSAGE_HINT,
+				PGSQL_DIAG_STATEMENT_POSITION,
+				PGSQL_DIAG_INTERNAL_POSITION,
+				PGSQL_DIAG_INTERNAL_QUERY,
+				PGSQL_DIAG_CONTEXT,
+				PGSQL_DIAG_SOURCE_FILE,
+				PGSQL_DIAG_SOURCE_LINE,
+				PGSQL_DIAG_SOURCE_FUNCTION );
+		foreach ( $diags as $d ) {
+			wfDebug( sprintf("PgSQL ERROR(%d): %s\n", $d, pg_result_error_field( $this->mLastResult, $d ) ) );
+		}
+	}
+
+	function reportQueryError( $error, $errno, $sql, $fname, $tempIgnore = false ) {
+		/* Transaction stays in the ERROR state until rolledback */
+		if ( $tempIgnore ) {
+			/* Check for constraint violation */
+			if ( $errno === '23505' ) {
+				parent::reportQueryError( $error, $errno, $sql, $fname, $tempIgnore );
+				return;
+			}
+		}
+		/* Don't ignore serious errors */
+		$this->rollback( __METHOD__ );
+		parent::reportQueryError( $error, $errno, $sql, $fname, false );
+	}
+
 
 	function queryIgnore( $sql, $fname = 'DatabasePostgres::queryIgnore' ) {
 		return $this->query( $sql, $fname, true );
@@ -247,7 +481,10 @@ class DatabasePostgres extends DatabaseBase {
 		if ( $res instanceof ResultWrapper ) {
 			$res = $res->result;
 		}
-		if ( !@pg_free_result( $res ) ) {
+		wfSuppressWarnings();
+		$ok = pg_free_result( $res );
+		wfRestoreWarnings();
+		if ( !$ok ) {
 			throw new DBUnexpectedError( $this, "Unable to free Postgres result\n" );
 		}
 	}
@@ -256,11 +493,12 @@ class DatabasePostgres extends DatabaseBase {
 		if ( $res instanceof ResultWrapper ) {
 			$res = $res->result;
 		}
-		@$row = pg_fetch_object( $res );
-		# FIXME: HACK HACK HACK HACK debug
+		wfSuppressWarnings();
+		$row = pg_fetch_object( $res );
+		wfRestoreWarnings();
+		# @todo FIXME: HACK HACK HACK HACK debug
 
-		# TODO:
-		# hashar : not sure if the following test really trigger if the object
+		# @todo hashar: not sure if the following test really trigger if the object
 		#          fetching failed.
 		if( pg_last_error( $this->mConn ) ) {
 			throw new DBUnexpectedError( $this, 'SQL error: ' . htmlspecialchars( pg_last_error( $this->mConn ) ) );
@@ -272,7 +510,9 @@ class DatabasePostgres extends DatabaseBase {
 		if ( $res instanceof ResultWrapper ) {
 			$res = $res->result;
 		}
-		@$row = pg_fetch_array( $res );
+		wfSuppressWarnings();
+		$row = pg_fetch_array( $res );
+		wfRestoreWarnings();
 		if( pg_last_error( $this->mConn ) ) {
 			throw new DBUnexpectedError( $this, 'SQL error: ' . htmlspecialchars( pg_last_error( $this->mConn ) ) );
 		}
@@ -283,7 +523,9 @@ class DatabasePostgres extends DatabaseBase {
 		if ( $res instanceof ResultWrapper ) {
 			$res = $res->result;
 		}
-		@$n = pg_num_rows( $res );
+		wfSuppressWarnings();
+		$n = pg_num_rows( $res );
+		wfRestoreWarnings();
 		if( pg_last_error( $this->mConn ) ) {
 			throw new DBUnexpectedError( $this, 'SQL error: ' . htmlspecialchars( pg_last_error( $this->mConn ) ) );
 		}
@@ -306,6 +548,7 @@ class DatabasePostgres extends DatabaseBase {
 
 	/**
 	 * This must be called after nextSequenceVal
+	 * @return null
 	 */
 	function insertId() {
 		return $this->mInsertId;
@@ -320,13 +563,21 @@ class DatabasePostgres extends DatabaseBase {
 
 	function lastError() {
 		if ( $this->mConn ) {
-			return pg_last_error();
+			if ( $this->mLastResult ) {
+				return pg_result_error( $this->mLastResult );
+			} else {
+				return pg_last_error();
+			}
 		} else {
 			return 'No database connection';
 		}
 	}
 	function lastErrno() {
-		return pg_last_error() ? 1 : 0;
+		if ( $this->mLastResult ) {
+			return pg_result_error_field( $this->mLastResult, PGSQL_DIAG_SQLSTATE );
+		} else {
+			return false;
+		}
 	}
 
 	function affectedRows() {
@@ -346,6 +597,7 @@ class DatabasePostgres extends DatabaseBase {
 	 * This is not necessarily an accurate estimate, so use sparingly
 	 * Returns -1 if count cannot be found
 	 * Takes same arguments as Database::select()
+	 * @return int
 	 */
 	function estimateRowCount( $table, $vars = '*', $conds='', $fname = 'DatabasePostgres::estimateRowCount', $options = array() ) {
 		$options['EXPLAIN'] = true;
@@ -364,6 +616,7 @@ class DatabasePostgres extends DatabaseBase {
 	/**
 	 * Returns information about an index
 	 * If errors are explicitly ignored, returns NULL on failure
+	 * @return bool|null
 	 */
 	function indexInfo( $table, $index, $fname = 'DatabasePostgres::indexInfo' ) {
 		$sql = "SELECT indexname FROM pg_indexes WHERE tablename='$table'";
@@ -378,6 +631,68 @@ class DatabasePostgres extends DatabaseBase {
 		}
 		return false;
 	}
+
+	/**
+	 * Returns is of attributes used in index
+	 *
+	 * @since 1.19
+	 * @return Array
+	 */
+	function indexAttributes ( $index, $schema = false ) {
+		if ( $schema === false )
+			$schema = $this->getCoreSchema();
+		/*
+		 * A subquery would be not needed if we didn't care about the order
+		 * of attributes, but we do
+		 */
+		$sql = <<<__INDEXATTR__
+
+			SELECT opcname,
+				attname,
+				i.indoption[s.g] as option,
+				pg_am.amname
+			FROM
+				(SELECT generate_series(array_lower(isub.indkey,1), array_upper(isub.indkey,1)) AS g
+					FROM
+						pg_index isub
+					JOIN pg_class cis
+						ON cis.oid=isub.indexrelid
+					JOIN pg_namespace ns
+						ON cis.relnamespace = ns.oid
+					WHERE cis.relname='$index' AND ns.nspname='$schema') AS s,
+				pg_attribute,
+				pg_opclass opcls,
+				pg_am,
+				pg_class ci
+				JOIN pg_index i
+					ON ci.oid=i.indexrelid
+				JOIN pg_class ct
+					ON ct.oid = i.indrelid
+				JOIN pg_namespace n
+					ON ci.relnamespace = n.oid
+				WHERE
+					ci.relname='$index' AND n.nspname='$schema'
+					AND	attrelid = ct.oid
+					AND	i.indkey[s.g] = attnum
+					AND	i.indclass[s.g] = opcls.oid
+					AND	pg_am.oid = opcls.opcmethod
+__INDEXATTR__;
+		$res = $this->query($sql, __METHOD__);
+		$a = array();
+		if ( $res ) {
+			foreach ( $res as $row ) {
+				$a[] = array(
+					$row->attname,
+					$row->opcname,
+					$row->amname,
+					$row->option);
+			}
+		} else {
+			return null;
+		}
+		return $a;
+	}
+
 
 	function indexUnique( $table, $index, $fname = 'DatabasePostgres::indexUnique' ) {
 		$sql = "SELECT indexname FROM pg_indexes WHERE tablename='{$table}'".
@@ -430,15 +745,9 @@ class DatabasePostgres extends DatabaseBase {
 		}
 
 		// If IGNORE is set, we use savepoints to emulate mysql's behavior
-		$ignore = in_array( 'IGNORE', $options ) ? 'mw' : '';
-
-		// If we are not in a transaction, we need to be for savepoint trickery
-		$didbegin = 0;
-		if ( $ignore ) {
-			if ( !$this->mTrxLevel ) {
-				$this->begin();
-				$didbegin = 1;
-			}
+		$savepoint = null;
+		if ( in_array( 'IGNORE', $options ) ) {
+			$savepoint = new SavepointPostgres( $this, 'mw' );
 			$olde = error_reporting( 0 );
 			// For future use, we may want to track the number of actual inserts
 			// Right now, insert (all writes) simply return true/false
@@ -448,7 +757,7 @@ class DatabasePostgres extends DatabaseBase {
 		$sql = "INSERT INTO $table (" . implode( ',', $keys ) . ') VALUES ';
 
 		if ( $multi ) {
-			if ( $this->numeric_version >= 8.2 && !$ignore ) {
+			if ( $this->numeric_version >= 8.2 && !$savepoint ) {
 				$first = true;
 				foreach ( $args as $row ) {
 					if ( $first ) {
@@ -458,7 +767,7 @@ class DatabasePostgres extends DatabaseBase {
 					}
 					$sql .= '(' . $this->makeList( $row ) . ')';
 				}
-				$res = (bool)$this->query( $sql, $fname, $ignore );
+				$res = (bool)$this->query( $sql, $fname, $savepoint );
 			} else {
 				$res = true;
 				$origsql = $sql;
@@ -466,18 +775,18 @@ class DatabasePostgres extends DatabaseBase {
 					$tempsql = $origsql;
 					$tempsql .= '(' . $this->makeList( $row ) . ')';
 
-					if ( $ignore ) {
-						pg_query( $this->mConn, "SAVEPOINT $ignore" );
+					if ( $savepoint ) {
+						$savepoint->savepoint();
 					}
 
-					$tempres = (bool)$this->query( $tempsql, $fname, $ignore );
+					$tempres = (bool)$this->query( $tempsql, $fname, $savepoint );
 
-					if ( $ignore ) {
+					if ( $savepoint ) {
 						$bar = pg_last_error();
 						if ( $bar != false ) {
-							pg_query( $this->mConn, "ROLLBACK TO $ignore" );
+							$savepoint->rollback();
 						} else {
-							pg_query( $this->mConn, "RELEASE $ignore" );
+							$savepoint->release();
 							$numrowsinserted++;
 						}
 					}
@@ -491,27 +800,25 @@ class DatabasePostgres extends DatabaseBase {
 			}
 		} else {
 			// Not multi, just a lone insert
-			if ( $ignore ) {
-				pg_query($this->mConn, "SAVEPOINT $ignore");
+			if ( $savepoint ) {
+				$savepoint->savepoint();
 			}
 
 			$sql .= '(' . $this->makeList( $args ) . ')';
-			$res = (bool)$this->query( $sql, $fname, $ignore );
-			if ( $ignore ) {
+			$res = (bool)$this->query( $sql, $fname, $savepoint );
+			if ( $savepoint ) {
 				$bar = pg_last_error();
 				if ( $bar != false ) {
-					pg_query( $this->mConn, "ROLLBACK TO $ignore" );
+					$savepoint->rollback();
 				} else {
-					pg_query( $this->mConn, "RELEASE $ignore" );
+					$savepoint->release();
 					$numrowsinserted++;
 				}
 			}
 		}
-		if ( $ignore ) {
+		if ( $savepoint ) {
 			$olde = error_reporting( $olde );
-			if ( $didbegin ) {
-				$this->commit();
-			}
+			$savepoint->commit();
 
 			// Set the affected row count for the whole operation
 			$this->mAffectedRows = $numrowsinserted;
@@ -529,19 +836,30 @@ class DatabasePostgres extends DatabaseBase {
 	 * Source items may be literals rather then field names, but strings should be quoted with Database::addQuotes()
 	 * $conds may be "*" to copy the whole table
 	 * srcTable may be an array of tables.
-	 * @todo FIXME: implement this a little better (seperate select/insert)?
+	 * @todo FIXME: Implement this a little better (seperate select/insert)?
+	 * @return bool
 	 */
 	function insertSelect( $destTable, $srcTable, $varMap, $conds, $fname = 'DatabasePostgres::insertSelect',
 		$insertOptions = array(), $selectOptions = array() )
 	{
 		$destTable = $this->tableName( $destTable );
 
-		// If IGNORE is set, we use savepoints to emulate mysql's behavior
-		$ignore = in_array( 'IGNORE', $insertOptions ) ? 'mw' : '';
-
-		if( is_array( $insertOptions ) ) {
-			$insertOptions = implode( ' ', $insertOptions );
+		if( !is_array( $insertOptions ) ) {
+			$insertOptions = array( $insertOptions );
 		}
+
+		/*
+		 * If IGNORE is set, we use savepoints to emulate mysql's behavior
+		 * Ignore LOW PRIORITY option, since it is MySQL-specific
+		 */
+		$savepoint = null;
+		if ( in_array( 'IGNORE', $insertOptions ) ) {
+			$savepoint = new SavepointPostgres( $this, 'mw' );
+			$olde = error_reporting( 0 );
+			$numrowsinserted = 0;
+			$savepoint->savepoint();
+		}
+
 		if( !is_array( $selectOptions ) ) {
 			$selectOptions = array( $selectOptions );
 		}
@@ -550,18 +868,6 @@ class DatabasePostgres extends DatabaseBase {
 			$srcTable = implode( ',', array_map( array( &$this, 'tableName' ), $srcTable ) );
 		} else {
 			$srcTable = $this->tableName( $srcTable );
-		}
-
-		// If we are not in a transaction, we need to be for savepoint trickery
-		$didbegin = 0;
-		if ( $ignore ) {
-			if( !$this->mTrxLevel ) {
-				$this->begin();
-				$didbegin = 1;
-			}
-			$olde = error_reporting( 0 );
-			$numrowsinserted = 0;
-			pg_query( $this->mConn, "SAVEPOINT $ignore");
 		}
 
 		$sql = "INSERT INTO $destTable (" . implode( ',', array_keys( $varMap ) ) . ')' .
@@ -574,19 +880,17 @@ class DatabasePostgres extends DatabaseBase {
 
 		$sql .= " $tailOpts";
 
-		$res = (bool)$this->query( $sql, $fname, $ignore );
-		if( $ignore ) {
+		$res = (bool)$this->query( $sql, $fname, $savepoint );
+		if( $savepoint ) {
 			$bar = pg_last_error();
 			if( $bar != false ) {
-				pg_query( $this->mConn, "ROLLBACK TO $ignore" );
+				$savepoint->rollback();
 			} else {
-				pg_query( $this->mConn, "RELEASE $ignore" );
+				$savepoint->release();
 				$numrowsinserted++;
 			}
 			$olde = error_reporting( $olde );
-			if( $didbegin ) {
-				$this->commit();
-			}
+			$savepoint->commit();
 
 			// Set the affected row count for the whole operation
 			$this->mAffectedRows = $numrowsinserted;
@@ -598,20 +902,26 @@ class DatabasePostgres extends DatabaseBase {
 		return $res;
 	}
 
-	function tableName( $name ) {
+	function tableName( $name, $format = 'quoted' ) {
 		# Replace reserved words with better ones
 		switch( $name ) {
 			case 'user':
-				return 'mwuser';
+				return $this->realTableName( 'mwuser', $format );
 			case 'text':
-				return 'pagecontent';
+				return $this->realTableName( 'pagecontent', $format );
 			default:
-				return $name;
+				return $this->realTableName( $name, $format );
 		}
+	}
+
+	/* Don't cheat on installer */
+	function realTableName( $name, $format = 'quoted' ) {
+		return parent::tableName( $name, $format );
 	}
 
 	/**
 	 * Return the next in a sequence, save the value for retrieval via insertId()
+	 * @return null
 	 */
 	function nextSequenceValue( $seqName ) {
 		$safeseq = str_replace( "'", "''", $seqName );
@@ -623,6 +933,7 @@ class DatabasePostgres extends DatabaseBase {
 
 	/**
 	 * Return the current value of a sequence. Assumes it has been nextval'ed in this session.
+	 * @return
 	 */
 	function currentSequenceValue( $seqName ) {
 		$safeseq = str_replace( "'", "''", $seqName );
@@ -630,83 +941,6 @@ class DatabasePostgres extends DatabaseBase {
 		$row = $this->fetchRow( $res );
 		$currval = $row[0];
 		return $currval;
-	}
-
-	/**
-	 * REPLACE query wrapper
-	 * Postgres simulates this with a DELETE followed by INSERT
-	 * $row is the row to insert, an associative array
-	 * $uniqueIndexes is an array of indexes. Each element may be either a
-	 * field name or an array of field names
-	 *
-	 * It may be more efficient to leave off unique indexes which are unlikely to collide.
-	 * However if you do this, you run the risk of encountering errors which wouldn't have
-	 * occurred in MySQL
-	 */
-	function replace( $table, $uniqueIndexes, $rows, $fname = 'DatabasePostgres::replace' ) {
-		$table = $this->tableName( $table );
-
-		if ( count( $rows ) == 0 ) {
-			return;
-		}
-
-		# Single row case
-		if ( !is_array( reset( $rows ) ) ) {
-			$rows = array( $rows );
-		}
-
-		foreach( $rows as $row ) {
-			# Delete rows which collide
-			if ( $uniqueIndexes ) {
-				$sql = "DELETE FROM $table WHERE ";
-				$first = true;
-				foreach ( $uniqueIndexes as $index ) {
-					if ( $first ) {
-						$first = false;
-						$sql .= '(';
-					} else {
-						$sql .= ') OR (';
-					}
-					if ( is_array( $index ) ) {
-						$first2 = true;
-						foreach ( $index as $col ) {
-							if ( $first2 ) {
-								$first2 = false;
-							} else {
-								$sql .= ' AND ';
-							}
-							$sql .= $col.'=' . $this->addQuotes( $row[$col] );
-						}
-					} else {
-						$sql .= $index.'=' . $this->addQuotes( $row[$index] );
-					}
-				}
-				$sql .= ')';
-				$this->query( $sql, $fname );
-			}
-
-			# Now insert the row
-			$sql = "INSERT INTO $table (" . $this->makeList( array_keys( $row ), LIST_NAMES ) .') VALUES (' .
-				$this->makeList( $row, LIST_COMMA ) . ')';
-			$this->query( $sql, $fname );
-		}
-	}
-
-	# DELETE where the condition is a join
-	function deleteJoin( $delTable, $joinTable, $delVar, $joinVar, $conds, $fname = 'DatabasePostgres::deleteJoin' ) {
-		if ( !$conds ) {
-			throw new DBUnexpectedError( $this, 'DatabasePostgres::deleteJoin() called with empty $conds' );
-		}
-
-		$delTable = $this->tableName( $delTable );
-		$joinTable = $this->tableName( $joinTable );
-		$sql = "DELETE FROM $delTable WHERE $delVar IN (SELECT $joinVar FROM $joinTable ";
-		if ( $conds != '*' ) {
-			$sql .= 'WHERE ' . $this->makeList( $conds, LIST_AND );
-		}
-		$sql .= ')';
-
-		$this->query( $sql, $fname );
 	}
 
 	# Returns the size of a text field, or -1 for "unlimited"
@@ -735,17 +969,79 @@ class DatabasePostgres extends DatabaseBase {
 	}
 
 	function duplicateTableStructure( $oldName, $newName, $temporary = false, $fname = 'DatabasePostgres::duplicateTableStructure' ) {
+		$newName = $this->addIdentifierQuotes( $newName );
+		$oldName = $this->addIdentifierQuotes( $oldName );
 		return $this->query( 'CREATE ' . ( $temporary ? 'TEMPORARY ' : '' ) . " TABLE $newName (LIKE $oldName INCLUDING DEFAULTS)", $fname );
+	}
+
+	function listTables( $prefix = null, $fname = 'DatabasePostgres::listTables' ) {
+		$eschema = $this->addQuotes( $this->getCoreSchema() );
+		$result = $this->query( "SELECT tablename FROM pg_tables WHERE schemaname = $eschema", $fname );
+		$endArray = array();
+
+		foreach( $result as $table ) {
+			$vars = get_object_vars($table);
+			$table = array_pop( $vars );
+			if( !$prefix || strpos( $table, $prefix ) === 0 ) {
+				$endArray[] = $table;
+			}
+		}
+
+		return $endArray;
 	}
 
 	function timestamp( $ts = 0 ) {
 		return wfTimestamp( TS_POSTGRES, $ts );
 	}
 
+	/*
+	 * Posted by cc[plus]php[at]c2se[dot]com on 25-Mar-2009 09:12
+	 * to http://www.php.net/manual/en/ref.pgsql.php
+	 *
+	 * Parsing a postgres array can be a tricky problem, he's my
+	 * take on this, it handles multi-dimensional arrays plus
+	 * escaping using a nasty regexp to determine the limits of each
+	 * data-item.
+	 *
+	 * This should really be handled by PHP PostgreSQL module
+	 *
+	 * @since 1.19
+	 * @param $text   string: postgreql array returned in a text form like {a,b}
+	 * @param $output string
+	 * @param $limit  int
+	 * @param $offset int
+	 * @return string
+	 */
+	function pg_array_parse( $text, &$output, $limit = false, $offset = 1 ) {
+		if( false === $limit ) {
+			$limit = strlen( $text )-1;
+			$output = array();
+		}
+		if( '{}' == $text ) {
+			return $output;
+		}
+		do {
+			if ( '{' != $text{$offset} ) {
+				preg_match( "/(\\{?\"([^\"\\\\]|\\\\.)*\"|[^,{}]+)+([,}]+)/",
+					$text, $match, 0, $offset );
+				$offset += strlen( $match[0] );
+				$output[] = ( '"' != $match[1]{0}
+						? $match[1]
+						: stripcslashes( substr( $match[1], 1, -1 ) ) );
+				if ( '},' == $match[3] ) {
+					return $output;
+				}
+			} else {
+				$offset = $this->pg_array_parse( $text, $output, $limit, $offset+1 );
+			}
+		} while ( $limit > $offset );
+		return $output;
+	}
+
 	/**
 	 * Return aggregated value function call
 	 */
-	function aggregateValue( $valuedata, $valuename = 'value' ) {
+	public function aggregateValue( $valuedata, $valuename = 'value' ) {
 		return $valuedata;
 	}
 
@@ -754,6 +1050,115 @@ class DatabasePostgres extends DatabaseBase {
 	 */
 	public static function getSoftwareLink() {
 		return '[http://www.postgresql.org/ PostgreSQL]';
+	}
+
+
+	/**
+	 * Return current schema (executes SELECT current_schema())
+	 * Needs transaction
+	 *
+	 * @since 1.19
+	 * @return string return default schema for the current session
+	 */
+	function getCurrentSchema() {
+		$res = $this->query( "SELECT current_schema()", __METHOD__);
+		$row = $this->fetchRow( $res );
+		return $row[0];
+	}
+
+	/**
+	 * Return list of schemas which are accessible without schema name
+	 * This is list does not contain magic keywords like "$user"
+	 * Needs transaction
+	 *
+	 * @seealso getSearchPath()
+	 * @seealso setSearchPath()
+	 * @since 1.19
+	 * @return array list of actual schemas for the current sesson
+	 */
+	function getSchemas() {
+		$res = $this->query( "SELECT current_schemas(false)", __METHOD__);
+		$row = $this->fetchRow( $res );
+		$schemas = array();
+		/* PHP pgsql support does not support array type, "{a,b}" string is returned */
+		return $this->pg_array_parse($row[0], $schemas);
+	}
+
+	/**
+	 * Return search patch for schemas
+	 * This is different from getSchemas() since it contain magic keywords
+	 * (like "$user").
+	 * Needs transaction
+	 *
+	 * @since 1.19
+	 * @return array how to search for table names schemas for the current user
+	 */
+	function getSearchPath() {
+		$res = $this->query( "SHOW search_path", __METHOD__);
+		$row = $this->fetchRow( $res );
+		/* PostgreSQL returns SHOW values as strings */
+		return explode(",", $row[0]);
+	}
+
+	/**
+	 * Update search_path, values should already be sanitized
+	 * Values may contain magic keywords like "$user"
+	 * @since 1.19
+	 *
+	 * @param $search_path array list of schemas to be searched by default
+	 */
+	function setSearchPath( $search_path ) {
+		$this->query( "SET search_path = " . implode(", ", $search_path) );
+	}
+
+	/**
+	 * Determine default schema for MediaWiki core
+	 * Adjust this session schema search path if desired schema exists
+	 * and is not alread there.
+	 *
+	 * We need to have name of the core schema stored to be able
+	 * to query database metadata.
+	 *
+	 * This will be also called by the installer after the schema is created
+	 *
+	 * @since 1.19
+	 * @param $desired_schema string
+	 */
+	function determineCoreSchema( $desired_schema ) {
+		$this->begin( __METHOD__ );
+		if ( $this->schemaExists( $desired_schema ) ) {
+			if ( in_array( $desired_schema, $this->getSchemas() ) ) {
+				$this->mCoreSchema = $desired_schema;
+				wfDebug("Schema \"" . $desired_schema . "\" already in the search path\n");
+			} else {
+				/**
+				 * Prepend our schema (e.g. 'mediawiki') in front
+				 * of the search path
+				 * Fixes bug 15816
+				 */
+				$search_path = $this->getSearchPath();
+				array_unshift( $search_path,
+					$this->addIdentifierQuotes( $desired_schema ));
+				$this->setSearchPath( $search_path );
+				$this->mCoreSchema = $desired_schema;
+				wfDebug("Schema \"" . $desired_schema . "\" added to the search path\n");
+			}
+		} else {
+			$this->mCoreSchema = $this->getCurrentSchema();
+			wfDebug("Schema \"" . $desired_schema . "\" not found, using current \"". $this->mCoreSchema ."\"\n");
+		}
+		/* Commit SET otherwise it will be rollbacked on error or IGNORE SELECT */
+		$this->commit( __METHOD__ );
+	}
+
+	/**
+	 * Return schema name fore core MediaWiki tables
+	 *
+	 * @since 1.19
+	 * @return string core schema name
+	 */
+	function getCoreSchema() {
+		return $this->mCoreSchema;
 	}
 
 	/**
@@ -779,15 +1184,16 @@ class DatabasePostgres extends DatabaseBase {
 	/**
 	 * Query whether a given relation exists (in the given schema, or the
 	 * default mw one if not given)
+	 * @return bool
 	 */
 	function relationExists( $table, $types, $schema = false ) {
-		global $wgDBmwschema;
 		if ( !is_array( $types ) ) {
 			$types = array( $types );
 		}
 		if ( !$schema ) {
-			$schema = $wgDBmwschema;
+			$schema = $this->getCoreSchema();
 		}
+		$table = $this->realTableName( $table, 'raw' );
 		$etable = $this->addQuotes( $table );
 		$eschema = $this->addQuotes( $schema );
 		$SQL = "SELECT 1 FROM pg_catalog.pg_class c, pg_catalog.pg_namespace n "
@@ -801,8 +1207,9 @@ class DatabasePostgres extends DatabaseBase {
 	/**
 	 * For backward compatibility, this function checks both tables and
 	 * views.
+	 * @return bool
 	 */
-	function tableExists( $table, $schema = false ) {
+	function tableExists( $table, $fname = __METHOD__, $schema = false ) {
 		return $this->relationExists( $table, array( 'r', 'v' ), $schema );
 	}
 
@@ -811,18 +1218,16 @@ class DatabasePostgres extends DatabaseBase {
 	}
 
 	function triggerExists( $table, $trigger ) {
-		global $wgDBmwschema;
-
 		$q = <<<SQL
 	SELECT 1 FROM pg_class, pg_namespace, pg_trigger
 		WHERE relnamespace=pg_namespace.oid AND relkind='r'
-		      AND tgrelid=pg_class.oid
-		      AND nspname=%s AND relname=%s AND tgname=%s
+			  AND tgrelid=pg_class.oid
+			  AND nspname=%s AND relname=%s AND tgname=%s
 SQL;
 		$res = $this->query(
 			sprintf(
 				$q,
-				$this->addQuotes( $wgDBmwschema ),
+				$this->addQuotes( $this->getCoreSchema() ),
 				$this->addQuotes( $table ),
 				$this->addQuotes( $trigger )
 			)
@@ -835,22 +1240,20 @@ SQL;
 	}
 
 	function ruleExists( $table, $rule ) {
-		global $wgDBmwschema;
 		$exists = $this->selectField( 'pg_rules', 'rulename',
 			array(
 				'rulename' => $rule,
 				'tablename' => $table,
-				'schemaname' => $wgDBmwschema
+				'schemaname' => $this->getCoreSchema()
 			)
 		);
 		return $exists === $rule;
 	}
 
 	function constraintExists( $table, $constraint ) {
-		global $wgDBmwschema;
 		$SQL = sprintf( "SELECT 1 FROM information_schema.table_constraints ".
 			   "WHERE constraint_schema = %s AND table_name = %s AND constraint_name = %s",
-			$this->addQuotes( $wgDBmwschema ),
+			$this->addQuotes( $this->getCoreSchema() ),
 			$this->addQuotes( $table ),
 			$this->addQuotes( $constraint )
 		);
@@ -864,6 +1267,7 @@ SQL;
 
 	/**
 	 * Query whether a given schema exists. Returns true if it does, false if it doesn't.
+	 * @return bool
 	 */
 	function schemaExists( $schema ) {
 		$exists = $this->selectField( '"pg_catalog"."pg_namespace"', 1,
@@ -873,6 +1277,7 @@ SQL;
 
 	/**
 	 * Returns true if a given role (i.e. user) exists, false otherwise.
+	 * @return bool
 	 */
 	function roleExists( $roleName ) {
 		$exists = $this->selectField( '"pg_catalog"."pg_roles"', 1,
@@ -886,6 +1291,7 @@ SQL;
 
 	/**
 	 * pg_field_type() wrapper
+	 * @return string
 	 */
 	function fieldType( $res, $index ) {
 		if ( $res instanceof ResultWrapper ) {
@@ -894,11 +1300,10 @@ SQL;
 		return pg_field_type( $res, $index );
 	}
 
-	/* Not even sure why this is used in the main codebase... */
-	function limitResultForUpdate( $sql, $num ) {
-		return $sql;
-	}
-
+	/**
+	 * @param $b
+	 * @return Blob
+	 */
 	function encodeBlob( $b ) {
 		return new Blob( pg_escape_bytea( $this->mConn, $b ) );
 	}
@@ -914,6 +1319,10 @@ SQL;
 		return pg_escape_string( $this->mConn, $s );
 	}
 
+	/**
+	 * @param $s null|bool|Blob
+	 * @return int|string
+	 */
 	function addQuotes( $s ) {
 		if ( is_null( $s ) ) {
 			return 'NULL';
@@ -971,13 +1380,21 @@ SQL;
 		}
 
 		if ( isset( $options['GROUP BY'] ) ) {
-			$preLimitTail .= ' GROUP BY ' . $options['GROUP BY'];
+			$gb = is_array( $options['GROUP BY'] )
+				? implode( ',', $options['GROUP BY'] )
+				: $options['GROUP BY'];
+			$preLimitTail .= " GROUP BY {$gb}";
 		}
+
 		if ( isset( $options['HAVING'] ) ) {
 			$preLimitTail .= " HAVING {$options['HAVING']}";
 		}
+
 		if ( isset( $options['ORDER BY'] ) ) {
-			$preLimitTail .= ' ORDER BY ' . $options['ORDER BY'];
+			$ob = is_array( $options['ORDER BY'] )
+				? implode( ',', $options['ORDER BY'] )
+				: $options['ORDER BY'];
+			$preLimitTail .= " ORDER BY {$ob}";
 		}
 
 		//if ( isset( $options['LIMIT'] ) ) {
@@ -988,9 +1405,6 @@ SQL;
 
 		if ( isset( $noKeyOptions['FOR UPDATE'] ) ) {
 			$postLimitTail .= ' FOR UPDATE';
-		}
-		if ( isset( $noKeyOptions['LOCK IN SHARE MODE'] ) ) {
-			$postLimitTail .= ' LOCK IN SHARE MODE';
 		}
 		if ( isset( $noKeyOptions['DISTINCT'] ) || isset( $noKeyOptions['DISTINCTROW'] ) ) {
 			$startOpts .= 'DISTINCT';
@@ -1015,5 +1429,18 @@ SQL;
 
 	public function getSearchEngine() {
 		return 'SearchPostgres';
+	}
+
+	public function streamStatementEnd( &$sql, &$newLine ) {
+		# Allow dollar quoting for function declarations
+		if ( substr( $newLine, 0, 4 ) == '$mw$' ) {
+			if ( $this->delimiter ) {
+				$this->delimiter = false;
+			}
+			else {
+				$this->delimiter = ';';
+			}
+		}
+		return parent::streamStatementEnd( $sql, $newLine );
 	}
 } // end DatabasePostgres class

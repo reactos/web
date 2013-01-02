@@ -396,6 +396,7 @@ CREATE TABLE /*$wgDBprefix*/ipblocks (
 	ipb_deleted BIT NOT NULL DEFAULT 0,
 	ipb_block_email BIT NOT NULL DEFAULT 0,
 	ipb_allow_usertalk BIT NOT NULL DEFAULT 0,
+	ipb_parent_block_id   INT DEFAULT NULL,
 );
 -- Unique index to support "user already blocked" messages
 -- Any new options which prevent collisions should be included
@@ -545,18 +546,6 @@ CREATE TABLE /*$wgDBprefix*/watchlist (
 );
 CREATE UNIQUE INDEX /*$wgDBprefix*/namespace_title ON /*$wgDBprefix*/watchlist(wl_namespace,wl_title);
 
---
--- Used by the math module to keep track
--- of previously-rendered items.
---
-CREATE TABLE /*$wgDBprefix*/math (
-   math_inputhash varbinary(16) NOT NULL PRIMARY KEY,
-   math_outputhash varbinary(16) NOT NULL,
-   math_html_conservativeness tinyint NOT NULL,
-   math_html NVARCHAR(MAX),
-   math_mathml NVARCHAR(MAX),
-);
-
 -- Needs fulltext index.
 CREATE TABLE /*$wgDBprefix*/searchindex (
    si_page INT NOT NULL unique REFERENCES /*$wgDBprefix*/page(page_id) ON DELETE CASCADE,
@@ -653,16 +642,6 @@ CREATE TABLE /*$wgDBprefix*/log_search (
 CREATE UNIQUE INDEX /*$wgDBprefix*/ls_field_val ON /*$wgDBprefix*/log_search (ls_field,ls_value,ls_log_id);
 CREATE INDEX /*$wgDBprefix*/ls_log_id ON /*$wgDBprefix*/log_search (ls_log_id);
 
-
-CREATE TABLE /*$wgDBprefix*/trackbacks (
-   tb_id    INT  PRIMARY KEY,
-   tb_page  INT REFERENCES /*$wgDBprefix*/page(page_id) ON DELETE CASCADE,
-   tb_title NVARCHAR(255)  NOT NULL,
-   tb_url   NVARCHAR(255)  NOT NULL,
-   tb_ex    NVARCHAR(MAX),
-   tb_name  NVARCHAR(255),
-);
-CREATE INDEX /*$wgDBprefix*/trackbacks_page ON /*$wgDBprefix*/trackbacks(tb_page);
 
 -- Jobs performed by parallel apache threads or a command-line daemon
 CREATE TABLE /*$wgDBprefix*/job (

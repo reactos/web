@@ -1,13 +1,15 @@
 body {
 	margin: 0 0 0 0;
 	padding: 0 0 0 0;
-	/*font-size: 10pt;*/
 	font-size: x-small;
 
 
 	font-family: sans-serif;
 	color: black;
 	background-color: #f0f0f0;
+
+	direction: ltr;
+	unicode-bidi: embed;
 }
 
 #mw_main,
@@ -182,6 +184,7 @@ textarea {
 }
 
 ul {
+	/* @embed */
 	list-style-image: url(bullet.gif);
 }
 
@@ -245,6 +248,7 @@ ul {
 
 #footer {
 	background-color: #f0f0f0;
+	/* @embed */
 	background: url(footer-grad.png) repeat-x 0 0;
 	padding: 10px 1em 1em 1em;
 	clear:both;
@@ -272,10 +276,6 @@ img {
 #footer ul {
 	padding: 0 0 0 0;
 	margin: 0 0 0 0;
-}
-
-div.printfooter {
-	display: none;
 }
 
 p {
@@ -366,9 +366,6 @@ h1, h2, h3, h4, h5, h6 {
 	border: none;
 }
 
-#preferences h2 {
-}
-
 .mainLegend {
 	display: none;
 }
@@ -406,32 +403,38 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 #mw_content a.external,
-#mw_content a[href ^="gopher://"] {
+#mw_content a.external[href ^="gopher://"] {
+	/* @embed */
 	background: url(external.png) center right no-repeat;
 	padding-right: 13px;
 }
-#mw_content a[href ^="https://"],
+#mw_content a.external[href ^="https://"],
 .link-https {
+	/* @embed */
 	background: url(lock_icon.gif) center right no-repeat;
 	padding-right: 16px;
 }
-#mw_content a[href ^="mailto:"],
+#mw_content a.external[href ^="mailto:"],
 .link-mailto {
+	/* @embed */
 	background: url(mail_icon.gif) center right no-repeat;
 	padding-right: 18px;
 }
-#mw_content a[href ^="news://"] {
+#mw_content a.external[href ^="news:"] {
+	/* @embed */
 	background: url(news_icon.png) center right no-repeat;
 	padding-right: 18px;
 }
-#mw_content a[href ^="ftp://"],
+#mw_content a.external[href ^="ftp://"],
 .link-ftp {
+	/* @embed */
 	background: url(file_icon.gif) center right no-repeat;
 	padding-right: 18px;
 }
-#mw_content a[href ^="irc://"],
-#mw_content a.extiw[href ^="irc://"],
+#mw_content a.external[href ^="irc://"],
+#mw_content a.external[href ^="ircs://"],
 .link-irc {
+	/* @embed */
 	background: url(discussionitem_icon.gif) center right no-repeat;
 	padding-right: 18px;
 }
@@ -443,7 +446,8 @@ h1, h2, h3, h4, h5, h6 {
 #mw_content a.external[href $=".wav"], #mw_content a.external[href $=".WAV"],
 #mw_content a.external[href $=".wma"], #mw_content a.external[href $=".WMA"],
 .link-audio {
-	background: url("audio.png") center right no-repeat;
+	/* @embed */
+	background: url(audio.png) center right no-repeat;
 	padding-right: 13px;
 }
 #mw_content a.external[href $=".ogm"], #mw_content a.external[href $=".OGM"],
@@ -451,43 +455,35 @@ h1, h2, h3, h4, h5, h6 {
 #mw_content a.external[href $=".mpeg"], #mw_content a.external[href $=".MPEG"],
 #mw_content a.external[href $=".mpg"], #mw_content a.external[href $=".MPG"],
 .link-video {
-	background: url("video.png") center right no-repeat;
+	/* @embed */
+	background: url(video.png) center right no-repeat;
 	padding-right: 13px;
 }
 #mw_content a.external[href $=".pdf"], #mw_content a.external[href $=".PDF"],
 #mw_content a.external[href *=".pdf#"], #mw_content a.external[href *=".PDF#"],
 #mw_content a.external[href *=".pdf?"], #mw_content a.external[href *=".PDF?"],
 .link-document {
-	background: url("document.png") center right no-repeat;
+	/* @embed */
+	background: url(document.png) center right no-repeat;
 	padding-right: 12px;
 }
 
 /* images */
-div.floatright, table.floatright {
-	clear: right;
-	float: right;
-	position: relative;
+/* @noflip */div.floatright, table.floatright {
 	margin: 0 0 .5em .5em;
 	border: 0;
-/*
-	border: .5em solid white;
-	border-width: .5em 0 .8em 1.4em;
-*/
 }
-div.floatright p { font-style: italic; }
-div.floatleft, table.floatleft {
-	float: left;
-	clear: left;
-	position: relative;
+div.floatright p {
+	font-style: italic;
+}
+/* @noflip */div.floatleft, table.floatleft {
 	margin: 0 .5em .5em 0;
 	border: 0;
-/*
-	margin: .3em .5em .5em 0;
-	border: .5em solid white;
-	border-width: .5em 1.4em .8em 0;
-*/
 }
-div.floatleft p { font-style: italic; }
+div.floatleft p {
+	font-style: italic;
+}
+
 /* thumbnails */
 div.thumb {
 	margin-bottom: .5em;
@@ -521,21 +517,14 @@ div.magnify a, div.magnify img {
 	border: none !important;
 	background: none !important;
 }
-div.tright {
-	clear: right;
-	float: right;
+/* @noflip */div.tright {
 	margin: .5em 0 .8em 1.4em;
 }
-div.tleft {
-	float: left;
-	clear: left;
+/* @noflip */div.tleft {
 	margin: .5em 1.4em .8em 0;
 }
 img.thumbborder {
 	border: 1px solid #dddddd;
-}
-.hiddenStructure {
-	display: none;
 }
 .mw-warning {
 	border: 1px solid #aaa;
@@ -584,7 +573,7 @@ img.thumbborder {
 	list-style-type: none;
 	list-style-image: none;
 	margin: 0 1em 0 1em;
-	padding-left: 0;
+	padding: 0;
 	text-align: left;
 }
 
@@ -621,13 +610,10 @@ img.thumbborder {
 #mw_content a.extiw,
 #mw_content a.extiw:active {
 	color: #36b;
-	background: none;
-	padding: 0;
 }
 #mw_content a.external {
 	color: #36b;
 }
-
 
 
 .redirectText {
@@ -706,17 +692,17 @@ div.noarticletext {
 }
 
 div#searchTargetContainer {
-	left:       10px;
-	top:        10px;
-	width:      90%;
+	left: 10px;
+	top: 10px;
+	width: 90%;
 	background: white;
 }
 
 div#searchTarget {
-	padding:    3px;
-	margin:     5px;
+	padding: 3px;
+	margin: 5px;
 	background: #F0F0F0;
-	border:     solid 1px blue;
+	border: solid 1px blue;
 }
 
 div#searchTarget ul li {
@@ -731,7 +717,7 @@ div#searchTarget ul li:before {
 div#searchTargetHide {
 	float: right;
 	border: solid 1px black;
-	background: gainsboro;
+	background: #DCDCDC;
 	padding: 2px;
 }
 
@@ -756,7 +742,9 @@ table.multipageimage td {
 	text-align: center;
 }
 
-.templatesUsed { margin-top: 1.5em; }
+.templatesUsed {
+	margin-top: 1.5em;
+}
 
 .mw-summary-preview {
 	margin: 0.1em 0;
@@ -793,6 +781,7 @@ ul {
 	list-style-type: square;
 	margin: .3em 0 0 1.5em;
 	padding: 0;
+	/* @embed */
 	list-style-image: url(bullet.gif);
 }
 ol {
@@ -822,7 +811,7 @@ span.subpages {
 	display: block;
 }
 
-pre {
+pre, .mw-code {
 	border: solid 1px #3c78b5;
 	padding: 0.4em;
 	background-color: #f0f0f0;
@@ -836,6 +825,7 @@ pre {
 	border-collapse: collapse;
 	margin: 0 -1em 1em -1em;
 	padding: 0 0 8px 0;
+	/* @embed */
 	background: url(footer-grad.png) repeat-x bottom left;
 }
 
@@ -880,4 +870,20 @@ pre {
 /* Tooltips are outside of the normal body code, so this helps make the size of the text sensible */
 .tipsy {
 	font-size: 130%;
+}
+
+/**
+ * Lists:
+ * The following lines don't have a visible effect on non-Gecko browsers
+ * They fix a problem ith Gecko browsers rendering lists to the right of
+ * left-floated objects in an RTL layout.
+ */
+/* @noflip */
+html > body.rtl div#mw_contentholder ul {
+	display: table;
+}
+
+/* @noflip */
+html > body.rtl div#mw_contentholder ul#filetoc {
+	display: block;
 }

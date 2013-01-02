@@ -1,6 +1,6 @@
 <?php
 /**
- * Script to normalize double-byte latin UTF-8 characters
+ * Normalize double-byte latin UTF-8 characters
  *
  * Usage: php updateDoubleWidthSearch.php
  *
@@ -23,8 +23,13 @@
  * @ingroup Maintenance
  */
 
-require_once( dirname( __FILE__ ) . '/Maintenance.php' );
+require_once( __DIR__ . '/Maintenance.php' );
 
+/**
+ * Maintenance script to normalize double-byte latin UTF-8 characters.
+ *
+ * @ingroup Maintenance
+ */
 class UpdateDoubleWidthSearch extends Maintenance {
 
 	public function __construct() {
@@ -43,8 +48,7 @@ class UpdateDoubleWidthSearch extends Maintenance {
 
 		$dbw = wfGetDB( DB_MASTER );
 		if ( $dbw->getType() !== 'mysql' ) {
-			$this->output( "This change is only needed on MySQL, quitting.\n" );
-			exit( 1 );
+			$this->error( "This change is only needed on MySQL, quitting.\n", true );
 		}
 
 		$res = $this->findRows( $dbw );

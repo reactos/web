@@ -36,8 +36,6 @@ class SpecialProtectedtitles extends SpecialPage {
 	}
 
 	function execute( $par ) {
-		global $wgOut, $wgRequest;
-
 		$this->setHeaders();
 		$this->outputHeader();
 
@@ -46,83 +44,87 @@ class SpecialProtectedtitles extends SpecialPage {
 			Title::purgeExpiredRestrictions();
 		}
 
-		$type = $wgRequest->getVal( $this->IdType );
-		$level = $wgRequest->getVal( $this->IdLevel );
-		$sizetype = $wgRequest->getVal( 'sizetype' );
-		$size = $wgRequest->getIntOrNull( 'size' );
-		$NS = $wgRequest->getIntOrNull( 'namespace' );
+		$request = $this->getRequest();
+		$type = $request->getVal( $this->IdType );
+		$level = $request->getVal( $this->IdLevel );
+		$sizetype = $request->getVal( 'sizetype' );
+		$size = $request->getIntOrNull( 'size' );
+		$NS = $request->getIntOrNull( 'namespace' );
 
 		$pager = new ProtectedTitlesPager( $this, array(), $type, $level, $NS, $sizetype, $size );
 
-		$wgOut->addHTML( $this->showOptions( $NS, $type, $level ) );
+		$this->getOutput()->addHTML( $this->showOptions( $NS, $type, $level ) );
 
 		if ( $pager->getNumRows() ) {
-			$s = $pager->getNavigationBar();
-			$s .= "<ul>" .
-				$pager->getBody() .
-				"</ul>";
-			$s .= $pager->getNavigationBar();
+			$this->getOutput()->addHTML(
+				$pager->getNavigationBar() .
+				'<ul>' . $pager->getBody() . '</ul>' .
+				$pager->getNavigationBar()
+			);
 		} else {
-			$s = '<p>' . wfMsgHtml( 'protectedtitlesempty' ) . '</p>';
+			$this->getOutput()->addWikiMsg( 'protectedtitlesempty' );
 		}
-		$wgOut->addHTML( $s );
 	}
 
 	/**
 	 * Callback function to output a restriction
+	 *
+	 * @return string
 	 */
 	function formatRow( $row ) {
-		global $wgUser, $wgLang;
-
 		wfProfileIn( __METHOD__ );
 
-		static $skin=null;
+		static $infinity = null;
 
-		if( is_null( $skin ) )
-			$skin = $wgUser->getSkin();
+		if( is_null( $infinity ) ){
+			$infinity = wfGetDB( DB_SLAVE )->getInfinity();
+		}
 
 		$title = Title::makeTitleSafe( $row->pt_namespace, $row->pt_title );
-		$link = $skin->link( $title );
+		$link = Linker::link( $title );
 
 		$description_items = array ();
 
-		$protType = wfMsgHtml( 'restriction-level-' . $row->pt_create_perm );
+		$protType = $this->msg( 'restriction-level-' . $row->pt_create_perm )->escaped();
 
 		$description_items[] = $protType;
 
-		$stxt = '';
-
-		if ( $row->pt_expiry != 'infinity' && strlen($row->pt_expiry) ) {
-			$expiry = Block::decodeExpiry( $row->pt_expiry );
-
-			$expiry_description = wfMsg( 'protect-expiring', $wgLang->timeanddate( $expiry ) , $wgLang->date( $expiry ) , $wgLang->time( $expiry ) );
-
-			$description_items[] = $expiry_description;
+		$lang = $this->getLanguage();
+		$expiry = strlen( $row->pt_expiry ) ? $lang->formatExpiry( $row->pt_expiry, TS_MW ) : $infinity;
+		if( $expiry != $infinity ) {
+			$user = $this->getUser();
+			$description_items[] = $this->msg(
+				'protect-expiring-local',
+				$lang->userTimeAndDate( $expiry, $user ),
+				$lang->userDate( $expiry, $user ),
+				$lang->userTime( $expiry, $user )
+			)->escaped();
 		}
 
 		wfProfileOut( __METHOD__ );
 
-		return '<li>' . wfSpecialList( $link . $stxt, implode( $description_items, ', ' ) ) . "</li>\n";
+		return '<li>' . $lang->specialList( $link, implode( $description_items, ', ' ) ) . "</li>\n";
 	}
 
 	/**
 	 * @param $namespace Integer:
 	 * @param $type string
 	 * @param $level string
+	 * @return string
 	 * @private
 	 */
 	function showOptions( $namespace, $type='edit', $level ) {
 		global $wgScript;
 		$action = htmlspecialchars( $wgScript );
-		$title = SpecialPage::getTitleFor( 'Protectedtitles' );
+		$title = $this->getTitle();
 		$special = htmlspecialchars( $title->getPrefixedDBkey() );
 		return "<form action=\"$action\" method=\"get\">\n" .
 			'<fieldset>' .
-			Xml::element( 'legend', array(), wfMsg( 'protectedtitles' ) ) .
+			Xml::element( 'legend', array(), $this->msg( 'protectedtitles' )->text() ) .
 			Html::hidden( 'title', $special ) . "&#160;\n" .
 			$this->getNamespaceMenu( $namespace ) . "&#160;\n" .
 			$this->getLevelMenu( $level ) . "&#160;\n" .
-			"&#160;" . Xml::submitButton( wfMsg( 'allpagessubmit' ) ) . "\n" .
+			"&#160;" . Xml::submitButton( $this->msg( 'allpagessubmit' )->text() ) . "\n" .
 			"</fieldset></form>";
 	}
 
@@ -134,9 +136,17 @@ class SpecialProtectedtitles extends SpecialPage {
 	 * @return string
 	 */
 	function getNamespaceMenu( $namespace = null ) {
-		return Xml::label( wfMsg( 'namespace' ), 'namespace' )
-			. '&#160;'
-			. Xml::namespaceSelector( $namespace, '' );
+		return Html::namespaceSelector(
+			array(
+				'selected' => $namespace,
+				'all' => '',
+				'label' => $this->msg( 'namespace' )->text()
+			), array(
+				'name'  => 'namespace',
+				'id'    => 'namespace',
+				'class' => 'namespaceselector',
+			)
+		);
 	}
 
 	/**
@@ -146,13 +156,13 @@ class SpecialProtectedtitles extends SpecialPage {
 	function getLevelMenu( $pr_level ) {
 		global $wgRestrictionLevels;
 
-		$m = array( wfMsg('restriction-level-all') => 0 ); // Temporary array
+		$m = array( $this->msg( 'restriction-level-all' )->text() => 0 ); // Temporary array
 		$options = array();
 
 		// First pass to load the log names
 		foreach( $wgRestrictionLevels as $type ) {
 			if ( $type !='' && $type !='*') {
-				$text = wfMsg("restriction-level-$type");
+				$text = $this->msg( "restriction-level-$type" )->text();
 				$m[$text] = $type;
 			}
 		}
@@ -167,7 +177,7 @@ class SpecialProtectedtitles extends SpecialPage {
 		}
 
 		return
-			Xml::label( wfMsg('restriction-level') , $this->IdLevel ) . '&#160;' .
+			Xml::label( $this->msg( 'restriction-level' )->text(), $this->IdLevel ) . '&#160;' .
 			Xml::tags( 'select',
 				array( 'id' => $this->IdLevel, 'name' => $this->IdLevel ),
 				implode( "\n", $options ) );
@@ -187,7 +197,7 @@ class ProtectedTitlesPager extends AlphabeticPager {
 		$this->level = $level;
 		$this->namespace = $namespace;
 		$this->size = intval($size);
-		parent::__construct();
+		parent::__construct( $form->getContext() );
 	}
 
 	function getStartBody() {
@@ -205,10 +215,20 @@ class ProtectedTitlesPager extends AlphabeticPager {
 		return '';
 	}
 
+	/**
+	 * @return Title
+	 */
+	function getTitle() {
+		return $this->mForm->getTitle();
+	}
+
 	function formatRow( $row ) {
 		return $this->mForm->formatRow( $row );
 	}
 
+	/**
+	 * @return array
+	 */
 	function getQueryInfo() {
 		$conds = $this->mConds;
 		$conds[] = 'pt_expiry>' . $this->mDb->addQuotes( $this->mDb->timestamp() );

@@ -1,7 +1,31 @@
 <?php
 /**
- * A few constants that might be needed during LocalSettings.php
+ * A few constants that might be needed during LocalSettings.php.
+ *
+ * Note: these constants must all be resolvable at compile time by HipHop,
+ * since this file will not be executed during request startup for a compiled
+ * MediaWiki.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ * http://www.gnu.org/copyleft/gpl.html
+ *
  * @file
+ */
+
+/**
+ * @defgroup Constants MediaWiki constants
  */
 
 /**
@@ -20,6 +44,8 @@ define( 'DBO_DEFAULT', 16 );
 define( 'DBO_PERSISTENT', 32 );
 define( 'DBO_SYSDBA', 64 ); //for oracle maintenance
 define( 'DBO_DDLMODE', 128 ); // when using schema files: mostly for Oracle
+define( 'DBO_SSL', 256 );
+define( 'DBO_COMPRESS', 512 );
 /**@}*/
 
 /**@{
@@ -80,27 +106,6 @@ define( 'NS_IMAGE', NS_FILE );
 define( 'NS_IMAGE_TALK', NS_FILE_TALK );
 /**@}*/
 
-/**
- * Available feeds objects
- * Should probably only be defined when a page is syndicated ie when
- * $wgOut->isSyndicated() is true
- */
-$wgFeedClasses = array(
-	'rss' => 'RSSFeed',
-	'atom' => 'AtomFeed',
-);
-
-/**@{
- * Maths constants
- */
-define( 'MW_MATH_PNG',    0 );
-define( 'MW_MATH_SIMPLE', 1 );
-define( 'MW_MATH_HTML',   2 );
-define( 'MW_MATH_SOURCE', 3 );
-define( 'MW_MATH_MODERN', 4 );
-define( 'MW_MATH_MATHML', 5 );
-/**@}*/
-
 /**@{
  * Cache type
  */
@@ -108,13 +113,13 @@ define( 'CACHE_ANYTHING', -1 );  // Use anything, as long as it works
 define( 'CACHE_NONE', 0 );       // Do not cache
 define( 'CACHE_DB', 1 );         // Store cache objects in the DB
 define( 'CACHE_MEMCACHED', 2 );  // MemCached, must specify servers in $wgMemCacheServers
-define( 'CACHE_ACCEL', 3 );      // eAccelerator
+define( 'CACHE_ACCEL', 3 );      // APC, XCache or WinCache
 define( 'CACHE_DBA', 4 );        // Use PHP's DBA extension to store in a DBM-style database
 /**@}*/
 
 /**@{
  * Media types.
- * This defines constants for the value returned by Image::getMediaType()
+ * This defines constants for the value returned by File::getMediaType()
  */
 define( 'MEDIATYPE_UNKNOWN',    'UNKNOWN' );     // unknown format
 define( 'MEDIATYPE_BITMAP',     'BITMAP' );      // some bitmap image or image source (like psd, etc). Can't scale up.
@@ -141,8 +146,8 @@ define( 'AV_SCAN_FAILED', false );  #scan failed (scanner not found or error in 
  * Anti-lock flags
  * See DefaultSettings.php for a description
  */
-define( 'ALF_PRELOAD_LINKS', 1 );
-define( 'ALF_PRELOAD_EXISTENCE', 2 );
+define( 'ALF_PRELOAD_LINKS', 1 ); // unused
+define( 'ALF_PRELOAD_EXISTENCE', 2 ); // unused
 define( 'ALF_NO_LINK_LOCK', 4 );
 define( 'ALF_NO_BLOCK_LOCK', 8 );
 /**@}*/
@@ -165,13 +170,12 @@ define( 'MW_DATE_ISO', 'ISO 8601' );
 
 /**@{
  * RecentChange type identifiers
- * This may be obsolete; log items are now used for moves?
  */
 define( 'RC_EDIT', 0);
 define( 'RC_NEW', 1);
-define( 'RC_MOVE', 2);
+define( 'RC_MOVE', 2); // obsolete
 define( 'RC_LOG', 3);
-define( 'RC_MOVE_OVER_REDIRECT', 4);
+define( 'RC_MOVE_OVER_REDIRECT', 4); // obsolete
 /**@}*/
 
 /**@{
@@ -201,7 +205,7 @@ define( 'LIST_SET_PREPARED', 8);  // List of (?, ?, ?) for DatabaseIbm_db2
 /**
  * Unicode and normalisation related
  */
-require_once dirname(__FILE__).'/normal/UtfNormalDefines.php';
+require_once __DIR__.'/normal/UtfNormalDefines.php';
 
 /**@{
  * Hook support constants
@@ -254,4 +258,15 @@ define( 'APCOND_ISIP', 5 );
 define( 'APCOND_IPINRANGE', 6 );
 define( 'APCOND_AGE_FROM_EDIT', 7 );
 define( 'APCOND_BLOCKED', 8 );
+define( 'APCOND_ISBOT', 9 );
 /**@}*/
+
+/**
+ * Protocol constants for wfExpandUrl()
+ */
+define( 'PROTO_HTTP', 'http://' );
+define( 'PROTO_HTTPS', 'https://' );
+define( 'PROTO_RELATIVE', '//' );
+define( 'PROTO_CURRENT', null );
+define( 'PROTO_CANONICAL', 1 );
+define( 'PROTO_INTERNAL', 2 );

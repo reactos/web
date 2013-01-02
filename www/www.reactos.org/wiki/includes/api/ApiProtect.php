@@ -1,10 +1,10 @@
 <?php
 /**
- * API for MediaWiki 1.8+
+ *
  *
  * Created on Sep 1, 2007
  *
- * Copyright © 2007 Roan Kattouw <Firstname>.<Lastname>@home.nl
+ * Copyright © 2007 Roan Kattouw "<Firstname>.<Lastname>@gmail.com"
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,11 +24,6 @@
  * @file
  */
 
-if ( !defined( 'MEDIAWIKI' ) ) {
-	// Eclipse helper - will be ignored in production
-	require_once( "ApiBase.php" );
-}
-
 /**
  * @ingroup API
  */
@@ -39,15 +34,13 @@ class ApiProtect extends ApiBase {
 	}
 
 	public function execute() {
-		global $wgUser, $wgRestrictionLevels;
+		global $wgRestrictionLevels;
 		$params = $this->extractRequestParams();
 
-		$titleObj = Title::newFromText( $params['title'] );
-		if ( !$titleObj ) {
-			$this->dieUsageMsg( array( 'invalidtitle', $params['title'] ) );
-		}
+		$pageObj = $this->getTitleOrPageId( $params, 'fromdbmaster' );
+		$titleObj = $pageObj->getTitle();
 
-		$errors = $titleObj->getUserPermissionsErrors( 'protect', $wgUser );
+		$errors = $titleObj->getUserPermissionsErrors( 'protect', $this->getUser() );
 		if ( $errors ) {
 			// We don't care about multiple errors, just report one of them
 			$this->dieUsageMsg( reset( $errors ) );
@@ -63,6 +56,7 @@ class ApiProtect extends ApiBase {
 		}
 
 		$restrictionTypes = $titleObj->getRestrictionTypes();
+		$db = $this->getDB();
 
 		$protections = array();
 		$expiryarray = array();
@@ -72,10 +66,10 @@ class ApiProtect extends ApiBase {
 			$protections[$p[0]] = ( $p[1] == 'all' ? '' : $p[1] );
 
 			if ( $titleObj->exists() && $p[0] == 'create' ) {
-				$this->dieUsageMsg( array( 'create-titleexists' ) );
+				$this->dieUsageMsg( 'create-titleexists' );
 			}
 			if ( !$titleObj->exists() && $p[0] != 'create' ) {
-				$this->dieUsageMsg( array( 'missingtitle-createonly' ) );
+				$this->dieUsageMsg( 'missingtitle-createonly' );
 			}
 
 			if ( !in_array( $p[0], $restrictionTypes ) && $p[0] != 'create' ) {
@@ -86,7 +80,7 @@ class ApiProtect extends ApiBase {
 			}
 
 			if ( in_array( $expiry[$i], array( 'infinite', 'indefinite', 'never' ) ) ) {
-				$expiryarray[$p[0]] = Block::infinity();
+				$expiryarray[$p[0]] = $db->getInfinity();
 			} else {
 				$exp = strtotime( $expiry[$i] );
 				if ( $exp < 0 || !$exp ) {
@@ -100,26 +94,21 @@ class ApiProtect extends ApiBase {
 				$expiryarray[$p[0]] = $exp;
 			}
 			$resultProtections[] = array( $p[0] => $protections[$p[0]],
-					'expiry' => ( $expiryarray[$p[0]] == Block::infinity() ?
+					'expiry' => ( $expiryarray[$p[0]] == $db->getInfinity() ?
 								'infinite' :
 								wfTimestamp( TS_ISO_8601, $expiryarray[$p[0]] ) ) );
 		}
 
 		$cascade = $params['cascade'];
-		$articleObj = new Article( $titleObj );
 
 		$watch = $params['watch'] ? 'watch' : $params['watchlist'];
 		$this->setWatch( $watch, $titleObj );
 
-		if ( $titleObj->exists() ) {
-			$ok = $articleObj->updateRestrictions( $protections, $params['reason'], $cascade, $expiryarray );
-		} else {
-			$ok = $titleObj->updateTitleProtection( $protections['create'], $params['reason'], $expiryarray['create'] );
-		}
-		if ( !$ok ) {
-			// This is very weird. Maybe the article was deleted or the user was blocked/desysopped in the meantime?
-			// Just throw an unknown error in this case, as it's very likely to be a race condition
-			$this->dieUsageMsg( array() );
+		$status = $pageObj->doUpdateRestrictions( $protections, $expiryarray, $cascade, $params['reason'], $this->getUser() );
+
+		if ( !$status->isOK() ) {
+			$errors = $status->getErrorsArray();
+			$this->dieUsageMsg( $errors[0] );
 		}
 		$res = array(
 			'title' => $titleObj->getPrefixedText(),
@@ -129,8 +118,9 @@ class ApiProtect extends ApiBase {
 			$res['cascade'] = '';
 		}
 		$res['protections'] = $resultProtections;
-		$this->getResult()->setIndexedTagName( $res['protections'], 'protection' );
-		$this->getResult()->addValue( null, $this->getModuleName(), $res );
+		$result = $this->getResult();
+		$result->setIndexedTagName( $res['protections'], 'protection' );
+		$result->addValue( null, $this->getModuleName(), $res );
 	}
 
 	public function mustBePosted() {
@@ -145,9 +135,14 @@ class ApiProtect extends ApiBase {
 		return array(
 			'title' => array(
 				ApiBase::PARAM_TYPE => 'string',
+			),
+			'pageid' => array(
+				ApiBase::PARAM_TYPE => 'integer',
+			),
+			'token' => array(
+				ApiBase::PARAM_TYPE => 'string',
 				ApiBase::PARAM_REQUIRED => true
 			),
-			'token' => null,
 			'protections' => array(
 				ApiBase::PARAM_ISMULTI => true,
 				ApiBase::PARAM_REQUIRED => true,
@@ -176,17 +171,29 @@ class ApiProtect extends ApiBase {
 	}
 
 	public function getParamDescription() {
+		$p = $this->getModulePrefix();
 		return array(
-			'title' => 'Title of the page you want to (un)protect',
+			'title' => "Title of the page you want to (un)protect. Cannot be used together with {$p}pageid",
+			'pageid' => "ID of the page you want to (un)protect. Cannot be used together with {$p}title",
 			'token' => 'A protect token previously retrieved through prop=info',
-			'protections' => 'Pipe-separated list of protection levels, formatted action=group (e.g. edit=sysop)',
+			'protections' => 'List of protection levels, formatted action=group (e.g. edit=sysop)',
 			'expiry' => array( 'Expiry timestamps. If only one timestamp is set, it\'ll be used for all protections.',
 					'Use \'infinite\', \'indefinite\' or \'never\', for a neverexpiring protection.' ),
-			'reason' => 'Reason for (un)protecting (optional)',
+			'reason' => 'Reason for (un)protecting',
 			'cascade' => array( 'Enable cascading protection (i.e. protect pages included in this page)',
 					'Ignored if not all protection levels are \'sysop\' or \'protect\'' ),
 			'watch' => 'If set, add the page being (un)protected to your watchlist',
 			'watchlist' => 'Unconditionally add or remove the page from your watchlist, use preferences or do not change watch',
+		);
+	}
+
+	public function getResultProperties() {
+		return array(
+			'' => array(
+				'title' => 'string',
+				'reason' => 'string',
+				'cascade' => 'boolean'
+			)
 		);
 	}
 
@@ -195,16 +202,18 @@ class ApiProtect extends ApiBase {
 	}
 
 	public function getPossibleErrors() {
-		return array_merge( parent::getPossibleErrors(), array(
-			array( 'invalidtitle', 'title' ),
-			array( 'toofewexpiries', 'noofexpiries', 'noofprotections' ),
-			array( 'create-titleexists' ),
-			array( 'missingtitle-createonly' ),
-			array( 'protect-invalidaction', 'action' ),
-			array( 'protect-invalidlevel', 'level' ),
-			array( 'invalidexpiry', 'expiry' ),
-			array( 'pastexpiry', 'expiry' ),
-		) );
+		return array_merge( parent::getPossibleErrors(),
+			$this->getTitleOrPageIdErrorMessage(),
+			array(
+				array( 'toofewexpiries', 'noofexpiries', 'noofprotections' ),
+				array( 'create-titleexists' ),
+				array( 'missingtitle-createonly' ),
+				array( 'protect-invalidaction', 'action' ),
+				array( 'protect-invalidlevel', 'level' ),
+				array( 'invalidexpiry', 'expiry' ),
+				array( 'pastexpiry', 'expiry' ),
+			)
+		);
 	}
 
 	public function needsToken() {
@@ -215,14 +224,18 @@ class ApiProtect extends ApiBase {
 		return '';
 	}
 
-	protected function getExamples() {
+	public function getExamples() {
 		return array(
 			'api.php?action=protect&title=Main%20Page&token=123ABC&protections=edit=sysop|move=sysop&cascade=&expiry=20070901163000|never',
 			'api.php?action=protect&title=Main%20Page&token=123ABC&protections=edit=all|move=all&reason=Lifting%20restrictions'
 		);
 	}
 
+	public function getHelpUrls() {
+		return 'https://www.mediawiki.org/wiki/API:Protect';
+	}
+
 	public function getVersion() {
-		return __CLASS__ . ': $Id: ApiProtect.php 77192 2010-11-23 22:05:27Z btongminh $';
+		return __CLASS__ . ': $Id$';
 	}
 }

@@ -28,36 +28,38 @@ class UnusedCategoriesPage extends QueryPage {
 
 	function isExpensive() { return true; }
 
-	function getName() {
-		return 'Unusedcategories';
+	function __construct( $name = 'Unusedcategories' ) {
+		parent::__construct( $name );
 	}
 
 	function getPageHeader() {
-		return wfMsgExt( 'unusedcategoriestext', array( 'parse' ) );
+		return $this->msg( 'unusedcategoriestext' )->parseAsBlock();
 	}
 
-	function getSQL() {
-		$NScat = NS_CATEGORY;
-		$dbr = wfGetDB( DB_SLAVE );
-		list( $categorylinks, $page ) = $dbr->tableNamesN( 'categorylinks', 'page' );
-		return "SELECT 'Unusedcategories' as type,
-				{$NScat} as namespace, page_title as title, page_title as value
-				FROM $page
-				LEFT JOIN $categorylinks ON page_title=cl_to
-				WHERE cl_from IS NULL
-				AND page_namespace = {$NScat}
-				AND page_is_redirect = 0";
+	function getQueryInfo() {
+		return array (
+			'tables' => array ( 'page', 'categorylinks' ),
+			'fields' => array ( 'namespace' => 'page_namespace',
+					'title' => 'page_title',
+					'value' => 'page_title' ),
+			'conds' => array ( 'cl_from IS NULL',
+					'page_namespace' => NS_CATEGORY,
+					'page_is_redirect' => 0 ),
+			'join_conds' => array ( 'categorylinks' => array (
+					'LEFT JOIN', 'cl_to = page_title' ) )
+		);
+	}
+
+	/**
+	 * A should come before Z (bug 30907)
+	 * @return bool
+	 */
+	function sortDescending() {
+		return false;
 	}
 
 	function formatResult( $skin, $result ) {
 		$title = Title::makeTitle( NS_CATEGORY, $result->title );
-		return $skin->link( $title, $title->getText() );
+		return Linker::link( $title, htmlspecialchars( $title->getText() ) );
 	}
-}
-
-/** constructor */
-function wfSpecialUnusedCategories() {
-	list( $limit, $offset ) = wfCheckLimits();
-	$uc = new UnusedCategoriesPage();
-	return $uc->doQuery( $offset, $limit );
 }

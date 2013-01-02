@@ -1,12 +1,31 @@
 <?php
 /**
- * Functions to be used with PHP's output buffer
+ * Functions to be used with PHP's output buffer.
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ * http://www.gnu.org/copyleft/gpl.html
  *
  * @file
  */
 
 /**
  * Standard output handler for use with ob_start
+ * 
+ * @param $s string
+ * 
+ * @return string
  */
 function wfOutputHandler( $s ) {
 	global $wgDisableOutputCompression, $wgValidateAllHtml;
@@ -40,9 +59,11 @@ function wfOutputHandler( $s ) {
  * the currently-requested URL.
  * This isn't on WebRequest because we need it when things aren't initialized
  * @private
+ *
+ * @return string
  */
 function wfRequestExtension() {
-	/// @todo Fixme: this sort of dupes some code in WebRequest::getRequestUrl()
+	/// @todo FIXME: this sort of dupes some code in WebRequest::getRequestUrl()
 	if( isset( $_SERVER['REQUEST_URI'] ) ) {
 		// Strip the query string...
 		list( $path ) = explode( '?', $_SERVER['REQUEST_URI'], 2 );
@@ -64,9 +85,18 @@ function wfRequestExtension() {
 /**
  * Handler that compresses data with gzip if allowed by the Accept header.
  * Unlike ob_gzhandler, it works for HEAD requests too.
+ * 
+ * @param $s string
+ *
+ * @return string
  */
 function wfGzipHandler( $s ) {
-	if( !function_exists( 'gzencode' ) || headers_sent() ) {
+	if( !function_exists( 'gzencode' ) ) {
+		wfDebug( __FUNCTION__ . "() skipping compression (gzencode unavaible)\n" );
+		return $s;
+	}
+	if( headers_sent() ) {
+		wfDebug( __FUNCTION__ . "() skipping compression (headers already sent)\n" );
 		return $s;
 	}
 
@@ -80,6 +110,7 @@ function wfGzipHandler( $s ) {
 	}
 
 	if( wfClientAcceptsGzip() ) {
+		wfDebug( __FUNCTION__ . "() is compressing output\n" );
 		header( 'Content-Encoding: gzip' );
 		$s = gzencode( $s, 6 );
 	}
@@ -105,6 +136,10 @@ function wfGzipHandler( $s ) {
 
 /**
  * Mangle flash policy tags which open up the site to XSS attacks.
+ *
+ * @param $s string
+ *
+ * @return string
  */
 function wfMangleFlashPolicy( $s ) {
 	# Avoid weird excessive memory usage in PCRE on big articles
@@ -117,6 +152,8 @@ function wfMangleFlashPolicy( $s ) {
 
 /**
  * Add a Content-Length header if possible. This makes it cooperate with squid better.
+ *
+ * @param $length int
  */
 function wfDoContentLength( $length ) {
 	if ( !headers_sent() && $_SERVER['SERVER_PROTOCOL'] == 'HTTP/1.0' ) {
@@ -126,6 +163,10 @@ function wfDoContentLength( $length ) {
 
 /**
  * Replace the output with an error if the HTML is not valid
+ *
+ * @param $s string
+ *
+ * @return string
  */
 function wfHtmlValidationHandler( $s ) {
 

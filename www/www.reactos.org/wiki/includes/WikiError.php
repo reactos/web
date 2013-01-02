@@ -31,8 +31,11 @@
 class WikiError {
 	/**
 	 * @param $message string
+	 *
+	 * @deprecated since 1.17
 	 */
 	function __construct( $message ) {
+		wfDeprecated( __METHOD__, '1.17' );
 		$this->mMessage = $message;
 	}
 
@@ -58,8 +61,11 @@ class WikiError {
 	 *
 	 * @param $object mixed
 	 * @return bool
+	 *
+	 * @deprecated since 1.17
 	 */
 	public static function isError( $object ) {
+		wfDeprecated( __METHOD__, '1.17' );
 		if ( $object instanceof WikiError ) {
 			return true;
 		} elseif ( $object instanceof Status ) {
@@ -78,26 +84,29 @@ class WikiErrorMsg extends WikiError {
 	/**
 	 * @param $message String: wiki message name
 	 * @param ... parameters to pass to wfMsg()
+	 *
+	 * @deprecated since 1.17
 	 */
 	function __construct( $message/*, ... */ ) {
+		wfDeprecated( __METHOD__, '1.17' );
 		$args = func_get_args();
 		array_shift( $args );
-		$this->mMessage = wfMsgReal( $message, $args, true );
+		$this->mMessage = wfMessage( $message )->rawParams( $args )->text();
 		$this->mMsgKey = $message;
 		$this->mMsgArgs = $args;
 	}
-	
+
 	function getMessageKey() {
 		return $this->mMsgKey;
 	}
-	
+
 	function getMessageArgs() {
 		return $this->mMsgArgs;
 	}
 }
 
 /**
- * Error class designed to handle errors involved with 
+ * Error class designed to handle errors involved with
  * XML parsing
  * @ingroup Exception
  */
@@ -107,8 +116,11 @@ class WikiXmlError extends WikiError {
 	 * @param $message string
 	 * @param $context
 	 * @param $offset Int
+	 *
+	 * @deprecated since 1.17
 	 */
 	function __construct( $parser, $message = 'XML parsing error', $context = null, $offset = 0 ) {
+		wfDeprecated( __METHOD__, '1.17' );
 		$this->mXmlError = xml_get_error_code( $parser );
 		$this->mColumn = xml_get_current_column_number( $parser );
 		$this->mLine = xml_get_current_line_number( $parser );
@@ -122,12 +134,12 @@ class WikiXmlError extends WikiError {
 	/** @return string */
 	function getMessage() {
 		// '$1 at line $2, col $3 (byte $4): $5',
-		return wfMsgHtml( 'xml-error-string',
+		return wfMessage( 'xml-error-string',
 			$this->mMessage,
 			$this->mLine,
 			$this->mColumn,
 			$this->mByte . $this->mContext,
-			xml_error_string( $this->mXmlError ) );
+			xml_error_string( $this->mXmlError ) )->escaped();
 	}
 
 	function _extractContext( $context, $offset ) {

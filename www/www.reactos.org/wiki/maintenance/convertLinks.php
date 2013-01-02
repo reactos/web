@@ -1,7 +1,6 @@
 <?php
 /**
- * Convert from the old links schema (string->ID) to the new schema (ID->ID)
- * The wiki should be put into read-only mode while this script executes
+ * Convert from the old links schema (string->ID) to the new schema (ID->ID).
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,14 +21,22 @@
  * @ingroup Maintenance
  */
 
-require_once( dirname( __FILE__ ) . '/Maintenance.php' );
+require_once( __DIR__ . '/Maintenance.php' );
 
+/**
+ * Maintenance script to convert from the old links schema (string->ID)
+ * to the new schema (ID->ID).
+ *
+ * The wiki should be put into read-only mode while this script executes.
+ *
+ * @ingroup Maintenance
+ */
 class ConvertLinks extends Maintenance {
 	private $logPerformance;
 
 	public function __construct() {
 		parent::__construct();
-		$this->mDescription = "Convert from the old links schema (string->ID) to the new schema (ID->ID)
+		$this->mDescription = "Convert from the old links schema (string->ID) to the new schema (ID->ID).
 The wiki should be put into read-only mode while this script executes";
 
 		$this->addArg( 'logperformance', "Log performance to perfLogFilename.", false );
@@ -193,12 +200,12 @@ This gives a huge speed improvement for very large links tables which are MyISAM
 		if ( $overwriteLinksTable ) {
 			# Check for existing links_backup, and delete it if it exists.
 			$this->output( "Dropping backup links table if it exists..." );
-			$dbw->query( "DROP TABLE IF EXISTS $links_backup", DB_MASTER );
+			$dbw->query( "DROP TABLE IF EXISTS $links_backup", __METHOD__ );
 			$this->output( " done.\n" );
 
 			# Swap in the new table, and move old links table to links_backup
 			$this->output( "Swapping tables '$links' to '$links_backup'; '$links_temp' to '$links'..." );
-			$dbw->query( "RENAME TABLE links TO $links_backup, $links_temp TO $links", DB_MASTER );
+			$dbw->query( "RENAME TABLE links TO $links_backup, $links_temp TO $links", __METHOD__ );
 			$this->output( " done.\n\n" );
 
 			$dbw->close();

@@ -18,7 +18,7 @@
  * http://www.gnu.org/copyleft/gpl.html
  *
  * @file
- * @author Ashar Voultoiz <hashar at free dot fr>, Aaron Schulz
+ * @author Antoine Musso <hashar at free dot fr>, Aaron Schulz
  */
 
 // Some regex definition to "play" with IP address and IP address blocks
@@ -133,7 +133,7 @@ class IP {
 	}
 
 	/**
-	 * Convert an IP into a nice standard form.
+	 * Convert an IP into a verbose, uppercase, normalized form.
 	 * IPv6 addresses in octet notation are expanded to 8 words.
 	 * IPv4 addresses are just trimmed.
 	 *
@@ -183,6 +183,124 @@ class IP {
 		// Remove leading zereos from each bloc as needed
 		$ip = preg_replace( '/(^|:)0+(' . RE_IPV6_WORD . ')/', '$1$2', $ip );
 		return $ip;
+	}
+
+	/**
+	 * Prettify an IP for display to end users.
+	 * This will make it more compact and lower-case.
+	 *
+	 * @param $ip string
+	 * @return string
+	 */
+	public static function prettifyIP( $ip ) {
+		$ip = self::sanitizeIP( $ip ); // normalize (removes '::')
+		if ( self::isIPv6( $ip ) ) {
+			// Split IP into an address and a CIDR
+			if ( strpos( $ip, '/' ) !== false ) {
+				list( $ip, $cidr ) = explode( '/', $ip, 2 );
+			} else {
+				list( $ip, $cidr ) = array( $ip, '' );
+			}
+			// Get the largest slice of words with multiple zeros
+			$offset = 0;
+			$longest = $longestPos = false;
+			while ( preg_match(
+				'!(?:^|:)0(?::0)+(?:$|:)!', $ip, $m, PREG_OFFSET_CAPTURE, $offset
+			) ) {
+				list( $match, $pos ) = $m[0]; // full match
+				if ( strlen( $match ) > strlen( $longest ) ) {
+					$longest = $match;
+					$longestPos = $pos;
+				}
+				$offset += ( $pos + strlen( $match ) ); // advance
+			}
+			if ( $longest !== false ) {
+				// Replace this portion of the string with the '::' abbreviation
+				$ip = substr_replace( $ip, '::', $longestPos, strlen( $longest ) );
+			}
+			// Add any CIDR back on
+			if ( $cidr !== '' ) {
+				$ip = "{$ip}/{$cidr}";
+			}
+			// Convert to lower case to make it more readable
+			$ip = strtolower( $ip );
+		}
+		return $ip;
+	}
+
+	/**
+	 * Given a host/port string, like one might find in the host part of a URL
+	 * per RFC 2732, split the hostname part and the port part and return an
+	 * array with an element for each. If there is no port part, the array will
+	 * have false in place of the port. If the string was invalid in some way,
+	 * false is returned.
+	 *
+	 * This was easy with IPv4 and was generally done in an ad-hoc way, but
+	 * with IPv6 it's somewhat more complicated due to the need to parse the
+	 * square brackets and colons.
+	 *
+	 * A bare IPv6 address is accepted despite the lack of square brackets.
+	 *
+	 * @param $both string The string with the host and port
+	 * @return array
+	 */
+	public static function splitHostAndPort( $both ) {
+		if ( substr( $both, 0, 1 ) === '[' ) {
+			if ( preg_match( '/^\[(' . RE_IPV6_ADD . ')\](?::(?P<port>\d+))?$/', $both, $m ) ) {
+				if ( isset( $m['port'] ) ) {
+					return array( $m[1], intval( $m['port'] ) );
+				} else {
+					return array( $m[1], false );
+				}
+			} else {
+				// Square bracket found but no IPv6
+				return false;
+			}
+		}
+		$numColons = substr_count( $both, ':' );
+		if ( $numColons >= 2 ) {
+			// Is it a bare IPv6 address?
+			if ( preg_match( '/^' . RE_IPV6_ADD . '$/', $both ) ) {
+				return array( $both, false );
+			} else {
+				// Not valid IPv6, but too many colons for anything else
+				return false;
+			}
+		}
+		if ( $numColons >= 1 ) {
+			// Host:port?
+			$bits = explode( ':', $both );
+			if ( preg_match( '/^\d+/', $bits[1] ) ) {
+				return array( $bits[0], intval( $bits[1] ) );
+			} else {
+				// Not a valid port
+				return false;
+			}
+		}
+		// Plain hostname
+		return array( $both, false );
+	}
+
+	/**
+	 * Given a host name and a port, combine them into host/port string like
+	 * you might find in a URL. If the host contains a colon, wrap it in square
+	 * brackets like in RFC 2732. If the port matches the default port, omit
+	 * the port specification
+	 *
+	 * @param $host string
+	 * @param $port int
+	 * @param $defaultPort bool|int
+	 * @return string
+	 */
+	public static function combineHostAndPort( $host, $port, $defaultPort = false ) {
+		if ( strpos( $host, ':' ) !== false ) {
+			$host = "[$host]";
+		}
+		if ( $defaultPort !== false && $port == $defaultPort ) {
+			return $host;
+		} else {
+			return "$host:$port";
+		}
 	}
 
 	/**
@@ -303,7 +421,7 @@ class IP {
 		static $privateRanges = false;
 		if ( !$privateRanges ) {
 			$privateRanges = array(
-				array( 'fc::', 'fdff:ffff:ffff:ffff:ffff:ffff:ffff:ffff' ), # RFC 4193 (local)
+				array( 'fc00::', 'fdff:ffff:ffff:ffff:ffff:ffff:ffff:ffff' ), # RFC 4193 (local)
 				array( '0:0:0:0:0:0:0:1', '0:0:0:0:0:0:0:1' ), # loopback
 			);
 		}
@@ -379,6 +497,10 @@ class IP {
 		return $n;
 	}
 
+	/**
+	 * @param $ip
+	 * @return String
+	 */
 	private static function toUnsigned6( $ip ) {
 		return wfBaseConvert( self::IPv6ToRawHex( $ip ), 16, 10 );
 	}
@@ -478,6 +600,8 @@ class IP {
 	 * Convert a network specification in IPv6 CIDR notation to an
 	 * integer network and a number of bits
 	 *
+	 * @param $range
+	 *
 	 * @return array(string, int)
 	 */
 	private static function parseCIDR6( $range ) {
@@ -515,6 +639,9 @@ class IP {
 	 *     2001:0db8:85a3::7344/96          			 CIDR
 	 *     2001:0db8:85a3::7344 - 2001:0db8:85a3::7344   Explicit range
 	 *     2001:0db8:85a3::7344/96             			 Single IP
+	 *
+	 * @param $range
+	 *
 	 * @return array(string, string)
 	 */
 	private static function parseRange6( $range ) {
@@ -587,6 +714,7 @@ class IP {
 	 * @return String: valid dotted quad IPv4 address or null
 	 */
 	public static function canonicalize( $addr ) {
+		$addr = preg_replace( '/\%.*/','', $addr ); // remove zone info (bug 35738)
 		if ( self::isValid( $addr ) ) {
 			return $addr;
 		}
@@ -613,5 +741,21 @@ class IP {
 		}
 
 		return null;  // give up
+	}
+
+	/**
+	 * Gets rid of uneeded numbers in quad-dotted/octet IP strings
+	 * For example, 127.111.113.151/24 -> 127.111.113.0/24
+	 * @param $range String: IP address to normalize
+	 * @return string
+	 */
+	public static function sanitizeRange( $range ) {
+		list( /*...*/, $bits ) = self::parseCIDR( $range );
+		list( $start, /*...*/ ) = self::parseRange( $range );
+		$start = self::formatHex( $start );
+		if ( $bits === false ) {
+			return $start; // wasn't actually a range
+		}
+		return "$start/$bits";
 	}
 }

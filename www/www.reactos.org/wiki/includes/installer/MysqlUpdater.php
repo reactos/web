@@ -2,6 +2,21 @@
 /**
  * MySQL-specific updater.
  *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ * http://www.gnu.org/copyleft/gpl.html
+ *
  * @file
  * @ingroup Deployment
  */
@@ -66,7 +81,6 @@ class MysqlUpdater extends DatabaseUpdater {
 			array( 'addTable', 'user_newtalk',                      'patch-usernewtalk2.sql' ),
 			array( 'addTable', 'transcache',                        'patch-transcache.sql' ),
 			array( 'addField', 'interwiki',     'iw_trans',         'patch-interwiki-trans.sql' ),
-			array( 'addTable', 'trackbacks',                        'patch-trackbacks.sql' ),
 
 			// 1.6
 			array( 'doWatchlistNull' ),
@@ -158,23 +172,47 @@ class MysqlUpdater extends DatabaseUpdater {
 			array( 'doUpdateTranscacheField' ),
 			array( 'renameEuWikiId' ),
 			array( 'doUpdateMimeMinorField' ),
-			array( 'doPopulateRevLen' ),
 
 			// 1.17
 			array( 'addTable', 'iwlinks',                           'patch-iwlinks.sql' ),
 			array( 'addIndex', 'iwlinks', 'iwl_prefix_title_from',  'patch-rename-iwl_prefix.sql' ),
-			array( 'addField', 'updatelog', 'ul_value',              'patch-ul_value.sql' ),
+			array( 'addField', 'updatelog',     'ul_value',         'patch-ul_value.sql' ),
 			array( 'addField', 'interwiki',     'iw_api',           'patch-iw_api_and_wikiid.sql' ),
-			array( 'dropIndex', 'iwlinks', 'iwl_prefix',  'patch-kill-iwl_prefix.sql' ),
-			array( 'dropIndex', 'iwlinks', 'iwl_prefix_from_title', 'patch-kill-iwl_pft.sql' ),
-			array( 'addField', 'categorylinks', 'cl_collation', 'patch-categorylinks-better-collation.sql' ),
+			array( 'dropIndex', 'iwlinks',      'iwl_prefix',       'patch-kill-iwl_prefix.sql' ),
+			array( 'dropIndex', 'iwlinks',      'iwl_prefix_from_title', 'patch-kill-iwl_pft.sql' ),
+			array( 'addField', 'categorylinks', 'cl_collation',     'patch-categorylinks-better-collation.sql' ),
 			array( 'doClFieldsUpdate' ),
 			array( 'doCollationUpdate' ),
 			array( 'addTable', 'msg_resource',                      'patch-msg_resource.sql' ),
 			array( 'addTable', 'module_deps',                       'patch-module_deps.sql' ),
-			array( 'dropIndex', 'archive', 'ar_page_revid',         'patch-archive_kill_ar_page_revid.sql' ),
-			array( 'addIndex', 'archive', 'ar_revid',               'patch-archive_ar_revid.sql' ),
+			array( 'dropIndex', 'archive',      'ar_page_revid',    'patch-archive_kill_ar_page_revid.sql' ),
+			array( 'addIndex', 'archive',       'ar_revid',         'patch-archive_ar_revid.sql' ),
 			array( 'doLangLinksLengthUpdate' ),
+
+			// 1.18
+			array( 'doUserNewTalkTimestampNotNull' ),
+			array( 'addIndex', 'user',          'user_email',       'patch-user_email_index.sql' ),
+			array( 'modifyField', 'user_properties', 'up_property', 'patch-up_property.sql' ),
+			array( 'addTable', 'uploadstash',                       'patch-uploadstash.sql' ),
+			array( 'addTable', 'user_former_groups',                'patch-user_former_groups.sql'),
+
+			// 1.19
+			array( 'addIndex', 'logging',       'type_action',      'patch-logging-type-action-index.sql'),
+			array( 'doMigrateUserOptions' ),
+			array( 'dropField', 'user',         'user_options', 'patch-drop-user_options.sql' ),
+			array( 'addField', 'revision',      'rev_sha1',         'patch-rev_sha1.sql' ),
+			array( 'addField', 'archive',       'ar_sha1',          'patch-ar_sha1.sql' ),
+			array( 'addIndex', 'page', 'page_redirect_namespace_len', 'patch-page_redirect_namespace_len.sql' ),
+			array( 'modifyField', 'user_groups', 'ug_group', 'patch-ug_group-length-increase.sql' ),
+			array( 'addField',	'uploadstash',	'us_chunk_inx',		'patch-uploadstash_chunk.sql' ),
+			array( 'addfield', 'job',           'job_timestamp',    'patch-jobs-add-timestamp.sql' ),
+			array( 'modifyField', 'user_former_groups', 'ufg_group', 'patch-ufg_group-length-increase.sql' ),
+
+			// 1.20
+			array( 'addIndex', 'revision', 'page_user_timestamp', 'patch-revision-user-page-index.sql' ),
+			array( 'addField', 'ipblocks',      'ipb_parent_block_id',           'patch-ipb-parent-block-id.sql' ),
+			array( 'addIndex', 'ipblocks',      'ipb_parent_block_id',           'patch-ipb-parent-block-id-index.sql' ),
+			array( 'dropField', 'category',     'cat_hidden',       'patch-cat_hidden.sql' ),
 		);
 	}
 
@@ -194,9 +232,7 @@ class MysqlUpdater extends DatabaseUpdater {
 		if ( in_array( 'binary', $flags ) ) {
 			$this->output( "...$table table has correct $field encoding.\n" );
 		} else {
-			$this->output( "Fixing $field encoding on $table table... " );
-			$this->applyPatch( $patchFile );
-			$this->output( "done.\n" );
+			$this->applyPatch( $patchFile, false, "Fixing $field encoding on $table table" );
 		}
 	}
 
@@ -213,12 +249,12 @@ class MysqlUpdater extends DatabaseUpdater {
 		if ( $info ) {
 			foreach ( $info as $row ) {
 				if ( $row->Column_name == $field ) {
-					$this->output( "...index $index on table $table includes field $field\n" );
+					$this->output( "...index $index on table $table includes field $field.\n" );
 					return true;
 				}
 			}
 		}
-		$this->output( "...index $index on table $table has no field $field; adding\n" );
+		$this->output( "...index $index on table $table has no field $field; added.\n" );
 		return false;
 	}
 
@@ -228,17 +264,13 @@ class MysqlUpdater extends DatabaseUpdater {
 	protected function doInterwikiUpdate() {
 		global $IP;
 
-		if ( $this->db->tableExists( "interwiki" ) ) {
+		if ( $this->db->tableExists( "interwiki", __METHOD__ ) ) {
 			$this->output( "...already have interwiki table\n" );
 			return;
 		}
 
-		$this->output( 'Creating interwiki table...' );
-		$this->applyPatch( 'patch-interwiki.sql' );
-		$this->output( "ok\n" );
-		$this->output( 'Adding default interwiki definitions...' );
-		$this->applyPatch( "$IP/maintenance/interwiki.sql", true );
-		$this->output( "done.\n" );
+		$this->applyPatch( 'patch-interwiki.sql', false, 'Creating interwiki table' );
+		$this->applyPatch( "$IP/maintenance/interwiki.sql", true, 'Adding default interwiki definitions' );
 	}
 
 	/**
@@ -246,14 +278,15 @@ class MysqlUpdater extends DatabaseUpdater {
 	 */
 	protected function doIndexUpdate() {
 		$meta = $this->db->fieldInfo( 'recentchanges', 'rc_timestamp' );
+		if ( $meta === false ) {
+			throw new MWException( 'Missing rc_timestamp field of recentchanges table. Should not happen.' );
+		}
 		if ( $meta->isMultipleKey() ) {
-			$this->output( "...indexes seem up to 20031107 standards\n" );
+			$this->output( "...indexes seem up to 20031107 standards.\n" );
 			return;
 		}
 
-		$this->output( "Updating indexes to 20031107..." );
-		$this->applyPatch( 'patch-indexes.sql', true );
-		$this->output( "done.\n" );
+		$this->applyPatch( 'patch-indexes.sql', true, "Updating indexes to 20031107" );
 	}
 
 	protected function doOldLinksUpdate() {
@@ -268,10 +301,9 @@ class MysqlUpdater extends DatabaseUpdater {
 			return;
 		}
 
-		$this->output( "Fixing ancient broken imagelinks table.\n" );
-		$this->output( "NOTE: you will have to run maintenance/refreshLinks.php after this.\n" );
-		$this->applyPatch( 'patch-fix-il_from.sql' );
-		$this->output( "done.\n" );
+		if( $this->applyPatch( 'patch-fix-il_from.sql', false, "Fixing ancient broken imagelinks table." ) ) {
+			$this->output("NOTE: you will have to run maintenance/refreshLinks.php after this." );
+		}
 	}
 
 	/**
@@ -281,7 +313,7 @@ class MysqlUpdater extends DatabaseUpdater {
 		$talk = $this->db->selectField( 'watchlist', 'count(*)', 'wl_namespace & 1', __METHOD__ );
 		$nontalk = $this->db->selectField( 'watchlist', 'count(*)', 'NOT (wl_namespace & 1)', __METHOD__ );
 		if ( $talk == $nontalk ) {
-			$this->output( "...watchlist talk page rows already present\n" );
+			$this->output( "...watchlist talk page rows already present.\n" );
 			return;
 		}
 
@@ -297,7 +329,7 @@ class MysqlUpdater extends DatabaseUpdater {
 	}
 
 	function doSchemaRestructuring() {
-		if ( $this->db->tableExists( 'page' ) ) {
+		if ( $this->db->tableExists( 'page', __METHOD__ ) ) {
 			$this->output( "...page table already exists.\n" );
 			return;
 		}
@@ -488,14 +520,12 @@ class MysqlUpdater extends DatabaseUpdater {
 	}
 
 	protected function doPagelinksUpdate() {
-		if ( $this->db->tableExists( 'pagelinks' ) ) {
+		if ( $this->db->tableExists( 'pagelinks', __METHOD__ ) ) {
 			$this->output( "...already have pagelinks table.\n" );
 			return;
 		}
 
-		$this->output( "Converting links and brokenlinks tables to pagelinks... " );
-		$this->applyPatch( 'patch-pagelinks.sql' );
-		$this->output( "done.\n" );
+		$this->applyPatch( 'patch-pagelinks.sql', false, "Converting links and brokenlinks tables to pagelinks" );
 
 		global $wgContLang;
 		foreach ( MWNamespace::getCanonicalNamespaces() as $ns => $name ) {
@@ -531,24 +561,20 @@ class MysqlUpdater extends DatabaseUpdater {
 		if ( !$duper->clearDupes() ) {
 			$this->output( "WARNING: This next step will probably fail due to unfixed duplicates...\n" );
 		}
-		$this->output( "Adding unique index on user_name... " );
-		$this->applyPatch( 'patch-user_nameindex.sql' );
-		$this->output( "done.\n" );
+		$this->applyPatch( 'patch-user_nameindex.sql', false, "Adding unique index on user_name" );
 	}
 
 	protected function doUserGroupsUpdate() {
-		if ( $this->db->tableExists( 'user_groups' ) ) {
+		if ( $this->db->tableExists( 'user_groups', __METHOD__ ) ) {
 			$info = $this->db->fieldInfo( 'user_groups', 'ug_group' );
 			if ( $info->type() == 'int' ) {
 				$oldug = $this->db->tableName( 'user_groups' );
 				$newug = $this->db->tableName( 'user_groups_bogus' );
 				$this->output( "user_groups table exists but is in bogus intermediate format. Renaming to $newug... " );
 				$this->db->query( "ALTER TABLE $oldug RENAME TO $newug", __METHOD__ );
-				$this->output( "ok\n" );
+				$this->output( "done.\n" );
 
-				$this->output( "Re-adding fresh user_groups table... " );
-				$this->applyPatch( 'patch-user_groups.sql' );
-				$this->output( "ok\n" );
+				$this->applyPatch( 'patch-user_groups.sql', false, "Re-adding fresh user_groups table" );
 
 				$this->output( "***\n" );
 				$this->output( "*** WARNING: You will need to manually fix up user permissions in the user_groups\n" );
@@ -560,15 +586,11 @@ class MysqlUpdater extends DatabaseUpdater {
 			return;
 		}
 
-		$this->output( "Adding user_groups table... " );
-		$this->applyPatch( 'patch-user_groups.sql' );
-		$this->output( "ok\n" );
+		$this->applyPatch( 'patch-user_groups.sql', false, "Adding user_groups table" );
 
-		if ( !$this->db->tableExists( 'user_rights' ) ) {
-			if ( $this->db->fieldExists( 'user', 'user_rights' ) ) {
-				$this->output( "Upgrading from a 1.3 or older database? Breaking out user_rights for conversion..." );
-				$this->db->applyPatch( 'patch-user_rights.sql' );
-				$this->output( "ok\n" );
+		if ( !$this->db->tableExists( 'user_rights', __METHOD__ ) ) {
+			if ( $this->db->fieldExists( 'user', 'user_rights', __METHOD__ ) ) {
+				$this->db->applyPatch( 'patch-user_rights.sql', false, "Upgrading from a 1.3 or older database? Breaking out user_rights for conversion" );
 			} else {
 				$this->output( "*** WARNING: couldn't locate user_rights table or field for upgrade.\n" );
 				$this->output( "*** You may need to manually configure some sysops by manipulating\n" );
@@ -610,9 +632,7 @@ class MysqlUpdater extends DatabaseUpdater {
 			return;
 		}
 
-		$this->output( "Making wl_notificationtimestamp nullable... " );
-		$this->applyPatch( 'patch-watchlist-null.sql' );
-		$this->output( "done.\n" );
+		$this->applyPatch( 'patch-watchlist-null.sql', false, "Making wl_notificationtimestamp nullable" );
 	}
 
 	/**
@@ -633,13 +653,13 @@ class MysqlUpdater extends DatabaseUpdater {
 	}
 
 	protected function doTemplatelinksUpdate() {
-		if ( $this->db->tableExists( 'templatelinks' ) ) {
+		if ( $this->db->tableExists( 'templatelinks', __METHOD__ ) ) {
 			$this->output( "...templatelinks table already exists\n" );
 			return;
 		}
 
-		$this->output( "Creating templatelinks table...\n" );
-		$this->applyPatch( 'patch-templatelinks.sql' );
+		$this->applyPatch( 'patch-templatelinks.sql', false, "Creating templatelinks table" );
+
 		$this->output( "Populating...\n" );
 		if ( wfGetLB()->getServerCount() > 1 ) {
 			// Slow, replication-friendly update
@@ -649,7 +669,7 @@ class MysqlUpdater extends DatabaseUpdater {
 			foreach ( $res as $row ) {
 				$count = ( $count + 1 ) % 100;
 				if ( $count == 0 ) {
-					wfWaitForSlaves( 10 );
+					wfWaitForSlaves();
 				}
 				$this->db->insert( 'templatelinks',
 					array(
@@ -680,8 +700,7 @@ class MysqlUpdater extends DatabaseUpdater {
 			!$this->indexHasField( 'templatelinks', 'tl_namespace', 'tl_from' ) ||
 			!$this->indexHasField( 'imagelinks', 'il_to', 'il_from' ) )
 		{
-			$this->applyPatch( 'patch-backlinkindexes.sql' );
-			$this->output( "...backlinking indices updated\n" );
+			$this->applyPatch( 'patch-backlinkindexes.sql', false, "Updating backlinking indices" );
 		}
 	}
 
@@ -691,14 +710,13 @@ class MysqlUpdater extends DatabaseUpdater {
 	 * -- Andrew Garrett, January 2007.
 	 */
 	protected function doRestrictionsUpdate() {
-		if ( $this->db->tableExists( 'page_restrictions' ) ) {
+		if ( $this->db->tableExists( 'page_restrictions', __METHOD__ ) ) {
 			$this->output( "...page_restrictions table already exists.\n" );
 			return;
 		}
 
-		$this->output( "Creating page_restrictions table..." );
-		$this->applyPatch( 'patch-page_restrictions.sql' );
-		$this->applyPatch( 'patch-page_restrictions_sortkey.sql' );
+		$this->applyPatch( 'patch-page_restrictions.sql', false, "Creating page_restrictions table (1/2)" );
+		$this->applyPatch( 'patch-page_restrictions_sortkey.sql', false, "Creating page_restrictions table (2/2)" );
 		$this->output( "done.\n" );
 
 		$this->output( "Migrating old restrictions to new table...\n" );
@@ -708,8 +726,7 @@ class MysqlUpdater extends DatabaseUpdater {
 
 	protected function doCategorylinksIndicesUpdate() {
 		if ( !$this->indexHasField( 'categorylinks', 'cl_sortkey', 'cl_from' ) ) {
-			$this->applyPatch( 'patch-categorylinksindex.sql' );
-			$this->output( "...categorylinks indices updated\n" );
+			$this->applyPatch( 'patch-categorylinksindex.sql', false, "Updating categorylinks Indices" );
 		}
 	}
 
@@ -731,33 +748,31 @@ class MysqlUpdater extends DatabaseUpdater {
 	}
 
 	protected function doPopulateParentId() {
-		if ( $this->updateRowExists( 'populate rev_parent_id' ) ) {
-			$this->output( "...rev_parent_id column already populated.\n" );
-			return;
-		}
+		if ( !$this->updateRowExists( 'populate rev_parent_id' ) ) {
+			$this->output(
+				"Populating rev_parent_id fields, printing progress markers. For large\n" .
+				"databases, you may want to hit Ctrl-C and do this manually with\n" .
+				"maintenance/populateParentId.php.\n" );
 
-		$task = $this->maintenance->runChild( 'PopulateParentId' );
-		$task->execute();
+			$task = $this->maintenance->runChild( 'PopulateParentId' );
+			$task->execute();
+		}
 	}
 
 	protected function doMaybeProfilingMemoryUpdate() {
-		if ( !$this->db->tableExists( 'profiling' ) ) {
+		if ( !$this->db->tableExists( 'profiling', __METHOD__ ) ) {
 			// Simply ignore
-		} elseif ( $this->db->fieldExists( 'profiling', 'pf_memory' ) ) {
+		} elseif ( $this->db->fieldExists( 'profiling', 'pf_memory', __METHOD__ ) ) {
 			$this->output( "...profiling table has pf_memory field.\n" );
 		} else {
-			$this->output( "Adding pf_memory field to table profiling..." );
-			$this->applyPatch( 'patch-profiling-memory.sql' );
-			$this->output( "done.\n" );
+			$this->applyPatch( 'patch-profiling-memory.sql', false, "Adding pf_memory field to table profiling" );
 		}
 	}
 
 	protected function doFilearchiveIndicesUpdate() {
 		$info = $this->db->indexInfo( 'filearchive', 'fa_user_timestamp', __METHOD__ );
 		if ( !$info ) {
-			$this->output( "Updating filearchive indices..." );
-			$this->applyPatch( 'patch-filearchive-user-index.sql' );
-			$this->output( "done.\n" );
+			$this->applyPatch( 'patch-filearchive-user-index.sql', false, "Updating filearchive indices" );
 		}
 	}
 
@@ -768,20 +783,16 @@ class MysqlUpdater extends DatabaseUpdater {
 			return;
 		}
 
-		$this->output( "Making pl_namespace, tl_namespace and il_to indices UNIQUE... " );
-		$this->applyPatch( 'patch-pl-tl-il-unique.sql' );
-		$this->output( "done.\n" );
+		$this->applyPatch( 'patch-pl-tl-il-unique.sql', false, "Making pl_namespace, tl_namespace and il_to indices UNIQUE" );
 	}
 
 	protected function renameEuWikiId() {
-		if ( $this->db->fieldExists( 'external_user', 'eu_local_id' ) ) {
+		if ( $this->db->fieldExists( 'external_user', 'eu_local_id', __METHOD__ ) ) {
 			$this->output( "...eu_wiki_id already renamed to eu_local_id.\n" );
 			return;
 		}
 
-		$this->output( "Renaming eu_wiki_id -> eu_local_id... " );
-		$this->applyPatch( 'patch-eu_local_id.sql' );
-		$this->output( "done.\n" );
+		$this->applyPatch( 'patch-eu_local_id.sql', false, "Renaming eu_wiki_id -> eu_local_id" );
 	}
 
 	protected function doUpdateMimeMinorField() {
@@ -790,19 +801,7 @@ class MysqlUpdater extends DatabaseUpdater {
 			return;
 		}
 
-		$this->output( "Altering all *_mime_minor fields to 100 bytes in size ... " );
-		$this->applyPatch( 'patch-mime_minor_length.sql' );
-		$this->output( "done.\n" );
-	}
-
-	protected function doPopulateRevLen() {
-		if ( $this->updateRowExists( 'populate rev_len' ) ) {
-			$this->output( "...rev_len column already populated.\n" );
-			return;
-		}
-
-		$task = $this->maintenance->runChild( 'PopulateRevisionLength' );
-		$task->execute();
+		$this->applyPatch( 'patch-mime_minor_length.sql', false, "Altering all *_mime_minor fields to 100 bytes in size" );
 	}
 
 	protected function doClFieldsUpdate() {
@@ -811,9 +810,7 @@ class MysqlUpdater extends DatabaseUpdater {
 			return;
 		}
 
-		$this->output( 'Updating categorylinks (again)...' );
-		$this->applyPatch( 'patch-categorylinks-better-collation2.sql' );
-		$this->output( "done.\n" );
+		$this->applyPatch( 'patch-categorylinks-better-collation2.sql', false, 'Updating categorylinks (again)' );
 	}
 
 	protected function doLangLinksLengthUpdate() {
@@ -822,11 +819,19 @@ class MysqlUpdater extends DatabaseUpdater {
 		$row = $this->db->fetchObject( $res );
 
 		if ( $row && $row->Type == "varbinary(10)" ) {
-			$this->output( 'Updating length of ll_lang in langlinks...' );
-			$this->applyPatch( 'patch-langlinks-ll_lang-20.sql' );
-			$this->output( "done.\n" );
+			$this->applyPatch( 'patch-langlinks-ll_lang-20.sql', false, 'Updating length of ll_lang in langlinks' );
 		} else {
 			$this->output( "...ll_lang is up-to-date.\n" );
 		}
+	}
+
+	protected function doUserNewTalkTimestampNotNull() {
+		$info = $this->db->fieldInfo( 'user_newtalk', 'user_last_timestamp' );
+		if ( $info->isNullable() ) {
+			$this->output( "...user_last_timestamp is already nullable.\n" );
+			return;
+		}
+
+		$this->applyPatch( 'patch-user-newtalk-timestamp-null.sql', false, "Making user_last_timestamp nullable" );
 	}
 }

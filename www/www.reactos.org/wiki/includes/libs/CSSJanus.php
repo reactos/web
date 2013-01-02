@@ -1,5 +1,7 @@
 <?php
 /**
+ * PHP port of CSSJanus.
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -15,6 +17,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  * http://www.gnu.org/copyleft/gpl.html
  *
+ * @file
  */
 
 /**
@@ -22,7 +25,9 @@
  * written for LTR to RTL.
  *
  * The original Python version of CSSJanus is Copyright 2008 by Google Inc. and
- * is distributed under the Apache license.
+ * is distributed under the Apache license. This PHP port is Copyright 2010 by
+ * Roan Kattouw and is dual-licensed under the GPL (as in the comment above) and
+ * the Apache (as in the original code) licenses.
  *
  * Original code: http://code.google.com/p/cssjanus/source/browse/trunk/cssjanus.py
  * License of original code: http://code.google.com/p/cssjanus/source/browse/trunk/LICENSE
@@ -111,8 +116,8 @@ class CSSJanus {
 		$patterns['four_notation_color'] = "/(-color\s*:\s*){$patterns['color']}(\s+){$patterns['color']}(\s+){$patterns['color']}(\s+){$patterns['color']}/i";
 		// The two regexes below are parenthesized differently then in the original implementation to make the
 		// callback's job more straightforward
-		$patterns['bg_horizontal_percentage'] = "/(background(?:-position)?\s*:\s*[^%]*?)({$patterns['num']})(%\s*(?:{$patterns['quantity']}|{$patterns['ident']}))/";
-		$patterns['bg_horizontal_percentage_x'] = "/(background-position-x\s*:\s*)({$patterns['num']})(%)/";
+		$patterns['bg_horizontal_percentage'] = "/(background(?:-position)?\s*:\s*[^%]*?)(-?{$patterns['num']})(%\s*(?:{$patterns['quantity']}|{$patterns['ident']}))/";
+		$patterns['bg_horizontal_percentage_x'] = "/(background-position-x\s*:\s*)(-?{$patterns['num']})(%)/";
 	}
 
 	/**
@@ -120,7 +125,7 @@ class CSSJanus {
 	 * @param $css String: stylesheet to transform
 	 * @param $swapLtrRtlInURL Boolean: If true, swap 'ltr' and 'rtl' in URLs
 	 * @param $swapLeftRightInURL Boolean: If true, swap 'left' and 'right' in URLs
-	 * @return Transformed stylesheet
+	 * @return string Transformed stylesheet
 	 */
 	public static function transform( $css, $swapLtrRtlInURL = false, $swapLeftRightInURL = false ) {
 		// We wrap tokens in ` , not ~ like the original implementation does.
@@ -173,6 +178,8 @@ class CSSJanus {
 	 *
 	 * See http://code.google.com/p/cssjanus/issues/detail?id=15 and
 	 * TODO: URL
+	 * @param $css string
+	 * @return string
 	 */
 	private static function fixDirection( $css ) {
 		$css = preg_replace( self::$patterns['direction_ltr'],
@@ -185,6 +192,8 @@ class CSSJanus {
 
 	/**
 	 * Replace 'ltr' with 'rtl' and vice versa in background URLs
+	 * @param $css string
+	 * @return string
 	 */
 	private static function fixLtrRtlInURL( $css ) {
 		$css = preg_replace( self::$patterns['ltr_in_url'], self::$patterns['tmpToken'], $css );
@@ -196,6 +205,8 @@ class CSSJanus {
 
 	/**
 	 * Replace 'left' with 'right' and vice versa in background URLs
+	 * @param $css string
+	 * @return string
 	 */
 	private static function fixLeftRightInURL( $css ) {
 		$css = preg_replace( self::$patterns['left_in_url'], self::$patterns['tmpToken'], $css );
@@ -207,6 +218,8 @@ class CSSJanus {
 
 	/**
 	 * Flip rules like left: , padding-right: , etc.
+	 * @param $css string
+	 * @return string
 	 */
 	private static function fixLeftAndRight( $css ) {
 		$css = preg_replace( self::$patterns['left'], self::$patterns['tmpToken'], $css );
@@ -218,6 +231,8 @@ class CSSJanus {
 
 	/**
 	 * Flip East and West in rules like cursor: nw-resize;
+	 * @param $css string
+	 * @return string
 	 */
 	private static function fixCursorProperties( $css ) {
 		$css = preg_replace( self::$patterns['cursor_east'],
@@ -237,6 +252,8 @@ class CSSJanus {
 	 * and four-part color rules with multiple whitespace characters between
 	 * colors are not recognized.
 	 * See http://code.google.com/p/cssjanus/issues/detail?id=16
+	 * @param $css string
+	 * @return string
 	 */
 	private static function fixFourPartNotation( $css ) {
 		$css = preg_replace( self::$patterns['four_notation_quantity'], '$1$2$7$4$5$6$3', $css );
@@ -247,18 +264,29 @@ class CSSJanus {
 
 	/**
 	 * Flip horizontal background percentages.
+	 * @param $css string
+	 * @return string
 	 */
 	private static function fixBackgroundPosition( $css ) {
-		$css = preg_replace_callback( self::$patterns['bg_horizontal_percentage'],
+		$replaced = preg_replace_callback( self::$patterns['bg_horizontal_percentage'],
 			array( 'self', 'calculateNewBackgroundPosition' ), $css );
-		$css = preg_replace_callback( self::$patterns['bg_horizontal_percentage_x'],
+		if ( $replaced !== null ) {
+			// Check for null; sometimes preg_replace_callback() returns null here for some weird reason
+			$css = $replaced;
+		}
+		$replaced = preg_replace_callback( self::$patterns['bg_horizontal_percentage_x'],
 			array( 'self', 'calculateNewBackgroundPosition' ), $css );
+		if ( $replaced !== null ) {
+			$css = $replaced;
+		}
 
 		return $css;
 	}
 
 	/**
 	 * Callback for calculateNewBackgroundPosition()
+	 * @param $matches array
+	 * @return string
 	 */
 	private static function calculateNewBackgroundPosition( $matches ) {
 		return $matches[1] . ( 100 - $matches[2] ) . $matches[3];
@@ -295,6 +323,10 @@ class CSSJanus_Tokenizer {
 		return preg_replace_callback( $this->regex, array( $this, 'tokenizeCallback' ), $str );
 	}
 
+	/**
+	 * @param $matches array
+	 * @return string
+	 */
 	private function tokenizeCallback( $matches ) {
 		$this->originals[] = $matches[0];
 		return $this->token;
@@ -314,6 +346,10 @@ class CSSJanus_Tokenizer {
 			array( $this, 'detokenizeCallback' ), $str );
 	}
 
+	/**
+	 * @param $matches
+	 * @return mixed
+	 */
 	private function detokenizeCallback( $matches ) {
 		$retval = current( $this->originals );
 		next( $this->originals );

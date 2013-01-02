@@ -1,7 +1,7 @@
 <?php
 
 /**
- * API for MediaWiki 1.8+
+ *
  *
  * Created on Monday, January 28, 2008
  *
@@ -25,18 +25,13 @@
  * @file
  */
 
-if ( !defined( 'MEDIAWIKI' ) ) {
-	// Eclipse helper - will be ignored in production
-	require_once( 'ApiQueryBase.php' );
-}
-
 /**
  * Query module to get list of random pages
  *
  * @ingroup API
  */
 
- class ApiQueryRandom extends ApiQueryGeneratorBase {
+class ApiQueryRandom extends ApiQueryGeneratorBase {
 
 	public function __construct( $query, $moduleName ) {
 		parent::__construct( $query, $moduleName, 'rn' );
@@ -50,6 +45,14 @@ if ( !defined( 'MEDIAWIKI' ) ) {
 		$this->run( $resultPageSet );
 	}
 
+	/**
+	 * @param  $randstr
+	 * @param  $limit
+	 * @param  $namespace
+	 * @param $resultPageSet ApiPageSet
+	 * @param  $redirect
+	 * @return void
+	 */
 	protected function prepareQuery( $randstr, $limit, $namespace, &$resultPageSet, $redirect ) {
 		$this->resetQueryParams();
 		$this->addTables( 'page' );
@@ -65,7 +68,11 @@ if ( !defined( 'MEDIAWIKI' ) ) {
 		}
 	}
 
-	protected function runQuery( &$resultPageSet ) {
+	/**
+	 * @param $resultPageSet ApiPageSet
+	 * @return int
+	 */
+	protected function runQuery( $resultPageSet = null ) {
 		$res = $this->select( __METHOD__ );
 		$count = 0;
 		foreach ( $res as $row ) {
@@ -92,6 +99,10 @@ if ( !defined( 'MEDIAWIKI' ) ) {
 		return $count;
 	}
 
+	/**
+	 * @param $resultPageSet ApiPageSet
+	 * @return void
+	 */
 	public function run( $resultPageSet = null ) {
 		$params = $this->extractRequestParams();
 		$result = $this->getResult();
@@ -150,6 +161,16 @@ if ( !defined( 'MEDIAWIKI' ) ) {
 		);
 	}
 
+	public function getResultProperties() {
+		return array(
+			'' => array(
+				'id' => 'integer',
+				'ns' => 'namespace',
+				'title' => 'string'
+			)
+		);
+	}
+
 	public function getDescription() {
 		return array(
 			'Get a set of random pages',
@@ -159,7 +180,7 @@ if ( !defined( 'MEDIAWIKI' ) ) {
 		);
 	}
 
-	protected function getExamples() {
+	public function getExamples() {
 		return 'api.php?action=query&list=random&rnnamespace=0&rnlimit=2';
 	}
 

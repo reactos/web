@@ -31,20 +31,18 @@ class SpecialCategories extends SpecialPage {
 	}
 
 	function execute( $par ) {
-		global $wgOut, $wgRequest;
-
 		$this->setHeaders();
 		$this->outputHeader();
-		$wgOut->allowClickjacking();
+		$this->getOutput()->allowClickjacking();
 
-		$from = $wgRequest->getText( 'from', $par );
+		$from = $this->getRequest()->getText( 'from', $par );
 
-		$cap = new CategoryPager( $from );
+		$cap = new CategoryPager( $this->getContext(), $from );
 		$cap->doQuery();
 
-		$wgOut->addHTML(
+		$this->getOutput()->addHTML(
 			Html::openElement( 'div', array( 'class' => 'mw-spcontent' ) ) .
-			wfMsgExt( 'categoriespagetext', array( 'parse' ), $cap->getNumRows() ) .
+			$this->msg( 'categoriespagetext', $cap->getNumRows() )->parseAsBlock() .
 			$cap->getStartForm( $from ) .
 			$cap->getNavigationBar() .
 			'<ul>' . $cap->getBody() . '</ul>' .
@@ -61,20 +59,21 @@ class SpecialCategories extends SpecialPage {
  * @ingroup SpecialPage Pager
  */
 class CategoryPager extends AlphabeticPager {
-	function __construct( $from ) {
-		parent::__construct();
+	function __construct( IContextSource $context, $from ) {
+		parent::__construct( $context );
 		$from = str_replace( ' ', '_', $from );
 		if( $from !== '' ) {
 			$from = Title::capitalize( $from, NS_CATEGORY );
-			$this->mOffset = $from;
+			$this->setOffset( $from );
+			$this->setIncludeOffset( true );
 		}
 	}
-	
+
 	function getQueryInfo() {
 		return array(
 			'tables' => array( 'category' ),
 			'fields' => array( 'cat_title','cat_pages' ),
-			'conds' => array( 'cat_pages > 0' ), 
+			'conds' => array( 'cat_pages > 0' ),
 			'options' => array( 'USE INDEX' => 'cat_title' ),
 		);
 	}
@@ -114,25 +113,22 @@ class CategoryPager extends AlphabeticPager {
 	}
 
 	function formatRow($result) {
-		global $wgLang;
 		$title = Title::makeTitle( NS_CATEGORY, $result->cat_title );
-		$titleText = $this->getSkin()->link( $title, htmlspecialchars( $title->getText() ) );
-		$count = wfMsgExt( 'nmembers', array( 'parsemag', 'escape' ),
-				$wgLang->formatNum( $result->cat_pages ) );
-		return Xml::tags('li', null, "$titleText ($count)" ) . "\n";
+		$titleText = Linker::link( $title, htmlspecialchars( $title->getText() ) );
+		$count = $this->msg( 'nmembers' )->numParams( $result->cat_pages )->escaped();
+		return Xml::tags( 'li', null, $this->getLanguage()->specialList( $titleText, $count ) ) . "\n";
 	}
-	
+
 	public function getStartForm( $from ) {
 		global $wgScript;
-		$t = SpecialPage::getTitleFor( 'Categories' );
-	
+
 		return
 			Xml::tags( 'form', array( 'method' => 'get', 'action' => $wgScript ),
-				Html::hidden( 'title', $t->getPrefixedText() ) .
-				Xml::fieldset( wfMsg( 'categories' ),
-					Xml::inputLabel( wfMsg( 'categoriesfrom' ),
+				Html::hidden( 'title', $this->getTitle()->getPrefixedText() ) .
+				Xml::fieldset( $this->msg( 'categories' )->text(),
+					Xml::inputLabel( $this->msg( 'categoriesfrom' )->text(),
 						'from', 'from', 20, $from ) .
 					' ' .
-					Xml::submitButton( wfMsg( 'allpagessubmit' ) ) ) );
+					Xml::submitButton( $this->msg( 'allpagessubmit' )->text() ) ) );
 	}
 }

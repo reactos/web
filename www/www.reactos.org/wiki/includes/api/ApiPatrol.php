@@ -24,10 +24,6 @@
  * @file
  */
 
-if ( !defined( 'MEDIAWIKI' ) ) {
-	require_once ( 'ApiBase.php' );
-}
-
 /**
  * Allows user to patrol pages
  * @ingroup API
@@ -48,7 +44,7 @@ class ApiPatrol extends ApiBase {
 		if ( !$rc instanceof RecentChange ) {
 			$this->dieUsageMsg( array( 'nosuchrcid', $params['rcid'] ) );
 		}
-		$retval = RecentChange::markPatrolled( $params['rcid'] );
+		$retval = $rc->doMarkPatrolled( $this->getUser() );
 
 		if ( $retval ) {
 			$this->dieUsageMsg( reset( $retval ) );
@@ -69,7 +65,10 @@ class ApiPatrol extends ApiBase {
 
 	public function getAllowedParams() {
 		return array(
-			'token' => null,
+			'token' => array(
+				ApiBase::PARAM_TYPE => 'string',
+				ApiBase::PARAM_REQUIRED => true
+			),
 			'rcid' => array(
 				ApiBase::PARAM_TYPE => 'integer',
 				ApiBase::PARAM_REQUIRED => true
@@ -81,6 +80,16 @@ class ApiPatrol extends ApiBase {
 		return array(
 			'token' => 'Patrol token obtained from list=recentchanges',
 			'rcid' => 'Recentchanges ID to patrol',
+		);
+	}
+
+	public function getResultProperties() {
+		return array(
+			'' => array(
+				'rcid' => 'integer',
+				'ns' => 'namespace',
+				'title' => 'string'
+			)
 		);
 	}
 
@@ -102,13 +111,17 @@ class ApiPatrol extends ApiBase {
 		return 'patrol';
 	}
 
-	protected function getExamples() {
+	public function getExamples() {
 		return array(
 			'api.php?action=patrol&token=123abc&rcid=230672766'
 		);
 	}
 
+	public function getHelpUrls() {
+		return 'https://www.mediawiki.org/wiki/API:Patrol';
+	}
+
 	public function getVersion() {
-		return __CLASS__ . ': $Id: ApiPatrol.php 78437 2010-12-15 14:14:16Z catrope $';
+		return __CLASS__ . ': $Id$';
 	}
 }
