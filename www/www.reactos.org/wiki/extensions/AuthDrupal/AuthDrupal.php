@@ -218,7 +218,7 @@ function Auth_drupal_autologin_hook($user, &$result ) {
 	// Go ahead and log 'em in
 	$user->setToken();
 	$user->saveSettings();
-	$user->setupSession();
+	wfsetupSession();
 	$user->setCookies();
 
 	$message = 'MediWiki session (cookie) opened for <em>' . $name . '</em>.';
@@ -437,11 +437,13 @@ class AuthDrupal extends AuthPlugin {
 		if ($GLOBALS['wgAuthDrupal_UseExtDatabase']) {
 			// Drupal tables are in a separate DB from MW tables, create
 			// a separate DB connection
-			$this->my_dbr = & Database :: newFromParams(
+			$this->my_dbr = new Database(
 					$GLOBALS['wgAuthDrupal_MySQL_Host'],
 					$GLOBALS['wgAuthDrupal_MySQL_Username'],
 					$GLOBALS['wgAuthDrupal_MySQL_Password'],
 					$GLOBALS['wgAuthDrupal_MySQL_Database'],
+					false,
+					0,
 					'auth_drupal_db_error_callback' );
 		} else {
 			$this->my_dbr = & wfGetDB(DB_SLAVE);
