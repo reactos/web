@@ -448,7 +448,7 @@ div#simpleSearch button#searchButton > img {
 /* Panel */
 div#mw-panel {
 	position: absolute;
-	top: 160px;
+	top: 50px;
 	padding-top: 1em;
 	width: 10em;
 	left: 0;

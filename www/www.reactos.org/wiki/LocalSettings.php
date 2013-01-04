@@ -18,7 +18,7 @@ if ( !defined( 'MEDIAWIKI' ) ) {
 ## Uncomment this to disable output compression
 # $wgDisableOutputCompression = true;
 
-$wgSitename      = "reactos wiki";
+$wgSitename      = "ReactOS";
 $wgMetaNamespace = "Reactos_wiki";
 
 ## The URL base path to the directory containing the wiki;
@@ -105,20 +105,20 @@ $wgUpgradeKey = "132dccc4e3e9ddf";
 
 ## Default skin: you can change the default skin. Use the internal symbolic
 ## names, ie 'standard', 'nostalgia', 'cologneblue', 'monobook', 'vector':
-$wgDefaultSkin = "reactos";
+$wgDefaultSkin = "vector";
 
 ## For attaching licensing metadata to pages, and displaying an
 ## appropriate copyright notice / icon. GNU Free Documentation
 ## License and Creative Commons licenses are supported so far.
 #$wgEnableCreativeCommonsRdf = true;
 $wgRightsPage = ""; # Set to the title of a wiki page that describes your license/copyright
-$wgRightsUrl  = "";
-$wgRightsText = "";
-$wgRightsIcon = "";
+$wgRightsUrl  = "http://www.gnu.org/copyleft/fdl.html";
+$wgRightsText = "GNU Free Documentation License 1.2";
+$wgRightsIcon = "${wgStylePath}/common/images/gnu-fdl.png";
 # $wgRightsCode = ""; # Not yet used
 
 # Path to the GNU diff3 utility. Used for conflict resolution.
-$wgDiff3 = "";
+$wgDiff3 = "/usr/bin/diff3";
 
 # The following permissions were set based on your choice in the installer
 $wgGroupPermissions['*']['edit'] = false;
@@ -133,7 +133,33 @@ $wgResourceLoaderMaxQueryLength = -1;
 
 # End of automatically generated settings.
 # Add more configuration options below.
+
+# Enable external image embedding
+$wgAllowExternalImages = true;
+
+# Additional namespaces
+$wgExtraNamespaces[100] = "Techwiki";
+$wgExtraNamespaces[101] = "Techwiki_talk";
+$wgExtraNamespaces[102] = "Website";
+$wgExtraNamespaces[103] = "Website_talk";
+
+# Modify search behaviour
+$wgEnableMWSuggest = true;
+$wgNamespaceToBeSearchedDefault[100] = true;
+
 $wgShowExceptionDetails = true;
 require_once("$IP/../../www.reactos.org_config/wiki-drupal-config.php");
 require_once ($IP.'/extensions/AuthDrupal/AuthDrupal.php');
 SetupAuthDrupal();
+
+# Use wikipedia's new editor interface
+require_once( "$IP/extensions/WikiEditor/WikiEditor.php" );
+$wgDefaultUserOptions['usebetatoolbar'] = 1;
+$wgDefaultUserOptions['usebetatoolbar-cgd'] = 1;
+$wgDefaultUserOptions['wikieditor-preview'] = 1;
+$wgDefaultUserOptions['wikieditor-publish'] = 1;
+$wgDefaultUserOptions['usenavigabletoc'] = 1;
+
+# Enable advanced parser functions
+require_once( "$IP/extensions/ParserFunctions/ParserFunctions.php" );
+$wgPFEnableStringFunctions = true;
