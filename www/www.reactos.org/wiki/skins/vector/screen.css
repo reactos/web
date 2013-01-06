@@ -39,7 +39,7 @@ div#content {
 }
 /* Head */
 #mw-page-base {
-	height: 5em;
+	height: 40px;
 	background-color: white;
 	/* @embed */
 	background-image: url(images/page-fade.png);
@@ -57,7 +57,7 @@ div#content {
 }
 div#mw-head {
 	position: absolute;
-	top: 0;
+	top: 105px;
 	right: 0;
 	width: 100%;
 }
@@ -72,7 +72,7 @@ div.emptyPortlet {
 /* Personal */
 #p-personal {
 	position: absolute;
-	top: 0.33em;
+	top: 17px;
 	right: 0.75em;
 }
 #p-personal h5 {
@@ -448,7 +448,7 @@ div#simpleSearch button#searchButton > img {
 /* Panel */
 div#mw-panel {
 	position: absolute;
-	top: 50px;
+	top: 145px;
 	padding-top: 1em;
 	width: 10em;
 	left: 0;

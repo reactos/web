@@ -68,6 +68,7 @@ class SkinVector extends SkinTemplate {
 	function setupSkinUserCss( OutputPage $out ){
 		parent::setupSkinUserCss( $out );
 		$out->addModuleStyles( 'skins.vector' );
+		$out->addStyle('/sites/all/themes/zen_reactos/css/reactos-style.css', 'screen');
 	}
 
 	/**
@@ -153,9 +154,23 @@ class VectorTemplate extends BaseTemplate {
 		// Output HTML Page
 		$this->html( 'headelement' );
 ?>
+		<!-- reactos-header -->
+		<div id="header">
+			<a href="/">
+				<img id="logo" src="http://new.reactos.org/sites/all/themes/zen_reactos/images/reactos-logo.png" alt="Home" />
+			</a>
+
+			<div id="topMenu">
+				<div id="main-menu">
+					<a href="/phpbbforum">Forum</a> | <a href="http://new.reactos.org/wiki">Wiki</a> | <a href="http://jira.reactos.org">Bugtracker</a> | <a href="/node/30">Contact Us</a>
+				</div>
+			</div>
+			<!-- /#topMenu -->
+		</div>
+		<!-- /reactos-header -->
 		<div id="mw-page-base" class="noprint"></div>
 		<div id="mw-head-base" class="noprint"></div>
-		<!-- content -->
+<!-- content -->
 		<div id="content" class="mw-body">
 			<a id="top"></a>
 			<div id="mw-js-message" style="display:none;"<?php $this->html( 'userlangattributes' ) ?>></div>
