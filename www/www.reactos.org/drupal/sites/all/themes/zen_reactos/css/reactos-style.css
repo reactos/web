@@ -225,6 +225,7 @@ width:100px;
 	background: -o-linear-gradient(top, rgba(227, 237, 255, 1) 0%,rgba(255, 255, 255, 0) 100%);
 	background: -ms-linear-gradient(top, rgba(227, 237, 255, 1) 0%,rgba(255, 255, 255, 0) 100%);
 	background: linear-gradient(to bottom, rgba(227, 237, 255, 1) 0%,rgba(255, 255, 255, 0) 100%);
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#E3EDFF', endColorstr='#ffffff');
 }
 
 .region-sidebar-second .section {
@@ -412,7 +413,9 @@ text-align:center;
 	background-color: #5984c3;
 	background-image: -moz-linear-gradient(top, #6690D0, #5984C3);
 	background-image: -webkit-linear-gradient(top, #6690D0, #5984C3);
+	background-image: -o-linear-gradient(top, #6690D0, #5984C3);
 	background-image: linear-gradient(top, #6690D0, #5984C3);
+	/*filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#6690D0', endColorstr='#5984C3');*/
 }
 #main-menu a {
 	color: #fff;
