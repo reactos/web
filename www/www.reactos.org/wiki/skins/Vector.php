@@ -68,7 +68,6 @@ class SkinVector extends SkinTemplate {
 	function setupSkinUserCss( OutputPage $out ){
 		parent::setupSkinUserCss( $out );
 		$out->addModuleStyles( 'skins.vector' );
-		$out->addStyle('/sites/all/themes/zen_reactos/css/reactos-style.css', 'screen');
 	}
 
 	/**
