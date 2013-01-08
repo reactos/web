@@ -518,6 +518,36 @@ vertical-align:middle;
 	height: 35px;
 }
 
+/* Community page */
+.sprite-blog::before{ background: url('../images/icons_sprite.png') no-repeat top left; background-position: 0 0; width: 48px; height: 48px; content: " "; display: block; float: left; padding-right: 7px; }
+.sprite-chat::before{ background: url('../images/icons_sprite.png') no-repeat top left; background-position: -96px 0; width: 48px; height: 48px; content: " "; display: block; float: left; padding-right: 7px;}
+.sprite-cmd::before{ background: url('../images/icons_sprite.png') no-repeat top left; background-position: -192px 0; width: 48px; height: 48px; content: " "; display: block; float: left; padding-right: 7px;}
+.sprite-dev::before{ background: url('../images/icons_sprite.png') no-repeat top left; background-position: -288px 0; width: 48px; height: 48px; content: " "; display: block; float: left; padding-right: 7px;}
+.sprite-forums::before{ background: url('../images/icons_sprite.png') no-repeat top left; background-position: -384px 0; width: 48px; height: 48px; content: " "; display: block; float: left; padding-right: 7px;}
+.sprite-help::before{ background: url('../images/icons_sprite.png') no-repeat top left; background-position: -480px 0; width: 48px; height: 48px; content: " "; display: block; float: left; padding-right: 7px;}
+.sprite-mail::before{ background: url('../images/icons_sprite.png') no-repeat top left; background-position: -576px 0; width: 48px; height: 48px; content: " "; display: block; float: left; padding-right: 7px;}
+.sprite-news::before{ background: url('../images/icons_sprite.png') no-repeat top left; background-position: -672px 0; width: 48px; height: 48px; content: " "; display: block; float: left; padding-right: 7px;}
+.sprite-person::before{ background: url('../images/icons_sprite.png') no-repeat top left; background-position: -768px 0; width: 48px; height: 48px; content: " "; display: block; float: left; padding-right: 7px;}
+.sprite-translate::before{ background: url('../images/icons_sprite.png') no-repeat top left; background-position: -864px 0; width: 48px; height: 48px; content: " "; display: block; float: left; padding-right: 7px;}
+.sprite-wiki::before{ background: url('../images/icons_sprite.png') no-repeat top left; background-position: -960px 0; width: 48px; height: 48px; content: " "; display: block; float: left; padding-right: 7px;}
+
+ul.community-list {
+	list-style: none;
+	width: 720px;
+	margin: 0px 0px;
+}
+
+ul.community-list li{
+	width: 325px;
+	float: left;
+	margin: 0 15px 15px 0;
+}
+
+ul.community-list li p{
+	margin: 0 0 0 55px;
+}
+
+
 #bsod
 {
 	background: #000099;
