@@ -67,9 +67,9 @@ function GetFilesCallback(HttpRequest)
 		// Page number boxes
 		html += '<td id="pagesbox">';
 		
-		html += '<a href="javacsript:void(0)" onclick="PrevRev();">&lsaquo;&nbsp;<?php echo addslashes($getbuilds_langres["prevrev"]); ?></a>';
+		html += '<a href="javascript:void(0)" onclick="PrevRev();">&lsaquo;&nbsp;<?php echo addslashes($getbuilds_langres["prevrev"]); ?></a>';
 		html += "&nbsp;&nbsp;&nbsp;";
-		html += '<a href="javacsript:void(0)" onclick="NextRev();"><?php echo addslashes($getbuilds_langres["nextrev"]); ?>&nbsp;&rsaquo;</a>';
+		html += '<a href="javascript:void(0)" onclick="NextRev();"><?php echo addslashes($getbuilds_langres["nextrev"]); ?>&nbsp;&rsaquo;</a>';
 		html += '<\/td><\/tr><\/table>';
 
 		// File table
