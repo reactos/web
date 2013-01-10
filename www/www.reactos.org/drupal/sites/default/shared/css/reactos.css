@@ -74,6 +74,7 @@ h2 {
 	background: #5984C3;
 	color: white;
 	text-align: left;
+	padding: 4px;
 }
 
 .datatable tr.odd td,

@@ -4,6 +4,7 @@
   FILE:       web/reactos.org/htdocs/getbuilds/getbuilds.css
   PURPOSE:    Easily download prebuilt ReactOS Revisions
   COPYRIGHT:  Copyright 2007-2009 Colin Finck <mail@colinfinck.de>
+              Copyright 2013 ReactOS Project
 */
 
 a {
@@ -15,7 +16,7 @@ a:hover {
 }
 
 ul.web {
-	list-style-image: url(images/web.gif);
+	list-style-image: url(./images/web.png);
 	margin-top: 0;
 	margin-bottom: 1em;
 }
@@ -69,11 +70,15 @@ ul.web li {
 
 .datatable tr.head th.fname {
 	width: 50%;
+	border-radius: 2px 0 0 0;
 }
 
 .datatable tr.head th.fsize,
 .datatable tr.head th.fdate {
 	width: 25%;
+}
+.datatable tr.head th.fdate{
+	border-radius: 0 2px 0 0;
 }
 
 .datatable tr.odd td a,
@@ -88,3 +93,21 @@ ul.web li {
 	padding: 1px;
 	vertical-align: top;
 }
+
+.round_corners{
+	background-color :#C9DAFF;
+	border: 1px solid #ccc;
+	border-radius: 3px;
+	box-shadow: 0 0 5px #fff inset;
+	margin: 10px;
+	padding: 10px;
+}
+.round_corners_grey{
+	background-color :#eee;
+	border: 2px solid #ccc;
+	border-radius: 3px;
+	margin: 10px;
+	padding: 10px;
+}
+
+
