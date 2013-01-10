@@ -7,22 +7,24 @@
               Copyright 2013 ReactOS Project
 */
 
-a {
-	color: #006090;
-}
- 
-a:hover {
-	color: #000000;
-}
 
 ul.web {
-	list-style-image: url(./images/web.png);
+	list-style-type: none !important;
 	margin-top: 0;
 	margin-bottom: 1em;
 }
 
 ul.web li {
 	vertical-align: top;
+	margin-top: 5px;
+}
+ul.web li:before{
+    background: url("./images/web.png") no-repeat;
+    content: "  ";
+    height: 16px;
+    width: 20px;
+    display:block;
+    float:left;
 }
 
 #js_stuff {
@@ -83,7 +85,7 @@ ul.web li {
 
 .datatable tr.odd td a,
 .datatable tr.even td a {
-	color: black;
+	color: #000000 !important;
 	display: block;
 	text-decoration: none;
 }
@@ -110,4 +112,10 @@ ul.web li {
 	padding: 10px;
 }
 
-
+#showrev tr{
+	border: 1px dotted #808080;
+}
+#showrev td
+{
+	padding:10px;
+}

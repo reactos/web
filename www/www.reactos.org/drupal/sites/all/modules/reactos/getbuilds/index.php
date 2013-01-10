@@ -10,7 +10,7 @@
 	require_once(GB_PATH . "config.inc.php");
 	require_once(GB_PATH . "languages.inc.php");
 	global $lang;
-    $lang = get_language();
+	$lang = get_language();
 	require_once(SHARED_PATH . "lang/$lang.inc.php");
 	require_once(GB_PATH . "lang/$lang.inc.php");
 
@@ -27,7 +27,7 @@
 	<script type="text/javascript" src="/sites/default/shared/js/ajax.js"></script>
 	<script type="text/javascript">
 		<?php require_once(GB_PATH . "getbuilds.js.php"); ?>
-		$(document).ready(function () {
+		jQuery(document).ready(function () {
 			Load();
 		});
 	</script>

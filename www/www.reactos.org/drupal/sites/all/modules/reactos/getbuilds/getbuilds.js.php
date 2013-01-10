@@ -67,46 +67,9 @@ function GetFilesCallback(HttpRequest)
 		// Page number boxes
 		html += '<td id="pagesbox">';
 		
-		if(CurrentPage == 1)
-		{
-			html += '&laquo; ';
-			html += '&lsaquo; <?php echo addslashes($shared_langres["prevpage"]); ?> ';
-		}
-		else
-		{
-			html += '<a href="javascript:FirstPage()" title="<?php echo addslashes($shared_langres["firstpage_title"]); ?>">&laquo;<\/a> ';
-			html += '<a href="javascript:PrevPage()" title="<?php echo addslashes($shared_langres["prevpage_title"]); ?>">&lsaquo; <?php echo addslashes($shared_langres["prevpage"]); ?><\/a> ';
-		}
-		
-		html += '<select id="pagesel" size="1" onchange="PageboxChange(this)">';
-		
-		if(data["requesttype"] == REQUESTTYPE_FULLLOAD)
-		{
-			PageCount = 1;
-			
-			html += '<option value="' + CurrentPage + '-' + data["startrev"] + '"><?php echo addslashes($shared_langres["page"]); ?> ' + CurrentPage;
-			
-			if(HttpRequest.responseXML.getElementsByTagName("filecount")[0].firstChild.data > 0)
-				html += ' - ' + HttpRequest.responseXML.getElementsByTagName("firstrev")[0].firstChild.data + ' ... ' + HttpRequest.responseXML.getElementsByTagName("lastrev")[0].firstChild.data + '<\/option>';
-		}
-		else
-		{
-			html += document.getElementById("pagesel").innerHTML;
-		}
-		
-		html += '<\/select> ';
-		
-		if(HttpRequest.responseXML.getElementsByTagName("morefiles")[0].firstChild.data == 0)
-		{
-			html += '<?php echo addslashes($shared_langres["nextpage"]); ?> &rsaquo; ';
-			html += '&raquo;';
-		}
-		else
-		{
-			html += '<a href="javascript:NextPage()" title="<?php echo addslashes($shared_langres["nextpage_title"]); ?>"><?php echo addslashes($shared_langres["nextpage"]); ?> &rsaquo;<\/a> ';
-			html += '<a href="javascript:LastPage()" title="<?php echo addslashes($shared_langres["lastpage_title"]); ?>">&raquo;<\/a>';
-		}
-		
+		html += '<a href="javacsript:void(0)" onclick="PrevRev();">&lsaquo;&nbsp;<?php echo addslashes($getbuilds_langres["prevrev"]); ?></a>';
+		html += "&nbsp;&nbsp;&nbsp;";
+		html += '<a href="javacsript:void(0)" onclick="NextRev();"><?php echo addslashes($getbuilds_langres["nextrev"]); ?>&nbsp;&rsaquo;</a>';
 		html += '<\/td><\/tr><\/table>';
 
 		// File table
