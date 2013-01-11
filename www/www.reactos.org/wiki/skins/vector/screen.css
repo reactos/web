@@ -36,6 +36,7 @@ div#content {
 	background-color: white;
 	color: black;
 	direction: ltr;
+	box-shadow: 0 0 5px #ccc
 }
 /* Head */
 #mw-page-base {
@@ -900,7 +901,7 @@ body.vector-animateLayout #mw-head-base {
 }
 /* Copied from reactos-style.css */
 #header {
-	background-image: url('../images/topgradient.png');
+	background-image: url('../sites/all/themes/zen_reactos/images/topgradient.png');
 	background-repeat: repeat-x;
 	height: 145px;
 }
