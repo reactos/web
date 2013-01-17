@@ -21,7 +21,6 @@
 	?>
 	<link rel="stylesheet" type="text/css" href="/sites/default/shared/css/reactos.css">
 	<link rel="stylesheet" type="text/css" href="/sites/all/modules/reactos/testman/css/index.css">
-	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
 	<script type="text/javascript">
 		document.write('<style type="text/css">');
 		document.write('#js_stuff {display: block;}');
@@ -31,41 +30,27 @@
 	<script type="text/javascript" src="/sites/all/modules/reactos/testman/js/shared.js"></script>
 	<script type="text/javascript">
 		<?php require_once(TM_PATH . "js/index.js.php"); ?>
-		$(document).ready(function () {
+		jQuery(document).ready(function () {
 			Load();
+			jQuery("#javascript_disclaimer").hide();
+			//first hide, then fadeIn
+			jQuery("#js_stuff").hide();
+			jQuery("#js_stuff").fadeIn(500);
 		});
 	</script>
-<h1><?php echo $testman_langres["index_header"]; ?></h1>
 <h2><?php echo $testman_langres["index_title"]; ?></h2>
 
 <p><?php echo $testman_langres["index_intro"]; ?></p>
 
-<noscript>
-	<div class="bubble_bg">
-		<div class="rounded_ll">
-		<div class="rounded_lr">
-		<div class="rounded_ul">
-		<div class="rounded_ur">
-		
-		<div class="bubble">
-			<b><?php echo $testman_langres["js_disclaimer"]; ?></b>
-		</div>
-		
-		</div>
-		</div>
-		</div>
-		</div>
-	</div>
-</noscript>
 
-<div id="js_stuff">
-	<div class="bubble_bg">
-		<div class="rounded_ll">
-		<div class="rounded_lr">
-		<div class="rounded_ul">
-		<div class="rounded_ur">
+<div id="javascript_disclaimer" style="border: 2px solid #FF0000; padding 2px;">
+		<b><?php echo $testman_langres["js_disclaimer"]; ?></b>
+</div>
+
+
+<div id="js_stuff" style="display:none">
+	<div class="round_corners">
 		
-		<div class="bubble">
 			<h1><?php echo $testman_langres["search_header"]; ?></h1>
 			
 			<table id="searchform">
@@ -113,12 +98,6 @@
 			<div id="searchtable">
 				<!-- Filled by the JavaScript -->
 			</div>
-		</div>
-		
-		</div>
-		</div>
-		</div>
-		</div>
 	</div><br />
 	
 	<iframe id="comparepage_frame" frameborder="0" onload="ResizeIFrame()" scrolling="yes"></iframe>

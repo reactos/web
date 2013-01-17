@@ -13,10 +13,6 @@ button {
 	cursor: pointer;
 }
 
-#js_stuff {
-	/* Will be shown by the JavaScript */
-	display: none;
-}
 
 #mainbox_td, #rightbox_td {
 	vertical-align: top;
@@ -76,4 +72,12 @@ th.TestCheckbox {
 #comparepage_frame {
 	display: none;
 	width: 100%;
+}
+.round_corners{
+	background-color :#C9DAFF;
+	border: 1px solid #ccc;
+	border-radius: 3px;
+	box-shadow: 0 0 5px #fff inset;
+	margin: 10px;
+	padding: 10px;
 }
