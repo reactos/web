@@ -26,7 +26,9 @@ padding: 0;
 	padding:0 3px;
 	line-height:normal;
 }
-
+.block /* Block wrapper */ {
+  margin-bottom: 1.5em;
+}
 #block-system-main-menu ul.menu li:first-child {
 	border-left:none;
 }
@@ -70,7 +72,7 @@ height:auto;
 .main-news{
 }
 .main-news:first-child{
-margin-left:none;
+margin-left:0;
 }
 #block-views-frontpage-block_1{
 width:100%;
@@ -214,6 +216,7 @@ width:100px;
 .content p {
 	line-height: 21px;
 	text-align: justify;
+	padding-right: 20px;
 }
 
 .region-sidebar-second {
@@ -431,9 +434,18 @@ text-align:center;
 }
 
 #content .section {
-	padding-left: 0px !important;
+	padding-left: 10px !important;
 	padding-right: 0px !important;
+	border: 0;
+	border-left: 1px dotted #ccc;
+	
 }
+
+.submitted {
+    color: #AAAAAA;
+    margin: 5px 5px 5px 2px;
+}
+
 #main-links-right img{
 vertical-align:middle;
 margin-right:5px;
@@ -519,17 +531,17 @@ vertical-align:middle;
 }
 
 /* Community page */
-.sprite-blog::before{ background: url('../images/icons_sprite.png') no-repeat top left; background-position: 0 0; width: 48px; height: 48px; content: " "; display: block; float: left; padding-right: 7px; }
-.sprite-chat::before{ background: url('../images/icons_sprite.png') no-repeat top left; background-position: -96px 0; width: 48px; height: 48px; content: " "; display: block; float: left; padding-right: 7px;}
-.sprite-cmd::before{ background: url('../images/icons_sprite.png') no-repeat top left; background-position: -192px 0; width: 48px; height: 48px; content: " "; display: block; float: left; padding-right: 7px;}
-.sprite-dev::before{ background: url('../images/icons_sprite.png') no-repeat top left; background-position: -288px 0; width: 48px; height: 48px; content: " "; display: block; float: left; padding-right: 7px;}
-.sprite-forums::before{ background: url('../images/icons_sprite.png') no-repeat top left; background-position: -384px 0; width: 48px; height: 48px; content: " "; display: block; float: left; padding-right: 7px;}
-.sprite-help::before{ background: url('../images/icons_sprite.png') no-repeat top left; background-position: -480px 0; width: 48px; height: 48px; content: " "; display: block; float: left; padding-right: 7px;}
-.sprite-mail::before{ background: url('../images/icons_sprite.png') no-repeat top left; background-position: -576px 0; width: 48px; height: 48px; content: " "; display: block; float: left; padding-right: 7px;}
-.sprite-news::before{ background: url('../images/icons_sprite.png') no-repeat top left; background-position: -672px 0; width: 48px; height: 48px; content: " "; display: block; float: left; padding-right: 7px;}
-.sprite-person::before{ background: url('../images/icons_sprite.png') no-repeat top left; background-position: -768px 0; width: 48px; height: 48px; content: " "; display: block; float: left; padding-right: 7px;}
-.sprite-translate::before{ background: url('../images/icons_sprite.png') no-repeat top left; background-position: -864px 0; width: 48px; height: 48px; content: " "; display: block; float: left; padding-right: 7px;}
-.sprite-wiki::before{ background: url('../images/icons_sprite.png') no-repeat top left; background-position: -960px 0; width: 48px; height: 48px; content: " "; display: block; float: left; padding-right: 7px;}
+.sprite-blog:before{ background: url('../images/icons_sprite.png') no-repeat top left; background-position: 0 0; width: 48px; height: 48px; content: " "; display: block; float: left; padding-right: 7px; }
+.sprite-chat:before{ background: url('../images/icons_sprite.png') no-repeat top left; background-position: -96px 0; width: 48px; height: 48px; content: " "; display: block; float: left; padding-right: 7px;}
+.sprite-cmd:before{ background: url('../images/icons_sprite.png') no-repeat top left; background-position: -192px 0; width: 48px; height: 48px; content: " "; display: block; float: left; padding-right: 7px;}
+.sprite-dev:before{ background: url('../images/icons_sprite.png') no-repeat top left; background-position: -288px 0; width: 48px; height: 48px; content: " "; display: block; float: left; padding-right: 7px;}
+.sprite-forums:before{ background: url('../images/icons_sprite.png') no-repeat top left; background-position: -384px 0; width: 48px; height: 48px; content: " "; display: block; float: left; padding-right: 7px;}
+.sprite-help:before{ background: url('../images/icons_sprite.png') no-repeat top left; background-position: -480px 0; width: 48px; height: 48px; content: " "; display: block; float: left; padding-right: 7px;}
+.sprite-mail:before{ background: url('../images/icons_sprite.png') no-repeat top left; background-position: -576px 0; width: 48px; height: 48px; content: " "; display: block; float: left; padding-right: 7px;}
+.sprite-news:before{ background: url('../images/icons_sprite.png') no-repeat top left; background-position: -672px 0; width: 48px; height: 48px; content: " "; display: block; float: left; padding-right: 7px;}
+.sprite-person:before{ background: url('../images/icons_sprite.png') no-repeat top left; background-position: -768px 0; width: 48px; height: 48px; content: " "; display: block; float: left; padding-right: 7px;}
+.sprite-translate:before{ background: url('../images/icons_sprite.png') no-repeat top left; background-position: -864px 0; width: 48px; height: 48px; content: " "; display: block; float: left; padding-right: 7px;}
+.sprite-wiki:before{ background: url('../images/icons_sprite.png') no-repeat top left; background-position: -960px 0; width: 48px; height: 48px; content: " "; display: block; float: left; padding-right: 7px;}
 
 ul.community-list {
 	list-style: none;
