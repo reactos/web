@@ -101,14 +101,13 @@ ul.web li:before{
 	border: 1px solid #ccc;
 	border-radius: 3px;
 	box-shadow: 0 0 5px #fff inset;
-	margin: 10px;
 	padding: 10px;
 }
 .round_corners_grey{
 	background-color :#eee;
 	border: 2px solid #ccc;
 	border-radius: 3px;
-	margin: 10px;
+	margin: 0 0 10px 0;
 	padding: 10px;
 }
 
