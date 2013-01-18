@@ -59,6 +59,16 @@
  * @see template_process()
  */
 ?>
+<!-- fb { -->
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+<!-- } fb -->
 
 <div id="page-wrapper"><div id="page">
 
@@ -92,14 +102,14 @@
   </div><!-- /#header -->
 
   <!-- main area -->
-  <div id="main-wrapper" class="wfcyan dtable"><div id="main" class="wfpink dtrow">
+  <div id="main-wrapper" class="dtable"><div id="main" class="dtrow">
 
     <!-- left sidebar -->
-    <div class="wfred dtcell dtcell-vtop">
+    <div class="dtcell dtcell-vtop">
       <?php print render($page['sidebar_first']); ?>
     </div>
 
-    <div id="content" class="column wfgreen dtcell dtcell-vtop"><div class="section">
+    <div id="content" class="column dtcell dtcell-vtop"><div class="section">
       <?php print render($page['highlighted']); ?>
       <?php print $breadcrumb; ?>
       <a id="main-content"></a>
@@ -122,7 +132,7 @@
 
     <?php if ($is_front): ?>
       <!-- right sidebar -->
-      <div class="wfblue dtcell dtcell-vtop">
+      <div class="dtcell dtcell-vtop">
         <?php print render($page['sidebar_second']); ?>
       </div>
     <?php endif; ?>
