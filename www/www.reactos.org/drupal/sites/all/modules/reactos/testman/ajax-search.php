@@ -43,7 +43,7 @@
 	// Prepare some clauses
 	$tables = "FROM winetest_runs r JOIN sources src ON r.source_id = src.id ";
 	
-	if($_GET["desc"])
+	if(isset($_GET["desc"]))
 		$order = "ORDER BY revision DESC, r.id DESC ";
 	else
 		$order = "ORDER BY revision ASC, r.id ASC ";
@@ -81,7 +81,7 @@
 
 	if($result_count)
 	{
-		if($_GET["resultlist"])
+		if(isset($_GET["resultlist"]))
 		{
 			$stmt = $dbh->query(
 				"SELECT r.id, UNIX_TIMESTAMP(r.timestamp) timestamp, src.name, r.revision, r.platform, r.comment, r.count, r.failures " .
