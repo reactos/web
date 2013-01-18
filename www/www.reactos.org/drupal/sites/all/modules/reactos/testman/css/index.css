@@ -48,6 +48,10 @@ th.TestCheckbox {
 	vertical-align: top;
 }
 
+.controlgroup label {
+	display: inline;
+}
+
 #ajax_loading_search {
 	visibility: hidden;
 }
