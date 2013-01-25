@@ -40,8 +40,8 @@ $wgLogo             = "$wgStylePath/common/images/wiki.png";
 $wgEnableEmail      = false;
 $wgEnableUserEmail  = true; # UPO
 
-$wgEmergencyContact = "ros-web@playground.reactos.org";
-$wgPasswordSender   = "ros-web@playground.reactos.org";
+$wgEmergencyContact = "ros-web@reactos.org";
+$wgPasswordSender   = "ros-web@reactos.org";
 
 $wgEnotifUserTalk      = false; # UPO
 $wgEnotifWatchlist     = false; # UPO
@@ -133,6 +133,7 @@ $wgResourceLoaderMaxQueryLength = -1;
 
 # End of automatically generated settings.
 # Add more configuration options below.
+$wgUsePathInfo = true;
 
 # Enable external image embedding
 $wgAllowExternalImages = true;
