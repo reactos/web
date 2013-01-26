@@ -73,8 +73,8 @@ $GLOBALS['wgAuthDrupal_wiki_settings'] = array (
 
 		// settings for wiki 1  (i.e. copy values from wiki1/LocalSettings.php)
 		array(
-			'wgCookieDomain' 	=> '',
-			'wgDBname' 			=> '',
+			'wgCookieDomain' 	=> $wgCookieDomain,
+			'wgDBname' 		=> 'drupal',
 			'wgDBprefix' 		=> '',
 
 			// **IF** you set wgCookiePath in wiki/LocalSettings, set it to
