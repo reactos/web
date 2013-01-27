@@ -34,21 +34,21 @@ base theme  = zen
 ; http://drupal.org/node/263967 for more details.
 
 stylesheets[all][]        = css/html-reset.css
-;stylesheets[all][]        = css/wireframes.css
 stylesheets[all][]        = css/layout-liquid.css
-;stylesheets[all][]        = css/page-backgrounds.css
-;stylesheets[all][]        = css/tabs.css
+stylesheets[all][]        = css/tabs.css
 stylesheets[all][]        = css/pages.css
-;stylesheets[all][]        = css/blocks.css
-stylesheets[all][]        = css/navigation.css
-;stylesheets[all][]        = css/views-styles.css
 stylesheets[all][]        = css/nodes.css
-stylesheets[all][]        = css/comments.css
 stylesheets[all][]        = css/forms.css
-stylesheets[all][]        = css/fields.css
 stylesheets[all][]        = css/reactos-style.css
 stylesheets[all][]        = css/system.menus.css
 stylesheets[print][]      = css/print.css
+;stylesheets[all][]        = css/wireframes.css
+;stylesheets[all][]        = css/page-backgrounds.css
+;stylesheets[all][]        = css/blocks.css
+;stylesheets[all][]        = css/navigation.css
+;stylesheets[all][]        = css/views-styles.css
+;stylesheets[all][]        = css/comments.css
+;stylesheets[all][]        = css/fields.css
 
 ; Example of adding handheld stylesheets. The iPhone's preferred media type
 ; is based on the CSS3 Media queries. http://www.w3.org/TR/css3-mediaqueries/
