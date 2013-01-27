@@ -41,6 +41,7 @@ div#content {
 	background-image: url(images/page-fade.png);
 	background-position: bottom left;
 	background-repeat: repeat-x;
+	margin-left: 11em;
 }
 #mw-head-base {
 	margin-top: -5em;
