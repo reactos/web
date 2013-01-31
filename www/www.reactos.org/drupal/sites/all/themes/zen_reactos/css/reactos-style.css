@@ -139,11 +139,6 @@ width:100px;
 	background: -o-linear-gradient(top,#A2E274 0%,#84DD40 100%);
 	background: -ms-linear-gradient(top,#A2E274 0%,#84DD40 100%);
 	background: linear-gradient(to bottom,#A2E274 0%,#84DD40 100%);
-	-webkit-transition: background 500ms linear;
-	-moz-transition: background 500ms linear;
-	-ms-transition: background 500ms linear;
-	-o-transition: background 500ms linear;
-	transition: background 500ms linear;
 }
 
 #greenButtons a:hover {
@@ -252,6 +247,7 @@ width:100px;
   font-size:14px;
   padding:2px 4px 2px 12px;
   border-radius: 2px;
+  box-shadow: 1px 1px 1px #bbb;
 }
 
 div#sidebar-second, div#sidebar-first { width:20%; }
@@ -471,6 +467,68 @@ vertical-align:top;
 }
 .vmiddle {
 vertical-align:middle;
+}
+
+input[type=text],input[type=password]{
+color: #333;
+border: 1px solid #ccc;
+border-radius: 2px;
+line-height: 20px;
+height: 19px;
+box-shadow: 0 0 2px #eee inset;
+-webkit-transition: height 500ms ease;
+-moz-transition: height 300ms ease;
+transition: height 300ms ease; 
+}
+input[type=text]:focus,input[type=password]:focus{
+border: 1px solid #5984C3;
+height: 22px;
+}
+#edit-name, #edit-pass{
+width: 135px;
+margin-left: 3px;
+}
+#block-user-login{
+background-color: #f8f8f8;
+border: 0;
+border-bottom: 1px solid #ccc;
+border-right: 1px solid #eee;
+border-left: 1px solid #eee;
+margin-top: 0 !important;
+border-radius: 2px 2px 0 0;
+}
+#block-user-login ul{
+list-style-type: none;
+}
+#block-user-login li a{
+font-size: 10px !important;
+}
+#block-user-login li{
+margin-left: -12px !important;
+}
+#block-user-login label{
+margin-left: 3px
+}
+#block-user-login input[type=submit]{
+width: 135px;
+margin-left: 3px;
+}
+#block-locale-language a{
+text-decoration:none;
+}
+#block-locale-language a.active{
+font-weight: bold;
+}
+#block-locale-language{
+border-bottom: 1px solid #ccc;
+}
+#block-views-random-screenshot-block a{
+color: #808080 !important;
+}
+#block-views-random-screenshot-block .content{
+box-shadow: 0 0 2px #bbb;
+padding: 2px;
+padding-top: 10px;
 }
 
 /* logo cloud */
