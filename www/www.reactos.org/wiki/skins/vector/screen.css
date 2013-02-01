@@ -925,7 +925,7 @@ body.vector-animateLayout #mw-head-base {
 	background-image: -moz-linear-gradient(top, #6690D0, #5984C3);
 	background-image: -webkit-linear-gradient(top, #6690D0, #5984C3);
 	background-image: linear-gradient(top, #6690D0, #5984C3);
-	line-height: 15px;
+	line-height: 16px;
 }
 #main-menu a {
 	color: #fff;
