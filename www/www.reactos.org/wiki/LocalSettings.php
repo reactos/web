@@ -67,7 +67,12 @@ $wgMemCachedServers = array();
 
 ## To enable image uploads, make sure the 'images' directory
 ## is writable, then set this to true:
-$wgEnableUploads  = false;
+$wgEnableUploads  = true;
+$wgGroupPermissions['*']['upload'] = false;
+$wgGroupPermissions['user']['upload'] = true;
+$wgGroupPermissions['*']['reupload'] = false;
+
+$wgFileExtensions = array('png','gif','jpg','jpeg','doc','xls','pdf','ppt','tiff','bmp','docx', 'xlsx', 'pptx','odt', 'ogg', 'mp3');
 #$wgUseImageMagick = true;
 #$wgImageMagickConvertCommand = "/usr/bin/convert";
 
@@ -113,7 +118,7 @@ $wgDefaultSkin = "vector";
 #$wgEnableCreativeCommonsRdf = true;
 $wgRightsPage = ""; # Set to the title of a wiki page that describes your license/copyright
 $wgRightsUrl  = "http://www.gnu.org/copyleft/fdl.html";
-$wgRightsText = "GNU Free Documentation License 1.2";
+$wgRightsText = "GNU Free Documentation License 1.3";
 $wgRightsIcon = "${wgStylePath}/common/images/gnu-fdl.png";
 # $wgRightsCode = ""; # Not yet used
 
@@ -122,7 +127,8 @@ $wgDiff3 = "/usr/bin/diff3";
 
 # The following permissions were set based on your choice in the installer
 $wgGroupPermissions['*']['edit'] = false;
-
+$wgGroupPermissions['*']['createpage'] = false;
+$wgGroupPermissions['*']['createtalk'] = false;
 
 # Query string length limit for ResourceLoader. You should only set this if
 # your web server has a query string length limit (then set it to that limit),
