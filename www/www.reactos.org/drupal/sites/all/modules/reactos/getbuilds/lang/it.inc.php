@@ -36,7 +36,7 @@
 	$getbuilds_langres["filesize"] = "Dimensioni";
 	$getbuilds_langres["filedate"] = "Modificato";
 	
-	$getbuilds_langres["nofiles"] 	 = "Non ci sono files precompilati per la revisione %s!";
+	$getbuilds_langres["nofiles"] 	 = "Non ci sono files precompilati per la revisione %s! The latest available files are for revision " . $rev;
 	$getbuilds_langres["invalidrev"] = "Numero di revisione invalido!";
 	
 	$getbuilds_langres["rangelimitexceeded"] = "Il range delle revisioni può comprendere un massimo di %s revisioni!";

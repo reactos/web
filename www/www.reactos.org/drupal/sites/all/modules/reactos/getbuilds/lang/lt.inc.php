@@ -36,7 +36,7 @@
 	$getbuilds_langres["filesize"] = "Dydis";
 	$getbuilds_langres["filedate"] = "Data";
 	
-	$getbuilds_langres["nofiles"] 	 = "Laidai %s bylų nerasta!";
+	$getbuilds_langres["nofiles"] 	 = "Laidai %s bylų nerasta! The latest available files are for revision " . $rev;
 	$getbuilds_langres["invalidrev"] = "Neteisingas laidos numeris!";
 	
 	$getbuilds_langres["rangelimitexceeded"] = "Laidų skaičius negali viršyti %s!";

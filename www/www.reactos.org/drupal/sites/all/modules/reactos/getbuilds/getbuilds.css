@@ -45,10 +45,6 @@ ul.web li:before{
 	vertical-align: middle;
 }
 
-#controlbox input {
-	font-weight: bold;
-}
-
 #ajax_loading {
 	font-weight: bold;
 	margin-left: 20px;

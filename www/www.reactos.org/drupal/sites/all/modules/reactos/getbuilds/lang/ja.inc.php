@@ -37,7 +37,7 @@
 	$getbuilds_langres["filesize"] = "サイズ";
 	$getbuilds_langres["filedate"] = "変更日時";
 	
-	$getbuilds_langres["nofiles"] 	 = "リビジョン %sのあらかじめビルドされたファイルはありません!";
+	$getbuilds_langres["nofiles"] 	 = "リビジョン %sのあらかじめビルドされたファイルはありません! The latest available files are for revision " . $rev;
 	$getbuilds_langres["invalidrev"] = "無効なリビジョン番号です!";
 	
 	$getbuilds_langres["rangelimitexceeded"] = "リビジョン範囲は最大で%sリビジョンのみ含めます!";

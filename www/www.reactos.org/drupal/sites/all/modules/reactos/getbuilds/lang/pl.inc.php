@@ -37,7 +37,7 @@
 	$getbuilds_langres["filesize"] = "Rozmiar";
 	$getbuilds_langres["filedate"] = "Ostatnio modyfikowany";
 	
-	$getbuilds_langres["nofiles"] 	 = "Brak skompilowanych plików dla wersji %s!";
+	$getbuilds_langres["nofiles"] 	 = "Brak skompilowanych plików dla wersji %s! The latest available files are for revision " . $rev;
 	$getbuilds_langres["invalidrev"] = "Błędny numer wersji!";
 	
 	$getbuilds_langres["rangelimitexceeded"] = "Przedział może zawierać maksymalnie %s wersji!";

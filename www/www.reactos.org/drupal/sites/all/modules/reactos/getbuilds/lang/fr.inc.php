@@ -36,7 +36,7 @@
 	$getbuilds_langres["filesize"] = "Taille";
 	$getbuilds_langres["filedate"] = "Derniers changements";
 	
-	$getbuilds_langres["nofiles"] 	 = "Il n'y a pas de fichiers disponibles pour la révision %s !";
+	$getbuilds_langres["nofiles"] 	 = "Il n'y a pas de fichiers disponibles pour la révision %s ! Les derniers fichiers sont pour la révision  " . $rev;
 	$getbuilds_langres["invalidrev"] = "Numéro de révision invalide !";
 	
 	$getbuilds_langres["rangelimitexceeded"] = "L'intervalle de révisions ne peut contenir qu'un maximum de %s révisions !";

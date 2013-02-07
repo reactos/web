@@ -8,13 +8,12 @@
 */
 	define("GB_PATH", "./sites/all/modules/reactos/getbuilds/");
 	require_once(GB_PATH . "config.inc.php");
+	$rev = reactos_GetLatestRevision();
 	require_once(GB_PATH . "languages.inc.php");
 	global $lang;
 	$lang = get_language();
 	require_once(SHARED_PATH . "lang/$lang.inc.php");
 	require_once(GB_PATH . "lang/$lang.inc.php");
-
-	$rev = reactos_GetLatestRevision();
 	$_subsys_title = $getbuilds_langres['title'];
 	?>
 	<link rel="stylesheet" type="text/css" href="/sites/default/shared/css/reactos.css" />
@@ -59,34 +58,25 @@
 		</noscript>
 
 		<div id="js_stuff">
-			<table id="showrev" cellspacing="0" cellpadding="5">
-				<tr>
-					<td><?php echo $getbuilds_langres["showrevfiles"]; ?>: </td>
-					<td>
-						<span id="revcontrols">
-							<img src="/sites/all/modules/reactos/getbuilds/images/left.png" alt="&lt;" title="<?php echo $getbuilds_langres["prevrev"]; ?>" onclick="PrevRev();" /> 
-							<input type="text" id="revnum" value="<?php echo $rev; ?>" size="12" onkeyup="CheckRevNum(this);" /> 
-							<img src="/sites/all/modules/reactos/getbuilds/images/right.png" alt="&gt;" title="<?php echo $getbuilds_langres["nextrev"]; ?>" onclick="NextRev();" />
-                            <br/>
-						</span>
-						
-						<img src="/sites/default/shared/images/info.gif" alt="" /> <?php printf($shared_langres["rangeinfo"], $rev, ($rev - 50), $rev); ?>
-					</td>
-				</tr>
-				<tr>
-					<td><?php echo $getbuilds_langres["isotype"]; ?>: </td>
-					<td>
-						<input type="checkbox" id="bootcd-dbg" checked="checked" /> Debug Boot CDs 
-						<input type="checkbox" id="livecd-dbg" checked="checked" /> Debug Live CDs 
-						<input type="checkbox" id="bootcd-rel" checked="checked" /> Release Boot CDs 
+			<fieldset style="border: 1px solid #808080">
+                <legend><?php echo $getbuilds_langres["showrevfiles"]; ?>:</legend>
+				<span id="revcontrols">
+					<img src="/sites/all/modules/reactos/getbuilds/images/left.png" alt="&lt;" title="<?php echo $getbuilds_langres["prevrev"]; ?>" onclick="PrevRev();" /> 
+					<input type="text" id="revnum" value="<?php echo $rev; ?>" size="12" onkeyup="CheckRevNum(this);" /> 
+					<img src="/sites/all/modules/reactos/getbuilds/images/right.png" alt="&gt;" title="<?php echo $getbuilds_langres["nextrev"]; ?>" onclick="NextRev();" />
+                    <br/>
+				</span>
+				<img src="/sites/default/shared/images/info.gif" alt="" /> <?php printf($shared_langres["rangeinfo"], $rev, ($rev - 50), $rev); ?>
+            </fieldset>
+	        <fieldset style="border: 1px solid #808080">
+            <legend><?php echo $getbuilds_langres["isotype"]; ?></legend>
+             			<input type="checkbox" id="bootcd-dbg" checked="checked" /> Debug Boot CDs
+						<input type="checkbox" id="livecd-dbg" checked="checked" /> Debug Live CDs
+						<input type="checkbox" id="bootcd-rel" checked="checked" /> Release Boot CDs
 						<input type="checkbox" id="livecd-rel" checked="checked" /> Release Live CDs
-					</td>
-				</tr>
-			</table>
-	
+						<input type="button" onclick="ShowRev();" value="<?php echo $getbuilds_langres["showrev"]; ?>"  style="margin-left: 20px; font-weight:bold;"/>
+            </fieldset>
 			<div id="controlbox">
-				<input type="button" onclick="ShowRev();" value="<?php echo $getbuilds_langres["showrev"]; ?>" />
-				
 				<span id="ajax_loading">
 					<img src="/sites/default/shared/images/ajax_loading.gif" alt="" /> <?php echo $getbuilds_langres["gettinglist"]; ?>...
 				</span>

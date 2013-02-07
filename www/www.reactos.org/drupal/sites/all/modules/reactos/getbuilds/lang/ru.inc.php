@@ -36,7 +36,7 @@
 	$getbuilds_langres["filesize"] = "Размер";
 	$getbuilds_langres["filedate"] = "Последнее изменение";
 	
-	$getbuilds_langres["nofiles"] 	 = "Собранных файлов для ревизии %s не существует!";
+	$getbuilds_langres["nofiles"] 	 = "Собранных файлов для ревизии %s не существует! The latest available files are for revision " . $rev;
 	$getbuilds_langres["invalidrev"] = "Неправильный номер ревизии!";
 	
 	$getbuilds_langres["rangelimitexceeded"] = "Диапазон номеров ревизий не должен превышать %s!";
