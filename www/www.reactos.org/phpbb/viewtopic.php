@@ -627,7 +627,7 @@ if (!empty($_EXTRA_URL))
 	foreach ($_EXTRA_URL as $url_param)
 	{
 		$url_param = explode('=', $url_param, 2);
-		$s_hidden_fields[$url_param[0]] = $url_param[1];
+		$s_search_hidden_fields[$url_param[0]] = $url_param[1];
 	}
 }
 
@@ -1245,7 +1245,7 @@ if ($config['load_cpf_viewtopic'])
 	{
 	//VB
 	if (!defined('PHPBB_API_EMBEDDED'))
-	{
+{
 	if (!class_exists('custom_profile'))
 	{
 		include($phpbb_root_path . 'includes/functions_profile_fields.' . $phpEx);
