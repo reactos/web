@@ -161,7 +161,7 @@ class VectorTemplate extends BaseTemplate {
 
 			<div id="topMenu">
 				<div id="main-menu">
-					<a href="/forum">Forum</a> | <a href="/wiki">Wiki</a> | <a href="http://jira.reactos.org">Bugtracker</a> | <a href="/node/30">Contact Us</a>
+					<a href="/forum">Forum</a> | <a href="/wiki">Wiki</a> | <a href="http://jira.reactos.org">Bugtracker</a> | <a href="/node/127">Contact</a>
 				</div>
 			</div>
 			<!-- /#topMenu -->
