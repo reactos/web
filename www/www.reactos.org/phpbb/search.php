@@ -565,13 +565,6 @@ if ($keywords || $author || $author_id || $search_id || $submit)
 		}
 		else
 		{
-		//VB
-		if (defined('PHPBB_API_EMBEDDED'))
-		{
-		include_once($phpbb_root_path . 'includes/functions_posting.' . $phpEx);
-		}
-		else
-		{
 		include($phpbb_root_path . 'includes/functions_posting.' . $phpEx);
 		}
 		//\VB
@@ -583,21 +576,10 @@ if ($keywords || $author || $author_id || $search_id || $submit)
 		{
 		include_once($phpbb_root_path . 'includes/functions_display.' . $phpEx);
 		}
-		//\VB
-	}
-	else
-	{
-		//VB
-		if (defined('PHPBB_API_EMBEDDED'))
+		else
 		{
-		include_once($phpbb_root_path . 'includes/functions_display.' . $phpEx);
-		}
-	else
-	{
 		include($phpbb_root_path . 'includes/functions_display.' . $phpEx);
 		}
-		//\VB
-	}
 		//\VB
 	}
 
