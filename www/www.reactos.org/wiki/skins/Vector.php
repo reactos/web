@@ -156,12 +156,12 @@ class VectorTemplate extends BaseTemplate {
 		<!-- reactos-header -->
 		<div id="header">
 			<a href="/">
-				<img id="logo" src="http://new.reactos.org/sites/all/themes/zen_reactos/images/reactos-logo.png" alt="Home" />
+				<img id="logo" src="http://www.reactos.org/sites/all/themes/zen_reactos/images/reactos-logo.png" alt="Home" />
 			</a>
 
 			<div id="topMenu">
 				<div id="main-menu">
-					<a href="/phpbbforum">Forum</a> | <a href="http://new.reactos.org/wiki">Wiki</a> | <a href="http://jira.reactos.org">Bugtracker</a> | <a href="/node/30">Contact Us</a>
+					<a href="/forum">Forum</a> | <a href="/wiki">Wiki</a> | <a href="http://jira.reactos.org">Bugtracker</a> | <a href="/node/30">Contact Us</a>
 				</div>
 			</div>
 			<!-- /#topMenu -->
