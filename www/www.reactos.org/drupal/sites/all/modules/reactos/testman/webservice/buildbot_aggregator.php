@@ -7,7 +7,7 @@
 */
 	
 	require_once("config.inc.php");
-	require_once(TESTMAN_PATH . "connect.db.php");
+	require_once(TESTMAN_PATH . "/connect.db.php");
 	require_once("utils.inc.php");
 	require_once("autoload.inc.php");
 	
