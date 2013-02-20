@@ -22,7 +22,12 @@ define('PHPBB_SEO_TOOLKIT', 0);
 //if (PHPBB_API_DEBUG)
 //  error_reporting(E_ALL);
 //else
-error_reporting(E_ALL ^ E_NOTICE);
+//error_reporting(E_ALL ^ E_NOTICE);
+// Report all errors, except notices and deprecation messages
+if (!defined('E_DEPRECATED')) {
+  define('E_DEPRECATED', 8192);
+}
+error_reporting(E_ALL & ~E_NOTICE & ~E_DEPRECATED);
 
 global $phpbb_config, $phpbb_user,
 $user, $config, $cache, $auth, $template, $db, $module, $refresh, $submit, $preview,
@@ -67,7 +72,7 @@ function phpbb_api_session_begin() {
   $phpbb_hook, $phpbb_seo, $seo_meta;
 
   // If we are on PHP >= 6.0.0 we do not need some code
-  if (version_compare(PHP_VERSION, '6.0.0-dev', '>=')) {
+  if (version_compare(PHP_VERSION, '5.4.0-dev', '>=')) {
     define('STRIP', false);
   }
   else {
@@ -75,6 +80,10 @@ function phpbb_api_session_begin() {
     define('STRIP', (get_magic_quotes_gpc()) ? true : false);
   }
 
+  if (function_exists('date_default_timezone_set') && function_exists('date_default_timezone_get')) {
+    date_default_timezone_set(@date_default_timezone_get());
+  }
+  
   if (!file_exists($phpbb_root_path . 'config.' . $phpEx)) {
     die("<p>The config.$phpEx file could not be found.</p><p><a href=\"{$phpbb_root_path}install/index.$phpEx\">Click here to install phpBB</a></p>");
   }
