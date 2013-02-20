@@ -2535,19 +2535,7 @@ function redirect($url, $return = false, $disable_cd_check = false)
 	{
 		return $url;
 	}
-	//VB
-	if (defined('PHPBB_API_EMBEDDED'))
-	{
-		phpbbforum_redirect($url);
-	}
 
-	//\VB
-	//VB
-	if (defined('PHPBB_API_EMBEDDED'))
-	{
-		phpbbforum_redirect($url);
-	}
-	//\VB
 	// Redirect via an HTML form for PITA webservers
 	if (@preg_match('#Microsoft|WebSTAR|Xitami#', getenv('SERVER_SOFTWARE')))
 	{
@@ -2692,39 +2680,7 @@ function meta_refresh($time, $url, $disable_cd_check = false)
 	global $template;
 
 	$url = redirect($url, true, $disable_cd_check);
-	//VB
-	if (defined('PHPBB_API_EMBEDDED'))
-	{
-		global $_phpbb_embed_mode;
-		if ($_phpbb_embed_mode['redirect'])
-		{
-		  redirect($url);
-		}  
-	}
-	//\VB
-	//VB
-	if (defined('PHPBB_API_EMBEDDED'))
-	{
-		global $_phpbb_embed_mode;
-		if ($_phpbb_embed_mode['redirect'])
-		{
-		  redirect($url);
-		}  
-	}
-	//\VB
 	$url = str_replace('&', '&amp;', $url);
-	//VB
-	if (defined('PHPBB_API_EMBEDDED'))
-	{
-		$url = phpbbforum_redirect($url, $time);
-	}
-	//\VB
-	//VB
-	if (defined('PHPBB_API_EMBEDDED'))
-	{
-		$url = phpbbforum_redirect($url, $time);
-	}
-	//\VB
 
 	// For XHTML compatibility we change back & to &amp;
 	$template->assign_vars(array(
@@ -2964,19 +2920,7 @@ function confirm_box($check, $title = '', $hidden = '', $html_body = 'confirm_bo
 	$use_page = ($u_action) ? $phpbb_root_path . $u_action : $phpbb_root_path . str_replace('&', '&amp;', $user->page['page']);
 	$u_action = reapply_sid($use_page);
 	$u_action .= ((strpos($u_action, '?') === false) ? '?' : '&amp;') . 'confirm_key=' . $confirm_key;
-	//VB
-	if (defined('PHPBB_API_EMBEDDED'))
-	{
-		$u_action = _phpbbforum_replace_urls($u_action, true);
-	}
 
-	//\VB
-	//VB
-	if (defined('PHPBB_API_EMBEDDED'))
-	{
-		$u_action = _phpbbforum_replace_urls($u_action, true);
-	}
-	//\VB
 	$template->assign_vars(array(
 		'MESSAGE_TITLE'		=> (!isset($user->lang[$title])) ? $user->lang['CONFIRM'] : $user->lang[$title],
 		'MESSAGE_TEXT'		=> (!isset($user->lang[$title . '_CONFIRM'])) ? $title : $user->lang[$title . '_CONFIRM'],
@@ -3009,25 +2953,7 @@ function login_box($redirect = '', $l_explain = '', $l_success = '', $admin = fa
 
 	if (!class_exists('phpbb_captcha_factory'))
 	{
-		//VB
-		if (defined('PHPBB_API_EMBEDDED')) 
-		{
-		include_once($phpbb_root_path . 'includes/captcha/captcha_factory.' . $phpEx);
-		}
-		else
-		{
-		//VB
-		if (defined('PHPBB_API_EMBEDDED')) 
-		{
-		include_once($phpbb_root_path . 'includes/captcha/captcha_factory.' . $phpEx);
-		}
-		else
-	{
 		include($phpbb_root_path . 'includes/captcha/captcha_factory.' . $phpEx);
-	}
-		//\VB
-	}
-		//\VB
 	}
 
 	$err = '';
@@ -3113,31 +3039,6 @@ function login_box($redirect = '', $l_explain = '', $l_success = '', $admin = fa
 		if ($result['status'] == LOGIN_SUCCESS)
 		{
 			$redirect = request_var('redirect', "{$phpbb_root_path}index.$phpEx");
-			//VB
-			if (defined('PHPBB_API_EMBEDDED'))
-			{
-				if ($redirect == "index.$phpEx")
-				{
-					$redirect = "{$phpbb_root_path}index.$phpEx";
-				}  
-			}
-			//\VB
-			//VB
-			if (defined('PHPBB_API_EMBEDDED'))
-			{
-				if ($redirect == "index.$phpEx")
-				{
-					$redirect = "{$phpbb_root_path}index.$phpEx";
-				}  
-			//VB
-			if (defined('PHPBB_API_EMBEDDED'))
-			{
-				_phpbb_api_hook('login', array('username' => $username, 'password' => $password, 'redirect' => $redirect));
-			}
-
-			//\VB
-			}
-			//\VB
 			$message = ($l_success) ? $l_success : $user->lang['LOGIN_REDIRECT'];
 			$l_redirect = ($admin) ? $user->lang['PROCEED_TO_ACP'] : (($redirect === "{$phpbb_root_path}index.$phpEx" || $redirect === "index.$phpEx") ? $user->lang['RETURN_INDEX'] : $user->lang['RETURN_PAGE']);
 
@@ -3149,12 +3050,7 @@ function login_box($redirect = '', $l_explain = '', $l_success = '', $admin = fa
 			{
 				return;
 			}
-			//VB
-			if (defined('PHPBB_API_EMBEDDED'))
-			{
-				_phpbb_api_hook('login', array('username' => $username, 'password' => $password, 'redirect' => $redirect));
-			}
-			//\VB
+
 			$redirect = meta_refresh(3, $redirect);
 			trigger_error($message . '<br /><br />' . sprintf($l_redirect, '<a href="' . $redirect . '">', '</a>'));
 		}
@@ -4537,48 +4433,12 @@ function page_header($page_title = '', $display_online_list = true, $item_id = 0
 	// Generate logged in/logged out status
 	if ($user->data['user_id'] != ANONYMOUS)
 	{
-		//VB
-		if (function_exists('phpbbforum_get_drupal_login_url'))
-		{
-			$u_login_logout = phpbbforum_get_drupal_login_url('logout');
-		}  
-		else 
-		{
-		//VB
-		if (function_exists('phpbbforum_get_drupal_login_url'))
-		{
-			$u_login_logout = phpbbforum_get_drupal_login_url('logout');
-		}  
-		else 
-	{
 		$u_login_logout = append_sid("{$phpbb_root_path}ucp.$phpEx", 'mode=logout', true, $user->session_id);
-		}
-		//\VB
-		}
-		//\VB
 		$l_login_logout = sprintf($user->lang['LOGOUT_USER'], $user->data['username']);
 	}
 	else
 	{
-		//VB
-		if (function_exists('phpbbforum_get_drupal_login_url'))
-		{
-			$u_login_logout = phpbbforum_get_drupal_login_url('user/login');
-		}  
-		else 
-		{
-		//VB
-		if (function_exists('phpbbforum_get_drupal_login_url'))
-		{
-			$u_login_logout = phpbbforum_get_drupal_login_url('user/login');
-	}
-	else
-	{
 		$u_login_logout = append_sid("{$phpbb_root_path}ucp.$phpEx", 'mode=login');
-		}
-		//\VB
-		}
-		//\VB
 		$l_login_logout = $user->lang['LOGIN'];
 	}
 
@@ -4674,6 +4534,7 @@ function page_header($page_title = '', $display_online_list = true, $item_id = 0
 	// Determine board url - we may need it later
 	$board_url = generate_board_url() . '/';
 	$web_path = (defined('PHPBB_USE_BOARD_URL_PATH') && PHPBB_USE_BOARD_URL_PATH) ? $board_url : $phpbb_root_path;
+
 	// Which timezone?
 	$tz = ($user->data['user_id'] != ANONYMOUS) ? strval(doubleval($user->data['user_timezone'])) : strval(doubleval($config['board_timezone']));
 
@@ -4822,33 +4683,13 @@ function page_header($page_title = '', $display_online_list = true, $item_id = 0
 
 		'A_COOKIE_SETTINGS'		=> addslashes('; path=' . $config['cookie_path'] . ((!$config['cookie_domain'] || $config['cookie_domain'] == 'localhost' || $config['cookie_domain'] == '127.0.0.1') ? '' : '; domain=' . $config['cookie_domain']) . ((!$config['cookie_secure']) ? '' : '; secure')),
 	));
-	//VB
-	if (!defined('PHPBB_API_EMBEDDED'))
-	{
 
-	//VB
-	if (!defined('PHPBB_API_EMBEDDED'))
-	{
 	// application/xhtml+xml not used because of IE
 	header('Content-type: text/html; charset=UTF-8');
 
 	header('Cache-Control: private, no-cache="set-cookie"');
 	header('Expires: 0');
 	header('Pragma: no-cache');
-	}
-	else
-	{
-		global $_phpbb_result;
-		$_phpbb_result['page_title'] = $page_title;
-	}
-	//\VB
-	}
-	else
-	{
-		global $_phpbb_result;
-		$_phpbb_result['page_title'] = $page_title;
-	}
-	//\VB
 
 	if (!empty($user->data['is_bot']))
 	{
@@ -4964,19 +4805,7 @@ function page_footer($run_cron = true)
 			$template->assign_var('RUN_CRON_TASK', '<img src="' . append_sid($phpbb_root_path . 'cron.' . $phpEx, 'cron_type=' . $cron_type) . '" width="1" height="1" alt="cron" />');
 		}
 	}
-	//VB
-	if (defined('PHPBB_API_EMBEDDED'))
-	{
-		ob_start();
-	}
 
-	//\VB
-	//VB
-	if (defined('PHPBB_API_EMBEDDED'))
-	{
-		ob_start();
-	}  
-	//\VB
 	$template->display('body');
 
 	garbage_collection();
@@ -4996,22 +4825,12 @@ function garbage_collection()
 	{
 		$cache->unload();
 	}
-	//VB
-	if (!defined('PHPBB_API_EMBEDDED'))
-	{
 
-	//VB
-	if (!defined('PHPBB_API_EMBEDDED'))
-	{
 	// Close our DB connection.
 	if (!empty($db))
 	{
 		$db->sql_close();
 	}
-	}
-	//\VB
-	}
-	//\VB
 }
 
 /**

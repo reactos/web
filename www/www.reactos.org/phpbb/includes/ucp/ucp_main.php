@@ -197,26 +197,8 @@ class ucp_main
 			break;
 
 			case 'subscribed':
-				//VB
-				if (!defined('PHPBB_API_EMBEDDED'))
-				{
 
-				//VB
-				if (!defined('PHPBB_API_EMBEDDED'))
-				{
 				include($phpbb_root_path . 'includes/functions_display.' . $phpEx);
-				}
-				else
-				{
-				include_once($phpbb_root_path . 'includes/functions_display.' . $phpEx);
-				}
-				//\VB
-				}
-				else
-				{
-				include_once($phpbb_root_path . 'includes/functions_display.' . $phpEx);
-				}
-				//\VB
 
 				$user->add_lang('viewforum');
 
@@ -400,26 +382,8 @@ class ucp_main
 					);
 					break;
 				}
-				//VB
-				if (!defined('PHPBB_API_EMBEDDED'))
-				{
 
-				//VB
-				if (!defined('PHPBB_API_EMBEDDED'))
-				{
 				include($phpbb_root_path . 'includes/functions_display.' . $phpEx);
-				}
-				else
-				{
-				include_once($phpbb_root_path . 'includes/functions_display.' . $phpEx);
-				}
-				//\VB
-				}
-				else
-				{
-				include_once($phpbb_root_path . 'includes/functions_display.' . $phpEx);
-				}
-				//\VB
 
 				$user->add_lang('viewforum');
 

@@ -11,20 +11,10 @@
 /**
 * @ignore
 */
-//VB
-if (!defined('PHPBB_API_EMBEDDED'))
-{
-//VB
-if (!defined('PHPBB_API_EMBEDDED'))
-{
 define('IN_PHPBB', true);
 $phpbb_root_path = (defined('PHPBB_ROOT_PATH')) ? PHPBB_ROOT_PATH : './';
 $phpEx = substr(strrchr(__FILE__, '.'), 1);
 include($phpbb_root_path . 'common.' . $phpEx);
-}
-//\VB
-}
-//\VB
 
 // Start session management
 $user->session_begin();
@@ -64,25 +54,7 @@ $order_by = $sort_key_sql[$sort_key] . ' ' . (($sort_dir == 'a') ? 'ASC' : 'DESC
 // Whois requested
 if ($mode == 'whois' && $auth->acl_get('a_') && $session_id)
 {
-	//VB
-	if (!defined('PHPBB_API_EMBEDDED'))
-	{
-	//VB
-	if (!defined('PHPBB_API_EMBEDDED'))
-	{
 	include($phpbb_root_path . 'includes/functions_user.' . $phpEx);
-	}
-	else
-	{
-	include_once($phpbb_root_path . 'includes/functions_user.' . $phpEx);
-	}
-	//\VB
-	}
-	else
-	{
-	include_once($phpbb_root_path . 'includes/functions_user.' . $phpEx);
-	}
-	//\VB
 
 	$sql = 'SELECT u.user_id, u.username, u.user_type, s.session_ip
 		FROM ' . USERS_TABLE . ' u, ' . SESSIONS_TABLE . " s
@@ -436,20 +408,10 @@ while ($row = $db->sql_fetchrow($result))
 	}
 }
 $db->sql_freeresult($result);
-//VB
-if (!defined('PHPBB_API_EMBEDDED'))
-{
 
-//VB
-if (!defined('PHPBB_API_EMBEDDED'))
-{
 // Refreshing the page every 60 seconds...
 meta_refresh(60, append_sid("{$phpbb_root_path}viewonline.$phpEx", "sg=$show_guests&amp;sk=$sort_key&amp;sd=$sort_dir&amp;start=$start"));
-}
 
-//\VB
-}
-//\VB
 // Send data to template
 $template->assign_vars(array(
 	'TOTAL_REGISTERED_USERS_ONLINE'	=> sprintf($l_r_user_s, $logged_visible_online) . sprintf($l_h_user_s, $logged_hidden_online),

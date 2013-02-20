@@ -34,26 +34,8 @@ class ucp_register
 		{
 			trigger_error('UCP_REGISTER_DISABLE');
 		}
-		//VB
-		if (!defined('PHPBB_API_EMBEDDED'))
-		{
 
-		//VB
-		if (!defined('PHPBB_API_EMBEDDED'))
-		{
 		include($phpbb_root_path . 'includes/functions_profile_fields.' . $phpEx);
-		}
-		else
-		{
-		include_once($phpbb_root_path . 'includes/functions_profile_fields.' . $phpEx);
-		}
-		//\VB
-		}
-		else
-		{
-		include_once($phpbb_root_path . 'includes/functions_profile_fields.' . $phpEx);
-		}
-		//\VB
 
 		$coppa			= (isset($_REQUEST['coppa'])) ? ((!empty($_REQUEST['coppa'])) ? 1 : 0) : false;
 		$agreed			= (!empty($_POST['agreed'])) ? 1 : 0;
@@ -178,31 +160,13 @@ class ucp_register
 		// The CAPTCHA kicks in here. We can't help that the information gets lost on language change. 
 		if ($config['enable_confirm'])
 		{
-			//VB
-			if (!defined('PHPBB_API_EMBEDDED'))
-			{
-			//VB
-			if (!defined('PHPBB_API_EMBEDDED'))
-		{
 			include($phpbb_root_path . 'includes/captcha/captcha_factory.' . $phpEx);
-			}
-			else
-			{
-			include_once($phpbb_root_path . 'includes/captcha/captcha_factory.' . $phpEx);
-			}
-			//\VB
-			}
-			else
-			{
-			include_once($phpbb_root_path . 'includes/captcha/captcha_factory.' . $phpEx);
-			}
-			//\VB
 			$captcha =& phpbb_captcha_factory::get_instance($config['captcha_plugin']);
 			$captcha->init(CONFIRM_REG);
 		}
 
-			$is_dst = $config['board_dst'];
-			$timezone = $config['board_timezone'];
+		$is_dst = $config['board_dst'];
+		$timezone = $config['board_timezone'];
 
 		$data = array(
 			'username'			=> utf8_normalize_nfc(request_var('username', '', true)),

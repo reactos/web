@@ -23,19 +23,7 @@ function mcp_post_details($id, $mode, $action)
 {
 	global $phpEx, $phpbb_root_path, $config;
 	global $template, $db, $user, $auth, $cache;
-	//VB
-	if (defined('PHPBB_API_EMBEDDED'))
-	{
-		$action =_phpbbforum_get_cp_action_request($action);
-	}
 
-	//VB
-	//VB
-	if (defined('PHPBB_API_EMBEDDED'))
-	{
-		$action =_phpbbforum_get_cp_action_request($action);
-	}
-	//VB
 	$user->add_lang('posting');
 
 	$post_id = request_var('p', 0);
@@ -61,25 +49,7 @@ function mcp_post_details($id, $mode, $action)
 			if ($auth->acl_get('m_info', $post_info['forum_id']))
 			{
 				$ip = request_var('ip', '');
-				//VB
-				if (!defined('PHPBB_API_EMBEDDED'))
-				{
-				//VB
-				if (!defined('PHPBB_API_EMBEDDED'))
-				{
 				include($phpbb_root_path . 'includes/functions_user.' . $phpEx);
-				}
-				else
-				{
-				include_once($phpbb_root_path . 'includes/functions_user.' . $phpEx);
-				}
-				//\VB
-				}
-				else
-				{
-				include_once($phpbb_root_path . 'includes/functions_user.' . $phpEx);
-				}
-				//\VB
 
 				$template->assign_vars(array(
 					'RETURN_POST'	=> sprintf($user->lang['RETURN_POST'], '<a href="' . append_sid("{$phpbb_root_path}mcp.$phpEx", "i=$id&amp;mode=$mode&amp;p=$post_id") . '">', '</a>'),
@@ -499,25 +469,7 @@ function change_poster(&$post_info, $userdata)
 
 	if (file_exists($phpbb_root_path . 'includes/search/' . $search_type . '.' . $phpEx))
 	{
-		//VB
-		if (!defined('PHPBB_API_EMBEDDED'))
-		{
-		//VB
-		if (!defined('PHPBB_API_EMBEDDED'))
-		{
 		require("{$phpbb_root_path}includes/search/$search_type.$phpEx");
-		}
-		else
-		{
-		require_once("{$phpbb_root_path}includes/search/$search_type.$phpEx");
-		}
-		//\VB
-		}
-		else
-		{
-		require_once("{$phpbb_root_path}includes/search/$search_type.$phpEx");
-		}
-		//\VB
 
 		// We do some additional checks in the module to ensure it can actually be utilised
 		$error = false;

@@ -410,26 +410,8 @@ class ucp_groups
 				$this->page_title = 'UCP_USERGROUPS_MANAGE';
 				$action		= (isset($_POST['addusers'])) ? 'addusers' : request_var('action', '');
 				$group_id	= request_var('g', 0);
-				//VB
-				if (!defined('PHPBB_EMBEDDED'))
-				{
 
-				//VB
-				if (!defined('PHPBB_EMBEDDED'))
-				{
 				include($phpbb_root_path . 'includes/functions_display.' . $phpEx);
-				}
-				else
-				{
-				include_once($phpbb_root_path . 'includes/functions_display.' . $phpEx);
-				}
-				//\VB
-				}
-				else
-				{
-				include_once($phpbb_root_path . 'includes/functions_display.' . $phpEx);
-				}
-				//\VB
 
 				add_form_key('ucp_groups');
 

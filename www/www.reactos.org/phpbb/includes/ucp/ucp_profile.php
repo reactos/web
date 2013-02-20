@@ -258,26 +258,8 @@ class ucp_profile
 			break;
 
 			case 'profile_info':
-				//VB
-				if (!defined('PHPBB_API_EMBEDDED'))
-				{
 
-				//VB
-				if (!defined('PHPBB_API_EMBEDDED'))
-				{
 				include($phpbb_root_path . 'includes/functions_profile_fields.' . $phpEx);
-				}
-				else
-				{
-				include_once($phpbb_root_path . 'includes/functions_profile_fields.' . $phpEx);
-				}
-				//\VB
-				}
-				else
-				{
-				include_once($phpbb_root_path . 'includes/functions_profile_fields.' . $phpEx);
-				}
-				//\VB
 
 				$cp = new custom_profile();
 
@@ -464,32 +446,9 @@ class ucp_profile
 				{
 					trigger_error('NO_AUTH_SIGNATURE');
 				}
-				//VB
-				if (!defined('PHPBB_API_EMBEDDED'))
-				{
 
-				//VB
-				if (!defined('PHPBB_API_EMBEDDED'))
-				{
 				include($phpbb_root_path . 'includes/functions_posting.' . $phpEx);
 				include($phpbb_root_path . 'includes/functions_display.' . $phpEx);
-				}
-				else
-				{
-				include_once($phpbb_root_path . 'includes/functions_posting.' . $phpEx);
-				include_once($phpbb_root_path . 'includes/functions_display.' . $phpEx);
-				}
-				//\VB
-				}
-				else
-				{
-					//VB
-					if (!defined('PHPBB_API_EMBEDDED'))
-					{
-				include_once($phpbb_root_path . 'includes/functions_posting.' . $phpEx);
-				include_once($phpbb_root_path . 'includes/functions_display.' . $phpEx);
-				}
-				//\VB
 
 				$enable_bbcode	= ($config['allow_sig_bbcode']) ? (bool) $user->optionget('sig_bbcode') : false;
 				$enable_smilies	= ($config['allow_sig_smilies']) ? (bool) $user->optionget('sig_smilies') : false;
@@ -501,22 +460,7 @@ class ucp_profile
 
 				if ($submit || $preview)
 				{
-					//VB
-					if (!defined('PHPBB_API_EMBEDDED'))
-					{
 					include($phpbb_root_path . 'includes/message_parser.' . $phpEx);
-					}
-					else
-					{
-					include_once($phpbb_root_path . 'includes/message_parser.' . $phpEx);
-					}
-					//\VB
-					}
-					else
-					{
-					include_once($phpbb_root_path . 'includes/message_parser.' . $phpEx);
-					}
-					//\VB
 
 					$enable_bbcode	= ($config['allow_sig_bbcode']) ? ((request_var('disable_bbcode', false)) ? false : true) : false;
 					$enable_smilies	= ($config['allow_sig_smilies']) ? ((request_var('disable_smilies', false)) ? false : true) : false;
@@ -607,26 +551,8 @@ class ucp_profile
 			break;
 
 			case 'avatar':
-				//VB
-				if (!defined('PHPBB_API_EMBEDDED'))
-				{
 
-				//VB
-				if (!defined('PHPBB_API_EMBEDDED'))
-				{
 				include($phpbb_root_path . 'includes/functions_display.' . $phpEx);
-				}
-				else
-				{
-				include_once($phpbb_root_path . 'includes/functions_display.' . $phpEx);
-				}
-				//\VB
-				}
-				else
-				{
-				include_once($phpbb_root_path . 'includes/functions_display.' . $phpEx);
-				}
-				//\VB
 
 				$display_gallery = request_var('display_gallery', '0');
 				$avatar_select = basename(request_var('avatar_select', ''));

@@ -15,20 +15,10 @@
 /**
 * @ignore
 **/
-//VB
-if (!defined('PHPBB_API_EMBEDDED'))
-{
-//VB
-if (!defined('PHPBB_API_EMBEDDED'))
-{
 define('IN_PHPBB', true);
 $phpbb_root_path = (defined('PHPBB_ROOT_PATH')) ? PHPBB_ROOT_PATH : './';
 $phpEx = substr(strrchr(__FILE__, '.'), 1);
 include($phpbb_root_path . 'common.' . $phpEx);
-}
-//\VB
-}
-//\VB
 
 if (!$config['feed_enable'])
 {
@@ -150,21 +140,7 @@ $global_vars = array_merge($global_vars, array(
 $feed->close();
 
 // Output page
-//VB
-if (defined('PHPBB_API_EMBEDDED'))
-{
-	ob_start();
-}
-else
 
-//\VB
-//VB
-if (defined('PHPBB_API_EMBEDDED'))
-{
-	ob_start();
-}
-else
-//\VB
 // gzip_compression
 if ($config['gzip_compress'])
 {

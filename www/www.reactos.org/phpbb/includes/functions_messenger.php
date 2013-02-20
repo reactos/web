@@ -323,21 +323,7 @@ class messenger
 		{
 			return true;
 		}
-		//VB
-		if (defined('PHPBB_API_EMBEDDED'))
-		{
-			$this->subject = _phpbbforum_replace_msg_links($this->subject);
-			$this->msg = _phpbbforum_replace_msg_links($this->msg);
-		}
 
-		//\VB
-		//VB
-		if (defined('PHPBB_API_EMBEDDED'))
-		{
-			$this->subject = _phpbbforum_replace_msg_links($this->subject);
-			$this->msg = _phpbbforum_replace_msg_links($this->msg);
-		}
-		//\VB
 		switch ($method)
 		{
 			case NOTIFY_EMAIL:
