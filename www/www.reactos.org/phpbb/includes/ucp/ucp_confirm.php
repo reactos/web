@@ -37,7 +37,16 @@ class ucp_confirm
 	{
 		global $db, $user, $phpbb_root_path, $config, $phpEx;
 
+		//VB
+		if (!defined('PHPBB_EMBEDDED'))
+		{
 		include($phpbb_root_path . 'includes/captcha/captcha_factory.' . $phpEx);
+		}
+		else
+		{
+		include_once($phpbb_root_path . 'includes/captcha/captcha_factory.' . $phpEx);
+		}
+		//\VB
 		$captcha = phpbb_captcha_factory::get_instance($config['captcha_plugin']);
 		$captcha->init(request_var('type', 0));
 		$captcha->execute();

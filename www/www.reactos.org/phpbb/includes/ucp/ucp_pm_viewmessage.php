@@ -55,7 +55,16 @@ function view_message($id, $mode, $folder_id, $msg_id, $folder, $message_row)
 	// Instantiate BBCode if need be
 	if ($message_row['bbcode_bitfield'])
 	{
+		//VB
+		if (!defined('PHPBB_EMBEDDED'))
+		{
 		include($phpbb_root_path . 'includes/bbcode.' . $phpEx);
+		}
+		else
+		{
+		include_once($phpbb_root_path . 'includes/bbcode.' . $phpEx);
+		}
+		//\VB
 		$bbcode = new bbcode($message_row['bbcode_bitfield']);
 	}
 
@@ -156,7 +165,16 @@ function view_message($id, $mode, $folder_id, $msg_id, $folder, $message_row)
 		{
 			if ($bbcode === false)
 			{
+				//VB
+				if (!defined('PHPBB_EMBEDDED'))
+				{
 				include($phpbb_root_path . 'includes/bbcode.' . $phpEx);
+				}
+				else
+				{
+				include_once($phpbb_root_path . 'includes/bbcode.' . $phpEx);
+				}
+				//\VB
 				$bbcode = new bbcode($user_info['user_sig_bbcode_bitfield']);
 			}
 
@@ -305,7 +323,16 @@ function get_user_information($user_id, $user_row)
 
 	if (!function_exists('get_user_avatar'))
 	{
+		//VB
+		if (!defined('PHPBB_EMBEDDED'))
+		{
 		include($phpbb_root_path . 'includes/functions_display.' . $phpEx);
+	}
+		else
+		{
+		include_once($phpbb_root_path . 'includes/functions_display.' . $phpEx);
+		}
+		//\VB
 	}
 
 	$user_row['avatar'] = ($user->optionget('viewavatars')) ? get_user_avatar($user_row['user_avatar'], $user_row['user_avatar_type'], $user_row['user_avatar_width'], $user_row['user_avatar_height']) : '';

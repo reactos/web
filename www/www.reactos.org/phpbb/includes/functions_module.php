@@ -446,7 +446,16 @@ class p_master
 				trigger_error("Cannot find module $module_path/{$this->p_class}_$this->p_name.$phpEx", E_USER_ERROR);
 			}
 
+			//VB
+			if (!defined('PHPBB_API_EMBEDDED'))
+			{
 			include("$module_path/{$this->p_class}_$this->p_name.$phpEx");
+			}
+			else
+			{
+			include_once("$module_path/{$this->p_class}_$this->p_name.$phpEx");
+			}
+			//\VB
 
 			if (!class_exists("{$this->p_class}_$this->p_name"))
 			{
@@ -496,7 +505,12 @@ class p_master
 			{
 				$this->module->u_action .= $this->module_ary[$this->active_module_row_id]['url_extra'];
 			}
-
+			//VB
+			if (defined('PHPBB_API_EMBEDDED'))
+			{
+				$this->module->u_action = _phpbbforum_replace_cp_action($this->p_class, $this->module->u_action);
+			}
+			//VB
 			// Assign the module path for re-usage
 			$this->module->module_path = $module_path . '/';
 

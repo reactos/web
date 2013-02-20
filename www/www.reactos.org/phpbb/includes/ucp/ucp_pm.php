@@ -80,7 +80,16 @@ class ucp_pm
 			$mode = 'view';
 		}
 
+		//VB
+		if (!defined('PHPBB_EMBEDDED'))
+		{
 		include($phpbb_root_path . 'includes/functions_privmsgs.' . $phpEx);
+		}
+		else
+		{
+		include_once($phpbb_root_path . 'includes/functions_privmsgs.' . $phpEx);
+		}
+		//\VB
 
 		switch ($mode)
 		{
@@ -129,7 +138,16 @@ class ucp_pm
 					break;
 				}
 
+				//VB
+				if (!defined('PHPBB_EMBEDDED'))
+				{
 				include($phpbb_root_path . 'includes/ucp/ucp_pm_compose.' . $phpEx);
+				}
+				else
+				{
+				include_once($phpbb_root_path . 'includes/ucp/ucp_pm_compose.' . $phpEx);
+				}
+				//\VB
 				compose_pm($id, $mode, $action, $user_folders);
 
 				$tpl_file = 'posting_body';
@@ -139,7 +157,16 @@ class ucp_pm
 				set_user_message_limit();
 				get_folder($user->data['user_id']);
 
+				//VB
+				if (!defined('PHPBB_EMBEDDED'))
+				{
 				include($phpbb_root_path . 'includes/ucp/ucp_pm_options.' . $phpEx);
+				}
+				else
+				{
+				include_once($phpbb_root_path . 'includes/ucp/ucp_pm_options.' . $phpEx);
+				}
+				//\VB
 				message_options($id, $mode, $global_privmsgs_rules, $global_rule_conditions);
 
 				$tpl_file = 'ucp_pm_options';
@@ -151,7 +178,16 @@ class ucp_pm
 				$this->p_name = 'pm';
 
 				// Call another module... please do not try this at home... Hoochie Coochie Man
+				//VB
+				if (!defined('PHPBB_EMBEDDED'))
+				{
 				include($phpbb_root_path . 'includes/ucp/ucp_main.' . $phpEx);
+				}
+				else
+				{
+				include_once($phpbb_root_path . 'includes/ucp/ucp_main.' . $phpEx);
+				}
+				//\VB
 
 				$module = new ucp_main($this);
 				$module->u_action = $this->u_action;
@@ -372,7 +408,16 @@ class ucp_pm
 
 				if ($action == 'view_folder')
 				{
+					//VB
+					if (!defined('PHPBB_EMBEDDED'))
+					{
 					include($phpbb_root_path . 'includes/ucp/ucp_pm_viewfolder.' . $phpEx);
+					}
+					else
+					{
+					include_once($phpbb_root_path . 'includes/ucp/ucp_pm_viewfolder.' . $phpEx);
+					}
+					//\VB
 					view_folder($id, $mode, $folder_id, $folder);
 
 					$tpl_file = 'ucp_pm_viewfolder';
@@ -389,7 +434,16 @@ class ucp_pm
 						trigger_error('NO_MESSAGE');
 					}
 
+					//VB
+					if (!defined('PHPBB_EMBEDDED'))
+					{
 					include($phpbb_root_path . 'includes/ucp/ucp_pm_viewmessage.' . $phpEx);
+					}
+					else
+					{
+					include_once($phpbb_root_path . 'includes/ucp/ucp_pm_viewmessage.' . $phpEx);
+					}
+					//\VB
 					view_message($id, $mode, $folder_id, $msg_id, $folder, $message_row);
 
 					$tpl_file = ($view == 'print') ? 'ucp_pm_viewmessage_print' : 'ucp_pm_viewmessage';

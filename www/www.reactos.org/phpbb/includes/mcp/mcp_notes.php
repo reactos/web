@@ -176,7 +176,16 @@ class mcp_notes
 		// Generate the appropriate user information for the user we are looking at
 		if (!function_exists('get_user_avatar'))
 		{
+			//VB
+			if (!defined('PHPBB_API_EMBEDDED'))
+			{
 			include($phpbb_root_path . 'includes/functions_display.' . $phpEx);
+		}
+			else
+			{
+			include_once($phpbb_root_path . 'includes/functions_display.' . $phpEx);
+			}
+			//\VB
 		}
 
 		$rank_title = $rank_img = '';

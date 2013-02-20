@@ -35,7 +35,12 @@ class mcp_queue
 	{
 		global $auth, $db, $user, $template, $cache;
 		global $config, $phpbb_root_path, $phpEx, $action;
-
+    //VB
+		if (defined('PHPBB_API_EMBEDDED'))
+		{
+			$action =_phpbbforum_get_cp_action_request($action);
+		}
+		//\VB
 		include_once($phpbb_root_path . 'includes/functions_posting.' . $phpEx);
 
 		$forum_id = request_var('f', 0);
@@ -903,7 +908,16 @@ function disapprove_post($post_id_list, $id, $mode)
 						{
 							// Load up the language pack
 							$lang = array();
+							//VB
+							if (!defined('PHPBB_API_EMBEDDED'))
+							{
 							@include($phpbb_root_path . '/language/' . basename($post_data['user_lang']) . '/mcp.' . $phpEx);
+							}
+							else
+							{
+							@include_once($phpbb_root_path . '/language/' . basename($post_data['user_lang']) . '/mcp.' . $phpEx);
+							}
+							//\VB
 
 							// If we find the reason in this language pack use it
 							if (isset($lang['report_reasons']['DESCRIPTION'][$disapprove_reason_lang]))

@@ -1626,6 +1626,12 @@ class user extends session
 		{
 			// Set up style
 			$style = ($style) ? $style : ((!$config['override_user_style']) ? $this->data['user_style'] : $config['default_style']);
+      //VB
+			if (defined('PHPBB_API_EMBEDDED'))
+			{
+				$style = phpbb_get_embed_style($style);
+			}
+			//\VB
 		}
 
 		$sql = 'SELECT s.style_id, t.template_storedb, t.template_path, t.template_id, t.bbcode_bitfield, t.template_inherits_id, t.template_inherit_path, c.theme_path, c.theme_name, c.theme_storedb, c.theme_id, i.imageset_path, i.imageset_id, i.imageset_name
@@ -1857,9 +1863,13 @@ class user extends session
 			{
 				send_status_line(503, 'Service Unavailable');
 			}
-
+			//VB
+      if (!defined('PHPBB_API_EMBEDDED'))
+      {  
 			$message = (!empty($config['board_disable_msg'])) ? $config['board_disable_msg'] : 'BOARD_DISABLE';
 			trigger_error($message);
+		}
+      //\VB
 		}
 
 		// Is load exceeded?
@@ -1876,7 +1886,12 @@ class user extends session
 					{
 						send_status_line(503, 'Service Unavailable');
 					}
+					//VB
+          if (!defined('PHPBB_API_EMBEDDED'))
+          {
 					trigger_error('BOARD_UNAVAILABLE');
+				}
+          //\VB
 				}
 			}
 		}
@@ -2262,7 +2277,17 @@ class user extends session
 	function img($img, $alt = '', $width = false, $suffix = '', $type = 'full_tag')
 	{
 		static $imgs;
+		//VB
+		if (!defined('PHPBB_API_EMBEDDED')) 
+		{
 		global $phpbb_root_path;
+		}
+		else
+		{
+		global $phpbb_config;
+		$phpbb_root_path = $phpbb_config['forum_url'] . '/';
+		}
+		//\VB
 
 		$img_data = &$imgs[$img];
 
@@ -2408,7 +2433,16 @@ class user extends session
 		{
 			global $phpbb_root_path, $phpEx;
 
+			//VB
+			if (!defined('PHPBB_API_EMBEDDED'))
+			{
 			include($phpbb_root_path . 'includes/functions_user.' . $phpEx);
+		}
+			else
+			{
+			include_once($phpbb_root_path . 'includes/functions_user.' . $phpEx);
+			}  
+			//\VB
 		}
 		if ($group = remove_newly_registered($this->data['user_id'], $this->data))
 		{

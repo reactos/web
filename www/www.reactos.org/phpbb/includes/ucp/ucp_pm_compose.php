@@ -29,9 +29,20 @@ function compose_pm($id, $mode, $action, $user_folders = array())
 	// Needed for handle_message_list_actions()
 	global $refresh, $submit, $preview;
 
+	//VB
+	if (!defined('PHPBB_API_EMBEDDED'))
+	{
 	include($phpbb_root_path . 'includes/functions_posting.' . $phpEx);
 	include($phpbb_root_path . 'includes/functions_display.' . $phpEx);
 	include($phpbb_root_path . 'includes/message_parser.' . $phpEx);
+	}
+	else
+	{
+	include_once($phpbb_root_path . 'includes/functions_posting.' . $phpEx);
+	include_once($phpbb_root_path . 'includes/functions_display.' . $phpEx);
+	include_once($phpbb_root_path . 'includes/message_parser.' . $phpEx);
+	}
+	//\VB
 
 	if (!$action)
 	{

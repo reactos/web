@@ -23,6 +23,12 @@ function mcp_topic_view($id, $mode, $action)
 {
 	global $phpEx, $phpbb_root_path, $config;
 	global $template, $db, $user, $auth, $cache;
+  //VB
+	if (defined('PHPBB_API_EMBEDDED'))
+	{
+		$action =_phpbbforum_get_cp_action_request($action);
+	}
+	//\VB
 
 	$url = append_sid("{$phpbb_root_path}mcp.$phpEx?" . extra_url());
 
@@ -88,7 +94,16 @@ function mcp_topic_view($id, $mode, $action)
 	// Approve posts?
 	if ($action == 'approve' && $auth->acl_get('m_approve', $topic_info['forum_id']))
 	{
+		//VB
+		if (!defined('PHPBB_API_EMBEDDED'))
+		{
 		include($phpbb_root_path . 'includes/mcp/mcp_queue.' . $phpEx);
+		}
+		else
+		{
+		include_once($phpbb_root_path . 'includes/mcp/mcp_queue.' . $phpEx);
+		}
+		//\VB
 		include_once($phpbb_root_path . 'includes/functions_posting.' . $phpEx);
 		include_once($phpbb_root_path . 'includes/functions_messenger.' . $phpEx);
 

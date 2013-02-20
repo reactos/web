@@ -411,7 +411,16 @@ class ucp_groups
 				$action		= (isset($_POST['addusers'])) ? 'addusers' : request_var('action', '');
 				$group_id	= request_var('g', 0);
 
+				//VB
+				if (!defined('PHPBB_EMBEDDED'))
+				{
 				include($phpbb_root_path . 'includes/functions_display.' . $phpEx);
+				}
+				else
+				{
+				include_once($phpbb_root_path . 'includes/functions_display.' . $phpEx);
+				}
+				//\VB
 
 				add_form_key('ucp_groups');
 
