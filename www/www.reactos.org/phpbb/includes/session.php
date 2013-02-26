@@ -95,7 +95,7 @@ class session
 		$page_dirs = array_diff_assoc($page_dirs, $intersection);
 
 		$page_dir = str_repeat('../', sizeof($root_dirs)) . implode('/', $page_dirs);
-$page_dir = ''; // AB
+
 		if ($page_dir && substr($page_dir, -1, 1) == '/')
 		{
 			$page_dir = substr($page_dir, 0, -1);
