@@ -21,7 +21,7 @@ body {
 	/*font-size: 62.5%;			 This sets the default font size to be equivalent to 10px */
 	font-size: 10px;
 	margin: 0;
-	padding: 12px 0;
+	padding: 0;
 }
 
 h1 {
@@ -123,11 +123,11 @@ p.right {
 	margin-top: 20px;
 }
 
-#logo {
+/*#logo {
 	float: left;
 	width: auto;
 	padding: 10px 13px 0 10px;
-}
+}*/
 
 a#logo:hover {
 	text-decoration: none;

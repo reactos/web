@@ -94,18 +94,11 @@
 
 <body id="phpbb" class="section-{SCRIPT_NAME} {S_CONTENT_DIRECTION}">
 
-<div id="wrap">
-	<a id="top" name="top" accesskey="t"></a>
-	<div id="page-header">
-		<div class="headerbar">
-			<div class="inner"><span class="corners-top"><span></span></span>
-
-			<div id="site-description">
-				<a href="{U_INDEX}" title="{L_INDEX}" id="logo">{SITE_LOGO_IMG}</a>
-				<h1>{SITENAME}</h1>
-				<p>{SITE_DESCRIPTION}</p>
-				<p class="skiplink"><a href="#start_here">{L_SKIP}</a></p>
-			</div>
+<!-- reactos-header -->
+<div id="header">
+	<a href="/">
+		<img id="logo" src="/sites/all/themes/zen_reactos/images/reactos-logo.png" alt="Home" />
+	</a>
 
 		<!-- IF S_DISPLAY_SEARCH and not S_IN_SEARCH -->
 			<div id="search-box">
@@ -119,9 +112,18 @@
 			</div>
 		<!-- ENDIF -->
 
-			<span class="corners-bottom"><span></span></span></div>
+	<div id="topMenu">
+		<div id="main-menu">
+			<a href="/forum">Forum</a> | <a href="/wiki">Wiki</a> | <a href="http://jira.reactos.org">Bugtracker</a> | <a href="/node/127">Contact</a>
 		</div>
+	</div>
+	<!-- /#topMenu -->
+</div>
+<!-- /reactos-header -->
 
+<div id="wrap">
+	<a id="top" name="top" accesskey="t"></a>
+	<div id="page-header">
 		<div class="navbar">
 			<div class="inner"><span class="corners-top"><span></span></span>
 
