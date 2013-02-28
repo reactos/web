@@ -39,7 +39,15 @@ padding: 0;
 	color: black;
 	background-color: #ffcc33;
 }
-h1, h2.block-title, .node h2 {
+h1{
+background: #eee;
+color:#404040;
+font-size:15px;
+padding:2px 0 2px 10px;
+line-height:20px;
+border-radius: 2px 2px 0 0;
+}
+h2.block-title, .node h2 {
 background: #5984c3;
 color:#fff;
 font-size:14px;
@@ -116,8 +124,7 @@ width:100px;
 	color: #006090;
 	display: block;
 	font-size: 18px;
-	margin: 5px;
-	padding: 12px 12px 12px 42px;
+	padding: 13px 13px 13px 42px;
 	text-decoration: none!important;
 	width: auto;
 	background: #A2E274;
@@ -194,6 +201,7 @@ width:100px;
 	line-height: 21px;
 	text-align: justify;
 	padding-right: 20px;
+	padding-left:10px;
 }
 .region-sidebar-second {
 	width: 270px;
@@ -225,6 +233,14 @@ width:100px;
   border-radius: 2px;
   box-shadow: 1px 1px 1px #bbb;
 }
+h2 a{
+color: #fff !important;
+}
+
+#page-title{
+margin-bottom: 2px;
+}
+
 div#sidebar-second, div#sidebar-first { width:20%; }
 div#content-group, div#main-group { width:80%; }
 .node.node-news.clearfix { clear:left; }
@@ -467,12 +483,38 @@ font-weight: bold;
 border-bottom: 1px solid #ccc;
 }
 #block-views-random-screenshot-block a{
-color: #808080 !important;
+color: #707070 !important;
 }
 #block-views-random-screenshot-block .content{
-box-shadow: 0 0 2px #bbb;
+box-shadow: 0 0 10px #bbb;
 padding: 2px;
 padding-top: 10px;
+margin-right: 5px;
+}
+h3 .comment-title a{
+color: #808080;
+}
+h1{
+background: #eee;
+color:#404040;
+font-size:15px;
+padding:2px 0 2px 10px;
+line-height:20px;
+border-radius: 2px 2px 0 0;
+}
+.comment-title a{
+color: #808080 !important;
+text-decoration: none;
+display:block;
+background-color: #f1f1f1;
+padding: 2px;
+padding-left: 10px;
+}
+.submitted > .permalink{
+display:none;
+}
+.comment_forbidden, .comment_forbidden a{
+font-size: 10px !important;
 }
 /* logo cloud */
 .finicon
