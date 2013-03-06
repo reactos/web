@@ -139,6 +139,7 @@ $wgResourceLoaderMaxQueryLength = -1;
 
 # End of automatically generated settings.
 # Add more configuration options below.
+$wgArticlePath = "$wgScriptPath/$1";
 $wgUsePathInfo = true;
 
 # Enable external image embedding
