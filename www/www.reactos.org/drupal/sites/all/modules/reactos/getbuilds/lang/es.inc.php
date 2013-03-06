@@ -16,7 +16,6 @@
 	$getbuilds_langres["overview"] = "Resumen";
 	$getbuilds_langres["latestrev"] = "Ultima revisión de ReactOS en el server SVN";
 	$getbuilds_langres["browsesvn"] = "Hojear el repositorio SVN online";
-	$getbuilds_langres["cia"] = "Ver los últimos commits en CIA.vc";
 	$getbuilds_langres["buildbot_status"] = "Estado de BuildBot";
 	$getbuilds_langres["buildbot_web"] = "Ver detalles de la interfaz web de BuildBot";
 	$getbuilds_langres["browsebuilds"] = "Hojear todas las builds creadas";
@@ -40,4 +39,11 @@
 	$getbuilds_langres["invalidrev"] = "Número de revisión inválido!";
 	
 	$getbuilds_langres["rangelimitexceeded"] = "El rango de revisiones puede contener un máximo de %s revisiones!";
+	
+	$getbuilds_langres["legend"]= "Legend";
+	$getbuilds_langres["build_bootcd"] = "<tt>bootcd</tt> - BootCD ISOs are designed to install ReactOS onto an HDD and enjoy the new features since last release. You will need the ISO only for the installation. This is the recommended variant to install into a VM (VirtualBox, VMWare, QEMU).";
+    $getbuilds_langres["build_livecd"] = "<tt>livecd</tt> - LiveCD ISOs allow to use ReactOS without installing it. It can be used to test ReactOS in case your HDD is not detected during BootCD installation or if you have no alternative system/VM to install on.";
+    $getbuilds_langres["build_rel"] = "<tt>-rel</tt> - Release version with no debugging information, this version is smaller, but it cannot be used to produce logs.";
+    $getbuilds_langres["build_dbg"] = "<tt>-dbg</tt> - Debug version includes debugging information, use this version to test, produce logs and report bugs. This is the recommended variant to install to report bugs.";
+    $getbuilds_langres["build_dbgwin"] = "<tt>-dbgwin</tt> - The same as the -dbg version + includes wine Gecko and winetests. ";
 ?>

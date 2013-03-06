@@ -3,7 +3,7 @@
   PROJECT:    ReactOS Website
   LICENSE:    GNU GPLv2 or any later version as published by the Free Software Foundation
   PURPOSE:    Easily download prebuilt ReactOS Revisions
-  COPYRIGHT:  Copyright 2007-2012 Colin Finck <mail@colinfinck.de>
+  COPYRIGHT:  Copyright 2007-2013 Colin Finck <mail@colinfinck.de>
                                   Aleksey Bragin <aleksey@reactos.org>
 */
 	define("GB_PATH", "./sites/all/modules/reactos/getbuilds/");
@@ -28,6 +28,8 @@
 		<?php require_once(GB_PATH . "getbuilds.js.php"); ?>
 		jQuery(document).ready(function () {
 			Load();
+			jQuery("#gb_js_main").hide();
+			jQuery("#gb_js_main").fadeIn(500);
 		});
 	</script>
 <h2><?php echo $getbuilds_langres["title"]; ?></h2>
@@ -35,12 +37,7 @@
 <p><?php echo $getbuilds_langres["intro"]; ?></p>
 
 <div class="round_corners_grey">
-		<h1><?php echo $getbuilds_langres["overview"]; ?></h1>
-		
-		<?php echo $getbuilds_langres["latestrev"]; ?>: <strong><?php echo $rev; ?></strong>
-		<ul class="web">
-			<li><a href="http://svn.reactos.org/svn/reactos"><?php echo $getbuilds_langres["browsesvn"]; ?></a></li>
-		</ul>
+		<h2 class="pane-title"><?php echo $getbuilds_langres["overview"]; ?></h2>
 		
 		<?php echo $getbuilds_langres["buildbot_status"]; ?>:
 		<ul class="web">
@@ -49,9 +46,9 @@
 		</ul>
 </div>
 
-<div class="round_corners">
+<div class="round_corners" id="gb_js_main">
 
-		<h1><?php echo $getbuilds_langres["downloadrev"]; ?></h1>
+		<h2 class="pane-title"><?php echo $getbuilds_langres["downloadrev"]; ?></h2>
 		
 		<noscript>
 			<?php printf($getbuilds_langres["js_disclaimer"], $ISO_DOWNLOAD_URL); ?>
@@ -66,7 +63,11 @@
 					<img src="/sites/all/modules/reactos/getbuilds/images/right.png" alt="&gt;" title="<?php echo $getbuilds_langres["nextrev"]; ?>" onclick="NextRev();" />
                     <br/>
 				</span>
-				<img src="/sites/default/shared/images/info.gif" alt="" /> <?php printf($shared_langres["rangeinfo"], $rev, ($rev - 50), $rev); ?>
+				<img src="/sites/default/shared/images/info.gif" alt="" /> <?php printf($shared_langres["rangeinfo"], $rev, ($rev - 50), $rev); ?><br/>
+				<?php echo $getbuilds_langres["latestrev"]; ?>: <strong><?php echo $rev; ?></strong>
+				<ul class="web">
+					<li><a href="http://svn.reactos.org/svn/reactos"><?php echo $getbuilds_langres["browsesvn"]; ?></a></li>
+				</ul>
             </fieldset>
 	        <fieldset style="border: 1px solid #808080">
             <legend><?php echo $getbuilds_langres["isotype"]; ?></legend>
@@ -86,4 +87,15 @@
 				<!-- Filled by the JavaScript -->
 			</div>
 		</div>
+</div>
+
+<div class="round_corners_grey">
+		<h2 class="pane-title"><?php echo $getbuilds_langres["legend"]; ?></h2>
+		<ul>
+		<li><?php echo $getbuilds_langres["build_bootcd"]; ?></li>
+		<li><?php echo $getbuilds_langres["build_livecd"]; ?></li>
+        <li><?php echo $getbuilds_langres["build_rel"]; ?> </li>
+        <li><?php echo $getbuilds_langres["build_dbg"]; ?> </li>
+        <li><?php echo $getbuilds_langres["build_dbgwin"]; ?></li>
+		</ul>
 </div>
