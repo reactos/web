@@ -41,7 +41,7 @@
 	$getbuilds_langres["rangelimitexceeded"] = "Der Revisionsbereich darf maximal %s Revisionen umfassen!";
 	
 	$getbuilds_langres["legend"]= "Legende";
-	$getbuilds_langres["build_bootcd"] = "<tt>bootcd</tt> - BootCD ISOs können benutzt werden, um ReactOS auf einer Fetsplatte zu installieren. Danach wird das Medium nicht mehr benötig. BootCDs eignen sich sehr gut zur Benutzung in einer Virtuellen Maschine(VirtualBox, VMWare, QEMU).";
+	$getbuilds_langres["build_bootcd"] = "<tt>bootcd</tt> - BootCD ISOs können benutzt werden, um ReactOS auf einer Festplatte zu installieren. Danach wird das Medium nicht mehr benötigt. BootCDs eignen sich sehr gut zur Benutzung in einer Virtuellen Maschine(VirtualBox, VMWare, QEMU).";
     $getbuilds_langres["build_livecd"] = "<tt>livecd</tt> - LiveCD ISOs erlauben es, ReactOS ohne Installation direkt von der CD oder dem ISO zu starten. So können Sie ReactOS ganz einfach testen.";
     $getbuilds_langres["build_rel"] = "<tt>-rel</tt> - Release Version, ohne Debugging-Funktionen. (Hinweis: Hier finden Sie nur Vorabversionen, Hauptversionen gibt es auf der Download-Seite!)";
     $getbuilds_langres["build_dbg"] = "<tt>-dbg</tt> - Debugging Version. Diese Versionen können benutzt werden, um Debugmeldungen auszulesen. Dies kann hilfreich sein, wenn Sie einen Fehler melden möchten.";

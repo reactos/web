@@ -88,7 +88,7 @@
 			</div>
 		</div>
 </div>
-
+<br />
 <div class="round_corners_grey">
 		<h2 class="pane-title"><?php echo $getbuilds_langres["legend"]; ?></h2>
 		<ul>
