@@ -144,6 +144,7 @@ a#logo:hover {
 	float: right;
 	text-align: right;
 	white-space: nowrap; /* For Opera */
+	padding-right: 15px;
 }
 
 #search-box #keywords {
