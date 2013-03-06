@@ -169,4 +169,5 @@ $wgDefaultUserOptions['usenavigabletoc'] = 1;
 
 # Enable advanced parser functions
 require_once( "$IP/extensions/ParserFunctions/ParserFunctions.php" );
+require_once( "$IP/extensions/SyntaxHighlight_GeSHi/SyntaxHighlight_GeSHi.php" );
 $wgPFEnableStringFunctions = true;
