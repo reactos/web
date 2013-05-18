@@ -1,5 +1,5 @@
 #page-wrapper {
-	font-family: Verdana;
+	font-family: Verdana, sans-serif;
 	font-size: 12px;
 	margin: 0 0 1em 0;
 	padding: 0;
@@ -48,13 +48,42 @@ h1 {
 	border-radius: 2px 2px 0 0;
 	box-shadow: 0 0 5px #909090;
 }
-h2.block-title, .node h2 {
+.node h2, h2.pane-title, h2.block-title {
 	background: #5984c3;
-	color: #fff;
+	color: #ffffff;
 	font-size: 14px;
-	padding: 2px 0 2px 10px;
-	line-height: 16px;
-	border-radius: 2px 2px 0 0;
+	padding: 2px 4px 2px 12px;
+	border-radius: 2px;
+	box-shadow: 1px 1px 1px #bbb;
+}
+h2.block-title {
+	border-radius: 2px 2px 0 0 !imporant;
+	box-shadow: none !important;
+	margin: 0 !important;
+}
+h2 a {
+	color: #fff !important;
+}
+h3 {
+	font-size: 14px !important;
+	font-weight: bold;
+}
+input[type=text],input[type=password] {
+	color: #333;
+	border: 1px solid #ccc;
+	border-radius: 2px;
+	line-height: 20px;
+	height: 19px;
+	box-shadow: 0 0 2px #eee inset;
+	webkit-transition: height 300ms ease;
+	moz-transition: height 300ms ease;
+	ms-transition: height 300ms ease;
+	o-transition: height 300ms ease;
+	transition: height 300ms ease;
+}
+input[type=text]:focus,input[type=password]:focus {
+	border: 1px solid #5984C3;
+	height: 22px;
 }
 div#sidebar-second, div#sidebar-first {
 	width: 20%;
@@ -70,8 +99,6 @@ div#content-group, div#main-group {
 	overflow: hidden;
 	height: auto;
 }
-.main-news {
-}
 .main-news:first-child {
 	margin-left: 0;
 }
@@ -79,9 +106,6 @@ div#content-group, div#main-group {
 	width: 100%;
 	overflow: hidden;
 	height: auto;
-}
-#block-views-main-page-news-block {
-	clear: left;
 }
 #block-views-main-page-news-block div.view-content {
 	float: left;
@@ -93,7 +117,24 @@ div#content-group, div#main-group {
 #block-views-main-page-news-block div.view-footer div.view-content h2 {
 	color: #006090;
 	font-size: 12px;
-	background: #fff;
+	background: #ffffff;
+}
+#page-title {
+	margin-bottom: 2px;
+}
+div#sidebar-second, div#sidebar-first {
+	width: 20%;
+}
+div#content-group, div#main-group {
+	width: 80%;
+}
+#block-block-1, #block-block-2 {
+	width: 100%;
+	overflow: hidden;
+	height: auto;
+}
+.main-news:first-child {
+	margin-left: none;
 }
 #search-block-form div.container-inline {
 	padding: 1px 0 1px 3px;
@@ -105,7 +146,7 @@ div#content-group, div#main-group {
 	width: 100px;
 }
 #footer {
-	font: italic 9px Verdana;
+	font: italic 9px Verdana, sans-serif;
 	border-top: 1px dotted #bbb;
 	text-align: center;
 	padding: 6px 0px;
@@ -166,7 +207,7 @@ div#content-group, div#main-group {
 	background: linear-gradient(to bottom,#A2E274 0%,#84DD40 100%);
 }
 #greenButtons a:hover {
-	background: #F6AF39!important;
+	border: 1px solid #888;
 }
 #main {
 	margin: 0 .4em;
@@ -228,7 +269,7 @@ div#content-group, div#main-group {
 	border: #ccc 1px solid;
 	border-top: none;
 }
-.content p {
+.content p, .content ul, .content ol {
 	line-height: 21px;
 	text-align: justify;
 	padding-right: 20px;
@@ -256,57 +297,6 @@ div#content-group, div#main-group {
 	border-left: #ffffff 1px solid;
 	line-height: normal;
 }
-.node h2, h2.pane-title {
-	background: #5984c3;
-	color: #ffffff;
-	font-size: 14px;
-	padding: 2px 4px 2px 12px;
-	border-radius: 2px;
-	box-shadow: 1px 1px 1px #bbb;
-}
-h2 a {
-	color: #fff !important;
-}
-#page-title {
-	margin-bottom: 2px;
-}
-div#sidebar-second, div#sidebar-first {
-	width: 20%;
-}
-div#content-group, div#main-group {
-	width: 80%;
-}
-.node.node-news.clearfix {
-	clear: left;
-}
-#block-block-1, #block-block-2 {
-	width: 100%;
-	overflow: hidden;
-	height: auto;
-}
-.main-news:first-child {
-	margin-left: none;
-}
-#block-views-frontpage-block_1 {
-	width: 100%;
-	overflow: hidden;
-	height: auto;
-}
-#block-views-main-page-news-block {
-	clear: left;
-}
-#block-views-main-page-news-block div.view-content {
-	float: left;
-	width: 49%;
-}
-#block-views-main-page-news-block div.view-footer div.view-content {
-	float: right;
-}
-#block-views-main-page-news-block div.view-footer div.view-content h2 {
-	color: #006090;
-	font-size: 12px;
-	background: #ffffff;
-}
 img.icon, p.icon_p img {
 	height: 48px;
 	width: 48px;
@@ -326,16 +316,22 @@ img.icon, p.icon_p img {
 	font-weight: bold;
 	padding: 5px;
 }
+.view-blogs .views-field-title {
+	font-size: 14px !important;
+}
 .views-field-title a {
 	text-decoration: none !important;
 }
 .view-content span {
 	font-size: 11px;
 }
+.view-content ul {
+	line-height: 17px;
+}
 .view-content li {
 	margin: 2px;
 }
-.main-newsletter-region .views-field-title a, .ros-news-news .views-field-title a {
+.main-newsletter-region .views-field-title a, .ros-news-news .views-field-title a , .view-blogs .view-content a {
 	font-size: 13px !important;
 	padding: 1px 5px 2px 5px;
 	margin: 3px;
@@ -349,47 +345,21 @@ img.icon, p.icon_p img {
 .main-newsletter-region, .ros-news-news {
 	min-height: 200px;
 }
+.pane-views-blogs-block {
+	border-left: 1px dotted #ccc;
+	padding-left: 10px;
+}
 #block-views-random-screenshot-block {
 	text-align: center;
 }
-#user-register-form {
+#user-register-form ,#user-login, #user-pass {
 	background-color: #E1EAFB;
 	text-align: center;
 	width: 350px;
 	padding: 10px;
 }
-#user-register-form input[type="text"], #user-register-form input[type="password"] {
-	background-color: #FFFADB;
-	border: 1px solid #CBB945;
-	color: #776B1B;
-	padding: 3px 7px;
-	width: 200px;
-}
-#user-register-form label {
-	color: #817A71;
-}
-#user-login {
-	background-color: #E1EAFB;
-	text-align: center;
-	width: 350px;
-	padding: 10px;
-}
-#user-login input[type="text"], #user-login input[type="password"] {
-	background-color: #FFFADB;
-	border: 1px solid #CBB945;
-	color: #776B1B;
-	padding: 3px 7px;
-	width: 200px;
-}
-#user-login label {
-	color: #817A71;
-}
-#user-pass {
-	background-color: #E1EAFB;
-	text-align: center;
-	width: 350px;
-	padding: 10px;
-}
+#user-register-form input[type="text"], #user-register-form input[type="password"],
+#user-login input[type="text"], #user-login input[type="password"],
 #user-pass input[type="text"], #user-pass input[type="password"] {
 	background-color: #FFFADB;
 	border: 1px solid #CBB945;
@@ -397,7 +367,7 @@ img.icon, p.icon_p img {
 	padding: 3px 7px;
 	width: 200px;
 }
-#user-pass label {
+#user-register-form label , #user-login label, #user-pass label {
 	color: #817A71;
 }
 #header {
@@ -478,23 +448,6 @@ img.icon, p.icon_p img {
 .vmiddle {
 	vertical-align: middle;
 }
-input[type=text],input[type=password] {
-	color: #333;
-	border: 1px solid #ccc;
-	border-radius: 2px;
-	line-height: 20px;
-	height: 19px;
-	box-shadow: 0 0 2px #eee inset;
-	webkit-transition: height 300ms ease;
-	moz-transition: height 300ms ease;
-	ms-transition: height 300ms ease;
-	o-transition: height 300ms ease;
-	transition: height 300ms ease;
-}
-input[type=text]:focus,input[type=password]:focus {
-	border: 1px solid #5984C3;
-	height: 22px;
-}
 #edit-name, #edit-pass {
 	width: 135px;
 	margin-left: 3px;
@@ -533,6 +486,15 @@ input[type=text]:focus,input[type=password]:focus {
 #block-locale-language {
 	border-bottom: 1px solid #ccc;
 }
+.language-switcher-locale-url li {
+	list-style-type: none;
+	opacity: 0.6;
+	padding: 1px;
+}
+.language-switcher-locale-url {
+	padding-left: 10px;
+	line-height: 17px !important;
+}
 #block-views-random-screenshot-block a {
 	color: #707070 !important;
 }
@@ -544,14 +506,6 @@ input[type=text]:focus,input[type=password]:focus {
 }
 h3 .comment-title a {
 	color: #808080;
-}
-h1 {
-	background: #eee;
-	color: #404040;
-	font-size: 15px;
-	padding: 2px 0 2px 10px;
-	line-height: 20px;
-	border-radius: 2px 2px 0 0;
 }
 .comment-title a {
 	color: #808080 !important;
@@ -587,7 +541,7 @@ h1 {
 	height: 21px;
 }
 .finTC {
-	background-position: -35px 0px;
+	background-position: -35px 0;
 	width: 82px;
 	height: 15px;
 }
@@ -617,7 +571,7 @@ h1 {
 	height: 35px;
 }
 .sprite-blog:before {
-	background: url('../images/icons_sprite.png') no-repeat top left;
+	background: url(../images/icons_sprite.png) no-repeat top left;
 	background-position: 0 0;
 	width: 48px;
 	height: 48px;
@@ -627,7 +581,7 @@ h1 {
 	padding-right: 7px;
 }
 .sprite-chat:before {
-	background: url('../images/icons_sprite.png') no-repeat top left;
+	background: url(../images/icons_sprite.png) no-repeat top left;
 	background-position: -96px 0;
 	width: 48px;
 	height: 48px;
@@ -637,7 +591,7 @@ h1 {
 	padding-right: 7px;
 }
 .sprite-cmd:before {
-	background: url('../images/icons_sprite.png') no-repeat top left;
+	background: url(../images/icons_sprite.png) no-repeat top left;
 	background-position: -192px 0;
 	width: 48px;
 	height: 48px;
@@ -647,7 +601,7 @@ h1 {
 	padding-right: 7px;
 }
 .sprite-dev:before {
-	background: url('../images/icons_sprite.png') no-repeat top left;
+	background: url(../images/icons_sprite.png) no-repeat top left;
 	background-position: -288px 0;
 	width: 48px;
 	height: 48px;
@@ -657,7 +611,7 @@ h1 {
 	padding-right: 7px;
 }
 .sprite-forums:before {
-	background: url('../images/icons_sprite.png') no-repeat top left;
+	background: url(../images/icons_sprite.png) no-repeat top left;
 	background-position: -384px 0;
 	width: 48px;
 	height: 48px;
@@ -667,7 +621,7 @@ h1 {
 	padding-right: 7px;
 }
 .sprite-help:before {
-	background: url('../images/icons_sprite.png') no-repeat top left;
+	background: url(../images/icons_sprite.png) no-repeat top left;
 	background-position: -480px 0;
 	width: 48px;
 	height: 48px;
@@ -677,7 +631,7 @@ h1 {
 	padding-right: 7px;
 }
 .sprite-mail:before {
-	background: url('../images/icons_sprite.png') no-repeat top left;
+	background: url(../images/icons_sprite.png) no-repeat top left;
 	background-position: -576px 0;
 	width: 48px;
 	height: 48px;
@@ -687,7 +641,7 @@ h1 {
 	padding-right: 7px;
 }
 .sprite-news:before {
-	background: url('../images/icons_sprite.png') no-repeat top left;
+	background: url(../images/icons_sprite.png) no-repeat top left;
 	background-position: -672px 0;
 	width: 48px;
 	height: 48px;
@@ -697,7 +651,7 @@ h1 {
 	padding-right: 7px;
 }
 .sprite-person:before {
-	background: url('../images/icons_sprite.png') no-repeat top left;
+	background: url(../images/icons_sprite.png) no-repeat top left;
 	background-position: -768px 0;
 	width: 48px;
 	height: 48px;
@@ -707,7 +661,7 @@ h1 {
 	padding-right: 7px;
 }
 .sprite-translate:before {
-	background: url('../images/icons_sprite.png') no-repeat top left;
+	background: url(../images/icons_sprite.png) no-repeat top left;
 	background-position: -864px 0;
 	width: 48px;
 	height: 48px;
@@ -717,7 +671,7 @@ h1 {
 	padding-right: 7px;
 }
 .sprite-wiki:before {
-	background: url('../images/icons_sprite.png') no-repeat top left;
+	background: url(../images/icons_sprite.png) no-repeat top left;
 	background-position: -960px 0;
 	width: 48px;
 	height: 48px;
@@ -738,6 +692,15 @@ ul.community-list li {
 }
 ul.community-list li p {
 	margin: 0 0 0 55px;
+}
+li.active {
+	opacity: 1 !important;
+}
+.block-phpbbforum .content {
+	padding: 10px;
+}
+.views-view-grid td {
+	padding: 30px;
 }
 #bsod {
 	background: #000099;
