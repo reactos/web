@@ -1,0 +1,222 @@
+/* proSilver Link Styles
+---------------------------------------- */
+
+/* Links adjustment to correctly display an order of rtl/ltr mixed content */
+#phpbbforum-page a {
+	direction: ltr;
+	unicode-bidi: embed;
+}
+
+#phpbbforum-page a:link	{ color: #898989; text-decoration: none; }
+#phpbbforum-page a:visited	{ color: #898989; text-decoration: none; }
+#phpbbforum-page a:hover	{ color: #d3d3d3; text-decoration: underline; }
+#phpbbforum-page a:active	{ color: #d2d2d2; text-decoration: none; }
+
+/* Coloured usernames */
+#phpbbforum-page .username-coloured {
+	font-weight: bold;
+	display: inline !important;
+	padding: 0 !important;
+}
+
+/* Links on gradient backgrounds */
+#phpbbforum-page #search-box a:link, #phpbbforum-page .navbg a:link, #phpbbforum-page .forumbg .header a:link, #phpbbforum-page .forabg .header a:link, #phpbbforum-page th a:link {
+	color: #FFFFFF;
+	text-decoration: none;
+}
+
+#phpbbforum-page #search-box a:visited, #phpbbforum-page .navbg a:visited, #phpbbforum-page .forumbg .header a:visited, #phpbbforum-page .forabg .header a:visited, #phpbbforum-page th a:visited {
+	color: #FFFFFF;
+	text-decoration: none;
+}
+
+#phpbbforum-page #search-box a:hover, #phpbbforum-page .navbg a:hover, #phpbbforum-page .forumbg .header a:hover, #phpbbforum-page .forabg .header a:hover, #phpbbforum-page th a:hover {
+	color: #ffffff;
+	text-decoration: underline;
+}
+
+#phpbbforum-page #search-box a:active, #phpbbforum-page .navbg a:active, #phpbbforum-page .forumbg .header a:active, #phpbbforum-page .forabg .header a:active, #phpbbforum-page th a:active {
+	color: #ffffff;
+	text-decoration: none;
+}
+
+/* Links for forum/topic lists */
+#phpbbforum-page a.forumtitle {
+	font-family: "Trebuchet MS", Helvetica, Arial, Sans-serif;
+	font-size: 1.2em;
+	font-weight: bold;
+	color: #898989;
+	text-decoration: none;
+}
+
+/* #phpbbforum-page a.forumtitle:visited { color: #898989; } */
+
+#phpbbforum-page a.forumtitle:hover {
+	color: #bcbcbc;
+	text-decoration: underline;
+}
+
+#phpbbforum-page a.forumtitle:active {
+	color: #898989;
+}
+
+#phpbbforum-page a.topictitle {
+	font-family: "Trebuchet MS", Helvetica, Arial, Sans-serif;
+	font-size: 1.2em;
+	font-weight: bold;
+	color: #898989;
+	text-decoration: none;
+}
+
+/* a.topictitle:visited { color: #d2d2d2; } */
+
+#phpbbforum-page a.topictitle:hover {
+	color: #bcbcbc;
+	text-decoration: underline;
+}
+
+#phpbbforum-page a.topictitle:active {
+	color: #898989;
+}
+
+/* Post body links */
+#phpbbforum-page .postlink {
+	text-decoration: none;
+	color: #d2d2d2;
+	border-bottom: 1px solid #d2d2d2;
+	padding-bottom: 0;
+}
+
+/*#phpbbforum-page .postlink:visited { color: #bdbdbd; } */
+
+#phpbbforum-page .postlink:active {
+	color: #d2d2d2;
+}
+
+#phpbbforum-page .postlink:hover {
+	background-color: #f6f6f6;
+	text-decoration: none;
+	color: #404040;
+}
+
+#phpbbforum-page .signature a, #phpbbforum-page .signature a:visited, #phpbbforum-page .signature a:hover, #phpbbforum-page .signature a:active {
+	border: none;
+	text-decoration: underline;
+	background-color: transparent;
+}
+
+/* Profile links */
+#phpbbforum-page .postprofile a:link, #phpbbforum-page .postprofile a:visited, #phpbbforum-page .postprofile dt.author a {
+	font-weight: bold;
+	color: #898989;
+	text-decoration: none;
+}
+
+#phpbbforum-page .postprofile a:hover, #phpbbforum-page .postprofile dt.author a:hover {
+	text-decoration: underline;
+	color: #d3d3d3;
+}
+
+/* CSS spec requires a:link, a:visited, a:hover and a:active rules to be specified in this order. */
+/* See http://www.phpbb.com/bugs/phpbb3/59685 */
+#phpbbforum-page .postprofile a:active {
+	font-weight: bold;
+	color: #898989;
+	text-decoration: none;
+}
+
+/* Profile searchresults */	
+#phpbbforum-page .search .postprofile a {
+	color: #898989;
+	text-decoration: none; 
+	font-weight: normal;
+}
+
+#phpbbforum-page .search .postprofile a:hover {
+	color: #d3d3d3;
+	text-decoration: underline; 
+}
+
+/* Back to top of page */
+#phpbbforum-page .back2top {
+	clear: both;
+	height: 11px;
+	text-align: right;
+}
+
+#phpbbforum-page a.top {
+	background: none no-repeat top left;
+	text-decoration: none;
+	width: {IMG_ICON_BACK_TOP_WIDTH}px;
+	height: {IMG_ICON_BACK_TOP_HEIGHT}px;
+	display: block;
+	float: right;
+	overflow: hidden;
+	letter-spacing: 1000px;
+	text-indent: 11px;
+}
+
+#phpbbforum-page a.top2 {
+	background: none no-repeat 0 50%;
+	text-decoration: none;
+	padding-left: 15px;
+}
+
+/* Arrow links  */
+#phpbbforum-page a.up		{ background: none no-repeat left center; }
+#phpbbforum-page a.down		{ background: none no-repeat right center; }
+#phpbbforum-page a.left		{ background: none no-repeat 3px 60%; }
+#phpbbforum-page a.right		{ background: none no-repeat 95% 60%; }
+
+#phpbbforum-page a.up, #phpbbforum-page a.up:link, #phpbbforum-page a.up:active, #phpbbforum-page a.up:visited {
+	padding-left: 10px;
+	text-decoration: none;
+	border-bottom-width: 0;
+}
+
+#phpbbforum-page a.up:hover {
+	background-position: left top;
+	background-color: transparent;
+}
+
+#phpbbforum-page a.down, #phpbbforum-page a.down:link, #phpbbforum-page a.down:active, #phpbbforum-page a.down:visited {
+	padding-right: 10px;
+}
+
+#phpbbforum-page a.down:hover {
+	background-position: right bottom;
+	text-decoration: none;
+}
+
+#phpbbforum-page a.left, #phpbbforum-page a.left:active, #phpbbforum-page a.left:visited {
+	padding-left: 12px;
+}
+
+#phpbbforum-page a.left:hover {
+	color: #d2d2d2;
+	text-decoration: none;
+	background-position: 0 60%;
+}
+
+#phpbbforum-page a.right, #phpbbforum-page a.right:active, #phpbbforum-page a.right:visited {
+	padding-right: 12px;
+}
+
+#phpbbforum-page a.right:hover {
+	color: #d2d2d2;
+	text-decoration: none;
+	background-position: 100% 60%;
+}
+
+/* invisible skip link, used for accessibility  */
+#phpbbforum-page .skiplink {
+	position: absolute;
+	left: -999px;
+	width: 990px;
+}
+
+/* Feed icon in forumlist_body.html */
+#phpbbforum-page a.feed-icon-forum {
+	float: right;
+	margin: 3px;
+}

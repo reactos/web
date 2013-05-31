@@ -1,0 +1,6 @@
+name = Bugzilla bridge
+description = Bugzilla bridge
+package = ReactOS modules
+core = 7.x
+php = 5.2
+

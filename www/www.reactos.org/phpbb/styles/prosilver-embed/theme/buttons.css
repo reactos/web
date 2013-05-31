@@ -1,0 +1,168 @@
+/* proSilver Button Styles
+---------------------------------------- */
+
+/* Rollover buttons
+Based on: http://wellstyled.com/css-nopreload-rollovers.html
+----------------------------------------*/
+#phpbbforum-page .buttons   {
+float: left;
+width: auto;
+height: auto;
+}
+
+/* Rollover state */
+#phpbbforum-page .buttons div   {
+float: left;
+margin: 0 5px 0 0;
+background-position: 0 100%;
+}
+
+/* Rolloff state */
+#phpbbforum-page .buttons div a   {
+display: block;
+width: 100%;
+height: 100%;
+background-position: 0 0;
+position: relative;
+overflow: hidden;
+}
+
+/* Hide <a> text and hide off-state image when rolling over (prevents flicker in IE) */
+/*#phpbbforum-page .buttons div span		{ display: none; }*/
+/*#phpbbforum-page .buttons div a:hover	{ background-image: none; }*/
+#phpbbforum-page .buttons div span			{ position: absolute; width: 100%; height: 100%; cursor: pointer;}
+#phpbbforum-page .buttons div a:hover span	{ background-position: 0 100%; }
+
+/* Big button images */
+#phpbbforum-page .reply-icon span	{ background: transparent none 0 0 no-repeat; }
+#phpbbforum-page .post-icon span		{ background: transparent none 0 0 no-repeat; }
+#phpbbforum-page .locked-icon span	{ background: transparent none 0 0 no-repeat; }
+#phpbbforum-page .pmreply-icon span	{ background: none 0 0 no-repeat; }
+#phpbbforum-page .newpm-icon span 	{ background: none 0 0 no-repeat; }
+#phpbbforum-page .forwardpm-icon span 	{ background: none 0 0 no-repeat; }
+
+/* Set big button dimensions */
+#phpbbforum-page .buttons div.reply-icon		{ width: {IMG_BUTTON_TOPIC_REPLY_WIDTH}px; height: {IMG_BUTTON_TOPIC_REPLY_HEIGHT}px; }
+#phpbbforum-page .buttons div.post-icon		{ width: {IMG_BUTTON_TOPIC_NEW_WIDTH}px; height: {IMG_BUTTON_TOPIC_NEW_HEIGHT}px; }
+#phpbbforum-page .buttons div.locked-icon	{ width: {IMG_BUTTON_TOPIC_LOCKED_WIDTH}px; height: {IMG_BUTTON_TOPIC_LOCKED_HEIGHT}px; }
+#phpbbforum-page .buttons div.pmreply-icon	{ width: {IMG_BUTTON_PM_REPLY_WIDTH}px; height: {IMG_BUTTON_PM_REPLY_HEIGHT}px; }
+#phpbbforum-page .buttons div.newpm-icon		{ width: {IMG_BUTTON_PM_NEW_WIDTH}px; height: {IMG_BUTTON_PM_NEW_HEIGHT}px; }
+#phpbbforum-page .buttons div.forwardpm-icon	{ width: {IMG_BUTTON_PM_FORWARD_WIDTH}px; height: {IMG_BUTTON_PM_FORWARD_HEIGHT}px; }
+
+/* Sub-header (navigation bar)
+--------------------------------------------- */
+#phpbbforum-page a.print , #phpbbforum-page  a.sendemail , #phpbbforum-page  a.fontsize   {
+display: block;
+overflow: hidden;
+height: 18px;
+text-indent: -5000px;
+text-align: left;
+background-repeat: no-repeat;
+}
+
+#phpbbforum-page a.print   {
+background-image: none;
+width: 22px;
+}
+
+#phpbbforum-page a.sendemail   {
+background-image: none;
+width: 22px;
+}
+
+#phpbbforum-page a.fontsize   {
+background-image: none;
+background-position: 0 -1px;
+width: 29px;
+}
+
+#phpbbforum-page a.fontsize:hover   {
+background-position: 0 -20px;
+text-decoration: none;
+}
+
+/* Icon images
+---------------------------------------- */
+#phpbbforum-page .sitehome, #phpbbforum-page .icon-faq, #phpbbforum-page .icon-members, #phpbbforum-page .icon-home, #phpbbforum-page .icon-ucp, #phpbbforum-page .icon-register, #phpbbforum-page .icon-logout, #phpbbforum-page .icon-bookmark , #phpbbforum-page  .icon-bump , #phpbbforum-page  .icon-subscribe , #phpbbforum-page  .icon-unsubscribe , #phpbbforum-page  .icon-pages , #phpbbforum-page  .icon-search   {
+background-position: 0 50%;
+background-repeat: no-repeat;
+background-image: none;
+padding: 1px 0 0 17px;
+}
+
+/* Poster profile icons
+----------------------------------------*/
+#phpbbforum-page ul.profile-icons   {
+padding-top: 10px;
+list-style: none;
+}
+
+/* Rollover state */
+#phpbbforum-page ul.profile-icons li   {
+float: left;
+margin: 0 6px 3px 0;
+background-position: 0 100%;
+}
+
+/* Rolloff state */
+#phpbbforum-page ul.profile-icons li a   {
+display: block;
+width: 100%;
+height: 100%;
+background-position: 0 0;
+}
+
+/* Hide <a> text and hide off-state image when rolling over (prevents flicker in IE) */
+#phpbbforum-page ul.profile-icons li span { display:none; }
+#phpbbforum-page ul.profile-icons li a:hover { background: none; }
+
+/* Positioning of moderator icons */
+#phpbbforum-page .postbody ul.profile-icons   {
+float: right;
+width: auto;
+padding: 0;
+}
+
+#phpbbforum-page .postbody ul.profile-icons li   {
+margin: 0 3px;
+}
+
+/* Profile & navigation icons */
+#phpbbforum-page .email-icon, #phpbbforum-page .email-icon a		{ background: none top left no-repeat; }
+#phpbbforum-page .aim-icon, #phpbbforum-page .aim-icon a			{ background: none top left no-repeat; }
+#phpbbforum-page .yahoo-icon, #phpbbforum-page .yahoo-icon a		{ background: none top left no-repeat; }
+#phpbbforum-page .web-icon, #phpbbforum-page .web-icon a			{ background: none top left no-repeat; }
+#phpbbforum-page .msnm-icon, #phpbbforum-page .msnm-icon a			{ background: none top left no-repeat; }
+#phpbbforum-page .icq-icon, #phpbbforum-page .icq-icon a			{ background: none top left no-repeat; }
+#phpbbforum-page .jabber-icon, #phpbbforum-page .jabber-icon a		{ background: none top left no-repeat; }
+#phpbbforum-page .pm-icon, #phpbbforum-page .pm-icon a				{ background: none top left no-repeat; }
+#phpbbforum-page .quote-icon, #phpbbforum-page .quote-icon a		{ background: none top left no-repeat; }
+
+/* Moderator icons */
+#phpbbforum-page .report-icon, #phpbbforum-page .report-icon a		{ background: none top left no-repeat; }
+#phpbbforum-page .warn-icon, #phpbbforum-page .warn-icon a			{ background: none top left no-repeat; }
+#phpbbforum-page .edit-icon, #phpbbforum-page .edit-icon a			{ background: none top left no-repeat; }
+#phpbbforum-page .delete-icon, #phpbbforum-page .delete-icon a		{ background: none top left no-repeat; }
+#phpbbforum-page .info-icon, #phpbbforum-page .info-icon a			{ background: none top left no-repeat; }
+
+/* Set profile icon dimensions */
+#phpbbforum-page ul.profile-icons li.email-icon		{ width: {IMG_ICON_CONTACT_EMAIL_WIDTH}px; height: {IMG_ICON_CONTACT_EMAIL_HEIGHT}px; }
+#phpbbforum-page ul.profile-icons li.aim-icon	{ width: {IMG_ICON_CONTACT_AIM_WIDTH}px; height: {IMG_ICON_CONTACT_AIM_HEIGHT}px; }
+#phpbbforum-page ul.profile-icons li.yahoo-icon	{ width: {IMG_ICON_CONTACT_YAHOO_WIDTH}px; height: {IMG_ICON_CONTACT_YAHOO_HEIGHT}px; }
+#phpbbforum-page ul.profile-icons li.web-icon	{ width: {IMG_ICON_CONTACT_WWW_WIDTH}px; height: {IMG_ICON_CONTACT_WWW_HEIGHT}px; }
+#phpbbforum-page ul.profile-icons li.msnm-icon	{ width: {IMG_ICON_CONTACT_MSNM_WIDTH}px; height: {IMG_ICON_CONTACT_MSNM_HEIGHT}px; }
+#phpbbforum-page ul.profile-icons li.icq-icon	{ width: {IMG_ICON_CONTACT_ICQ_WIDTH}px; height: {IMG_ICON_CONTACT_ICQ_HEIGHT}px; }
+#phpbbforum-page ul.profile-icons li.jabber-icon	{ width: {IMG_ICON_CONTACT_JABBER_WIDTH}px; height: {IMG_ICON_CONTACT_JABBER_HEIGHT}px; }
+#phpbbforum-page ul.profile-icons li.pm-icon		{ width: {IMG_ICON_CONTACT_PM_WIDTH}px; height: {IMG_ICON_CONTACT_PM_HEIGHT}px; }
+#phpbbforum-page ul.profile-icons li.quote-icon	{ width: {IMG_ICON_POST_QUOTE_WIDTH}px; height: {IMG_ICON_POST_QUOTE_HEIGHT}px; }
+#phpbbforum-page ul.profile-icons li.report-icon	{ width: {IMG_ICON_POST_REPORT_WIDTH}px; height: {IMG_ICON_POST_REPORT_HEIGHT}px; }
+#phpbbforum-page ul.profile-icons li.edit-icon	{ width: {IMG_ICON_POST_EDIT_WIDTH}px; height: {IMG_ICON_POST_EDIT_HEIGHT}px; }
+#phpbbforum-page ul.profile-icons li.delete-icon	{ width: {IMG_ICON_POST_DELETE_WIDTH}px; height: {IMG_ICON_POST_DELETE_HEIGHT}px; }
+#phpbbforum-page ul.profile-icons li.info-icon	{ width: {IMG_ICON_POST_INFO_WIDTH}px; height: {IMG_ICON_POST_INFO_HEIGHT}px; }
+#phpbbforum-page ul.profile-icons li.warn-icon	{ width: {IMG_ICON_USER_WARN_WIDTH}px; height: {IMG_ICON_USER_WARN_HEIGHT}px; }
+
+/* Fix profile icon default margins */
+#phpbbforum-page ul.profile-icons li.edit-icon	{ margin: 0 0 0 3px; }
+#phpbbforum-page ul.profile-icons li.quote-icon	{ margin: 0 0 0 10px; }
+#phpbbforum-page ul.profile-icons li.info-icon, #phpbbforum-page ul.profile-icons li.report-icon	{ margin: 0 3px 0 0; }
+

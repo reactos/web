@@ -1,0 +1,393 @@
+/* proSilver Form Styles
+---------------------------------------- */
+
+/* General form styles
+----------------------------------------*/
+#phpbbforum-page fieldset   {
+border-width: 0;
+font-family: Verdana, Helvetica, Arial, sans-serif;
+font-size: 1.1em;
+}
+
+#phpbbforum-page input   {
+font-weight: normal;
+cursor: pointer;
+vertical-align: middle;
+padding: 0 3px;
+font-size: 1em;
+font-family: Verdana, Helvetica, Arial, sans-serif;
+}
+
+#phpbbforum-page select   {
+font-family: Verdana, Helvetica, Arial, sans-serif;
+font-weight: normal;
+cursor: pointer;
+vertical-align: middle;
+border: 1px solid #666666;
+padding: 1px;
+background-color: #FAFAFA;
+font-size: 1em;
+}
+
+#phpbbforum-page option   {
+padding-right: 1em;
+}
+
+#phpbbforum-page option.disabled-option   {
+color: graytext;
+}
+
+#phpbbforum-page textarea   {
+font-family: "Lucida Grande", Verdana, Helvetica, Arial, sans-serif;
+width: 60%;
+padding: 2px;
+font-size: 1em;
+line-height: 1.4em;
+}
+
+#phpbbforum-page label   {
+cursor: default;
+padding-right: 5px;
+color: #676767;
+}
+
+#phpbbforum-page label input   {
+vertical-align: middle;
+}
+
+#phpbbforum-page label img   {
+vertical-align: middle;
+}
+
+/* Definition list layout for forms
+---------------------------------------- */
+#phpbbforum-page fieldset dl   {
+padding: 4px 0;
+}
+
+#phpbbforum-page fieldset dt   {
+float: left;
+width: 40%;
+text-align: left;
+display: block;
+}
+
+#phpbbforum-page fieldset dd   {
+margin-left: 41%;
+vertical-align: top;
+margin-bottom: 3px;
+}
+
+/* Specific layout 1 */
+#phpbbforum-page fieldset.fields1 dt   {
+width: 15em;
+border-right-width: 0;
+}
+
+#phpbbforum-page fieldset.fields1 dd   {
+margin-left: 15em;
+border-left-width: 0;
+}
+
+#phpbbforum-page fieldset.fields1   {
+background-color: transparent;
+}
+
+#phpbbforum-page fieldset.fields1 div   {
+margin-bottom: 3px;
+}
+
+/* Set it back to 0px for the reCaptcha divs: PHPBB3-9587 */
+#phpbbforum-page fieldset.fields1 #recaptcha_widget_div div {
+	margin-bottom: 0;
+}
+
+/* Specific layout 2 */
+#phpbbforum-page fieldset.fields2 dt   {
+width: 15em;
+border-right-width: 0;
+}
+
+#phpbbforum-page fieldset.fields2 dd   {
+margin-left: 16em;
+border-left-width: 0;
+}
+
+/* Form elements */
+#phpbbforum-page dt label   {
+font-weight: bold;
+text-align: left;
+}
+
+#phpbbforum-page dd label   {
+white-space: nowrap;
+color: #333;
+}
+
+#phpbbforum-page dd input , #phpbbforum-page  dd textarea   {
+margin-right: 3px;
+}
+
+#phpbbforum-page dd select   {
+width: auto;
+}
+
+#phpbbforum-page dd textarea   {
+width: 85%;
+}
+
+/* Hover effects */
+#phpbbforum-page fieldset dl:hover dt label   {
+color: #000000;
+}
+
+#phpbbforum-page fieldset.fields2 dl:hover dt label   {
+color: inherit;
+}
+
+#phpbbforum-page #timezone   {
+width: 95%;
+}
+
+#phpbbforum-page * html #timezone   {
+width: 50%;
+}
+
+/* Quick-login on index page */
+#phpbbforum-page fieldset.quick-login   {
+margin-top: 5px;
+}
+
+#phpbbforum-page fieldset.quick-login input   {
+width: auto;
+}
+
+#phpbbforum-page fieldset.quick-login input.inputbox   {
+width: 15%;
+vertical-align: middle;
+margin-right: 5px;
+background-color: #f3f3f3;
+}
+
+#phpbbforum-page fieldset.quick-login label   {
+white-space: nowrap;
+padding-right: 2px;
+}
+
+/* Display options on viewtopic/viewforum pages  */
+#phpbbforum-page fieldset.display-options   {
+text-align: center;
+margin: 3px 0 5px 0;
+}
+
+#phpbbforum-page fieldset.display-options label   {
+white-space: nowrap;
+padding-right: 2px;
+}
+
+#phpbbforum-page fieldset.display-options a   {
+margin-top: 3px;
+}
+
+/* Display actions for ucp and mcp pages */
+#phpbbforum-page fieldset.display-actions   {
+text-align: right;
+line-height: 2em;
+white-space: nowrap;
+padding-right: 1em;
+}
+
+#phpbbforum-page fieldset.display-actions label   {
+white-space: nowrap;
+padding-right: 2px;
+}
+
+#phpbbforum-page fieldset.sort-options   {
+line-height: 2em;
+}
+
+/* MCP forum selection*/
+#phpbbforum-page fieldset.forum-selection   {
+margin: 5px 0 3px 0;
+float: right;
+}
+
+#phpbbforum-page fieldset.forum-selection2   {
+margin: 13px 0 3px 0;
+float: right;
+}
+
+/* Jumpbox */
+#phpbbforum-page fieldset.jumpbox   {
+text-align: right;
+margin-top: 15px;
+height: 2.5em;
+}
+
+#phpbbforum-page fieldset.quickmod   {
+width: 50%;
+float: right;
+text-align: right;
+height: 2.5em;
+}
+
+/* Submit button fieldset */
+#phpbbforum-page fieldset.submit-buttons   {
+text-align: center;
+vertical-align: middle;
+margin: 5px 0;
+}
+
+#phpbbforum-page fieldset.submit-buttons input   {
+vertical-align: middle;
+padding-top: 3px;
+padding-bottom: 3px;
+}
+
+/* Posting page styles
+----------------------------------------*/
+
+/* Buttons used in the editor */
+#phpbbforum-page #format-buttons   {
+margin: 15px 0 2px 0;
+}
+
+#phpbbforum-page #format-buttons input , #phpbbforum-page  #format-buttons select   {
+vertical-align: middle;
+}
+
+/* Main message box */
+#phpbbforum-page #message-box   {
+width: 80%;
+}
+
+#phpbbforum-page #message-box textarea   {
+font-family: "Trebuchet MS", Verdana, Helvetica, Arial, sans-serif;
+width: 450px;
+height: 270px;
+min-width: 100%;
+max-width: 100%;
+font-size: 1.2em;
+color: #333333;
+}
+
+/* Emoticons panel */
+#phpbbforum-page #smiley-box   {
+width: 18%;
+float: right;
+}
+
+#phpbbforum-page #smiley-box img   {
+margin: 3px;
+}
+
+/* Input field styles
+---------------------------------------- */
+#phpbbforum-page .inputbox   {
+background-color: #FFFFFF;
+border: 1px solid #c0c0c0;
+color: #333333;
+padding: 2px;
+cursor: text;
+}
+
+#phpbbforum-page .inputbox:hover   {
+border: 1px solid #eaeaea;
+}
+
+#phpbbforum-page .inputbox:focus   {
+border: 1px solid #eaeaea;
+color: #4b4b4b;
+}
+
+#phpbbforum-page input.inputbox	{ width: 85%; }
+#phpbbforum-page input.medium	{ width: 50%; }
+#phpbbforum-page input.narrow	{ width: 25%; }
+#phpbbforum-page input.tiny		{ width: 125px; }
+
+#phpbbforum-page textarea.inputbox   {
+width: 85%;
+}
+
+#phpbbforum-page .autowidth   {
+width: auto !important;
+}
+
+/* Form button styles
+---------------------------------------- */
+#phpbbforum-page input.button1 , #phpbbforum-page  input.button2   {
+font-size: 1em;
+}
+
+#phpbbforum-page a.button1 , #phpbbforum-page  input.button1 , #phpbbforum-page  input.button3 , #phpbbforum-page  a.button2 , #phpbbforum-page  input.button2   {
+width: auto !important;
+padding-top: 1px;
+padding-bottom: 1px;
+font-family: "Lucida Grande", Verdana, Helvetica, Arial, sans-serif;
+color: #000;
+background: #FAFAFA none repeat-x top left;
+}
+
+#phpbbforum-page a.button1 , #phpbbforum-page  input.button1   {
+font-weight: bold;
+border: 1px solid #666666;
+}
+
+#phpbbforum-page input.button3   {
+padding: 0;
+margin: 0;
+line-height: 5px;
+height: 12px;
+background-image: none;
+font-variant: small-caps;
+}
+
+/* Alternative button */
+#phpbbforum-page a.button2 , #phpbbforum-page  input.button2 , #phpbbforum-page  input.button3   {
+border: 1px solid #666666;
+}
+
+/* <a> button in the style of the form buttons */
+#phpbbforum-page a.button1 , #phpbbforum-page  a.button1:link , #phpbbforum-page  a.button1:visited , #phpbbforum-page  a.button1:active , #phpbbforum-page  a.button2 , #phpbbforum-page  a.button2:link , #phpbbforum-page  a.button2:visited , #phpbbforum-page  a.button2:active   {
+text-decoration: none;
+color: #000000;
+padding: 2px 8px;
+line-height: 250%;
+vertical-align: text-bottom;
+background-position: 0 1px;
+}
+
+/* Hover states */
+#phpbbforum-page a.button1:hover , #phpbbforum-page  input.button1:hover , #phpbbforum-page  a.button2:hover , #phpbbforum-page  input.button2:hover , #phpbbforum-page  input.button3:hover   {
+border: 1px solid #BCBCBC;
+background-position: 0 100%;
+color: #BCBCBC;
+}
+
+#phpbbforum-page input.disabled   {
+font-weight: normal;
+color: #666666;
+}
+
+/* Topic and forum Search */
+#phpbbforum-page .search-box   {
+margin-top: 3px;
+margin-left: 5px;
+float: left;
+}
+
+#phpbbforum-page .search-box input   {
+}
+
+#phpbbforum-page input.search   {
+background-image: none;
+background-repeat: no-repeat;
+background-position: left 1px;
+padding-left: 17px;
+}
+
+#phpbbforum-page .full { width: 95%; }
+#phpbbforum-page .medium { width: 50%;}
+#phpbbforum-page .narrow { width: 25%;}
+#phpbbforum-page .tiny { width: 10%;}
+

@@ -1,0 +1,33 @@
+/**
+ * @file
+ * Wireframes Styling
+ *
+ * Add wireframes to the basic layout elements.
+ */
+
+
+.with-wireframes #header .section,
+.with-wireframes #content .section,
+.with-wireframes #navigation .section,
+.with-wireframes .region-sidebar-first .section,
+.with-wireframes .region-sidebar-second .section,
+.with-wireframes .region-footer,
+.with-wireframes .region-bottom {
+  outline: 1px solid #ccc;
+}
+
+.with-wireframes .wfcyan {
+border: 1px solid cyan;
+}
+.with-wireframes .wfpink {
+border: 1px solid pink;
+}
+.with-wireframes .wfred {
+border: 1px solid red;
+}
+.with-wireframes .wfgreen {
+border: 1px solid green;
+}
+.with-wireframes .wfblue {
+border: 1px solid blue;
+}

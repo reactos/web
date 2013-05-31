@@ -1,0 +1,112 @@
+
+/****************************/
+/* LOCAL CSS                */
+/****************************/
+
+/* Put your custom CSS and CSS overrides in this file and  */
+/* rename it local.css.  By restricting your CSS changes   */
+/* to local.css, your changes will not be overwritten when */
+/* upgrading to a new version of this theme.  You can also */
+/* use a local-rtl.css file for the equivalent in RTL.     */
+
+/* Steps to activate local.css:                       */
+/* 1. Add your custom CSS to this file                */
+/* 2. Rename this file to local.css                   */
+/* 3. Clear cached data at admin/settings/performance */
+
+
+#page{
+font-family: Verdana;
+font-size: 12px;
+margin: 0 0 1em 0;
+padding: 0;
+background: white url('http://reactos.org/images/topbar.jpg') repeat-x left top;
+}
+
+h1{
+display: block;
+line-height: normal;
+font-size: 14px;
+font-weight: bold;
+color: white;
+background-color: #5984c3;
+padding: 0 0 1px 10px;
+margin-top: 0;
+}
+#header{
+margin: 0;
+background: url('http://reactos.org/images/logo.jpg') no-repeat scroll 35px 0;
+padding: 103px 0 26px 0;
+color: white;
+text-align: right;
+}
+#logo,#site-name-wrapper{
+display:none;
+}
+
+#block-system-main-menu ul.menu {
+	list-style-type:none;
+	text-align:center;
+	margin:0;
+	padding:0;
+	line-height:normal;
+}
+
+#block-system-main-menu ul.menu li {
+	display:inline-block;
+	margin:0;
+	padding:0;
+	border-left:#fff 1px solid;
+	padding:0 3px;
+	line-height:normal;
+}
+
+#block-system-main-menu ul.menu li:first-child {
+	border-left:none;
+}
+
+#block-system-main-menu ul.menu li a {
+	font-size: 13px;
+	color: white;
+	text-decoration: none;
+	padding: 1px 5px 1px 5px;
+}
+
+#block-system-main-menu ul.menu li a:hover {
+	color: black;
+	background-color: #FC3;
+}
+
+h2.block-title, .node h2 {
+background:#5984c3;
+color:#fff;
+}
+
+div#sidebar-second, div#sidebar-first {
+width:20%;
+}
+div#content-group, div#main-group{
+width:80%;
+}
+.node.node-news.clearfix{
+clear:left;
+}
+#block-block-1,#block-block-2{
+width:100%;
+overflow:hidden;
+height:auto;
+}
+.main-news{
+width:49%;
+float:left;
+margin-left:1%;
+}
+.main-news:first-child{
+margin-left:none;
+}
+#block-views-frontpage-block_1{
+width:100%;
+overflow:hidden;
+height:auto;
+
+}

@@ -1,0 +1,40 @@
+/* Copied from reactos-style.css */
+#header {
+	background-image: url('/sites/all/themes/zen_reactos/images/topgradient.png');
+	background-repeat: repeat-x;
+	height: 145px;
+	font-family: "Verdana", sans-serif;
+}
+
+#logo {
+	float: left;
+	margin: 3px 0 0 43px;
+}
+
+#topMenu {
+	margin: 0;
+	padding: 100px 0 0 0;
+}
+
+#main-menu {
+	color: #fff;
+	font-size: 14px;
+	padding: 3px 0 3px 300px;
+	box-shadow: 0 5px 5px #ddd;
+	background-color: #5984c3;
+	background-image: -moz-linear-gradient(top, #6690D0, #5984C3);
+	background-image: -webkit-linear-gradient(top, #6690D0, #5984C3);
+	background-image: linear-gradient(top, #6690D0, #5984C3);
+	line-height: 16px;
+}
+#main-menu a {
+	color: #fff;
+	font-size: 14px;
+	padding: 1px 5px;
+	text-decoration: none;
+	border-radius: 2px;
+}
+#main-menu a:hover {
+	background-color: #fc3;
+	color: #000;
+}

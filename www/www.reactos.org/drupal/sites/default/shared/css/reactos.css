@@ -1,0 +1,48 @@
+/*
+  PROJECT:    ReactOS Shared Website Components
+  LICENSE:    GNU GPLv2 or any later version as published by the Free Software Foundation
+  PURPOSE:    Style file for inclusion inside custom subsystems, provides the look and feel of ReactOS Website components
+  COPYRIGHT:  Copyright 2008-2009 Colin Finck <colin@reactos.org>
+*/
+
+/* Headings */
+h2 {
+	font-size: 22px;
+	color: #5984C3;
+	font-weight: bold;
+	margin-top: 0;
+}
+/* IE6 doesn't add the size of the edges to the box height. So we have to add this space by enhancing the "padding-bottom" value */
+* html .bubble_bg, * html .selectable_bubble_bg, * html .hovered_bubble_bg {
+	padding-bottom: 4px;
+}
+.selectable_bubble_bg {
+	background: #E1EAFB;
+}
+.hovered_bubble_bg {
+	background: #FFFFCC;
+}
+/* Data Table */
+.datatable th, .datatable td {
+	padding: 1px 1px 1px 2px;
+}
+
+.datatable tr.head th {
+	background: #5984C3;
+	color: white;
+	text-align: left;
+	padding: 4px;
+}
+
+.datatable tr.odd td,
+.datatable tr.even td {
+	border-bottom: 1px solid #BBBBBB;
+	padding: 2px;
+}
+
+.datatable tr.odd td {
+	background-color: #DDDDDD;
+}
+.datatable tr.even td {
+	background-color: #EEEEEE;
+}

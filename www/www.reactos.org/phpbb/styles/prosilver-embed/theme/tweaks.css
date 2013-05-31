@@ -1,0 +1,101 @@
+/* proSilver Style Sheet Tweaks
+
+These style definitions are mainly IE specific 
+tweaks required due to its poor CSS support.
+-------------------------------------------------*/
+
+#phpbbforum-page * html table, #phpbbforum-page * html select, #phpbbforum-page * html input { font-size: 100%; }
+#phpbbforum-page * html hr { margin: 0; }
+#phpbbforum-page * html span.corners-top, #phpbbforum-page * html span.corners-bottom { background-image: url("{T_THEME_PATH}/images/corners_left.gif"); }
+#phpbbforum-page * html span.corners-top span, #phpbbforum-page * html span.corners-bottom span { background-image: url("{T_THEME_PATH}/images/corners_right.gif"); }
+
+#phpbbforum-page table.table1 {
+	width: 99%;		/* IE < 6 browsers */
+	/* Tantek hack */
+	voice-family: "\"}\"";
+	voice-family: inherit;
+	width: 100%;
+}
+#phpbbforum-page html>body table.table1 { width: 100%; }	/* Reset 100% for opera */
+
+#phpbbforum-page * html ul.topiclist li { position: relative; }
+#phpbbforum-page * html .postbody h3 img { vertical-align: middle; }
+
+/* Form styles */
+#phpbbforum-page html>body dd label input { vertical-align: text-bottom; }	/* Align checkboxes/radio buttons nicely */
+
+#phpbbforum-page * html input.button1, #phpbbforum-page * html input.button2 {
+	padding-bottom: 0;
+	margin-bottom: 1px;
+}
+
+/* Misc layout styles */
+#phpbbforum-page * html .column1, #phpbbforum-page * html .column2 { width: 45%; }
+
+/* Nice method for clearing floated blocks without having to insert any extra markup (like spacer above)
+   From http://www.positioniseverything.net/easyclearing.html 
+#tabs:after, #minitabs:after, .post:after, .navbar:after, fieldset dl:after, ul.topiclist dl:after, ul.linklist:after, dl.polls:after {
+	content: "."; 
+	display: block; 
+	height: 0; 
+	clear: both; 
+	visibility: hidden;
+}*/
+
+#phpbbforum-page .clearfix, #phpbbforum-page #tabs, #phpbbforum-page #minitabs, #phpbbforum-page fieldset dl, #phpbbforum-page ul.topiclist dl, #phpbbforum-page dl.polls {
+	height: 1%;
+	overflow: hidden;
+}
+
+/* viewtopic fix */
+#phpbbforum-page * html .post {
+	height: 25%;
+	overflow: hidden;
+}
+
+/* navbar fix */
+#phpbbforum-page * html .clearfix, #phpbbforum-page * html .navbar, #phpbbforum-page ul.linklist {
+	height: 4%;
+	overflow: hidden;
+}
+
+/* Simple fix so forum and topic lists always have a min-height set, even in IE6
+	From http://www.dustindiaz.com/min-height-fast-hack */
+#phpbbforum-page dl.icon {
+	min-height: 35px;
+	height: auto !important;
+	height: 35px;
+}
+
+#phpbbforum-page * html li.row dl.icon dt {
+	height: 35px;
+	overflow: visible;
+}
+
+#phpbbforum-page * html #search-box {
+	width: 25%;
+}
+
+/* Correctly clear floating for details on profile view */
+#phpbbforum-page *:first-child+html dl.details dd {
+	margin-left: 30%;
+	float: none;
+}
+
+#phpbbforum-page * html dl.details dd {
+	margin-left: 30%;
+	float: none;
+}
+
+#phpbbforum-page * html .forumbg table.table1 {
+	margin: 0 -2px 0px -1px;
+}
+
+/* Headerbar height fix for IE7 and below */
+#phpbbforum-page * html #site-description p {
+	margin-bottom: 1.0em;
+}
+
+#phpbbforum-page *:first-child+html #site-description p {
+	margin-bottom: 1.0em;
+}
