@@ -362,7 +362,7 @@ function Load()
 	MaxRightDragBorder = GetAbsoluteOffsetLeft(ths[ths.length - 1]);
 	
 	// As always, IE needs a special handling (this time for the style of table rows)
-	if(navigator.appName == "Microsoft Internet Explorer")
+	if((navigator.appName == "Microsoft Internet Explorer") && (parseFloat(navigator.appVersion.split("MSIE")[1])) < 10)
 		TableRowEquiv = "block";
 	else
 		TableRowEquiv = "table-row";
