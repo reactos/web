@@ -51,7 +51,7 @@
     <div class="desc"><?php echo $testman_langres["difference"]; ?></div>
 </div>
 
-<table id="comparetable" class="datatable" cellspacing="0" cellpadding="0"><thead><tr class="head"><th class="TestSuite"><?php echo $testman_langres["testsuite"];?></th><?php echo $table_summary; ?></tr></thead><tbody><tr class="even"><td id="totals"><?php echo $testman_langres["totals"]; ?></td><?php echo $table_totals; ?></tr><?php echo $table_performance; ?><tr class="even"><td id="summary"><?php echo $testman_langres["summary"]; ?></td><?php echo  $table_separator; ?></tr><tr class="odd"><td><?php echo $testman_langres["count"]; ?></td><?php echo  $summary_count; ?></tr><tr class="even"><td><?php echo $testman_langres["failures"]; ?></td><?php echo  $summary_failures ?></tr><tr class="separator"><td></td></tr><?php echo $table_results; ?></tbody></table>
+<table id="comparetable" class="datatable" cellspacing="0" cellpadding="0"><thead><tr class="head"><th class="TestSuite"><?php echo $testman_langres["testsuite"];?></th><?php echo $table_summary; ?></tr></thead><tbody><tr class="even"><td id="totals"><?php echo $testman_langres["totals"]; ?></td><?php echo $table_totals; ?></tr><?php echo $table_performance; ?><tr class="even"><td id="summary"><?php echo $testman_langres["summary"]; ?></td><?php echo  $table_separator; ?></tr><tr class="odd"><td><?php echo $testman_langres["count"]; ?></td><?php echo  $summary_count; ?></tr><tr class="even"><td><?php echo $testman_langres["failures"]; ?></td><?php echo  $summary_failures ?></tr><tr class="separator"><td colspan="3"></td></tr><?php echo $table_results; ?></tbody></table>
 
 <script type="text/javascript">
 //<![CDATA[
