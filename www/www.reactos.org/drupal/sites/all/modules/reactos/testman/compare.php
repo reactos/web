@@ -65,7 +65,7 @@
 		$table_totals .= '<td>';
 		$table_totals .= sprintf('<div title="%s" class="box totaltests totals">%s <span class="diff">%s</span></div>', $testman_langres["totaltests"], $row["count"], GetDifference($row, $prev_row, "count"));
 		$table_totals .= sprintf('<div title="%s" class="box %s_failedtests totals">%d <span class="diff">%s</span></div>', $testman_langres["failedtests"], ($row["failures"] > 0 ? 'real' : 'zero'), $row["failures"], GetDifference($row, $prev_row, "failures"));
-		$table_totals .= sprintf('<div class="healthindicator" onmouseover="HealthIndicator_OnMouseOver()" onmouseout="HealthIndicator_OnMouseOut()"><img src="indicator.php?id=%d" /></div>',$row["id"]);
+		$table_totals .= sprintf('<div class="healthindicator" onmouseover="HealthIndicator_OnMouseOver()" onmouseout="HealthIndicator_OnMouseOut()"><img src="indicator.php?id=%d" alt="healthindicator"/></div>',$row["id"]);
 		$table_totals .= '</td>';
 		
 		$table_separator .= "<td>&nbsp;</td>";
