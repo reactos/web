@@ -15,31 +15,9 @@
  *   margin, border, padding, overflow
  */
 
-
-/*
- * Body
- */
-body {
-}
-
 #page-wrapper,
 .region-bottom {
   min-width: 960px; /* Don't allow the browser to make the site unreadable. */
-}
-
-#page {
-}
-
-/*
- * Header
- */
-#header {
-}
-
-#header .section {
-}
-
-.region-header {
 }
 
 /*
@@ -47,9 +25,6 @@ body {
  */
 #main-wrapper {
   position: relative;
-}
-
-#main {
 }
 
 /*
@@ -104,8 +79,6 @@ body {
   margin-top: 3em; /* Set this to the same value as the navigation height above. */
 }
 
-#navigation .section {
-}
 
 /*
  * First sidebar

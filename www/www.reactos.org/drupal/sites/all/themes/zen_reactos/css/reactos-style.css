@@ -275,6 +275,9 @@ div#content-group, div#main-group {
 	padding-right: 20px;
 	padding-left: 10px;
 }
+.content ul, .content ol{
+	margin-left: 20px;
+}
 .region-sidebar-second {
 	width: 270px;
 	margin: 0px 3px 0px 10px;
@@ -492,8 +495,8 @@ img.icon, p.icon_p img {
 	padding: 1px;
 }
 .language-switcher-locale-url {
-	padding-left: 10px;
 	line-height: 17px !important;
+	margin-left: 10px !important;
 }
 #block-views-random-screenshot-block a {
 	color: #707070 !important;

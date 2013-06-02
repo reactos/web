@@ -267,26 +267,6 @@ tbody {
   border-top: none;
 }
 
-thead {
-}
-
-tfoot {
-}
-
-caption {
-}
-
-colgroup {
-}
-
-col {
-}
-
-tr {
-}
-
-td {
-}
 
 /*
  * Forms
@@ -300,48 +280,6 @@ fieldset {
   padding: 0.5em;
 }
 
-legend {
-}
-
-label {
-}
-
-input {
-}
-
-select {
-}
-
-optgroup {
-}
-
-option {
-}
-
-textarea {
-}
-
-button {
-}
-
-/*
- * Links
- *
- * The order of link states are based on Eric Meyer's article:
- * http://meyerweb.com/eric/thoughts/2007/06/11/who-ordered-the-link-states
- */
-a:link {
-}
-
-a:visited {
-}
-
-a:hover,
-a:focus {
-}
-
-a:active {
-}
 
 /*
  * Other inline elements
@@ -358,39 +296,3 @@ acronym {
   white-space: nowrap;
 }
 
-q {
-}
-
-cite {
-}
-
-strong, b {
-}
-
-em, i {
-}
-
-code,
-kbd,
-samp,
-tt,
-var /* Code, keyboard input, sample output, teletype, variable */ {
-}
-
-del {
-}
-
-ins {
-}
-
-big {
-}
-
-small {
-}
-
-sub {
-}
-
-sup {
-}
