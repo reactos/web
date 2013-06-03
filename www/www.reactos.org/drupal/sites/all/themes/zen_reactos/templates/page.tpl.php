@@ -60,7 +60,7 @@
  */
 ?>
 <!-- fb { -->
-<script type="text/javascript">
+<script>
 (function ($, undefined) {
 	$.fn.socialSharePrivacy.settings.order = ['facebook', 'gplus', 'twitter', 'tumblr', 'reddit'];
 	$.fn.socialSharePrivacy.settings.path_prefix = '/sites/all/themes/zen_reactos/ssp/';
@@ -77,9 +77,7 @@
 
 	$(document).ready(function () {
 		$('.share').socialSharePrivacy();
-		$('#share_ros').hide();
 		$('#share_ros').socialSharePrivacy({uri: 'http://www.reactos.org/'});
-		$('#share_ros').show();
 	});
 }(jQuery));
 </script>
