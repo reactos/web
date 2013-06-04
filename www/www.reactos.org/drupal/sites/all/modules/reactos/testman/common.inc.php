@@ -8,5 +8,5 @@
 
 	define("VIEWVC", "http://svn.reactos.org/svn/reactos");
 	define("VIEWVC_TRUNK", VIEWVC."/trunk");
-	define("BLACKLIST_URL", "http://svn.reactos.org/web/trunk/www/www.reactos.org/testman/blacklist.txt");
+	define("BLACKLIST_URL", "http://svn.reactos.org/web/trunk/www/www.reactos.org/drupal/sites/all/modules/reactos/testman/blacklist.txt");
 ?>
