@@ -277,6 +277,7 @@ div#content-group, div#main-group {
 }
 .content ul, .content ol{
 	margin-left: 20px;
+	padding-right: 1px !important;
 }
 .region-sidebar-second {
 	width: 270px;
@@ -524,6 +525,12 @@ h3 .comment-title a {
 .comment_forbidden, .comment_forbidden a {
 	font-size: 10px !important;
 }
+
+.user-picture img{width:65px; position:absolute;}
+.user-picture + .comment-title,.user-picture + .comment-title + .submitted {padding-left:70px;}
+.comment .submitted {margin-left:9px; font-style: italic;}
+.comment .content {padding-left: 70px}
+
 .finicon {
 	display: inline-block;
 	vertical-align: middle;
