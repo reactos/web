@@ -29,6 +29,10 @@
         if($query->rowCount() == 0)
             die("DB error ".__LINE__);
 
+        $stmt = $dbh->prepare("SELECT results.id, results.count, results.failures, results.status, suites.test, suites.module FROM winetest_results results
+                              JOIN winetest_suites suites ON results.suite_id = suites.id
+                              WHERE (results.test_id = :id1 OR results.test_id = :id2) AND results.suite_id = :sid ORDER BY results.id $order LIMIT 2");
+
         while($suite = $query->fetch(PDO::FETCH_ASSOC))
         {
            $results = array();
@@ -44,9 +48,6 @@
                 continue;
            }
 
-            $stmt = $dbh->prepare("SELECT results.id, results.count, results.failures, results.status, suites.test, suites.module FROM winetest_results results
-                                  JOIN winetest_suites suites ON results.suite_id = suites.id
-                                  WHERE (results.test_id = :id1 OR results.test_id = :id2) AND results.suite_id = :sid ORDER BY results.id $order LIMIT 2");
             $stmt->bindParam(":id1", $current_run);
             $stmt->bindParam(":id2", $previous_run);
             $stmt->bindParam(":sid", $suite["id"]);
@@ -63,7 +64,7 @@
             }
 
             $fail_diff = $results[0]["failures"] - $results[1]["failures"];
-
+            
             // Report only if the previous run was ok
             // TODO: if the previous run crashed, maybe try to find failures of some older run and use that
             if($fail_diff > 0 && $results[1]["status"] == "ok")
@@ -170,36 +171,36 @@
     // Assemble the report
     $subject = "";
     $body = "";
-    $subject = $_GET["builder"].': '.($result["fail_diff"] > 0 ? ' failures +'.$result["fail_diff"] : '').($result["count_diff"] < 0 ? '  tests '.$result["count_diff"] : '');
+    $subject = '['.$_GET["builder"].'][build '.$_GET["build"].'] r'.$current_run["revision"].': '.($result["fail_diff"] > 0 ? ' failures +'.$result["fail_diff"] : '').($result["count_diff"] < 0 ? '  tests '.$result["count_diff"] : '');
 
     $body = "Following issues were detected while comparing test results between revisions ".$previous_run["revision"]." and ".$current_run["revision"].":\n\n";
 
     foreach($result["offenders"] as $offender)
     {
-        $body.= "&nbsp;&nbsp;&nbsp;&nbsp;".$offender["name"]." -> ";
+        $body.= "    ".str_pad($offender["name"], 32)." -> ";
+        $changed = "";
 
         if($offender["count"] != 0)
-           $body .= " tests ".$offender["count"];
+           $changed .= " tests ".$offender["count"];
+           
+        $changed = str_pad($changed, 16);
 
         if($offender["failures"] != 0)
-           $body .= " failures +".$offender["failures"];
-
-        $body .= sprintf(" <a href=\"%sdiff.php?id1=%d&id2=%d&type=1&strip=1\">diff<a/>", TESTMAN_URL, $offender["id2"], $offender["id1"]);
-
+           $changed .= " failures +".$offender["failures"];
+           
+        $body .= str_pad($changed, 32);
+        $body .= sprintf(" diff: %sdiff.php?id1=%d&id2=%d&type=1&strip=1", TESTMAN_URL, $offender["id2"], $offender["id1"]);
         $body .="\n";
     }
 
-    $body .= "\nDetails: ";
-
-    $body .= sprintf("<a href=\"%s\">log</a>, ", BUILDER_URL . rawurlencode($_GET["builder"]) . "/builds/" . $_GET["build"] . "/steps/test/logs/stdio/text");
-    $body .= sprintf("<a href=\"%scompare.php?ids=%d,%d\">testman</a>, ", TESTMAN_URL, $previous_run["id"], $current_run["id"]);
-    $body .= sprintf("<a href=\"%s?view=rev&revision=%d\">svn</a>\n\n", VIEWVC, $current_run["revision"]);
-
-    $body .= "Have fun,\nTestman";
+    $body .= sprintf("\nLog:     %s\n", BUILDER_URL . rawurlencode($_GET["builder"]) . "/builds/" . $_GET["build"] . "/steps/test/logs/stdio/text");
+    $body .= sprintf("Testman: %scompare.php?ids=%d,%d\n", TESTMAN_URL, $previous_run["id"], $current_run["id"]);
+    $body .= sprintf("SVN:     %s?view=rev&revision=%d\n\n", VIEWVC, $current_run["revision"]);
+    $body .= "Have fun\nTestman";
 
     $headers = 'From: testman@reactos.org';
 
-    mail("ros-builds@reactos.org", $subject, $body, $headers);
+    mail(STATUS_CHECK_EMAIL, $subject, $body, $headers);
 
     echo "OK";
 ?>
