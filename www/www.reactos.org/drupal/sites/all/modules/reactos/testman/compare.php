@@ -58,6 +58,8 @@
 		
 		$row = $stmt->fetch(PDO::FETCH_ASSOC);
 		
+		$indicator = new Indicator($row["id"]);
+		
 		$table_summary .= '<th onmousedown="ResultHead_OnMouseDown(this)">';
 		$table_summary .= sprintf($testman_langres["resulthead"], $row["revision"], GetDateString($row["timestamp"]), $row["name"], GetPlatformString($row["platform"]));
 		$table_summary .= '</th>';
@@ -65,7 +67,7 @@
 		$table_totals .= '<td>';
 		$table_totals .= sprintf('<div title="%s" class="box totaltests totals">%s <span class="diff">%s</span></div>', $testman_langres["totaltests"], $row["count"], GetDifference($row, $prev_row, "count"));
 		$table_totals .= sprintf('<div title="%s" class="box %s_failedtests totals">%d <span class="diff">%s</span></div>', $testman_langres["failedtests"], ($row["failures"] > 0 ? 'real' : 'zero'), $row["failures"], GetDifference($row, $prev_row, "failures"));
-		$table_totals .= sprintf('<div class="healthindicator" onmouseover="HealthIndicator_OnMouseOver()" onmouseout="HealthIndicator_OnMouseOut()"><img src="indicator.php?id=%d" alt="healthindicator"/></div>',$row["id"]);
+		$table_totals .= sprintf('<div class="healthindicator" onmouseover="HealthIndicator_OnMouseOver()" onmouseout="HealthIndicator_OnMouseOut()"><img src="%s" alt="healthindicator"/></div>', $indicator->imagePath);
 		$table_totals .= '</td>';
 		
 		$table_separator .= "<td>&nbsp;</td>";
