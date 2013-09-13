@@ -1,16 +1,28 @@
 // Contains blacklisted test suites in a form of module:testname
 
-// is wildly random/erratic, possibly due to ws2_32:sock
+dinput:mouse
+gdi32:mapping
+kernel32:loader
+kernel32:mailslot
+msi:msi
+msxml3:domdoc
+
+// number of tests/failures depends on the number of running processes which may vary between runs
+ntdll:info
+
+quartz:referenceclock
+shell32:appbar
+
+// (Alex: is wildly random/erratic, I believe due to ws2_32:sock)
 urlmon:url
 
-// flaky
-user32:win
+user32:menu
 
 // random possibly due to TrackMouseEvent
 user32:msg
 
-// flaky
-gdiplus:graphics
-ws2_32:sock
-msxml3:domdoc
-ntdll:info
+// number of tests/failures is quite random
+user32:win
+
+wininet:http
+ws2_32:sock 
