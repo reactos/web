@@ -137,8 +137,9 @@
 		    $percent_diff = 100 * $diff / $prev_row[$subject];
 		    $percent_diff = sprintf(" | %+.g%%", round($percent_diff,1));
 		}
+		
 
-	    return sprintf("(%+.0f%s)", $diff, $percent_diff);
+	    return sprintf("(%+.".(is_float($diff)? '1' : '0')."f%s)", $diff, $percent_diff);
    }
 
 	function CheckIfChanged(&$changed, &$temp, &$current)

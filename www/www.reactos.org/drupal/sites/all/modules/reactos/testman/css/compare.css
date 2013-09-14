@@ -82,6 +82,14 @@ button {
 	background-color: #FF6666 !important;
 }
 
+.todo_failedtests {
+	background-color: #33FF66 !important;
+	border-width: 1px !important;
+	border-style: dashed  !important;
+	border-color: #A2A2A2 !important;
+	height: 15px;
+}
+
 .skippedtests {
 	background-color: #CCCCCC !important;
 }

@@ -15,7 +15,8 @@
 	              "context_switches" => 0,
 	              "interrupts" => 0,
 	              "reboots" => 0,
-	              "system_calls" => 0);
+	              "system_calls" => 0,
+                  "time" => 0);
 	
 	if(!isset($_GET["sourceid"]) || !isset($_GET["password"]) || !isset($_GET["builder"]) || !is_numeric($_GET["platform"]) || !is_numeric($_GET["build"]))
 		die("Necessary information not specified!");
@@ -73,7 +74,7 @@
 	   if(substr($line, 0, 22) == "[SYSREG] Running stage")
 	      $perf["reboots"]++;
 
-	   $line = fgets($fp);  
+	   $line = fgets($fp);
 	}
 	
 	// Find the boot performance info
@@ -192,6 +193,40 @@
 		if($return != "OK")
 			die("submit($test_id, $suite_id, ...) - $return");
 	}
+
+	fclose($fp);
+	
+	// The last thing to do is to get the total time the testing took
+    $fp = tmpfile();
+
+    if(!$fp)
+        die("fatal error: could not create a temp file");
+
+    // store the log in a temp file beacuse HTTP streams are not seekable
+    $ch = curl_init(BUILDER_URL . rawurlencode($_GET["builder"]) . "/builds/" . $_GET["build"] . "/steps/test/logs/stdio");
+
+    curl_setopt($ch, CURLOPT_FILE, $fp);
+    curl_setopt($ch, CURLOPT_HEADER, 0);
+
+    $result = curl_exec($ch);
+    curl_close($ch);
+    
+    if(!$result)
+    {
+        fclose($fp);
+        die("could not read the full log");
+    }
+
+    // get the last kB of the log
+    if(fseek($fp, -1024, SEEK_END) != -1)
+    {
+        $line = fread($fp, 1024);
+
+        if(preg_match_all("#^elapsedTime=([0-9]+\.[0-9]+)#m", $line, $matches, PREG_PATTERN_ORDER))
+		  $perf['time'] = array_sum($matches[1]);
+    }
+
+	fclose($fp);
 	
 	// If we have a Test ID, finish this test run and terminate with the return message from that function
 	// Otherwise we couldn't find any test information in this log

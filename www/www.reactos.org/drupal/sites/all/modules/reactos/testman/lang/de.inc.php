@@ -54,6 +54,8 @@
 		"totaltests" => "Ausgeführte Tests",
 		"failedtests" => "Fehlgeschlagene Tests",
 		"skippedtests" => "Übersprungene Tests",
+		"todotests" => "Todo tests",
+		"timetest" => "Time",
 		"difference" => "Unterschied zum vorherigen Ergebnis",
 		
 		"testsuite" => "Test Suite",
@@ -68,7 +70,7 @@
 		"interrupts" => "boot interrupts",
 		"reboots" => "machine reboots",
 		"system_calls" => "boot system calls",
-
+		"time" => "total time (min)",
 		//Summary
 		"summary" => "Totals (non blacklisted)",
 		"count" => "Tests performed",

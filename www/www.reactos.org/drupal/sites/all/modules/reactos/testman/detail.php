@@ -34,7 +34,7 @@
 	
 	// Get information about this result
 	$stmt = $dbh->prepare(
-		"SELECT UNCOMPRESS(l.log) log, e.status, e.count, e.failures, e.skipped, s.module, s.test, UNIX_TIMESTAMP(r.timestamp) timestamp, r.revision, r.platform, src.name, r.comment " .
+		"SELECT UNCOMPRESS(l.log) log, e.status, e.count, e.failures, e.skipped, e.todo, e.time, s.module, s.test, UNIX_TIMESTAMP(r.timestamp) timestamp, r.revision, r.platform, src.name, r.comment " .
 		"FROM winetest_results e " .
 		"JOIN winetest_logs l ON e.id = l.id " .
 		"JOIN winetest_suites s ON e.suite_id = s.id " .
@@ -71,11 +71,32 @@
 <table class="datatable" cellspacing="0" cellpadding="0">
 	<tr class="head">
 		<th colspan="2"><?php echo $testman_langres["thisresult"]; ?></th>
-	</tr>
-	
+    </tr>
 	<tr class="even" onmouseover="Row_OnMouseOver(this)" onmouseout="Row_OnMouseOut(this)">
-		<td class="info"><?php echo $testman_langres["testsuite"]; ?>:</td>
-		<td><?php echo $row["module"].':'.$row["test"];?></td>
+        <td colspan ="2">
+            <table class="headertable" cellspacing="0" cellpadding="0">
+                <tr>
+            		<td>
+                        <strong><?php echo $testman_langres["testsuite"]; ?>:</strong> <?php echo $row["module"].':'.$row["test"];?>
+                    </td>
+            		<td>
+                        <strong><?php echo $testman_langres["totaltests"]; ?>:</strong> <?php echo GetTotalTestsString($row); ?>
+                    </td>
+            		<td>
+                        <strong><?php echo $testman_langres["failedtests"]; ?>:</strong> <?php echo $row["failures"]; ?>
+                    </td>
+            		<td>
+                        <strong><?php echo $testman_langres["skippedtests"]; ?>:</strong> <?php echo $row["skipped"]; ?>
+                    </td>
+            		<td>
+                        <strong><?php echo $testman_langres["todotests"]; ?>:</strong> <?php echo $row["todo"]; ?>
+                    </td>
+            		<td>
+                        <strong><?php echo $testman_langres["timetest"]; ?>:</strong> <?php echo $row["time"]; ?>s
+                    </td>
+        		</tr>
+             </table>
+        </td>
 	</tr>
 	<tr class="odd" onmouseover="Row_OnMouseOver(this)" onmouseout="Row_OnMouseOut(this)">
 		<td class="info"><?php echo $testman_langres["show_diff"]; ?>:</td>
@@ -89,19 +110,8 @@
              ?>
         </td>
 	</tr>
+
 	<tr class="even" onmouseover="Row_OnMouseOver(this)" onmouseout="Row_OnMouseOut(this)">
-		<td class="info"><?php echo $testman_langres["totaltests"]; ?>:</td>
-		<td><?php echo GetTotalTestsString($row); ?></td>
-	</tr>
-	<tr class="odd" onmouseover="Row_OnMouseOver(this)" onmouseout="Row_OnMouseOut(this)">
-		<td class="info"><?php echo $testman_langres["failedtests"]; ?>:</td>
-		<td><?php echo $row["failures"]; ?></td>
-	</tr>
-	<tr class="even" onmouseover="Row_OnMouseOver(this)" onmouseout="Row_OnMouseOut(this)">
-		<td class="info"><?php echo $testman_langres["skippedtests"]; ?>:</td>
-		<td><?php echo $row["skipped"]; ?></td>
-	</tr>
-	<tr class="odd" onmouseover="Row_OnMouseOver(this)" onmouseout="Row_OnMouseOut(this)">
 		<td class="info"><?php echo $testman_langres["log"]; ?>:</td>
 		<td><pre><?php echo	$log;?></pre></td>
 	</tr>

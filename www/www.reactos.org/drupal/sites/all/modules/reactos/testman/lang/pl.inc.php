@@ -56,6 +56,8 @@
 		"totaltests" => "Wszystkie testy",
 		"failedtests" => "Nieudane",
 		"skippedtests" => "Pominięte",
+		"todotests" => "Todo tests",
+		"timetest" => "Time",
 		"difference" => "Różnica względem poprzedniego wyniku",
 		
 		"testsuite" => "Zestaw testów",
@@ -70,6 +72,7 @@
 		"interrupts" => "boot interrupts",
 		"reboots" => "machine reboots",
 		"system_calls" => "boot system calls",
+		"time" => "total time (min)",
 
 		//Summary
 		"summary" => "Totals (non blacklisted)",

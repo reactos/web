@@ -112,11 +112,12 @@
 			
 			$stmt = $this->dbh->query(
 				"SELECT UNIX_TIMESTAMP(r.timestamp) timestamp, src.name, r.revision, r.platform, r.count, r.failures, r.id, " .
-				" r.boot_cycles, r.context_switches, r.interrupts, r.reboots, r.system_calls " .
+				" r.boot_cycles, r.context_switches, r.interrupts, r.reboots, r.system_calls, ROUND(r.time/60, 1) as time, ROUND(SUM(wr.time)/60,1) as testing_time " .
 				"FROM winetest_runs r " .
 				"JOIN sources src ON r.source_id = src.id " .
+				"JOIN winetest_results wr ON wr.test_id = r.id " .
 				"WHERE r.id = " . $this->test_id_array[$i] . " " .
-				"LIMIT 1"
+				"GROUP BY r.id"
 			);
 			
 			if(!$stmt)
@@ -142,7 +143,7 @@
 				return "Index $i is out of range!";
 			
 			$stmt = $this->dbh->query(
-				"SELECT e.id, e.status, e.count, e.failures, e.skipped, s.module, s.test " .
+				"SELECT e.id, e.status, e.count, e.failures, e.skipped, s.module, s.test, s.time, s.todo " .
 				"FROM winetest_results e " .
 				"JOIN winetest_suites s ON e.suite_id = s.id " .
 				"WHERE e.test_id = " . $this->test_id_array[$i] . " " .
@@ -202,7 +203,7 @@
 				return "Index $i is out of range!";
 			
 			$stmt = $this->dbh->query(
-				"SELECT e.id, e.status, e.count, e.failures, e.skipped " .
+				"SELECT e.id, e.status, e.count, e.failures, e.skipped, e.time, e.todo " .
 				"FROM winetest_suites s " .
 				"LEFT JOIN winetest_results e ON e.suite_id = s.id AND e.test_id = " . $this->test_id_array[$i] . " " .
 				"WHERE s.id IN (" . $this->suite_id_list . ")" .

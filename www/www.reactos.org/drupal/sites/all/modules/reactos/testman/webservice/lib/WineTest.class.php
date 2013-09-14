@@ -84,7 +84,7 @@
 			$test = $stmt->fetchColumn();
 			
 			// Get all summary lines belonging to this test in the whole log (a test may have multiple summary lines)
-			$result = preg_match_all("#^{$test}: ([0-9]+) tests executed \([0-9]+ marked as todo, ([0-9]+) failure[s]?\), ([0-9]+) skipped.#m", $log, $matches, PREG_PATTERN_ORDER);
+			$result = preg_match_all("#^{$test}: ([0-9]+) tests executed \(([0-9])+ marked as todo, ([0-9]+) failure[s]?\), ([0-9]+) skipped.#m", $log, $matches, PREG_PATTERN_ORDER);
 			
 			if($result === FALSE)
 			{
@@ -94,33 +94,53 @@
 			{
 				// We found no summary line, now check whether we find any signs that the test was canceled
 				$lastline = strrchr($log, "[");
-				
+
 				if($lastline && (strpos($lastline, "[SYSREG]") !== FALSE || strpos($lastline, "[TESTMAN]") !== FALSE))
 					$status = "canceled";
 				else
 					$status = "crash";
-				
+
 				$count = 0;
 				$failures = 0;
 				$skipped = 0;
+				$todo = 0;
 			}
 			else
 			{
 				// Sum up the values of each summary line
 				$status = "ok";
 				$count = array_sum($matches[1]);
-				$failures = array_sum($matches[2]);
-				$skipped = array_sum($matches[3]);
+				$todo = array_sum($matches[2]);
+				$failures = array_sum($matches[3]);
+				$skipped = array_sum($matches[4]);
 			}
 			
+			// Get the execution time
+			$result = preg_match_all("#^Test {$test} completed in ([0-9]+\.[0-9]+) seconds.#m", $log, $matches, PREG_PATTERN_ORDER);
+
+			if($result === FALSE)
+			{
+				return "preg_match_all failed!";
+			}
+			else if($result == 0)
+			{
+				$time = 0;
+			}
+			else
+			{
+				$time = array_sum($matches[1]);
+			}
+
 			// Add the information into the DB
-			$stmt = $dbh->prepare("INSERT INTO winetest_results (test_id, suite_id, status, count, failures, skipped) VALUES (:testid, :suiteid, :status, :count, :failures, :skipped)");
+			$stmt = $dbh->prepare("INSERT INTO winetest_results (test_id, suite_id, status, count, failures, skipped, todo, time) VALUES (:testid, :suiteid, :status, :count, :failures, :skipped, :todo, :time)");
 			$stmt->bindValue(":testid", (int)$test_id);
 			$stmt->bindValue(":suiteid", (int)$suite_id);
 			$stmt->bindParam(":status", $status);
 			$stmt->bindParam(":count", $count);
 			$stmt->bindParam(":failures", $failures);
 			$stmt->bindParam(":skipped", $skipped);
+			$stmt->bindParam(":todo", $todo);
+			$stmt->bindParam(":time", $time);
 			$stmt->execute() or die("Submit(): SQL failed #4");
 			
 			$stmt = $dbh->prepare("INSERT INTO winetest_logs (id, log) VALUES (:id, COMPRESS(:log))");
@@ -149,7 +169,8 @@
 					context_switches = :context_switches,
 					interrupts = :interrupts, 
 					reboots = :reboots, 
-					system_calls = :system_calls 
+					system_calls = :system_calls,
+					time = :time
 				 WHERE id = :testid AND source_id = :sourceid"
 			);
 			$stmt->bindParam(":sourceid", $source_id);
@@ -159,6 +180,7 @@
 			$stmt->bindParam(":interrupts", $performance["interrupts"]);
 			$stmt->bindParam(":reboots", $performance["reboots"]);
 			$stmt->bindParam(":system_calls", $performance["system_calls"]);
+			$stmt->bindParam(":time", $performance["time"]);
 			$stmt->execute() or die("Finish(): SQL failed #1");
 			
 			if(!$stmt->rowCount())

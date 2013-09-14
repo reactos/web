@@ -9,6 +9,17 @@
 	width: 90%;
 }
 
+.headertable {
+	margin: 0px;
+	padding: 0px;
+}
+
+.headertable th, .headertable td, .headertable tr {
+	vertical-align: top;
+	border-width: 0px !important;
+	padding: 0px 20px 0px 0px !important;
+}
+
 .datatable th, .datatable td {
 	padding: 3px;
 	vertical-align: top;

@@ -53,7 +53,9 @@
 		"legend" => "Legend",
 		"totaltests" => "Total Tests",
 		"failedtests" => "Failed Tests",
-		"skippedtests" => "Skipped tests",
+		"skippedtests" => "Skipped Tests",
+		"todotests" => "Todo Tests",
+		"timetest" => "Time",
 		"difference" => "Difference to the previous result",
 		
 		"testsuite" => "Test Suite",
@@ -68,6 +70,8 @@
 		"interrupts" => "boot interrupts",
 		"reboots" => "machine reboots",
 		"system_calls" => "boot system calls",
+		"time" => "total time (min)",
+		"testing_time" => "tests time (min)",
 		
 		//Summary
 		"summary" => "Totals (non blacklisted)",
