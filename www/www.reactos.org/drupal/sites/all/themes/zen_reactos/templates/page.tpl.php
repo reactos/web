@@ -77,6 +77,7 @@
 
 	$(document).ready(function () {
 		$('.share').socialSharePrivacy();
+		$('#share_ros').socialSharePrivacy({uri: 'http://www.reactos.org/'});
 	});
 }(jQuery));
 </script>
