@@ -91,7 +91,12 @@
       <img id="logo" src="<?php print $logo; ?>" alt="<?php print t('Home'); ?>" />
       </a>
     <?php endif; ?>
-
+	<!-- KICKSTARTER -->
+<div id="kickstarter"><a href="http://www.kickstarter.com/projects/thorium/thorium-core-cloud-desktop">Support ReactOS on <br />
+	<img src="http://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/Kickstarter_logo.svg/200px-Kickstarter_logo.svg.png" alt="Kickstarter">
+	</a>
+</div>
+	<!-- /KICKSTARTER -->
     <?php if ($main_menu): ?>
       <div id="topMenu">
         <div id="main-menu">
@@ -124,8 +129,8 @@
 
     <div id="content" class="column dtcell dtcell-vtop"><div class="section">
       <?php print render($page['highlighted']); ?>
-      <?php print $breadcrumb; ?>
-      <a id="main-content"></a>
+	  <?php /*print $breadcrumb; */?>
+	  <a id="main-content"></a>
       <?php print render($title_prefix); ?>
       <?php if ($title): ?>
         <h1 class="title" id="page-title"><?php print $title; ?></h1>
