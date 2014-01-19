@@ -36,3 +36,25 @@ tr.odd th,
 tr.odd td {
   border-bottom: 1px solid #ccc; /* IE doesn't display borders on table rows */
 }
+/* === ReactOS changes ===*/
+
+#header {
+	position: relative;
+}
+#main-wrapper{
+top: 145px;
+position: absolute;
+right: 0;
+width: 100%;
+}
+#content{
+position: absolute;
+top: 0;
+right: 0;
+left: 170px;
+width: 100%;
+}
+/* hide the second sidebar and the footer (this is the best solution for old browsers..) */
+#footer,.region-sidebar-second{
+display: none;
+}

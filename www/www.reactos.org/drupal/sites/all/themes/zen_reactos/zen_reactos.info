@@ -36,19 +36,8 @@ base theme  = zen
 stylesheets[all][]        = css/html-reset.css
 stylesheets[all][]        = css/layout-liquid.css
 stylesheets[all][]        = css/tabs.css
-stylesheets[all][]        = css/pages.css
-stylesheets[all][]        = css/nodes.css
-stylesheets[all][]        = css/forms.css
 stylesheets[all][]        = css/reactos-style.css
 stylesheets[print][]      = css/print.css
-;stylesheets[all][]        = css/system.menus.css
-;stylesheets[all][]        = css/wireframes.css
-;stylesheets[all][]        = css/page-backgrounds.css
-;stylesheets[all][]        = css/blocks.css
-;stylesheets[all][]        = css/navigation.css
-;stylesheets[all][]        = css/views-styles.css
-;stylesheets[all][]        = css/comments.css
-;stylesheets[all][]        = css/fields.css
 
 ; Example of adding handheld stylesheets. The iPhone's preferred media type
 ; is based on the CSS3 Media queries. http://www.w3.org/TR/css3-mediaqueries/
@@ -59,15 +48,13 @@ stylesheets[print][]      = css/print.css
 ; Add conditional stylesheets that are processed by IE. See the css/README.txt.
 
 ; To target all versions of IE with an ie.css, uncomment the following line:
-;stylesheets-conditional[IE][all][]       = css/ie.css
-stylesheets-conditional[lte IE 7][all][]  = css/ie7.css
-stylesheets-conditional[lte IE 6][all][]  = css/ie6.css
+stylesheets-conditional[IE 7][all][]  = css/ie7.css
 
 
 
 ; Optionally add some JavaScripts to your theme.
 
-;scripts[] = js/script.js
+scripts[] = js/reactos.js
 scripts[] = js/jquery.socialshareprivacy.min.js
 
 
@@ -88,6 +75,7 @@ regions[sidebar_second] = Second sidebar
 ;regions[navigation]     = Navigation bar
 regions[highlighted]    = Highlighted
 regions[content]        = Content
+regions[above_comments] = Above comments
 ;regions[header]         = Header
 ;regions[footer]         = Footer
 regions[bottom]         = Page bottom
@@ -114,13 +102,13 @@ features[] = main_menu
 
 ; Set the default values of settings on the theme-settings.php form.
 
-settings[zen_breadcrumb]           = yes
-settings[zen_breadcrumb_separator] = ' › '
-settings[zen_breadcrumb_home]      = 1
-settings[zen_breadcrumb_trailing]  = 1
-settings[zen_breadcrumb_title]     = 0
-settings[zen_jump_link_target]     = main-menu
-settings[zen_rebuild_registry]     = 1
+;settings[zen_breadcrumb]           = yes
+;settings[zen_breadcrumb_separator] = ' › '
+;settings[zen_breadcrumb_home]      = 0
+;settings[zen_breadcrumb_trailing]  = 0
+;settings[zen_breadcrumb_title]     = 0
+;settings[zen_jump_link_target]     = main-menu
+settings[zen_rebuild_registry]     = 0
 settings[zen_wireframes]           = 0
 
 ; To make this sub-theme an admin theme with shortcut links next to titles,

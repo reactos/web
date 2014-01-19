@@ -59,30 +59,6 @@
  * @see template_process()
  */
 ?>
-<!-- fb { -->
-<script>
-(function ($, undefined) {
-	$.fn.socialSharePrivacy.settings.order = ['facebook', 'gplus', 'twitter', 'tumblr', 'reddit'];
-	$.fn.socialSharePrivacy.settings.path_prefix = '/sites/all/themes/zen_reactos/ssp/';
-	$.fn.socialSharePrivacy.settings.services['tumblr'].status = false;
-	$.fn.socialSharePrivacy.settings.services['buffer'].status = false;
-	$.fn.socialSharePrivacy.settings.services['reddit'].status = false;
-	$.fn.socialSharePrivacy.settings.services['mail'].status = false;
-	$.fn.socialSharePrivacy.settings.services['pinterest'].status = false;
-	$.fn.socialSharePrivacy.settings.services['xing'].status = false;
-	$.fn.socialSharePrivacy.settings.services['stumbleupon'].status = false;
-	$.fn.socialSharePrivacy.settings.services['delicious'].status = false;
-	$.fn.socialSharePrivacy.settings.services['disqus'].status = false;
-	$.fn.socialSharePrivacy.settings.services['hackernews'].status = false;
-
-	$(document).ready(function () {
-		$('.share').socialSharePrivacy();
-		$('#share_ros').socialSharePrivacy({uri: 'http://www.reactos.org/'});
-	});
-}(jQuery));
-</script>
-<!-- } fb -->
-
 <div id="page-wrapper"><div id="page">
 
   <div id="header">
