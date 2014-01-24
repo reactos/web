@@ -911,6 +911,32 @@ body.vector-animateLayout #mw-head-base {
 	margin: 3px 0 0 43px;
 }
 
+#kickstarter {
+	width: 400px;
+	height: 45px;
+	padding: 7px;
+	position: absolute;
+	margin-left: 320px;
+	font-family: Arial, sans-serif;
+	font-size: 17px;
+}
+
+#kickstarter a {
+	font-size: 25px;
+	font-weight: bold;
+	text-decoration: none;
+}
+
+#kickstarter a:before {
+	content: ">> ";
+	color: #f00;
+}
+
+#kickstarter img {
+	margin-top: 5px;
+	float: right;
+}
+
 #topMenu {
 	margin: 0;
 	padding: 100px 0 0 0;

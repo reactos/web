@@ -159,6 +159,14 @@ class VectorTemplate extends BaseTemplate {
 				<img id="logo" src="http://www.reactos.org/sites/all/themes/zen_reactos/images/reactos-logo.png" alt="Home" />
 			</a>
 
+		<!-- KICKSTARTER -->
+		<div id="kickstarter">
+			<a href="http://www.kickstarter.com/projects/thorium/thorium-core-cloud-desktop">Support ReactOS on<br />
+				<img src="http://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/Kickstarter_logo.svg/200px-Kickstarter_logo.svg.png" alt="Kickstarter">
+			</a>
+		</div>
+		<!-- /KICKSTARTER -->
+
 			<div id="topMenu">
 				<div id="main-menu">
 					<a href="/forum">Forum</a> | <a href="/wiki">Wiki</a> | <a href="http://jira.reactos.org">Bugtracker</a> | <a href="/node/127">Contact</a>
