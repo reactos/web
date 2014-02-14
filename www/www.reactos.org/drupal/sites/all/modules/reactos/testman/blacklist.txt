@@ -26,3 +26,9 @@ user32:win
 
 wininet:http
 ws2_32:sock 
+
+user32:SetCursorPos
+quartz:filtermapper
+ntdll:file
+jscript:run
+iphlpapi:iphlpapi
