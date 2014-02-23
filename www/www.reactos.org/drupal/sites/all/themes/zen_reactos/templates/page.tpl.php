@@ -67,12 +67,9 @@
       <img id="logo" src="<?php print $logo; ?>" alt="<?php print t('Home'); ?>" />
       </a>
     <?php endif; ?>
-	<!-- KICKSTARTER -->
-<div id="kickstarter"><a href="http://www.kickstarter.com/projects/thorium/thorium-core-cloud-desktop">Support ReactOS on <br />
-	<img src="http://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/Kickstarter_logo.svg/200px-Kickstarter_logo.svg.png" alt="Kickstarter">
-	</a>
-</div>
-	<!-- /KICKSTARTER -->
+    <!-- KICKSTARTER -->
+    <div id="kickstarter"><br /><a href="<?php print $front_page; ?>">Stay tuned for what's coming next !</a></div>
+    <!-- /KICKSTARTER -->
     <?php if ($main_menu): ?>
       <div id="topMenu">
         <div id="main-menu">

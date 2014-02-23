@@ -22,14 +22,9 @@
 }
 
 #kickstarter a {
-	font-size: 25px;
+	font-size: 22px;
 	font-weight: bold;
 	text-decoration: none;
-}
-
-#kickstarter a:before {
-	content: ">> ";
-	color: #f00;
 }
 
 #kickstarter img {

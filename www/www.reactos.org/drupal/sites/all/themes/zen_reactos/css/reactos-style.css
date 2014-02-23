@@ -506,14 +506,11 @@ font-size: 17px;
 background-color: transparent;
 }
 #kickstarter a{
-font-size: 25px;
+font-size: 22px;
 font-weight: bold;
 text-decoration: none;
 }
-#kickstarter a:before{
-content: ">> ";
-color: #f00;
-}
+
 #kickstarter img{
 margin-top: 5px;
 float: right;

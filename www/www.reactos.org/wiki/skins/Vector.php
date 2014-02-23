@@ -160,11 +160,7 @@ class VectorTemplate extends BaseTemplate {
 			</a>
 
 		<!-- KICKSTARTER -->
-		<div id="kickstarter">
-			<a href="http://www.kickstarter.com/projects/thorium/thorium-core-cloud-desktop">Support ReactOS on<br />
-				<img src="http://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/Kickstarter_logo.svg/200px-Kickstarter_logo.svg.png" alt="Kickstarter">
-			</a>
-		</div>
+		<div id="kickstarter"><br /><a href="https://www.reactos.org/">Stay tuned for what's coming next !</a></div>
 		<!-- /KICKSTARTER -->
 
 			<div id="topMenu">
