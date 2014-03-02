@@ -34,12 +34,7 @@
 	VerifyLogin($_GET["sourceid"], $_GET["password"]);
 	
 	// Make sure nobody runs this script multiple times for the same build
-	$stmt = $dbh->prepare(
-		"SELECT COUNT(*) " .
-		"FROM winetest_runs r " .
-		"JOIN sources src ON r.source_id = src.id " .
-		"WHERE r.comment = :comment AND src.id = :sourceid"
-	);
+	$stmt = $dbh->prepare("SELECT COUNT(*) FROM winetest_runs WHERE comment = :comment AND source_id = :sourceid");
 	$stmt->bindValue(":comment", "Build " . $_GET["build"]);
 	$stmt->bindParam(":sourceid", $_GET["sourceid"]);
 	$stmt->execute() or die("SQL failed #1");
