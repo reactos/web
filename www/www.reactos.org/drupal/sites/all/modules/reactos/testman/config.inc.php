@@ -6,10 +6,10 @@
   COPYRIGHT:  Copyright 2008-2011 Colin Finck <colin@reactos.org>
 */
 
-	define("TESTMAN_PATH", realpath(__DIR__));
-	define("ROOT_PATH", TESTMAN_PATH . "/../../../../../../");
+	define("TESTMAN_PATH", "");
+	define("ROOT_PATH", TESTMAN_PATH . "../../../../../../");
 	define("SHARED_PATH", ROOT_PATH . "drupal/sites/default/shared/");
-	define("INDICATORS_PATH", "indicators/");
+	define("INDICATORS_PATH", TESTMAN_PATH . "indicators/");
 
 	define("DEFAULT_SEARCH_LIMIT", 10);
 	define("DEFAULT_SEARCH_SOURCE", "CMake_x86_GCCLin (KVM)");
