@@ -3,7 +3,7 @@
   PROJECT:    ReactOS Web Test Manager
   LICENSE:    GNU GPLv2 or any later version as published by the Free Software Foundation
   PURPOSE:    Exporting the results as a XML file
-  COPYRIGHT:  Copyright 2009-2011 Colin Finck <colin@reactos.org>
+  COPYRIGHT:  Copyright 2009-2014 Colin Finck <colin@reactos.org>
 */
 
 	header("Content-Type: text/xml");
@@ -22,7 +22,7 @@
 			die($stmt);
 		
 		$row = $stmt->fetch(PDO::FETCH_ASSOC);
-		echo '<revision id="' . $row["revision"] . '" timestamp="' . $row["timestamp"] . '" source="' . $row["name"] . '" platform="' . $row["platform"] . '">';
+		echo '<run id="' . $row["id"] . '" revision="' . $row["revision"] . '" timestamp="' . $row["timestamp"] . '" source="' . $row["name"] . '" platform="' . $row["platform"] . '" bootcycles="' . $row["boot_cycles"] . '" contextswitches="' . $row["context_switches"] . '" interrupts="' . $row["interrupts"] . '" reboots="' . $row["reboots"] . '" systemcalls="' . $row["system_calls"] . '" time="' . $row["time"] . '" testingtime="' . $row["testing_time"] . '">';
 		
 		// Now get the all test results for this revision
 		$stmt = $reader->getSingleResultInfoStatement($i);
@@ -39,10 +39,12 @@
 			echo 'status="' . $row["status"] . '" ';
 			echo 'count="' . $row["count"] . '" ';
 			echo 'failures="' . $row["failures"] . '" ';
-			echo 'skipped="' . $row["skipped"] . '" />';
+			echo 'skipped="' . $row["skipped"] . '" ';
+			echo 'todo="' . $row["todo"] . '" ';
+			echo 'time="' . $row["time"] . '" />';
 		}
 		
-		echo '</revision>';
+		echo '</run>';
 	}
 	
 	echo '</testinfo>';

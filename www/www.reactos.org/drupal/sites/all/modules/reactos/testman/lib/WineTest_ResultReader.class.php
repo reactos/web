@@ -143,7 +143,7 @@
 				return "Index $i is out of range!";
 			
 			$stmt = $this->dbh->query(
-				"SELECT e.id, e.status, e.count, e.failures, e.skipped, s.module, s.test, s.time, s.todo " .
+				"SELECT e.id, e.status, e.count, e.failures, e.skipped, e.todo, e.time, s.module, s.test " .
 				"FROM winetest_results e " .
 				"JOIN winetest_suites s ON e.suite_id = s.id " .
 				"WHERE e.test_id = " . $this->test_id_array[$i] . " " .

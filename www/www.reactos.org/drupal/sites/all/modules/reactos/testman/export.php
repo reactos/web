@@ -6,6 +6,7 @@
   COPYRIGHT:  Copyright 2009 Colin Finck <colin@reactos.org>
 */
 
+	require_once("autoload.inc.php");
 	require_once("utils.inc.php");
 	
 	if(!array_key_exists("f", $_GET) || !array_key_exists("ids", $_GET))

@@ -2,34 +2,48 @@
   PROJECT:    ReactOS Web Test Manager
   LICENSE:    GNU GPLv2 or any later version as published by the Free Software Foundation
   PURPOSE:    DTD for the XML export data
-  COPYRIGHT:  Copyright 2009-2011 Colin Finck <colin@reactos.org>
+  COPYRIGHT:  Copyright 2009-2014 Colin Finck <colin@reactos.org>
 -->
 
 <!--=============================== Entities ===============================-->
 
-<!ENTITY % TestID "CDATA">
-    <!-- Test ID in the database -->
+<!ENTITY % RunID "CDATA">
+    <!-- Run ID in the database -->
+
+<!ENTITY % SVNRevID "CDATA">
+    <!-- SVN Revision Number -->
 
 <!ENTITY % Timestamp "CDATA">
     <!-- Unix timestamp -->
 
-<!ENTITY % ResultID "CDATA">
-    <!-- Result ID in the database -->
-
 <!ENTITY % Number "CDATA">
     <!-- one or more digits -->
+
+<!ENTITY % Float "CDATA">
+    <!-- one or more digits, can be separated by a dot -->
+
+<!ENTITY % ResultID "CDATA">
+    <!-- Result ID in the database -->
 
 
 <!--=============================== Elements ===============================-->
 
-<!ELEMENT testinfo (revision*)>
+<!ELEMENT testinfo (run*)>
 
-<!ELEMENT revision (test*)>
-<!ATTLIST revision
-  id         %TestID     #REQUIRED
-  timestamp  %Timestamp  #REQUIRED
-  source     CDATA       #REQUIRED
-  platform   CDATA       #REQUIRED
+<!ELEMENT run (test*)>
+<!ATTLIST run
+  id              %RunID      #REQUIRED
+  revision        %SVNRevID   #REQUIRED
+  timestamp       %Timestamp  #REQUIRED
+  source          CDATA       #REQUIRED
+  platform        CDATA       #REQUIRED
+  bootcycles      %Number     #REQUIRED
+  contextswitches %Number     #REQUIRED
+  interrupts      %Number     #REQUIRED
+  reboots         %Number     #REQUIRED
+  systemcalls     %Number     #REQUIRED
+  time            %Float      #REQUIRED
+  testingtime     %Float      #REQUIRED
 >
 
 <!ELEMENT test EMPTY>
@@ -41,4 +55,6 @@
   count      %Number     #REQUIRED
   failures   %Number     #REQUIRED
   skipped    %Number     #REQUIRED
+  todo       %Number     #REQUIRED
+  time       %Float      #REQUIRED
 >
