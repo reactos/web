@@ -68,7 +68,7 @@
       </a>
     <?php endif; ?>
     <!-- KICKSTARTER -->
-    <div id="kickstarter"><br /><a href="<?php print $front_page; ?>">Stay tuned for what's coming next !</a></div>
+    <div id="kickstarter"><br /><a href="http://community.reactos.org/">Stay tuned for what's coming next !</a></div>
     <!-- /KICKSTARTER -->
     <?php if ($main_menu): ?>
       <div id="topMenu">

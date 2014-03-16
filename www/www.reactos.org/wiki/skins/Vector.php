@@ -160,7 +160,7 @@ class VectorTemplate extends BaseTemplate {
 			</a>
 
 		<!-- KICKSTARTER -->
-		<div id="kickstarter"><br /><a href="https://www.reactos.org/">Stay tuned for what's coming next !</a></div>
+		<div id="kickstarter"><br /><a href="http://community.reactos.org/">Stay tuned for what's coming next !</a></div>
 		<!-- /KICKSTARTER -->
 
 			<div id="topMenu">
