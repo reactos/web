@@ -928,8 +928,8 @@ body.vector-animateLayout #mw-head-base {
 }
 
 #kickstarter img {
-	margin-top: 5px;
-	float: right;
+	margin-top: -20px;
+	margin-left: -25px;
 }
 
 #topMenu {
