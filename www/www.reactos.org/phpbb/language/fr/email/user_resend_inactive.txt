@@ -1,0 +1,20 @@
+Subject: Bienvenue sur « {SITENAME} »
+
+{WELCOME_MSG}
+
+Veuillez conserver ce courriel dans vos archives. L’information concernant votre compte est la suivante :
+
+----------------------------
+Nom d’utilisateur : {USERNAME}
+----------------------------
+
+Votre mot de passe a été stocké en toute sécurité dans notre base de données et ne pourra pas être retrouvé. Dans le cas où vous l’oubliez, vous pourrez le réinitialiser en utilisant l’adresse de courrier électronique associée à votre compte.
+
+Veuillez vous rendre sur le lien suivant afin d’activer votre compte :
+
+{U_ACTIVATE}
+
+
+Nous vous remercions de votre inscription.
+
+{EMAIL_SIG}

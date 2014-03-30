@@ -1,0 +1,15 @@
+Subject: Un nouveau message privé est arrivé
+
+Bonjour {USERNAME},
+
+Vous avez reçu un nouveau message privé de « {AUTHOR_NAME} » sur votre compte de « {SITENAME} » dont le sujet est :
+
+{SUBJECT}
+
+Vous pouvez consulter votre nouveau message en cliquant sur le lien suivant :
+
+{U_VIEW_MESSAGE}
+
+Vous avez demandé à recevoir une notification lors de cet évènement, sachez que vous pouvez toujours choisir de ne pas être notifié(e) lors de la réception de nouveaux messages en modifiant le réglage approprié dans votre profil.
+
+{EMAIL_SIG}

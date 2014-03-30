@@ -1,0 +1,19 @@
+Subject: Notification de publication d’un message dans un forum - « {FORUM_NAME} »
+
+Bonjour {USERNAME},
+
+Vous recevez cette notification car vous surveillez le forum « {FORUM_NAME} » sur « {SITENAME} ». Depuis votre dernière visite, un nouveau sujet, « {TOPIC_TITLE} », a été publié dans ce forum<!-- IF AUTHOR_NAME !== '' --> par {AUTHOR_NAME}<!-- ENDIF -->. Vous pouvez utiliser le lien suivant afin de consulter le forum, aucune nouvelle notification ne vous sera envoyée jusqu’à ce que vous visitez ce dernier.
+
+{U_NEWEST_POST}
+
+Si vous souhaitez consulter le sujet, veuillez cliquer sur le lien suivant :
+{U_TOPIC}
+
+Si vous souhaitez consulter le forum, veuillez cliquer sur le lien suivant :
+{U_FORUM}
+
+Si vous ne souhaitez plus surveiller ce forum, vous pouvez cliquer sur le lien « Se désabonner au forum » situé au-dessous du forum en question ou cliquer sur le lien suivant :
+
+{U_STOP_WATCHING_FORUM}
+
+{EMAIL_SIG}

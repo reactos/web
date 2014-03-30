@@ -1,0 +1,8 @@
+Subject: Rapport supprimé - « {POST_SUBJECT} »
+
+Bonjour {USERNAME},
+
+Vous recevez cette notification car le rapport du message « {POST_SUBJECT} » dans « {TOPIC_TITLE} » sur « {SITENAME} » a été supprimé par un modérateur ou un administrateur.
+
+
+{EMAIL_SIG}

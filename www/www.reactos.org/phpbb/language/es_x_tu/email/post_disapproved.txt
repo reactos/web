@@ -1,0 +1,12 @@
+Subject: Mensaje rechazado - "{POST_SUBJECT}"
+
+Hola {USERNAME},
+
+Estás recibiendo esta notificación porque tu mensaje "{POST_SUBJECT}" en "{SITENAME}" fue rechazado por un(a) moderador(a) o La Administración.
+
+Se dió la siguiente razón para rechazarlo:
+
+{REASON}
+
+
+{EMAIL_SIG}

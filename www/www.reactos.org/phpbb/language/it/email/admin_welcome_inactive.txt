@@ -1,0 +1,19 @@
+Subject: Benvenuto su "{SITENAME}"
+
+{WELCOME_MSG}
+
+Per favore, conserva questa e-mail. Le informazioni del tuo account sono:
+
+----------------------------
+Nome utente: {USERNAME}
+
+URL: {U_BOARD}
+----------------------------
+
+Il tuo account non e' ancora attivo: un amministratore deve attivarlo prima che tu possa accedere. Riceverai un'altra e-mail appena avviene l'attivazione.
+
+Non dimenticare la tua password perche' e' stata criptata nel nostro database e non abbiamo la possibilita' di estrarla. Qualora la dimenticassi hai la possibilita' di richiederne una nuova che sara' attivata con lo stesso procedimento di questo account.
+
+Ti ringraziamo per la registrazione.
+
+{EMAIL_SIG}

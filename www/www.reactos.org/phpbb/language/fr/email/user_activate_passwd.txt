@@ -1,0 +1,17 @@
+Subject: Activation d’un nouveau mot de passe
+
+Bonjour {USERNAME},
+
+Vous recevez cette notification car vous (ou quelqu’un se faisant passer pour vous) avez demandé qu’un nouveau mot de passe vous soit envoyé pour votre compte sur « {SITENAME} ». Si vous n’avez pas demandé cette modification, veuillez alors l’ignorer. Si vous continuez à recevoir cette notification, veuillez contacter l’administrateur du forum.
+
+Pour utiliser le nouveau mot de passe, vous avez besoin de l’activer. Pour cela, veuillez cliquer sur le lien ci-dessous :
+
+{U_ACTIVATE}
+
+Si cela a fonctionné, vous pourrez vous connecter en utilisant le mot de passe suivant :
+
+Mot de passe : {PASSWORD}
+
+Vous pouvez modifier ce mot de passe par l’intermédiaire de votre profil. Si vous éprouvez une quelconque difficulté durant ces étapes, veuillez contacter l’administrateur du forum.
+
+{EMAIL_SIG}

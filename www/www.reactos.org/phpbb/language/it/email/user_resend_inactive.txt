@@ -1,0 +1,12 @@
+Subject: Benvenuto su "{SITENAME}"
+
+{WELCOME_MSG}
+
+Per favore conserva questa e-mail con le informazioni del tuo account:
+Nome utente:{USERNAME}
+
+Non scordare la tua password, non sara' possibile recuperarla dal nostro database in quanto viene criptata. In caso di smarrimento della stessa, sara' comunque possibile richiederne una nuova dalla pagina di login, utilizzando l'indirizzo email associato al tuo account. Il tuo account e' attualmente inattivo. Non puoi usarlo fintanto che non visiti il link seguente: {U_ACTIVATE}
+
+Grazie per esserti iscritto.
+
+{EMAIL_SIG}

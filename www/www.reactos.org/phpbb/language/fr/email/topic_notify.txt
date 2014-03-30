@@ -1,0 +1,20 @@
+Subject: Notification de publication d’une réponse à un sujet - « {TOPIC_TITLE} »
+
+Bonjour {USERNAME},
+
+Vous recevez cette notification car vous surveillez le sujet « {TOPIC_TITLE} » sur « {SITENAME} ». Ce sujet a reçu une nouvelle réponse<!-- IF AUTHOR_NAME !== '' --> de {AUTHOR_NAME}<!-- ENDIF --> depuis votre dernière visite. Vous pouvez utiliser le lien suivant afin de consulter la réponse, aucune nouvelle notification ne vous sera envoyée jusqu’à ce que vous visitez le sujet.
+
+Si vous souhaitez consulter le dernier message publié depuis votre dernière visite, veuillez cliquer sur le lien suivant :
+{U_NEWEST_POST}
+
+Si vous souhaitez consulter le sujet, veuillez cliquer sur le lien suivant :
+{U_TOPIC}
+
+Si vous souhaitez consulter le forum, veuillez cliquer sur le lien suivant :
+{U_FORUM}
+
+Si vous ne souhaitez plus surveiller ce sujet, vous pouvez cliquer sur le lien « Se désabonner au sujet » situé en bas du sujet dont l’adresse est située ci-dessus ou cliquer sur le lien suivant :
+
+{U_STOP_WATCHING_TOPIC}
+
+{EMAIL_SIG}

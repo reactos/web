@@ -1,0 +1,8 @@
+Subject: Rapport fermé - « {POST_SUBJECT} »
+
+Bonjour {USERNAME},
+
+Vous recevez cette notification car le rapport que vous avez rempli sur le message « {POST_SUBJECT} » dans « {TOPIC_TITLE} » sur « {SITENAME} » a été vérifié par un modérateur ou un administrateur. Le rapport a alors été fermé. Si vous souhaitez avoir plus d’informations à ce sujet, veuillez contacter {CLOSER_NAME} par message privé.
+
+
+{EMAIL_SIG}

@@ -1,0 +1,8 @@
+Subject: Chiusura segnalazione - "{PM_SUBJECT}"
+
+
+Ciao {USERNAME},
+
+ricevi questa notifica perche' la segnalazione relativa al messaggio privato "{PM_SUBJECT}" su "{SITENAME}" e' stata letta da un moderatore o da un amministratore. La segnalazione e' stata poi chiusa. Se hai ulteriori domande contatta {CLOSER_NAME} con un messaggio privato.
+
+{EMAIL_SIG}

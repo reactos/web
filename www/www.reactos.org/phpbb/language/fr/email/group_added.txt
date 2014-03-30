@@ -1,0 +1,11 @@
+Subject: Vous avez été ajouté(e) à un groupe d’utilisateurs
+
+Félicitations,
+
+Vous avez été ajouté(e) au groupe « {GROUP_NAME} » sur « {SITENAME} ».
+Cette action a été réalisée par le responsable du groupe ou par l’administrateur du site, contactez-les pour plus d’informations.
+
+Vous pouvez consulter les informations de votre groupe ici :
+{U_GROUP}
+
+{EMAIL_SIG}

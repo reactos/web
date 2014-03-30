@@ -1,0 +1,8 @@
+Subject: Rapport fermé - « {PM_SUBJECT} »
+
+Bonjour {USERNAME},
+
+Vous recevez cette notification car le rapport que vous avez envoyé concernant le message privé « {PM_SUBJECT} » sur « {SITENAME} » a été traité par un modérateur ou un administrateur. Le rapport est à présent fermé. Si vous souhaitez obtenir plus d’informations, veuillez contacter {CLOSER_NAME} par message privé.
+
+
+{EMAIL_SIG}

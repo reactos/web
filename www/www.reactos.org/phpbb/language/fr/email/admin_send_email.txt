@@ -1,0 +1,14 @@
+
+Ce qui suit est un courriel envoyé par un administrateur de « {SITENAME} ». Si ce message est un pourriel ou qu’il contient des commentaires que vous trouvez déplacés, veuillez contacter le webmestre du forum à l’adresse suivante :
+
+{CONTACT_EMAIL}
+
+Incluez ce courriel en entier (particulièrement les en-têtes).
+
+Message qui vous a été envoyé :
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+{MESSAGE}
+
+
+{EMAIL_SIG}

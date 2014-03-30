@@ -1,0 +1,19 @@
+Subject: Riattiva il tuo account su "{SITENAME}"
+
+
+Un amministratore ha richiesto la riattivazione del tuo account. Il tuo account e' attualmente inattivo.
+
+Per favore segui la procedura che segue per riattivare il tuo account.
+
+Per favore conserva questa e-mail con le informazioni del tuo account:
+
+
+Nome utente: {USERNAME}
+
+
+Non scordare la tua password, non sara' possibile recuperarla dal nostro database in quanto viene criptata. In caso di smarrimento della stessa, sara' comunque possibile richiederne una nuova dalla pagina di login, utilizzando l'indirizzo e-mail associato al tuo account. Per favore, visita il link seguente per riattivare il tuo account:
+
+{U_ACTIVATE}
+
+
+{EMAIL_SIG}

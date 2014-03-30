@@ -1,0 +1,7 @@
+Subject: Votre compte a été désactivé
+
+Bonjour {USERNAME},
+
+Votre compte sur « {SITENAME} » a été désactivé, sûrement à cause de modifications effectuées sur votre profil. L’administrateur du forum devra l’activer avant que vous ne puissiez vous connecter. Vous recevrez une autre notification lorsque cela aura été effectué.
+
+{EMAIL_SIG}

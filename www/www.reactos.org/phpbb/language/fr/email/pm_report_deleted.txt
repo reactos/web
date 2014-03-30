@@ -1,0 +1,8 @@
+Subject: Rapport supprimé - « {PM_SUBJECT} »
+
+Bonjour {USERNAME},
+
+Vous recevez cette notification car le rapport que vous avez envoyé concernant le message privé « {PM_SUBJECT} » sur « {SITENAME} » a été supprimé par un modérateur ou un administrateur.
+
+
+{EMAIL_SIG}

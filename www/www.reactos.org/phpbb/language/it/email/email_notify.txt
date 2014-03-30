@@ -1,0 +1,17 @@
+Subject: "{SITENAME}" - E-mail a un amico
+
+Ciao {TO_USERNAME},
+
+questa e-mail e' stata inviata da {FROM_USERNAME} di "{SITENAME}", che pensa tu possa essere interessato al seguente argomento:
+
+{TOPIC_NAME}
+
+che puoi trovare all'indirizzo:
+
+{U_TOPIC}
+
+{FROM_USERNAME} puo' aver accluso un messaggio di seguito. N.B.: il messaggio non e' stato letto o approvato da amministratori della Board. Se vuoi manifestare le tue rimostranze sul ricevimento di questa e-mail, ti preghiamo di contattare un amministratore su {BOARD_CONTACT}. Per favore accludi questa email, compresi gli headers quando contatti quell'indirizzo.
+
+----------
+
+{MESSAGE}

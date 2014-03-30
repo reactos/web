@@ -1,0 +1,17 @@
+Subject: « {SITENAME} » - Envoi d’un courriel par un ami
+
+Bonjour {TO_USERNAME},
+
+Ce courriel a été envoyé de « {SITENAME} » par {FROM_USERNAME}, qui a pensé que vous pourriez être intéressé(e) par le sujet suivant :
+
+{TOPIC_NAME}
+
+Vous pouvez le retrouver ici :
+
+{U_TOPIC}
+
+Un message de la part de {FROM_USERNAME} peut également être inclus ci-dessous. Veuillez noter que ce message n’a pas été consulté ou approuvé par les administrateurs du forum. Si vous souhaitez vous plaindre à propos de la réception de ce courriel, veuillez contacter l’administrateur du forum sur {BOARD_CONTACT}. Veuillez citer les en-têtes du message lorsque vous contacterez cette adresse.
+
+----------
+
+{MESSAGE}

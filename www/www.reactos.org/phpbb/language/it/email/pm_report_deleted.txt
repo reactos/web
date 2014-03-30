@@ -1,0 +1,7 @@
+Subject: Cancellazione segnalazione - "{PM_SUBJECT}"
+
+
+Ciao {USERNAME},
+ricevi questa notifica perche' la segnalazione relativa al messaggio privato "{PM_SUBJECT}" su "{SITENAME}" e' stata cancellata da un moderatore o da un amministratore.
+
+{EMAIL_SIG}

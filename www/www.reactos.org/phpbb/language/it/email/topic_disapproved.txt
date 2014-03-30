@@ -1,0 +1,12 @@
+Subject: Argomento disapprovato - "{TOPIC_TITLE}"
+
+Ciao {USERNAME},
+
+ricevi questa notifica perche' il tuo argomento "{TOPIC_TITLE}" su "{SITENAME}" e' stato disapprovato da un moderatore o da un amministratore.
+
+La ragione della disapprovazione e' la seguente:
+
+{REASON}
+
+
+{EMAIL_SIG}

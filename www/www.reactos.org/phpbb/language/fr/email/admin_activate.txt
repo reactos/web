@@ -1,0 +1,14 @@
+Subject: Activation du compte d’un utilisateur
+
+Bonjour,
+
+Le compte de « {USERNAME} » a été désactivé ou nouvellement créé. Vous devriez, si nécessaire, gérer et vérifier les informations concernant cet utilisateur.
+
+Veuillez vous rendre sur ce lien afin de consulter le profil de l’utilisateur :
+{U_USER_DETAILS}
+
+Veuillez vous rendre sur ce lien afin d’activer le compte :
+{U_ACTIVATE}
+
+
+{EMAIL_SIG}

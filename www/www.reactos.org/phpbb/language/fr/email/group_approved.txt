@@ -1,0 +1,10 @@
+Subject: Votre demande a été approuvée
+
+Félicitations,
+
+Votre demande d’adhésion au groupe « {GROUP_NAME} » sur « {SITENAME} » a été approuvée.
+Cliquez sur le lien suivant afin de consulter les membres de votre groupe.
+
+{U_GROUP}
+
+{EMAIL_SIG}
