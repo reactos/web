@@ -11,15 +11,10 @@
 /**
 * @ignore
 */
-//VB
-if (!defined('PHPBB_API_EMBEDDED'))
-{
 define('IN_PHPBB', true);
 $phpbb_root_path = (defined('PHPBB_ROOT_PATH')) ? PHPBB_ROOT_PATH : './';
 $phpEx = substr(strrchr(__FILE__, '.'), 1);
 include($phpbb_root_path . 'common.' . $phpEx);
-}
-//\VB
 
 // Start session management
 $user->session_begin();
@@ -285,16 +280,7 @@ if ($keywords || $author || $author_id || $search_id || $submit)
 		trigger_error('NO_SUCH_SEARCH_MODULE');
 	}
 
-	//VB
-	if (!defined('PHPBB_API_EMBEDDED'))
-	{
 	require("{$phpbb_root_path}includes/search/$search_type.$phpEx");
-	}
-	else
-	{
-	require_once("{$phpbb_root_path}includes/search/$search_type.$phpEx");
-	}
-	//\VB
 
 	// We do some additional checks in the module to ensure it can actually be utilised
 	$error = false;
@@ -571,29 +557,11 @@ if ($keywords || $author || $author_id || $search_id || $submit)
 
 	if ($show_results == 'posts')
 	{
-		//VB
-		if (defined('PHPBB_API_EMBEDDED'))
-		{
-		include_once($phpbb_root_path . 'includes/functions_posting.' . $phpEx);
-		}
-		else
-		{
 		include($phpbb_root_path . 'includes/functions_posting.' . $phpEx);
 	}
-		//\VB
-	}
-	else
-	{
-		//VB
-		if (defined('PHPBB_API_EMBEDDED'))
-		{
-		include_once($phpbb_root_path . 'includes/functions_display.' . $phpEx);
-		}
 	else
 	{
 		include($phpbb_root_path . 'includes/functions_display.' . $phpEx);
-	}
-		//\VB
 	}
 
 	$user->add_lang('viewtopic');
@@ -635,7 +603,8 @@ if ($keywords || $author || $author_id || $search_id || $submit)
 	$template->assign_vars(array(
 		'SEARCH_TITLE'		=> $l_search_title,
 		'SEARCH_MATCHES'	=> $l_search_matches,
-		'SEARCH_WORDS'		=> $search->search_query,
+		'SEARCH_WORDS'		=> $keywords,
+		'SEARCHED_QUERY'	=> $search->search_query,
 		'IGNORED_WORDS'		=> (sizeof($search->common_words)) ? implode(' ', $search->common_words) : '',
 		'PAGINATION'		=> generate_pagination($u_search, $total_match_count, $per_page, $start),
 		'PAGE_NUMBER'		=> on_page($total_match_count, $per_page, $start),

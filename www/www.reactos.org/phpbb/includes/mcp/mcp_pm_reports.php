@@ -58,16 +58,7 @@ class mcp_pm_reports
 
 				if (!function_exists('close_report'))
 				{
-					//VB
-					if (!defined('PHPBB_API_EMBEDDED'))
-					{
 					include($phpbb_root_path . 'includes/mcp/mcp_reports.' . $phpEx);
-				}
-					else
-					{
-					include_once($phpbb_root_path . 'includes/mcp/mcp_reports.' . $phpEx);
-					}
-					//\VB
 				}
 
 				close_report($report_id_list, $mode, $action, true);
@@ -132,6 +123,7 @@ class mcp_pm_reports
 
 				$message = bbcode_nl2br($message);
 				$message = smiley_text($message);
+				$report['report_text'] = make_clickable(bbcode_nl2br($report['report_text']));
 
 				if ($pm_info['message_attachment'] && $auth->acl_get('u_pm_download'))
 				{

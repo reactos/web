@@ -11,9 +11,6 @@
 /**
 * @ignore
 */
-//VB
-if (!defined('PHPBB_API_EMBEDDED'))
-{
 define('IN_PHPBB', true);
 $phpbb_root_path = (defined('PHPBB_ROOT_PATH')) ? PHPBB_ROOT_PATH : './';
 $phpEx = substr(strrchr(__FILE__, '.'), 1);
@@ -21,14 +18,7 @@ include($phpbb_root_path . 'common.' . $phpEx);
 include($phpbb_root_path . 'includes/functions_posting.' . $phpEx);
 include($phpbb_root_path . 'includes/functions_display.' . $phpEx);
 include($phpbb_root_path . 'includes/message_parser.' . $phpEx);
-}
-else
-{
-include_once($phpbb_root_path . 'includes/functions_posting.' . $phpEx);
-include_once($phpbb_root_path . 'includes/functions_display.' . $phpEx);
-include_once($phpbb_root_path . 'includes/message_parser.' . $phpEx);
-}
-//\VB
+
 
 // Start session management
 $user->session_begin();
@@ -191,16 +181,7 @@ $user->setup(array('posting', 'mcp', 'viewtopic'), $post_data['forum_style']);
 
 if ($config['enable_post_confirm'] && !$user->data['is_registered'])
 {
-	//VB
-	if (!defined('PHPBB_API_EMBEDDED'))
-	{
 	include($phpbb_root_path . 'includes/captcha/captcha_factory.' . $phpEx);
-	}
-	else
-	{
-	include_once($phpbb_root_path . 'includes/captcha/captcha_factory.' . $phpEx);
-	}  
-	//\VB
 	$captcha =& phpbb_captcha_factory::get_instance($config['captcha_plugin']);
 	$captcha->init(CONFIRM_POST);
 }
@@ -215,6 +196,7 @@ if ($post_data['forum_password'])
 {
 	login_forum_box(array(
 		'forum_id'			=> $forum_id,
+		'forum_name'		=> $post_data['forum_name'],
 		'forum_password'	=> $post_data['forum_password'])
 	);
 }
@@ -850,16 +832,7 @@ if ($submit || $preview || $refresh)
 	// Validate username
 	if (($post_data['username'] && !$user->data['is_registered']) || ($mode == 'edit' && $post_data['poster_id'] == ANONYMOUS && $post_data['username'] && $post_data['post_username'] && $post_data['post_username'] != $post_data['username']))
 	{
-		//VB
-		if (!defined('PHPBB_API_EMBEDDED'))
-		{
 		include($phpbb_root_path . 'includes/functions_user.' . $phpEx);
-		}
-		else
-		{
-		include_once($phpbb_root_path . 'includes/functions_user.' . $phpEx);
-		}  
-		//\VB
 
 		$user->add_lang('ucp');
 
@@ -1046,7 +1019,7 @@ if ($submit || $preview || $refresh)
 					$forum_type = (int) $db->sql_fetchfield('forum_type');
 					$db->sql_freeresult($result);
 
-					if ($forum_type != FORUM_POST || !$auth->acl_get('f_post', $to_forum_id) || (!$auth->acl_get('m_approve', $to_forum_id) && !$auth->acl_get('f_noapprove', $to_forum_id)))
+					if ($forum_type != FORUM_POST || !$auth->acl_get('f_post', $to_forum_id) || !$auth->acl_get('f_noapprove', $to_forum_id))
 					{
 						$to_forum_id = 0;
 					}
@@ -1158,16 +1131,23 @@ if ($submit || $preview || $refresh)
 				$data['topic_replies'] = $post_data['topic_replies'];
 			}
 
+			// Only return the username when it is either a guest posting or we are editing a post and
+			// the username was supplied; otherwise post_data might hold the data of the post that is
+			// being quoted (which could result in the username being returned being that of the quoted
+			// post's poster, not the poster of the current post). See: PHPBB3-11769 for more information.
+			$post_author_name = ((!$user->data['is_registered'] || $mode == 'edit') && $post_data['username'] !== '') ? $post_data['username'] : '';
+
 			// The last parameter tells submit_post if search indexer has to be run
-			$redirect_url = submit_post($mode, $post_data['post_subject'], $post_data['username'], $post_data['topic_type'], $poll, $data, $update_message, ($update_message || $update_subject) ? true : false);
+			$redirect_url = submit_post($mode, $post_data['post_subject'], $post_author_name, $post_data['topic_type'], $poll, $data, $update_message, ($update_message || $update_subject) ? true : false);
 
 			if ($config['enable_post_confirm'] && !$user->data['is_registered'] && (isset($captcha) && $captcha->is_solved() === true) && ($mode == 'post' || $mode == 'reply' || $mode == 'quote'))
 			{
 				$captcha->reset();
 			}
 
-			// Check the permissions for post approval. Moderators are not affected.
-			if ((!$auth->acl_get('f_noapprove', $data['forum_id']) && !$auth->acl_get('m_approve', $data['forum_id']) && empty($data['force_approved_state'])) || (isset($data['force_approved_state']) && !$data['force_approved_state']))
+			// Check the permissions for post approval.
+			// Moderators must go through post approval like ordinary users.
+			if ((!$auth->acl_get('f_noapprove', $data['forum_id']) && empty($data['force_approved_state'])) || (isset($data['force_approved_state']) && !$data['force_approved_state']))
 			{
 				meta_refresh(10, $redirect_url);
 				$message = ($mode == 'edit') ? $user->lang['POST_EDITED_MOD'] : $user->lang['POST_STORED_MOD'];

@@ -35,12 +35,6 @@ class mcp_main
 	{
 		global $auth, $db, $user, $template, $action;
 		global $config, $phpbb_root_path, $phpEx;
-    //VB
-		if (defined('PHPBB_API_EMBEDDED'))
-		{
-			$action =_phpbbforum_get_cp_action_request($action);
-		}
-		//\VB
 
 		$quickmod = ($mode == 'quickmod') ? true : false;
 
@@ -142,16 +136,7 @@ class mcp_main
 		switch ($mode)
 		{
 			case 'front':
-				//VB
-				if (!defined('PHPBB_API_EMBEDDED'))
-				{
 				include($phpbb_root_path . 'includes/mcp/mcp_front.' . $phpEx);
-				}
-				else
-				{
-				include_once($phpbb_root_path . 'includes/mcp/mcp_front.' . $phpEx);
-				}
-				//\VB
 
 				$user->add_lang('acp/common');
 
@@ -162,16 +147,7 @@ class mcp_main
 			break;
 
 			case 'forum_view':
-				//VB
-				if (!defined('PHPBB_API_EMBEDDED'))
-				{
 				include($phpbb_root_path . 'includes/mcp/mcp_forum.' . $phpEx);
-				}
-				else
-				{
-				include_once($phpbb_root_path . 'includes/mcp/mcp_forum.' . $phpEx);
-				}
-				//\VB
 
 				$user->add_lang('viewforum');
 
@@ -194,16 +170,7 @@ class mcp_main
 			break;
 
 			case 'topic_view':
-				//VB
-				if (!defined('PHPBB_API_EMBEDDED'))
-				{
 				include($phpbb_root_path . 'includes/mcp/mcp_topic.' . $phpEx);
-				}
-				else
-				{
-				include_once($phpbb_root_path . 'includes/mcp/mcp_topic.' . $phpEx);
-				}
-				//\VB
 
 				mcp_topic_view($id, $mode, $action);
 
@@ -212,16 +179,7 @@ class mcp_main
 			break;
 
 			case 'post_details':
-				//VB
-				if (!defined('PHPBB_API_EMBEDDED'))
-				{
 				include($phpbb_root_path . 'includes/mcp/mcp_post.' . $phpEx);
-				}
-				else
-				{
-				include_once($phpbb_root_path . 'includes/mcp/mcp_post.' . $phpEx);
-				}
-				//\VB
 
 				mcp_post_details($id, $mode, $action);
 
@@ -1273,6 +1231,7 @@ function mcp_fork_topic($topic_ids)
 				}
 			}
 
+			// Copy topic subscriptions to new topic
 			$sql = 'SELECT user_id, notify_status
 				FROM ' . TOPICS_WATCH_TABLE . '
 				WHERE topic_id = ' . $topic_id;
@@ -1292,6 +1251,27 @@ function mcp_fork_topic($topic_ids)
 			if (sizeof($sql_ary))
 			{
 				$db->sql_multi_insert(TOPICS_WATCH_TABLE, $sql_ary);
+			}
+
+			// Copy bookmarks to new topic
+			$sql = 'SELECT user_id
+				FROM ' . BOOKMARKS_TABLE . '
+				WHERE topic_id = ' . $topic_id;
+			$result = $db->sql_query($sql);
+
+			$sql_ary = array();
+			while ($row = $db->sql_fetchrow($result))
+			{
+				$sql_ary[] = array(
+					'topic_id'		=> (int) $new_topic_id,
+					'user_id'		=> (int) $row['user_id'],
+				);
+			}
+			$db->sql_freeresult($result);
+
+			if (sizeof($sql_ary))
+			{
+				$db->sql_multi_insert(BOOKMARKS_TABLE, $sql_ary);
 			}
 		}
 

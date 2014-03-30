@@ -11,22 +11,12 @@
 /**
 * @ignore
 */
-//VB
-if (!defined('PHPBB_EMBEDDED'))
-{
 define('IN_PHPBB', true);
 $phpbb_root_path = (defined('PHPBB_ROOT_PATH')) ? PHPBB_ROOT_PATH : './';
 $phpEx = substr(strrchr(__FILE__, '.'), 1);
 include($phpbb_root_path . 'common.' . $phpEx);
 include($phpbb_root_path . 'includes/functions_display.' . $phpEx);
 include($phpbb_root_path . 'includes/bbcode.' . $phpEx);
-}
-else
-{
-include_once($phpbb_root_path . 'includes/functions_display.' . $phpEx);
-include_once($phpbb_root_path . 'includes/bbcode.' . $phpEx);
-}
-//\VB
 
 // Start session management
 $user->session_begin();
@@ -156,7 +146,14 @@ if ($view && !$post_id)
 
 			if (!$row)
 			{
-				$user->setup('viewtopic');
+				$sql = 'SELECT forum_style
+					FROM ' . FORUMS_TABLE . "
+					WHERE forum_id = $forum_id";
+				$result = $db->sql_query($sql);
+				$forum_style = (int) $db->sql_fetchfield('forum_style');
+				$db->sql_freeresult($result);
+
+				$user->setup('viewtopic', $forum_style);
 				trigger_error(($view == 'next') ? 'NO_NEWER_TOPICS' : 'NO_OLDER_TOPICS');
 			}
 			else
@@ -1230,23 +1227,10 @@ $db->sql_freeresult($result);
 // Load custom profile fields
 if ($config['load_cpf_viewtopic'])
 {
-  //VB
-	if (!defined('PHPBB_API_EMBEDDED'))
-	{
 	if (!class_exists('custom_profile'))
 	{
 		include($phpbb_root_path . 'includes/functions_profile_fields.' . $phpEx);
 	}
-	}
-	else
-	{
-		if (!class_exists('custom_profile'))
-		{
-		include_once($phpbb_root_path . 'includes/functions_profile_fields.' . $phpEx);
-		}
-	}
-	//\VB
-  
 	$cp = new custom_profile();
 
 	// Grab all profile fields from users in id cache for later use - similar to the poster cache
@@ -1649,29 +1633,6 @@ for ($i = 0, $end = sizeof($post_list); $i < $end; ++$i)
 unset($rowset, $user_cache);
 
 // Update topic view and if necessary attachment view counters ... but only for humans and if this is the first 'page view'
-//VB
-if (defined('PHPBB_API_EMBEDDED'))
-{
-	global $_phpbb_embed_mode;
-	if (isset($user->data['session_page']) && !$user->data['is_bot'] && (strpos($user->data['session_page'], '&t=' . $topic_id) === false || isset($user->data['session_created']) || $_phpbb_embed_mode['update_topic_view']))
-	{
-	$sql = 'UPDATE ' . TOPICS_TABLE . '
-		SET topic_views = topic_views + 1, topic_last_view_time = ' . time() . "
-		WHERE topic_id = $topic_id";
-	$db->sql_query($sql);
-
-	// Update the attachment download counts
-	if (sizeof($update_count))
-	{
-		$sql = 'UPDATE ' . ATTACHMENTS_TABLE . '
-			SET download_count = download_count + 1
-			WHERE ' . $db->sql_in_set('attach_id', array_unique($update_count));
-		$db->sql_query($sql);
-	}
-	}
-}
-else
-//\VB
 if (isset($user->data['session_page']) && !$user->data['is_bot'] && (strpos($user->data['session_page'], '&t=' . $topic_id) === false || isset($user->data['session_created'])))
 {
 	$sql = 'UPDATE ' . TOPICS_TABLE . '

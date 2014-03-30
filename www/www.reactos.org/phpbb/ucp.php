@@ -11,22 +11,12 @@
 /**
 * @ignore
 */
-//VB
-if (!defined('PHPBB_API_EMBEDDED'))
-{
 define('IN_PHPBB', true);
 $phpbb_root_path = (defined('PHPBB_ROOT_PATH')) ? PHPBB_ROOT_PATH : './';
 $phpEx = substr(strrchr(__FILE__, '.'), 1);
 require($phpbb_root_path . 'common.' . $phpEx);
 require($phpbb_root_path . 'includes/functions_user.' . $phpEx);
 require($phpbb_root_path . 'includes/functions_module.' . $phpEx);
-}
-else
-{
-require_once($phpbb_root_path . 'includes/functions_user.' . $phpEx);
-require_once($phpbb_root_path . 'includes/functions_module.' . $phpEx);
-}
-//\VB
 
 // Basic parameter data
 $id 	= request_var('i', '');
@@ -102,12 +92,6 @@ switch ($mode)
 		{
 			$message = ($user->data['user_id'] == ANONYMOUS) ? $user->lang['LOGOUT_REDIRECT'] : $user->lang['LOGOUT_FAILED'];
 		}
-    //VB
-		if (defined('PHPBB_API_EMBEDDED'))
-		{
-			_phpbb_api_hook('logout', array('username' => $user->data['username'], 'user_id' => $user->data['user_id'], 'redirect' => append_sid("{$phpbb_root_path}index.$phpEx")));
-		}
-		//\VB
 		meta_refresh(3, append_sid("{$phpbb_root_path}index.$phpEx"));
 
 		$message = $message . '<br /><br />' . sprintf($user->lang['RETURN_INDEX'], '<a href="' . append_sid("{$phpbb_root_path}index.$phpEx") . '">', '</a> ');
@@ -213,16 +197,7 @@ switch ($mode)
 			redirect(append_sid("{$phpbb_root_path}index.$phpEx"));
 		}
 
-		//VB
-		if (!defined('PHPBB_API_EMBEDDED'))
-		{
 		include($phpbb_root_path . 'includes/acp/auth.' . $phpEx);
-		}
-		else
-		{
-		include_once($phpbb_root_path . 'includes/acp/auth.' . $phpEx);
-		}
-		//\VB
 
 		$auth_admin = new auth_admin();
 		if (!$auth_admin->ghost_permissions($user_id, $user->data['user_id']))
@@ -343,12 +318,6 @@ if ($module->is_active('zebra', 'friends'))
 if (!$config['allow_topic_notify'] && !$config['allow_forum_notify'])
 {
 	$module->set_display('main', 'subscribed', false);
-}
-
-// Do not display signature panel if not authed to do so
-if (!$auth->acl_get('u_sig'))
-{
-	$module->set_display('profile', 'signature', false);
 }
 
 // Select the active module
