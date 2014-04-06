@@ -32,6 +32,7 @@ div#content {
 	background-color: white;
 	color: black;
 	direction: ltr;
+
 }
 /* Head */
 #mw-page-base {
@@ -42,9 +43,10 @@ div#content {
 	background-position: bottom left;
 	background-repeat: repeat-x;
 	margin-left: 11em;
+	margin-top: 120px;
 }
 #mw-head-base {
-	margin-top: -5em;
+	margin-top: -80px;
 	margin-left: 10em;
 	height: 5em;
 	/* @embed */
@@ -52,10 +54,11 @@ div#content {
 	background-position: bottom left;
 	background-repeat: repeat-x;
 	margin-left: 11em;
+	
 }
 div#mw-head {
 	position: absolute;
-	top: 105px;
+	top: 80px;
 	right: 0;
 	width: 100%;
 	height: 0;
@@ -448,7 +451,7 @@ div#simpleSearch button#searchButton > img {
 /* Panel */
 div#mw-panel {
 	position: absolute;
-	top: 147px;
+	top: 137px;
 	padding-top: 1em;
 	width: 10em;
 	left: 0;
@@ -902,13 +905,20 @@ body.vector-animateLayout #mw-head-base {
 #header {
 	background-image: url('../sites/all/themes/zen_reactos/images/topgradient.png');
 	background-repeat: repeat-x;
-	height: 145px;
-	font-family: "Verdana", sans-serif;
+	height: 80px;
+	width: 100%;
+	z-index: 100;
+	position: fixed;
+	font-family: Arial, sans-serif !important;
+	top: 0;
 }
 
 #logo {
 	float: left;
+	height: 100px;
 	margin: 3px 0 0 43px;
+	padding: 0;
+	width: auto;
 }
 
 #kickstarter {
@@ -934,7 +944,7 @@ body.vector-animateLayout #mw-head-base {
 
 #topMenu {
 	margin: 0;
-	padding: 100px 0 0 0;
+	padding: 70px 0 0 0;
 }
 
 #main-menu {
@@ -943,19 +953,28 @@ body.vector-animateLayout #mw-head-base {
 	padding: 3px 0 3px 300px;
 	box-shadow: 0 5px 5px #ddd;
 	background-color: #5984c3;
-	background-image: -moz-linear-gradient(top, #6690D0, #5984C3);
-	background-image: -webkit-linear-gradient(top, #6690D0, #5984C3);
-	background-image: linear-gradient(top, #6690D0, #5984C3);
+	background-image: -moz-linear-gradient(top, #6C95D2, #5984C3);
+	background-image: -webkit-linear-gradient(top, #6C95D2, #5984C3);
+	background-image: -ms-linear-gradient(top, #6C95D2, #5984C3);
+	background-image: linear-gradient(top, #6C95D2, #5984C3);
 	line-height: 16px;
+	height: 16px;
+	min-width: 800px;
 }
+
 #main-menu a {
 	color: #fff;
 	font-size: 14px;
-	padding: 1px 5px;
+	padding: 1px 12px;
 	text-decoration: none;
+	text-shadow: 1px 1px 1px rgba(0,0,0,.3);
+	margin: 0;
 	border-radius: 2px;
-}
-#main-menu a:hover {
+ }
+
+ #main-menu a:hover {
 	background-color: #fc3;
-	color: #000;
-}
+	color: #333;
+	text-shadow: none;
+ }
+
