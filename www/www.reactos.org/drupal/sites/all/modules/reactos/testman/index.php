@@ -16,9 +16,25 @@
 	$lang = "en";
 	require_once(SHARED_PATH . "lang/$lang.inc.php");
 	require_once(TM_PATH . "lang/$lang.inc.php");
+	$sources = "<option></option>";
+
+	try
+	{
+		$dbh = new PDO("mysql:host=" . DB_HOST . ";dbname=" . DB_TESTMAN, DB_USER, DB_PASS);
+	}
+	catch(PDOException $e)
+	{
+		die("<error>Could not establish the DB connection</error>");
+	}
+
+	foreach($dbh->query("SELECT name FROM sources") as $src)
+	{
+		$sources .= '<option value="'.$src['name'].'">'.$src['name'].'</option>';
+	}
+
 
 	$rev = reactos_GetLatestRevision();
-	?>
+?>
 	<link rel="stylesheet" type="text/css" href="/sites/default/shared/css/reactos.css">
 	<link rel="stylesheet" type="text/css" href="/sites/all/modules/reactos/testman/css/index.css">
 	<script type="text/javascript">
@@ -36,6 +52,8 @@
 			//first hide, then fadeIn
 			jQuery("#js_stuff").hide();
 			jQuery("#js_stuff").fadeIn(500);
+			if(window.localStoratge)
+				document.getElementById('search_source').value = window.localStorage.getItem('testman_source');
 		});
 	</script>
 <h2><?php echo $testman_langres["index_title"]; ?></h2>
@@ -65,7 +83,12 @@
 				<tr>
 					<td><label for="search_source"><?php echo $testman_langres["source"]; ?>:</label></td>
 					<td>
-						<input type="text" id="search_source" value="" size="24" onkeypress="SearchInputs_OnKeyPress(event)" />
+						<div class="comboedit">
+							<select onchange="document.getElementById('search_source').value=this.value">
+								<?php echo $sources; ?>
+							</select>
+							<input type="text" name="format" id="search_source" value="" onkeypress="SearchInputs_OnKeyPress(event)"/>
+						</div>
 					</td>
 				</tr>
 				<tr>

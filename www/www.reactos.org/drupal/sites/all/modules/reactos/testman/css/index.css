@@ -27,6 +27,10 @@ button {
 	width: 100%;
 }
 
+select {
+	width: 200px;
+}
+
 th.TestCheckbox {
 	width: 30px;
 }
@@ -77,10 +81,36 @@ th.TestCheckbox {
 	display: none;
 	width: 100%;
 }
-.round_corners{
+.round_corners {
 	background-color :#C9DAFF;
 	border: 1px solid #ccc;
 	border-radius: 3px;
 	box-shadow: 0 0 5px #fff inset;
 	padding: 10px;
+}
+
+.comboedit {
+	position: relative;
+	background-color: white;
+	width: 200px;
+	height: 18px;
+}
+
+.comboedit select {
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	font-size: 14px;
+	width: 200px;
+	margin: 0;
+}
+
+.comboedit input {
+	position: absolute;
+	top: 2px;
+	left: 4px;
+	width: 180px;
+	padding: 1px;
+	font-size: 14px;
+	border: none;
 }

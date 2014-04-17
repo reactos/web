@@ -34,7 +34,7 @@
 			$where .= "AND r.revision >= " . (int)$_GET["startrev"] . " AND r.revision <= " . (int)$_GET["endrev"] . " ";
 		
 		if(isset($_GET["source"]))
-			$where .= "AND src.name LIKE " . $dbh->quote($_GET["source"] . "%") . " ";
+			$where .= "AND src.name LIKE " . $dbh->quote("%" . $_GET["source"] . "%") . " ";
 		
 		if(isset($_GET["platform"]))
 			$where .= "AND r.platform LIKE " . $dbh->quote($_GET["platform"] . "%") . " ";

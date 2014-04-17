@@ -1,4 +1,4 @@
-﻿/*
+/*
   PROJECT:    ReactOS Web Test Manager
   LICENSE:    GNU GPLv2 or any later version as published by the Free Software Foundation
   PURPOSE:    JavaScript file for the Index Page (parsed by PHP before)
@@ -187,6 +187,9 @@ function SearchButton_OnClick()
 	data["page"] = CurrentPage;
 	data["resultlist"] = 1;
 	data["requesttype"] = REQUESTTYPE_FULLLOAD;
+	
+	if(window.localStorage)
+		localStorage.setItem('testman_source', data["source"]);
 	
 	SearchCall();
 }
