@@ -14,7 +14,7 @@
 	require_once("utils.inc.php");
 	require_once("languages.inc.php");
 	require_once(SHARED_PATH . "subsys_layout.php");
-	
+
 	GetLanguage();
 	require_once("lang/$lang.inc.php");
 
@@ -31,6 +31,9 @@
 		// Give no exact error message here, so no server internals are exposed
 		die("Could not establish the DB connection");
 	}
+
+    $module_urls = array();
+    $search_urls = array("rostests/winetests", "rostests/apitests");
 	
 	// Get information about this result
 	$stmt = $dbh->prepare(
@@ -45,14 +48,47 @@
 	$stmt->bindParam(":id", $_GET["id"]);
 	$stmt->execute() or die("Query failed #1");
 	$row = $stmt->fetch(PDO::FETCH_ASSOC);
-	
-	$patterns[0] = "#^([a-z]*:?\()([a-zA-Z0-9\/_]+.[a-z]+):([0-9]+)(\))#m";
-	$patterns[1] = "#^([a-zA-Z0-9_]+.[a-z]+):([0-9]+)(: )#m";
 
-	$replacements[0] = '$1<a href="' . VIEWVC_TRUNK . '/reactos/$2?revision=' . $row["revision"] . '&amp;view=markup#l$3">$2:$3</a>$4';
-	$replacements[1] = '<a href="' . VIEWVC_TRUNK . '/rostests/winetests/' . $row["module"] . '/$1?revision=' . $row["revision"] . '&amp;view=markup#l$2">$1:$2</a>$3';
+	$pattern_core = "#^([a-z]*:?\()([a-zA-Z0-9\/_]+.[a-z]+):([0-9]+)(\))#m";
+	$pattern_test = "#^([a-zA-Z0-9_]+.[a-z]+):([0-9]+)(: )#m";
+
+	$replacement_core = '$1<a href="' . VIEWVC_TRUNK . '/reactos/$2?revision=' . $row["revision"] . '&amp;view=markup#l$3">$2:$3</a>$4';
+
+	$log = preg_replace($pattern_core, $replacement_core, htmlspecialchars($row["log"]));
+	$log = preg_replace_callback($pattern_test, "file_callback", $log);
 	
-	$log = preg_replace($patterns, $replacements, htmlspecialchars($row["log"]));
+	function file_callback($matches)
+    {
+        global $row, $module_urls;
+        
+        if(!isset($module_urls[$row["module"].$matches[1]]))
+        {
+            $url_chunk = get_file_url($row["module"], $matches[1]);
+            
+            if(!$url_chunk)
+                return $matches[0];
+
+            $module_urls[$row["module"].$matches[1]] = $url_chunk;
+        }
+
+
+        return '<a href="'.VIEWVC_TRUNK.$module_urls[$row["module"].$matches[1]].$matches[1].'?revision='.$row["revision"].'&amp;view=markup#l'.$matches[2].'">'.$matches[1].':'.$matches[2].'</a>'.$matches[3];
+    }
+    
+    function get_file_url($module, $file)
+    {
+        global $search_urls;
+
+        foreach($search_urls as $surl)
+        {
+            $http_header = @get_headers(VIEWVC_TRUNK."/$surl/$module/$file");
+            
+            if($http_header[0] == 'HTTP/1.1 404 Not Found')
+                continue;
+
+            return "/$surl/$module/";
+        }
+    }
 	
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
