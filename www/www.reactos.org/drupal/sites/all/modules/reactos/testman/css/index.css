@@ -109,8 +109,9 @@ th.TestCheckbox {
 	position: absolute;
 	top: 2px;
 	left: 4px;
-	width: 180px;
+	width: 176px;
 	padding: 1px;
 	font-size: 14px;
 	border: none;
+	height: 16px;
 }
