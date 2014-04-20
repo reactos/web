@@ -112,6 +112,6 @@ th.TestCheckbox {
 	width: 176px;
 	padding: 1px;
 	font-size: 14px;
-	border: none;
+	border: none !important;
 	height: 16px;
 }
