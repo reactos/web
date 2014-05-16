@@ -52,8 +52,6 @@
 			//first hide, then fadeIn
 			jQuery("#js_stuff").hide();
 			jQuery("#js_stuff").fadeIn(500);
-			if(window.localStoratge)
-				document.getElementById('search_source').value = window.localStorage.getItem('testman_source');
 		});
 	</script>
 <h2><?php echo $testman_langres["index_title"]; ?></h2>

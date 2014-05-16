@@ -28,22 +28,19 @@
 	// Prepare the WHERE clause
 	$where = "WHERE r.finished = 1 ";
 	
-	if(isset($_GET["startrev"]) || isset($_GET["source"]) || isset($_GET["platform"]))
-	{
-		if(isset($_GET["startrev"]))
-			$where .= "AND r.revision >= " . (int)$_GET["startrev"] . " AND r.revision <= " . (int)$_GET["endrev"] . " ";
-		
-		if(isset($_GET["source"]))
-			$where .= "AND src.name LIKE " . $dbh->quote("%" . $_GET["source"] . "%") . " ";
-		
-		if(isset($_GET["platform"]))
-			$where .= "AND r.platform LIKE " . $dbh->quote($_GET["platform"] . "%") . " ";
-	}
+	if(isset($_GET["startrev"]) && $_GET["startrev"])
+		$where .= "AND r.revision >= " . (int)$_GET["startrev"] . " AND r.revision <= " . (int)$_GET["endrev"] . " ";
 	
+	if(isset($_GET["source"]) && $_GET["source"])
+		$where .= "AND src.name LIKE " . $dbh->quote("%" . $_GET["source"] . "%") . " ";
+	
+	if(isset($_GET["platform"]) && $_GET["platform"])
+		$where .= "AND r.platform LIKE " . $dbh->quote($_GET["platform"] . "%") . " ";
+
 	// Prepare some clauses
 	$tables = "FROM winetest_runs r JOIN sources src ON r.source_id = src.id ";
 	
-	if(isset($_GET["desc"]))
+	if(isset($_GET["desc"]) && $_GET["desc"])
 		$order = "ORDER BY revision DESC, r.id DESC ";
 	else
 		$order = "ORDER BY revision ASC, r.id ASC ";

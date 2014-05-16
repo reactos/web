@@ -28,7 +28,7 @@ button {
 }
 
 select {
-	width: 200px;
+	width: 275px;
 }
 
 th.TestCheckbox {
@@ -37,6 +37,7 @@ th.TestCheckbox {
 
 #searchform tr td {
 	vertical-align: top;
+	padding-bottom: 10px;
 }
 
 .controlgroup {
@@ -92,7 +93,7 @@ th.TestCheckbox {
 .comboedit {
 	position: relative;
 	background-color: white;
-	width: 200px;
+	width: 275px;
 	height: 18px;
 }
 
@@ -101,7 +102,7 @@ th.TestCheckbox {
 	top: 0px;
 	left: 0px;
 	font-size: 14px;
-	width: 200px;
+	width: 275px;
 	margin: 0;
 }
 
@@ -109,7 +110,7 @@ th.TestCheckbox {
 	position: absolute;
 	top: 2px;
 	left: 4px;
-	width: 176px;
+	width: 251px;
 	padding: 1px;
 	font-size: 14px;
 	border: none !important;

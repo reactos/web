@@ -12,6 +12,7 @@ var data;
 var FullRange;
 var inputbox_startrev;
 var inputbox_endrev;
+var initialSearch = 1;
 var PageCount;
 var ResultCount;
 var SelectedResults = new Object();
@@ -238,7 +239,13 @@ function Load()
 	
 	data["desc"] = 1;
 	data["limit"] = <?php echo DEFAULT_SEARCH_LIMIT; ?>;
-	data["source"] = "<?php echo DEFAULT_SEARCH_SOURCE; ?>";
+	
+	if(window.localStorage && window.localStorage.getItem('testman_source'))
+	   data["source"] = window.localStorage.getItem('testman_source');
+    else
+	   data["source"] = "<?php echo DEFAULT_SEARCH_SOURCE; ?>";
+
+    document.getElementById('search_source').value = data["source"];
 	
 	data["page"] = CurrentPage;
 	data["resultlist"] = 1;
@@ -267,6 +274,8 @@ function SearchCallback(HttpRequest)
 	}
 	
 	var html = "";
+    var first_rev = 0;
+    var last_rev = 0;
 	
 	if(data["resultlist"])
 	{
@@ -417,7 +426,22 @@ function SearchCallback(HttpRequest)
 		SearchCall();
 		return;
 	}
-	
+
+    if(initialSearch)
+    {
+        first_rev = HttpRequest.responseXML.getElementsByTagName("firstrev")[0].firstChild.data
+        last_rev = HttpRequest.responseXML.getElementsByTagName("lastrev")[0].firstChild.data
+
+        if(first_rev == last_rev)
+            document.getElementById('search_revision').value = first_rev;
+         else if(first_rev > last_rev)
+            document.getElementById('search_revision').value = last_rev + "-" + first_rev;
+         else
+            document.getElementById('search_revision').value = first_rev + "-" + last_rev;
+
+        initialSearch = 0;
+    }
+
 	document.getElementById("ajax_loading_search").style.visibility = "hidden";
 }
 
