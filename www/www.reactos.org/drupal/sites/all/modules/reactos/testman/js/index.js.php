@@ -15,7 +15,7 @@ var inputbox_endrev;
 var initialSearch = 1;
 var PageCount;
 var ResultCount;
-var SelectedResults = new Object();
+var SelectedResults;
 var SelectedResultCount = 0;
 
 var REQUESTTYPE_FULLLOAD = 1;
@@ -166,6 +166,9 @@ function GetRevNums()
 
 function SearchCall()
 {
+    SelectedResults = new Object();
+    SelectedResultCount = 0;
+
 	document.getElementById("ajax_loading_search").style.visibility = "visible";
 	AjaxGet("/sites/all/modules/reactos/testman/ajax-search.php", "SearchCallback", data);
 }
