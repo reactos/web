@@ -146,6 +146,10 @@ function overlay_init() {
       // If this page shouldn't be rendered inside the overlay, redirect to the
       // parent.
       elseif (!path_is_admin($current_path)) {
+        // Prevent open redirects by ensuring the current path is not an absolute URL.
+        if (url_is_external($current_path)) {
+          $current_path = '<front>';
+        }
         overlay_close_dialog($current_path, array('query' => drupal_get_query_parameters(NULL, array('q', 'render'))));
       }
 
@@ -704,7 +708,7 @@ function overlay_overlay_child_initialize() {
 }
 
 /**
- * Requests that the overlay overlay closes when the page is displayed.
+ * Requests that the overlay closes when the page is displayed.
  *
  * @param $redirect
  *   (optional) The path that should open in the parent window after the

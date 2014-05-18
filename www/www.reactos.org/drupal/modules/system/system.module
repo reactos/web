@@ -1907,17 +1907,18 @@ function system_init() {
 
   // Ignore slave database servers for this request.
   //
-  // In Drupal's distributed database structure, new data is written to the master
-  // and then propagated to the slave servers.  This means there is a lag
-  // between when data is written to the master and when it is available on the slave.
-  // At these times, we will want to avoid using a slave server temporarily.
-  // For example, if a user posts a new node then we want to disable the slave
-  // server for that user temporarily to allow the slave server to catch up.
-  // That way, that user will see their changes immediately while for other
-  // users we still get the benefits of having a slave server, just with slightly
-  // stale data.  Code that wants to disable the slave server should use the
-  // db_set_ignore_slave() function to set $_SESSION['ignore_slave_server'] to
-  // the timestamp after which the slave can be re-enabled.
+  // In Drupal's distributed database structure, new data is written to the
+  // master and then propagated to the slave servers.  This means there is a
+  // lag between when data is written to the master and when it is available on
+  // the slave. At these times, we will want to avoid using a slave server
+  // temporarily. For example, if a user posts a new node then we want to
+  // disable the slave server for that user temporarily to allow the slave
+  // server to catch up. That way, that user will see their changes immediately
+  // while for other users we still get the benefits of having a slave server,
+  // just with slightly stale data.  Code that wants to disable the slave
+  // server should use the db_ignore_slave() function to set
+  // $_SESSION['ignore_slave_server'] to the timestamp after which the slave
+  // can be re-enabled.
   if (isset($_SESSION['ignore_slave_server'])) {
     if ($_SESSION['ignore_slave_server'] >= REQUEST_TIME) {
       Database::ignoreTarget('default', 'slave');
@@ -2729,7 +2730,17 @@ function system_default_region($theme) {
 }
 
 /**
- * Add default buttons to a form and set its prefix.
+ * Sets up a form to save information automatically.
+ *
+ * This function adds a submit handler and a submit button to a form array. The
+ * submit function saves all the data in the form, using variable_set(), to
+ * variables named the same as the keys in the form array. Note that this means
+ * you should normally prefix your form array keys with your module name, so
+ * that they are unique when passed into variable_set().
+ *
+ * If you need to manipulate the data in a custom manner, you can either put
+ * your own submission handler in the form array before calling this function,
+ * or just use your own submission handler instead of calling this function.
  *
  * @param $form
  *   An associative array containing the structure of the form.
@@ -2738,6 +2749,7 @@ function system_default_region($theme) {
  *   The form structure.
  *
  * @see system_settings_form_submit()
+ *
  * @ingroup forms
  */
 function system_settings_form($form) {
@@ -2756,7 +2768,7 @@ function system_settings_form($form) {
 }
 
 /**
- * Execute the system_settings_form.
+ * Form submission handler for system_settings_form().
  *
  * If you want node type configure style handling of your checkboxes,
  * add an array_filter value to your form.
@@ -3410,30 +3422,32 @@ function system_image_toolkits() {
 /**
  * Attempts to get a file using drupal_http_request and to store it locally.
  *
- * @param $url
+ * @param string $url
  *   The URL of the file to grab.
- *
- * @param $destination
+ * @param string $destination
  *   Stream wrapper URI specifying where the file should be placed. If a
  *   directory path is provided, the file is saved into that directory under
  *   its original name. If the path contains a filename as well, that one will
  *   be used instead.
  *   If this value is omitted, the site's default files scheme will be used,
  *   usually "public://".
- *
- * @param $managed boolean
+ * @param bool $managed
  *   If this is set to TRUE, the file API hooks will be invoked and the file is
  *   registered in the database.
- *
- * @param $replace boolean
+ * @param int $replace
  *   Replace behavior when the destination file already exists:
  *   - FILE_EXISTS_REPLACE: Replace the existing file.
  *   - FILE_EXISTS_RENAME: Append _{incrementing number} until the filename is
  *     unique.
  *   - FILE_EXISTS_ERROR: Do nothing and return FALSE.
  *
- * @return
- *   On success the location the file was saved to, FALSE on failure.
+ * @return mixed
+ *   One of these possibilities:
+ *   - If it succeeds and $managed is FALSE, the location where the file was
+ *     saved.
+ *   - If it succeeds and $managed is TRUE, a \Drupal\file\FileInterface
+ *     object which describes the file.
+ *   - If it fails, FALSE.
  */
 function system_retrieve_file($url, $destination = NULL, $managed = FALSE, $replace = FILE_EXISTS_RENAME) {
   $parsed_url = parse_url($url);
