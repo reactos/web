@@ -156,11 +156,11 @@ class VectorTemplate extends BaseTemplate {
 		<!-- reactos-header -->
 		<div id="header">
 			<a href="/">
-				<img id="logo" src="http://www.reactos.org/sites/all/themes/zen_reactos/images/reactos-logo.png" alt="Home" />
+				<img id="logo" src="https://www.reactos.org/sites/all/themes/zen_reactos/images/reactos-logo.png" alt="Home" />
 			</a>
 
 		<!-- KICKSTARTER -->
-		<div id="kickstarter"><br /><a href="https://www.indiegogo.com/projects/reactos-community-edition/x/6842466"><img src="http://reactos.org/sites/default/files/evolution.png" /></a></div>
+		<div id="kickstarter"><br /><a href="https://www.indiegogo.com/projects/reactos-community-edition/x/6842466"><img src="https://reactos.org/sites/default/files/evolution.png" /></a></div>
 		<!-- /KICKSTARTER -->
 
 			<div id="topMenu">
