@@ -16,8 +16,6 @@ shell32:appbar
 // (Alex: is wildly random/erratic, I believe due to ws2_32:sock)
 urlmon:url
 
-user32:menu
-
 // random possibly due to TrackMouseEvent
 user32:msg
 
