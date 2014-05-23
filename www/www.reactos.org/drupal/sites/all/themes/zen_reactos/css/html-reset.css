@@ -7,7 +7,6 @@ body {
   margin: 0;
   padding: 0;
 }
-#skip-to-nav,#page{font-size:.875em;line-height:1.5em;}
 
 pre,code,kbd,samp,tt,var{font-family:"Courier New", "DejaVu Sans Mono", monospace;}
 h2,h3,h4,h5,h6,p,blockquote,pre,ul,ol,dl,hr,table,fieldset{margin-top:5px; margin-left: 2px;}
@@ -69,13 +68,9 @@ border-radius:2px;
 line-height:20px;
 height:19px;
 box-shadow:0 0 2px #eee inset;
-
 }
 
-input[type=text]:focus,input[type=password]:focus {
-border:1px solid #5984C3;
-}
-
+input[type=text]:focus,input[type=password]:focus {border:1px solid #5984C3;}
 blockquote{margin-left:2em;margin-right:2em;}
 pre{font-size:1.1em;margin:1.364em 0;}
 hr{height:1px; background-color: #666; border:0;}
