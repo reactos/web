@@ -1,7 +1,0 @@
-# Allow access to .png and .gif files.
-<FilesMatch (\.gif|\.png)$>
-  Allow from all
-</FilesMatch>
-
-# And no directory listings, either.
-Deny from all
