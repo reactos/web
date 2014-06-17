@@ -1,0 +1,2 @@
+Drop all original MediaWiki files in this directory. They must not be modified except for settings!
+The remaining files and subdirectories shall resemble parts of the MediaWiki directory structure and contain our modules, skins and settings.
