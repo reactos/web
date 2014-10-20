@@ -78,6 +78,10 @@ th.TestCheckbox {
 	font-weight: bold;
 }
 
+#clearselected {
+	margin-left: 10px;
+}
+
 #comparepage_frame {
 	display: none;
 	width: 100%;

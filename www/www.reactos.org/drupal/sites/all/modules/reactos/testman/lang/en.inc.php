@@ -31,6 +31,7 @@
 		"foundresults" => "Found %s Results!",
 		"noresults" => "No Search Results!",
 		"status" => "%s Tests selected for comparison",
+		"clearselected" => "Clear selection",
 		
 		"noselection" => "You did not select any results!",
 		"selectatleast" => "You must select at least %d results for comparison!",

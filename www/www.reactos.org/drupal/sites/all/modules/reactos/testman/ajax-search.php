@@ -11,7 +11,7 @@
 	require_once("config.inc.php");
 	require_once("connect.db.php");
 	require_once("utils.inc.php");
-	
+
 	if((int)$_GET["page"] < 1)
 		die("<error>Necessary information not specified!</error>");
 	

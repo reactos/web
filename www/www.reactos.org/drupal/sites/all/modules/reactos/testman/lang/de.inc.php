@@ -31,6 +31,7 @@
 		"foundresults" => "%s Ergebnisse gefunden!",
 		"noresults" => "Keine Suchergebnisse!",
 		"status" => "%s Tests zum Vergleich ausgewählt",
+		"clearselected" => "Clear selection",
 		
 		"noselection" => "Sie haben keine Ergebnisse ausgewählt!",
 		"selectatleast" => "Sie müssen mindestens %d Ergebnisse zum Vergleich auswählen!",

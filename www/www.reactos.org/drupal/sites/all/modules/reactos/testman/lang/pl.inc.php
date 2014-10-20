@@ -33,6 +33,7 @@
 		"foundresults" => "Znaleziono %s wyników!",
 		"noresults" => "Brak wyników wyszukiwania!",		
 		"status" => "%s testów wybranych do porównania",
+		"clearselected" => "Clear selection",
 		
 		"noselection" => "Nie wybrałeś/aś żadnych wyników!",
 		"selectatleast" => "Musisz wybrać przynajmniej %d wyników do porównania!",
