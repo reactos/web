@@ -1,11 +1,8 @@
 // Contains blacklisted test suites in a form of module:testname
 
-dinput:mouse
-gdi32:mapping
 kernel32:loader
 kernel32:mailslot
 msi:msi
-msxml3:domdoc
 
 // number of tests/failures depends on the number of running processes which may vary between runs
 ntdll:info
@@ -28,8 +25,6 @@ ws2_32:sock
 user32:SetCursorPos
 quartz:filtermapper
 ntdll:file
-jscript:run
-iphlpapi:iphlpapi
 
 // Blacklist on Amine's request
 gdiplus:graphicspath
