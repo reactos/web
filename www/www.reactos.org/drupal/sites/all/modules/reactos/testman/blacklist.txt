@@ -30,3 +30,10 @@ quartz:filtermapper
 ntdll:file
 jscript:run
 iphlpapi:iphlpapi
+
+// Blacklist on Amine's request
+gdiplus:graphicspath
+gdiplus:region
+msxml3:xmlview
+user32:AttachThreadInput
+user32:menu
