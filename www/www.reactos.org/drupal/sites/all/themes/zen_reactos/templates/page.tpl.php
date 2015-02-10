@@ -68,7 +68,7 @@
       </a>
     <?php endif; ?>
     <!-- KICKSTARTER -->
-    <div id="kickstarter"><br /><a href="https://www.indiegogo.com/projects/reactos-community-edition/x/6842466"><img src="https://reactos.org/sites/default/files/evolution.png"/></a></div>
+    <div id="kickstarter"><br /><a href="http://community.reactos.org/"><img src="https://reactos.org/sites/default/files/evolution.png"/></a></div>
     <!-- /KICKSTARTER -->
     <?php if ($main_menu): ?>
       <div id="topMenu">
