@@ -8,7 +8,6 @@ msi:msi
 ntdll:info
 
 quartz:referenceclock
-shell32:appbar
 
 // (Alex: is wildly random/erratic, I believe due to ws2_32:sock)
 urlmon:url
@@ -22,7 +21,6 @@ user32:win
 wininet:http
 ws2_32:sock 
 
-user32:SetCursorPos
 quartz:filtermapper
 ntdll:file
 
@@ -30,5 +28,4 @@ ntdll:file
 gdiplus:graphicspath
 gdiplus:region
 msxml3:xmlview
-user32:AttachThreadInput
 user32:menu
