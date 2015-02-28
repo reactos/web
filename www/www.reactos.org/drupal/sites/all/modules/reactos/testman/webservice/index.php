@@ -3,7 +3,7 @@
   PROJECT:    ReactOS Web Test Manager
   LICENSE:    GNU GPLv2 or any later version as published by the Free Software Foundation
   PURPOSE:    Web Service for receiving test results from "rosautotest"
-  COPYRIGHT:  Copyright 2008-2011 Colin Finck <colin@reactos.org>
+  COPYRIGHT:  Copyright 2008-2015 Colin Finck <colin@reactos.org>
 */
 
 	require_once("config.inc.php");
@@ -38,10 +38,10 @@
 	// What shall we do?
 	switch($_POST["action"])
 	{
-		case "gettestid":  die($_POST["sourceid"], $t->getTestId($_POST["revision"], $_POST["platform"], $_POST["comment"]));
+		case "gettestid":  die($t->getTestId($_POST["sourceid"], $_POST["revision"], $_POST["platform"], $_POST["comment"]));
 		case "getsuiteid": die($t->getSuiteId($_POST["module"], $_POST["test"]));
-		case "submit":     die($_POST["sourceid"], $t->submit($_POST["testid"], $_POST["suiteid"], $_POST["log"]));
-		case "finish":     die($_POST["sourceid"], $t->finish($_POST["testid"]));
+		case "submit":     die($t->submit($_POST["sourceid"], $_POST["testid"], $_POST["suiteid"], $_POST["log"]));
+		case "finish":     die($t->finish($_POST["sourceid"], $_POST["testid"]));
 		
 		default:
 			die("Invalid action");
