@@ -42,7 +42,11 @@
 		case "gettestid":  die($t->getTestId($_POST["sourceid"], $_POST["revision"], $_POST["platform"], $_POST["comment"]));
 		case "getsuiteid": die($t->getSuiteId($_POST["module"], $_POST["test"]));
 		case "submit":     die($t->submit($_POST["sourceid"], $_POST["testid"], $_POST["suiteid"], $_POST["log"]));
-		case "finish":     die($t->finish($_POST["sourceid"], $_POST["testid"]));
+		
+		case "finish":
+			// Performance data is only supported for buildbot_aggregator.php. So feed the finish() method with dummy one.
+			$perf = array("boot_cycles" => 0, "context_switches" => 0, "interrupts" => 0, "reboots" => 0, "system_calls" => 0, "time" => 0);
+			die($t->finish($_POST["sourceid"], $_POST["testid"], $perf));
 		
 		default:
 			die("Invalid action");
