@@ -219,8 +219,8 @@
 		
 		$summary_failures .= '<td>';
 		$summary_failures .= sprintf('<div title="%s" class="box %s_failedtests totals">%d <span class="diff">%s</span></div>', $testman_langres["failedtests"], (($summary[$i]["failed"] > 0) ? 'real' : 'zero'), $summary[$i]["failed"], GetDifference($summary[$i], $summary[$i - 1], "failed"));
-        $summary_failures .= sprintf('<div title="%s" class="box difference better">%s%s</div>', $testman_langres["failedtests"].' '.$testman_langres["inc"], $summary[$i]["fail_dec"] > 0 ? '+' : '', $summary[$i]["fail_dec"]);
-        $summary_failures .= sprintf('<div title="%s" class="box difference worse">%s%s</div>', $testman_langres["failedtests"].' '.$testman_langres["dec"], $summary[$i]["fail_inc"] > 0 ? '+' : '', $summary[$i]["fail_inc"]);
+        $summary_failures .= sprintf('<div title="%s" class="box difference better">%s%s</div>', $testman_langres["failedtests"].' '.$testman_langres["dec"], $summary[$i]["fail_dec"] > 0 ? '+' : '', $summary[$i]["fail_dec"]);
+        $summary_failures .= sprintf('<div title="%s" class="box difference worse">%s%s</div>', $testman_langres["failedtests"].' '.$testman_langres["inc"], $summary[$i]["fail_inc"] > 0 ? '+' : '', $summary[$i]["fail_inc"]);
         $summary_failures .= '</td>';
 	}
 	
