@@ -25,7 +25,9 @@ quartz:filtermapper
 ntdll:file
 
 // Blacklist on Amine's request
+gdi32:bitmap
 gdiplus:graphicspath
 gdiplus:region
 msxml3:xmlview
+urlmon:protocol
 user32:menu
