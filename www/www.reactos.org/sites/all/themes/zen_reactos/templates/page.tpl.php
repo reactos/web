@@ -58,47 +58,10 @@
  * @see zen_preprocess_page()
  * @see template_process()
  */
+
+  require("page--headerinc.tpl.php");
+  require("page--sidebarinc.tpl.php");
 ?>
-<div id="page-wrapper"><div id="page">
-
-  <div id="header">
-    <?php if ($logo): ?>
-      <a href="<?php print $front_page ?>">
-      <img id="logo" src="<?php print $logo; ?>" alt="<?php print t('Home'); ?>" />
-      </a>
-    <?php endif; ?>
-    <!-- KICKSTARTER -->
-    <div id="kickstarter"><br /><a href="http://community.reactos.org/"><img src="https://reactos.org/sites/default/files/evolution.png"/></a></div>
-    <!-- /KICKSTARTER -->
-    <?php if ($main_menu): ?>
-      <div id="topMenu">
-        <div id="main-menu">
-          <?php
-            /* Render the main menu links */
-            $html = '';
-            foreach ($main_menu as $link) {
-              if(strpos($link["href"], "http://") !== false)
-                 $html .= '<a href="'. $link["href"] . '">';
-              else
-                 $html .= '<a href="'. $base_path . $link["href"] . '">';
-              $html .= $link["title"] . '</a>' . ' | ';
-            }
-            /* Remove the extra separator */
-            $html = substr($html, 0, -3);
-            echo $html;
-          ?>
-        </div>
-      </div><!-- /#topMenu -->
-    <?php endif; ?>
-  </div><!-- /#header -->
-
-  <!-- main area -->
-  <div id="main-wrapper" class="dtable"><div id="main" class="dtrow">
-
-    <!-- left sidebar -->
-    <div class="dtcell dtcell-vtop">
-      <?php print render($page['sidebar_first']); ?>
-    </div>
 
     <div id="content" class="column dtcell dtcell-vtop"><div class="section">
       <?php print render($page['highlighted']); ?>
@@ -128,12 +91,4 @@
       </div>
     <?php endif; ?>
 
-    </div></div><!-- /#main, /#main-wrapper -->
-
-  <div id="footer">
-    <p><?php print t("ReactOS is a registered trademark or a trademark of ReactOS Foundation in the United States and other countries."); ?></p>
-  </div><!-- /#footer -->
-
-</div></div><!-- /#page, /#page-wrapper -->
-
-<?php print render($page['bottom']); ?>
+<?php require("page--footerinc.tpl.php"); ?>
