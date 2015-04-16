@@ -437,14 +437,12 @@ class AuthDrupal extends AuthPlugin {
 		if ($GLOBALS['wgAuthDrupal_UseExtDatabase']) {
 			// Drupal tables are in a separate DB from MW tables, create
 			// a separate DB connection
-			$this->my_dbr = new Database(
+			$this->my_dbr = new DatabaseMysql();
+			$this->my_dbr->open(
 					$GLOBALS['wgAuthDrupal_MySQL_Host'],
 					$GLOBALS['wgAuthDrupal_MySQL_Username'],
 					$GLOBALS['wgAuthDrupal_MySQL_Password'],
-					$GLOBALS['wgAuthDrupal_MySQL_Database'],
-					false,
-					0,
-					'auth_drupal_db_error_callback' );
+					$GLOBALS['wgAuthDrupal_MySQL_Database']) ; 
 		} else {
 			$this->my_dbr = & wfGetDB(DB_SLAVE);
 		}
