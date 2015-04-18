@@ -112,7 +112,7 @@ $wgLanguageCode = "en";
 $wgRightsPage = ""; # Set to the title of a wiki page that describes your license/copyright
 $wgRightsUrl = "http://www.gnu.org/copyleft/fdl.html";
 $wgRightsText = "GNU Free Documentation License 1.3 or later";
-$wgRightsIcon = "{$wgResourceBasePath}/resources/assets/licenses/gnu-fdl.png";
+$wgRightsIcon = "{$wgScriptPath}/resources/assets/licenses/gnu-fdl.png";
 
 # Path to the GNU diff3 utility. Used for conflict resolution.
 $wgDiff3 = "/usr/bin/diff3";
