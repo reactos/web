@@ -1,17 +1,17 @@
 <div id="page-wrapper"><div id="page">
 
-  <div id="header">
+  <div id="rosweb_header">
     <?php if ($logo): ?>
       <a href="<?php print $front_page ?>">
-      <img id="logo" src="<?php print $logo; ?>" alt="<?php print t('Home'); ?>" />
+      <img id="rosweb_logo" src="<?php print $logo; ?>" alt="<?php print t('Home'); ?>" />
       </a>
     <?php endif; ?>
     <!-- KICKSTARTER -->
-    <div id="kickstarter"><br /><a href="http://community.reactos.org/"><img src="https://reactos.org/sites/default/files/evolution.png"/></a></div>
+    <div id="rosweb_kickstarter"><br /><a href="http://community.reactos.org/"><img src="https://reactos.org/sites/default/files/evolution.png"/></a></div>
     <!-- /KICKSTARTER -->
     <?php if ($main_menu): ?>
-      <div id="topMenu">
-        <div id="main-menu">
+      <div id="rosweb_topMenu">
+        <div id="rosweb_main-menu">
           <?php
             /* Render the main menu links */
             $html = '';
@@ -27,9 +27,9 @@
             echo $html;
           ?>
         </div>
-      </div><!-- /#topMenu -->
+      </div><!-- /#rosweb_topMenu -->
     <?php endif; ?>
-  </div><!-- /#header -->
+  </div><!-- /#rosweb_header -->
 
   <!-- main area -->
   <div id="main-wrapper" class="dtable"><div id="main" class="dtrow">

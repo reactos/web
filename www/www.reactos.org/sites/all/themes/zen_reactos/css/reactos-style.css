@@ -1,3 +1,5 @@
+@import url("/rosweb/css/rosweb.css");
+
 #page-wrapper {
     font-family: Arial, sans-serif;
     font-size: 13px;
@@ -89,13 +91,7 @@ div#content-group, div#main-group { width: 80% }
 #search-block-form div.container-inline { padding: 1px 0 1px 3px }
 #search-block-form .form-item-search-block-form { width: 100px }
  #search-block-form .form-item-search-block-form input.form-text { width: 100px }
-#footer {
-    border-top: 1px dotted #ccc;
-    text-align: center;
-    padding: 10px 0px;
-    color: #888;
-    margin-top: 150px;
-}
+
 .greenButton {
     margin: 20px 3px 0 3px;
 }
@@ -213,53 +209,7 @@ img.icon, p.icon_p img {
  }
  #user-register-form input[type="text"], #user-register-form input[type="password"], #user-login input[type="text"], #user-login input[type="password"], #user-pass input[type="text"], #user-pass input[type="password"] { width: 350px }
  #user-register-form label, #user-login label, #user-pass label { padding: 5px }
-#header {
-    background-image: url('../images/topgradient.png');
-    background-repeat: repeat-x;
-    height: 80px;
-    width: 100%;
-    z-index: 100;
-    position: fixed;
-}
-#logo {
-    float: left;
-    margin: 3px 0 0 43px;
-    padding: 0;
-    height: 100px;
-    width: auto;
-}
-#topMenu {
-    margin: 0;
-    padding: 70px 0 0 0;
-}
-#main-menu {
-    color: #fff;
-    font-size: 14px;
-    padding: 3px 0 3px 300px;
-    box-shadow: 0 5px 5px #ddd;
-    background-color: #5984c3;
-    background-image: -moz-linear-gradient(top, #6C95D2, #5984C3);
-    background-image: -webkit-linear-gradient(top, #6C95D2, #5984C3);
-    background-image: -ms-linear-gradient(top, #6C95D2, #5984C3);
-    background-image: linear-gradient(top, #6C95D2, #5984C3);
-    line-height: 16px;
-    height: 16px;
-    min-width: 800px;
-}
- #main-menu a {
-     color: #fff;
-     font-size: 14px;
-     padding: 1px 12px;
-     text-decoration: none;
-     text-shadow: 1px 1px 1px rgba(0,0,0,.3);
-     margin: 0;
-     border-radius: 2px;
- }
- #main-menu a:hover {
-     background-color: #fc3;
-     color: #333;
-     text-shadow: none;
- }
+
 #main-wrapper {
     top: 110px;
     z-index: 2;
@@ -498,20 +448,4 @@ li.zh-hant:before{background-position:-32px -33px}
      width: 100%;
      text-decoration: none;
  }
-#kickstarter{
-width: 400px;
-height: 45px;
-padding: 7px;
-position: absolute;
-margin-left: 320px;
-font-size: 17px;
-}
-#kickstarter a{
-font-size: 22px;
-font-weight: bold;
-text-decoration: none;
-}
-#kickstarter img{
-margin-top: -20px;
-margin-left: -25px;
-}
+

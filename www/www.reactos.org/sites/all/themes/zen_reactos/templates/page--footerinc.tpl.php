@@ -1,8 +1,8 @@
 </div></div><!-- /#main, /#main-wrapper -->
 
-  <div id="footer">
+  <div id="rosweb_footer">
     <p><?php print t("ReactOS is a registered trademark or a trademark of ReactOS Foundation in the United States and other countries."); ?></p>
-  </div><!-- /#footer -->
+  </div><!-- /#rosweb_footer -->
 
 </div></div><!-- /#page, /#page-wrapper -->
 

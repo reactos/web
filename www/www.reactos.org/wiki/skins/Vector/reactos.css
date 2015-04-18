@@ -1,0 +1,8 @@
+/* ReactOS-specific additions */
+#mw-head, #mw-page-base {
+    margin-top: 80px;
+}
+
+#p-personal {
+    margin-top: -80px;
+}
