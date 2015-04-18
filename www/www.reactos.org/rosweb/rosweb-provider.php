@@ -18,18 +18,17 @@
 	}
 
 
-	// This script may only be called from the server itself through "rosweb.php"
-	// Deny any other request. This is mandatory for security!
-	if($_SERVER["REMOTE_ADDR"] != "127.0.0.1")
-		exit;
-
 	// Clear the $_GET array for Drupal
 	$rosweb_query = array_key_exists("q", $_GET) ? $_GET["q"] : "";
 	$_GET = array();
 
+	// Set the $base_url for Drupal.
+	// This is mandatory for all pathes to work properly with this bootstrapping method.
+	$base_url = (array_key_exists("HTTPS", $_SERVER) && $_SERVER["HTTPS"] == "on" ? "https" : "http") . "://" . $_SERVER["HTTP_HOST"];
+
 	// Bootstrap Drupal.
 	// This pollutes the global namespace with many Drupal-specific variables and functions and is the sole reason we have to use this provider approach.
-	define("DRUPAL_ROOT", "/srv/www/www.reactos.org");
+	define("DRUPAL_ROOT", __DIR__ . "/..");
 	chdir(DRUPAL_ROOT);
 	require_once(DRUPAL_ROOT . "/includes/bootstrap.inc");
 	drupal_bootstrap(DRUPAL_BOOTSTRAP_FULL);

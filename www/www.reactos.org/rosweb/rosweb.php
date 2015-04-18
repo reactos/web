@@ -62,6 +62,6 @@
 
 		public function getSidebar()
 		{
-			return this->_queryProvider("Sidebar");
+			return $this->_queryProvider("Sidebar");
 		}
 	}
