@@ -89,6 +89,11 @@ class VectorTemplate extends BaseTemplate {
 		}
 		// Output HTML Page
 		$this->html( 'headelement' );
+
+		// Add the ReactOS Header
+		require(__DIR__ . "/../../../rosweb/rosweb.php");
+		$rw = new RosWeb();
+		echo $rw->getHeader();
 		?>
 		<div id="mw-page-base" class="noprint"></div>
 		<div id="mw-head-base" class="noprint"></div>
@@ -187,13 +192,6 @@ class VectorTemplate extends BaseTemplate {
 				</div>
 			</div>
 			<div id="mw-panel">
-				<div id="p-logo" role="banner"><a style="background-image: url(<?php
-					$this->text( 'logopath' )
-					?>);" href="<?php
-					echo htmlspecialchars( $this->data['nav_urls']['mainpage']['href'] )
-					?>" <?php
-					echo Xml::expandAttributes( Linker::tooltipAndAccesskeyAttribs( 'p-logo' ) )
-					?>></a></div>
 				<?php $this->renderPortals( $this->data['sidebar'] ); ?>
 			</div>
 		</div>
@@ -251,7 +249,7 @@ class VectorTemplate extends BaseTemplate {
 			<div style="clear:both"></div>
 		</div>
 		<?php $this->printTrail(); ?>
-
+		<?php echo $rw->getFooter(); ?>
 	</body>
 </html>
 	<?php
