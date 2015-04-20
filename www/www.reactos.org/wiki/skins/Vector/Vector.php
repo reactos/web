@@ -63,7 +63,7 @@ $GLOBALS['wgResourceModules']['skins.vector.styles'] = array(
 	'styles' => array(
 		'screen.less' => array( 'media' => 'screen' ),
 		'screen-hd.less' => array( 'media' => 'screen and (min-width: 982px)' ),
-		'../../../rosweb/css/rosweb.css' => array( 'media' => 'screen' ),
+		'../../../rosweb/css/basic.css' => array( 'media' => 'screen' ),
 		'reactos.css' => array( 'media' => 'screen' ),
 	),
 	'remoteSkinPath' => 'Vector',

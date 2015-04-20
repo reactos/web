@@ -1,0 +1,112 @@
+/*
+  PROJECT:    ReactOS Website
+  LICENSE:    GPL v2 or any later version
+  PURPOSE:    Easily download prebuilt ReactOS Revisions
+  COPYRIGHT:  Copyright 2007-2015 Colin Finck <colin@reactos.org>
+              Copyright 2013 ReactOS Project
+*/
+
+
+ul.web {
+	list-style-type: none !important;
+	margin-top: 0;
+	margin-bottom: 1em;
+}
+
+ul.web li {
+	vertical-align: top;
+	margin-top: 5px;
+}
+ul.web li:before{
+    background: url("images/web.png") no-repeat;
+    content: "  ";
+    height: 16px;
+    width: 20px;
+    display:block;
+    float:left;
+}
+
+#js_stuff {
+	/* Will be shown by the JavaScript */
+	display: none;
+}
+
+#showrev td {
+	vertical-align: top;
+}
+
+#revcontrols img {
+	vertical-align: middle;
+	cursor: pointer;
+}
+
+#revcontrols input {
+	vertical-align: middle;
+}
+
+#ajax_loading {
+	font-weight: bold;
+	margin-left: 20px;
+}
+
+#infotable
+{
+	margin-top: 2em;
+	width: 100%;
+}
+
+#pagesbox {
+	font-weight: bold;
+	text-align: right;
+}
+
+.datatable {
+	cursor: pointer;
+	width: 100%;
+}
+
+.datatable tr.head th.fname {
+	width: 50%;
+	border-radius: 2px 0 0 0;
+}
+
+.datatable tr.head th.fsize,
+.datatable tr.head th.fdate {
+	width: 25%;
+}
+.datatable tr.head th.fdate{
+	border-radius: 0 2px 0 0;
+}
+
+.datatable tr.odd td a,
+.datatable tr.even td a {
+	color: #000000 !important;
+	display: block;
+	text-decoration: none;
+}
+
+.datatable img {
+	border: 0;
+	padding: 1px;
+	vertical-align: top;
+}
+
+.round_corners{
+	background-color :#C9DAFF;
+	border: 1px solid #ccc;
+	border-radius: 3px;
+	box-shadow: 0 0 5px #fff inset;
+	padding: 10px;
+}
+.round_corners_grey{
+	background-color :#eee;
+	border: 2px solid #ccc;
+	border-radius: 3px;
+	margin: 0 0 10px 0;
+	padding: 10px;
+}
+
+#showrev td
+{
+	padding:10px;
+}

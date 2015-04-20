@@ -62,6 +62,7 @@
   require("page--headerinc.tpl.php");
   require("page--sidebarinc.tpl.php");
 ?>
+    </div>
 
     <div id="content" class="column dtcell dtcell-vtop"><div class="section">
       <?php print render($page['highlighted']); ?>

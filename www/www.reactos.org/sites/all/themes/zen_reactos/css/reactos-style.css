@@ -1,4 +1,4 @@
-@import url("/rosweb/css/rosweb.css");
+@import url("/rosweb/css/basic.css");
 
 #page-wrapper {
     font-family: Arial, sans-serif;
@@ -279,8 +279,8 @@ img.icon, p.icon_p img {
      margin: auto;
      margin-top: 5px;
  }
-#block-locale-language a, #new_here a { text-decoration: none !important }
-#block-locale-language a.active { font-weight: bold }
+.language-switcher-locale-url a, #new_here a { text-decoration: none !important }
+.language-switcher-locale-url a.active { font-weight: bold }
 .language-switcher-locale-url li {
     list-style-type: none;
     opacity: 0.6;
@@ -407,7 +407,7 @@ ul.links li { padding: 0 1em 0 0 }
 
 /* for more languages see http://flag-sprites.com/en_US/ */
 
-li.zh-hans:before,li.de:before,li.fr:before,li.en:before,li.el:before,li.it:before,li.ja:before,li.ko:before,li.nl:before,li.es:before,li.pl:before,li.ru:before,li.sv:before,li.zh-hant:before{background:url(../images/flags.png) no-repeat;content:" ";width:16px;height:11px;display:inline-block;margin-right:12px;}
+li.zh-hans:before,li.de:before,li.fr:before,li.en:before,li.el:before,li.it:before,li.ja:before,li.ko:before,li.lt:before,li.nl:before,li.es:before,li.pl:before,li.ru:before,li.sv:before,li.zh-hant:before{background:url(../images/flags.png) no-repeat;content:" ";width:16px;height:11px;display:inline-block;margin-right:12px;}
 li.zh-hans:before{background-position:-16px 0;}
 li.de:before{background-position:-32px 0;}
 li.es:before{background-position:-48px 0;}
@@ -417,11 +417,12 @@ li.el:before{background-position:-32px -11px}
 li.it:before{background-position:-48px -11px;}
 li.ja:before{background-position:0 -22px}
 li.ko:before{background-position:-16px -22px}
-li.nl:before{background-position:-32px -22px}
-li.pl:before{background-position:-48px -22px}
-li.ru:before{background-position:0 -33px}
-li.sv:before{background-position:-16px -33px}
-li.zh-hant:before{background-position:-32px -33px}
+li.lt:before{background-position: -32px -22px}
+li.nl:before{background-position:-48px -22px}
+li.pl:before{background-position:0 -33px}
+li.ru:before{background-position:-16px -33px}
+li.sv:before{background-position:-32px -33px}
+li.zh-hant:before{background-position:-48px -33px}
 
 .datatable { width: 100% }
  .datatable .head th {

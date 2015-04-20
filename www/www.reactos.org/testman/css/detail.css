@@ -1,0 +1,40 @@
+/*
+  PROJECT:    ReactOS Web Test Manager
+  LICENSE:    GNU GPLv2 or any later version as published by the Free Software Foundation
+  PURPOSE:    Stylesheet for the Result Details Page
+  COPYRIGHT:  Copyright 2008-2015 Colin Finck <colin@reactos.org>
+*/
+
+#page-wrapper {
+	padding: 5px;
+}
+
+.datatable {
+	width: 90%;
+}
+
+.datatable a {
+	display: inline;
+	text-decoration: underline;
+}
+
+.headertable {
+	margin: 0px;
+	padding: 0px;
+}
+
+.headertable th, .headertable td, .headertable tr {
+	vertical-align: top;
+	border-width: 0px !important;
+	padding: 0px 20px 0px 0px !important;
+}
+
+.datatable th, .datatable td {
+	padding: 3px;
+	vertical-align: top;
+}
+
+.datatable td.info {
+	font-weight: bold;
+	width: 200px;
+}

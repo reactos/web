@@ -1,0 +1,126 @@
+/*
+  PROJECT:    ReactOS Web Test Manager
+  LICENSE:    GNU GPLv2 or any later version as published by the Free Software Foundation
+  PURPOSE:    Stylesheet for the Index Page
+  COPYRIGHT:  Copyright 2008-2009 Colin Finck <colin@reactos.org>
+*/
+
+button {
+	font-weight: bold;
+}
+
+.datatable {
+	cursor: pointer;
+}
+
+#js_stuff {
+	/* Will be shown by the JavaScript */
+	display: none;
+}
+
+#mainbox_td, #rightbox_td {
+	vertical-align: top;
+}
+
+#rightbox_td {
+	width: 300px;
+	padding-left: 7px;
+}
+
+.datatable {
+	width: 100%;
+}
+
+select {
+	width: 275px;
+}
+
+th.TestCheckbox {
+	width: 30px;
+}
+
+#searchform tr td {
+	vertical-align: top;
+	padding-bottom: 10px;
+}
+
+.controlgroup {
+	padding-right: 40px;
+	vertical-align: top;
+}
+
+.controlgroup input[type=checkbox] {
+	margin-left: 10px;
+}
+
+.controlgroup input[type=checkbox], label {
+	vertical-align: top;
+}
+
+.controlgroup label {
+	display: inline;
+}
+
+#ajax_loading_search {
+	visibility: hidden;
+}
+
+#infotable {
+	margin-top: 2em;
+}
+
+#infotable {
+	width: 100%;
+}
+
+#pagesbox {
+	font-weight: bold;
+	text-align: right;
+}
+
+#resultcount, #selectedresultcount {
+	font-weight: bold;
+}
+
+#clearselected {
+	margin-left: 10px;
+}
+
+#comparepage_frame {
+	display: none;
+	width: 100%;
+}
+.round_corners {
+	background-color :#C9DAFF;
+	border: 1px solid #ccc;
+	border-radius: 3px;
+	box-shadow: 0 0 5px #fff inset;
+	padding: 10px;
+}
+
+.comboedit {
+	position: relative;
+	background-color: white;
+	width: 275px;
+	height: 18px;
+}
+
+.comboedit select {
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	font-size: 14px;
+	width: 275px;
+	margin: 0;
+}
+
+.comboedit input {
+	position: absolute;
+	top: 2px;
+	left: 4px;
+	width: 251px;
+	padding: 1px;
+	font-size: 14px;
+	border: none !important;
+	height: 16px;
+}
