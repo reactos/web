@@ -21,7 +21,7 @@
  *----------------------------------------------------------------------*/
 
 
-require_once(DRUPAL_ROOT.'/../../www.reactos.org_config/wiki-drupal-config.php');
+require_once(DRUPAL_ROOT.'/../www.reactos.org_config/wiki-drupal-config.php');
 
 
 /*----------------------------------------------------------------------
