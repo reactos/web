@@ -31,3 +31,6 @@ gdiplus:region
 msxml3:xmlview
 urlmon:protocol
 user32:menu
+
+// Unreliable, likely due to timing issues
+kernel32:TunnelCache
