@@ -22,7 +22,6 @@ wininet:http
 ws2_32:sock 
 
 quartz:filtermapper
-ntdll:file
 
 // Blacklist on Amine's request
 gdi32:bitmap
