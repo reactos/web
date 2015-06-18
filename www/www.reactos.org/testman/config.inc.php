@@ -13,6 +13,6 @@
 	define("INDICATORS_PATH", "indicators/");
 
 	define("DEFAULT_SEARCH_LIMIT", 10);
-	define("DEFAULT_SEARCH_SOURCE", "Trunk_x86_GCCLin (KVM)");
+	define("DEFAULT_SEARCH_SOURCE", "Build GCCLin_x86 on Test KVM");
 	define("MAX_COMPARE_RESULTS", 8);
 	define("RESULTS_PER_PAGE", 10);
