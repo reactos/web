@@ -186,7 +186,7 @@
 
 		// If an error occured, $return will contain the error message
 		if($return != "OK")
-			die("submit($test_id, $suite_id, ...) - $return");
+			die($matches[1] . ":" . $matches[2] . " :: submit($test_id, $suite_id, ...) - $return");
 	}
 
 	fclose($fp);
