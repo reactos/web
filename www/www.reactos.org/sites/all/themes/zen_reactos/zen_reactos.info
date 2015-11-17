@@ -99,7 +99,6 @@ features[] = main_menu
 ;features[] = secondary_menu
 
 
-
 ; Set the default values of settings on the theme-settings.php form.
 
 ;settings[zen_breadcrumb]           = yes
