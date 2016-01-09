@@ -1,0 +1,49 @@
+name = Porto sub
+description = A sub-theme of Porto. 
+core = 7.x
+engine = phptemplate
+
+base theme = porto
+
+; Call style sheets.
+stylesheets[all][] = css/custom.css
+
+; Define theme block regions.
+regions[header_top] = Header Top
+regions[header_search] = Header Search
+regions[branding] = Branding
+regions[header_icons] = Header Icons
+regions[header_menu] = Header Menu
+regions[one_page] = One Page Content
+regions[before_content] = Before Content
+regions[content] = Content
+regions[sidebar_left] = Left Sidebar
+regions[sidebar_right] = Right Sidebar
+regions[after_content] = After Content
+regions[footer_1] = Footer Box 1
+regions[footer_2] = Footer Box 2
+regions[footer_3] = Footer Box 3
+regions[footer_4] = Footer Box 4
+regions[footer_bottom_left] = Footer Bottom Left
+regions[footer_bottom_right]  = Footer Bottom Right
+
+; Define location for panels templates.
+plugins[panels][layouts] = layouts
+
+; Define theme setting defaults.
+settings[breadcrumbs] = 1
+settings[logo_height] = "54"
+settings[sticky_logo_height] = "40"
+settings[sticky_header] = 1
+settings[skin_color] = 0088cc
+settings[gradient] = 1
+settings[background_color] = light
+settings[site_layout] = wide
+settings[body_background] = porto_backgrounds
+settings[background_select] = az_subtle
+settings[background_select] = az_subtle
+settings[body_background_color] = CCCCCC
+settings[portfolio_columns] = span3
+settings[blog_image] = full
+settings[ribbon] = 1
+settings[ribbon_text] = "Get In Touch"
