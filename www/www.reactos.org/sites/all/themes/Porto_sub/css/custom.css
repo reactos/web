@@ -245,6 +245,10 @@ article .blog-content > .post-image > .owl-carousel > .owl-controls {
   background-color: #000 !important;
 }
 
+/* Md-slider Frontpage */
+.md-bullet.md-current a{
+    background-color: #0088CC;
+}
 
 /* ReactOS Frontpage Latest Posts*/
 
