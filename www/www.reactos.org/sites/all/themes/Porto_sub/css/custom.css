@@ -525,7 +525,99 @@ i.icon-featured{
    ######################### URL: reactos.org/joining################################### 
 */
 .joiningintro{
-    margin-bottom: 150px;
+    padding-bottom: 150px;
+}
+
+.joistep1text{
+    border: dashed 2px;
+    border-radius:50%;
+    width: 100px;
+    height: 100px;
+}
+
+.joistep1text p{
+    line-height: 100px;
+    text-align: center;
+    font-size: 40px;
+    font-weight: bold;
+}
+.joisteptext {
+    line-height:100px;
+}
+.joistart{
+    margin-top:50px;
+}
+
+/*Joining Radial Menu */
+.hide {
+    display: none;
+}
+
+.radial {
+    position: absolute;
+    left: 50%;
+    width: 50%;
+    height: 100%;
+    top: 18.25%;
+    margin-left: -25%;
+}
+
+.menu {
+    padding: 0;
+    margin: 0;
+    text-align: center;
+    position: absolute;
+    top: 0;
+    width: 100%;
+}
+.menu a {
+    font-size: 18px;
+    width: 48px;
+    height: 48px;
+    line-height: 48px;
+    background: #2980b9;
+    border-radius: 100em;
+    color: #fff;
+    position: absolute;
+    text-decoration: none;
+    left: 50%;
+    margin-left: -24px;
+    top: 24px;
+    transition: all .5s ease-in-out;
+    opacity: 0;
+}
+.menu a:hover {
+    background: #2c3e50;
+}
+.joiningintro:hover .menu a {
+    opacity: 1;
+}
+.joiningintro:hover .menu a:nth-child(1) {
+    transform: translate(0, -200%);
+}
+.joiningintro:hover .menu a:nth-child(2) {
+    transform: translate(-200%, 0%);
+}
+.joiningintro:hover .menu a:nth-child(3) {
+    transform: translate(200%, 0);
+}
+.joiningintro:hover .menu a:nth-child(4) {
+    transform: translate(0, 200%);
+}
+
+.avatar {
+    width: 96px;
+    height: 96px;
+    overflow: hidden;
+    border-radius: 100em;
+    box-shadow: 0 0 0 5px #2980b9;
+    margin: 0 auto;
+    position: relative;
+    z-index: 10;
+}
+.avatar img {
+    max-width: 100%;
+    margin: 0 auto;
 }
 
 /* ############################### Developing page ########################################
