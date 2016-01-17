@@ -1119,6 +1119,79 @@ i.icon-featured{
 	opacity: 0;
 	background-size: contain;
 }
+
+/*Main Page Jira Activity Stream Feed */
+
+.view-jira-activity-stream .views-row{
+	padding-top: 20px;
+    padding-right: 20px;
+}
+
+.view-jira-activity-stream .views-row .views-field-body{
+    box-shadow: #0088CC 0px 0px 10px;
+    background-color: #777777;
+    border-radius: 10px;
+    color: black !important;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    margin-left: 10px
+}
+
+.view-jira-activity-stream .views-row .views-field-body p{
+	color: black;
+}
+
+.view-jira-activity-stream .views-row .views-field-body ul{
+	display: none;
+}
+.view-jira-activity-stream .views-row .views-field-body blockquote{
+    border: none;
+}
+.view-jira-activity-stream .views-row .views-field-body jira-issue-key{
+    padding: 10px 20px;
+}
+.view-jira-activity-stream .views-row .views-field-body jira-linking-text{
+    text-align: center;
+}
+.view-jira-activity-stream .views-row .views-field-body linked-jira-issue-key{
+    text-align: center;
+}
+
+.view-jira-activity-stream .views-row .views-field-body .views-more-link{
+    margin: 0 auto;
+    border-color: #0088cc;
+    background-color: #0088cc;
+    padding: 1px 5px;
+    font-size: 12px;
+    line-height: 1.5;
+    border-radius: 3px;
+	display: inline-block;
+    margin-bottom: 0;
+    font-weight: normal;
+    text-align: center;
+    vertical-align: middle;
+    cursor: pointer;
+    background-image: none;
+    border: 1px solid transparent;
+    white-space: nowrap;
+}
+
+.view-jira-activity-stream .views-row .field-content{
+    text-align: right;
+    margin-right: 20px;
+}
+.view-jira-activity-stream .views-row .views-field-body .user-content{
+    overflow: hidden;
+    padding: 10px 10px;
+}
+#views_slideshow_cycle_main_jira_activity_stream-block .views-slideshow-cycle-main-frame-row{
+	width: 100% !important;
+}
+
+#views_slideshow_cycle_teaser_section_jira_activity_stream-block{
+	width: 100% !important;
+}
+
 /* Styles */
 
 .cursiveblue {
