@@ -564,6 +564,23 @@ i.icon-featured{
     margin-top:50px;
 }
 
+/* Joining Custom Header */
+.page-top.donate-header{
+    background-image: url(../img/custom-header-bg2.jpg);
+    background-repeat: repeat;
+    background-color: #999;
+    border-top: 5px solid #08C;
+
+}
+
+.circular-bar.blue canvas{
+    box-shadow: #243C83 4px 4px;
+    border-radius: 100%;
+}
+.circular-bar-content{
+    color: white;
+}
+
 /*Joining Radial Menu */
 .hide {
     display: none;
