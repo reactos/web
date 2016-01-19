@@ -353,8 +353,17 @@ div .dbottom{
 /* Custom BOX elements */
 
 i.icon-featured{
-  box-shadow: 2px 2px 2px gray;
+    box-shadow: 2px 2px 2px gray;
 }
+
+.featured-box:hover {
+    box-shadow: 3px 2px 10px #ECECEC;
+}
+
+.featured-box:hover .icon-featured {
+    border-radius: 10%;
+}
+
 .featured-box-orange i.icon-featured {
   background-color: #FF3A00;
 }
@@ -540,6 +549,7 @@ i.icon-featured{
    #####################################################################################
    ######################### URL: reactos.org/joining################################### 
 */
+
 .joiningintro{
     padding-bottom: 150px;
 }
@@ -565,6 +575,7 @@ i.icon-featured{
 }
 
 /* Joining Custom Header */
+
 .page-top.donate-header{
     background-image: url(../img/custom-header-bg2.jpg);
     background-repeat: repeat;
@@ -572,7 +583,10 @@ i.icon-featured{
     border-top: 5px solid #08C;
 
 }
-
+.page-top.donate-header h1{
+    color: white;
+    line-height: 50px;
+}
 .circular-bar.blue canvas{
     box-shadow: #243C83 4px 4px;
     border-radius: 100%;
@@ -1149,6 +1163,7 @@ i.icon-featured{
     background-color: #777777;
     border-radius: 10px;
     color: black !important;
+    word-wrap: break-word;
     margin-top: 10px;
     margin-bottom: 10px;
     margin-left: 10px
