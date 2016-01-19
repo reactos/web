@@ -355,7 +355,9 @@ div .dbottom{
 i.icon-featured{
     box-shadow: 2px 2px 2px gray;
 }
-
+.featured-boxes a{
+    text-decoration: none;
+}
 .featured-box:hover {
     box-shadow: 3px 2px 10px #ECECEC;
 }
@@ -1226,6 +1228,14 @@ i.icon-featured{
 
 /* Styles */
 
+.row-centered{
+    text-align: center;
+}
+.col-centered{
+    display: inline-block;
+    float: none;
+    margin-right: -4px;
+}
 .cursiveblue {
 	display: block;
 	font-family: "Shadows Into Light", cursive;
