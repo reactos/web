@@ -769,7 +769,7 @@ class AuthDrupal extends AuthPlugin {
 	 * @param $user User object.
 	 * @public
 	 */
-	function initUser( & $user, $autocreate = false ) {
+	function initUser( & $user ) {
 		//!dbg wfDebug("##" . __METHOD__ . "\n");
 		// XXX TODO: set notification defaults and such
 	}
