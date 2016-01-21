@@ -1,6 +1,10 @@
 /*=======================================================================
 *** PORTO_SUB STYLE SHEET****
 ========================================================================*/
+.parallax{
+    padding: 25px 0;
+}
+
 .container .reactos-blog em{
 font-size: 35px;
 padding-left: 50px;
@@ -286,7 +290,17 @@ article .blog-content > .post-image > .owl-carousel > .owl-controls {
 }
 
 
+
 /* ReactOS/download css classes */
+
+
+.darena, .dpig{
+ opacity: 0.8;
+}
+
+.darena:hover, .dpig:hover{
+ opacity: 1;
+}
 
 div .dbodycenter{
     background-image: url(./images/bc-download.jpg);
@@ -349,6 +363,12 @@ div .dbottom{
   padding: 20px 0 10px 0;
   text-align: left;
 }
+
+#bootcdModal .blocktestimonial {
+    overflow-y: hidden;
+    margin: 0 0;
+}
+
 
 /* Custom BOX elements */
 
@@ -589,13 +609,53 @@ i.icon-featured{
     color: white;
     line-height: 50px;
 }
+.page-top.donate-header .paypalback,.page-top.donate-header .dwt, .page-top.donate-header .moredop{
+    margin-bottom:1em;
+    margin-top: 1em;
+}
+.page-top.donate-header span.taxd{
+    font-weight: bolder;
+    color: white;
+}
+#sectionpaypalback .panel-default{
+    border-color: #08C;
+    background-color: transparent;
+    }
+#sectionpaypalback panel-group.secundary .panel-heading {
+    background-color: #1C1C1C;
+}
 .circular-bar.blue canvas{
     box-shadow: #243C83 4px 4px;
     border-radius: 100%;
 }
+.circular.bar.blue {
+    margin-top:30px;
+}
 .circular-bar-content{
     color: white;
 }
+
+.moredop {
+    background-color: #08c; 
+    text-align: center;
+    border:none;
+    margin-top: 1em;
+}
+
+.moredop p{
+color:white;
+}
+
+.dwt{
+    background-color: white;
+    text-align: center;
+    border: none;
+}
+.dwt p{
+    color: #08c;
+}
+
+
 
 /*Joining Radial Menu */
 .hide {
