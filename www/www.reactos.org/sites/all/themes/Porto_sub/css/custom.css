@@ -363,13 +363,36 @@ div .dbottom{
   padding: 20px 0 10px 0;
   text-align: left;
 }
-
+/* Modal styling */
 #bootcdModal .blocktestimonial {
     overflow-y: hidden;
     margin: 0 0;
 }
-
-
+#bootcdModal .blocktestimonial p {
+    font-family: open sans;
+}
+#bootcdModal .modal-content{
+    background-image: url("/sites/all/themes/Porto_sub/images/modal.jpg");
+}
+#bootcdModal .modal-title{
+    color: white;
+}
+#bootcdModal .modal-header, #bootcdModal .modal-footer{
+    background-color: rgba(0, 0, 0, 0.77);
+}
+#bootcdModal .modal-body{
+    background-color: rgba(10, 9, 9, 0.75);
+}
+#bootcdModal .modal-footer{
+    border:none;
+}
+#bootcdModal .modal-header{
+    border-color:#484848;
+}
+#bootcdModal .modal-header .close{
+    color: white;
+    font-size: 30px;
+}
 /* Custom BOX elements */
 
 i.icon-featured{
@@ -624,12 +647,14 @@ i.icon-featured{
 #sectionpaypalback panel-group.secundary .panel-heading {
     background-color: #1C1C1C;
 }
+
 .circular-bar.blue canvas{
     box-shadow: #243C83 4px 4px;
     border-radius: 100%;
 }
 .circular.bar.blue {
     margin-top:30px;
+    margin-bottom: 0;
 }
 .circular-bar-content{
     color: white;
