@@ -25,7 +25,7 @@
         }
       ?>
       <?php if($variables['custom_amount_allowed'] == 1 ) { ?>
-          <?php echo '<label class="dollar">' . $variables['currency_sign'] . '</label>'; ?><input name="other" size="4" type="text" value="" class="other" /><!--</li>-->
+          <?php echo '<label class="dollar">' . $variables['currency_sign'] . '</label>'; ?><input name="other" size="4" type="text" value="" class="other" />
       <?php } ?>
 		</div>
 		<div class="col-md-4"><button href="#" class="donation-submit-button btn-lg btn-primary"><?php echo t($variables['submit_value']); ?></button> <input type="hidden" value="" name="amount" class="amount-holder"/></div>
