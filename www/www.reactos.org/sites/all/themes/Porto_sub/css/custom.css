@@ -335,6 +335,9 @@ div .dbodycenterdesc{
     text-align: justify;
     margin-top: -20px;
 }
+.dbodycenteritem .tooltp{
+    padding-top: 15px;
+}
 
 div .dbluesep{
   background-color: #141414;
