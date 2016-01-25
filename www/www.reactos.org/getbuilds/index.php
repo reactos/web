@@ -22,13 +22,10 @@
 <head>
 	<meta charset="utf-8">
 	<title><?php echo $getbuilds_langres["title"]; ?></title>
-	<link rel="stylesheet" type="text/css" href="/rosweb/css/full.css">
-	<link rel="stylesheet" type="text/css" href="getbuilds.css">
-	<script type="text/javascript">
-		document.write('<style type="text/css">');
-		document.write('#js_stuff {display: block;}');
-		document.write('<\/style>');
-	</script>
+	<?php
+		echo $rw->getCSS();
+		echo $rw->getJS();
+	?>
 	<script type="text/javascript" src="/rosweb/js/ajax.js"></script>
 	<script type="text/javascript">
 		<?php require_once("getbuilds.js.php"); ?>
@@ -38,85 +35,100 @@
 
 <?php
 	echo $rw->getHeader();
-	echo $rw->getSidebar();
-	echo $rw->getLanguageBox();
 ?>
-</div>
 
-<div id="content" class="column dtcell dtcell-vtop"><div class="section">
-	<h1><?php echo $getbuilds_langres["title"]; ?></h1>
-
-	<p><?php echo $getbuilds_langres["intro"]; ?></p>
-
-	<div class="round_corners_grey">
-		<h2 class="pane-title"><?php echo $getbuilds_langres["overview"]; ?></h2>
-
-		<?php echo $getbuilds_langres["buildbot_status"]; ?>:
-		<ul class="web">
-			<li><a href="<?php echo $BUILDBOT_URL; ?>"><?php echo $getbuilds_langres["buildbot_web"]; ?></a></li>
-			<li><a href="<?php echo $ISO_DOWNLOAD_URL; ?>"><?php echo $getbuilds_langres["browsebuilds"]; ?></a></li>
-		</ul>
-	</div>
-
-	<div class="round_corners">
-		<h2 class="pane-title"><?php echo $getbuilds_langres["downloadrev"]; ?></h2>
-		
-		<noscript>
-			<?php printf($getbuilds_langres["js_disclaimer"], $ISO_DOWNLOAD_URL); ?>
-		</noscript>
-
-		<div id="js_stuff">
-			<fieldset style="border: 1px solid #808080">
-				<legend><?php echo $getbuilds_langres["showrevfiles"]; ?>:</legend>
-
-				<span id="revcontrols">
-					<img src="images/left.png" alt="&lt;" title="<?php echo $getbuilds_langres["prevrev"]; ?>" onclick="PrevRev();"> 
-					<input type="text" id="revnum" value="<?php echo $rev; ?>" size="12" onkeyup="CheckRevNum(this);"> 
-					<img src="images/right.png" alt="&gt;" title="<?php echo $getbuilds_langres["nextrev"]; ?>" onclick="NextRev();">
-					<br>
-				</span>
-				<img src="/rosweb/images/info.gif" alt=""> <?php printf($shared_langres["rangeinfo"], $rev, ($rev - 50), $rev); ?><br>
-				<?php echo $getbuilds_langres["latestrev"]; ?>: <strong><?php echo $rev; ?></strong>
-				<ul class="web">
-					<li><a href="<?php echo $SVN_BROWSE_URL; ?>"><?php echo $getbuilds_langres["browsesvn"]; ?></a></li>
-				</ul>
-			</fieldset>
-
-			<fieldset style="border: 1px solid #808080">
-				<legend><?php echo $getbuilds_langres["isotype"]; ?></legend>
-
-				<input type="checkbox" id="bootcd-dbg" checked="checked" /> Debug Boot CDs
-				<input type="checkbox" id="livecd-dbg" checked="checked"> Debug Live CDs
-				<input type="checkbox" id="bootcd-rel" checked="checked"> Release Boot CDs
-				<input type="checkbox" id="livecd-rel" checked="checked"> Release Live CDs
-				<input type="button" onclick="ShowRev();" value="<?php echo $getbuilds_langres["showrev"]; ?>" style="margin-left: 20px; font-weight:bold;">
-			</fieldset>
-
-			<div id="controlbox">
-				<span id="ajax_loading">
-					<img src="/rosweb/images/ajax_loading.gif" alt=""> <?php echo $getbuilds_langres["gettinglist"]; ?>...
-				</span>
+<div class="main" role="main">
+	<section class="page-top breadcrumb-wrap">
+		<div class="container">
+			<div class="row">
+				<div class="col-md-12">
+					<div id="breadcrumbs">
+						<ul class="breadcrumb">
+							<li><a href="/">Home</a></li>
+							<li><a href="/getbuilds">Get Builds</a></li>
+						</ul>
+					</div>
+				</div>
 			</div>
 
-			<div id="filetable">
-				<!-- Filled by the JavaScript -->
+			<div class="row">
+				<div class="col-md-12">
+					<h2><?php echo $getbuilds_langres["title"]; ?></h2>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<div class="content">
+		<div class="container">
+			<p class="lead center"><?php echo $getbuilds_langres["intro"]; ?></p>
+			<hr>
+
+			<div class="col-md-9">
+				<div class="form-horizontal">
+					<div class="form-group">
+						<label for="revnum" class="col-sm-2 control-label">Revision</label>
+
+						<div class="col-sm-10 form-inline">
+							<button class="btn btn-default" onclick="PrevRev()"><i class="icon icon-chevron-left"></i></button>
+							<input class="form-control" type="text" id="revnum" value="<?php echo $rev; ?>" size="12" onkeyup="CheckRevNum(this);"> 
+							<button class="btn btn-default" onclick="NextRev()"><i class="icon icon-chevron-right"></i></button><br>
+
+							<?php printf($shared_langres["rangeinfo"], $rev, ($rev - 50), $rev); ?><br>
+							<?php echo $getbuilds_langres["latestrev"]; ?>: <strong><?php echo $rev; ?></strong>
+						</div>
+					</div>
+
+					<div class="form-group">
+						<label class="col-sm-2 control-label">Image Types</label>
+
+						<div class="col-sm-3">
+							<div class="checkbox"><label><input type="checkbox" id="bootcd-dbg" checked="checked"> Debug Boot CDs</label></div>
+							<div class="checkbox"><label><input type="checkbox" id="bootcd-rel" checked="checked"> Release Boot CDs</label></div>
+						</div>
+
+						<div class="col-sm-3">
+							<div class="checkbox"><label><input type="checkbox" id="livecd-dbg" checked="checked"> Debug Live CDs</label></div>
+							<div class="checkbox"><label><input type="checkbox" id="livecd-rel" checked="checked"> Release Live CDs</label></div>
+						</div>
+
+						<div class="col-sm-3">
+							<button class="btn btn-primary btn-lg" style="margin-top: 7px;" onclick="ShowRev()"><?php echo $getbuilds_langres["showrev"]; ?></button>
+						</div>
+					</div>
+				</div>
+
+				<div id="ajax_loading">
+					<i class="icon icon-cog icon-spin"></i> <?php echo $getbuilds_langres["gettinglist"]; ?>...
+				</div>
+
+				<div id="filetable">
+					<!-- Filled by the JavaScript -->
+				</div>
+			</div>
+
+			<div class="col-md-3">
+				<div class="row"><a class="center-block mcrirc mcround" href="<?php echo $ISO_DOWNLOAD_URL; ?>"></a></div>
+				<div class="row"><a class="center-block mcrirc mcround" href="<?php echo $SVN_BROWSE_URL; ?>"></a></div>
+			</div>
+
+			<div class="col-md-12">
+				<hr>
+				<h1><?php echo $getbuilds_langres["legend"]; ?></h1>
+
+				<ul class="list-unstyled">
+					<li><?php echo $getbuilds_langres["build_bootcd"]; ?></li>
+					<li><?php echo $getbuilds_langres["build_livecd"]; ?></li>
+					<li><?php echo $getbuilds_langres["build_dbg"]; ?></li>
+					<li><?php echo $getbuilds_langres["build_rel"]; ?></li>
+				</ul>
 			</div>
 		</div>
 	</div>
-	<br>
-	<div class="round_corners_grey">
-		<h2 class="pane-title"><?php echo $getbuilds_langres["legend"]; ?></h2>
-		<ul>
-			<li><?php echo $getbuilds_langres["build_bootcd"]; ?></li>
-			<li><?php echo $getbuilds_langres["build_livecd"]; ?></li>
-			<li><?php echo $getbuilds_langres["build_rel"]; ?> </li>
-			<li><?php echo $getbuilds_langres["build_dbg"]; ?> </li>
-			<li><?php echo $getbuilds_langres["build_dbgwin"]; ?></li>
-		</ul>
-	</div>
-</div></div>
+</div>
 
-<?php echo $rw->getFooter(); ?>
+<?php //echo $rw->getFooter(); ?>
 
+</div>
 </body>
 </html>

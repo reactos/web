@@ -62,7 +62,4 @@
 
 		case "Header":
 			die(get_page_theme("page__headerinc"));
-
-		case "Sidebar":
-			die(get_page_theme("page__sidebarinc"));
 	}

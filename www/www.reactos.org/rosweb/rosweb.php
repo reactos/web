@@ -121,6 +121,17 @@
 				$this->_handleLanguage($supported_languages);
 		}
 
+		public function getCSS()
+		{
+			$tags = "";
+			$cssfiles = file(dirname(__FILE__) . "/css.files", FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+
+			foreach($cssfiles as $f)
+				$tags .= '<link rel="stylesheet" type="text/css" href="' . $f . '">';
+
+			return $tags;
+		}
+
 		public function getCurrentUser()
 		{
 			return json_decode($this->_queryProvider("CurrentUser"));
@@ -136,6 +147,17 @@
 			return $this->_queryProvider("Header");
 		}
 
+		public function getJS()
+		{
+			$tags = "";
+			$files = file(dirname(__FILE__) . "/js.files", FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+
+			foreach($files as $f)
+				$tags .= '<script type="text/javascript" src="' . $f . '"></script>';
+
+			return $tags;
+		}
+		
 		public function getLanguage()
 		{
 			return $this->_language;
@@ -193,10 +215,5 @@
 			while($line);
 		
 			fclose($fp);
-		}
-
-		public function getSidebar()
-		{
-			return $this->_queryProvider("Sidebar");
 		}
 	}

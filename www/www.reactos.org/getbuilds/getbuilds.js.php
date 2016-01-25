@@ -49,12 +49,15 @@ function GetFilesCallback(HttpRequest)
 	
 	if(data["filelist"])
 	{
+		morefiles = (HttpRequest.responseXML.getElementsByTagName("morefiles")[0].firstChild.data == 1);
+
 		// Build a new infobox
-		html += '<table id="infotable" cellspacing="0" cellpadding="0"><tr><td id="infobox">';
+		html += '<span id="infobox">';
 		
 		if(data["requesttype"] == REQUESTTYPE_FULLLOAD)
 		{
 			FileCount = parseInt(HttpRequest.responseXML.getElementsByTagName("filecount")[0].firstChild.data);
+			PageCount = 1;
 			html += '<?php printf(addslashes($getbuilds_langres["foundfiles"]), "<span id=\"filecount\">' + FileCount + '<\/span>"); ?>';
 		}
 		else
@@ -62,18 +65,41 @@ function GetFilesCallback(HttpRequest)
 			html += document.getElementById("infobox").innerHTML;
 		}
 		
-		html += '<\/td>';
+		html += '<\/span>';
 		
-		// Page number boxes
-		html += '<td id="pagesbox">';
+
+		if(PageCount > 1 || morefiles)
+		{
+			// Page number boxes
+			html += '<span id="pagesbox" class="form-inline pull-right">';
 		
-		html += '<a href="javascript:void(0)" onclick="PrevRev();">&lsaquo;&nbsp;<?php echo addslashes($getbuilds_langres["prevrev"]); ?></a>';
-		html += "&nbsp;&nbsp;&nbsp;";
-		html += '<a href="javascript:void(0)" onclick="NextRev();"><?php echo addslashes($getbuilds_langres["nextrev"]); ?>&nbsp;&rsaquo;</a>';
-		html += '<\/td><\/tr><\/table>';
+			html += '<button class="btn btn-default" ' + (CurrentPage > 1 ? 'onclick="FirstPage()"' : 'disabled="disabled"') + ' title="<?php echo addslashes($shared_langres["firstpage_title"]); ?>"><i class="icon icon-angle-double-left"><\/i><\/button> ';
+			html += '<button class="btn btn-default" ' + (CurrentPage > 1 ? 'onclick="PrevPage()"' : 'disabled="disabled"') + ' title="<?php echo addslashes($shared_langres["prevpage_title"]); ?>"><i class="icon icon-angle-left"><\/i><\/button> ';
+		
+			html += '<select class="form-control" id="pagesel" size="1" onchange="PageboxChange(this)">';
+		
+			if(data["requesttype"] == REQUESTTYPE_FULLLOAD)
+			{
+				html += '<option value="' + CurrentPage + '-' + data["startrev"] + '"><?php echo addslashes($shared_langres["page"]); ?> ' + CurrentPage;
+			
+				if(HttpRequest.responseXML.getElementsByTagName("filecount")[0].firstChild.data > 0)
+					html += ' - ' + HttpRequest.responseXML.getElementsByTagName("firstrev")[0].firstChild.data + ' ... ' + HttpRequest.responseXML.getElementsByTagName("lastrev")[0].firstChild.data + '<\/option>';
+			}
+			else
+			{
+				html += document.getElementById("pagesel").innerHTML;
+			}
+		
+			html += '<\/select> ';
+		
+			html += '<button class="btn btn-default" ' + (morefiles ? 'onclick="NextPage()"' : 'disabled="disabled"') + ' title="<?php echo addslashes($shared_langres["nextpage_title"]); ?>"><i class="icon icon-angle-right"><\/i><\/button> ';
+			html += '<button class="btn btn-default" ' + (morefiles ? 'onclick="LastPage()"' : 'disabled="disabled"') + ' title="<?php echo addslashes($shared_langres["lastpage_title"]); ?>"><i class="icon icon-angle-double-right"><\/i><\/button>';
+
+			html += '<\/span>';
+		}
 
 		// File table
-		html += '<table class="datatable" cellspacing="0" cellpadding="0">';
+		html += '<table class="table table-hover">';
 		html += '<thead><tr class="head"><th class="fname"><?php echo addslashes($getbuilds_langres["filename"]); ?><\/th><th class="fsize"><?php echo addslashes($getbuilds_langres["filesize"]); ?><\/th><th class="fdate"><?php echo addslashes($getbuilds_langres["filedate"]); ?><\/th><\/tr><\/thead>';
 		html += '<tbody>';
 		
@@ -81,12 +107,10 @@ function GetFilesCallback(HttpRequest)
 	
 		if(!files.length)
 		{
-			html += '<tr class="even"><td><?php printf(addslashes($getbuilds_langres["nofiles"]), "' + FullRange + '"); ?><\/td><td>&nbsp;<\/td><td>&nbsp;<\/td><\/tr>';
+			html += '<tr><td><?php printf(addslashes($getbuilds_langres["nofiles"]), "' + FullRange + '"); ?><\/td><td>&nbsp;<\/td><td>&nbsp;<\/td><\/tr>';
 		}
 		else
 		{
-			var oddeven = false;
-			
 			for(var i = 0; i < files.length; i++)
 			{
 				var fname = files[i].getElementsByTagName("name")[0].firstChild.data;
@@ -94,13 +118,11 @@ function GetFilesCallback(HttpRequest)
 				var fdate = files[i].getElementsByTagName("date")[0].firstChild.data;
 				var flink = '<a href="<?php echo $ISO_DOWNLOAD_URL; ?>' + fname.substr(0, 6) + "/" + fname + '">';
 				
-				html += '<tr class="' + (oddeven ? "odd" : "even") + '" onmouseover="tr_mouseover(this);" onmouseout="tr_mouseout(this);">';
-				html += '<td>' + flink + '<img src="images/cd.png" alt=""> ' + fname + '<\/a><\/td>';
+				html += '<tr>';
+				html += '<td>' + flink + '<i class="icon icon-file-o"></i> ' + fname + '<\/a><\/td>';
 				html += '<td>' + flink + fsize + '<\/a><\/td>';
 				html += '<td>' + flink + fdate + '<\/a><\/td>';
 				html += '<\/tr>';
-				
-				oddeven = !oddeven;
 			}
 		}
 		
@@ -153,19 +175,6 @@ function SetRowColor(elem, color)
 	
 	for(var i = 0; i < tdl.length; i++)
 		tdl[i].style.background = color;
-}
-
-function tr_mouseover(elem)
-{
-	SetRowColor(elem, "#FFFFCC");
-}
-
-function tr_mouseout(elem)
-{
-	if(elem.className == "odd")
-		SetRowColor(elem, "#FFFFFF");
-	else
-		SetRowColor(elem, "#F5F5F5");
 }
 
 function GetRevNums()
