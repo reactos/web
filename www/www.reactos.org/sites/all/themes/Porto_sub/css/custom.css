@@ -487,13 +487,6 @@ i.icon-featured{
 	opacity: 0;
 }
 
-.mcround{
-	width: 100px;
-	height: 100px;
-	border-radius: 50%;
-	box-shadow: 0px 2px 6px gray;
-}
-
 .mcrlink{
 	display: inline-block;
 	line-height: 30px;
@@ -536,24 +529,12 @@ i.icon-featured{
 
 /* Donate button*/
 .mcrdonate{
-	background-color:#0088cc;
 	background-image: url('images/icon_donate.png');
 }
 
 /* IRC button*/
 .mcrirc {
 	background-image: url('images/irc.png');
-}
-
-/* Download button */
-.mcrdownload {
-	text-align: center;
-	background-color: #0088cc;
-}
-.mcrdownload > i {
-	line-height:100px;
-	color: white;
-	font-size: 3em;
 }
 
 /*Testman button*/
@@ -568,17 +549,6 @@ i.icon-featured{
 /* Nightly builds button*/
 .mcrndownload {
 	background-image: url('../images/mcrndownload.jpg');
-}
-
-/* Shop button */
-.mcrshop{
-	text-align: center;
-	background-color: #0088cc;
-}
-.mcrshop > i {
-	line-height:100px;
-	color: white;
-	font-size: 3em;
 }
 
 /* Translate button*/
@@ -895,30 +865,33 @@ color:white;
 	color: rgb(54, 54, 54); 
 }
 
-
-
-.devstep1container .addmore{
-  display: block;
-  float: right;
-  width: 100px;
-  background-color: #0088CC;
-  border-radius: 50%;
-  height: 100px;
-  opacity: 1;
-  margin-top: 6em;
-  margin-bottom: 12em;
-  margin-left: 3em;
-  margin-right: 3em;
+.addmore, .mcround {
+	background-color: #0088cc;
+	border-radius: 50%;
+	display: block;
+	height: 100px;
+	text-align: center;
+	width: 100px;
 }
 
-.devstep1container .addmore i{
-  line-height: 100px;
-  color: white;
-  opacity: 1;
-  font-size: 3em;
+.addmore {
+	float: right;
+	margin: 6em 3em 12em 3em;
 }
 
+.mcround {
+	box-shadow: 0px 2px 6px gray;
+}
 
+.addmore i, .mcround i {
+	color: white;
+	font-size: 3em;
+	line-height: 100px;
+}
+
+.button-margin {
+	margin-bottom: 22px;
+}
 
 .devappsitem1 {
 	position: absolute;
@@ -1013,26 +986,6 @@ color:white;
 	padding-top: 1em;
 }
 
-.devstep2container .addmore{
-  display: block;
-  float: right;
-  width: 100px;
-  background-color: #0088cc;
-  border-radius: 50%;
-  height: 100px;
-  opacity: 1;
-  margin-top: 6em;
-  margin-bottom: 12em;
-  margin-left: 3em;
-  margin-right: 3em;
-}
-
-.devstep2container .addmore i{
-  line-height: 100px;
-  color: white;
-  opacity: 1;
-  font-size: 3em;
-}
 .devstep2text{
 	line-height: 100px;
 	font-size: 40px;

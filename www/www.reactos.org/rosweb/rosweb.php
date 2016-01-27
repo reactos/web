@@ -102,9 +102,12 @@
 		/* Functional programming in PHP is prone to naming collisions. As Drupal 7 is still using functional PHP throughout the
 		   whole CMS, we have to use this clean but slow provider approach and do a single HTTP request for each query.
 		   When you add queries here, return as much information as useful in one query to reduce the number of required requests. */
-		private function _queryProvider($q)
+		private function _queryProvider($part)
 		{
-			$fp = fopen(sprintf("http://%s/rosweb/rosweb-provider-%s.php?q=%s&lang=%s", $_SERVER["HTTP_HOST"], $this->_provider, $q, $this->_language), "r", false, $this->_context);
+			$q = ($this->_language == "en") ? "" : $this->_language;
+			$tls = ($_SERVER["HTTPS"] == "on") ? "1" : "0";
+
+			$fp = fopen(sprintf("http://%s/rosweb/rosweb-provider-%s.php?q=%s&part=%s&tls=%s", $_SERVER["HTTP_HOST"], $this->_provider, $q, $part, $tls), "r", false, $this->_context);
 			$ret = stream_get_contents($fp);
 			fclose($fp);
 
@@ -119,17 +122,8 @@
 
 			if ($supported_languages)
 				$this->_handleLanguage($supported_languages);
-		}
-
-		public function getCSS()
-		{
-			$tags = "";
-			$cssfiles = file(dirname(__FILE__) . "/css.files", FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-
-			foreach($cssfiles as $f)
-				$tags .= '<link rel="stylesheet" type="text/css" href="' . $f . '">';
-
-			return $tags;
+			else
+				$this->_language = "en";
 		}
 
 		public function getCurrentUser()
@@ -142,22 +136,16 @@
 			return $this->_queryProvider("Footer");
 		}
 
+		public function getHead()
+		{
+			return $this->_queryProvider("Head");
+		}
+
 		public function getHeader()
 		{
 			return $this->_queryProvider("Header");
 		}
 
-		public function getJS()
-		{
-			$tags = "";
-			$files = file(dirname(__FILE__) . "/js.files", FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-
-			foreach($files as $f)
-				$tags .= '<script type="text/javascript" src="' . $f . '"></script>';
-
-			return $tags;
-		}
-		
 		public function getLanguage()
 		{
 			return $this->_language;

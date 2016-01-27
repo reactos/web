@@ -6,13 +6,13 @@
   COPYRIGHT:  Copyright 2015 Colin Finck <colin@reactos.org>
 */
 
-	function get_page_theme($theme)
+	function get_page_theme($theme, $wrapper)
 	{
 		// This function is mostly a copied drupal_render_page.
-		// But we modify the array here to render our theme only and remove the "html" wrapper template from processing.
+		// But we modify the array here to render our desired theme and wrapper.
 		$page = element_info("page");
 		$page["#theme"] = $theme;
-		$page["#theme_wrappers"] = array();
+		$page["#theme_wrappers"] = $wrapper;
 
 		foreach (module_implements('page_build') as $module)
 		{
@@ -26,20 +26,22 @@
 
 
 	// Save the variables from our query string
-	$rosweb_query = $_GET["q"];
-	$rosweb_lang = $_GET["lang"];
+	$rosweb_part = $_GET["part"];
+	$rosweb_tls = $_GET["tls"];
 
-	// Now build up a new $_GET array for Drupal.
-	// For Drupal, we look like its "index.php" file, and this file takes the URL to show in a "q" query string variable.
-	// Drupal internationalization prepends the language code as a directory path for all non-English languages, so we can just add the code of our
-	// language to "q" and get translated menus! :-)
-	$_GET = array(
-		"q" => ($rosweb_lang == "en" ? "" : $rosweb_lang)
-	);
+	// Recreate the $_GET array with only the "q" variable propagated to Drupal.
+	// This lets Drupal know about the page language we're accessing.
+	$_GET = array("q" => $_GET["q"]);
 
 	// Set the $base_url for Drupal.
 	// This is mandatory for all pathes to work properly with this bootstrapping method.
-	$base_url = (array_key_exists("HTTPS", $_SERVER) && $_SERVER["HTTPS"] == "on" ? "https" : "http") . "://" . $_SERVER["HTTP_HOST"];
+	// The provider is always queried over HTTP, so we cannot rely on $_SERVER["HTTPS"] here to know whether the user accesses the website over HTTPS.
+	$base_url = ($rosweb_tls ? "https" : "http") . "://" . $_SERVER["HTTP_HOST"];
+
+	// Even then, Drupal still checks $_SERVER["HTTPS"] at some points, so it's value needs to be accordingly.
+	// For example, logins on the HTTPS site won't be noticed if this is not set.
+	if($rosweb_tls)
+		$_SERVER["HTTPS"] = "on";
 
 	// Bootstrap Drupal.
 	// This pollutes the global namespace with many Drupal-specific variables and functions and is the sole reason we have to use this provider approach.
@@ -49,7 +51,7 @@
 	drupal_bootstrap(DRUPAL_BOOTSTRAP_FULL);
 
 
-	switch($rosweb_query)
+	switch($rosweb_part)
 	{
 		case "CurrentUser":
 			$rosweb_user_info["id"] = $user->uid;
@@ -58,8 +60,11 @@
 			die(json_encode($rosweb_user_info));
 
 		case "Footer":
-			die(get_page_theme("page__footerinc"));
+			die(get_page_theme("page__roswebfooter", array()));
+
+		case "Head":
+			die(get_page_theme("page", array("html__roswebhead")));
 
 		case "Header":
-			die(get_page_theme("page__headerinc"));
+			die(get_page_theme("page__roswebheader", array()));
 	}

@@ -10,7 +10,8 @@
 	require_once("languages.inc.php");
 	require_once(ROOT_PATH . "rosweb/rosweb.php");
 
-	$rw = new RosWeb($supported_languages);
+	//$rw = new RosWeb($supported_languages);
+	$rw = new RosWeb();
 	$rev = $rw->getLatestRevision();
 	$lang = $rw->getLanguage();
 
@@ -22,10 +23,8 @@
 <head>
 	<meta charset="utf-8">
 	<title><?php echo $getbuilds_langres["title"]; ?></title>
-	<?php
-		echo $rw->getCSS();
-		echo $rw->getJS();
-	?>
+	<?php echo $rw->getHead(); ?>
+	<link rel="stylesheet" type="text/css" href="/sites/all/themes/Porto/css/skins/default-style.css" />
 	<script type="text/javascript" src="/rosweb/js/ajax.js"></script>
 	<script type="text/javascript">
 		<?php require_once("getbuilds.js.php"); ?>
@@ -33,9 +32,7 @@
 </head>
 <body onload="Load()">
 
-<?php
-	echo $rw->getHeader();
-?>
+<?php echo $rw->getHeader(); ?>
 
 <div class="main" role="main">
 	<section class="page-top breadcrumb-wrap">
@@ -108,8 +105,8 @@
 			</div>
 
 			<div class="col-md-3">
-				<div class="row"><a class="center-block mcrirc mcround" href="<?php echo $ISO_DOWNLOAD_URL; ?>"></a></div>
-				<div class="row"><a class="center-block mcrirc mcround" href="<?php echo $SVN_BROWSE_URL; ?>"></a></div>
+				<a class="button-margin center-block mcround" href="<?php echo $SVN_BROWSE_URL; ?>" title="<?php echo $getbuilds_langres["browsesvn"]; ?>" rel="tooltip"><i class="icon icon-code"></i></a>
+				<a class="button-margin center-block mcround" href="<?php echo $ISO_DOWNLOAD_URL; ?>" title="<?php echo $getbuilds_langres["browsebuilds"]; ?>" rel="tooltip"><i class="icon icon-folder-open-o"></i></a>
 			</div>
 
 			<div class="col-md-12">
@@ -127,7 +124,7 @@
 	</div>
 </div>
 
-<?php //echo $rw->getFooter(); ?>
+<?php echo $rw->getFooter(); ?>
 
 </div>
 </body>
