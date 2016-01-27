@@ -265,6 +265,10 @@ article .blog-content > .post-image > .owl-carousel > .owl-controls {
   background-color: #000 !important;
 }
 
+.ytchannel img{
+    margin: 0 auto;
+}
+
 /* Md-slider Frontpage */
 .md-bullet.md-current a{
     background-color: #0088CC;
@@ -293,6 +297,14 @@ article .blog-content > .post-image > .owl-carousel > .owl-controls {
 
 /* ReactOS/download css classes */
 
+.doptions {
+    display: block;
+    background: white;
+    border-radius: 50%;
+    width: 135px;
+    height: 135px;
+    border: 2px dashed #0088CC;
+}
 
 .darena, .dpig{
  opacity: 0.8;
@@ -1316,6 +1328,10 @@ color:white;
 	font-weight: normal;
 	position: relative;
 	margin-top: 30px;
+}
+
+.lead.lighter{
+    color: #999;
 }
 
 .newsection{
