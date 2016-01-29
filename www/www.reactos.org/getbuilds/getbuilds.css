@@ -1,0 +1,10 @@
+/*
+  PROJECT:    ReactOS Website
+  LICENSE:    GNU GPLv2 or any later version as published by the Free Software Foundation
+  PURPOSE:    Easily download prebuilt ReactOS Revisions
+  COPYRIGHT:  Copyright 2016 Colin Finck <colin@reactos.org>
+*/
+
+#filecount {
+	font-weight: bold;
+}
