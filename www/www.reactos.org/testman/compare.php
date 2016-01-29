@@ -3,7 +3,7 @@
   PROJECT:    ReactOS Web Test Manager
   LICENSE:    GNU GPLv2 or any later version as published by the Free Software Foundation
   PURPOSE:    Compare Page
-  COPYRIGHT:  Copyright 2008-2009 Colin Finck <colin@reactos.org>
+  COPYRIGHT:  Copyright 2008-2016 Colin Finck <colin@reactos.org>
   
   charset=utf-8 without BOM
 */
@@ -63,7 +63,7 @@
 		
 		$indicator = new Indicator($row["id"]);
 		
-		$table_summary .= '<th onmousedown="ResultHead_OnMouseDown(this)">';
+		$table_summary .= '<th>';
 		$table_summary .= sprintf($testman_langres["resulthead"], $row["revision"], GetDateString($row["timestamp"]), $row["name"], GetPlatformString($row["platform"]));
 		$table_summary .= '</th>';
 		

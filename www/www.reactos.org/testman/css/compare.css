@@ -112,20 +112,11 @@ body {
 	color: #5A5A5A;
 }
 
-#TempBlock {
-	background: #5984C3;
-	color: white;
-	font-weight: bold;
-	position: absolute;
-	width: 325px;
-}
-
 #comparetable {
 	width: auto;
 }
 
-#comparetable th, #TempBlock {
-	cursor: move;
+#comparetable th {
 	padding: 3px 8px 3px 3px;
 	vertical-align: bottom;
 }
