@@ -29,13 +29,10 @@
 	// A string return value indicates an error.
 	if (is_string($result))
 		die($result);
-		
-	// Activate the option to only show the changed results between several test runs if more than one Test ID was passed.
-	$testman_controls = "";
 
-	if ($reader->getTestIDCount() > 1)
-		$testman_controls .= sprintf('<div class="checkbox"><label><input type="checkbox" id="showchanged" name="filter"> %s</label></div>', $testman_langres["showchanged"]);
-
+	// Hide the filter to show only changed results if just one Test ID was passed.
+	// We can't simply leave out the option entirely, because this would break the cookies storing the selected filters.
+	$testman_controls  = sprintf('<div class="checkbox" %s><label><input type="checkbox" id="showchanged" name="filter"> %s</label></div>', ($reader->getTestIDCount() > 1 ? '' : 'style="display: none;"'), $testman_langres["showchanged"]);
 	$testman_controls .= sprintf('<div class="checkbox"><label><input type="checkbox" id="showcrashed" name="filter"> %s</label></div>', $testman_langres["showcrashed"]);
 	$testman_controls .= sprintf('<div class="checkbox"><label><input type="checkbox" id="hideok" name="filter"> %s</label></div>', $testman_langres["hideok"]);
 	$testman_controls .= sprintf('<div class="checkbox"><label><input type="checkbox" id="hideblacklisted" name="filter"> %s</label></div>', $testman_langres["hideblacklisted"]);
