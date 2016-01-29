@@ -2,24 +2,19 @@
   PROJECT:    ReactOS Web Test Manager
   LICENSE:    GNU GPLv2 or any later version as published by the Free Software Foundation
   PURPOSE:    Stylesheet for the Compare Page
-  COPYRIGHT:  Copyright 2008-2015 Colin Finck <colin@reactos.org>
+  COPYRIGHT:  Copyright 2008-2016 Colin Finck <colin@reactos.org>
 */
 
 html, body {
 	height: auto;
 }
 
-#page-wrapper {
-	padding: 5px;
+body {
+	padding: 10px;
 }
 
-button {
-	font-weight: bold;
-}
-
-label {
-	display: inline;
-	font-weight: normal;
+.table > tbody > tr > td {
+	vertical-align: middle;
 }
 
 #healthindicator_tooltip {
@@ -36,9 +31,9 @@ label {
 }
 
 #healthindicator_tooltip .box, #legend .box {
-	border: solid 1px black;
-	height: 15px;
-	width: 15px;
+	border: solid 1px #ddd;
+	height: 19px;
+	width: 19px;
 }
 
 #healthindicator_tooltip .box {
@@ -57,9 +52,8 @@ label {
 }
 
 #legend {
-	border: solid 1px black;
 	display: inline-block;
-	height: 16px;
+	height: 30px;
 	margin-bottom: 1em;
 	padding: 5px;
 }
@@ -72,11 +66,10 @@ label {
 
 #legend .intro {
 	font-weight: bold;
-	padding-right: 10px;
 }
 
-#legend .desc {
-	margin-right: 9px;
+#legend .intro, #legend .desc {
+	margin-right: 20px;
 }
 
 .totaltests {
@@ -100,7 +93,7 @@ label {
 	border-width: 1px !important;
 	border-style: dashed  !important;
 	border-color: #A2A2A2 !important;
-	height: 15px;
+	height: 27px;
 }
 
 .skippedtests {
@@ -151,8 +144,8 @@ label {
 }
 
 #comparetable td.blacklisted {
-    background: #000000;
-	color: #FFFFFF;
+	background: black;
+	color: white;
 }
 
 #comparetable td, #comparetable td div.box, #comparetable td div.healthindicator {
@@ -170,6 +163,7 @@ label {
 }
 
 #comparetable td div.box {
+	color: black;
 	float: left;
 	width: 95px;
 }
@@ -199,8 +193,4 @@ label {
 
 #comparetable tr.separator {
 	height: 10px;
-}
-
-#comparetable tr.blacklisted {
-	background: #000000;
 }

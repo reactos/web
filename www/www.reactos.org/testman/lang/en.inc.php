@@ -11,9 +11,8 @@
 
 	$testman_langres = array(
 		// Index page
-		"index_title" => "ReactOS Web Test Manager",
+		"index_title" => "ReactOS Testman",
 		"index_intro" => "This interface enables you to find, view and compare Results of automatically performed Regression Tests.",
-		"js_disclaimer" => "You have to activate JavaScript to use the interface!",
 		
 		"date" => "Date",
 		"revision" => "Revision",

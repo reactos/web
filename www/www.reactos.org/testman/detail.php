@@ -15,7 +15,8 @@
 	require_once("languages.inc.php");
 	require_once(ROOT_PATH . "rosweb/rosweb.php");
 
-	$rw = new RosWeb($supported_languages);
+	//$rw = new RosWeb($supported_languages);
+	$rw = new RosWeb();
 	$lang = $rw->getLanguage();
 
 	require_once("lang/$lang.inc.php");
@@ -96,91 +97,80 @@
 <head>
 	<meta charset="utf-8">
 	<title><?php echo $testman_langres["detail_title"]; ?></title>
-	<link rel="stylesheet" type="text/css" href="/rosweb/css/full.css">
+	<link type="text/css" rel="stylesheet" href="//fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800">
+	<link type="text/css" rel="stylesheet" href="/sites/all/themes/Porto/vendor/bootstrap/css/bootstrap.css">
+	<link type="text/css" rel="stylesheet" href="/sites/all/themes/Porto/css/theme-elements.css">
+	<link type="text/css" rel="stylesheet" href="/sites/all/themes/Porto/css/theme.css">
 	<link rel="stylesheet" type="text/css" href="css/detail.css">
-	<script type="text/javascript" src="js/detail.js"></script>
 </head>
-<body id="page-wrapper">
+<body>
 
-<h2 class="pane-title"><?php echo $testman_langres["detail_title"]; ?></h2>
+<h2><?php echo $testman_langres["detail_title"]; ?></h2>
 
-<table class="datatable" cellspacing="0" cellpadding="0">
+<table class="table table-bordered table-striped table-hover">
 	<thead>
-		<tr class="head">
+		<tr>
 			<th colspan="2"><?php echo $testman_langres["thisresult"]; ?></th>
 		</tr>
 	</thead>
 	<tbody>
-		<tr class="odd" onmouseover="Row_OnMouseOver(this)" onmouseout="Row_OnMouseOut(this)">
-			<td colspan ="2">
-				<table class="headertable" cellspacing="0" cellpadding="0">
-					<tr>
-		 				<td>
-							<strong><?php echo $testman_langres["testsuite"]; ?>:</strong> <?php echo $row["module"].':'.$row["test"];?>
-						</td>
-						<td>
-							<strong><?php echo $testman_langres["totaltests"]; ?>:</strong> <?php echo GetTotalTestsString($row); ?>
-						</td>
-						<td>
-							<strong><?php echo $testman_langres["failedtests"]; ?>:</strong> <?php echo $row["failures"]; ?>
-						</td>
-						<td>
-							<strong><?php echo $testman_langres["skippedtests"]; ?>:</strong> <?php echo $row["skipped"]; ?>
-						</td>
-						<td>
-							<strong><?php echo $testman_langres["todotests"]; ?>:</strong> <?php echo $row["todo"]; ?>
-						</td>
-						<td>
-							<strong><?php echo $testman_langres["timetest"]; ?>:</strong> <?php echo $row["time"]; ?>s
-						</td>
-					</tr>
-				</table>
+		<tr>
+			<td colspan="2">
+				<div class="col"><strong><?php echo $testman_langres["testsuite"]; ?>:</strong> <?php echo $row["module"].':'.$row["test"];?></div>
+				<div class="col"><strong><?php echo $testman_langres["totaltests"]; ?>:</strong> <?php echo GetTotalTestsString($row); ?></div>
+				<div class="col"><strong><?php echo $testman_langres["failedtests"]; ?>:</strong> <?php echo $row["failures"]; ?></div>
+				<div class="col"><strong><?php echo $testman_langres["skippedtests"]; ?>:</strong> <?php echo $row["skipped"]; ?></div>
+				<div class="col"><strong><?php echo $testman_langres["todotests"]; ?>:</strong> <?php echo $row["todo"]; ?></div>
+				<div class="col"><strong><?php echo $testman_langres["timetest"]; ?>:</strong> <?php echo $row["time"]; ?>s</div>
 			</td>
 		</tr>
-		<tr class="even" onmouseover="Row_OnMouseOver(this)" onmouseout="Row_OnMouseOut(this)">
-			<td class="info"><?php echo $testman_langres["show_diff"]; ?>:</td>
-			<td><?php
-				if (isset($_GET['prev']) && is_numeric($_GET['prev']) && $_GET['prev'] != 0)
-				{
-					echo ' <a href="diff.php?id1='.$_GET['prev'].'&id2='.$_GET['id'].'&type=1&strip=0">'.$testman_langres["diff_sbs"].'</a> |';
-					echo ' <a href="diff.php?id1='.$_GET['prev'].'&id2='.$_GET['id'].'&type=1&strip=1">'.$testman_langres["diff_sbs_stripped"].'</a> |';
-					echo ' <a href="diff.php?id1='.$_GET['prev'].'&id2='.$_GET['id'].'&type=2&strip=1">'.$testman_langres["diff_inline_stripped"].'</a>';
-				}
-			?></td>
-		</tr>
+		<?php
+			if (isset($_GET['prev']) && is_numeric($_GET['prev']) && $_GET['prev'] != 0)
+			{
+				echo '<tr>';
+				echo '<td>' . $testman_langres["show_diff"] . '</td>';
 
-		<tr class="odd" onmouseover="Row_OnMouseOver(this)" onmouseout="Row_OnMouseOut(this)">
-			<td class="info"><?php echo $testman_langres["log"]; ?>:</td>
+				echo '<td>';
+				echo '<a class="btn btn-default" href="diff.php?id1='.$_GET['prev'].'&id2='.$_GET['id'].'&type=1&strip=0">'.$testman_langres["diff_sbs"].'</a> ';
+				echo '<a class="btn btn-default" href="diff.php?id1='.$_GET['prev'].'&id2='.$_GET['id'].'&type=1&strip=1">'.$testman_langres["diff_sbs_stripped"].'</a> ';
+				echo '<a class="btn btn-default" href="diff.php?id1='.$_GET['prev'].'&id2='.$_GET['id'].'&type=2&strip=1">'.$testman_langres["diff_inline_stripped"].'</a>';
+				echo '</td>';
+
+				echo '</tr>';
+			}
+		?>
+		<tr>
+			<td><?php echo $testman_langres["log"]; ?>:</td>
 			<td><pre><?php echo $log; ?></pre></td>
 		</tr>
 	</tbody>
 </table><br>
 
-<table class="datatable" cellspacing="0" cellpadding="0">
+<table class="table table-bordered table-striped table-hover">
 	<thead>
-		<tr class="head">
+		<tr>
 			<th colspan="2"><?php echo $testman_langres["associatedtest"]; ?></th>
 		</tr>
 	</thead>
 	<tbody>
-		<tr class="odd" onmouseover="Row_OnMouseOver(this)" onmouseout="Row_OnMouseOut(this)">
-			<td class="info"><?php echo $testman_langres["revision"]; ?>:</td>
+		<tr>
+			<td><?php echo $testman_langres["revision"]; ?>:</td>
 			<td><?php echo $row["revision"]; ?></td>
 		</tr>
-		<tr class="even" onmouseover="Row_OnMouseOver(this)" onmouseout="Row_OnMouseOut(this)">
-			<td class="info"><?php echo $testman_langres["date"]; ?>:</td>
+		<tr>
+			<td><?php echo $testman_langres["date"]; ?>:</td>
 			<td><?php echo GetDateString($row["timestamp"]); ?></td>
 		</tr>
-		<tr class="odd" onmouseover="Row_OnMouseOver(this)" onmouseout="Row_OnMouseOut(this)">
-			<td class="info"><?php echo $testman_langres["source"]; ?>:</td>
+		<tr>
+			<td><?php echo $testman_langres["source"]; ?>:</td>
 			<td><?php echo $row["name"]; ?></td>
 		</tr>
-		<tr class="even" onmouseover="Row_OnMouseOver(this)" onmouseout="Row_OnMouseOut(this)">
-			<td class="info"><?php echo $testman_langres["platform"]; ?>:</td>
+		<tr>
+			<td><?php echo $testman_langres["platform"]; ?>:</td>
 			<td><?php echo GetPlatformString($row["platform"]); ?></td>
 		</tr>
-		<tr class="odd" onmouseover="Row_OnMouseOver(this)" onmouseout="Row_OnMouseOut(this)">
-			<td class="info"><?php echo $testman_langres["comment"]; ?>:</td>
+		<tr>
+			<td><?php echo $testman_langres["comment"]; ?>:</td>
 			<td><?php echo $row["comment"]; ?></td>
 		</tr>
 	</tbody>

@@ -3,7 +3,7 @@
   PROJECT:    ReactOS Web Test Manager
   LICENSE:    GNU GPLv2 or any later version as published by the Free Software Foundation
   PURPOSE:    Test results management via web
-  COPYRIGHT:  Copyright 2008-2015 Colin Finck <mail@colinfinck.de>
+  COPYRIGHT:  Copyright 2008-2016 Colin Finck <mail@colinfinck.de>
               Aleksey Bragin <aleksey@reactos.org>
 */
 
@@ -12,7 +12,8 @@
 	require_once("languages.inc.php");
 	require_once(ROOT_PATH . "rosweb/rosweb.php");
 
-	$rw = new RosWeb($supported_languages);
+	//$rw = new RosWeb($supported_languages);
+	$rw = new RosWeb();
 	$rev = $rw->getLatestRevision();
 	$lang = $rw->getLanguage();
 
@@ -40,13 +41,8 @@
 <head>
 	<meta charset="utf-8">
 	<title><?php echo $testman_langres["index_title"]; ?></title>
-	<link rel="stylesheet" type="text/css" href="/rosweb/css/full.css">
+	<?php echo $rw->getHead(); ?>
 	<link rel="stylesheet" type="text/css" href="css/index.css">
-	<script type="text/javascript">
-		document.write('<style type="text/css">');
-		document.write('#js_stuff {display: block;}');
-		document.write('<\/style>');
-	</script>
 	<script type="text/javascript" src="/rosweb/js/ajax.js"></script>
 	<script type="text/javascript" src="js/shared.js"></script>
 	<script type="text/javascript">
@@ -55,50 +51,63 @@
 </head>
 <body onload="Load()">
 
-<?php
-	echo $rw->getHeader();
-	echo $rw->getSidebar();
-	echo $rw->getLanguageBox();
-?>
-</div>
+<?php echo $rw->getHeader(); ?>
 
-<div id="content" class="column dtcell dtcell-vtop"><div class="section">
-	<h1><?php echo $testman_langres["index_title"]; ?></h1>
+<div class="main" role="main">
+	<section class="page-top breadcrumb-wrap">
+		<div class="container">
+			<div class="row">
+				<div class="col-md-12">
+					<div id="breadcrumbs">
+						<ul class="breadcrumb">
+							<li><a href="/">Home</a></li>
+							<li><a href="/testman">Testman</a></li>
+						</ul>
+					</div>
+				</div>
+			</div>
 
-	<p><?php echo $testman_langres["index_intro"]; ?></p>
+			<div class="row">
+				<div class="col-md-12">
+					<h2><?php echo $testman_langres["index_title"]; ?></h2>
+				</div>
+			</div>
+		</div>
+	</section>
 
-	<noscript>
-		<b><?php echo $testman_langres["js_disclaimer"]; ?></b>
-	</noscript>
+	<div class="content">
+		<div class="container">
+			<p class="lead center"><?php echo $testman_langres["index_intro"]; ?></p>
+			<hr>
 
-	<div id="js_stuff">
-		<div class="round_corners">
-			<h2 class="pane-title"><?php echo $testman_langres["search_header"]; ?></h2>
-			
-			<table id="searchform">
-				<tr>
-					<td><label for="search_revision"><?php echo $testman_langres["revision"]; ?>:</label></td>
-					<td>
-						<input type="text" id="search_revision" value="" size="24" onkeypress="SearchInputs_OnKeyPress(event)" onkeyup="SearchRevisionInput_OnKeyUp(this)"><br>
+			<div class="form-horizontal">
+				<div class="form-group">
+					<label for="search_revision" class="col-sm-2 control-label">Revision</label>
 
-						<img src="/rosweb/images/info.gif" alt=""> <?php printf($shared_langres["rangeinfo"], $rev, ($rev - 50), $rev); ?>
-					</td>
-				</tr>
-				<tr>
-					<td><label for="search_source"><?php echo $testman_langres["source"]; ?>:</label></td>
-					<td>
+					<div class="col-sm-6">
+						<input class="form-control" type="text" id="search_revision" value="" size="24" onkeypress="SearchInputs_OnKeyPress(event)" onkeyup="SearchRevisionInput_OnKeyUp(this)">
+						<?php printf($shared_langres["rangeinfo"], $rev, ($rev - 50), $rev); ?>
+					</div>
+				</div>
+
+				<div class="form-group">
+					<label for="search_source" class="col-sm-2 control-label"><?php echo $testman_langres["source"]; ?></label>
+
+					<div class="col-sm-6">
 						<div class="comboedit">
-							<select onchange="document.getElementById('search_source').value=this.value">
+							<select class="form-control" onchange="document.getElementById('search_source').value=this.value">
 								<?php echo $sources; ?>
 							</select>
-							<input type="text" name="format" id="search_source" value="" onkeypress="SearchInputs_OnKeyPress(event)">
+							<div><input class="form-control" type="text" name="format" id="search_source" value="" onkeypress="SearchInputs_OnKeyPress(event)"></div>
 						</div>
-					</td>
-				</tr>
-				<tr>
-					<td><label for="search_platform"><?php echo $testman_langres["platform"]; ?>:</label></td>
-					<td>
-						<select id="search_platform" size="1" onkeypress="SearchInputs_OnKeyPress(event)">
+					</div>
+				</div>
+
+				<div class="form-group">
+					<label for="search_platform" class="col-sm-2 control-label"><?php echo $testman_langres["platform"]; ?></label>
+
+					<div class="col-sm-6">
+						<select class="form-control" id="search_platform" size="1" onkeypress="SearchInputs_OnKeyPress(event)">
 							<option></option>
 							<option value="reactos">ReactOS</option>
 							<option value="5.0">Windows 2000</option>
@@ -106,30 +115,35 @@
 							<option value="5.2">Windows XP x64/Server 2003</option>
 							<option value="6.0">Windows Vista/Server 2008</option>
 							<option value="6.1">Windows 7</option>
-						</select>
-					</td>
-				</tr>
-			</table><br>
-			
-			<span class="controlgroup">
-				<button onclick="SearchButton_OnClick()"><?php echo $testman_langres["search_button"]; ?></button>
-				<img id="ajax_loading_search" src="/rosweb/images/ajax_loading.gif" alt="">
-			</span>
-			
-			<span class="controlgroup">
-				<button onclick="CompareFirstTwoButton_OnClick()"><?php echo $testman_langres["comparefirsttwo_button"]; ?></button>
-				<button onclick="CompareSelectedButton_OnClick()"><?php echo $testman_langres["compareselected_button"]; ?></button>
-				<input type="checkbox" id="opennewwindow" onclick="OpenNewWindowCheckbox_OnClick(this)"> <label for="opennewwindow"><?php echo $testman_langres["opennewwindow_checkbox"]; ?></label>
-			</span>
-			
+						</select><br>
+					</div>					
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="col-md-2 col-md-offset-1">
+					<button class="btn btn-primary" onclick="SearchButton_OnClick()"><i class="icon icon-search"></i> <?php echo $testman_langres["search_button"]; ?></button>
+					<i class="icon icon-cog icon-spin" id="ajax_loading_search"></i><br><br>
+				</div>
+
+				<div class="col-md-6">
+					<button class="btn btn-default" onclick="CompareFirstTwoButton_OnClick()"><?php echo $testman_langres["comparefirsttwo_button"]; ?></button>
+					<button class="btn btn-default" onclick="CompareSelectedButton_OnClick()"><?php echo $testman_langres["compareselected_button"]; ?></button>
+				</div>
+
+				<div class="col-md-2 checkbox">
+					<label><input type="checkbox" id="opennewwindow" onclick="OpenNewWindowCheckbox_OnClick(this)"> <?php echo $testman_langres["opennewwindow_checkbox"]; ?></label>
+				</div>
+			</div>
+
 			<div id="searchtable">
 				<!-- Filled by the JavaScript -->
 			</div>
-		</div><br>
-	
-		<iframe id="comparepage_frame" frameborder="0" onload="ResizeIFrame()" scrolling="yes"></iframe>
+
+			<iframe id="comparepage_frame" frameborder="0" onload="ResizeIFrame()" scrolling="yes"></iframe>
+		</div>	
 	</div>
-</div></div>
+</div>
 
 <?php echo $rw->getFooter(); ?>
 

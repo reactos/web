@@ -23,21 +23,6 @@ var ColumnDefaultColor = "#5984C3";
 var ColumnDragColor = "#8AA9D5";
 var ColumnOverlapColor = "#D0DDEE";
 
-function Cell_OnMouseOver(elem)
-{
-	elem.style.background = "#FFFFCC";
-}
-
-function Cell_OnMouseOut(elem)
-{
-	if(elem.parentNode.className == "odd")
-		elem.style.background = "#F5F5F5";
-	else if(elem.parentNode.className == "even")
-		elem.style.background = "#FFFFFF";
-	else
-	    elem.style.background = "#000000";
-}
-
 function GetColumnIndex(th)
 {
 	var childs = th.parentNode.childNodes;

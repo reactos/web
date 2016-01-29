@@ -22,27 +22,6 @@ var REQUESTTYPE_FULLLOAD = 1;
 var REQUESTTYPE_ADDPAGE = 2;
 var REQUESTTYPE_PAGESWITCH = 3;
 
-function SetRowColor(elem, color)
-{
-	tdl = elem.getElementsByTagName("td");
-
-	for(var i = 0; i < tdl.length; i++)
-		tdl[i].style.background = color;
-}
-
-function Result_OnMouseOver(elem)
-{
-	SetRowColor(elem, "#FFFFCC");
-}
-
-function Result_OnMouseOut(elem)
-{
-	if(elem.className == "odd")
-		SetRowColor(elem, "#F5F5F5");
-	else
-		SetRowColor(elem, "#FFFFFF");
-}
-
 /**
  * Make sure that all checkboxes for the results in SelectedResults are checked.
  */
@@ -81,8 +60,7 @@ function ResultCheckbox_OnClick(checkbox)
 	}
 
 	// Update the status message
-	document.getElementById("status").innerHTML = '<?php printf($testman_langres["status"], '<span id="selectedresultcount">\' + SelectedResultCount + \'<\/span>');
-    echo '<span id="clearselected"><button onclick="ClearSelected_OnClick()">'.addslashes($testman_langres["clearselected"]).'</button><\/span>';?>';
+	document.getElementById("selectedresultcount").innerHTML = SelectedResultCount;
 }
 
 function ResultCell_OnClick(elem)
@@ -280,12 +258,15 @@ function SearchCallback(HttpRequest)
 
 	if(data["resultlist"])
 	{
+		moreresults = (HttpRequest.responseXML.getElementsByTagName("moreresults")[0].firstChild.data == 1);
+
 		// Build a new infobox
-		html += '<table id="infotable" cellspacing="0" cellpadding="0"><tr><td id="infobox">';
+		html += '<div class="row"><div id="infobox" class="col-sm-2">';
 
 		if(data["requesttype"] == REQUESTTYPE_FULLLOAD)
 		{
 			ResultCount = parseInt(HttpRequest.responseXML.getElementsByTagName("resultcount")[0].firstChild.data);
+			PageCount = 1;
 			html += '<?php printf(addslashes($testman_langres["foundresults"]), "<span id=\"resultcount\">' + ResultCount + '<\/span>"); ?>';
 		}
 		else
@@ -293,60 +274,47 @@ function SearchCallback(HttpRequest)
 			html += document.getElementById("infobox").innerHTML;
 		}
 
-		html += '<\/td>';
+		html += '<\/div>';
 
-		html += '<td id="status">';
-		html += '<?php printf(addslashes($testman_langres["status"]), '<span id="selectedresultcount">0<\/span>'); ?>';
-		html += '<span id="clearselected"><button onclick="ClearSelected_OnClick()"><?php echo addslashes($testman_langres["clearselected"]); ?></button><\/span>';
-		html += '<\/td>';
+		html += '<div class="col-sm-4">';
+		html += '<?php printf(addslashes($testman_langres["status"]), '<span id="selectedresultcount">0<\/span>'); ?> ';
+		html += '<button class="btn btn-default" onclick="ClearSelected_OnClick()"><?php echo addslashes($testman_langres["clearselected"]); ?><\/button>';
+		html += '<\/div>';
 
-		// Page number boxes
-		html += '<td id="pagesbox">';
-
-		if(CurrentPage == 1)
+		if(PageCount > 1 || moreresults)
 		{
-			html += '&laquo; ';
-			html += '&lsaquo; <?php echo addslashes($shared_langres["prevpage"]); ?> ';
-		}
-		else
-		{
-			html += '<a href="javascript:FirstPage_OnClick()" title="<?php echo addslashes($shared_langres["firstpage_title"]); ?>">&laquo;<\/a> ';
-			html += '<a href="javascript:PrevPage_OnClick()" title="<?php echo addslashes($shared_langres["prevpage_title"]); ?>">&lsaquo; <?php echo addslashes($shared_langres["prevpage"]); ?><\/a> ';
-		}
+			// Page number boxes
+			html += '<div id="pagesbox" class="form-inline pull-right">';
 
-		html += '<select id="pagesel" size="1" onchange="PageBox_OnChange(this)">';
+			html += '<button class="btn btn-default" ' + (CurrentPage > 1 ? 'onclick="FirstPage_OnClick()"' : 'disabled="disabled"') + ' title="<?php echo addslashes($shared_langres["firstpage_title"]); ?>"><i class="icon icon-angle-double-left"><\/i><\/button> ';
+			html += '<button class="btn btn-default" ' + (CurrentPage > 1 ? 'onclick="PrevPage_OnClick()"' : 'disabled="disabled"') + ' title="<?php echo addslashes($shared_langres["prevpage_title"]); ?>"><i class="icon icon-angle-left"><\/i><\/button> ';
 
-		if(data["requesttype"] == REQUESTTYPE_FULLLOAD)
-		{
-			PageCount = 1;
+			html += '<select class="form-control" id="pagesel" size="1" onchange="PageBox_OnChange(this)">';
 
-			html += '<option value="' + CurrentPage + '"><?php echo addslashes($shared_langres["page"]); ?> ' + CurrentPage;
+			if(data["requesttype"] == REQUESTTYPE_FULLLOAD)
+			{
+				html += '<option value="' + CurrentPage + '"><?php echo addslashes($shared_langres["page"]); ?> ' + CurrentPage;
 
-			if(HttpRequest.responseXML.getElementsByTagName("resultcount")[0].firstChild.data > 0)
-				html += ' - ' + HttpRequest.responseXML.getElementsByTagName("firstrev")[0].firstChild.data + ' ... ' + HttpRequest.responseXML.getElementsByTagName("lastrev")[0].firstChild.data + '<\/option>';
-		}
-		else
-		{
-			html += document.getElementById("pagesel").innerHTML;
-		}
+				if(HttpRequest.responseXML.getElementsByTagName("resultcount")[0].firstChild.data > 0)
+					html += ' - ' + HttpRequest.responseXML.getElementsByTagName("firstrev")[0].firstChild.data + ' ... ' + HttpRequest.responseXML.getElementsByTagName("lastrev")[0].firstChild.data + '<\/option>';
+			}
+			else
+			{
+				html += document.getElementById("pagesel").innerHTML;
+			}
 
-		html += '<\/select> ';
+			html += '<\/select> ';
 
-		if(HttpRequest.responseXML.getElementsByTagName("moreresults")[0].firstChild.data == 0)
-		{
-			html += '<?php echo addslashes($shared_langres["nextpage"]); ?> &rsaquo; ';
-			html += '&raquo;';
-		}
-		else
-		{
-			html += '<a href="javascript:NextPage_OnClick()" title="<?php echo addslashes($shared_langres["nextpage_title"]); ?>"><?php echo addslashes($shared_langres["nextpage"]); ?> &rsaquo;<\/a> ';
-			html += '<a href="javascript:LastPage_OnClick()" title="<?php echo addslashes($shared_langres["lastpage_title"]); ?>">&raquo;<\/a>';
+			html += '<button class="btn btn-default" ' + (moreresults ? 'onclick="NextPage_OnClick()"' : 'disabled="disabled"') + ' title="<?php echo addslashes($shared_langres["nextpage_title"]); ?>"><i class="icon icon-angle-right"><\/i><\/button> ';
+			html += '<button class="btn btn-default" ' + (moreresults ? 'onclick="LastPage_OnClick()"' : 'disabled="disabled"') + ' title="<?php echo addslashes($shared_langres["lastpage_title"]); ?>"><i class="icon icon-angle-double-right"><\/i><\/button>';
+
+			html += '<\/div>';
 		}
 
-		html += '<\/td><\/tr><\/table>';
+		html += '<\/div><\/div>';
 
 		// File table
-		html += '<table id="resulttable" class="datatable" cellspacing="0" cellpadding="0">';
+		html += '<table class="table table-hover" id="resulttable">';
 
 		html += '<thead><tr class="head">';
 		html += '<th class="TestCheckbox"><\/th>';
@@ -364,15 +332,13 @@ function SearchCallback(HttpRequest)
 
 		if(!results.length)
 		{
-			html += '<tr class="even"><td colspan="8"><?php echo addslashes($testman_langres["noresults"]); ?><\/td><\/tr>';
+			html += '<tr><td colspan="8"><?php echo addslashes($testman_langres["noresults"]); ?><\/td><\/tr>';
 		}
 		else
 		{
-			var oddeven = true;
-
 			for(var i = 0; i < results.length; i++)
 			{
-				html += '<tr class="' + (oddeven ? "odd" : "even") + '" onmouseover="Result_OnMouseOver(this)" onmouseout="Result_OnMouseOut(this)">';
+				html += '<tr onmouseover="Result_OnMouseOver(this)" onmouseout="Result_OnMouseOut(this)">';
 				html += '<td><input onclick="ResultCheckbox_OnClick(this)" type="checkbox" id="test_' + GetTagData(results[i], "id") + '" \/><\/td>';
 				html += '<td onclick="ResultCell_OnClick(this)">' + GetTagData(results[i], "revision") + '<\/td>';
 				html += '<td onclick="ResultCell_OnClick(this)">' + GetTagData(results[i], "date") + '<\/td>';
@@ -382,8 +348,6 @@ function SearchCallback(HttpRequest)
 				html += '<td onclick="ResultCell_OnClick(this)">' + GetTagData(results[i], "platform") + '<\/td>';
 				html += '<td onclick="ResultCell_OnClick(this)">' + GetTagData(results[i], "comment") + '<\/td>';
 				html += '<\/tr>';
-
-				oddeven = !oddeven;
 			}
 		}
 

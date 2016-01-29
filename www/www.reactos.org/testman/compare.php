@@ -32,19 +32,20 @@
 		
 	// Activate the option to only show the changed results between several test runs if more than one Test ID was passed.
 	$testman_controls = "";
-	$testman_controls .= sprintf('<div%s><input type="checkbox" id="showchanged" name="filter"> <label for="showchanged">%s</label></div>', ($reader->getTestIDCount() > 1 ? '' : ' style="display: none;"'), $testman_langres["showchanged"]);
-	$testman_controls .= sprintf('<div><input type="checkbox" id="showcrashed" name="filter"> <label for="showcrashed">%s</label></div>', $testman_langres["showcrashed"]);
-	$testman_controls .= sprintf('<div><input type="checkbox" id="hideok" name="filter"> <label for="hideok">%s</label></div>', $testman_langres["hideok"]);
-	$testman_controls .= sprintf('<div><input type="checkbox" id="hideblacklisted" name="filter"> <label for="hideblacklisted">%s</label></div>', $testman_langres["hideblacklisted"]);
+
+	if ($reader->getTestIDCount() > 1)
+		$testman_controls .= sprintf('<div class="checkbox"><label><input type="checkbox" id="showchanged" name="filter"> %s</label></div>', $testman_langres["showchanged"]);
+
+	$testman_controls .= sprintf('<div class="checkbox"><label><input type="checkbox" id="showcrashed" name="filter"> %s</label></div>', $testman_langres["showcrashed"]);
+	$testman_controls .= sprintf('<div class="checkbox"><label><input type="checkbox" id="hideok" name="filter"> %s</label></div>', $testman_langres["hideok"]);
+	$testman_controls .= sprintf('<div class="checkbox"><label><input type="checkbox" id="hideblacklisted" name="filter"> %s</label></div>', $testman_langres["hideblacklisted"]);
 	$testman_controls .= $testman_langres["export_as"];
-	$testman_controls .= ":";
 
 	$table_summary = "";
 	$table_totals = "";
 	$table_performance = "";
 	$table_results = "";
 	$table_separator = "";
-	$odd = true;
 	$performance = array("boot_cycles" => "", "context_switches" => "",
 		"interrupts" => "", "system_calls" => "",
 		"reboots" => "", "time" => "", "testing_time" => "");
@@ -87,10 +88,7 @@
 	}
 	
 	foreach ($performance as $key => $perf_text)
-	{
-		$table_performance .= '<tr class="'.(($odd == true) ? "odd" : "even").'"><td>'.$testman_langres[$key].'</td>'.$perf_text.'</tr>';
-		$odd = !$odd;
-	}
+		$table_performance .= '<tr><td>'.$testman_langres[$key].'</td>'.$perf_text.'</tr>';
 
 	$suites_stmt = $reader->getListTestSuiteInfoStatement();
 	
@@ -120,17 +118,17 @@
 		if (in_array($suite_name, $blacklist))
 			$blacklisted = true;
 
-		$table_results .= sprintf('<tr id="suite_%s" class="%s" title="%s">', $suites_row["id"], ($blacklisted ? "blacklisted" : ($odd ? "odd" : "even")), ($blacklisted ? $testman_langres["blacklisted"] : $suite_name));
-		$table_results .= sprintf('<td%s>%s</td>', ($blacklisted ? ' class="blacklisted"' : null), $suite_name);
+		$table_results .= sprintf('<tr id="suite_%s" title="%s">', $suites_row["id"], ($blacklisted ? $testman_langres["blacklisted"] : $suite_name));
+		$table_results .= sprintf('<td class="%s">%s</td>', ($blacklisted ? 'blacklisted' : ''), $suite_name);
 	
 		for ($i = 0; $i < $reader->getTestIDCount(); $i++)
 		{
 			$row = $result_stmt[$i]->fetch(PDO::FETCH_ASSOC);
 			
-			$table_results .= '<td onmouseover="Cell_OnMouseOver(this)" onmouseout="Cell_OnMouseOut(this)"';
+			$table_results .= sprintf('<td class="%s %s"', ($blacklisted ? 'blacklisted' : ''), ($row["id"] ? 'clickable' : ''));
 			
 			if ($row["id"])
-				$table_results .= sprintf(' class="clickable" onclick="Result_OnClick(%d, %d)"', $row["id"], $prev_row["id"]);
+				$table_results .= sprintf(' onclick="Result_OnClick(%d, %d)"', $row["id"], $prev_row["id"]);
 			
 			$table_results .= '>';
 			
@@ -202,8 +200,6 @@
 			$filterable_rows[] = (($row["failures"] == 0 && !$crashed) ? 1 : 0);
 			$filterable_rows[] = ($blacklisted ? 1 : 0);
 		}
-		
-		$odd = !$odd;
 	}
 	
 	// Display summary (excluding blacklisted suites)
@@ -226,7 +222,6 @@
 	}
 	
 	$testman_filterable = implode(",", $filterable_rows);
-	$summary_class = $odd ? "odd" : "even";
 	
 	// Actually show the content
 	require_once("compare.templ.php");
