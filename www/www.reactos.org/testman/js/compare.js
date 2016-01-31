@@ -82,6 +82,8 @@ function Document_OnMouseMove(event)
 
 function Load()
 {
+	document.onmousemove = Document_OnMouseMove;
+
 	// Get the filter values from the cookies, apply them and associate the click handler
 	var filters = document.getElementsByName("filter");
 	
