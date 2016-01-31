@@ -1,0 +1,45 @@
+#mw-page-base {
+	margin-top: 40px;
+}
+
+#left-navigation, #right-navigation {
+	margin-top: 80px;
+}
+
+#reactos-head {
+	background: rgba(0, 0, 0, 0) linear-gradient(#f6f6f6, white) repeat scroll 0 0;
+	border-bottom: 1px solid #e9e9e9;
+	box-shadow: 0 0 3px rgba(0, 0, 0, 0.1);
+	position: absolute;
+	height: 70px;
+	width: 100%;
+}
+
+#reactos-head img#homelogo {
+	display: block;
+	float: left;
+	margin: 15px 40px 0 10px;
+	width: 167px;
+	height: 40px;
+}
+
+#reactos-head a#homebutton {
+	display: inline-block;
+	margin-top: 18px;
+	color: #0088cc;
+	font-size: 12px;
+	font-weight: 700;
+	padding: 10px 13px;
+	text-transform: uppercase;
+}
+
+#reactos-head a#homebutton:hover {
+	background: #0088cc;
+	border-radius: 4px;
+	color: white;
+	text-decoration: none !important;
+}
+
+div#mw-panel {
+	top: 100px;
+}
