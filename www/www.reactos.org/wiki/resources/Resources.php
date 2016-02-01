@@ -138,6 +138,7 @@ return array(
 		'styles' => array(
 			'vector/screen.less' => array( 'media' => 'screen' ),
 			'vector/screen-hd.less' => array( 'media' => 'screen and (min-width: 982px)' ),
+			'../../rosweb/css/static-header.css' => array( 'media' => 'screen' ),
 			'vector/reactos.css' => array( 'media' => 'screen' )
 		),
 		'remoteBasePath' => $GLOBALS['wgStylePath'],

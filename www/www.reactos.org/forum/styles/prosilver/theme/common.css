@@ -102,7 +102,7 @@ p.right {
 /* Main blocks
 ---------------------------------------- */
 #wrap {
-	padding: 110px 20px;
+	padding: 0 20px;
 	min-width: 650px;
 }
 
