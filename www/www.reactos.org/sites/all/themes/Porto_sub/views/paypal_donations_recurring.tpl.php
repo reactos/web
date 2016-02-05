@@ -1,6 +1,8 @@
 <form action="https://<?php echo variable_get('paypal_donations_service_url', 'www.sandbox.paypal.com'); ?>/cgi-bin/webscr" method="post" target="_blank" class="monthly-donation-form donation-form">
   <div class="inner_content">
 
+    <input type="hidden" name="lc" value="US" />
+
     <input name="landing_page" type="hidden" value="billing" />
     <input name="cpp_cart_border_color" type="hidden" value="FF0000" />
     <?php
