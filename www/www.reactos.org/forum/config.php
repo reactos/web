@@ -3,7 +3,7 @@
 // Do not change anything in this file!
 global $dbms,$dbhost,$dbport,$dbname,$dbuser,$dbpasswd,$table_prefix;
 require_once(dirname(__FILE__).'/../../www.reactos.org_config/phpbb-config.php');
-$acm_type = 'file';
+$acm_type = 'apc';
 $load_extensions = '';
 
 @define('PHPBB_INSTALLED', true);
