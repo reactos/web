@@ -205,7 +205,7 @@ class VectorTemplate extends BaseTemplate {
 			<h2><?php $this->msg( 'navigation-heading' ) ?></h2>
 			<div id="mw-head">
 				<div id="reactos-head">
-					<a href="/"><img id="homelogo" src="/sites/default/files/ReactOS_logo_aligned-200x48_0_0.png"></a>
+					<a href="/"><img id="homelogo" src="/sites/default/files/ReactOS_0.png"></a>
 					<a id="homebutton" href="/">Back to Website</a>
 				</div>
 
