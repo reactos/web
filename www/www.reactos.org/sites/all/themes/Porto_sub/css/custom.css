@@ -310,8 +310,8 @@ article .blog-content > .post-image > .owl-carousel > .owl-controls {
     display: block;
     background: white;
     border-radius: 50%;
-    width: 135px;
-    height: 135px;
+    width: 80px;
+    height: 80px;
     border: 2px dashed #0088CC;
 }
 
@@ -409,6 +409,7 @@ div .dbottom{
 }
 #bootcdModal .modal-footer{
     border:none;
+    margin-top: 0;
 }
 #bootcdModal .modal-header{
     border-color:#484848;
@@ -663,16 +664,19 @@ i.icon-featured{
     background-color: #1C1C1C;
 }
 
+
 .circular-bar.blue canvas{
     box-shadow: #243C83 4px 4px;
     border-radius: 100%;
 }
-.circular.bar.blue {
+.circular-bar.blue {
     margin-top:30px;
     margin-bottom: 0;
+    padding-bottom:5px;
 }
 .circular-bar-content{
     color: white;
+    margin-bottom: 0;
 }
 
 .moredop {
