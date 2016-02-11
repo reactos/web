@@ -782,7 +782,27 @@ color:white;
 
 .dtapps {
   background-color: rgb(0,25,37);
-  max-width: 300px;
+  max-width: 250px;
+  margin: 0 auto;
+  text-align: center;
+  color: white;
+  line-height: 3em;
+  font-size: 1.5em;
+}
+
+.dtsys {
+  background-color: #0C2338;
+  max-width: 325px;
+  margin: 0 auto;
+  text-align: Center;
+  color: white;
+  line-height: 3em;
+  font-size: 1.5em;
+}
+
+.dtshell{
+  background-color: rgb(2,56,91);
+  max-width: 400px;
   margin: 0 auto;
   text-align: center;
   color: white;
@@ -791,8 +811,8 @@ color:white;
 }
 
 .dtsubs {
-  background-color: rgb(2,56,91);
-  max-width: 350px;
+  background-color: rgb(23, 84, 123);
+  max-width: 475px;
   margin: 0 auto;
   text-align: center;
   color: white;
@@ -801,8 +821,8 @@ color:white;
 }
 
 .dtdriv {
-  background-color: rgb(3,101,140);
-  max-width: 400px;
+  background-color: rgb(17, 122, 165);
+  max-width: 550px;
   margin: 0 auto;
   text-align: center;
   color: white;
@@ -812,7 +832,7 @@ color:white;
 
 .dtexec {
   background-color: rgb(4,157,193);
-  max-width: 450px;
+  max-width: 625px;
   margin: 0 auto;
   text-align: center;
   color: white;
