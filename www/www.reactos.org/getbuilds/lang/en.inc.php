@@ -42,4 +42,5 @@
 	$getbuilds_langres["build_livecd"] = "<strong>livecd</strong> - LiveCD ISOs allow to use ReactOS without installing it. It can be used to test ReactOS in case your HDD is not detected during BootCD installation or if you have no alternative system/VM to install on.";
 	$getbuilds_langres["build_dbg"] = "<strong>-dbg</strong> - Debug version includes debugging information, use this version to test, produce logs and report bugs. This is the recommended variant to install to report bugs.";
 	$getbuilds_langres["build_rel"] = "<strong>-rel</strong> - Release version with no debugging information, this version is smaller, but it cannot be used to produce logs.";
+	$getbuilds_langres["build_msvc"] = "<strong>-msvc</strong> - Debug version includes debugging information and PDB files, use this version to debug with Windbg.";
 ?>

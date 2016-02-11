@@ -46,5 +46,6 @@
     $getbuilds_langres["build_rel"] = "<tt>-rel</tt> - Release Version, ohne Debugging-Funktionen. (Hinweis: Hier finden Sie nur Vorabversionen, Hauptversionen gibt es auf der Download-Seite!)";
     $getbuilds_langres["build_dbg"] = "<tt>-dbg</tt> - Debugging Version. Diese Versionen können benutzt werden, um Debugmeldungen auszulesen. Dies kann hilfreich sein, wenn Sie einen Fehler melden möchten.";
     $getbuilds_langres["build_dbgwin"] = "<tt>-dbgwin</tt> - Siehe -dbg + zusätzliche Gecko- und Winetests";
+	$getbuilds_langres["build_msvc"] = "<strong>-msvc</strong> - Debug version includes debugging information and PDB files, use this version to debug with Windbg.";
 	
 ?>

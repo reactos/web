@@ -46,4 +46,5 @@
 	$getbuilds_langres["build_rel"] = "<tt>-rel</tt> - Release-версия без отладочной информации. Она меньше по размеру, но с её помощью нельзя получать отладочную информацию. (Спасибо, Кэп!)";
 	$getbuilds_langres["build_dbg"] = "<tt>-dbg</tt> - Debug-версия включает отладочную информацию, и используя эту версию можно тестировать ReactOS, получать дебаг-логи, создавать описания найденных ошибок. Это рекомендуемый вариант для установки, особенно для тех, кто хочет сообщить о найденных проблемах с системой.";
 	$getbuilds_langres["build_dbgwin"] = "<tt>-dbgwin</tt> - Тоже, что и -dbg версия + включает компонент wine Gecko и систему тестирования winetests. ";
+	$getbuilds_langres["build_msvc"] = "<strong>-msvc</strong> - Debug version includes debugging information and PDB files, use this version to debug with Windbg.";
 ?>

@@ -119,6 +119,7 @@
 					<li><?php echo $getbuilds_langres["build_livecd"]; ?></li>
 					<li><?php echo $getbuilds_langres["build_dbg"]; ?></li>
 					<li><?php echo $getbuilds_langres["build_rel"]; ?></li>
+					<li><?php echo $getbuilds_langres["build_msvc"]; ?></li>
 				</ul>
 			</div>
 		</div>
