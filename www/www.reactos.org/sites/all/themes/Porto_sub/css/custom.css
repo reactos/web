@@ -361,7 +361,7 @@ div .dbodycenterdesc{
 }
 
 div .dbluesep{
-  background-color: #141414;
+  background-color: rgb(40, 47, 51);
   padding: 20px 0 30px 0;
   text-align: left;
 }
