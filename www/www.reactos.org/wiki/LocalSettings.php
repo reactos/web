@@ -52,7 +52,7 @@ $wgEnotifWatchlist = false; # UPO
 $wgEmailAuthentication = false;
 
 
-require_once("../../www.reactos.org_config/wiki-config.php");
+require_once("$IP/../../www.reactos.org_config/wiki-config.php");
 
 
 # MySQL specific settings
@@ -146,7 +146,7 @@ $wgNamespaceToBeSearchedDefault[100] = true;
 
 $wgShowExceptionDetails = true;
 require_once("$IP/../../www.reactos.org_config/wiki-drupal-config.php");
-require_once ($IP.'/extensions/AuthDrupal/AuthDrupal.php');
+require_once ("$IP/extensions/AuthDrupal/AuthDrupal.php");
 SetupAuthDrupal();
 
 # Use wikipedia's new editor interface
