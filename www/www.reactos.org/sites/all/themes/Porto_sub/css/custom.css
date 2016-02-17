@@ -3,6 +3,7 @@
 ========================================================================*/
 .parallax{
     padding: 25px 0;
+    background-size: cover;
 }
 
 .container .reactos-blog em{
@@ -89,6 +90,14 @@ article .owl-carousel .owl-item .img-thumbnail{
 /*Hack to hide a bug issue in the caroussel */
 article .blog-content > .post-image > .owl-carousel > .owl-controls {
     display: none !important;
+}
+
+/* Menu Top Right */
+nav.htr{
+    padding-bottom: 40px;
+}
+nav .login.icon{
+    margin: 0 auto;
 }
 
 /* TB_Megamenu */
@@ -390,7 +399,8 @@ div .dbottom{
 /* Modal styling */
 #bootcdModal .blocktestimonial {
     overflow-y: hidden;
-    margin: 0 0;
+    margin: 0 20px !important;
+}
 }
 #bootcdModal .blocktestimonial p {
     font-family: open sans;
@@ -670,7 +680,6 @@ i.icon-featured{
     border-radius: 100%;
 }
 .circular-bar.blue {
-    margin-top:30px;
     margin-bottom: 0;
     padding-bottom:5px;
 }
@@ -1332,6 +1341,8 @@ color:white;
 #views_slideshow_cycle_teaser_section_jira_activity_stream-block{
 	width: 100% !important;
 }
+
+
 
 /* Styles */
 
