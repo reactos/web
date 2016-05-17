@@ -51,10 +51,6 @@ $wgEnotifUserTalk = false; # UPO
 $wgEnotifWatchlist = false; # UPO
 $wgEmailAuthentication = false;
 
-
-require_once("$IP/../../www.reactos.org_config/wiki-config.php");
-
-
 # MySQL specific settings
 $wgDBprefix = "";
 
@@ -72,7 +68,6 @@ $wgMemCachedServers = array();
 ## is writable, then set this to true:
 $wgEnableUploads = true;
 $wgGroupPermissions['*']['upload'] = false;
-$wgGroupPermissions['user']['upload'] = true;
 $wgGroupPermissions['*']['reupload'] = false;
 
 $wgFileExtensions = array('png','gif','jpg','jpeg','doc','xls','pdf','ppt','tiff','bmp','docx', 'xlsx', 'pptx','odt', 'ogg', 'mp3');
@@ -157,6 +152,32 @@ $wgDefaultUserOptions['wikieditor-preview'] = 0;
 $wgDefaultUserOptions['wikieditor-publish'] = 1;
 $wgDefaultUserOptions['usenavigabletoc'] = 0;
 
+# Use reCAPTCHA to protect against spam
+require_once( "$IP/extensions/ConfirmEdit/ReCaptcha.php");
+$wgCaptchaClass = 'ReCaptcha';
+$wgCaptchaTriggers['create'] = true;
+$wgCaptchaTriggers['edit'] = true;
+
+# Create a group of "Trusted" users that can skip the Captcha and upload files
+$wgGroupPermissions['Trusted'] = $wgGroupPermissions['user'];
+$wgGroupPermissions['Trusted']['skipcaptcha'] = true;
+$wgGroupPermissions['Trusted']['upload'] = true;
+
+# Use AbuseFilter to block spammers
+require_once("$IP/extensions/AbuseFilter/AbuseFilter.php");
+$wgGroupPermissions['sysop']['abusefilter-modify'] = true;
+$wgGroupPermissions['sysop']['abusefilter-view'] = true;
+$wgGroupPermissions['sysop']['abusefilter-log'] = true;
+$wgGroupPermissions['sysop']['abusefilter-log-detail'] = true;
+$wgGroupPermissions['sysop']['abusefilter-private'] = true;
+$wgGroupPermissions['sysop']['abusefilter-modify-restricted'] = true;
+$wgGroupPermissions['sysop']['abusefilter-log-detail'] = true;
+$wgGroupPermissions['sysop']['abusefilter-revert'] = true;
+$wgGroupPermissions['sysop']['abusefilter-view-private'] = true;
+$wgGroupPermissions['sysop']['abusefilter-log-private'] = true;
+$wgGroupPermissions['sysop']['abusefilter-hide-log'] = true;
+$wgGroupPermissions['sysop']['abusefilter-hidden-log'] = true;
+
 # Enable advanced parser functions
 require_once( "$IP/extensions/ParserFunctions/ParserFunctions.php" );
 # Enable <ref> tags for referencing
@@ -165,3 +186,5 @@ require_once ("$IP/extensions/Cite/Cite.php");
 require_once( "$IP/extensions/SyntaxHighlight_GeSHi/SyntaxHighlight_GeSHi.php" );
 # Enable mumble:// protocol
 $wgUrlProtocols[] = "mumble://";
+
+require_once("$IP/../../www.reactos.org_config/wiki-config.php");
