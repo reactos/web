@@ -310,7 +310,9 @@ nav .login.icon{
 #block-views-latest-posts-block .view-display-id-block .post-image{
     display: none !important;
 }
-
+#block-views-latest-posts-block .view-display-id-block .views-row{
+    margin-bottom: 35px;
+}
 
 
 /* ReactOS/download css classes */
