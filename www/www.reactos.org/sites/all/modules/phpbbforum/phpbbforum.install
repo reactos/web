@@ -1,0 +1,87 @@
+<?php
+// $Id: phpbbforum.install,v 1.7 2009/12/27 13:34:52 vb Exp $
+/**
+ * @file
+ * @copyright  Copyright (C) 2007-2011 Vadim G.B. (http://vgb.org.ru)
+ */
+
+/**
+ * Implements hook_install().
+ */
+function phpbbforum_install() {
+  // TODO The drupal_(un)install_schema functions are called automatically in D7.
+  // drupal_install_schema('phpbbforum')
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function phpbbforum_uninstall() {
+
+  // TODO The drupal_(un)install_schema functions are called automatically in D7.
+  // drupal_uninstall_schema("phpbbforum")
+  // Delete all the phpbbforum variables and then clear the variable cache
+  // TODO Please review the conversion of this statement to the D7 database API syntax.
+  /* db_query("DELETE FROM {variable} WHERE name LIKE 'phpbbforum_%'") */
+  db_delete('variable')
+  ->condition('name', 'phpbbforum_%', 'LIKE')
+  ->execute();
+  cache_clear_all('variables', 'cache');
+  drupal_set_message(t('phpBBforum module uninstalled successfully.'));
+}
+
+/**
+ * This update creates the table
+ * which is needed for the drupal2phpbb feature
+ */
+function phpbbforum_update_6000() {
+
+  // New table to buffer mail messages during sending
+  db_create_table('drupal2phpbb', _phpbbforum_schema_drupal2phpbb());
+
+  // hook_update_N() no longer returns a $ret array. Instead, return
+  // nothing or a translated string indicating the update ran successfully.
+  // See http://drupal.org/node/224333#update_sql.
+  //return t('TODO Add a descriptive string here to show in the UI.');
+
+}
+
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
+function phpbbforum_schema() {
+  $schema = array();
+  $schema['drupal2phpbb'] = _phpbbforum_schema_drupal2phpbb();
+  return $schema;
+}
+
+function _phpbbforum_schema_drupal2phpbb() {
+
+  $schema = array(
+    'description' => t('Mapping table for phpbbtopics created in via drupal'),
+    'fields' => array(
+      'node_id' => array(
+        'description' => t('References the drupal node id'),
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'topic_id' => array(
+        'description' => t('References the phpbb topic id'),
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'linked' => array(
+        'description' => t('Shall a comment-link be added to the node?'),
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+    ),
+    'primary key' => array('node_id', 'topic_id'),
+  );
+
+  return $schema;
+}

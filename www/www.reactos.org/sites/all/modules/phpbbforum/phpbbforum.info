@@ -1,0 +1,51 @@
+; $Id$
+name = "phpBBforum"
+description = Integrates Drupal with phpBB3 Forum.
+core = 7.x
+configure = admin/config/system/phpbbforum
+
+files[] = phpbbforum.admin.inc
+files[] = phpbbforum.discuss.inc
+files[] = phpbbforum.hooks.inc
+files[] = phpbbforum.install
+files[] = phpbbforum.module
+files[] = phpbbforum.pages.inc
+files[] = phpbbforum.profile.inc
+files[] = phpbbforum.profile2.inc
+files[] = phpbbforum.sync.inc
+files[] = phpbbforum.theme.custom-sample.inc
+files[] = phpbbforum.theme.inc
+files[] = includes/phpbb_api.php
+files[] = phpbbvbridge/DrupalVBridgeApp.php
+files[] = phpbbvbridge/DrupalVBridgePass.php
+files[] = phpbbvbridge/PhpbbVBridge.php
+files[] = phpbbvbridge/PhpbbVBridgeApp.php
+files[] = phpbbvbridge/PhpbbVBridgeDb.php
+files[] = phpbbvbridge/PhpbbVBridgeException.php
+files[] = phpbbvbridge/PhpbbVBridgePass.php
+files[] = phpbbvbridge/PhpbbVBridgeUser.php
+files[] = phpbbvbridge/phpbb_api_hooks.php
+files[] = phpbbvbridge/phpbb_api_recent.php
+files[] = phpbbvbridge/phpbb_api_subs.php
+files[] = phpbbvbridge/phpbb_api_theme.php
+files[] = VBridge/VBridge.php
+files[] = VBridge/VBridgeApp.php
+files[] = VBridge/VBridgeAuth.php
+files[] = VBridge/VBridgeAuthInterface.php
+files[] = VBridge/VBridgeAuthQookie.php
+files[] = VBridge/VBridgeAuthQookieStorage.php
+files[] = VBridge/VBridgeAuthStorageInterface.php
+files[] = VBridge/VBridgeDb.php
+files[] = VBridge/VBridgeException.php
+files[] = VBridge/VBridgeObserverInterface.php
+files[] = VBridge/VBridgePass.php
+files[] = VBridge/VBridgeQookie.php
+files[] = VBridge/VBridgeSession.php
+files[] = VBridge/VBridgeUser.php
+
+; Information added by drupal.org packaging script on 2013-10-01
+version = "7.x-1.0-alpha3+5-dev"
+core = "7.x"
+project = "phpbbforum"
+datestamp = "1380623045"
+

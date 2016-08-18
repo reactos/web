@@ -1,0 +1,24 @@
+/* $Id: garland-phpbbforum-subsilver2.css,v 1.3 2009/03/05 19:41:33 vb Exp $ */
+
+/* put your custom CSS in here */
+
+#phpbbforum-page {
+}
+
+#phpbbforum-page #wrapcentre {
+  margin: 0;
+}
+
+table {
+  border-collapse: separate;
+  margin: 0;
+}
+
+/*
+table, tr, td, thead, tbody {
+  border-spacing: 1px;
+  border-collapse:separate;
+  border-width: 0px;
+}
+*/
+

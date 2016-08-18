@@ -1,0 +1,58 @@
+/* $Id$ */
+
+/* put your custom CSS in here */
+
+#phpbbforum-page {
+  padding: 0;
+}
+
+#phpbbforum-page #wrap {
+  padding: 0;
+}
+
+#phpbbforum-node-comments {
+  /*margin-top: 10px;*/
+}
+
+#phpbbforum-node-comments #page-header {
+  display: none;
+}
+
+#phpbbforum-page #page-header {
+  /*display: none;*/
+}
+
+#phpbbforum-page td.active {
+  background: transparent;
+}
+
+/*#search-box*/
+
+#phpbbforum-page fieldset {
+  background:#FFFFFF;
+  position: static;
+}
+
+#phpbbforum-page #search-box {
+  float: none;
+  margin-bottom:0;
+  background-color: #FFF;
+  background-image:none;
+}
+
+#phpbbforum-page .headerbar {
+  background-color:#FFFFFF;
+  background-image:none;
+}
+
+#phpbbforum-page #search-box a:link {
+  color: #105289;
+}
+
+#phpbbforum-page #search-box a:hover {
+  color: #D31141;
+}
+
+#phpbbforum-page label {
+  display: inline;
+}
