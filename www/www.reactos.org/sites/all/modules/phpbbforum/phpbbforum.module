@@ -325,7 +325,7 @@ function phpbbforum_user_logout($account) {
   }
   if (phpbb_api_authenticate_user()) {
     // Update data
-    phpbbforum_update_user('logout', PHPBB_SYNC_TO_DRUPAL, $account, '', '', $account->mail);
+    phpbbforum_update_user('logout', PHPBB_SYNC_TO_MASTER, $account, '', '', $account->mail);
   }
   phpbb_api_logout();
   $message = 'Session closed for %name.';
@@ -380,7 +380,7 @@ function phpbbforum_user_login(&$edit, $account) {
         //  _phpbbforum_msg('phpbbforum_user login '. $name .' id='. $phpbb_user->data['user_id']);
         if (!$openid_login) {
           // Update
-          $update = phpbbforum_update_user($op, PHPBB_SYNC_TO_DRUPAL, $account, '', '', $account->mail, $edit);
+          $update = phpbbforum_update_user($op, PHPBB_SYNC_TO_MASTER, $account, '', '', $account->mail, $edit);
         }
         //phpbb_api_get_user($name, $pass);
         //if ($phpbb_user->data['user_id'] == ANONYMOUS)
@@ -656,7 +656,7 @@ function phpbbforum_user_view($account, $view_mode) {
   $update = false;
   if ( phpbb_api_get_user($account->name, '')) {
     // Sync data and profile changes
-    $update = phpbbforum_update_user('view', PHPBB_SYNC_TO_DRUPAL, $account, '', '', $account->mail, $edit);
+    $update = phpbbforum_update_user('view', PHPBB_SYNC_TO_MASTER, $account, '', '', $account->mail, $edit);
   }
 
   if ($user->name != $account->name) {
@@ -1153,7 +1153,7 @@ function phpbbforum_external_login_register($login, $passwd) {
   }
   //variable_set('phpbbforum_user_login_external', 1);
   // Update changed user settings
-  phpbbforum_update_user('login2', PHPBB_SYNC_TO_DRUPAL, $account, '', $passwd, $email);
+  phpbbforum_update_user('login2', PHPBB_SYNC_TO_MASTER, $account, '', $passwd, $email);
   if (!empty($passwd)) {
     if (phpbb_api_get_user($login, $passwd)) {
       variable_set('phpbbforum_user_login', 1);
@@ -1271,7 +1271,7 @@ function _phpbbforum_drupal_login() {
 
     variable_set('phpbbforum_user_login', 1);
     // Update changed user settings
-    phpbbforum_update_user('login2', PHPBB_SYNC_TO_DRUPAL, $account, '', '', $account->mail);
+    phpbbforum_update_user('login2', PHPBB_SYNC_TO_MASTER, $account, '', '', $account->mail);
   }
   elseif (variable_get('phpbbforum_user_login_external', 1)) {
     phpbbforum_external_login_register($username, '');
