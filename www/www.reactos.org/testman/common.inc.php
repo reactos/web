@@ -6,7 +6,7 @@
   COPYRIGHT:  Copyright 2008-2011 Colin Finck <colin@reactos.org>
 */
 
-	define("VIEWVC", "http://svn.reactos.org/svn/reactos");
+	define("VIEWVC", "https://svn.reactos.org/svn/reactos");
 	define("VIEWVC_TRUNK", VIEWVC."/trunk");
 	define("BLACKLIST_URL", TESTMAN_PATH . "blacklist.txt");
 ?>
