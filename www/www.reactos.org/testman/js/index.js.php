@@ -338,7 +338,7 @@ function SearchCallback(HttpRequest)
 		{
 			for(var i = 0; i < results.length; i++)
 			{
-				html += '<tr onmouseover="Result_OnMouseOver(this)" onmouseout="Result_OnMouseOut(this)">';
+				html += '<tr>';
 				html += '<td><input onclick="ResultCheckbox_OnClick(this)" type="checkbox" id="test_' + GetTagData(results[i], "id") + '" \/><\/td>';
 				html += '<td onclick="ResultCell_OnClick(this)">' + GetTagData(results[i], "revision") + '<\/td>';
 				html += '<td onclick="ResultCell_OnClick(this)">' + GetTagData(results[i], "date") + '<\/td>';
