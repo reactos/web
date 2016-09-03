@@ -7,7 +7,7 @@
 
 html, body {
 	height: auto;
-	overflow-x: auto;
+	overflow: visible;
 }
 
 body {
