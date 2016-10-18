@@ -16,3 +16,4 @@
 	define("DEFAULT_SEARCH_SOURCE", "Build GCCLin_x86 on Test KVM");
 	define("MAX_COMPARE_RESULTS", 8);
 	define("RESULTS_PER_PAGE", 10);
+	define("MACHINE_REBOOTS_THRESHOLD", 2);

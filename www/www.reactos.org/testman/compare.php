@@ -73,8 +73,11 @@
 		$table_separator .= "<td>&nbsp;</td>";
 		
 		foreach ($performance as $key => $val)
-			$performance[$key] .= sprintf('<td><div title="%s" class="box performancetests">%s <span class="diff">%s</span></div></td>', $testman_langres[$key], $row[$key], GetDifference($row, $prev_row, $key, true));
+		{
+			$failed_reboots = ($key == 'reboots' && $row[$key] > MACHINE_REBOOTS_THRESHOLD) ? ' worse' : '';
 
+			$performance[$key] .= sprintf('<td><div title="%s" class="box performancetests%s">%s <span class="diff">%s</span></div></td>', $testman_langres[$key], $failed_reboots, $row[$key], GetDifference($row, $prev_row, $key, true));
+		}
 		// Get the test results for each column
 		$result_stmt[$i] = $reader->getListResultInfoStatement($i);
 		
