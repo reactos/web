@@ -158,8 +158,17 @@ $wgCaptchaClass = 'ReCaptcha';
 $wgCaptchaTriggers['create'] = true;
 $wgCaptchaTriggers['edit'] = true;
 
-# Create a group of "Trusted" users that can skip the Captcha and upload files
+# Restrict the rights of normal users.
+$wgGroupPermissions['user']['purge'] = false;
+$wgGroupPermissions['user']['reupload'] = false;
+$wgGroupPermissions['user']['reupload-shared'] = false;
+$wgGroupPermissions['user']['upload'] = false;
+
+# Create a group of "Trusted" users that can do more (like skipping the Captcha and uploading files).
 $wgGroupPermissions['Trusted'] = $wgGroupPermissions['user'];
+$wgGroupPermissions['Trusted']['purge'] = true;
+$wgGroupPermissions['Trusted']['reupload'] = true;
+$wgGroupPermissions['Trusted']['reupload-shared'] = true;
 $wgGroupPermissions['Trusted']['skipcaptcha'] = true;
 $wgGroupPermissions['Trusted']['upload'] = true;
 
