@@ -166,6 +166,7 @@ $wgGroupPermissions['user']['upload'] = false;
 
 # Create a group of "Trusted" users that can do more (like skipping the Captcha and uploading files).
 $wgGroupPermissions['Trusted'] = $wgGroupPermissions['user'];
+$wgGroupPermissions['Trusted']['editprotected'] = true;
 $wgGroupPermissions['Trusted']['purge'] = true;
 $wgGroupPermissions['Trusted']['reupload'] = true;
 $wgGroupPermissions['Trusted']['reupload-shared'] = true;
