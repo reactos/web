@@ -1,10 +1,10 @@
 <?php
 /*
-  PROJECT:    ReactOS Web Test Manager
-  LICENSE:    GNU GPLv2 or any later version as published by the Free Software Foundation
-  PURPOSE:    Aggregator for the Debug Log of ReactOS BuildBot Buildslaves
-  COPYRIGHT:  Copyright 2009-2015 Colin Finck <colin@reactos.org>
-*/
+ * PROJECT:     ReactOS Testman
+ * LICENSE:     GPL-2.0+ (https://spdx.org/licenses/GPL-2.0+)
+ * PURPOSE:     Aggregator for the Debug Log of ReactOS BuildBot Buildslaves
+ * COPYRIGHT:   Copyright 2009-2017 Colin Finck (colin@reactos.org)
+ */
 
 	require_once("config.inc.php");
 	require_once(TESTMAN_PATH . "connect.db.php");
@@ -20,7 +20,7 @@
 		"time" => 0
 	);
 
-	if(!isset($_GET["sourceid"]) || !isset($_GET["password"]) || !isset($_GET["builder"]) || !is_numeric($_GET["platform"]) || !is_numeric($_GET["build"]))
+	if(!isset($_GET["sourceid"]) || !isset($_GET["password"]) || !isset($_GET["builder"]) || !is_numeric($_GET["platform"]) || !is_numeric($_GET["build"]) || !isset($_GET["comment"]))
 		die("Necessary information not specified!");
 
 	try
@@ -37,7 +37,7 @@
 
 	// Make sure nobody runs this script multiple times for the same build
 	$stmt = $dbh->prepare("SELECT COUNT(*) FROM winetest_runs WHERE comment = :comment AND source_id = :sourceid");
-	$stmt->bindValue(":comment", "Build " . $_GET["build"]);
+	$stmt->bindParam(":comment", $_GET["comment"]);
 	$stmt->bindParam(":sourceid", $_GET["sourceid"]);
 	$stmt->execute() or die("SQL failed #1");
 
@@ -174,7 +174,7 @@
 		// Did we already get a Test ID for this run?
 		if(!$test_id)
 		{
-			$test_id = $t->getTestId($_GET["sourceid"], $revision, "reactos." . $_GET["platform"], "Build " . $_GET["build"]);
+			$test_id = $t->getTestId($_GET["sourceid"], $revision, "reactos." . $_GET["platform"], $_GET["comment"]);
 
 			// If an error occured, $test_id will contain the error message
 			if(!is_numeric($test_id))
