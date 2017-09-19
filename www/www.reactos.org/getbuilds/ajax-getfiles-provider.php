@@ -1,17 +1,25 @@
 <?php
 /*
-  PROJECT:    ReactOS Website
-  LICENSE:    GNU GPLv2 or any later version as published by the Free Software Foundation
-  PURPOSE:    Easily download prebuilt ReactOS Revisions
-  COPYRIGHT:  Copyright 2007-2008 Colin Finck <mail@colinfinck.de>
-*/
-   
-	// This "ajax-getfiles.php" script has to be uploaded to the server, which contains the ISO files.
+ * PROJECT:     ReactOS Website
+ * LICENSE:     GPL-2.0+ (https://spdx.org/licenses/GPL-2.0+)
+ * PURPOSE:     Easily download prebuilt ReactOS Revisions
+ * COPYRIGHT:   Copyright 2007-2017 Colin Finck (colin@reactos.org)
+ */
+
+	// This provider script has to be uploaded to the server, which contains the ISO files.
 	// Therefore it has an own configuration and doesn't use "config.inc.php".
 
 	// Configuration
-	$ROOT_DIR = "../";
-	$MAX_FILES_PER_PAGE = 100;			// The same value has to be set in "config.inc.php"
+	define(ROOT_DIR, "../");
+	$DIRECTORIES = array("bootcd", "livecd");
+	$ISO_EXTENSION = ".7z";
+	$ISO_PATTERN = "#[0-9a-z-]#";
+
+	// This must be the actual length of the hash in the filenames!
+	$SHORT_HASH_LENGTH = 7;
+
+	// The following values need to be set here and in "config.inc.php"!
+	$MAX_FILES_PER_PAGE = 100;
 	$REV_RANGE_LIMIT = 3000;
 
 	// Functions
@@ -31,107 +39,164 @@
 		{
 			$unit = " Bytes";
 		}
-		
+
 		return number_format($size, 2, ".", ",") . $unit;
 	}
-	
-	
+
+
 	// Entry point
 	header("Content-type: text/xml");
-	
-	if(!isset($_GET["startrev"]))
-		die("<error><message>Necessary information not specified!</message></error>");
-	
-	if($_GET["endrev"] - $_GET["startrev"] > $REV_RANGE_LIMIT)
-		die("<error><message>LIMIT</message><limit>$REV_RANGE_LIMIT</limit></error>");
-	
-	if($_GET["filelist"])
-		$get_filelist = true;
-	
-	$directories = array("bootcd", "livecd");
-	$file_patterns = array();
-	
-	if($_GET["bootcd-dbg"])
-		$file_patterns[] = "#bootcd-[0-9]+-dbg#";
-	if($_GET["livecd-dbg"])
-		$file_patterns[] = "#livecd-[0-9]+-dbg#";
-	if($_GET["bootcd-rel"])
-		$file_patterns[] = "#bootcd-[0-9]+-rel#";
-	if($_GET["livecd-rel"])
-		$file_patterns[] = "#livecd-[0-9]+-rel#";
-	
-	$exitloop = false;
-	$filecount = 0;
-	$firstrev = 0;
-	$lastrev = 0;
-	$morefiles = 0;
-	
-	foreach($directories as $d)
+
+	try
 	{
-		$dir = opendir($ROOT_DIR . $d) or die("<error><message>opendir failed!</message></error>");
-	
-		while($fname = readdir($dir))
-			if(preg_match("#-([0-9]+)-#", $fname, $matches))
-				$fnames[ $matches[1] ][] = $fname;
-		
-		closedir($dir);
-	}
-	
-	echo "<fileinformation>";
-	
-	for($i = $_GET["startrev"]; $i <= $_GET["endrev"]; $i++)
-	{
-		if(isset($fnames[$i]))
+		// Check the parameters.
+		if (!array_key_exists("prefixes", $_POST) || !array_key_exists("suffixes", $_POST))
+			throw new Exception("No prefixes and suffixes");
+
+		$prefixes = preg_split("#,#", $_POST["prefixes"], NULL, PREG_SPLIT_NO_EMPTY);
+		foreach ($prefixes as $p)
+			if (!preg_match($ISO_PATTERN, $p))
+				throw new Exception("Invalid prefix");
+
+		$suffixes = preg_split("#,#", $_POST["suffixes"], NULL, PREG_SPLIT_NO_EMPTY);
+		foreach ($suffixes as $s)
+			if (!preg_match($ISO_PATTERN, $s))
+				throw new Exception("Invalid suffix");
+
+		$get_filelist = (array_key_exists("filelist", $_POST) && $_POST["filelist"]);
+
+		// We want to read all matching files into a two-dimensional associative array of the format:
+		//    $files[$revision][] = "$d/$filename"
+		$files = array();
+		$filecount = 0;
+
+		if (array_key_exists("startrev", $_POST) && array_key_exists("endrev", $_POST))
 		{
-			sort($fnames[$i]);
-			
-			foreach($fnames[$i] as $fname)
+			// The user wants to find old SVN builds.
+			$startrev = (int)$_POST["startrev"];
+			$endrev = (int)$_POST["endrev"];
+
+			// Enforce the order of the $files array by adding all revisions in order.
+			for ($i = $startrev; $i <= $endrev; $i++)
+				$files["$i"] = array();
+
+			// We never had builds < r10000 and never reached > r99999...
+			$revision_pattern = "-([0-9]{5})";
+		}
+		else if (array_key_exists("range", $_POST))
+		{
+			// The user wants to find GIT builds.
+			$range = preg_split("#,#", $_POST["range"], NULL, PREG_SPLIT_NO_EMPTY);
+			if (count($range) > $REV_RANGE_LIMIT)
+				throw new Exception("Range exceeds limit");
+
+			// Enforce the order of the $files array by adding all revisions in order.
+			foreach ($range as $r)
+				$files["$r"] = array();
+
+			// "git describe" puts a "g" in front of the actual hash.
+			$revision_pattern = "-g([0-9a-f]{$SHORT_HASH_LENGTH})";
+		}
+		else
+		{
+			throw new Exception("No startrev/endrev or range");
+		}
+
+		// Read all matching files into a two-dimensional associative array of the format:
+		//    $files[$revision][] = "$d/$filename"
+		//
+		// This way, we can easily first sort by revision and then by filename.
+		foreach ($DIRECTORIES as $d)
+		{
+			$dir = opendir(ROOT_DIR . $d);
+			if (!$dir)
+				throw new Exception("opendir failed");
+
+			while (($filename = readdir($dir)) !== FALSE)
 			{
-				// Is it an allowed CD Image type?
-				foreach($file_patterns as $p)
+				// Does this entry match any of the prefixes?
+				$match = FALSE;
+				foreach ($prefixes as $p)
 				{
-					if(preg_match($p, $fname))
+					if (substr($filename, 0, strlen($p)) === $p)
 					{
-						// This is a file we are looking for
-						if($get_filelist)
-						{
-							$dir = substr($fname, 0, 6);
-							
-							echo "<file>";
-							printf("<name>%s</name>", $fname);
-							printf("<size>%s</size>", fsize_str(filesize("$ROOT_DIR/$dir/$fname")));
-							printf("<date>%s</date>", date("Y-m-d H:i", filemtime("$ROOT_DIR/$dir/$fname")));
-							echo "</file>";
-						}
-					
-						if($i < $firstrev || $firstrev == 0)
-							$firstrev = $i;
-				
-						if($i > $lastrev)
-							$lastrev = $i;
-						
-						$filecount++;
+						$match = TRUE;
 						break;
 					}
 				}
-				
-				if($filecount == $MAX_FILES_PER_PAGE)
+
+				if (!$match)
+					continue;
+
+				// Does this entry match any of the suffixes?
+				$match = FALSE;
+				foreach ($suffixes as $s)
 				{
-					$morefiles = 1;
-					$exitloop = true;
-					break;
+					if (preg_match('#' . $revision_pattern . $s . $ISO_EXTENSION . '$#', $filename, $matches))
+					{
+						$match = TRUE;
+						break;
+					}
+				}
+
+				if (!$match)
+					continue;
+
+				// Good, so are we looking for this revision?
+				if (array_key_exists($matches[1], $files))
+				{
+					// Add it to the $files array.
+					$files[ $matches[1] ][] = "$d/$filename";
+					$filecount++;
 				}
 			}
+
+			closedir($dir);
 		}
-		
-		if($exitloop)
-			break;
 	}
-	
-	printf("<filecount>%d</filecount>", $filecount);
-	printf("<firstrev>%d</firstrev>", $firstrev);
-	printf("<lastrev>%d</lastrev>", $lastrev);
-	printf("<morefiles>%d</morefiles>", $morefiles);
-	
+	catch (Exception $e)
+	{
+		die("<error><message>" . $e->getMessage() . "</message></error>");
+	}
+
+	// Output the file information.
+	echo "<fileinformation>";
+	echo "<filecount>$filecount</filecount>";
+
+	if ($filecount)
+	{
+		// Now use $filecount to count the files of this page.
+		$filecount = 0;
+		foreach ($files as $revision => $filenames)
+		{
+			sort($filenames);
+
+			foreach ($filenames as $filename)
+			{
+				if ($get_filelist)
+				{
+					echo "<file>";
+					echo "<name>" . basename($filename) . "</name>";
+					echo "<dir>" . dirname($filename) . "</dir>";
+					echo "<size>" . fsize_str(filesize(ROOT_DIR . $filename)) . "</size>";
+					echo "<date>" . date("Y-m-d H:i", filemtime(ROOT_DIR . $filename)) . "</date>";
+					echo "</file>";
+				}
+
+				if (!isset($firstrev))
+					$firstrev = $revision;
+
+				$filecount++;
+				if ($filecount == $MAX_FILES_PER_PAGE)
+					break;
+			}
+
+			if ($filecount == $MAX_FILES_PER_PAGE)
+				break;
+		}
+
+		echo "<firstrev>$firstrev</firstrev>";
+		echo "<lastrev>$revision</lastrev>";
+	}
+
 	echo "</fileinformation>";
-?>

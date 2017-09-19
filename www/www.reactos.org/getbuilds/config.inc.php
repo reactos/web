@@ -1,18 +1,42 @@
 <?php
 /*
-  PROJECT:    ReactOS Website
-  LICENSE:    GNU GPLv2 or any later version as published by the Free Software Foundation
-  PURPOSE:    Easily download prebuilt ReactOS Revisions
-  COPYRIGHT:  Copyright 2007-2015 Colin Finck <colin@reactos.org>
-*/
+ * PROJECT:     ReactOS Website
+ * LICENSE:     GPL-2.0+ (https://spdx.org/licenses/GPL-2.0+)
+ * PURPOSE:     Easily download prebuilt ReactOS Revisions
+ * COPYRIGHT:   Copyright 2007-2017 Colin Finck (colin@reactos.org)
+ */
 
 	define("ROOT_PATH", "../");
 
 	// Configuration
-	$AJAX_GETFILES_PROVIDER_URL = "http://iso.reactos.org/scripts/ajax-getfiles-provider.php";
+	$AJAX_GETFILES_PROVIDER_URL = "https://iso.reactos.org/scripts/ajax-getfiles-provider.php";
 	$BUILDBOT_URL = "https://build.reactos.org/";
-	$ISO_DOWNLOAD_URL = "http://iso.reactos.org/";
-	$SVN_BROWSE_URL = "https://code.reactos.org/";
+	$ISO_DOWNLOAD_URL = "https://iso.reactos.org/";
 
-	$MAX_FILES_PER_PAGE = 100;			// The same value has to be set in "ajax-getfiles-provider.php"
-?>
+	$PREFIXES = array(
+		"reactos-bootcd-" => "Boot CDs",
+		"reactos-livecd-" => "Live CDs",
+	);
+
+	$SUFFIXES = array(
+		"-x86-gcc-lin-dbg" => "x86 GCC Debug",
+		"-x86-gcc-lin-rel" => "x86 GCC Release",
+		"-x86-msvc-win-dbg" => "x86 MSVC Debug",
+		"-x64-msvc-win-dbg" => "x64 MSVC Debug",
+	);
+
+	$SVN_PREFIX_TRANSLATIONS = array(
+		"reactos-bootcd-" => "bootcd-",
+		"reactos-livecd-" => "livecd-"
+	);
+
+	$SVN_SUFFIX_TRANSLATIONS = array(
+		"-x86-gcc-lin-dbg" => "-dbg",
+		"-x86-gcc-lin-rel" => "-rel",
+		"-x86-msvc-win-dbg" => "-dbg-msvc",
+		"-x64-msvc-win-dbg" => "-x64-dbg-msvc"
+	);
+
+	// The following values need to be set here and in "ajax-getfiles-provider.php"!
+	$MAX_FILES_PER_PAGE = 100;
+	$REV_RANGE_LIMIT = 3000;
