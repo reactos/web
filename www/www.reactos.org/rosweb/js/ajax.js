@@ -1,9 +1,9 @@
 /*
-  PROJECT:    ReactOS Shared Website Components
-  LICENSE:    GNU GPLv2 or any later version as published by the Free Software Foundation
-  PURPOSE:    Some easy-to-use AJAX functions
-  COPYRIGHT:  Copyright 2008-2009 Colin Finck <colin@reactos.org>
-*/
+ * PROJECT:     ReactOS Website
+ * LICENSE:     GPL-2.0+ (https://spdx.org/licenses/GPL-2.0+)
+ * PURPOSE:     Some easy-to-use AJAX functions
+ * COPYRIGHT:   Copyright 2008-2017 Colin Finck (colin@reactos.org)
+ */
 
 /* This hint comes originally from: http://design-noir.de/webdev/JS/XMLHttpRequest-IE/ */
 /*@cc_on @if (@_win32 && @_jscript_version >= 5) if (!window.XMLHttpRequest)
@@ -22,20 +22,20 @@ function PrepareParameters(data)
 
 function AjaxGet(url, callback, data)
 {
-	HttpRequest = new XMLHttpRequest();
+	var HttpRequest = new XMLHttpRequest();
 
 	if(!HttpRequest)
 	{
 		alert("Cannot create an XMLHTTP instance");
 		return false;
 	}
-	
+
 	var parameters = PrepareParameters(data);
-	
+
 	HttpRequest.open("GET", url + "?" + parameters, true);
 	HttpRequest.setRequestHeader("If-Modified-Since", "Sat, 1 Jan 2000 00:00:00 GMT");			// Bypass the IE Cache
 	HttpRequest.send(null);
-	
+
 	HttpRequest.onreadystatechange = function()
 	{
 		// Check for a HTTP error
