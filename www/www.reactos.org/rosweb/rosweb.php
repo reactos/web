@@ -1,10 +1,10 @@
 <?php
 /*
-  PROJECT:    ReactOS RosWeb Component for sharing layout and user information between website subsystems
-  LICENSE:    GNU GPLv2 or any later version as published by the Free Software Foundation
-  PURPOSE:    Encapsulating the shared information inside a class that doesn't clash with the code of other subsystems
-  COPYRIGHT:  Copyright 2015 Colin Finck <colin@reactos.org>
-*/
+ * PROJECT:     ReactOS Website
+ * LICENSE:     GPL-2.0+ (https://spdx.org/licenses/GPL-2.0+)
+ * PURPOSE:     ReactOS RosWeb Component for sharing layout and user information between website subsystems
+ * COPYRIGHT:   Copyright 2015-2017 Colin Finck (colin@reactos.org)
+ */
 
 	class RosWeb
 	{
@@ -183,25 +183,5 @@
 			$html .= '</ul></div></div></div>';
 
 			return $html;
-		}
-
-		public function getLatestRevision()
-		{
-			$fp = fopen("http://svn.reactos.org/svnact/svn_activity.xml", "r");
-
-			do
-			{
-				$line = fread($fp, 1024);
-				$firstpos = strpos($line, "<id>");
-			
-				if($firstpos > 0)
-				{
-					$lastpos = strpos($line, "</id>");
-					return substr($line, $firstpos + 4, ($lastpos - $firstpos - 4));
-				}
-			}
-			while($line);
-		
-			fclose($fp);
 		}
 	}
