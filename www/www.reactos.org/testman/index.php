@@ -1,39 +1,38 @@
 <?php
 /*
-  PROJECT:    ReactOS Web Test Manager
-  LICENSE:    GNU GPLv2 or any later version as published by the Free Software Foundation
-  PURPOSE:    Test results management via web
-  COPYRIGHT:  Copyright 2008-2016 Colin Finck <mail@colinfinck.de>
-              Aleksey Bragin <aleksey@reactos.org>
-*/
+ * PROJECT:     ReactOS Testman
+ * LICENSE:     GPL-2.0+ (https://spdx.org/licenses/GPL-2.0+)
+ * PURPOSE:     Front Page for managing ReactOS Regression Test results over the web
+ * COPYRIGHT:   Copyright 2008-2017 Colin Finck (colin@reactos.org)
+ *              Copyright 2012-2013 Aleksey Bragin (aleksey@reactos.org)
+ */
 
 	require_once("config.inc.php");
-	require_once("connect.db.php");
+	require_once(ROOT_PATH . "../www.reactos.org_config/testman-connect.php");
 	require_once("languages.inc.php");
+	require_once(ROOT_PATH . "rosweb/gitinfo.php");
 	require_once(ROOT_PATH . "rosweb/rosweb.php");
 
 	//$rw = new RosWeb($supported_languages);
 	$rw = new RosWeb();
-	$rev = $rw->getLatestRevision();
 	$lang = $rw->getLanguage();
-
 	require_once(ROOT_PATH . "rosweb/lang/$lang.inc.php");
 	require_once("lang/$lang.inc.php");
 
-	$sources = "<option></option>";
-
 	try
 	{
-		$dbh = new PDO("mysql:host=" . DB_HOST . ";dbname=" . DB_TESTMAN, DB_USER, DB_PASS);
-	}
-	catch(PDOException $e)
-	{
-		die("Could not establish the DB connection");
-	}
+		$gi = new GitInfo();
+		$revisions = $gi->getLatestRevisions(2);
+		$rev = $gi->getShortHash($revisions[0]);
+		$rev_before = $gi->getShortHash($revisions[1]);
 
-	foreach($dbh->query("SELECT name FROM sources") as $src)
+		// Connect to the database.
+		$dbh = new PDO("mysql:host=" . TESTMAN_DB_HOST . ";dbname=" . TESTMAN_DB_NAME, TESTMAN_DB_USER, TESTMAN_DB_PASS);
+		$dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+	}
+	catch (Exception $e)
 	{
-		$sources .= '<option value="'.$src['name'].'">'.$src['name'].'</option>';
+		die($e->getFile() . ":" . $e->getLine() . " - " . $e->getMessage());
 	}
 ?>
 <!DOCTYPE html>
@@ -43,11 +42,16 @@
 	<title><?php echo $testman_langres["index_title"]; ?></title>
 	<?php echo $rw->getHead(); ?>
 	<link rel="stylesheet" type="text/css" href="css/index.css">
-	<script type="text/javascript" src="/rosweb/js/ajax.js"></script>
-	<script type="text/javascript" src="js/shared.js"></script>
 	<script type="text/javascript">
-		<?php require_once("js/index.js.php"); ?>
+		var DEFAULT_SEARCH_LIMIT = <?php echo DEFAULT_SEARCH_LIMIT; ?>;
+		var DEFAULT_SEARCH_SOURCE = '<?php echo DEFAULT_SEARCH_SOURCE; ?>';
+		var MAX_COMPARE_RESULTS = <?php echo MAX_COMPARE_RESULTS; ?>;
+		var RESULTS_PER_PAGE = <?php echo RESULTS_PER_PAGE; ?>;
 	</script>
+	<script type="text/javascript" src="/rosweb/lang/<?php echo $lang; ?>.js"></script>
+	<script type="text/javascript" src="/rosweb/js/ajax.js"></script>
+	<script type="text/javascript" src="lang/<?php echo $lang; ?>.js"></script>
+	<script type="text/javascript" src="js/index.js"></script>
 </head>
 <body onload="Load()">
 
@@ -82,23 +86,28 @@
 
 			<div class="form-horizontal">
 				<div class="form-group">
-					<label for="search_revision" class="col-sm-2 control-label">Revision</label>
+					<label for="search_revision" class="col-sm-2 control-label"><?php echo $shared_langres["revision"]; ?></label>
 
-					<div class="col-sm-6">
-						<input class="form-control" type="text" id="search_revision" value="" size="24" onkeypress="SearchInputs_OnKeyPress(event)" onkeyup="SearchRevisionInput_OnKeyUp(this)">
-						<?php printf($shared_langres["rangeinfo"], $rev, ($rev - 50), $rev); ?>
+					<div class="col-sm-7">
+						<input class="form-control" type="text" id="search_revision" value="" size="50">
+						<?php printf($shared_langres["rangeinfo"], $rev, $rev_before, $rev); ?>
 					</div>
 				</div>
 
 				<div class="form-group">
 					<label for="search_source" class="col-sm-2 control-label"><?php echo $testman_langres["source"]; ?></label>
 
-					<div class="col-sm-6">
+					<div class="col-sm-7">
 						<div class="comboedit">
 							<select class="form-control" onchange="document.getElementById('search_source').value=this.value">
-								<?php echo $sources; ?>
+								<option></option>
+								<?php
+									$stmt = $dbh->query("SELECT name FROM sources");
+									while (($source = $stmt->fetchColumn()) !== FALSE)
+										printf('<option value="%s">%s</option>', $source, $source);
+								?>
 							</select>
-							<div><input class="form-control" type="text" name="format" id="search_source" value="" onkeypress="SearchInputs_OnKeyPress(event)"></div>
+							<div><input class="form-control" type="text" name="format" id="search_source" value=""></div>
 						</div>
 					</div>
 				</div>
@@ -106,15 +115,11 @@
 				<div class="form-group">
 					<label for="search_platform" class="col-sm-2 control-label"><?php echo $testman_langres["platform"]; ?></label>
 
-					<div class="col-sm-6">
-						<select class="form-control" id="search_platform" size="1" onkeypress="SearchInputs_OnKeyPress(event)">
+					<div class="col-sm-7">
+						<select class="form-control" id="search_platform" size="1">
 							<option></option>
 							<option value="reactos">ReactOS</option>
-							<option value="5.0">Windows 2000</option>
-							<option value="5.1">Windows XP</option>
-							<option value="5.2">Windows XP x64/Server 2003</option>
-							<option value="6.0">Windows Vista/Server 2008</option>
-							<option value="6.1">Windows 7</option>
+							<option value="5.2">Windows Server 2003</option>
 						</select><br>
 					</div>					
 				</div>
@@ -122,7 +127,7 @@
 
 			<div class="row">
 				<div class="col-md-2 col-md-offset-1">
-					<button class="btn btn-primary" onclick="SearchButton_OnClick()"><i class="icon icon-search"></i> <?php echo $testman_langres["search_button"]; ?></button>
+					<button class="btn btn-primary" onclick="SearchButton_OnClick()"><i class="icon icon-search"></i> <?php echo $shared_langres["search_button"]; ?></button>
 					<i class="icon icon-cog icon-spin" id="ajax_loading_search"></i><br><br>
 				</div>
 

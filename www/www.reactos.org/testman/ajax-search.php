@@ -1,128 +1,159 @@
 <?php
 /*
-  PROJECT:    ReactOS Web Test Manager
-  LICENSE:    GNU GPLv2 or any later version as published by the Free Software Foundation
-  PURPOSE:    AJAX backend for the Search feature
-  COPYRIGHT:  Copyright 2008-2011 Colin Finck <colin@reactos.org>
-*/
+ * PROJECT:     ReactOS Testman
+ * LICENSE:     GPL-2.0+ (https://spdx.org/licenses/GPL-2.0+)
+ * PURPOSE:     AJAX Backend for the Search feature
+ * COPYRIGHT:   Copyright 2008-2017 Colin Finck (colin@reactos.org)
+ */
 
 	header("Content-type: text/xml");
-	
-	require_once("config.inc.php");
-	require_once("connect.db.php");
-	require_once("utils.inc.php");
 
-	if((int)$_GET["page"] < 1)
-		die("<error>Necessary information not specified!</error>");
-	
+	require_once("config.inc.php");
+	require_once(ROOT_PATH . "../www.reactos.org_config/testman-connect.php");
+	require_once("utils.inc.php");
+	require_once(ROOT_PATH . "rosweb/exceptions.php");
+	require_once(ROOT_PATH . "rosweb/gitinfo.php");
+	require_once(ROOT_PATH . "rosweb/rosweb.php");
+
+	$rw = new RosWeb();
+	$lang = $rw->getLanguage();
+	require_once(ROOT_PATH . "rosweb/lang/$lang.inc.php");
+
 	try
 	{
-		$dbh = new PDO("mysql:host=" . DB_HOST . ";dbname=" . DB_TESTMAN, DB_USER, DB_PASS);
-	}
-	catch(PDOException $e)
-	{
-		// Give no exact error message here, so no server internals are exposed
-		die("<error>Could not establish the DB connection</error>");
-	}
+		// Check the common parameter for all queries.
+		if (!array_key_exists("page", $_GET))
+			throw new ErrorMessageException("Necessary information not specified");
 
-	// Prepare the WHERE clause
-	$where = "WHERE r.finished = 1 ";
-	
-	if(isset($_GET["startrev"]) && $_GET["startrev"])
-		$where .= "AND r.revision >= " . (int)$_GET["startrev"] . " AND r.revision <= " . (int)$_GET["endrev"] . " ";
-	
-	if(isset($_GET["source"]) && $_GET["source"])
-		$where .= "AND src.name LIKE " . $dbh->quote("%" . $_GET["source"] . "%") . " ";
-	
-	if(isset($_GET["platform"]) && $_GET["platform"])
-		$where .= "AND r.platform LIKE " . $dbh->quote($_GET["platform"] . "%") . " ";
+		$page = (int)$_GET["page"];
+		$gi = new GitInfo();
 
-	// Prepare some clauses
-	$tables = "FROM winetest_runs r JOIN sources src ON r.source_id = src.id ";
-	
-	if(isset($_GET["desc"]) && $_GET["desc"])
-		$order = "ORDER BY revision DESC, r.id DESC ";
-	else
-		$order = "ORDER BY revision ASC, r.id ASC ";
-	
-	echo "<results>";
-	
-	// First determine how many results we would get in total with this query
-	$stmt = $dbh->query("SELECT COUNT(*) " . $tables . $where) or die("<error>Query failed #1</error>");
-	$limit_offset = ((int)$_GET["page"] - 1) * RESULTS_PER_PAGE;
-	$limit_count = (isset($_GET["limit"]) ? (int)$_GET["limit"] : RESULTS_PER_PAGE);
-	$result_count = $stmt->fetchColumn() - $limit_offset;
-	
-	if(isset($_GET["limit"]) && $result_count > $_GET["limit"])
-	{
-		// Stop looking for more pages if the results are limited by a supplied manual limit
-		$result_count = (int)$_GET["limit"];
-		echo "<moreresults>0</moreresults>";
-	}	
-	else if($result_count > RESULTS_PER_PAGE)
-	{
-		// The number of results exceeds the number of results per page.
-		// Therefore we will only output all results up to the maximum number of results per page with this call.
-		$result_count = RESULTS_PER_PAGE;
-		echo "<moreresults>1</moreresults>";
-	}
-	else
-	{
-		echo "<moreresults>0</moreresults>";
-	}
-	
-	printf("<resultcount>%d</resultcount>", $result_count);
-	
-	$first_revision = 0;
-	$last_revision = 0;
+		// Connect to the database.
+		$dbh = new PDO("mysql:host=" . TESTMAN_DB_HOST . ";dbname=" . TESTMAN_DB_NAME, TESTMAN_DB_USER, TESTMAN_DB_PASS);
+		$dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-	if($result_count)
-	{
-		if(isset($_GET["resultlist"]))
+		// Check all other parameters and prepare the WHERE clause.
+		$query = "FROM winetest_runs r JOIN sources src ON r.source_id = src.id WHERE r.finished = 1";
+
+		if (array_key_exists("startrev", $_GET) && array_key_exists("endrev", $_GET))
 		{
-			$stmt = $dbh->query(
-				"SELECT r.id, UNIX_TIMESTAMP(r.timestamp) timestamp, src.name, r.revision, r.platform, r.comment, r.count, r.failures " .
-				$tables .	$where . $order .
-				"LIMIT " . $limit_offset . ", " . $limit_count
-			) or die("<error>Query failed #2</error>");
-			
-			$first = true;
-			
-			while($row = $stmt->fetch(PDO::FETCH_ASSOC))
+			$startrev = $_GET["startrev"];
+			$endrev = $_GET["endrev"];
+
+			if (is_numeric($startrev) && is_numeric($endrev))
 			{
-				if($first)
-				{
-					$first_revision = $row["revision"];
-					$first = false;
-				}
-				
-				echo "<result>";
-				printf("<id>%d</id>", $row["id"]);
-				printf("<date>%s</date>", GetDateString($row["timestamp"]));
-				printf("<source>%s</source>", htmlspecialchars($row["name"]));
-				printf("<revision>%d</revision>", $row["revision"]);
-				printf("<platform>%s</platform>", GetPlatformString($row["platform"]));
-				printf("<comment>%s</comment>", htmlspecialchars($row["comment"]));
-				printf("<count>%d</count>", $row["count"]);
-				printf("<failures>%d</failures>", $row["failures"]);
-				echo "</result>";
-				
-				$last_revision = $row["revision"];
+				// The user wants to find old SVN test results.
+				$range = range((int)$startrev, (int)$endrev);
 			}
+			else
+			{
+				// The user wants to find GIT test results.
+
+				// Get the long hashes for searching.
+				$start_hash = $gi->getLongHash($startrev);
+				$end_hash = $gi->getLongHash($endrev);
+				if (!$start_hash || !$end_hash)
+					throw new RuntimeException($shared_langres["invalidinput"]);
+
+				// Get all revisions between $start_hash and $end_hash.
+				$range = $gi->getRevisionRange($start_hash, $end_hash);
+			}
+
+			if (count($range) > REV_RANGE_LIMIT)
+				throw new RuntimeException(sprintf($shared_langres["rangelimitexceeded"], REV_RANGE_LIMIT));
+
+			$query .= " AND r.revision IN ('" . implode("','", $range) . "')";
+		}
+
+		if (array_key_exists("source", $_GET) && $_GET["source"])
+		{
+			$query .= " AND src.name LIKE " . $dbh->quote("%" . $_GET["source"] . "%");
+		}
+
+		if (array_key_exists("platform", $_GET) && $_GET["platform"])
+		{
+			$query .= " AND r.platform LIKE " . $dbh->quote($_GET["platform"] . "%");
+		}
+
+		if (array_key_exists("limit", $_GET))
+		{
+			$limit = (int)$_GET["limit"];
+			if ($limit < 1)
+				throw new RuntimeException("limit is out of range");
+
+			$limit_count = min(RESULTS_PER_PAGE, $limit);
 		}
 		else
 		{
-			// Get the first and last revision belonging to this call
-			$stmt = $dbh->query("SELECT r.revision " . $tables . $where .	$order . "LIMIT " . $limit_offset . ", 1") or die("<error>Query failed #3</error>");
-			$first_revision = $stmt->fetchColumn();
-			
-			$stmt = $dbh->query("SELECT r.revision " . $tables . $where . $order . "LIMIT " . ($limit_offset + $result_count - 1) . ", 1") or die("<error>Query failed #4</error>");
-			$last_revision = $stmt->fetchColumn();
+			$limit_count = RESULTS_PER_PAGE;
 		}
+
+		$output = "<results>";
+
+		// Determine how many results we would get in total with this query.
+		$stmt = $dbh->query("SELECT COUNT(*) $query");
+		$limit_offset = ($page - 1) * RESULTS_PER_PAGE;
+		$result_count = max(0, (int)$stmt->fetchColumn() - $limit_offset);
+
+		if (isset($limit) && $result_count > $limit)
+		{
+			// Don't count higher than the manually supplied limit.
+			$result_count = $limit;
+		}
+
+		if ($result_count)
+		{
+			$query .= " ORDER BY r.id " . (array_key_exists("desc", $_GET) ? "DESC" : "ASC");
+
+			if (array_key_exists("resultlist", $_GET))
+			{
+				$stmt = $dbh->query(
+					"SELECT r.id, UNIX_TIMESTAMP(r.timestamp) AS timestamp, src.name, r.revision, r.platform, r.comment, r.count, r.failures $query " .
+					"LIMIT $limit_offset, $limit_count"
+				);
+
+				while (($row = $stmt->fetch(PDO::FETCH_ASSOC)) !== FALSE)
+				{
+					$output .= "<result>";
+					$output .= "<id>" . $row["id"] . "</id>";
+					$output .= "<date>" . GetDateString($row["timestamp"]) . "</date>";
+					$output .= "<source>" . htmlspecialchars($row["name"]) . "</source>";
+					$output .= "<revision>" . $gi->getShortHash($row["revision"]) . "</revision>";
+					$output .= "<platform>" . GetPlatformString($row["platform"]) . "</platform>";
+					$output .= "<comment>" . htmlspecialchars($row["comment"]) . "</comment>";
+					$output .= "<count>" . $row["count"] . "</count>";
+					$output .= "<failures>" . $row["failures"] . "</failures>";
+					$output .= "</result>";
+
+					if (!isset($first_revision))
+						$first_revision = $row["revision"];
+
+					$last_revision = $row["revision"];
+				}
+			}
+			else
+			{
+				// Get the first and last revision belonging to this call
+				$stmt = $dbh->query("SELECT r.revision $query LIMIT $limit_offset, 1");
+				$first_revision = $gi->getShortHash($stmt->fetchColumn());
+
+				$stmt = $dbh->query("SELECT r.revision $query LIMIT " . ($limit_offset + $limit_count - 1) . ", 1");
+				$last_revision = $gi->getShortHash($stmt->fetchColumn());
+			}
+
+			$output .= "<firstrev>$first_revision</firstrev>";
+			$output .= "<lastrev>$last_revision</lastrev>";
+		}
+
+		$output .= "<resultcount>$result_count</resultcount>";
+		$output .= "</results>";
+		die($output);
 	}
-	
-	printf("<firstrev>%d</firstrev>", $first_revision);
-	printf("<lastrev>%d</lastrev>", $last_revision);
-	
-	echo "</results>";
-?>
+	catch (ErrorMessageException $e)
+	{
+		die("<error>" . $e->getMessage() . "</error>");
+	}
+	catch (Exception $e)
+	{
+		die("<error>" . $e->getFile() . ":" . $e->getLine() . " - " . $e->getMessage() . "</error>");
+	}

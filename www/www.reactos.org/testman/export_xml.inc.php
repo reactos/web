@@ -1,51 +1,43 @@
 <?php
 /*
-  PROJECT:    ReactOS Web Test Manager
-  LICENSE:    GNU GPLv2 or any later version as published by the Free Software Foundation
-  PURPOSE:    Exporting the results as a XML file
-  COPYRIGHT:  Copyright 2009-2014 Colin Finck <colin@reactos.org>
-*/
+ * PROJECT:     ReactOS Testman
+ * LICENSE:     GPL-2.0+ (https://spdx.org/licenses/GPL-2.0+)
+ * PURPOSE:     Exporting the results as a XML file
+ * COPYRIGHT:   Copyright 2009-2017 Colin Finck (colin@reactos.org)
+ */
 
-	header("Content-Type: text/xml");
-	header("Content-Disposition: filename=Results.xml");
-	
-	echo '<?xml version="1.0" encoding="us-ascii" ?>';
-	echo '<!DOCTYPE testinfo SYSTEM "http://' . $_SERVER["SERVER_NAME"] . dirname($_SERVER["SCRIPT_NAME"]) . '/res/testinfo.dtd">';
-	echo '<testinfo>';
-	
-	for($i = 0; $i < $reader->getTestIDCount(); $i++)
+	$output  = '<?xml version="1.0" encoding="us-ascii" ?>';
+	$output .= '<!DOCTYPE testinfo SYSTEM "http://' . $_SERVER["SERVER_NAME"] . dirname($_SERVER["SCRIPT_NAME"]) . '/res/testinfo.dtd">';
+	$output .= '<testinfo>';
+
+	for ($i = 0; $i < $reader->getTestIDCount(); $i++)
 	{
 		// Add an element for each revision
 		$stmt = $reader->getTestRunInfoStatement($i);
-		
-		if(is_string($stmt))
-			die($stmt);
-		
 		$row = $stmt->fetch(PDO::FETCH_ASSOC);
-		echo '<run id="' . $row["id"] . '" revision="' . $row["revision"] . '" timestamp="' . $row["timestamp"] . '" source="' . $row["name"] . '" platform="' . $row["platform"] . '" bootcycles="' . $row["boot_cycles"] . '" contextswitches="' . $row["context_switches"] . '" interrupts="' . $row["interrupts"] . '" reboots="' . $row["reboots"] . '" systemcalls="' . $row["system_calls"] . '" time="' . $row["time"] . '" testingtime="' . $row["testing_time"] . '">';
+
+		$output .= '<run id="' . $row["id"] . '" revision="' . $row["revision"] . '" timestamp="' . $row["timestamp"] . '" source="' . $row["name"] . '" platform="' . $row["platform"] . '" bootcycles="' . $row["boot_cycles"] . '" contextswitches="' . $row["context_switches"] . '" interrupts="' . $row["interrupts"] . '" reboots="' . $row["reboots"] . '" systemcalls="' . $row["system_calls"] . '" time="' . $row["time"] . '" testingtime="' . $row["testing_time"] . '">';
 		
 		// Now get the all test results for this revision
-		$stmt = $reader->getSingleResultInfoStatement($i);
-		
-		if(is_string($stmt))
-			die($stmt);
-		
-		while($row = $stmt->fetch(PDO::FETCH_ASSOC))
+		$stmt = $reader->getSingleResultInfoStatement($i);		
+		while ($row = $stmt->fetch(PDO::FETCH_ASSOC))
 		{
-			echo '<test ';
-			echo 'id="' . $row["id"] . '" ';
-			echo 'module="' . $row["module"] . '" ';
-			echo 'test="' . $row["test"] . '" ';
-			echo 'status="' . $row["status"] . '" ';
-			echo 'count="' . $row["count"] . '" ';
-			echo 'failures="' . $row["failures"] . '" ';
-			echo 'skipped="' . $row["skipped"] . '" ';
-			echo 'todo="' . $row["todo"] . '" ';
-			echo 'time="' . $row["time"] . '" />';
+			$output .= '<test ';
+			$output .= 'id="' . $row["id"] . '" ';
+			$output .= 'module="' . $row["module"] . '" ';
+			$output .= 'test="' . $row["test"] . '" ';
+			$output .= 'status="' . $row["status"] . '" ';
+			$output .= 'count="' . $row["count"] . '" ';
+			$output .= 'failures="' . $row["failures"] . '" ';
+			$output .= 'skipped="' . $row["skipped"] . '" ';
+			$output .= 'todo="' . $row["todo"] . '" ';
+			$output .= 'time="' . $row["time"] . '" />';
 		}
-		
-		echo '</run>';
+
+		$output .= '</run>';
 	}
-	
-	echo '</testinfo>';
-?>
+
+	$output .= '</testinfo>';
+
+	header("Content-Type: text/xml");
+	header("Content-Disposition: filename=Results.xml");

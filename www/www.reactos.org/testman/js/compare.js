@@ -1,9 +1,10 @@
 /*
-  PROJECT:    ReactOS Web Test Manager
-  LICENSE:    GNU GPLv2 or any later version as published by the Free Software Foundation
-  PURPOSE:    JavaScript file for the Compare Page (parsed by PHP before)
-  COPYRIGHT:  Copyright 2008-2016 Colin Finck <colin@reactos.org>
-*/
+ * PROJECT:     ReactOS Testman
+ * LICENSE:     GPL-2.0+ (https://spdx.org/licenses/GPL-2.0+)
+ * PURPOSE:     JavaScript file for the Testman Compare Page
+ * COPYRIGHT:   Copyright 2008-2017 Colin Finck (colin@reactos.org)
+ *              Copyright 2012 Kamil Hornicek (kamil.hornicek@reactos.org)
+ */
 
 var MouseX;
 var MouseY;
@@ -13,40 +14,42 @@ function ProcessFilters()
 	// Filter the results
 	var filters = document.getElementsByName("filter");
 	var increment = 1 + filters.length;
-	var i;
-	
-	for(i = 0; i < FilterableRows.length; i += increment)
+
+	for (var i = 0; i < FilterableRows.length; i += increment)
 	{
 		var value = "table-row";
-		
-		for(var j = 0; j < filters.length; ++j)
+
+		for (var j = 0; j < filters.length; ++j)
 		{
 			/* FilterableRows is an array holding the (virtual) structure:
-			   
+
 			   SuiteID,
 			   Value of Filter 1,
 			   Value of Filter 2,
 			   ...
-			   
+
 			   If the value of a filter is true and the corresponding filter is activated, the result is
 			   filtered.
 			*/
-			if(filters[j].checked && FilterableRows[i + 1 + j])
+			if (filters[j].checked && FilterableRows[i + 1 + j])
 			{
 				value = "none";
 				break;
 			}
 		}
-		
+
 		document.getElementById("suite_" + FilterableRows[i]).style.display = value;
 	}
-	
-	// Update the cookies for the filters
-	for(i = 0; i < filters.length; ++i)
-		document.cookie = "filter" + String(i) + "=" + (filters[i].checked ? "1" : "0");
-	
+
+	if (window.localStorage)
+	{
+		// Update the settings for the filters.
+		for (var i = 0; i < filters.length; i++)
+			window.localStorage.setItem("filter" + String(i), filters.checked ? "1" : "0");
+	}
+
 	// Report the size change to the parent window if "Open in new window" was disabled
-	if(parent.ResizeIFrame)
+	if (parent.ResizeIFrame)
 		parent.ResizeIFrame();
 }
 
@@ -71,12 +74,12 @@ function MoveHealthIndicatorTooltip()
 function Document_OnMouseMove(event)
 {
 	// IE stores the event in window.event...
-	if(!event)
+	if (!event)
 		event = window.event;
-	
+
 	MouseX = event.clientX;
 	MouseY = event.clientY;
-	
+
 	MoveHealthIndicatorTooltip();
 }
 
@@ -86,13 +89,13 @@ function Load()
 
 	// Get the filter values from the cookies, apply them and associate the click handler
 	var filters = document.getElementsByName("filter");
-	
-	for(var i = 0; i < filters.length; ++i)
+
+	for (var i = 0; i < filters.length; i++)
 	{
-		filters[i].checked = parseInt(GetCookieValue("filter" + String(i)));
+		filters[i].checked = (window.localStorage && parseInt(window.localStorage.getItem("filter" + String(i))));
 		filters[i].onclick = ProcessFilters;
 	}
-	
+
 	ProcessFilters();
 }
 

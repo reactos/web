@@ -8,7 +8,9 @@
 	<link type="text/css" rel="stylesheet" href="/sites/all/themes/Porto/css/theme-elements.css">
 	<link type="text/css" rel="stylesheet" href="/sites/all/themes/Porto/css/theme.css">
 	<link rel="stylesheet" type="text/css" href="css/compare.css">
-	<script type="text/javascript" src="js/shared.js"></script>
+	<script type="text/javascript">
+		var FilterableRows = Array(<?php echo $testman_filterable; ?>);
+	</script>
 	<script type="text/javascript" src="js/compare.js"></script>
 </head>
 <body onload="Load()">
@@ -23,34 +25,34 @@
 
 <div id="healthindicator_tooltip">
 	<div class="intro"><?php echo $testman_langres["healthindicator_intro"]; ?></div>
-	
+
 	<div class="box crashedcanceledtests"></div>
 	<div class="desc"><?php echo $testman_langres["healthindicator_test_crashedcanceled"]; ?></div>
 
 	<div class="box zero_failedtests"></div>
 	<div class="desc"><?php echo $testman_langres["healthindicator_test_succeeded"]; ?></div>
-	
+
 	<div class="box real_failedtests"></div>
 	<div class="desc"><?php echo $testman_langres["healthindicator_test_failed"]; ?></div>
-	
+
 	<div class="outro"><?php echo $testman_langres["healthindicator_outro"]; ?></div>
 </div>
 
 <div id="legend">
-    <div class="intro"><?php echo $testman_langres["legend"]; ?></div>
-    
-    <div class="box totaltests"></div>
-    <div class="desc"><?php echo $testman_langres["totaltests"]; ?></div>
-    
-    <div class="box zero_failedtests" style="border-right: none; margin: 0; width: 10px;"></div>
-    <div class="box real_failedtests" style="border-left: none; width: 9px;"></div>
-    <div class="desc"><?php echo $testman_langres["failedtests"]; ?></div>
-    
-    <div class="box skippedtests"></div>
-    <div class="desc"><?php echo $testman_langres["skippedtests"]; ?></div>
-    
-    <div class="box diff_legend"></div>
-    <div class="desc"><?php echo $testman_langres["difference"]; ?></div>
+	<div class="intro"><?php echo $testman_langres["legend"]; ?></div>
+
+	<div class="box totaltests"></div>
+	<div class="desc"><?php echo $testman_langres["totaltests"]; ?></div>
+
+	<div class="box zero_failedtests" style="border-right: none; margin: 0; width: 10px;"></div>
+	<div class="box real_failedtests" style="border-left: none; width: 9px;"></div>
+	<div class="desc"><?php echo $testman_langres["failedtests"]; ?></div>
+
+	<div class="box skippedtests"></div>
+	<div class="desc"><?php echo $testman_langres["skippedtests"]; ?></div>
+
+	<div class="box diff_legend"></div>
+	<div class="desc"><?php echo $testman_langres["difference"]; ?></div>
 </div>
 
 <table id="comparetable" class="table table-bordered table-striped table-hover">
@@ -85,10 +87,5 @@
 	</tbody>
 </table>
 
-<script type="text/javascript">
-//<![CDATA[
-var FilterableRows = Array(<?php echo $testman_filterable; ?>);
-//]]>
-</script>
 </body>
 </html>

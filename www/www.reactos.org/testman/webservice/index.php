@@ -1,53 +1,78 @@
 <?php
 /*
-  PROJECT:    ReactOS Web Test Manager
-  LICENSE:    GNU GPLv2 or any later version as published by the Free Software Foundation
-  PURPOSE:    Web Service for receiving test results from "rosautotest"
-  COPYRIGHT:  Copyright 2008-2015 Colin Finck <colin@reactos.org>
-*/
+ * PROJECT:     ReactOS Testman
+ * LICENSE:     GPL-2.0+ (https://spdx.org/licenses/GPL-2.0+)
+ * PURPOSE:     Web Service for receiving test results from "rosautotest"
+ * COPYRIGHT:   Copyright 2008-2017 Colin Finck (colin@reactos.org)
+ */
 
 	require_once("config.inc.php");
-	require_once(TESTMAN_PATH . "connect.db.php");
-	require_once("utils.inc.php");
+	require_once(ROOT_PATH . "../www.reactos.org_config/testman-connect.php");
 	require_once("autoload.inc.php");
-	
-	if(!isset($_POST["sourceid"]) || !isset($_POST["password"]) || !isset($_POST["testtype"]))
-		die("Necessary information not specified!");
+	require_once(ROOT_PATH . "rosweb/exceptions.php");
 
 	try
 	{
-		$dbh = new PDO("mysql:host=" . DB_HOST . ";dbname=" . DB_TESTMAN, DB_USER, DB_PASS);
+		// Check the parameters.
+		if (!array_key_exists("sourceid", $_POST) || !array_key_exists("password", $_POST) || !array_key_exists("action", $_POST))
+			throw new ErrorMessageException("Necessary information not specified");
+
+		$sourceid = $_POST["sourceid"];
+		$password = $_POST["password"];
+		$action = $_POST["action"];
+
+		$writer = new WineTest_Writer($sourceid, $password);
+
+		// What shall we do?
+		switch ($action)
+		{
+			case "gettestid":
+				if (!array_key_exists("revision", $_POST) || !array_key_exists("platform", $_POST) || !array_key_exists("comment", $_POST))
+					throw new RuntimeException("gettestid parameters not specified");
+
+				$revision = $_POST["revision"];
+				$platform = $_POST["platform"];
+				$comment = $_POST["comment"];
+				die($writer->getTestId($revision, $platform, $comment));
+
+			case "getsuiteid":
+				if (!array_key_exists("module", $_POST) || !array_key_exists("test", $_POST))
+					throw new RuntimeException("getsuiteid parameters not specified");
+
+				$module = $_POST["module"];
+				$test = $_POST["test"];
+				die($writer->getSuiteId($module, $test));
+
+			case "submit":
+				if (!array_key_exists("testid", $_POST) || !array_key_exists("suiteid", $_POST) || !array_key_exists("log", $_POST))
+					throw new RuntimeException("submit parameters not specified");
+
+				$testid = $_POST["testid"];
+				$suiteid = $_POST["suiteid"];
+				$log = $_POST["log"];
+				$writer->submit($testid, $suiteid, $log);
+				die("OK");
+
+			case "finish":
+				if (!array_key_exists("testid", $_POST))
+					throw new RuntimeException("finish parameters not specified");
+
+				$testid = $_POST["testid"];
+
+				// Performance data is only supported for buildbot_aggregator.php. So feed the finish() method with dummy one.
+				$perf = array("boot_cycles" => 0, "context_switches" => 0, "interrupts" => 0, "reboots" => 0, "system_calls" => 0, "time" => 0);
+				$writer->finish($testid, $perf);
+				die("OK");
+
+			default:
+				throw new RuntimeException("Invalid action");
+		}
 	}
-	catch(PDOException $e)
+	catch (ErrorMessageException $e)
 	{
-		// Give no exact error message here, so no server internals are exposed
-		die("Could not establish the DB connection");
+		die($e->getMessage());
 	}
-	
-	VerifyLogin($_POST["sourceid"], $_POST["password"]);
-	
-	switch($_POST["testtype"])
+	catch (Exception $e)
 	{
-		case "wine":
-			$t = new WineTest();
-			break;
-		
-		default:
-			die("Invalid test type!");
-	}
-	
-	// What shall we do?
-	switch($_POST["action"])
-	{
-		case "gettestid":  die($t->getTestId($_POST["sourceid"], $_POST["revision"], $_POST["platform"], $_POST["comment"]));
-		case "getsuiteid": die($t->getSuiteId($_POST["module"], $_POST["test"]));
-		case "submit":     die($t->submit($_POST["sourceid"], $_POST["testid"], $_POST["suiteid"], $_POST["log"]));
-		
-		case "finish":
-			// Performance data is only supported for buildbot_aggregator.php. So feed the finish() method with dummy one.
-			$perf = array("boot_cycles" => 0, "context_switches" => 0, "interrupts" => 0, "reboots" => 0, "system_calls" => 0, "time" => 0);
-			die($t->finish($_POST["sourceid"], $_POST["testid"], $perf));
-		
-		default:
-			die("Invalid action");
+		die($e->getFile() . ":" . $e->getLine() . " - " . $e->getMessage());
 	}
