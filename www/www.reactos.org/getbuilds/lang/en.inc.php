@@ -15,8 +15,6 @@
 
 		"imagetypes" => "Image Types",
 		"browsebuilds" => "Browse all created Builds",
-		"invalidinput" => "Invalid input!",
-		"rangelimitexceeded" => "The revision range can only comprise a maximum of %s revisions!",
 
 		"legend" => "Legend",
 		"build_bootcd" => "Boot CDs are designed to install ReactOS onto an HDD and enjoy the new features since last release. You will need the ISO only for the installation. This is the recommended variant to install into a VM (VirtualBox, VMWare, QEMU).",

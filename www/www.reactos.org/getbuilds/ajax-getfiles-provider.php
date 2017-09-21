@@ -6,7 +6,7 @@
  * COPYRIGHT:   Copyright 2007-2017 Colin Finck (colin@reactos.org)
  */
 
-	// This provider script has to be uploaded to the server, which contains the ISO files.
+	// This self-contained provider script has to be uploaded to the server, which contains the ISO files.
 	// Therefore it has an own configuration and doesn't use "config.inc.php".
 
 	// Configuration
@@ -21,6 +21,11 @@
 	// The following values need to be set here and in "config.inc.php"!
 	$MAX_FILES_PER_PAGE = 100;
 	$REV_RANGE_LIMIT = 3000;
+
+	// Exceptions
+	class ErrorMessageException extends Exception
+	{
+	}
 
 	// Functions
 	function fsize_str($size)
@@ -51,17 +56,17 @@
 	{
 		// Check the parameters.
 		if (!array_key_exists("prefixes", $_POST) || !array_key_exists("suffixes", $_POST))
-			throw new Exception("No prefixes and suffixes");
+			throw new ErrorMessageException("No prefixes and suffixes");
 
 		$prefixes = preg_split("#,#", $_POST["prefixes"], NULL, PREG_SPLIT_NO_EMPTY);
 		foreach ($prefixes as $p)
 			if (!preg_match($ISO_PATTERN, $p))
-				throw new Exception("Invalid prefix");
+				throw new RuntimeException("Invalid prefix");
 
 		$suffixes = preg_split("#,#", $_POST["suffixes"], NULL, PREG_SPLIT_NO_EMPTY);
 		foreach ($suffixes as $s)
 			if (!preg_match($ISO_PATTERN, $s))
-				throw new Exception("Invalid suffix");
+				throw new RuntimeException("Invalid suffix");
 
 		$get_filelist = (array_key_exists("filelist", $_POST) && $_POST["filelist"]);
 
@@ -75,6 +80,8 @@
 			// The user wants to find old SVN builds.
 			$startrev = (int)$_POST["startrev"];
 			$endrev = (int)$_POST["endrev"];
+			if ($endrev - $startrev + 1 > $REV_RANGE_LIMIT)
+				throw new RuntimeException("Range exceeds limit");
 
 			// Enforce the order of the $files array by adding all revisions in order.
 			for ($i = $startrev; $i <= $endrev; $i++)
@@ -88,7 +95,7 @@
 			// The user wants to find GIT builds.
 			$range = preg_split("#,#", $_POST["range"], NULL, PREG_SPLIT_NO_EMPTY);
 			if (count($range) > $REV_RANGE_LIMIT)
-				throw new Exception("Range exceeds limit");
+				throw new RuntimeException("Range exceeds limit");
 
 			// Enforce the order of the $files array by adding all revisions in order.
 			foreach ($range as $r)
@@ -99,7 +106,7 @@
 		}
 		else
 		{
-			throw new Exception("No startrev/endrev or range");
+			throw new RuntimeException("No startrev/endrev or range");
 		}
 
 		// Read all matching files into a two-dimensional associative array of the format:
@@ -110,7 +117,7 @@
 		{
 			$dir = opendir(ROOT_DIR . $d);
 			if (!$dir)
-				throw new Exception("opendir failed");
+				throw new RuntimeException("opendir failed");
 
 			while (($filename = readdir($dir)) !== FALSE)
 			{
@@ -153,50 +160,55 @@
 
 			closedir($dir);
 		}
-	}
-	catch (Exception $e)
-	{
-		die("<error><message>" . $e->getMessage() . "</message></error>");
-	}
 
-	// Output the file information.
-	echo "<fileinformation>";
-	echo "<filecount>$filecount</filecount>";
+		// Output the file information.
+		$output  = "<fileinformation>";
+		$output .= "<filecount>$filecount</filecount>";
 
-	if ($filecount)
-	{
-		// Now use $filecount to count the files of this page.
-		$filecount = 0;
-		foreach ($files as $revision => $filenames)
+		if ($filecount)
 		{
-			sort($filenames);
-
-			foreach ($filenames as $filename)
+			// Now use $filecount to count the files of this page.
+			$filecount = 0;
+			foreach ($files as $revision => $filenames)
 			{
-				if ($get_filelist)
+				sort($filenames);
+
+				foreach ($filenames as $filename)
 				{
-					echo "<file>";
-					echo "<name>" . basename($filename) . "</name>";
-					echo "<dir>" . dirname($filename) . "</dir>";
-					echo "<size>" . fsize_str(filesize(ROOT_DIR . $filename)) . "</size>";
-					echo "<date>" . date("Y-m-d H:i", filemtime(ROOT_DIR . $filename)) . "</date>";
-					echo "</file>";
+					if ($get_filelist)
+					{
+						$output .= "<file>";
+						$output .= "<name>" . basename($filename) . "</name>";
+						$output .= "<dir>" . dirname($filename) . "</dir>";
+						$output .= "<size>" . fsize_str(filesize(ROOT_DIR . $filename)) . "</size>";
+						$output .= "<date>" . date("Y-m-d H:i", filemtime(ROOT_DIR . $filename)) . "</date>";
+						$output .= "</file>";
+					}
+
+					if (!isset($firstrev))
+						$firstrev = $revision;
+
+					$filecount++;
+					if ($filecount == $MAX_FILES_PER_PAGE)
+						break;
 				}
 
-				if (!isset($firstrev))
-					$firstrev = $revision;
-
-				$filecount++;
 				if ($filecount == $MAX_FILES_PER_PAGE)
 					break;
 			}
 
-			if ($filecount == $MAX_FILES_PER_PAGE)
-				break;
+			$output .= "<firstrev>$firstrev</firstrev>";
+			$output .= "<lastrev>$revision</lastrev>";
 		}
 
-		echo "<firstrev>$firstrev</firstrev>";
-		echo "<lastrev>$revision</lastrev>";
+		$output .= "</fileinformation>";
+		die($output);
 	}
-
-	echo "</fileinformation>";
+	catch (ErrorMessageException $e)
+	{
+		die("<error>" . $e->getMessage() . "</error>");
+	}
+	catch (Exception $e)
+	{
+		die("<error>" . $e->getFile() . ":" . $e->getLine() . " - " . $e->getMessage() . "</error>");
+	}

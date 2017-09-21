@@ -12,17 +12,23 @@
 	require_once(ROOT_PATH . "rosweb/gitinfo.php");
 	require_once(ROOT_PATH . "rosweb/rosweb.php");
 
-	$gi = new GitInfo();
-	$revisions = $gi->getLatestRevisions(2);
-	$rev = $gi->getShortHash($revisions[0]);
-	$rev_before = $gi->getShortHash($revisions[1]);
-
 	//$rw = new RosWeb($supported_languages);
 	$rw = new RosWeb();
 	$lang = $rw->getLanguage();
-
 	require_once(ROOT_PATH . "rosweb/lang/$lang.inc.php");
 	require_once("lang/$lang.inc.php");
+
+	try
+	{
+		$gi = new GitInfo();
+		$revisions = $gi->getLatestRevisions(2);
+		$rev = $gi->getShortHash($revisions[0]);
+		$rev_before = $gi->getShortHash($revisions[1]);
+	}
+	catch (Exception $e)
+	{
+		die($e->getFile() . ":" . $e->getLine() . " - " . $e->getMessage());
+	}
 ?>
 <!DOCTYPE html>
 <html>

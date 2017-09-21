@@ -33,7 +33,7 @@ function GetFilesCallback(HttpRequest)
 	// Check for an error
 	if (HttpRequest.responseXML.getElementsByTagName("error").length > 0)
 	{
-		alert(HttpRequest.responseXML.getElementsByTagName("message")[0].firstChild.data);
+		alert(HttpRequest.responseXML.getElementsByTagName("error")[0].firstChild.data);
 		return;
 	}
 
@@ -101,8 +101,8 @@ function GetFilesCallback(HttpRequest)
 		html += '<table class="table table-hover">';
 		html += '<thead><tr class="head">';
 		html += '<th class="fname">' + getbuilds_langres["filename"] + '<\/th>';
-		html += '<th class="fsize">' + getbuilds_langres["filesize"] + '<\/th>';
-		html += '<th class="fdate">' + getbuilds_langres["filedate"] + '<\/th>';
+		html += '<th class="fsize">' + getbuilds_langres["size"] + '<\/th>';
+		html += '<th class="fdate">' + shared_langres["date"] + '<\/th>';
 		html += '<\/tr><\/thead>';
 		html += '<tbody>';
 
@@ -110,7 +110,7 @@ function GetFilesCallback(HttpRequest)
 
 		if (!files.length)
 		{
-			html += '<tr><td>' + getbuilds_langres["nofiles"] + '<\/td><td>&nbsp;<\/td><td>&nbsp;<\/td><\/tr>';
+			html += '<tr><td colspan="3">' + getbuilds_langres["nofiles"] + '<\/td><\/tr>';
 		}
 		else
 		{
@@ -193,7 +193,10 @@ function GetRevisions()
 function SearchButton_OnClick()
 {
 	if (!GetRevisions())
+	{
+		alert(shared_langres["invalidrev"]);
 		return;
+	}
 
 	CurrentPage = 1;
 

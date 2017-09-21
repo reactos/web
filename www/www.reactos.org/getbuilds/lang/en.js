@@ -11,6 +11,5 @@
 var getbuilds_langres = Array();
 getbuilds_langres["foundfiles"] = "Found {1} files!";
 getbuilds_langres["filename"] = "File name";
-getbuilds_langres["filesize"] = "Size";
-getbuilds_langres["filedate"] = "Date";
+getbuilds_langres["size"] = "Size";
 getbuilds_langres["nofiles"] = "There are no files available for your search terms!";
