@@ -8,10 +8,6 @@
 
 	require_once(ROOT_PATH . "../www.reactos.org_config/gitinfo-connect.php");
 
-	class GitInfoLimitException extends Exception
-	{
-	}
-
 	class GitInfo
 	{
 		// Member Constants
@@ -47,7 +43,7 @@
 		public function __construct()
 		{
 			// Connect to the database.
-			$this->_dbh = new PDO("mysql:host=" . DB_HOST . ";dbname=" . DB_GITINFO, DB_USER, DB_PASS);
+			$this->_dbh = new PDO("mysql:host=" . GITINFO_DB_HOST . ";dbname=" . GITINFO_DB_NAME, GITINFO_DB_USER, GITINFO_DB_PASS);
 			$this->_dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 		}
 
@@ -61,7 +57,7 @@
 		{
 			$c = (int)$count;
 			if ($c < 0 || $c > $this->_LATEST_LIMIT)
-				throw new GitInfoLimitException();
+				throw new RuntimeException("getLatestRevisions shall return $c, but limit is " . $this->_LATEST_LIMIT);
 
 			$stmt = $this->_dbh->query("SELECT rev_hash FROM master_revisions ORDER BY id DESC LIMIT $c");
 			return $stmt->fetchAll(PDO::FETCH_COLUMN);
@@ -102,7 +98,7 @@
 			$range = $stmt->fetchAll(PDO::FETCH_COLUMN);
 
 			if (count($range) == $this->_REV_RANGE_LIMIT && $range[$this->_REV_RANGE_LIMIT - 1] != strtolower($end_hash))
-				throw new GitInfoLimitException();
+				throw new RuntimeException("getRevisionRange result exceeds limit of " . $this->_REV_RANGE_LIMIT);
 
 			return $range;
 		}

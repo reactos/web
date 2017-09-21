@@ -6,45 +6,55 @@
  * COPYRIGHT:   Copyright 2017 Colin Finck (colin@reactos.org)
  */
 
-	define("ROOT_PATH", "../");
-	require_once("gitinfo.php");
-
 	header("Content-type: text/xml");
-	$gi = new GitInfo();
+
+	define("ROOT_PATH", "../");
+	require_once("exceptions.php");
+	require_once("gitinfo.php");
 
 	try
 	{
 		if (!array_key_exists("f", $_GET) || !array_key_exists("r", $_GET))
-			throw new Exception("Necessary information not specified");
+			throw new ErrorMessageException("Necessary information not specified");
 
+		$gi = new GitInfo();
 		$rev_hash = $gi->getLongHash($_GET["r"]);
 		$output_short = (array_key_exists("short", $_GET) && $_GET["short"] == 1);
+
+		$output = "<gitinfo>";
 
 		switch($_GET["f"])
 		{
 			case "next":
-				$output = $gi->getNextRevision($rev_hash, $output_short);
-				die("<gitinfo>$output</gitinfo>");
+				$output .= $gi->getNextRevision($rev_hash, $output_short);
+				break;
 
 			case "prev":
-				$output = $gi->getPreviousRevision($rev_hash, $output_short);
-				die("<gitinfo>$output</gitinfo>");
+				$output .= $gi->getPreviousRevision($rev_hash, $output_short);
+				break;
 
 			case "revinfo":
-				$output = $gi->getRevisionInformation($rev_hash);
-
-				echo "<gitinfo>";
-				if ($output)
+				$row = $gi->getRevisionInformation($rev_hash);
+				if ($row)
 				{
-					echo "<author_name>" . $output["author_name"] . "</author_name>";
-					echo "<author_email>" . $output["author_email"] . "</author_email>";
-					echo "<commit_timestamp>" . $output["commit_timestamp"] . "</commit_timestamp>";
-					echo "<message>" . $output["message"] . "</message>";
+					$output .= "<author_name>" . $row["author_name"] . "</author_name>";
+					$output .= "<author_email>" . $row["author_email"] . "</author_email>";
+					$output .= "<commit_timestamp>" . $row["commit_timestamp"] . "</commit_timestamp>";
+					$output .= "<message>" . $row["message"] . "</message>";
 				}
-				die("</gitinfo>");
+
+			default:
+				throw new ErrorMessageException("Invalid function");
 		}
+
+		$output .= "</gitinfo>";
+		die($output);
+	}
+	catch (ErrorMessageException $e)
+	{
+		die("<error>" . $e->getMessage() . "</error>");
 	}
 	catch (Exception $e)
 	{
-		die("<error><message>" . $e->getMessage() . "</message></error>");
+		die("<error>" . $e->getFile() . ":" . $e->getLine() . " - " . $e->getMessage() . "</error>");
 	}
