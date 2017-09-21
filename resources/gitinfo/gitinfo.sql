@@ -8,12 +8,12 @@ CREATE TABLE `master_revisions` (
   `commit_timestamp` timestamp NOT NULL,
   `message` blob NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `rev_hash_unique` (`rev_hash`)
+  UNIQUE KEY `rev_hash` (`rev_hash`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 
 CREATE TABLE `master_revisions_todo` (
   `oldrev` char(40) NOT NULL,
   `newrev` char(40) NOT NULL,
-  UNIQUE KEY `oldrev_unique` (`oldrev`),
-  UNIQUE KEY `newrev_unique` (`newrev`)
+  UNIQUE KEY `oldrev` (`oldrev`),
+  UNIQUE KEY `newrev` (`newrev`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
