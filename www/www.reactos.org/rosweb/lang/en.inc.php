@@ -14,4 +14,6 @@
 		"revision" => "Revision",
 		"rangeinfo" => "You can enter a revision number (e.g. %s) or a revision range (e.g. %s-%s)",
 		"search_button" => "Search",
+		"invalidinput" => "Invalid input!",
+		"rangelimitexceeded" => "The revision range can only comprise a maximum of %d revisions!",
 	);

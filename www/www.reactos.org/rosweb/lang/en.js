@@ -9,6 +9,10 @@
  */
 
 shared_langres = Array();
+
+shared_langres["date"] = "Date";
+shared_langres["revision"] = "Revision";
+shared_langres["invalidrev"] = "Invalid revision!";
 shared_langres["firstpage_title"] = "Go to the first page";
 shared_langres["prevpage_title"] = "Previous page";
 shared_langres["prevpage"] = "Previous";
