@@ -5,26 +5,20 @@
  * COPYRIGHT:   Copyright 2008-2017 Colin Finck (colin@reactos.org)
  */
 
-/* This hint comes originally from: http://design-noir.de/webdev/JS/XMLHttpRequest-IE/ */
-/*@cc_on @if (@_win32 && @_jscript_version >= 5) if (!window.XMLHttpRequest)
-function XMLHttpRequest() { return new ActiveXObject('Microsoft.XMLHTTP') }
-@end @*/
-
 function PrepareParameters(data)
 {
 	var parameters = "";
-	
-	for(var elem in data)
+
+	for (var elem in data)
 		parameters += elem + "=" + encodeURIComponent(data[elem]) + "&";
-	
+
 	return parameters;
 }
 
 function AjaxGet(url, callback, data)
 {
 	var HttpRequest = new XMLHttpRequest();
-
-	if(!HttpRequest)
+	if (!HttpRequest)
 	{
 		alert("Cannot create an XMLHTTP instance");
 		return false;
@@ -33,7 +27,7 @@ function AjaxGet(url, callback, data)
 	var parameters = PrepareParameters(data);
 
 	HttpRequest.open("GET", url + "?" + parameters, true);
-	HttpRequest.setRequestHeader("If-Modified-Since", "Sat, 1 Jan 2000 00:00:00 GMT");			// Bypass the IE Cache
+	HttpRequest.setRequestHeader("If-Modified-Since", "Sat, 1 Jan 2000 00:00:00 GMT");     // Bypass the IE Cache
 	HttpRequest.send(null);
 
 	HttpRequest.onreadystatechange = function()
