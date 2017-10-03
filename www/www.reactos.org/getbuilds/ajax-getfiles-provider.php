@@ -102,7 +102,7 @@
 				$files["$r"] = array();
 
 			// "git describe" puts a "g" in front of the actual hash.
-			$revision_pattern = "-g([0-9a-f]{$SHORT_HASH_LENGTH})";
+			$revision_pattern = "-g([0-9a-f]{" . $SHORT_HASH_LENGTH . "})";
 		}
 		else
 		{
