@@ -19,3 +19,6 @@
 	define("VIEWVC", "https://svn.reactos.org/svn/reactos");
 	define("VIEWVC_TRUNK", VIEWVC . "/trunk");
 	define("BLACKLIST_URL", "blacklist.txt");
+
+	// We never had builds < r10000 and never reached > r99999...
+	$SVN_PATTERN = "#[0-9]{5}#";

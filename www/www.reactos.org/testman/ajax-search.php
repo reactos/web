@@ -40,7 +40,7 @@
 			$startrev = $_GET["startrev"];
 			$endrev = $_GET["endrev"];
 
-			if (is_numeric($startrev) && is_numeric($endrev))
+			if (preg_match($SVN_PATTERN, $startrev) && preg_match($SVN_PATTERN, $endrev))
 			{
 				// The user wants to find old SVN test results.
 				$range = range((int)$startrev, (int)$endrev);

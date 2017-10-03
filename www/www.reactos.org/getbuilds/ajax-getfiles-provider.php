@@ -10,7 +10,7 @@
 	// Therefore it has an own configuration and doesn't use "config.inc.php".
 
 	// Configuration
-	define(ROOT_DIR, "../");
+	define("ROOT_DIR", "../");
 	$DIRECTORIES = array("bootcd", "livecd");
 	$ISO_EXTENSION = ".7z";
 	$ISO_PATTERN = "#[0-9a-z-]#";

@@ -37,6 +37,9 @@
 		"-x64-msvc-win-dbg" => "-x64-dbg-msvc"
 	);
 
+	// We never had builds < r10000 and never reached > r99999...
+	$SVN_PATTERN = "#[0-9]{5}#";
+
 	// The following values need to be set here and in "ajax-getfiles-provider.php"!
 	$MAX_FILES_PER_PAGE = 100;
 	$REV_RANGE_LIMIT = 3000;

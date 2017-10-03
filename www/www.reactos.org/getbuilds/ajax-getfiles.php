@@ -27,7 +27,7 @@
 		$endrev = $_GET["endrev"];
 		$gi = new GitInfo();
 
-		if (is_numeric($startrev) && is_numeric($endrev))
+		if (preg_match($SVN_PATTERN, $startrev) && preg_match($SVN_PATTERN, $endrev))
 		{
 			// The user wants to find old SVN builds.
 			$startrev = (int)$startrev;
