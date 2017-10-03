@@ -160,18 +160,28 @@
 				$line = fgets($fp);
 			}
 
+			// If we have hit EOF, we have processed the entire log and need to exit the loop.
+			if (feof($fp))
+				break;
+
 			// Get the log for this test.
 			$log = "";
+			$completion_line = "Test " . $matches[2] . " completed in ";
+			$completion_line_length = strlen($completion_line);
 
 			while (!feof($fp))
 			{
 				$line = fgets($fp);
 
 				// Check whether we reached the next test already.
-				// Break in this case, so that this line won't be logged for this test.
 				if (substr($line, 0, 27) == "Running Wine Test, Module: ")
 					break;
 
+				// Also check whether we reached the end of testing.
+				if (substr($line, 0, 36) == "SYSREG_CHECKPOINT:THIRDBOOT_COMPLETE")
+					break;
+
+				// All other lines belong to the log of this test.
 				$log .= $line;
 
 				// We can easily exceed PHP's memory limit here in case we're reading a bloated log.
@@ -181,6 +191,10 @@
 					$log .= "[TESTMAN] Maximum memory for log exceeded, aborting!";
 					break;
 				}
+
+				// Check for the completion line of the test and stop reading the log then.
+				if (substr($line, 0, $completion_line_length) == $completion_line)
+					break;
 
 				// Sysreg might also have noticed a system crash or we even reached the end of the log. Break then.
 				if (substr($line, 0, 9) == "[SYSREG] ")
