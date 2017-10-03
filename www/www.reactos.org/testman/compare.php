@@ -13,6 +13,7 @@
 	require_once("utils.inc.php");
 	require_once("languages.inc.php");
 	require_once(ROOT_PATH . "rosweb/exceptions.php");
+	require_once(ROOT_PATH . "rosweb/gitinfo.php");
 	require_once(ROOT_PATH . "rosweb/rosweb.php");
 
 	//$rw = new RosWeb($supported_languages);
@@ -26,6 +27,7 @@
 		if (!array_key_exists("ids", $_GET))
 			throw new ErrorMessageException("Necessary information not specified");
 
+		$gi = new GitInfo();
 		$reader = new WineTest_Reader();
 		$result = $reader->setTestIDList($_GET["ids"]);
 
@@ -62,7 +64,7 @@
 			$indicator = new Indicator($row["id"]);
 
 			$table_summary .= '<th>';
-			$table_summary .= sprintf($testman_langres["resulthead"], $row["revision"], GetDateString($row["timestamp"]), $row["name"], GetPlatformString($row["platform"]));
+			$table_summary .= sprintf($testman_langres["resulthead"], $gi->getShortHash($row["revision"]), GetDateString($row["timestamp"]), $row["name"], GetPlatformString($row["platform"]));
 			$table_summary .= '</th>';
 
 			$table_totals .= '<td>';

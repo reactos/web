@@ -126,9 +126,9 @@
 					$output .= "</result>";
 
 					if (!isset($first_revision))
-						$first_revision = $row["revision"];
+						$first_revision = $gi->getShortHash($row["revision"]);
 
-					$last_revision = $row["revision"];
+					$last_revision = $gi->getShortHash($row["revision"]);
 				}
 			}
 			else
