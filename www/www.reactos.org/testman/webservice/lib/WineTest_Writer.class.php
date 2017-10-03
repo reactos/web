@@ -148,7 +148,7 @@
 			$stmt->execute();
 
 			$stmt = $this->_dbh->prepare("INSERT INTO winetest_logs (id, log) VALUES (:id, COMPRESS(:log))");
-			$stmt->bindValue(":id", (int)$dbh->lastInsertId());
+			$stmt->bindValue(":id", (int)$this->_dbh->lastInsertId());
 			$stmt->bindParam(":log", $log);
 			$stmt->execute();
 		}
