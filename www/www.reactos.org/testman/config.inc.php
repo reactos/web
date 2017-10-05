@@ -21,4 +21,4 @@
 	define("BLACKLIST_URL", "blacklist.txt");
 
 	// We never had builds < r10000 and never reached > r99999...
-	$SVN_PATTERN = "#[0-9]{5}#";
+	$SVN_PATTERN = "#^[0-9]{5}$#";

@@ -224,7 +224,7 @@ function SearchButton_OnClick()
 	document.getElementById("previous_button").disabled = true;
 	document.getElementById("next_button").disabled = true;
 
-	if (RevisionRangeStart.match(/[0-9]{5}/) && RevisionRangeEnd.match(/[0-9]{5}/))
+	if (RevisionRangeStart.match(/^[0-9]{5}$/) && RevisionRangeEnd.match(/^[0-9]{5}$/))
 	{
 		// The user wants to find old SVN builds.
 		// Just count one revision down and up in the previous and next buttons.
