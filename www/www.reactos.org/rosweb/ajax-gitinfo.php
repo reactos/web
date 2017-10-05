@@ -40,7 +40,7 @@
 					$output .= "<author_name>" . $row["author_name"] . "</author_name>";
 					$output .= "<author_email>" . $row["author_email"] . "</author_email>";
 					$output .= "<commit_timestamp>" . $row["commit_timestamp"] . "</commit_timestamp>";
-					$output .= "<message>" . $row["message"] . "</message>";
+					$output .= "<message>" . htmlspecialchars($row["message"], ENT_NOQUOTES) . "</message>";
 				}
 				break;
 
