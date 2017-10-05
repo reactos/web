@@ -42,6 +42,7 @@
 					$output .= "<commit_timestamp>" . $row["commit_timestamp"] . "</commit_timestamp>";
 					$output .= "<message>" . $row["message"] . "</message>";
 				}
+				break;
 
 			default:
 				throw new ErrorMessageException("Invalid function");
