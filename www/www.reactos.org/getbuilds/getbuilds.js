@@ -198,6 +198,7 @@ function SearchButton_OnClick()
 		return;
 	}
 
+	// Perform the search.
 	CurrentPage = 1;
 
 	data["prefixes"] = "";
@@ -218,6 +219,43 @@ function SearchButton_OnClick()
 	data["requesttype"] = REQUESTTYPE_FULLLOAD;
 
 	AjaxGetFiles();
+	
+	// Update the Previous and Next buttons.
+	document.getElementById("previous_button").disabled = true;
+	document.getElementById("next_button").disabled = true;
+
+	if (RevisionRangeStart.match(/[0-9]{5}/) && RevisionRangeEnd.match(/[0-9]{5}/))
+	{
+		// The user wants to find old SVN builds.
+		// Just count one revision down and up in the previous and next buttons.
+		UpdateButton(document.getElementById("previous_button"), parseInt(RevisionRangeStart) - 1);
+		UpdateButton(document.getElementById("next_button"), parseInt(RevisionRangeEnd) + 1);
+	}
+	else
+	{
+		// The user wants to find GIT builds.
+		// Determine the previous and next revisions in the master branch.
+		var gitinfo = Array();
+		gitinfo["short"] = 1;
+
+		gitinfo["f"] = "prev";
+		gitinfo["r"] = RevisionRangeStart;
+		AjaxGet("/rosweb/ajax-gitinfo.php", "UpdatePrevButtonCallback", gitinfo);
+
+		gitinfo["f"] = "next";
+		gitinfo["r"] = RevisionRangeEnd;
+		AjaxGet("/rosweb/ajax-gitinfo.php", "UpdateNextButtonCallback", gitinfo);
+	}
+}
+
+function UpdateButton(btn, rev)
+{
+	btn.disabled = false;
+	btn.onclick = function()
+	{
+		document.getElementById("revision").value = rev;
+		SearchButton_OnClick();
+	};
 }
 
 function UpdateButtonCallback(HttpRequest, button_id)
@@ -231,16 +269,7 @@ function UpdateButtonCallback(HttpRequest, button_id)
 
 	var child = HttpRequest.responseXML.getElementsByTagName("gitinfo")[0].firstChild;
 	if (child)
-	{
-		var btn = document.getElementById(button_id);
-		btn.disabled = false;
-		btn.onclick = function()
-		{
-			document.getElementById("revision").value = child.data;
-			SearchButton_OnClick();
-			UpdateButtons();
-		};
-	}
+		UpdateButton(document.getElementById(button_id), child.data);
 }
 
 function UpdatePrevButtonCallback(HttpRequest)
@@ -251,39 +280,6 @@ function UpdatePrevButtonCallback(HttpRequest)
 function UpdateNextButtonCallback(HttpRequest)
 {
 	UpdateButtonCallback(HttpRequest, "next_button");
-}
-
-function UpdateButtons()
-{
-	document.getElementById("previous_button").disabled = true;
-	document.getElementById("next_button").disabled = true;
-
-	var revisions = document.getElementById("revision").value;
-	var hyphen = revisions.indexOf("-");
-	var previous_button_revision;
-	var next_button_revision;
-
-	if (hyphen > 0)
-	{
-		previous_button_revision = revisions.substr(0, hyphen);
-		next_button_revision = revisions.substr(hyphen + 1);
-	}
-	else
-	{
-		previous_button_revision = revisions;
-		next_button_revision = revisions;
-	}
-
-	var gitinfo = Array();
-	gitinfo["short"] = 1;
-
-	gitinfo["f"] = "prev";
-	gitinfo["r"] = previous_button_revision;
-	AjaxGet("/rosweb/ajax-gitinfo.php", "UpdatePrevButtonCallback", gitinfo);
-
-	gitinfo["f"] = "next";
-	gitinfo["r"] = next_button_revision;
-	AjaxGet("/rosweb/ajax-gitinfo.php", "UpdateNextButtonCallback", gitinfo);
 }
 
 function Load()
@@ -298,7 +294,6 @@ function Load()
 	};
 
 	SearchButton_OnClick();
-	UpdateButtons();
 }
 
 function PageSwitch(option)
