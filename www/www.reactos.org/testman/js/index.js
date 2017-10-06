@@ -218,7 +218,7 @@ function SearchCallback(HttpRequest)
 		html += '<\/div>';
 
 		html += '<div class="col-sm-4">';
-		html += testman_langres["status"].replace(/\{1\}/, '<span id="selectedresultcount">0<\/span>');
+		html += testman_langres["status"].replace(/\{1\}/, '<span id="selectedresultcount">' + SelectedResultCount + '<\/span>');
 		html += ' <button class="btn btn-default" onclick="ClearSelected_OnClick()">' + testman_langres["clearselected"] + '<\/button>';
 		html += '<\/div>';
 
