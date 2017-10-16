@@ -11,7 +11,6 @@
 	require_once(ROOT_PATH . "../www.reactos.org_config/testman-connect.php");
 	require_once("autoload.inc.php");
 	require_once(ROOT_PATH . "rosweb/exceptions.php");
-	require_once(ROOT_PATH . "rosweb/gitinfo.php");
 
 	$perf = array(
 		"boot_cycles" => 0,
@@ -44,7 +43,6 @@
 		$build = (int)$_GET["build"];
 		$comment = $_GET["comment"];
 
-		$gi = new GitInfo();
 		$writer = new WineTest_Writer($sourceid, $password);
 
 		// Connect to the database.
@@ -69,15 +67,15 @@
 		{
 			$line = fgets($fp);
 
-			if (preg_match("#Build [0-9]{8}-.+-g([0-9a-f]{7,})#", $line, $matches))
+			if (preg_match("#ReactOS .+ \(Build .+\) \(Commit ([0-9a-f]{40})\)#", $line, $matches))
 			{
-				$revision = $gi->getLongHash($matches[1]);
-				if (!$revision)
-					throw new RuntimeException("Got no long hash for revision " . $matches[1]);
-
+				$revision = $matches[1];
 				break;
 			}
 		}
+
+		if (feof($fp))
+			throw new ErrorMessageException("Found no Git revision in this log!");
 
 		// Find the first 3rd stage boot.
 		while (!feof($fp))
@@ -91,6 +89,9 @@
 					break;
 			}
 		}
+
+		if (feof($fp))
+			throw new ErrorMessageException("Found no stage information in this log!");
 
 		// Find the boot performance info.
 		while (!feof($fp))
@@ -111,6 +112,9 @@
 				break;
 			}
 		}
+
+		if (feof($fp))
+			throw new ErrorMessageException("Found no boot cycle information in this log!");
 
 		// Find the rest of the boot performance info.
 		while (!feof($fp))
@@ -134,6 +138,9 @@
 				break;
 			}
 		}
+
+		if (feof($fp))
+			throw new ErrorMessageException("Found no additional boot performance information in this log!");
 
 		// Get the log for each test.
 		$line = fgets($fp);
