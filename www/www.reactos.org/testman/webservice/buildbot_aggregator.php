@@ -77,12 +77,12 @@
 		if (feof($fp))
 			throw new ErrorMessageException("Found no Git revision in this log!");
 
-		// Find the first 3rd stage boot.
+		// Find the first 3rd stage boot and count all *re*boots happening in between.
 		while (!feof($fp))
 		{
 			$line = fgets($fp);
 
-			if (preg_match("#^\[SYSREG\] Running stage ([1-3])#", $line, $matches))
+			if (preg_match("#^\[SYSREG\] Running stage ([2-3])#", $line, $matches))
 			{
 				$perf["reboots"]++;
 				if ($matches[1] == "3")
@@ -105,9 +105,6 @@
 
 				if (is_numeric($cycles[2]))
 					$perf["boot_cycles"] = $cycles[2];
-
-				// We're in the 3rd stage, increase the reboot count.
-				$perf["reboots"]++;
 
 				break;
 			}
