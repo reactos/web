@@ -15,5 +15,5 @@ $wgSecretKey = "190071721adb67145f9a02d61f4a84cd2a15980845d562ec64750e83f634c92"
 $wgUpgradeKey = "132dccc4e3e9ddf";
 
 
-$wgReCaptchaPublicKey = 'your ReCaptcha site key here';
-$wgReCaptchaPrivateKey = 'your ReCaptcha secret key here';
+$wgReCaptchaSiteKey = 'your ReCaptcha site key here';
+$wgReCaptchaSecretKey = 'your ReCaptcha secret key here';
