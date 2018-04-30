@@ -1,0 +1,10 @@
+Hello,
+
+Someone (hopefully you) has requested the username for your ReactOS
+Website Account.
+
+The following ReactOS Website Account is associated to this E-Mail address:
+
+    Username: USERNAME
+
+If you have not requested this information, just ignore this E-Mail.

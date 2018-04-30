@@ -1,0 +1,9 @@
+Hello USERNAME,
+
+Please click on the following link to confirm the E-Mail address change for
+your account on the ReactOS Website:
+LINK
+
+This link is valid for 1 day.
+
+If you do not want to change your E-Mail address, just ignore this E-Mail.

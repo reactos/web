@@ -1,0 +1,24 @@
+#
+# Use slapadd -l reactos-website.ldif
+#
+
+# Create the basic LDAP structure.
+dn: o=ReactOS Website
+objectClass: organization
+o: ReactOS Website
+
+dn: ou=People,o=ReactOS Website
+objectClass: organizationalUnit
+ou: People
+
+dn: ou=Service Accounts,o=ReactOS Website
+objectClass: organizationalUnit
+ou: Service Accounts
+
+# Create the "roslogin" service account.
+# Make sure to change the password (e.g. with JXplorer).
+dn: uid=roslogin,ou=Service Accounts,o=ReactOS Website
+objectClass: account
+objectClass: simpleSecurityObject
+uid: roslogin
+userPassword: test

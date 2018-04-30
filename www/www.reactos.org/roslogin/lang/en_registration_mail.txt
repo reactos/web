@@ -1,0 +1,14 @@
+Hello,
+
+Someone (hopefully you) has registered an account on the ReactOS Website
+using the following data:
+
+    Username:       USERNAME
+    E-Mail address: EMAIL
+
+If this is correct, click on the following link to confirm the registration:
+LINK
+
+This link is valid for 1 day.
+
+If you have not initiated the account registration, just ignore this E-Mail.
