@@ -153,6 +153,11 @@ $wgExtraNamespaces[101] = "Techwiki_talk";
 $wgEnableMWSuggest = true;
 $wgNamespaceToBeSearchedDefault[100] = true;
 
+# Use RosLogin to handle MediaWiki users
+$wgGroupPermissions['*']['createaccount'] = false;
+$wgGroupPermissions['*']['editmyprivateinfo'] = false;
+wfLoadExtension( 'RosLogin' );
+
 # Use reCAPTCHA to protect against spam
 wfLoadExtensions([ 'ConfirmEdit', 'ConfirmEdit/ReCaptchaNoCaptcha' ]);
 $wgCaptchaClass = 'ReCaptchaNoCaptcha';

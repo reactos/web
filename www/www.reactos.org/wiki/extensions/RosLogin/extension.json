@@ -1,0 +1,27 @@
+{
+	"name": "RosLogin",
+	"author": ["Colin Finck"],
+	"license-name": "AGPL-3.0-or-later",
+	"requires": {
+		"MediaWiki": ">= 1.30.0"
+	},
+	"AutoloadClasses": {
+		"RosLoginHooks": "RosLoginHooks.php",
+		"RosLoginSessionProvider": "RosLoginSessionProvider.php",
+		"SpecialRosLogin": "SpecialRosLogin.php"
+	},
+	"Hooks": {
+		"SpecialPage_initList": ["RosLoginHooks::onSpecialPage_initList"],
+		"UserLogout": ["RosLoginHooks::onUserLogout"]
+	},
+	"SessionProviders": {
+		"RosLoginSessionProvider": {
+			"class": "RosLoginSessionProvider",
+			"args": []
+		}
+	},
+	"SpecialPages": {
+		"RosLogin": "SpecialRosLogin"
+	},
+	"manifest_version": 2
+}
