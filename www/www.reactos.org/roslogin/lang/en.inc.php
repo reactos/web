@@ -79,6 +79,5 @@
 		"send_username_button" => "Send Username",
 		"send_username_subject" => "Account Username",
 		"unknown_username" => "This Username is not registered!",
-		"unknown_email" => "No account is registered for this E-Mail address!",
-		"username_sent" => "An E-Mail with your Username has been sent to <i>%s</i>.",
+		"username_sent" => "If the E-Mail address <i>%s</i> is associated to an account, an E-Mail with the Username has been sent to it.",
 	];

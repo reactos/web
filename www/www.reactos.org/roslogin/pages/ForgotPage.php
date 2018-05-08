@@ -36,7 +36,6 @@
 			$email = array_key_exists("email", $_GET) ? $_GET["email"] : "";
 
 			$unknown_username = array_key_exists("unknown_username", $_GET);
-			$unknown_email = array_key_exists("unknown_email", $_GET);
 			$reset_password_captcha_not_solved = array_key_exists("reset_password_captcha_not_solved", $_GET);
 			$send_username_captcha_not_solved = array_key_exists("send_username_captcha_not_solved", $_GET);
 ?>
@@ -94,14 +93,10 @@
 					<form class="form-horizontal" method="post">
 						<input type="hidden" name="a" value="send_username">
 
-						<div class="form-group <?php if ($unknown_email) { echo "has-error"; } ?>">
+						<div class="form-group">
 							<label for="email" class="col-md-4 control-label"><?php echo $roslogin_langres["email"]; ?></label>
 							<div class="col-md-8">
 								<input required class="form-control" type="text" name="email" value="<?php echo $email; ?>">
-								<?php
-									if ($unknown_email)
-										echo '<span class="help-block">' . $roslogin_langres["unknown_email"] . '</span>';
-								?>
 							</div>
 						</div>
 

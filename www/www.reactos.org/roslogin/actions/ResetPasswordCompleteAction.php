@@ -10,9 +10,6 @@
 	{
 		public function perform()
 		{
-			global $lang;
-			global $roslogin_langres;
-
 			if (!array_key_exists("username", $_POST) ||
 				!array_key_exists("email", $_POST) ||
 				!array_key_exists("key", $_POST) ||

@@ -35,7 +35,9 @@
 			}
 			catch (InvalidEmailException $e)
 			{
-				redirect_to("?p=forgot&unknown_email=1&" . http_build_query($data));
+				// Redirect to the same "username_sent" page even if the E-Mail address does not exist.
+				// This prevents disclosing whether an E-Mail address exists in the directory.
+				redirect_to("?p=message&username_sent=1&" . http_build_query($data));
 			}
 			catch (CaptchaNotSolvedException $e)
 			{

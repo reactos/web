@@ -10,13 +10,13 @@
 	{
 		public static function onSpecialPage_initList(&$specialPages) {
 			$specialPages['Userlogin'] = "SpecialRosLogin";
-			return true;
+			return TRUE;
 		}
 
 		public static function onUserLogout(&$user) {
 			global $wgOut;
 			$redirect = array_key_exists("returnto", $_GET) ? "/wiki/index.php?title=" . $_GET["returnto"] : "/wiki";
 			$wgOut->redirect("/roslogin/?a=logout&redirect=" . rawurlencode($redirect));
-			return true;
+			return TRUE;
 		}
 	}
