@@ -53,7 +53,7 @@
 		$pattern_core = "#^([a-z]*:?\()([a-zA-Z0-9\/_]+.[a-z]+):([0-9]+)(\))#m";
 		$pattern_test = "#^([a-zA-Z0-9_]+.[a-z]+):([0-9]+)(: )#m";
 
-		$replacement_core = '$1<a href="' . VIEWVC_TRUNK . '/reactos/$2?revision=' . $row["revision"] . '&amp;view=markup#l$3">$2:$3</a>$4';
+		$replacement_core = '$1<a href="' . VIEWVC_TRUNK . '/' . $row["revision"] . '/$2#L$3">$2:$3</a>$4';
 
 		$log = preg_replace($pattern_core, $replacement_core, htmlspecialchars($row["log"]));
 		$log = preg_replace_callback($pattern_test, "file_callback", $log);
@@ -81,7 +81,7 @@
 			$module_urls[$row["module"] . $matches[1]] = $url_chunk;
 		}
 
-		return '<a href="' . VIEWVC_TRUNK . $module_urls[$row["module"].$matches[1]] . $matches[1] . '?revision=' . $row["revision"] . '&amp;view=markup#l' . $matches[2] . '">' . $matches[1] . ':' . $matches[2] . '</a>' . $matches[3];
+		return '<a href="' . VIEWVC_TRUNK . '/' . $row["revision"] . '/' . $module_urls[$row["module"].$matches[1]] . $matches[1] . '#L' . $matches[2] . '">' . $matches[1] . ':' . $matches[2] . '</a>' . $matches[3];
 	}
 
 	function get_file_url($module, $file)
@@ -90,7 +90,7 @@
 
 		foreach ($search_urls as $surl)
 		{
-			$http_header = @get_headers(VIEWVC_TRUNK . "/$surl/$module/$file");
+			$http_header = @get_headers(VIEWVC_TRUNK . "/master/$module/$file");
 			if ($http_header[0] == 'HTTP/1.1 404 Not Found')
 				continue;
 
