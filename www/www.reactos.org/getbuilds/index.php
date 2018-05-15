@@ -104,7 +104,7 @@
 					<div class="col-sm-3">
 						<?php
 							foreach ($SUFFIXES as $k => $v)
-								printf('<div class="checkbox"><label><input type="checkbox" name="suffixes" id="%s" checked="checked"> %s</label></div>', $k, $v);
+								printf('<div class="checkbox"><label><input type="checkbox" name="suffixes" id="%s" %s> %s</label></div>', $k, $v[1] == TRUE ? 'checked="checked"' : '', $v[0]);
 						?>
 					</div>
 				</div>
