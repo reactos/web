@@ -1,0 +1,107 @@
+<?php
+/*
+ * PROJECT:     RosLogin - A simple Self-Service and Single-Sign-On around an LDAP user directory
+ * LICENSE:     AGPL-3.0-or-later (https://spdx.org/licenses/AGPL-3.0-or-later)
+ * PURPOSE:     RosLogin Authentication Module for Drupal 7.x
+ * COPYRIGHT:   Copyright 2018 Colin Finck (colin@reactos.org)
+ */
+
+	define("ROOT_PATH", "");
+	require_once(ROOT_PATH . "roslogin/RosLogin.php");
+
+	/**
+	 * Implements hook_boot().
+	 */
+	function roslogin_boot()
+	{
+		global $user;
+
+		// User functions require bootstrapping Drupal first.
+		drupal_bootstrap(DRUPAL_BOOTSTRAP_FULL);
+
+		// Check if a user is logged in through RosLogin Single-Sign-On.
+		$rl = new RosLogin();
+		$username = $rl->isLoggedIn();
+
+		if ($username)
+		{
+			// Yes, a user is logged in through RosLogin.
+			// Is the same user also logged in through Drupal?
+			if (!$user->uid || $user->name != $username)
+			{
+				// No, then log it in.
+				// If the user does not yet exist in Drupal, it is created.
+				user_external_login_register($username, 'roslogin');
+			}
+
+			// Has the E-Mail address changed in RosLogin?
+			$userinfo = $rl->getUserInformation($username);
+			if ($user->mail != $userinfo['email'])
+			{
+				// Yes, then update it.
+				user_save($user, [
+					'mail' => $userinfo['email']
+				]);
+			}
+		}
+		else if ($user->uid)
+		{
+			// No user is logged in through RosLogin, but still in Drupal.
+			// Perform a logout in Drupal.
+			$user = drupal_anonymous_user();
+		}
+	}
+
+	/**
+	 * Implements hook_user_logout().
+	 */
+	function roslogin_user_logout($account)
+	{
+		// Log out the user in RosLogin Single-Sign-On as well.
+		$rl = new RosLogin();
+		$rl->logout();
+	}
+
+	/**
+	 * Implements hook_form_user_profile_form_alter().
+	 */
+	function roslogin_form_user_profile_form_alter(&$form, &$form_state)
+	{
+		// Add a text where to change E-Mail address and password.
+		$form['roslogin_text'] = [
+			'#type' => 'item',
+			'#markup' => 'You can change your E-Mail address and password <a href="/roslogin/?p=selfservice">here</a>.'
+		];
+
+		// Remove the E-Mail address and password fields from the Drupal interface.
+		$form['account']['mail']['#access'] = FALSE;
+		$form['account']['current_pass']['#access'] = FALSE;
+		$form['account']['pass']['#access'] = FALSE;
+	}
+
+	/**
+	 * Implements hook_form_user_login_alter().
+	 */
+	function roslogin_form_user_login_alter(&$form, &$form_state)
+	{
+		global $base_root;
+		drupal_goto("{$base_root}/roslogin/?p=login");
+	}
+
+	/**
+	 * Implements hook_form_user_pass_alter().
+	 */
+	function roslogin_form_user_pass_alter(&$form, &$form_state)
+	{
+		global $base_root;
+		drupal_goto("{$base_root}/roslogin/?p=forgot");
+	}
+
+	/**
+	 * Implements hook_form_user_register_form_alter().
+	 */
+	function roslogin_form_user_register_form_alter(&$form, &$form_state)
+	{
+		global $base_root;
+		drupal_goto("{$base_root}/roslogin/?p=register");
+	}

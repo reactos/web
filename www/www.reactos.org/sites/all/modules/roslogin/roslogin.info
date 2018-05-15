@@ -1,0 +1,6 @@
+name = RosLogin
+description = Authenticate users using RosLogin SSO
+core = 7.x
+php = 7.0
+package = ReactOS modules
+version = 7.x-1.0
