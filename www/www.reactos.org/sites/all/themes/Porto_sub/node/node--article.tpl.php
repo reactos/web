@@ -97,7 +97,7 @@ $nodevisit=statistics_get($node->nid);
                                 <?php if ($display_submitted): ?>
                                 <div class="date">
                                     <span class="day"><?php print format_date($node->created, 'custom', 'd'); ?></span>
-                                    <?php print t(format_date($node->created, 'custom', 'M')); ?>
+                                    <?php print t(format_date($node->created, 'custom', 'M Y')); ?>
                                 </div>
                                 <?php endif; ?>	
                         </div>
