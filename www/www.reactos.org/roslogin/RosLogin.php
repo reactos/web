@@ -306,18 +306,18 @@
 		/**
 		 * Returns the normalized version of the given user name.
 		 *
-		 * Normalization converts the user name to lowercase and replaces some characters.
+		 * Normalization converts the user name to lowercase and removes special characters.
 		 * These normalized names are later stored in "forbidden_usernames" and checked during account creation to prevent
 		 * similar accounts from being added.
-		 * In practice, when there is an account "Colin Finck", this prevents the creation of e.g. "Colin.Finck",
-		 * "__Colin-Finck" or "Colin___Finck".
+		 * In practice, when there is an account "Colin Finck", this prevents the creation of e.g. "ColinFinck",
+		 * "Colin.Finck", "__Colin-Finck" or "Colin___Finck".
 		 * Furthermore, MediaWiki requires all underscores to be converted to spaces, so this normalization also prevents
 		 * name conflicts.
 		 */
 		private function _normalizeUserName($username)
 		{
-			// Replace multiple special characters in a row by a single underscore.
-			$username = preg_replace('#([\. _-]+)#', '_', $username);
+			// Remove all allowed special characters.
+			$username = preg_replace('#([\. _-])#', '', $username);
 
 			// Return the lowercased result.
 			return strtolower($username);

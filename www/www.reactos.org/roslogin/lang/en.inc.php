@@ -31,7 +31,7 @@
 		"register_sent" => "An E-Mail has been sent to <i>%s</i>.<br>Please check your inbox and follow the instructions.",
 		"invalid_username" => "The Username is invalid!",
 		"invalid_email" => "The E-Mail Address is invalid!",
-		"in_use" => "The Username or E-Mail Address is already in use!",
+		"in_use" => "This or a similar Username or E-Mail Address is already in use!",
 		"captcha_not_solved" => "The CAPTCHA has not been solved!",
 
 		"confirm_title" => "E-Mail Address Confirmation",
