@@ -16,8 +16,8 @@
 	define("MACHINE_REBOOTS_THRESHOLD", 2);
 	define("REV_RANGE_LIMIT", 3000);
 
-	define("VIEWVC", "https://svn.reactos.org/svn/reactos");
-	define("VIEWVC_TRUNK", VIEWVC . "/trunk");
+	define("VIEWVC", "https://github.com/reactos/reactos");
+	define("VIEWVC_TRUNK", VIEWVC . "/blob");
 	define("BLACKLIST_URL", "blacklist.txt");
 
 	// We never had builds < r10000 and never reached > r99999...
