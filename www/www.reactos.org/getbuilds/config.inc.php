@@ -19,10 +19,10 @@
 	);
 
 	$SUFFIXES = array(
-		"-x86-gcc-lin-dbg" => "x86 GCC Debug",
-		"-x86-gcc-lin-rel" => "x86 GCC Release",
-		"-x86-msvc-win-dbg" => "x86 MSVC Debug",
-		"-x64-msvc-win-dbg" => "x64 MSVC Debug",
+		"-x86-gcc-lin-dbg" => array("x86 GCC Debug", TRUE),
+		"-x86-gcc-lin-rel" => array("x86 GCC Release", TRUE),
+		"-x86-msvc-win-dbg" => array("x86 MSVC Debug", FALSE),
+		"-x64-msvc-win-dbg" => array("x64 MSVC Debug", FALSE),
 	);
 
 	$SVN_PREFIX_TRANSLATIONS = array(
