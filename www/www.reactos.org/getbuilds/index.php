@@ -118,6 +118,7 @@
 
 				<div class="col-md-6">
 					<button class="btn btn-default" onclick="BrowseBuilds_OnClick()"><?php echo $getbuilds_langres["browsebuilds"]; ?></button>
+					<a class="btn btn-default btn-github" href="https://github.com/reactos/reactos"><?php echo $getbuilds_langres["browsegithub"]; ?></a>
 				</div>
 			</div>
 
