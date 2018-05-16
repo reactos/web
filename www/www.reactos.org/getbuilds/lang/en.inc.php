@@ -11,10 +11,11 @@
 
 	$getbuilds_langres = array(
 		"title" => "Download ReactOS Builds",
-		"intro" => 'ReactOS Builds are automatically built by our <a href="https://build.reactos.org">BuildBot</a> each time a change is committed to the ReactOS Repository. This way, they incorporate latest fixes. However, they are not as thoroughly tested as the release builds. You may find regressions and bugs.',
+		"intro" => 'ReactOS Builds are automatically built by our <a href="https://build.reactos.org">BuildBot</a> each time a change is committed to the <a href="https://github.com/reactos/reactos">ReactOS Repository</a>. This way, they incorporate latest fixes. However, they are not as thoroughly tested as the release builds. You may find regressions and bugs.',
 
 		"imagetypes" => "Image Types",
 		"browsebuilds" => "Browse all created Builds",
+		"browsegithub" => "Browse GitHub Repository",
 
 		"legend" => "Legend",
 		"build_bootcd" => "Boot CDs are designed to install ReactOS onto an HDD and enjoy the new features since last release. You will need the ISO only for the installation. This is the recommended variant to install into a VM (VirtualBox, VMWare, QEMU).",

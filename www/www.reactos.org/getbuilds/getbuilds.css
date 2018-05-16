@@ -5,6 +5,9 @@
   COPYRIGHT:  Copyright 2016 Colin Finck <colin@reactos.org>
 */
 
+.btn-github {
+	margin-left: 56px;
+}
 #filecount {
 	font-weight: bold;
 }
