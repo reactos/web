@@ -3,7 +3,7 @@
  * PROJECT:     ReactOS Testman
  * LICENSE:     GPL-2.0+ (https://spdx.org/licenses/GPL-2.0+)
  * PURPOSE:     Configuration Settings
- * COPYRIGHT:   Copyright 2008-2017 Colin Finck (colin@reactos.org)
+ * COPYRIGHT:   Copyright 2008-2018 Colin Finck (colin@reactos.org)
  */
 
 	define("ROOT_PATH", "../");
@@ -16,8 +16,8 @@
 	define("MACHINE_REBOOTS_THRESHOLD", 2);
 	define("REV_RANGE_LIMIT", 3000);
 
-	define("VIEWVC", "https://github.com/reactos/reactos");
-	define("VIEWVC_TRUNK", VIEWVC . "/blob");
+	define("VIEWVC", "https://git.reactos.org/?p=reactos.git");
+	define("VIEWVC_TRUNK", VIEWVC . ";a=blob");
 	define("BLACKLIST_URL", "blacklist.txt");
 
 	// We never had builds < r10000 and never reached > r99999...

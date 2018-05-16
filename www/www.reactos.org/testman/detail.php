@@ -3,7 +3,7 @@
  * PROJECT:     ReactOS Testman
  * LICENSE:     GPL-2.0+ (https://spdx.org/licenses/GPL-2.0+)
  * PURPOSE:     Result Details Page
- * COPYRIGHT:   Copyright 2008-2017 Colin Finck (colin@reactos.org)
+ * COPYRIGHT:   Copyright 2008-2018 Colin Finck (colin@reactos.org)
  *              Copyright 2012-2014 Kamil Hornicek (kamil.hornicek@reactos.org)
  */
 
@@ -48,12 +48,12 @@
 
 		// Post-process the log for convenience.
 		$module_urls = array();
-		$search_urls = array("rostests/winetests", "rostests/apitests");
+		$search_urls = array("modules/rostests/winetests", "modules/rostests/apitests");
 		
 		$pattern_core = "#^([a-z]*:?\()([a-zA-Z0-9\/_]+.[a-z]+):([0-9]+)(\))#m";
 		$pattern_test = "#^([a-zA-Z0-9_]+.[a-z]+):([0-9]+)(: )#m";
 
-		$replacement_core = '$1<a href="' . VIEWVC_TRUNK . '/' . $row["revision"] . '/$2#L$3">$2:$3</a>$4';
+		$replacement_core = '$1<a href="' . VIEWVC_TRUNK . ';hb=' . $row["revision"] . ';f=$2#l$3">$2:$3</a>$4';
 
 		$log = preg_replace($pattern_core, $replacement_core, htmlspecialchars($row["log"]));
 		$log = preg_replace_callback($pattern_test, "file_callback", $log);
@@ -81,7 +81,7 @@
 			$module_urls[$row["module"] . $matches[1]] = $url_chunk;
 		}
 
-		return '<a href="' . VIEWVC_TRUNK . '/' . $row["revision"] . '/' . $module_urls[$row["module"].$matches[1]] . $matches[1] . '#L' . $matches[2] . '">' . $matches[1] . ':' . $matches[2] . '</a>' . $matches[3];
+		return '<a href="' . VIEWVC_TRUNK . ';hb=' . $row["revision"] . ';f=' . $module_urls[$row["module"].$matches[1]] . $matches[1] . '#l' . $matches[2] . '">' . $matches[1] . ':' . $matches[2] . '</a>' . $matches[3];
 	}
 
 	function get_file_url($module, $file)
@@ -90,11 +90,11 @@
 
 		foreach ($search_urls as $surl)
 		{
-			$http_header = @get_headers(VIEWVC_TRUNK . "/master/$module/$file");
+			$http_header = @get_headers(VIEWVC_TRUNK . ";f=$surl/$module/$file");
 			if ($http_header[0] == 'HTTP/1.1 404 Not Found')
 				continue;
 
-			return "/$surl/$module/";
+			return "$surl/$module/";
 		}
 	}
 ?>
