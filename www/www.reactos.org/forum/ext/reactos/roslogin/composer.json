@@ -1,0 +1,22 @@
+{
+	"name": "reactos/roslogin",
+	"type": "phpbb-extension",
+	"description": "Authenticate users using RosLogin SSO",
+	"version": "1.0.0",
+	"license": "AGPL-3.0-or-later",
+	"authors": [
+		{
+			"name": "Colin Finck",
+			"email": "colin@reactos.org"
+		}
+	],
+	"require": {
+		"php": ">=7.0"
+	},
+	"extra": {
+		"display-name": "RosLogin",
+		"soft-require": {
+			"phpbb/phpbb": ">=3.2.2"
+		}
+	}
+}

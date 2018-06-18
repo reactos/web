@@ -1,0 +1,20 @@
+parameters:
+    # RosLogin needs access to $_COOKIE
+    core.disable_super_globals: false
+
+services:
+    auth.provider.roslogin:
+        class: reactos\roslogin\auth\provider\roslogin
+        arguments:
+            - '@dbal.conn'
+            - '@user'
+            - '%core.root_path%'
+        tags:
+            - { name: auth.provider }
+
+    reactos.roslogin.event.listener:
+        class: reactos\roslogin\event\listener
+        arguments:
+            - '@config'
+        tags:
+            - { name: event.listener }
