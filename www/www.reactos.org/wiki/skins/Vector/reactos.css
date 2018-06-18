@@ -1,3 +1,9 @@
+#reactos-head {
+	position: absolute;
+	height: 70px;
+	width: 100%;
+}
+
 #mw-page-base {
 	margin-top: 40px;
 }
