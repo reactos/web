@@ -1,2 +1,4 @@
-Drop all original Drupal files in this directory. They must not be modified except for settings!
-The remaining subdirectories shall resemble parts of the Drupal directory structure and contain our modules and skins.
+Extract all original Drupal files into this directory.
+They must not be modified except for settings!
+
+The subdirectories resemble parts of the Drupal directory structure and contain our modules and skins.
