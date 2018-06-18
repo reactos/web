@@ -49,6 +49,9 @@
 <link href="{T_STYLESHEET_LINK}" rel="stylesheet">
 <link href="{T_STYLESHEET_LANG_LINK}" rel="stylesheet">
 
+<link href="/rosweb/css/static-header.css" rel="stylesheet" type="text/css" />
+<link href="{T_THEME_PATH}/reactos.css" rel="stylesheet" type="text/css" />
+
 <!-- IF S_CONTENT_DIRECTION eq 'rtl' -->
 	<link href="{T_THEME_PATH}/bidi.css?assets_version={T_ASSETS_VERSION}" rel="stylesheet">
 <!-- ENDIF -->
@@ -79,15 +82,13 @@
 <div id="wrap" class="wrap">
 	<a id="top" class="top-anchor" accesskey="t"></a>
 	<div id="page-header">
-		<div class="headerbar" role="banner">
+		<div id="reactos-head" class="headerbar" role="banner">
 		<!-- EVENT overall_header_headerbar_before -->
 			<div class="inner">
 
 			<div id="site-description" class="site-description">
-				<a id="logo" class="logo" href="<!-- IF U_SITE_HOME -->{U_SITE_HOME}<!-- ELSE -->{U_INDEX}<!-- ENDIF -->" title="<!-- IF U_SITE_HOME -->{L_SITE_HOME}<!-- ELSE -->{L_INDEX}<!-- ENDIF -->"><span class="site_logo"></span></a>
-				<h1>{SITENAME}</h1>
-				<p>{SITE_DESCRIPTION}</p>
-				<p class="skiplink"><a href="#start_here">{L_SKIP}</a></p>
+				<a id="homelink" href="/"><img src="/sites/default/files/ReactOS_0.png"></a>
+				<a id="homebutton" href="/">Back to Website</a>
 			</div>
 
 			<!-- EVENT overall_header_searchbox_before -->
