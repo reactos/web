@@ -387,7 +387,7 @@
 				throw new InvalidEmailException();
 
 			// Check if the E-Mail domain is forbidden.
-			if ($this->_isForbiddenMailDomain($email))
+			if ($this->_isForbiddenMailDomain($new_email))
 				throw new InvalidEmailException();
 
 			// Check if the new E-Mail address is already in the LDAP database.
