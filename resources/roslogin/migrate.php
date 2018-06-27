@@ -61,7 +61,7 @@
 		// Queries
 		$one_month_ago = time() - 60 * 60 * 24 * 30;
 
-		$drupal_activity_stmt = $dbh->prepare('SELECT (SELECT COUNT(*) FROM drupal.history WHERE uid = :uid) + (SELECT COUNT(*) FROM drupal.node_revision WHERE uid = :uid)');
+		$drupal_activity_stmt = $dbh->prepare('SELECT (SELECT COUNT(*) FROM drupal.history WHERE uid = :uid) + (SELECT COUNT(*) FROM drupal.node_revision WHERE uid = :uid) + (SELECT COUNT(*) FROM drupal.users_roles WHERE uid = :uid)');
 		$drupal_delete_stmt = $dbh->prepare('DELETE FROM drupal.users WHERE uid = :uid');
 
 		$phpbb_uid_stmt = $dbh->prepare('SELECT user_id FROM forum.phpbb_users WHERE username_clean = :phpbb_name');
