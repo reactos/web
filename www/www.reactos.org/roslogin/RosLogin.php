@@ -445,7 +445,10 @@
 
 			// Fetch the user information.
 			$dn = $this->_getUserNameDN($username);
-			$sr = ldap_read($this->_ds, $dn, "(objectClass=*)", ["displayname", "mail"]);
+			$sr = @ldap_read($this->_ds, $dn, "(objectClass=*)", ["displayname", "mail"]);
+			if (!$sr)
+				throw new InvalidUserNameException();
+
 			$info = ldap_get_entries($this->_ds, $sr);
 			if ($info["count"] != 1)
 				throw new InvalidUserNameException();
