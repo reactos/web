@@ -71,7 +71,7 @@
 		$wiki_activity_stmt = $dbh->prepare('SELECT COUNT(*) FROM wiki.revision WHERE LOWER(rev_user_text) = :wiki_name');
 		$wiki_delete_stmt = $dbh->prepare('DELETE FROM wiki.user WHERE LOWER(user_name) = :wiki_name');
 
-		$jira_activity_stmt = $dbh->prepare('SELECT COUNT(*) FROM jira.jiraaction WHERE AUTHOR = :jira_name');
+		$jira_activity_stmt = $dbh->prepare('SELECT (SELECT COUNT(*) FROM jira.jiraaction WHERE AUTHOR = :jira_name) + (SELECT COUNT(*) FROM jira.jiraissue WHERE REPORTER = :jira_name) + (SELECT COUNT(*) FROM jira.jiraissue WHERE ASSIGNEE = :jira_name) + (SELECT COUNT(*) FROM jira.jiraissue WHERE CREATOR = :jira_name)');
 		$jira_delete_stmt = $dbh->prepare('DELETE FROM jira.cwd_user WHERE lower_user_name = :jira_name');
 
 		$forbidden_stmt = $dbh->prepare('INSERT INTO roslogin.forbidden_usernames (username) VALUES (:username)');
