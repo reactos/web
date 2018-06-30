@@ -47,6 +47,12 @@
 				"screen-hd.less": {
 					"media": "screen and (min-width: 982px)"
 				},
+				"reactos.css": {
+					"media": "screen"
+				},
+				"../../../rosweb/css/static-header.css": {
+					"media": "screen"
+				},
 				"print.less": {}
 			}
 		},
