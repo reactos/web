@@ -61,6 +61,7 @@
 				return new SessionInfo(
 					SessionInfo::MAX_PRIORITY, [
 						"provider" => $this,
+						"id" => $_COOKIE["roslogin_session_id"],
 						"userInfo" => UserInfo::newFromUser($user, TRUE),
 						"forceHTTPS" => TRUE,
 						"metadata" => [
@@ -131,7 +132,7 @@
 
 		public function persistsSessionId()
 		{
-			// We let MediaWiki handle its Session IDs.
+			// We must return FALSE here as we provide an "id" field in provideSessionInfo.
 			return FALSE;
 		}
 
