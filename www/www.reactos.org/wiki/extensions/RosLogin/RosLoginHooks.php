@@ -14,9 +14,8 @@
 		}
 
 		public static function onUserLogout(&$user) {
-			global $wgOut;
-			$redirect = array_key_exists("returnto", $_GET) ? "/wiki/index.php?title=" . $_GET["returnto"] : "/wiki";
-			$wgOut->redirect("/roslogin/?a=logout&redirect=" . rawurlencode($redirect));
+			$rl = new RosLogin();
+			$rl->logout();
 			return TRUE;
 		}
 	}
