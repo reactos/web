@@ -3,7 +3,7 @@
  * PROJECT:     ReactOS Website
  * LICENSE:     GPL-2.0+ (https://spdx.org/licenses/GPL-2.0+)
  * PURPOSE:     Easily download prebuilt ReactOS Revisions
- * COPYRIGHT:   Copyright 2007-2017 Colin Finck (colin@reactos.org)
+ * COPYRIGHT:   Copyright 2007-2018 Colin Finck (colin@reactos.org)
  *              Copyright 2012-2013 Aleksey Bragin (aleksey@reactos.org)
  */
 
@@ -117,8 +117,8 @@
 				</div>
 
 				<div class="col-md-6">
-					<button class="btn btn-default" onclick="BrowseBuilds_OnClick()"><?php echo $getbuilds_langres["browsebuilds"]; ?></button>
-					<a class="btn btn-default btn-github" href="https://github.com/reactos/reactos"><?php echo $getbuilds_langres["browsegithub"]; ?></a>
+					<a class="btn btn-default" href="<?php echo $ISO_DOWNLOAD_URL; ?>" target="_blank"><?php echo $getbuilds_langres["browsebuilds"]; ?></a>
+					<a class="btn btn-default" href="<?php echo $GITHUB_URL; ?>" target="_blank"><?php echo $getbuilds_langres["browsegithub"]; ?></a>
 				</div>
 			</div>
 

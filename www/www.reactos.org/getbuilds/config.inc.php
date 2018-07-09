@@ -3,7 +3,7 @@
  * PROJECT:     ReactOS Website
  * LICENSE:     GPL-2.0+ (https://spdx.org/licenses/GPL-2.0+)
  * PURPOSE:     Easily download prebuilt ReactOS Revisions
- * COPYRIGHT:   Copyright 2007-2017 Colin Finck (colin@reactos.org)
+ * COPYRIGHT:   Copyright 2007-2018 Colin Finck (colin@reactos.org)
  */
 
 	define("ROOT_PATH", "../");
@@ -11,6 +11,7 @@
 	// Configuration
 	$AJAX_GETFILES_PROVIDER_URL = "https://iso.reactos.org/scripts/ajax-getfiles-provider.php";
 	$BUILDBOT_URL = "https://build.reactos.org/";
+	$GITHUB_URL = "https://github.com/reactos/reactos";
 	$ISO_DOWNLOAD_URL = "https://iso.reactos.org/";
 
 	$PREFIXES = array(

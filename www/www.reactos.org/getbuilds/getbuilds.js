@@ -2,7 +2,7 @@
  * PROJECT:     ReactOS Website
  * LICENSE:     GPL-2.0+ (https://spdx.org/licenses/GPL-2.0+)
  * PURPOSE:     Easily download prebuilt ReactOS Revisions
- * COPYRIGHT:   Copyright 2007-2017 Colin Finck (colin@reactos.org)
+ * COPYRIGHT:   Copyright 2007-2018 Colin Finck (colin@reactos.org)
  */
 
 var data = new Array();
@@ -330,9 +330,4 @@ function LastPage_OnClick()
 {
 	var options = document.getElementById("pagesel").getElementsByTagName("option");
 	PageSwitch(options[options.length - 1]);
-}
-
-function BrowseBuilds_OnClick()
-{
-	window.open(ISO_DOWNLOAD_URL);
 }
