@@ -159,13 +159,19 @@
 
 		public function validate_session($user)
 		{
-			// Check if the user is logged in through RosLogin Single-Sign-On
-			// and if the username matches the username of the current session.
+			// Check if the user is logged in through RosLogin Single-Sign-On.
 			$username = $this->_rl->isLoggedIn();
 			if ($username && $username == $user['username'])
 			{
-				// It does, so update the stored E-Mail if necessary and reuse this session.
+				// The user is logged in through RosLogin and the RosLogin username matches the username of the current phpBB session.
+				// Update the stored E-Mail if necessary and reuse this session.
 				$this->_update_user_data($username, $user);
+				return true;
+			}
+			else if (!$username && $user['user_id'] == ANONYMOUS)
+			{
+				// The user is not logged in through RosLogin and the current phpBB session is an anonymous one.
+				// Let phpBB reuse this anonymous user session.
 				return true;
 			}
 
