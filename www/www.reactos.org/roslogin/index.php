@@ -32,6 +32,32 @@
 		require_once("pages/{$class}.php");
 	}
 
+	function is_valid_redirect($url)
+	{
+		// As a user may come from e.g. the Wiki, we have to support a lot of characters inside redirect URLs.
+		// However, there are a few exceptions that guard us from potential attacks.
+
+		// First of all, the trimmed redirect URL mustn't be empty.
+		$url = trim($url);
+		if (empty($url))
+			return FALSE;
+
+		// It also has to begin with either '?' (for RosLogin-internal URLs) or '/' (for site-local URLs).
+		if ($url{0} != '?' && $url{0} != '/')
+			return FALSE;
+
+		// Prevent redirections to external sites (prefixed by '//').
+		if (substr($url, 0, 2) == '//')
+			return FALSE;
+
+		// A redirect URL also mustn't contain arrow brackets.
+		// This loosely guards against XSS attacks when $url is potentially inserted unescaped in some place.
+		if (preg_match('#<>#', $url))
+			return FALSE;
+
+		return TRUE;
+	}
+
 	function redirect_to($url)
 	{
 		header("Location: {$url}");

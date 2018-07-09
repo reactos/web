@@ -30,7 +30,7 @@
 		{
 			global $roslogin_langres;
 
-			$redirect = array_key_exists("redirect", $_GET) ? $_GET["redirect"] : "";
+			$redirect = array_key_exists("redirect", $_GET) && is_valid_redirect($_GET["redirect"]) ? htmlspecialchars($_GET["redirect"]) : "";
 
 			$invalid = array_key_exists("invalid", $_GET);
 ?>

@@ -32,8 +32,8 @@
 		{
 			global $roslogin_langres;
 
-			$username = array_key_exists("username", $_GET) ? $_GET["username"] : "";
-			$email = array_key_exists("email", $_GET) ? $_GET["email"] : "";
+			$username = array_key_exists("username", $_GET) ? htmlspecialchars($_GET["username"]) : "";
+			$email = array_key_exists("email", $_GET) ? htmlspecialchars($_GET["email"]) : "";
 
 			$invalid_username = array_key_exists("invalid_username", $_GET);
 			$invalid_email = array_key_exists("invalid_email", $_GET);

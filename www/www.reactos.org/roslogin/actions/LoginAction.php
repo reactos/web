@@ -25,7 +25,7 @@
 				}
 
 				// Redirect to the given URL or to the Self-Service if there is none.
-				if (array_key_exists("redirect", $_POST))
+				if (array_key_exists("redirect", $_POST) && is_valid_redirect($_POST["redirect"]))
 					redirect_to($_POST["redirect"]);
 				else
 					redirect_to("?p=selfservice");

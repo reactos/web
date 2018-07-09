@@ -27,15 +27,17 @@
 		{
 			global $roslogin_langres;
 
+			$email = htmlspecialchars($_GET["email"]);
+
 			try
 			{
 				// Try to complete the request.
 				$this->_rl->changeEmailComplete($_GET["username"], $_GET["email"]);
-				$message = sprintf($roslogin_langres["confirm_mailchange_intro"], $_GET["email"]);
+				$message = sprintf($roslogin_langres["confirm_mailchange_intro"], $email);
 			}
 			catch (AlreadyInUseException $e)
 			{
-				$message = sprintf($roslogin_langres["confirm_mailchange_in_use"], $_GET["email"]);
+				$message = sprintf($roslogin_langres["confirm_mailchange_in_use"], $email);
 			}
 ?>
 			<p class="lead center"><?php echo $roslogin_langres["confirm_mailchange_heading"]; ?></p>
@@ -53,8 +55,12 @@
 		{
 			global $roslogin_langres;
 
+			$username = htmlspecialchars($_GET["username"]);
+			$email = htmlspecialchars($_GET["email"]);
+			$key = htmlspecialchars($_GET["key"]);
+
 			// Fill the Display Name field with the Username by default.
-			$displayname = array_key_exists("displayname", $_GET) ? $_GET["displayname"] : $_GET["username"];
+			$displayname = array_key_exists("displayname", $_GET) ? htmlspecialchars($_GET["displayname"]) : $username;
 
 			$invalid_displayname = array_key_exists("invalid_displayname", $_GET);
 			$invalid_password = array_key_exists("invalid_password", $_GET);
@@ -65,9 +71,9 @@
 
 			<form class="form-horizontal" method="post">
 				<input type="hidden" name="a" value="register_complete">
-				<input type="hidden" name="username" value="<?php echo $_GET["username"]; ?>">
-				<input type="hidden" name="email" value="<?php echo $_GET["email"]; ?>">
-				<input type="hidden" name="key" value="<?php echo $_GET["key"]; ?>">
+				<input type="hidden" name="username" value="<?php echo $username; ?>">
+				<input type="hidden" name="email" value="<?php echo $email; ?>">
+				<input type="hidden" name="key" value="<?php echo $key; ?>">
 
 				<div class="col-md-offset-3 col-md-6">
 					<fieldset class="form-group">
@@ -121,7 +127,10 @@
 		{
 			global $roslogin_langres;
 
-			// Fill the Display Name field with the Username by default.
+			$username = htmlspecialchars($_GET["username"]);
+			$email = htmlspecialchars($_GET["email"]);
+			$key = htmlspecialchars($_GET["key"]);
+
 			$invalid_password = array_key_exists("invalid_password", $_GET);
 			$password_mismatch = array_key_exists("password_mismatch", $_GET);
 ?>
@@ -130,9 +139,9 @@
 
 			<form class="form-horizontal" method="post">
 				<input type="hidden" name="a" value="reset_password_complete">
-				<input type="hidden" name="username" value="<?php echo $_GET["username"]; ?>">
-				<input type="hidden" name="email" value="<?php echo $_GET["email"]; ?>">
-				<input type="hidden" name="key" value="<?php echo $_GET["key"]; ?>">
+				<input type="hidden" name="username" value="<?php echo $username; ?>">
+				<input type="hidden" name="email" value="<?php echo $email; ?>">
+				<input type="hidden" name="key" value="<?php echo $key; ?>">
 
 				<div class="col-md-offset-3 col-md-6">
 					<fieldset class="form-group">

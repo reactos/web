@@ -32,8 +32,8 @@
 		{
 			global $roslogin_langres;
 
-			$username = array_key_exists("username", $_GET) ? $_GET["username"] : "";
-			$email = array_key_exists("email", $_GET) ? $_GET["email"] : "";
+			$username = array_key_exists("username", $_GET) ? htmlspecialchars($_GET["username"]) : "";
+			$email = array_key_exists("email", $_GET) ? htmlspecialchars($_GET["email"]) : "";
 
 			$unknown_username = array_key_exists("unknown_username", $_GET);
 			$reset_password_captcha_not_solved = array_key_exists("reset_password_captcha_not_solved", $_GET);

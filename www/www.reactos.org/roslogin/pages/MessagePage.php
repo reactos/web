@@ -21,9 +21,10 @@
 				if (!array_key_exists("email", $_GET))
 					throw new RuntimeException("email not specified");
 
+				$email = htmlspecialchars($_GET["email"]);
 				$this->_title = $roslogin_langres["register_title"];
 				$this->_heading = $roslogin_langres["register_heading"];
-				$this->_message = sprintf($roslogin_langres["register_sent"], $_GET["email"]);
+				$this->_message = sprintf($roslogin_langres["register_sent"], $email);
 			}
 			else if (array_key_exists("register_in_use", $_GET))
 			{
@@ -54,9 +55,10 @@
 				if (!array_key_exists("email", $_GET))
 					throw new RuntimeException("email not specified");
 
+				$email = htmlspecialchars($_GET["email"]);
 				$this->_title = $roslogin_langres["forgot_title"];
 				$this->_heading = $roslogin_langres["forgot_heading"];
-				$this->_message = sprintf($roslogin_langres["username_sent"], $_GET["email"]);
+				$this->_message = sprintf($roslogin_langres["username_sent"], $email);
 			}
 			else
 			{

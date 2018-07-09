@@ -37,8 +37,8 @@
 		{
 			global $roslogin_langres;
 
-			$displayname = array_key_exists("displayname", $_GET) ? $_GET["displayname"] : $this->_userinfo["displayname"];
-			$email = array_key_exists("email", $_GET) ? $_GET["email"] : $this->_userinfo["email"];
+			$displayname = array_key_exists("displayname", $_GET) ? htmlspecialchars($_GET["displayname"]) : htmlspecialchars($this->_userinfo["displayname"]);
+			$email = array_key_exists("email", $_GET) ? htmlspecialchars($_GET["email"]) : htmlspecialchars($this->_userinfo["email"]);
 
 			$success = array_key_exists("success", $_GET);
 			$sent = array_key_exists("sent", $_GET);
@@ -56,7 +56,7 @@
 
 				<div class="col-md-offset-3 col-md-6">
 					<fieldset class="form-group">
-						<?php printf($roslogin_langres["selfservice_intro"], $this->_username); ?>
+						<?php printf($roslogin_langres["selfservice_intro"], htmlspecialchars($this->_username)); ?>
 
 						<div class="has-success">
 							<?php

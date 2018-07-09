@@ -14,7 +14,7 @@
 			$rl->logout();
 
 			// Redirect to the given URL or to the Login Page if there is none.
-			if (array_key_exists("redirect", $_GET))
+			if (array_key_exists("redirect", $_GET) && is_valid_redirect($_GET["redirect"]))
 				redirect_to($_GET["redirect"]);
 			else
 				redirect_to("?p=login");
