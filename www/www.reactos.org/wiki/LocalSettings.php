@@ -197,4 +197,7 @@ $wgGroupPermissions['sysop']['abusefilter-hidden-log'] = true;
 # Enable mumble:// protocol
 $wgUrlProtocols[] = "mumble://";
 
+# Also search in user pages by default, we have many interesting things there.
+$wgNamespacesToBeSearchedDefault[NS_USER] = true;
+
 require_once("$IP/../../www.reactos.org_config/wiki-config.php");
