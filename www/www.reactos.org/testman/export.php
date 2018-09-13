@@ -18,7 +18,7 @@
 		if (!array_key_exists("f", $_GET) || !array_key_exists("ids", $_GET))
 			throw new ErrorMessageException("Necessary information not specified");
 
-		$reader = new WineTest_ResultReader();
+		$reader = new WineTest_Reader();
 		$result = $reader->setTestIDList($_GET["ids"]);
 
 		switch ($_GET["f"])
