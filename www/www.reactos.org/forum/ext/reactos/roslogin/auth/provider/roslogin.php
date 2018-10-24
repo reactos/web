@@ -47,14 +47,14 @@
 
 		/**
 		 * Generate an array for the user_add() function.
-		 * Taken from the apache.php authentication module and adapted (add an E-Mail address instead of password).
+		 * Taken from the apache.php authentication module and adapted (different group and add an E-Mail address instead of password).
 		 */
 		private function _user_row($username, $email)
 		{
 			// first retrieve default group id
-			$sql = 'SELECT group_id
-				FROM ' . GROUPS_TABLE . "
-				WHERE group_name = '" . $this->db->sql_escape('REGISTERED') . "'
+			$sql = "SELECT group_id
+				FROM " . GROUPS_TABLE . "
+				WHERE group_name = 'NEWLY_REGISTERED'
 				AND group_type = " . GROUP_SPECIAL;
 			$result = $this->db->sql_query($sql);
 			$row = $this->db->sql_fetchrow($result);
