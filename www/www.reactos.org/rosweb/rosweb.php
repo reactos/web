@@ -1,9 +1,9 @@
 <?php
 /*
  * PROJECT:     ReactOS Website
- * LICENSE:     GPL-2.0+ (https://spdx.org/licenses/GPL-2.0+)
+ * LICENSE:     GPL-2.0-or-later (https://spdx.org/licenses/GPL-2.0-or-later)
  * PURPOSE:     ReactOS RosWeb Component for sharing layout and user information between website subsystems
- * COPYRIGHT:   Copyright 2015-2017 Colin Finck (colin@reactos.org)
+ * COPYRIGHT:   Copyright 2015-2018 Colin Finck (colin@reactos.org)
  */
 
 	class RosWeb
@@ -105,9 +105,9 @@
 		private function _queryProvider($part)
 		{
 			$q = ($this->_language == "en") ? "" : $this->_language;
-			$tls = (array_key_exists("HTTPS", $_SERVER) && $_SERVER["HTTPS"] == "on") ? "1" : "0";
+			$protocol = (array_key_exists("HTTPS", $_SERVER) && $_SERVER["HTTPS"] == "on") ? "https" : "http";
 
-			$fp = fopen(sprintf("http://%s/rosweb/rosweb-provider-%s.php?q=%s&part=%s&tls=%s", $_SERVER["HTTP_HOST"], $this->_provider, $q, $part, $tls), "r", false, $this->_context);
+			$fp = fopen(sprintf("%s://%s/rosweb/rosweb-provider-%s.php?q=%s&part=%s", $protocol, $_SERVER["HTTP_HOST"], $this->_provider, $q, $part), "r", false, $this->_context);
 			$ret = stream_get_contents($fp);
 			fclose($fp);
 
