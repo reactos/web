@@ -175,6 +175,7 @@
 					$table_results .= sprintf('<div title="%s" class="box totaltests">%s <span class="diff">%s</span></div>', $testman_langres["totaltests"], GetTotalTestsString($row), GetDifference($row, $prev_row, "count"));
 					$table_results .= sprintf('<div title="%s" class="box %s_failedtests">%d <span class="diff">%s</span></div>', $testman_langres["failedtests"], $class, $row["failures"], GetDifference($row, $prev_row, "failures"));
 					$table_results .= sprintf('<div title="%s" class="box skippedtests">%d <span class="diff">%s</span></div>', $testman_langres["skippedtests"], $row["skipped"], GetDifference($row, $prev_row, "skipped"));
+					$table_results .= sprintf('<div title="%s" class="box timetest">%g </div>', $testman_langres["timetest"], $row["time"]);
 				}
 				else
 				{
