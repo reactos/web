@@ -3,8 +3,6 @@
    
     <input type="hidden" name="lc" value="US" />
 
-    <input name="landing_page" type="hidden" value="billing" />
-    <input name="cpp_cart_border_color" type="hidden" value="FF0000" />
     <?php
       if(!empty($variables['top_logo'])) {
     ?>
@@ -12,10 +10,8 @@
     <?php
       }
     ?>
-    <input name="cpp_payflow_color" type="hidden" value="D20137" />
     <input name="business" type="hidden" value="<?php echo $variables['account_email']; ?>" />
     <input name="cmd" type="hidden" value="_donations" />
-    <input type="hidden" name="notify_url" value="<?php echo $variables['notify_url']; ?>">
     <input type="hidden" name="return" value="<?php echo $variables['return_url']; ?>"/>
     <input name="item_name" type="hidden" value="<?php echo $variables['item_name']; ?>" />
     <div class="row column">
