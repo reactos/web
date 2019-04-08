@@ -1,7 +1,7 @@
 #reactos-head {
 	background: rgba(0, 0, 0, 0) linear-gradient(#f6f6f6, white) repeat scroll 0 0;
 	border-bottom: 1px solid #e9e9e9;
-	box-shadow: 0 0 3px rgba(0, 0, 0, 0.1);
+	box-shadow: 0 0 2px #000;
 }
 
 #reactos-head a#homelink {
@@ -24,6 +24,7 @@
 	font-weight: 700;
 	padding: 10px 13px;
 	text-transform: uppercase;
+	transition: all 0.3s;
 }
 
 #reactos-head a#homebutton:hover {
