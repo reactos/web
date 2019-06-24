@@ -178,11 +178,11 @@
 				$line = fgets($fp);
 
 				// Check whether we reached the next test already.
-				if (substr($line, 0, 27) == "[ROSAUTOTEST] Running Wine Test, Module: ")
+				if (substr($line, 0, 41) == "[ROSAUTOTEST] Running Wine Test, Module: ")
 					break;
 
 				// Also check whether we reached the end of testing.
-				if (substr($line, 0, 36) == "[ROSAUTOTEST] SYSREG_CHECKPOINT:THIRDBOOT_COMPLETE")
+				if (substr($line, 0, 50) == "[ROSAUTOTEST] SYSREG_CHECKPOINT:THIRDBOOT_COMPLETE")
 					break;
 
 				// All other lines belong to the log of this test.
