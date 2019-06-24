@@ -148,7 +148,7 @@
 			// Find a test.
 			while (!feof($fp))
 			{
-				if (preg_match("#^Running Wine Test, Module: ([\S]+), Test: ([\S]+)#", $line, $matches))
+				if (preg_match("#^\[ROSAUTOTEST\] Running Wine Test, Module: ([\S]+), Test: ([\S]+)#", $line, $matches))
 				{
 					// Get a Suite ID for this combination.
 					$suite_id = $writer->getSuiteId($matches[1], $matches[2]);
@@ -170,7 +170,7 @@
 
 			// Get the log for this test.
 			$log = "";
-			$completion_line = "Test " . $matches[2] . " completed in ";
+			$completion_line = "[ROSAUTOTEST] Test " . $matches[2] . " completed in ";
 			$completion_line_length = strlen($completion_line);
 
 			while (!feof($fp))
@@ -178,11 +178,11 @@
 				$line = fgets($fp);
 
 				// Check whether we reached the next test already.
-				if (substr($line, 0, 27) == "Running Wine Test, Module: ")
+				if (substr($line, 0, 27) == "[ROSAUTOTEST] Running Wine Test, Module: ")
 					break;
 
 				// Also check whether we reached the end of testing.
-				if (substr($line, 0, 36) == "SYSREG_CHECKPOINT:THIRDBOOT_COMPLETE")
+				if (substr($line, 0, 36) == "[ROSAUTOTEST] SYSREG_CHECKPOINT:THIRDBOOT_COMPLETE")
 					break;
 
 				// All other lines belong to the log of this test.
