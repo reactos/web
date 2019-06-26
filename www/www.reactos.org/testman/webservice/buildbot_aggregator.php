@@ -1,9 +1,9 @@
 <?php
 /*
  * PROJECT:     ReactOS Testman
- * LICENSE:     GPL-2.0+ (https://spdx.org/licenses/GPL-2.0+)
+ * LICENSE:     GPL-2.0-or-later (https://spdx.org/licenses/GPL-2.0-or-later)
  * PURPOSE:     Aggregator for the Debug Log of ReactOS BuildBot Buildslaves
- * COPYRIGHT:   Copyright 2009-2017 Colin Finck (colin@reactos.org)
+ * COPYRIGHT:   Copyright 2009-2019 Colin Finck (colin@reactos.org)
  *              Copyright 2012-2015 Kamil Hornicek (kamil.hornicek@reactos.org)
  */
 
@@ -30,6 +30,9 @@
 		if (!is_numeric($_GET["sourceid"]))
 			throw new RuntimeException("Invalid sourceid");
 
+		if (!is_numeric($_GET["builder"]))
+			throw new RuntimeException("Invalid builder");
+
 		if (!is_numeric($_GET["platform"]))
 			throw new RuntimeException("Invalid platform");
 
@@ -38,7 +41,7 @@
 
 		$sourceid = (int)$_GET["sourceid"];
 		$password = $_GET["password"];
-		$builder = $_GET["builder"];
+		$builder = (int)$_GET["builder"];
 		$platform = (int)$_GET["platform"];
 		$build = (int)$_GET["build"];
 		$comment = $_GET["comment"];
@@ -58,7 +61,8 @@
 			throw new ErrorMessageException("The script has already processed this build before!");
 
 		// Read the Buildslave test log.
-		$fp = @fopen(BUILDER_URL . rawurlencode($builder) . "/builds/$build/steps/test/logs/stdio/text", "r");
+		$logurl = sprintf(BUILDER_URL, $builder, $build);
+		$fp = @fopen($logurl, "r");
 		if (!$fp)
 			throw new RuntimeException("Could not open the test log!");
 
@@ -226,7 +230,7 @@
 			throw new RuntimeException("Could not create a temp file");
 
 		// Store the log in a temp file because HTTP streams are not seekable.
-		$ch = curl_init(BUILDER_URL . rawurlencode($builder) . "/builds/$build/steps/test/logs/stdio");
+		$ch = curl_init($logurl);
 		curl_setopt($ch, CURLOPT_FILE, $fp);
 		curl_setopt($ch, CURLOPT_HEADER, 0);
 		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
