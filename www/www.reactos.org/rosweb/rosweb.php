@@ -23,10 +23,9 @@
 			"ru" => "Русский",
 		);
 
-		// Specifies the "rosweb-provider-X.php" file that is queried for layout and user information.
-		// This must be set to "drupal" on the web server to get dynamic results from our Drupal installation.
-		// For developing subsystems locally, you can set this to "dummy" and don't need a local Drupal setup then.
-		private $_provider = "drupal";
+		// Specifies the path where hugo generated header.htm, footer.htm and head.htm can be found
+		// If this is an invalid path, rosweb will fall back on the data from dummy-content
+		private $_hugo_template_output_dir = "R:\\src\\web-content\\public\\rosweb";
 
 
 		//// CODE ////
@@ -99,19 +98,34 @@
 			setcookie("multilink_pl", $this->_language, time() + 31536000, "/", $this->_getCookieDomain());
 		}
 
-		/* Functional programming in PHP is prone to naming collisions. As Drupal 7 is still using functional PHP throughout the
-		   whole CMS, we have to use this clean but slow provider approach and do a single HTTP request for each query.
-		   When you add queries here, return as much information as useful in one query to reduce the number of required requests. */
+		// Try to resolve a template part using the directory $_hugo_template_output_dir first,
+		// falling back to 'dummy-content':
+		// $_hugo_template_output_dir / part.en.htm
+		// $_hugo_template_output_dir / part.htm
+		// dummy-content / part.en.htm
+		// dummy-content / part.htm
 		private function _queryProvider($part)
 		{
-			$q = ($this->_language == "en") ? "" : $this->_language;
-			$protocol = (array_key_exists("HTTPS", $_SERVER) && $_SERVER["HTTPS"] == "on") ? "https" : "http";
+			$file_lang = ($this->_language == "en") ? "" : $this->_language;
 
-			$fp = fopen(sprintf("%s://%s/rosweb/rosweb-provider-%s.php?q=%s&part=%s", $protocol, $_SERVER["HTTP_HOST"], $this->_provider, $q, $part), "r", false, $this->_context);
-			$ret = stream_get_contents($fp);
-			fclose($fp);
+			$try_files = array();
+			if (file_exists($this->_hugo_template_output_dir))
+			{
+				$try_files[] = "$this->_hugo_template_output_dir/$part.$file_lang.htm";
+				$try_files[] = "$this->_hugo_template_output_dir/$part.htm";
+			}
+			$try_files[] = __DIR__ . "/dummy-content/$part.$file_lang.htm";
+			$try_files[] = __DIR__ . "/dummy-content/$part.htm";
 
-			return $ret;
+			foreach ($try_files as $current_file)
+			{
+				if (file_exists($current_file))
+				{
+					return file_get_contents($current_file);
+				}
+			}
+
+			return "ERROR: Template $part not found!";
 		}
 
 
@@ -126,24 +140,19 @@
 				$this->_language = "en";
 		}
 
-		public function getCurrentUser()
-		{
-			return json_decode($this->_queryProvider("CurrentUser"));
-		}
-
 		public function getFooter()
 		{
-			return $this->_queryProvider("Footer");
+			return $this->_queryProvider("footer");
 		}
 
 		public function getHead()
 		{
-			return $this->_queryProvider("Head");
+			return $this->_queryProvider("head");
 		}
 
 		public function getHeader()
 		{
-			return $this->_queryProvider("Header");
+			return $this->_queryProvider("header");
 		}
 
 		public function getLanguage()
