@@ -40,7 +40,7 @@
 <head>
 	<meta charset="utf-8">
 	<title><?php echo $testman_langres["index_title"]; ?></title>
-	<?php echo $rw->getHead(); ?>
+	<?php $rw->printHead(); ?>
 	<link rel="stylesheet" type="text/css" href="css/index.css">
 	<script type="text/javascript">
 		var DEFAULT_SEARCH_LIMIT = <?php echo DEFAULT_SEARCH_LIMIT; ?>;
@@ -55,7 +55,7 @@
 </head>
 <body onload="Load()">
 
-<?php echo $rw->getHeader(); ?>
+<?php $rw->printHeader(); ?>
 
 <div class="main" role="main">
 	<section class="page-top breadcrumb-wrap">
@@ -150,7 +150,7 @@
 	</div>
 </div>
 
-<?php echo $rw->getFooter(); ?>
+<?php $rw->printFooter(); ?>
 
 </body>
 </html>

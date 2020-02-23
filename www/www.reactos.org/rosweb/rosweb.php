@@ -3,7 +3,7 @@
  * PROJECT:     ReactOS Website
  * LICENSE:     GPL-2.0-or-later (https://spdx.org/licenses/GPL-2.0-or-later)
  * PURPOSE:     ReactOS RosWeb Component for sharing layout and user information between website subsystems
- * COPYRIGHT:   Copyright 2015-2018 Colin Finck (colin@reactos.org)
+ * COPYRIGHT:   Copyright 2015-2020 Colin Finck (colin@reactos.org)
  */
 
 	class RosWeb
@@ -22,10 +22,6 @@
 			"pl" => "Polski",
 			"ru" => "Русский",
 		);
-
-		// Specifies the path where hugo generated header.htm, footer.htm and head.htm can be found
-		// If this is an invalid path, rosweb will fall back on the data from dummy-content
-		private $_hugo_template_output_dir = "R:\\src\\web-content\\public\\rosweb";
 
 
 		//// CODE ////
@@ -98,34 +94,16 @@
 			setcookie("multilink_pl", $this->_language, time() + 31536000, "/", $this->_getCookieDomain());
 		}
 
-		// Try to resolve a template part using the directory $_hugo_template_output_dir first,
-		// falling back to 'dummy-content':
-		// $_hugo_template_output_dir / part.en.htm
-		// $_hugo_template_output_dir / part.htm
-		// dummy-content / part.en.htm
-		// dummy-content / part.htm
 		private function _queryProvider($part)
 		{
-			$file_lang = ($this->_language == "en") ? "" : $this->_language;
-
-			$try_files = array();
-			if (file_exists($this->_hugo_template_output_dir))
+			if (file_exists(__DIR__ . '../../www.reactos.org_content/parts/' . $part))
 			{
-				$try_files[] = "$this->_hugo_template_output_dir/$part.$file_lang.htm";
-				$try_files[] = "$this->_hugo_template_output_dir/$part.htm";
+				readfile(__DIR__ . '../../www.reactos.org_content/parts/' . $part);
 			}
-			$try_files[] = __DIR__ . "/dummy-content/$part.$file_lang.htm";
-			$try_files[] = __DIR__ . "/dummy-content/$part.htm";
-
-			foreach ($try_files as $current_file)
+			else
 			{
-				if (file_exists($current_file))
-				{
-					return file_get_contents($current_file);
-				}
+				readfile('https://master.web-content.reactos.org/parts/' . $part);
 			}
-
-			return "ERROR: Template $part not found!";
 		}
 
 
@@ -138,21 +116,6 @@
 				$this->_handleLanguage($supported_languages);
 			else
 				$this->_language = "en";
-		}
-
-		public function getFooter()
-		{
-			return $this->_queryProvider("footer");
-		}
-
-		public function getHead()
-		{
-			return $this->_queryProvider("head");
-		}
-
-		public function getHeader()
-		{
-			return $this->_queryProvider("header");
 		}
 
 		public function getLanguage()
@@ -192,5 +155,20 @@
 			$html .= '</ul></div></div></div>';
 
 			return $html;
+		}
+
+		public function printFooter()
+		{
+			return $this->_queryProvider("footer");
+		}
+
+		public function printHead()
+		{
+			return $this->_queryProvider("head");
+		}
+
+		public function printHeader()
+		{
+			return $this->_queryProvider("header");
 		}
 	}
