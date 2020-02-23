@@ -3,7 +3,7 @@
  * PROJECT:     ReactOS Website
  * LICENSE:     GPL-2.0+ (https://spdx.org/licenses/GPL-2.0+)
  * PURPOSE:     Easily download prebuilt ReactOS Revisions
- * COPYRIGHT:   Copyright 2007-2018 Colin Finck (colin@reactos.org)
+ * COPYRIGHT:   Copyright 2007-2020 Colin Finck (colin@reactos.org)
  *              Copyright 2012-2013 Aleksey Bragin (aleksey@reactos.org)
  */
 
@@ -35,7 +35,7 @@
 <head>
 	<meta charset="utf-8">
 	<title><?php echo $getbuilds_langres["title"]; ?></title>
-	<?php echo $rw->getHead(); ?>
+	<?php $rw->printHead(); ?>
 	<link rel="stylesheet" type="text/css" href="/sites/all/themes/Porto/css/skins/default-style.css" />
 	<link rel="stylesheet" type="text/css" href="getbuilds.css" />
 	<script type="text/javascript">
@@ -49,7 +49,7 @@
 </head>
 <body onload="Load()">
 
-<?php echo $rw->getHeader(); ?>
+<?php $rw->printHeader(); ?>
 
 <div class="main" role="main">
 	<section class="page-top breadcrumb-wrap">
@@ -139,7 +139,7 @@
 	</div>
 </div>
 
-<?php echo $rw->getFooter(); ?>
+<?php $rw->printFooter(); ?>
 
 </div>
 </body>

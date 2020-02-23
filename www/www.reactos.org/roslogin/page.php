@@ -3,7 +3,7 @@
  * PROJECT:     RosLogin - A simple Self-Service and Single-Sign-On around an LDAP user directory
  * LICENSE:     AGPL-3.0-or-later (https://spdx.org/licenses/AGPL-3.0-or-later)
  * PURPOSE:     The template for every RosLogin page
- * COPYRIGHT:   Copyright 2018 Colin Finck (colin@reactos.org)
+ * COPYRIGHT:   Copyright 2018-2020 Colin Finck (colin@reactos.org)
  */
 
 	// This file must only be used as an include from index.php where $page is set.
@@ -18,12 +18,12 @@
 		$page->printTitle();
 		echo ROSLOGIN_TITLE_SUFFIX;
 	?></title>
-	<?php echo $rw->getHead(); ?>
+	<?php $rw->printHead(); ?>
 	<?php $page->printHead(); ?>
 </head>
 <body>
 
-<?php echo $rw->getHeader(); ?>
+<?php $rw->printHeader(); ?>
 
 <div class="main" role="main">
 	<section class="page-top breadcrumb-wrap">
@@ -53,7 +53,7 @@
 	</div>
 </div>
 
-<?php echo $rw->getFooter(); ?>
+<?php $rw->printFooter(); ?>
 
 </body>
 </html>
