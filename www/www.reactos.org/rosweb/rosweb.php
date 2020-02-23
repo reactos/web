@@ -159,16 +159,16 @@
 
 		public function printFooter()
 		{
-			return $this->_queryProvider("footer");
+			return $this->_queryProvider('footer.html');
 		}
 
 		public function printHead()
 		{
-			return $this->_queryProvider("head");
+			return $this->_queryProvider('head.html');
 		}
 
 		public function printHeader()
 		{
-			return $this->_queryProvider("header");
+			return $this->_queryProvider('header.html');
 		}
 	}
