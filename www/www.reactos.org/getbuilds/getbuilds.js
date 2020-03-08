@@ -72,8 +72,8 @@ function GetFilesCallback(HttpRequest)
 		{
 			html += '<span id="pagesbox" class="form-inline pull-right">';
 
-			html += '<button class="btn btn-default" ' + (CurrentPage > 1 ? 'onclick="FirstPage_OnClick()"' : 'disabled="disabled"') + ' title="' + shared_langres["firstpage_title"] + '"><i class="icon icon-angle-double-left"><\/i><\/button> ';
-			html += '<button class="btn btn-default" ' + (CurrentPage > 1 ? 'onclick="PrevPage_OnClick()"' : 'disabled="disabled"') + ' title="' + shared_langres["prevpage_title"] + '"><i class="icon icon-angle-left"><\/i><\/button> ';
+			html += '<button class="btn btn-default" ' + (CurrentPage > 1 ? 'onclick="FirstPage_OnClick()"' : 'disabled="disabled"') + ' title="' + shared_langres["firstpage_title"] + '"><i class="fa fa-angle-double-left"><\/i><\/button> ';
+			html += '<button class="btn btn-default" ' + (CurrentPage > 1 ? 'onclick="PrevPage_OnClick()"' : 'disabled="disabled"') + ' title="' + shared_langres["prevpage_title"] + '"><i class="fa fa-angle-left"><\/i><\/button> ';
 
 			html += '<select class="form-control" id="pagesel" size="1" onchange="PageSwitch(this)">';
 
@@ -91,8 +91,8 @@ function GetFilesCallback(HttpRequest)
 
 			html += '<\/select> ';
 
-			html += '<button class="btn btn-default" ' + (MoreFiles ? 'onclick="NextPage_OnClick()"' : 'disabled="disabled"') + ' title="' + shared_langres["nextpage_title"] + '"><i class="icon icon-angle-right"><\/i><\/button> ';
-			html += '<button class="btn btn-default" ' + (MoreFiles ? 'onclick="LastPage_OnClick()"' : 'disabled="disabled"') + ' title="' + shared_langres["lastpage_title"] + '"><i class="icon icon-angle-double-right"><\/i><\/button>';
+			html += '<button class="btn btn-default" ' + (MoreFiles ? 'onclick="NextPage_OnClick()"' : 'disabled="disabled"') + ' title="' + shared_langres["nextpage_title"] + '"><i class="fa fa-angle-right"><\/i><\/button> ';
+			html += '<button class="btn btn-default" ' + (MoreFiles ? 'onclick="LastPage_OnClick()"' : 'disabled="disabled"') + ' title="' + shared_langres["lastpage_title"] + '"><i class="fa fa-angle-double-right"><\/i><\/button>';
 
 			html += '<\/span>';
 		}
@@ -123,7 +123,7 @@ function GetFilesCallback(HttpRequest)
 				var flink = '<a href="' + ISO_DOWNLOAD_URL + fdir + '/' + fname + '">';
 
 				html += '<tr>';
-				html += '<td>' + flink + '<i class="icon icon-file-o"></i> ' + fname + '<\/a><\/td>';
+				html += '<td>' + flink + '<i class="fa fa-file-o"></i> ' + fname + '<\/a><\/td>';
 				html += '<td>' + flink + fsize + '<\/a><\/td>';
 				html += '<td>' + flink + fdate + '<\/a><\/td>';
 				html += '<\/tr>';
@@ -156,7 +156,7 @@ function GetFilesCallback(HttpRequest)
 
 		document.getElementById("pagesel").appendChild(OptionElem);
 	}
-	
+
 	if (MoreFiles && (data["requesttype"] == REQUESTTYPE_FULLLOAD || data["requesttype"] == REQUESTTYPE_ADDPAGE))
 	{
 		// There are more files available in the full range. Therefore we have to start another request and add a new page
@@ -219,7 +219,7 @@ function SearchButton_OnClick()
 	data["requesttype"] = REQUESTTYPE_FULLLOAD;
 
 	AjaxGetFiles();
-	
+
 	// Update the Previous and Next buttons.
 	document.getElementById("previous_button").disabled = true;
 	document.getElementById("next_button").disabled = true;

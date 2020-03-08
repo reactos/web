@@ -69,9 +69,9 @@
 				<label for="revision" class="col-sm-2 control-label"><?php echo $shared_langres["revision"]; ?></label>
 
 				<div class="col-sm-10 form-inline">
-					<button class="btn btn-default" id="previous_button" disabled="disabled"><i class="icon icon-chevron-left"></i></button>
+					<button class="btn btn-default" id="previous_button" disabled="disabled"><i class="fa fa-chevron-left"></i></button>
 					<input class="form-control" type="text" id="revision" value="<?php echo $rev; ?>" size="50">
-					<button class="btn btn-default" id="next_button" disabled="disabled"><i class="icon icon-chevron-right"></i></button><br>
+					<button class="btn btn-default" id="next_button" disabled="disabled"><i class="fa fa-chevron-right"></i></button><br>
 
 					<?php printf($shared_langres["rangeinfo"], $rev, $rev_before, $rev); ?>
 				</div>
@@ -98,8 +98,8 @@
 
 		<div class="row">
 			<div class="col-md-2 col-md-offset-1">
-				<button class="btn btn-primary" onclick="SearchButton_OnClick()"><i class="icon icon-search"></i> <?php echo $shared_langres["search_button"]; ?></button>
-				<i class="icon icon-cog icon-spin" id="ajax_loading"></i><br><br>
+				<button class="btn btn-primary" onclick="SearchButton_OnClick()"><i class="fa fa-search"></i> <?php echo $shared_langres["search_button"]; ?></button>
+				<i class="fa fa-cog fa-spin" id="ajax_loading"></i><br><br>
 			</div>
 
 			<div class="col-md-6">
