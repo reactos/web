@@ -13,6 +13,9 @@
 	require_once("lib/text_diff/Diff/Renderer/Html/SideBySide.php");
 	require_once("lib/text_diff/Diff/Renderer/Html/Inline.php");
 	require_once(ROOT_PATH . "rosweb/exceptions.php");
+	require_once(ROOT_PATH . "rosweb/rosweb.php");
+
+	$rw = new RosWeb();
 
 	// Functions
 	function GetRevision($test_id)
@@ -33,7 +36,7 @@
 
 		return array($result["revision"], $result["module"], $result["test"], $result["suite_id"]);
 	}
-    
+
 	function GetLog($test_id, $strip, $test)
 	{
 		global $dbh;
@@ -58,7 +61,7 @@
 
 				$stripped[] = $value;
 			}
-		
+
 			return $stripped;
 		}
 		else
@@ -114,6 +117,7 @@
 <html>
 <head>
 	<meta charset="utf-8">
+	<?php $rw->printHead(); ?>
 	<link rel="stylesheet" type="text/css" href="css/diff.css">
 	<title><?php echo $title[0][0] . ' / ' . $title[1][0] . ' ' . $title[0][1]; ?></title>
 </head>
