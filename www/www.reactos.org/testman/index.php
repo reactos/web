@@ -114,8 +114,8 @@
 
 		<div class="row">
 			<div class="col-md-2 col-md-offset-1">
-				<button class="btn btn-primary" onclick="SearchButton_OnClick()"><i class="icon icon-search"></i> <?php echo $shared_langres["search_button"]; ?></button>
-				<i class="icon icon-cog icon-spin" id="ajax_loading_search"></i><br><br>
+				<button class="btn btn-primary" onclick="SearchButton_OnClick()"><i class="fa fa-search"></i> <?php echo $shared_langres["search_button"]; ?></button>
+				<i class="fa fa-cog fa-spin" id="ajax_loading_search"></i><br><br>
 			</div>
 
 			<div class="col-md-6">

@@ -227,8 +227,8 @@ function SearchCallback(HttpRequest)
 			// Page number boxes
 			html += '<div id="pagesbox" class="form-inline pull-right">';
 
-			html += '<button class="btn btn-default" ' + (CurrentPage > 1 ? 'onclick="FirstPage_OnClick()"' : 'disabled="disabled"') + ' title="' + shared_langres["firstpage_title"] + '"><i class="icon icon-angle-double-left"><\/i><\/button> ';
-			html += '<button class="btn btn-default" ' + (CurrentPage > 1 ? 'onclick="PrevPage_OnClick()"' : 'disabled="disabled"') + ' title="' + shared_langres["prevpage_title"] + '"><i class="icon icon-angle-left"><\/i><\/button> ';
+			html += '<button class="btn btn-default" ' + (CurrentPage > 1 ? 'onclick="FirstPage_OnClick()"' : 'disabled="disabled"') + ' title="' + shared_langres["firstpage_title"] + '"><i class="fa fa-angle-double-left"><\/i><\/button> ';
+			html += '<button class="btn btn-default" ' + (CurrentPage > 1 ? 'onclick="PrevPage_OnClick()"' : 'disabled="disabled"') + ' title="' + shared_langres["prevpage_title"] + '"><i class="fa fa-angle-left"><\/i><\/button> ';
 
 			html += '<select class="form-control" id="pagesel" size="1" onchange="PageBox_OnChange(this)">';
 
@@ -246,8 +246,8 @@ function SearchCallback(HttpRequest)
 
 			html += '<\/select> ';
 
-			html += '<button class="btn btn-default" ' + (MoreResults ? 'onclick="NextPage_OnClick()"' : 'disabled="disabled"') + ' title="' + shared_langres["nextpage_title"] + '"><i class="icon icon-angle-right"><\/i><\/button> ';
-			html += '<button class="btn btn-default" ' + (MoreResults ? 'onclick="LastPage_OnClick()"' : 'disabled="disabled"') + ' title="' + shared_langres["lastpage_title"] + '"><i class="icon icon-angle-double-right"><\/i><\/button>';
+			html += '<button class="btn btn-default" ' + (MoreResults ? 'onclick="NextPage_OnClick()"' : 'disabled="disabled"') + ' title="' + shared_langres["nextpage_title"] + '"><i class="fa fa-angle-right"><\/i><\/button> ';
+			html += '<button class="btn btn-default" ' + (MoreResults ? 'onclick="LastPage_OnClick()"' : 'disabled="disabled"') + ' title="' + shared_langres["lastpage_title"] + '"><i class="fa fa-angle-double-right"><\/i><\/button>';
 
 			html += '<\/div>';
 		}
