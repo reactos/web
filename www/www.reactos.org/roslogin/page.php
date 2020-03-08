@@ -25,33 +25,20 @@
 
 <?php $rw->printHeader(); ?>
 
-<div class="main" role="main">
-	<section class="page-top breadcrumb-wrap">
-		<div class="container">
-			<div class="row">
-				<div class="col-md-12">
-					<div id="breadcrumbs">
-						<ul class="breadcrumb">
-							<li><a href="/">Home</a></li>
-						</ul>
-					</div>
-				</div>
-			</div>
-
-			<div class="row">
-				<div class="col-md-12">
-					<h2><?php $page->printTitle(); ?></h2>
-				</div>
-			</div>
+<div class="row" id="heading-breadcrumbs">
+	<div class="col-md-offset-1 col-md-10">
+		<div class="breadcrumbs">
+			<a href="/">home</a> / <a href="/roslogin">roslogin</a>
 		</div>
-	</section>
-
-	<div class="content">
-		<div class="container">
-			<?php $page->printContent(); ?>
-		</div>
+		<h1><?php $page->printTitle(); ?></h1>
 	</div>
 </div>
+
+<section id="content" class="row">
+	<div class="col-md-10 col-md-offset-1">
+		<?php $page->printContent(); ?>
+	</div>
+</section>
 
 <?php $rw->printFooter(); ?>
 
