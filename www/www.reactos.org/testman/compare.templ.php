@@ -3,10 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<title><?php echo $testman_langres["compare_title"]; ?></title>
-	<link type="text/css" rel="stylesheet" href="//fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800">
-	<link type="text/css" rel="stylesheet" href="/sites/all/themes/Porto/vendor/bootstrap/css/bootstrap.css">
-	<link type="text/css" rel="stylesheet" href="/sites/all/themes/Porto/css/theme-elements.css">
-	<link type="text/css" rel="stylesheet" href="/sites/all/themes/Porto/css/theme.css">
+	<?php $rw->printHead(); ?>
 	<link rel="stylesheet" type="text/css" href="css/compare.css">
 	<script type="text/javascript">
 		var FilterableRows = Array(<?php echo $testman_filterable; ?>);
@@ -18,7 +15,7 @@
 <h2><?php echo $testman_langres["compare_title"]; ?></h2>
 
 <div>
-	<?php echo $testman_controls ?>	
+	<?php echo $testman_controls ?>
 	<button class="btn btn-default" onclick="window.open('export.php?f=csv&amp;ids=<?php echo $_GET["ids"]; ?>')">CSV</button>
 	<button class="btn btn-default" onclick="window.open('export.php?f=xml&amp;ids=<?php echo $_GET["ids"]; ?>')">XML</button>
 </div><br>
@@ -26,13 +23,13 @@
 <div id="healthindicator_tooltip">
 	<div class="intro"><?php echo $testman_langres["healthindicator_intro"]; ?></div>
 
-	<div class="box crashedcanceledtests"></div>
+	<div class="testmanbox crashedcanceledtests"></div>
 	<div class="desc"><?php echo $testman_langres["healthindicator_test_crashedcanceled"]; ?></div>
 
-	<div class="box zero_failedtests"></div>
+	<div class="testmanbox zero_failedtests"></div>
 	<div class="desc"><?php echo $testman_langres["healthindicator_test_succeeded"]; ?></div>
 
-	<div class="box real_failedtests"></div>
+	<div class="testmanbox real_failedtests"></div>
 	<div class="desc"><?php echo $testman_langres["healthindicator_test_failed"]; ?></div>
 
 	<div class="outro"><?php echo $testman_langres["healthindicator_outro"]; ?></div>
@@ -41,17 +38,17 @@
 <div id="legend">
 	<div class="intro"><?php echo $testman_langres["legend"]; ?></div>
 
-	<div class="box totaltests"></div>
+	<div class="testmanbox totaltests"></div>
 	<div class="desc"><?php echo $testman_langres["totaltests"]; ?></div>
 
-	<div class="box zero_failedtests" style="border-right: none; margin: 0; width: 10px;"></div>
-	<div class="box real_failedtests" style="border-left: none; width: 9px;"></div>
+	<div class="testmanbox zero_failedtests" style="border-right: none; margin: 0; width: 10px;"></div>
+	<div class="testmanbox real_failedtests" style="border-left: none; width: 9px;"></div>
 	<div class="desc"><?php echo $testman_langres["failedtests"]; ?></div>
 
-	<div class="box skippedtests"></div>
+	<div class="testmanbox skippedtests"></div>
 	<div class="desc"><?php echo $testman_langres["skippedtests"]; ?></div>
 
-	<div class="box diff_legend"></div>
+	<div class="testmanbox diff_legend"></div>
 	<div class="desc"><?php echo $testman_langres["difference"]; ?></div>
 </div>
 

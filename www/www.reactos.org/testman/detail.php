@@ -49,7 +49,7 @@
 		// Post-process the log for convenience.
 		$module_urls = array();
 		$search_urls = array("modules/rostests/winetests", "modules/rostests/apitests");
-		
+
 		$pattern_core = "#^([a-z]*:?\()([a-zA-Z0-9\/_]+.[a-z]+):([0-9]+)(\))#m";
 		$pattern_test = "#^([a-zA-Z0-9_]+.[a-z]+):([0-9]+)(: )#m";
 
@@ -71,7 +71,7 @@
 	function file_callback($matches)
 	{
 		global $row, $module_urls;
-        
+
 		if (!isset($module_urls[$row["module"] . $matches[1]]))
 		{
 			$url_chunk = get_file_url($row["module"], $matches[1]);
@@ -103,10 +103,7 @@
 <head>
 	<meta charset="utf-8">
 	<title><?php echo $testman_langres["detail_title"]; ?></title>
-	<link type="text/css" rel="stylesheet" href="//fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800">
-	<link type="text/css" rel="stylesheet" href="/sites/all/themes/Porto/vendor/bootstrap/css/bootstrap.css">
-	<link type="text/css" rel="stylesheet" href="/sites/all/themes/Porto/css/theme-elements.css">
-	<link type="text/css" rel="stylesheet" href="/sites/all/themes/Porto/css/theme.css">
+	<?php $rw->printHead(); ?>
 	<link rel="stylesheet" type="text/css" href="css/detail.css">
 </head>
 <body>

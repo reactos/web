@@ -31,13 +31,13 @@ body {
 	margin-bottom: 1em;
 }
 
-#healthindicator_tooltip .box, #legend .box {
+#healthindicator_tooltip .testmanbox, #legend .testmanbox {
 	border: solid 1px #ddd;
 	height: 19px;
 	width: 19px;
 }
 
-#healthindicator_tooltip .box {
+#healthindicator_tooltip .testmanbox {
 	clear: left;
 	float: left;
 	margin: 3px;
@@ -144,7 +144,7 @@ body {
 	color: white;
 }
 
-#comparetable td, #comparetable td div.box, #comparetable td div.healthindicator {
+#comparetable td, #comparetable td div.testmanbox, #comparetable td div.healthindicator {
 	border-right: solid 1px #BBBBBB;
 	border-bottom: solid 1px #BBBBBB;
 	padding: 3px;
@@ -158,7 +158,7 @@ body {
 	text-align: center;
 }
 
-#comparetable td div.box {
+#comparetable td div.testmanbox {
 	color: black;
 	float: left;
 	width: 95px;
