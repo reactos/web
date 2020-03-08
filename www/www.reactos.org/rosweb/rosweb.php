@@ -66,11 +66,11 @@
 			// Server name might be just an IP address
 			if (preg_match("#[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}#", $_SERVER["SERVER_NAME"]))
 				return $_SERVER["SERVER_NAME"];
-		
+
 			// If it' a DNS address, return the domain name along with the suffix
 			if (preg_match("#(\.[^.]+\.[^.]+$)#", $_SERVER["SERVER_NAME"], $matches))
 				return $matches[1];
-		
+
 			// Otherwise return nothing
 			return "";
 		}
@@ -96,9 +96,9 @@
 
 		private function _queryProvider($part)
 		{
-			if (file_exists(__DIR__ . '../../www.reactos.org_content/parts/' . $part))
+			if (file_exists('/srv/www/www.reactos.org_content/parts/' . $part))
 			{
-				readfile(__DIR__ . '../../www.reactos.org_content/parts/' . $part);
+				readfile('/srv/www/www.reactos.org_content/parts/' . $part);
 			}
 			else
 			{
