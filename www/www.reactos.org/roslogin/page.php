@@ -40,7 +40,10 @@
 	</div>
 </section>
 
-<?php $rw->printFooter(); ?>
+<?php
+	$rw->printFooter();
+	$rw->printCookieBanner();
+?>
 
 </body>
 </html>

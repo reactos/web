@@ -84,5 +84,7 @@
 	</tbody>
 </table>
 
+<?php $rw->printCookieBanner(); ?>
+
 </body>
 </html>

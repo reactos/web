@@ -157,18 +157,28 @@
 			return $html;
 		}
 
+		public function printCookieBanner()
+		{
+			echo '<script ';
+			echo 'src="/rosweb/js/cookiebanner.min.js" ';
+			echo 'id="cookiebanner" ';
+			echo 'data-message="This part of the ReactOS Website uses cookies. By continuing to visit this site you agree to our use of cookies." ';
+			echo 'data-moreinfo="/legal">';
+			echo '</script>';
+		}
+
 		public function printFooter()
 		{
-			return $this->_queryProvider('footer.html');
+			$this->_queryProvider('footer.html');
 		}
 
 		public function printHead()
 		{
-			return $this->_queryProvider('head.html');
+			$this->_queryProvider('head.html');
 		}
 
 		public function printHeader()
 		{
-			return $this->_queryProvider('header.html');
+			$this->_queryProvider('header.html');
 		}
 	}
