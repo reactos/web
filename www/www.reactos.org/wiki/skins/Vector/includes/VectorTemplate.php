@@ -211,6 +211,11 @@ class VectorTemplate extends BaseTemplate {
 			<div style="clear: both;"></div>
 		</div>
 		<?php $this->printTrail(); ?>
+		<?php
+			require_once("../rosweb/rosweb.php");
+			$rw = new RosWeb();
+			$rw->printCookieBanner();
+		?>
 
 	</body>
 </html>
