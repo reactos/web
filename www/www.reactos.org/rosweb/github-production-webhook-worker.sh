@@ -32,4 +32,7 @@ while true; do
     mv /srv/web-content_git_repo/public www.reactos.org_content_new
     renameat2 -e www.reactos.org_content www.reactos.org_content_new
     rm -rf www.reactos.org_content_new
+
+    # We have finished successfully!
+    exit 0
 done
