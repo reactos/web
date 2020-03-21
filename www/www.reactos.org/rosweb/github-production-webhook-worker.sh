@@ -23,7 +23,7 @@ while true; do
     # Build the production website.
     sed -i "s#baseURL = \".*\"#baseURL = \"https://reactos.org/\"#" config.toml
     sed -i "s#development_banner_text = \".*\"##" config.toml
-    hugo --minify
+    hugo
 
     # Deploy it.
     # Uses the renameat2 tool from https://gist.github.com/eatnumber1/f97ac7dad7b1f5a9721f to exchange directories atomically.
