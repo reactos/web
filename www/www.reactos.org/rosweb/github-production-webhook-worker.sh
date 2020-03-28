@@ -24,7 +24,7 @@ while true; do
     # Build the production website.
     sed -i "s#baseURL = \".*\"#baseURL = \"https://reactos.org/\"#" config.toml
     sed -i "s#development_banner_text = \".*\"##" config.toml
-    rm static/robots.txt
+    truncate --size=0 static/robots.txt
     hugo
 
     # Deploy it.
