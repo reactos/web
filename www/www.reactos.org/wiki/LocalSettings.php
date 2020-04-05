@@ -142,9 +142,6 @@ wfLoadExtension( 'WikiEditor' );
 $wgArticlePath = "$wgScriptPath/$1";
 $wgUsePathInfo = true;
 
-# Enable external image embedding
-$wgAllowExternalImages = true;
-
 # Additional namespaces
 $wgExtraNamespaces[100] = "Techwiki";
 $wgExtraNamespaces[101] = "Techwiki_talk";
