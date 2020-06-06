@@ -191,6 +191,10 @@ $wgGroupPermissions['sysop']['abusefilter-log-private'] = true;
 $wgGroupPermissions['sysop']['abusefilter-hide-log'] = true;
 $wgGroupPermissions['sysop']['abusefilter-hidden-log'] = true;
 
+# Give administrators additional power to handle privacy issues.
+$wgGroupPermissions['sysop']['deletelogentry'] = true;
+$wgGroupPermissions['sysop']['deleterevision'] = true;
+
 # Enable mumble:// protocol
 $wgUrlProtocols[] = "mumble://";
 
