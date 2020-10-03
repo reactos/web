@@ -28,3 +28,7 @@
 
 	// Miscellaneous Website Settings
 	define("ROSLOGIN_TITLE_SUFFIX", " | ReactOS Project");
+
+	// Admin panel settings
+	define("ROSLOGIN_ADMIN_GROUP", "LDAP Administrators");
+	define("ROSLOGIN_MODERATOR_GROUP", "Moderators");
