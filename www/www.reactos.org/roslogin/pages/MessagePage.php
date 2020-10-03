@@ -66,6 +66,10 @@
 			}
 		}
 
+		public function printBreadcrumbs()
+		{
+		}
+
 		public function printTitle()
 		{
 			echo $this->_title;
