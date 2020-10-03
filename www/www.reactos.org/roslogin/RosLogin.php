@@ -14,8 +14,8 @@
 		//
 		// MEMBER VARIABLES
 		//
-		private $_dbh;
-		private $_ds;
+		protected $_dbh;
+		protected $_ds;
 
 		//
 		// PRIVATE FUNCTIONS
@@ -46,7 +46,7 @@
 		 *
 		 * This function can safely be called multiple times, even if a database connection already exists.
 		 */
-		private function _connectToDB()
+		protected function _connectToDB()
 		{
 			if (!$this->_dbh)
 			{
@@ -64,7 +64,7 @@
 		 *
 		 * This function can safely be called multiple times, even if an LDAP connection already exists.
 		 */
-		private function _connectToLDAP($credentials = FALSE, $username = NULL, $password = NULL)
+		protected function _connectToLDAP($credentials = FALSE, $username = NULL, $password = NULL)
 		{
 			if (!$this->_ds)
 			{
@@ -181,7 +181,7 @@
 		/**
 		 * Returns the DN in the LDAP directory for the given user name.
 		 */
-		private function _getUserNameDN($username)
+		protected function _getUserNameDN($username)
 		{
 			$username_escaped = ldap_escape($username, null, LDAP_ESCAPE_DN);
 			$dn = "cn={$username_escaped}," . ROSLOGIN_LDAP_BASE_DN;
@@ -442,14 +442,19 @@
 		 * Returns an associative array containing the display name ("displayname") and E-Mail address ("email") of the given user name.
 		 * Throws an InvalidUserNameException if the user name does not exist in the LDAP directory.
 		 */
-		public function getUserInformation($username)
+		public function getUserInformation($username, $extra_fields=NULL)
 		{
 			// Connect to LDAP using the service account.
 			$this->_connectToLDAP();
 
 			// Fetch the user information.
 			$dn = $this->_getUserNameDN($username);
-			$sr = @ldap_read($this->_ds, $dn, "(objectClass=*)", ["displayname", "mail"]);
+			$read_fields = ["displayname", "mail"];
+			if (is_array($extra_fields))
+			{
+				$read_fields = array_merge($read_fields, $extra_fields);
+			}
+			$sr = @ldap_read($this->_ds, $dn, "(objectClass=*)", $read_fields);
 			if (!$sr)
 				throw new InvalidUserNameException();
 
@@ -457,11 +462,33 @@
 			if ($info["count"] != 1)
 				throw new InvalidUserNameException();
 
+			// Remove the first indirection
+			$info = $info[0];
+
 			// Return it as an associative array.
-			return [
-				"displayname" => $info[0]["displayname"][0],
-				"email" => $info[0]["mail"][0],
+			$result = [
+				"displayname" => $info["displayname"][0],
+				"email" => $info["mail"][0],
 			];
+			// Manually copy over the extra fields
+			if (is_array($extra_fields))
+			{
+				foreach ($extra_fields as $field)
+				{
+					// ldap returns the keys lowercase
+					$field = strtolower($field);
+					if (isset($info[$field]))
+					{
+						$result[$field] = $info[$field];
+					}
+					else
+					{
+						// Create an empty entry
+						$result[$field] = ['count' => 0];
+					}
+				}
+			}
+			return $result;
 		}
 
 		/**
