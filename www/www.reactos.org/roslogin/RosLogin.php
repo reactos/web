@@ -235,7 +235,7 @@
 
 			// Search the LDAP directory for the given E-Mail address.
 			$email_escaped = ldap_escape($email, null, LDAP_ESCAPE_FILTER);
-			$filter = "(mail={$email_escaped})";
+			$filter = "(|(mail={$email_escaped})(mail={$email_escaped}.disabled))";
 			$sr = ldap_search($this->_ds, ROSLOGIN_LDAP_BASE_DN, $filter);
 			return (ldap_count_entries($this->_ds, $sr) > 0);
 		}
