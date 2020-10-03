@@ -16,6 +16,10 @@
 				redirect_to("?p=selfservice");
 		}
 
+		public function printBreadcrumbs()
+		{
+		}
+
 		public function printTitle()
 		{
 			global $roslogin_langres;

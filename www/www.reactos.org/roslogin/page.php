@@ -29,6 +29,7 @@
 	<div class="col-md-offset-1 col-md-10">
 		<div class="breadcrumbs">
 			<a href="/">home</a> / <a href="/roslogin">roslogin</a>
+			<?php $page->printBreadcrumbs(); ?>
 		</div>
 		<h1><?php $page->printTitle(); ?></h1>
 	</div>

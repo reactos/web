@@ -17,6 +17,10 @@
 			$this->_captcha = new Captcha();
 		}
 
+		public function printBreadcrumbs()
+		{
+		}
+
 		public function printTitle()
 		{
 			global $roslogin_langres;

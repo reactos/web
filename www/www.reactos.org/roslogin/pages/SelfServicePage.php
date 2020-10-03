@@ -23,6 +23,10 @@
 			$this->_userinfo = $rl->getUserInformation($this->_username);
 		}
 
+		public function printBreadcrumbs()
+		{
+		}
+
 		public function printTitle()
 		{
 			global $roslogin_langres;
