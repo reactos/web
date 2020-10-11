@@ -11,6 +11,10 @@ dn: ou=People,o=ReactOS Website
 objectClass: organizationalUnit
 ou: People
 
+dn: ou=Groups,o=ReactOS Website
+objectClass: organizationalUnit
+ou: People
+
 dn: ou=Service Accounts,o=ReactOS Website
 objectClass: organizationalUnit
 ou: Service Accounts
@@ -21,4 +25,38 @@ dn: uid=roslogin,ou=Service Accounts,o=ReactOS Website
 objectClass: account
 objectClass: simpleSecurityObject
 uid: roslogin
+userPassword: test
+
+# Create our default groups.
+dn: cn=LDAP Administrators,ou=Groups,o=ReactOS Website
+objectClass: groupOfNames
+member: cn=Admin,ou=People,o=ReactOS Website
+
+dn: cn=Moderators,ou=Groups,o=ReactOS Website
+objectClass: groupOfNames
+member: cn=Mod,ou=People,o=ReactOS Website
+
+# Create some example users.
+# slapadd doesn't invoke overlays, so we have to add "memberOf" manually here.
+dn: cn=Admin,ou=People,o=ReactOS Website
+objectClass: inetOrgPerson
+displayName: Admin
+mail: test-admin@reactos.org
+sn: Admin
+userPassword: test
+memberOf: cn=LDAP Administrators,ou=Groups,o=ReactOS Website
+
+dn: cn=Mod,ou=People,o=ReactOS Website
+objectClass: inetOrgPerson
+displayName: Mod
+mail: test-mod@reactos.org
+sn: Mod
+userPassword: test
+memberOf: cn=Moderators,ou=Groups,o=ReactOS Website
+
+dn: cn=Regular,ou=People,o=ReactOS Website
+objectClass: inetOrgPerson
+displayName: Regular
+mail: test-regular@reactos.org
+sn: Regular
 userPassword: test

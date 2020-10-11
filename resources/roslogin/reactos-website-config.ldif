@@ -2,6 +2,18 @@
 # Use ldapmodify -Y EXTERNAL -H ldapi:/// -f reactos-website-config.ldif
 #
 
+# This is required when debugging migrate.php, because it empties the entire LDAP directory first.
+# The default size limit of 500 entries may also be exceeded for other operations, so applying this LDIF is highly recommended.
+dn: cn=config
+changetype: modify
+replace: olcSizeLimit
+olcSizeLimit: unlimited
+
+dn: olcDatabase={-1}frontend,cn=config
+changetype: modify
+replace: olcSizeLimit
+olcSizeLimit: unlimited
+
 # Store OpenLDAP data in /srv/ldap
 dn: olcDatabase={1}mdb,cn=config
 changetype: modify
@@ -11,14 +23,14 @@ olcDbDirectory: /srv/ldap
 # Index the "mail" attribute as well ("cn" is already indexed by default)
 dn: olcDatabase={1}mdb,cn=config
 changetype: modify
-add: olcDbIndex
+replace: olcDbIndex
 olcDbIndex: mail eq
 
-# The root element shall be "o=ReactOS Website"
+# We don't use olcRootDN, but it needs to exist.
 dn: olcDatabase={1}mdb,cn=config
 changetype: modify
-replace: olcSuffix
-olcSuffix: o=ReactOS Website
+replace: olcRootDN
+olcRootDN: cn=manager
 
 # There shall be no single root password.
 # Instead, directory authentication works through service accounts.
@@ -26,30 +38,64 @@ dn: olcDatabase={1}mdb,cn=config
 changetype: modify
 delete: olcRootPW
 
-# Grant service accounts global write access, logged-in users write access
-# to their information, anonymous users read access for authentication, and
-# deny all other access.
+# The root element shall be "o=ReactOS Website"
+dn: olcDatabase={1}mdb,cn=config
+changetype: modify
+replace: olcSuffix
+olcSuffix: o=ReactOS Website
+
+# Policies:
+# - LDAP Administrators and Service Accounts have full read/write access
+# - self has full read/write access to its own entries
+# - Anonymous users can authenticate using cn or uid and password
 dn: olcDatabase={1}mdb,cn=config
 changetype: modify
 replace: olcAccess
-olcAccess: {0} to *
+olcAccess: {0} to attrs=cn,uid,userPassword
+               by group.exact="cn=LDAP Administrators,ou=Groups,o=ReactOS Website" write
                by dn.children="ou=Service Accounts,o=ReactOS Website" write
                by self write
                by anonymous auth
                by * none
+olcAccess: {1} to *
+               by group.exact="cn=LDAP Administrators,ou=Groups,o=ReactOS Website" write
+               by dn.children="ou=Service Accounts,o=ReactOS Website" write
+               by self write
+               by * none
 
-# Load the unique overlay.
-dn: cn=module,cn=config
+# Load additional overlays.
+# (olcModuleLoad value 0 is supposed to be "back_mdb")
+dn: cn=module{0},cn=config
+changetype: modify
+add: olcModuleLoad
+olcModuleLoad: {1}memberof
+olcModuleLoad: {2}refint
+olcModuleLoad: {3}unique
+
+# Set up the memberof overlay.
+dn: olcOverlay={0}memberof,olcDatabase={1}mdb,cn=config
 changetype: add
-cn: module
-objectClass: olcModuleList
-olcModuleLoad: unique
-olcModulePath: /usr/lib/ldap
+objectClass: olcConfig
+objectClass: olcOverlayConfig
+objectClass: olcMemberOf
+olcMemberOfDangling: ignore
+olcMemberOfRefInt: TRUE
+olcMemberOfGroupOC: groupOfNames
+olcMemberOfMemberAD: member
+olcMemberOfMemberOfAD: memberOf
+
+# Set up the refint overlay.
+dn: olcOverlay={1}refint,olcDatabase={1}mdb,cn=config
+changetype: add
+objectClass: olcConfig
+objectClass: olcOverlayConfig
+objectClass: olcRefintConfig
+olcRefintAttribute: memberof member manager owner
 
 # Require the "mail" attribute to be unique in the directory.
-dn: olcOverlay=unique,olcDatabase={1}mdb,cn=config
+dn: olcOverlay={2}unique,olcDatabase={1}mdb,cn=config
 changetype: add
+objectClass: olcConfig
 objectClass: olcOverlayConfig
 objectClass: olcUniqueConfig
-olcOverlay: {0}unique
 olcUniqueAttribute: mail
