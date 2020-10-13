@@ -279,6 +279,10 @@
 			if (strpos($username, '  ') !== FALSE)
 				return FALSE;
 
+			// Prevent user names shorter than 3 characters.
+			if (strlen($username) < 3)
+				return FALSE;
+
 			// Prevent user names longer than 60 characters.
 			if (strlen($username) > 60)
 				return FALSE;
