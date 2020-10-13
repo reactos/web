@@ -18,7 +18,7 @@
 
 		"login_title" => "Log in",
 		"login_heading" => "Log in to your ReactOS Website Account",
-		"login_intro" => "A ReactOS Website Account enables you to use all ReactOS Website services, such as the <a href=\"/forum\">Forum</a>, the <a href=\"/wiki\">Wiki</a>, and <a href=\"https://jira.reactos.org\">JIRA</a>.",
+		"login_intro" => "A ReactOS Website Account enables you to use all ReactOS Website services, such as the <a href=\"https://chat.reactos.org\">Chat</a>, the <a href=\"/forum\">Forum</a>, the <a href=\"/wiki\">Wiki</a>, and <a href=\"https://jira.reactos.org\">JIRA</a>.",
 		"login_button" => "Log in",
 		"login_forgot" => "Forgot your credentials?",
 		"login_register" => "New to the ReactOS Website? <a href=\"%s\">Register an account</a>",
