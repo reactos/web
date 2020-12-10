@@ -71,23 +71,27 @@
 			$unbanned = array_key_exists("unbanned", $_GET);
 			$was_not_banned = array_key_exists("was_not_banned", $_GET);
 
+			$user_message = "";
 			if ($banned || $already_banned || $unbanned || $was_not_banned)
+			{
+				if ($banned)
+					$user_message = "User has been banned";
+				else if ($already_banned)
+					$user_message = "User has already been banned";
+				else if ($unbanned)
+					$user_message = "User has been unbanned and a Reset Password email sent";
+				else if ($was_not_banned)
+					$user_message = "User was not banned";
+			}
+
+			if (!empty($user_message))
 			{
 ?>
 			<p class="lead center col-md-9">Message</p>
 			<form>
 				<div class="form-group col-md-offset-1 col-md-8">
 					<label class="control-label">
-						<?php
-							if ($banned)
-								echo "User has been banned";
-							else if ($already_banned)
-								echo "User has already been banned";
-							else if ($unbanned)
-								echo "User has been unbanned and a Reset Password email sent";
-							else if ($was_not_banned)
-								echo "User was not banned";
-						?>
+						<?php echo $user_message; ?>
 					</label>
 				</div>
 			</form>
