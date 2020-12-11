@@ -71,6 +71,39 @@
 			$unbanned = array_key_exists("unbanned", $_GET);
 			$was_not_banned = array_key_exists("was_not_banned", $_GET);
 
+			$revoke_ok = array_key_exists("revoke_ok", $_GET);
+			$revoke_all_ok = array_key_exists("revoke_all_ok", $_GET);
+			$revoke_problem = array_key_exists("revoke_problem", $_GET);
+			$revoke_all_problem = array_key_exists("revoke_all_problem", $_GET);
+			if ($revoke_problem || $revoke_all_problem)
+				$revoke_error = $this->_ra->mm->getLastError();
+			$chat_sessions = null;
+			$chat_audits = null;
+			$chat_user_id = $this->_ra->mm->getUserByName($_GET["username"]);
+			if (!is_null($chat_user_id))
+			{
+				$chat_sessions = $this->_ra->mm->getSessionsById($chat_user_id);
+				$chat_audits = $this->_ra->mm->getAuditsById($chat_user_id);
+			}
+			$chat_message = "";
+			if (is_null($chat_user_id) || is_null($chat_sessions) || is_null($chat_audits))
+			{
+				$chat_message = $this->_ra->mm->getLastError();
+				if ($chat_message != "User is not registered in Mattermost")
+				{
+					if (is_null($chat_user_id))
+						$chat_message = "Failed to get user ID: {$chat_message}";
+					else if (is_null($chat_sessions))
+						$chat_message = "Failed to get user sessions: {$chat_message}";
+					else if (is_null($chat_audits))
+						$chat_message = "Failed to get user audits: {$chat_message}";
+				}
+			}
+			else if (count($chat_sessions) == 0)
+			{
+				$chat_message = "User has no active Mattermost sessions";
+			}
+
 			$user_message = "";
 			if ($banned || $already_banned || $unbanned || $was_not_banned)
 			{
@@ -82,6 +115,17 @@
 					$user_message = "User has been unbanned and a Reset Password email sent";
 				else if ($was_not_banned)
 					$user_message = "User was not banned";
+			}
+			else if ($revoke_ok || $revoke_all_ok || $revoke_problem || $revoke_all_problem)
+			{
+				if ($revoke_ok)
+					$user_message = "User session has been revoked";
+				else if ($revoke_all_ok)
+					$user_message = "All user sessions has been revoked";
+				else if ($revoke_problem)
+					$user_message = "Failed to revoke user session: {$revoke_error}";
+				else if ($revoke_all_problem)
+					$user_message = "Failed to revoke all user sessions: {$revoke_error}";
 			}
 
 			if (!empty($user_message))
@@ -140,6 +184,60 @@
 					</form>
 				</tr>
 			</table>
+
+			<p class="lead center col-md-9">Mattermost Sessions</p>
 <?php
+			if (!empty($chat_message))
+			{
+?>
+			<div class="col-md-10 col-md-offset-1"><?php echo $chat_message; ?></div>
+<?php
+			}
+			else
+			{
+?>
+			<table class="col-md-offset-1 table table-striped table-bordered">
+				<tr>
+					<th>
+						<form class="form-horizontal" method="post">
+						<input type="hidden" name="username" value="<?php echo $username; ?>">
+						<input type="hidden" name="user_id" value="<?php echo $chat_user_id; ?>">
+						<button type="submit" name="a" value="revoke_all" class="btn btn-danger">Revoke All</button>
+						</form>
+					</th>
+					<th>Token</th>
+					<th>IP Addresses</th>
+					<th>User Agent</th>
+				</tr>
+<?php
+				for ($i = 0; $i < count($chat_sessions); $i++)
+				{
+					$e = $chat_sessions[$i];
+					$ua = $e['props']['os'];
+					if (empty($ua))
+						$ua = $e['props']['platform'];
+					if (!empty($ua))
+						$ua .= ' - ';
+					$ua .= $e['props']['browser'];
+?>
+				<tr>
+					<td>
+						<form class="form-horizontal" method="post">
+						<input type="hidden" name="username" value="<?php echo $username; ?>">
+						<input type="hidden" name="user_id" value="<?php echo $chat_user_id; ?>">
+						<input type="hidden" name="session_id" value="<?php echo $e['id']; ?>">
+						<button type="submit" name="a" value="revoke" class="btn btn-warning">Revoke</button>
+						</form>
+					</td>
+					<td><? echo $e['token']; ?></td>
+					<td><? echo implode('<br>', $this->_ra->mm->getSessionAddresses($chat_audits, $e['id'])); ?></td>
+					<td><? echo htmlspecialchars($ua); ?></td>
+				</tr>
+<?php
+				}
+?>
+			</table>
+<?php
+			}
 		}
 	}

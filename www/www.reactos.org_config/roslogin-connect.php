@@ -32,3 +32,5 @@
 	// Admin panel settings
 	define("ROSLOGIN_ADMIN_GROUP", "LDAP Administrators");
 	define("ROSLOGIN_MODERATOR_GROUP", "Moderators");
+	define("ROSLOGIN_MATTERMOST_URL", "https://chat.reactos.org");
+	define("ROSLOGIN_MATTERMOST_TOKEN", "YOUR_MATTERMOST_TOKEN_HERE");

@@ -16,6 +16,8 @@
 		private $_is_mod;
 		private $_is_admin;
 
+		public $mm;
+
 		//
 		// PRIVATE FUNCTIONS
 		//
@@ -43,6 +45,8 @@
 			// Let's hope this never happens
 			if ($this->_userinfo['banned'])
 				redirect_to('/roslogin/?p=login');
+
+			$this->mm = new Mattermost(new CurlHelper(), ROSLOGIN_MATTERMOST_URL, ROSLOGIN_MATTERMOST_TOKEN);
 		}
 
 
