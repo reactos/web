@@ -12,6 +12,8 @@
 	define("ROOT_PATH", "../../");
 	require_once("../RosLogin.php");
 	require_once("RosAdmin.php");
+	require_once("CurlHelper.php");
+	require_once("Mattermost.php");
 
 	require_once(ROOT_PATH . "rosweb/rosweb.php");
 	$rw = new RosWeb();
@@ -63,6 +65,14 @@
 
 				case "ban":
 					$action = new BanAction();
+					break;
+
+				case "revoke":
+					$action = new RevokeAction();
+					break;
+
+				case "revoke_all":
+					$action = new RevokeAllAction();
 					break;
 
 				default:
