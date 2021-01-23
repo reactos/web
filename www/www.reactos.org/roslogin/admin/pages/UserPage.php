@@ -73,10 +73,7 @@
 
 			$revoke_ok = array_key_exists("revoke_ok", $_GET);
 			$revoke_all_ok = array_key_exists("revoke_all_ok", $_GET);
-			$revoke_problem = array_key_exists("revoke_problem", $_GET);
-			$revoke_all_problem = array_key_exists("revoke_all_problem", $_GET);
-			if ($revoke_problem || $revoke_all_problem)
-				$revoke_error = $this->_ra->mm->getLastError();
+
 			$chat_sessions = null;
 			$chat_audits = null;
 			$chat_user_id = $this->_ra->mm->getUserByName($_GET["username"]);
@@ -116,16 +113,12 @@
 				else if ($was_not_banned)
 					$user_message = "User was not banned";
 			}
-			else if ($revoke_ok || $revoke_all_ok || $revoke_problem || $revoke_all_problem)
+			else if ($revoke_ok || $revoke_all_ok)
 			{
 				if ($revoke_ok)
 					$user_message = "User session has been revoked";
 				else if ($revoke_all_ok)
-					$user_message = "All user sessions has been revoked";
-				else if ($revoke_problem)
-					$user_message = "Failed to revoke user session: {$revoke_error}";
-				else if ($revoke_all_problem)
-					$user_message = "Failed to revoke all user sessions: {$revoke_error}";
+					$user_message = "All user sessions have been revoked";
 			}
 
 			if (!empty($user_message))
@@ -200,9 +193,9 @@
 				<tr>
 					<th>
 						<form class="form-horizontal" method="post">
-						<input type="hidden" name="username" value="<?php echo $username; ?>">
-						<input type="hidden" name="user_id" value="<?php echo $chat_user_id; ?>">
-						<button type="submit" name="a" value="revoke_all" class="btn btn-danger">Revoke All</button>
+							<input type="hidden" name="username" value="<?php echo $username; ?>">
+							<input type="hidden" name="user_id" value="<?php echo $chat_user_id; ?>">
+							<button type="submit" name="a" value="revoke_all" class="btn btn-danger">Revoke All</button>
 						</form>
 					</th>
 					<th>Token</th>
@@ -223,10 +216,10 @@
 				<tr>
 					<td>
 						<form class="form-horizontal" method="post">
-						<input type="hidden" name="username" value="<?php echo $username; ?>">
-						<input type="hidden" name="user_id" value="<?php echo $chat_user_id; ?>">
-						<input type="hidden" name="session_id" value="<?php echo $e['id']; ?>">
-						<button type="submit" name="a" value="revoke" class="btn btn-warning">Revoke</button>
+							<input type="hidden" name="username" value="<?php echo $username; ?>">
+							<input type="hidden" name="user_id" value="<?php echo $chat_user_id; ?>">
+							<input type="hidden" name="session_id" value="<?php echo $e['id']; ?>">
+							<button type="submit" name="a" value="revoke" class="btn btn-warning">Revoke</button>
 						</form>
 					</td>
 					<td><? echo $e['token']; ?></td>
