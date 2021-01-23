@@ -28,26 +28,12 @@
 		}
 
 		/**
-		 * Generates unique to the client temporary filename
+		 * Converts a string to a correct Mattermost username
 		 */
-		private function getTempFilename()
+		private function stringToUsername($name)
 		{
-			$uniq = md5($_SERVER['REMOTE_ADDR'] . $_SERVER['HTTP_USER_AGENT']);
-			return sys_get_temp_dir() . '/rosadmin_mattermost_' . substr($uniq, 0, 8);
-		}
-
-		/**
-		 * Reads error message that was saved earlier
-		 * and removes it from disk
-		 */
-		private function restoreError()
-		{
-			$filename = Mattermost::getTempFilename();
-			if (!file_exists($filename))
-				return null;
-			$error = file_get_contents($filename);
-			unlink($filename);
-			return $error;
+			/* Mattermost usernames are lower-case, spaces are converted to dashes */
+			return str_replace(' ', '-', strtolower($name));
 		}
 
 		//
@@ -67,8 +53,7 @@
 		 */
 		public function getUserByName($name)
 		{
-			/* Mattermost usernames are lower-case */
-			$name = urlencode(strtolower($name));
+			$name = urlencode(Mattermost::stringToUsername($name));
 			$json = $this->_ch->get("{$this->_url}/api/v4/users/username/{$name}");
 			if (!$json)
 			{
@@ -203,25 +188,12 @@
 		}
 
 		/**
-		 * Writes error message to disk to display it later
-		 */
-		public function rememberError()
-		{
-			$error = $this->getLastError();
-			$filename = Mattermost::getTempFilename();
-			file_put_contents($filename, $error);
-			return $error;
-		}
-
-		/**
 		 * Gets textual description of last encountered error
 		 */
 		public function getLastError()
 		{
 			$error = $this->_last_error;
 			$this->_last_error = null;
-			if (is_null($error))
-				$error = Mattermost::restoreError();
 			return $error;
 		}
 

@@ -25,8 +25,7 @@
 			$result = $ra->mm->revokeAllSessions($user_id);
 			if (!$result || $result['status'] != "OK")
 			{
-				$ra->mm->rememberError();
-				redirect_to("?p=user&revoke_all_problem=1&" . http_build_query($data));
+				throw new RuntimeException("Failed to revoke all user sessions: " . $ra->mm->getLastError());
 			}
 			else
 				redirect_to("?p=user&revoke_all_ok=1&" . http_build_query($data));

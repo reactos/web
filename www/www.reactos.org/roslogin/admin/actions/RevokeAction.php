@@ -27,8 +27,7 @@
 			$result = $ra->mm->revokeSession($user_id, $session_id);
 			if (!$result || $result['status'] != "OK")
 			{
-				$ra->mm->rememberError();
-				redirect_to("?p=user&revoke_problem=1&" . http_build_query($data));
+				throw new RuntimeException("Failed to revoke user session: " . $ra->mm->getLastError());
 			}
 			else
 				redirect_to("?p=user&revoke_ok=1&" . http_build_query($data));
