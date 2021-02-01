@@ -3,7 +3,7 @@
  * PROJECT:     RosLogin - A simple Self-Service and Single-Sign-On around an LDAP user directory
  * LICENSE:     AGPL-3.0-or-later (https://spdx.org/licenses/AGPL-3.0-or-later)
  * PURPOSE:     Authentication Plugin for phpBB
- * COPYRIGHT:   Copyright 2018 Colin Finck (colin@reactos.org)
+ * COPYRIGHT:   Copyright 2018-2021 Colin Finck (colin@reactos.org)
  */
 
 	namespace reactos\roslogin\auth\provider;
@@ -29,7 +29,6 @@
 				// No, then update the phpBB database.
 				$sql_ary = array(
 					'user_email' => $email,
-					'user_email_hash' => phpbb_email_hash($email)
 				);
 
 				$sql = 'UPDATE ' . USERS_TABLE . '
