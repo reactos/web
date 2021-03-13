@@ -222,9 +222,9 @@
 							<button type="submit" name="a" value="revoke" class="btn btn-warning">Revoke</button>
 						</form>
 					</td>
-					<td><? echo $e['token']; ?></td>
-					<td><? echo implode('<br>', $this->_ra->mm->getSessionAddresses($chat_audits, $e['id'])); ?></td>
-					<td><? echo htmlspecialchars($ua); ?></td>
+					<td><?php echo $e['token']; ?></td>
+					<td><?php echo implode('<br>', $this->_ra->mm->getSessionAddresses($chat_audits, $e['id'])); ?></td>
+					<td><?php echo htmlspecialchars($ua); ?></td>
 				</tr>
 <?php
 				}
