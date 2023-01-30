@@ -48,7 +48,7 @@
 		"difference" => "Difference to the previous result",
 
 		"testsuite" => "Test Suite",
-		"resulthead" => "Revision %s<br />at %s<br />by %s<br />under %s",
+		"resulthead" => "Revision %s (%s)<br />at %s<br />by %s<br />under %s",
 		"totals" => "Totals",
 
 		"blacklisted" => "blacklisted",
