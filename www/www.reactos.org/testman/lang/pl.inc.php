@@ -61,7 +61,7 @@
 		"difference" => "Różnica względem poprzedniego wyniku",
 		
 		"testsuite" => "Zestaw testów",
-		"resulthead" => "Rewizja %d<br />dnia %s<br />przez %s<br /> na %s",
+		"resulthead" => "Rewizja %d (%s)<br />dnia %s<br />przez %s<br /> na %s",
 		"totals" => "Łącznie",
 
 		"blacklisted" => "blacklisted",

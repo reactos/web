@@ -99,7 +99,7 @@
 
 			return $this->_dbh->query(
 				"SELECT UNIX_TIMESTAMP(r.timestamp) timestamp, src.name, r.revision, r.platform, r.count, r.failures, r.id, " .
-				" r.boot_cycles, r.context_switches, r.interrupts, r.reboots, r.system_calls, ROUND(r.time/60, 1) as time, ROUND(SUM(wr.time)/60,1) as testing_time " .
+				" r.boot_cycles, r.context_switches, r.interrupts, r.reboots, r.system_calls, ROUND(r.time/60, 1) as time, ROUND(SUM(wr.time)/60,1) as testing_time, r.comment " .
 				"FROM winetest_runs r " .
 				"JOIN sources src ON r.source_id = src.id " .
 				"JOIN winetest_results wr ON wr.test_id = r.id " .
