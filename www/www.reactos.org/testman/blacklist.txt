@@ -1,13 +1,10 @@
 // Contains blacklisted test suites in a form of module:testname
 
 kernel32:loader
-kernel32:mailslot
 msi:msi
 
 // number of tests/failures depends on the number of running processes which may vary between runs
 ntdll:info
-
-quartz:referenceclock
 
 // (Alex: is wildly random/erratic, I believe due to ws2_32:sock)
 urlmon:url
@@ -21,12 +18,8 @@ user32:win
 wininet:http
 ws2_32:sock 
 
-quartz:filtermapper
-
 // Blacklist on Amine's request
 gdi32:bitmap
-gdiplus:graphicspath
-gdiplus:region
 msxml3:xmlview
 urlmon:protocol
 user32:menu
