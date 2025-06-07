@@ -43,7 +43,7 @@
 			return FALSE;
 
 		// It also has to begin with either '?' (for RosLogin-internal URLs) or '/' (for site-local URLs).
-		if ($url{0} != '?' && $url{0} != '/')
+		if ($url[0] != '?' && $url[0] != '/')
 			return FALSE;
 
 		// Prevent redirections to external sites (prefixed by '//').
