@@ -12,4 +12,4 @@
 		require_once("lib/$class.class.php");
 	}
 
-    spl_autoload_register('testman_autoloader');
+	spl_autoload_register('testman_autoloader');
