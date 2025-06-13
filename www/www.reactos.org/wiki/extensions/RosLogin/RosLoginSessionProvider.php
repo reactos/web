@@ -3,7 +3,7 @@
  * PROJECT:     RosLogin - A simple Self-Service and Single-Sign-On around an LDAP user directory
  * LICENSE:     AGPL-3.0-or-later (https://spdx.org/licenses/AGPL-3.0-or-later)
  * PURPOSE:     SessionProvider for MediaWiki
- * COPYRIGHT:   Copyright 2018 Colin Finck (colin@reactos.org)
+ * COPYRIGHT:   Copyright 2018-2025 Colin Finck (colin@reactos.org)
  */
 
 	define("ROOT_PATH", "../");
@@ -63,7 +63,6 @@
 						"provider" => $this,
 						"id" => $_COOKIE["roslogin_session_id"],
 						"userInfo" => UserInfo::newFromUser($user, TRUE),
-						"forceHTTPS" => TRUE,
 						"metadata" => [
 							"username" => $username,
 						],
