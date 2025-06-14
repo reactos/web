@@ -3,7 +3,7 @@
  * PROJECT:     ReactOS Testman
  * LICENSE:     GPL-2.0+ (https://spdx.org/licenses/GPL-2.0+)
  * PURPOSE:     Compare Page
- * COPYRIGHT:   Copyright 2008-2017 Colin Finck (colin@reactos.org)
+ * COPYRIGHT:   Copyright 2008-2025 Colin Finck (colin@reactos.org)
  *              Copyright 2012-2016 Kamil Hornicek (kamil.hornicek@reactos.org)
  */
 
