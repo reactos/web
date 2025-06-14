@@ -126,7 +126,10 @@
 				$table_results .= sprintf('<td class="%s %s"', ($blacklisted ? 'blacklisted' : ''), ($row["id"] ? 'clickable' : ''));
 
 				if ($row["id"])
-					$table_results .= sprintf(' onclick="Result_OnClick(%d, %d)"', $row["id"], $prev_row["id"]);
+				{
+					$prev_row_id = $prev_row ? $prev_row["id"] : 0;
+					$table_results .= sprintf(' onclick="Result_OnClick(%d, %d)"', $row["id"], $prev_row_id);
+				}
 
 				$table_results .= '>';
 
