@@ -3,7 +3,7 @@
  * PROJECT:     ReactOS Testman
  * LICENSE:     GPL-2.0+ (https://spdx.org/licenses/GPL-2.0+)
  * PURPOSE:     Class for submitting WineTest results
- * COPYRIGHT:   Copyright 2008-2017 Colin Finck (colin@reactos.org)
+ * COPYRIGHT:   Copyright 2008-2025 Colin Finck (colin@reactos.org)
  *              Copyright 2012-2013 Kamil Hornicek (kamil.hornicek@reactos.org)
  */
 
@@ -22,27 +22,27 @@
 
 			// Check the login credentials
 			$stmt = $this->_dbh->prepare("SELECT COUNT(*) FROM sources WHERE id = :sourceid AND password = MD5(:password)");
-			$stmt->bindParam(":sourceid", $source_id);
+			$stmt->bindValue(":sourceid", (int)$source_id, PDO::PARAM_INT);
 			$stmt->bindParam(":password", $password);
 			$stmt->execute();
 			if (!$stmt->fetchColumn())
 				throw new ErrorMessageException("Invalid Login credentials!");
 
 			// Store the source_id for later.
-			$this->_source_id = $source_id;
+			$this->_source_id = (int)$source_id;
 		}
 
 		public function getTestId($revision, $platform, $comment)
 		{
 			// Add a new Test ID with the given information.
 			$stmt = $this->_dbh->prepare("INSERT INTO winetest_runs (source_id, revision, platform, comment) VALUES (:sourceid, :revision, :platform, :comment)");
-			$stmt->bindParam(":sourceid", $this->_source_id);
+			$stmt->bindValue(":sourceid", (int)$this->_source_id, PDO::PARAM_INT);
 			$stmt->bindParam(":revision", $revision);
 			$stmt->bindParam(":platform", $platform);
 			$stmt->bindParam(":comment", $comment);
 			$stmt->execute();
 
-			return $this->_dbh->lastInsertId();
+			return (int)$this->_dbh->lastInsertId();
 		}
 
 		public function getSuiteId($module, $test)
@@ -54,7 +54,7 @@
 			$stmt->execute();
 			$id = $stmt->fetchColumn();
 			if ($id)
-				return $id;
+				return (int)$id;
 
 			// Add this combination to the table and return the ID for it.
 			$stmt = $this->_dbh->prepare("INSERT INTO winetest_suites (module, test) VALUES (:module, :test)");
@@ -62,30 +62,63 @@
 			$stmt->bindParam(":test", $test);
 			$stmt->execute();
 
-			return $this->_dbh->lastInsertId();
+			return (int)$this->_dbh->lastInsertId();
+		}
+
+		public function getModuleAndTestForSuiteId($suite_id, &$module, &$test)
+		{
+			$stmt = $this->_dbh->prepare("SELECT module, test FROM winetest_suites WHERE id = :id");
+			$stmt->bindValue(":id", (int)$suite_id, PDO::PARAM_INT);
+			$stmt->execute();
+
+			if ($row = $stmt->fetch(PDO::FETCH_ASSOC))
+			{
+				$module = $row["module"];
+				$test = $row["test"];
+				return true;
+			}
+			else
+			{
+				return false;
+			}
 		}
 
 		public function submit($test_id, $suite_id, $log)
 		{
 			// Make sure that we may add information to the test with this Test ID
 			$stmt = $this->_dbh->prepare("SELECT COUNT(*) FROM winetest_runs WHERE id = :testid AND finished = 0 AND source_id = :sourceid");
-			$stmt->bindParam(":testid", $test_id);
-			$stmt->bindParam(":sourceid", $this->_source_id);
+			$stmt->bindValue(":testid", (int)$test_id, PDO::PARAM_INT);
+			$stmt->bindValue(":sourceid", (int)$this->_source_id, PDO::PARAM_INT);
 			$stmt->execute();
 			if (!$stmt->fetchColumn())
-				throw new RuntimeException("No such test or no permissions!");
+			{
+				throw new RuntimeException("Test ID {$test_id} for Source ID {$this->_source_id} could not be found or accessed in the database!");
+			}
 
 			// Make sure that this test run does not yet have a result for this test suite
 			$stmt = $this->_dbh->prepare("SELECT COUNT(*) FROM winetest_results WHERE test_id = :testid AND suite_id = :suiteid");
-			$stmt->bindParam(":testid", $test_id);
-			$stmt->bindParam(":suiteid", $suite_id);
+			$stmt->bindValue(":testid", (int)$test_id, PDO::PARAM_INT);
+			$stmt->bindValue(":suiteid", (int)$suite_id, PDO::PARAM_INT);
 			$stmt->execute();
-			if ($stmt->fetchColumn())
-				throw new RuntimeException("We already have a result for this test suite in this test run!");
+
+			if ($stmt->fetchColumn() > 0)
+			{
+				$module = "";
+				$test = "";
+
+				if ($this->getModuleAndTestForSuiteId($suite_id, $module, $test))
+				{
+					throw new RuntimeException("Duplicate result for test suite {$module}:{$test} in this test run!");
+				}
+				else
+				{
+					throw new RuntimeException("Duplicate result for this test suite in this test run, and couldn't fetch the test suite!");
+				}
+			}
 
 			// Get the test name
 			$stmt = $this->_dbh->prepare("SELECT test FROM winetest_suites WHERE id = :id");
-			$stmt->bindParam(":id", $suite_id);
+			$stmt->bindValue(":id", (int)$suite_id, PDO::PARAM_INT);
 			$stmt->execute();
 			$test = $stmt->fetchColumn();
 
@@ -137,18 +170,18 @@
 
 			// Add the information into the DB.
 			$stmt = $this->_dbh->prepare("INSERT INTO winetest_results (test_id, suite_id, status, count, failures, skipped, todo, time) VALUES (:testid, :suiteid, :status, :count, :failures, :skipped, :todo, :time)");
-			$stmt->bindValue(":testid", (int)$test_id);
-			$stmt->bindValue(":suiteid", (int)$suite_id);
+			$stmt->bindValue(":testid", (int)$test_id, PDO::PARAM_INT);
+			$stmt->bindValue(":suiteid", (int)$suite_id, PDO::PARAM_INT);
 			$stmt->bindParam(":status", $status);
-			$stmt->bindParam(":count", $count);
-			$stmt->bindParam(":failures", $failures);
-			$stmt->bindParam(":skipped", $skipped);
-			$stmt->bindParam(":todo", $todo);
+			$stmt->bindValue(":count", (int)$count, PDO::PARAM_INT);
+			$stmt->bindValue(":failures", (int)$failures, PDO::PARAM_INT);
+			$stmt->bindValue(":skipped", (int)$skipped, PDO::PARAM_INT);
+			$stmt->bindValue(":todo", (int)$todo, PDO::PARAM_INT);
 			$stmt->bindParam(":time", $time);
 			$stmt->execute();
 
 			$stmt = $this->_dbh->prepare("INSERT INTO winetest_logs (id, log) VALUES (:id, COMPRESS(:log))");
-			$stmt->bindValue(":id", (int)$this->_dbh->lastInsertId());
+			$stmt->bindValue(":id", (int)$this->_dbh->lastInsertId(), PDO::PARAM_INT);
 			$stmt->bindParam(":log", $log);
 			$stmt->execute();
 		}
@@ -170,13 +203,13 @@
 					time = :time
 				 WHERE id = :testid AND source_id = :sourceid"
 			);
-			$stmt->bindParam(":sourceid", $this->_source_id);
-			$stmt->bindParam(":testid", $test_id);
-			$stmt->bindParam(":boot_cycles", $performance["boot_cycles"]);
-			$stmt->bindParam(":context_switches", $performance["context_switches"]);
-			$stmt->bindParam(":interrupts", $performance["interrupts"]);
-			$stmt->bindParam(":reboots", $performance["reboots"]);
-			$stmt->bindParam(":system_calls", $performance["system_calls"]);
+			$stmt->bindValue(":sourceid", (int)$this->_source_id, PDO::PARAM_INT);
+			$stmt->bindValue(":testid", (int)$test_id, PDO::PARAM_INT);
+			$stmt->bindValue(":boot_cycles", (int)$performance["boot_cycles"], PDO::PARAM_INT);
+			$stmt->bindValue(":context_switches", (int)$performance["context_switches"], PDO::PARAM_INT);
+			$stmt->bindValue(":interrupts", (int)$performance["interrupts"], PDO::PARAM_INT);
+			$stmt->bindValue(":reboots", (int)$performance["reboots"], PDO::PARAM_INT);
+			$stmt->bindValue(":system_calls", (int)$performance["system_calls"], PDO::PARAM_INT);
 			$stmt->bindParam(":time", $performance["time"]);
 			$stmt->execute();
 			if (!$stmt->rowCount())
