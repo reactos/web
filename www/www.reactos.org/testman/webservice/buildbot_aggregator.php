@@ -254,7 +254,7 @@
 
 		// Finish this test run.
 		$writer->finish($test_id, $perf);
-		die("OK");
+		die("OK. Test_id: " . $test_id);
 	}
 	catch (ErrorMessageException $e)
 	{
