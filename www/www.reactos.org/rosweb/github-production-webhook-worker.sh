@@ -17,9 +17,9 @@ while true; do
     # Start from a clean sheet and update to the latest production branch in Git.
     cd /srv/web-content_git_repo
     git clean -d -f -f
-    git reset --hard
     git checkout production
-    git pull
+    git fetch
+    git reset --hard origin/production
 
     # Build the production website.
     sed -i "s#baseURL = \".*\"#baseURL = \"https://reactos.org/\"#" config.toml
