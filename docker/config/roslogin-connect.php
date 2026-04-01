@@ -1,0 +1,35 @@
+<?php
+	// DB Settings
+	define("ROSLOGIN_DB_HOST", "db");
+	define("ROSLOGIN_DB_USER", "roslogin");
+	define("ROSLOGIN_DB_PASS", "");
+	define("ROSLOGIN_DB_NAME", "roslogin");
+
+	// LDAP Settings
+	define("ROSLOGIN_LDAP_HOST", "ldap");
+	define("ROSLOGIN_LDAP_BIND_DN", "uid=roslogin,ou=Service Accounts,o=ReactOS Website");
+	define("ROSLOGIN_LDAP_BIND_PW", "test");
+	define("ROSLOGIN_LDAP_BASE_DN", "ou=People,o=ReactOS Website");
+
+	// Single Sign-On Settings
+	define("ROSLOGIN_COOKIE_DOMAIN", "localhost");
+	define("ROSLOGIN_COOKIE_VALIDITY", 60 * 60 * 24 * 365);		// 1 Year
+	define("ROSLOGIN_SESSION_VALIDITY", "1 YEAR");
+
+	// Self-Service Settings
+	define("ROSLOGIN_MAIL_FROM", "ReactOS Website <noreply@reactos.org>");
+	define("ROSLOGIN_MAIL_LINK", "http://localhost/roslogin/?p=confirm&");
+	define("ROSLOGIN_MAIL_VALIDITY", "1 DAY");
+
+	// Captcha Settings
+	define("ROSLOGIN_RECAPTCHA_SITEKEY", "YOUR_GOOGLE_RECAPTCHA_SITEKEY_HERE");
+	define("ROSLOGIN_RECAPTCHA_SECRET", "YOUR_GOOGLE_RECAPTCHA_SECRET_HERE");
+
+	// Miscellaneous Website Settings
+	define("ROSLOGIN_TITLE_SUFFIX", " | ReactOS Project");
+
+	// Admin panel settings
+	define("ROSLOGIN_ADMIN_GROUP", "LDAP Administrators");
+	define("ROSLOGIN_MODERATOR_GROUP", "Moderators");
+	define("ROSLOGIN_MATTERMOST_URL", "https://chat.reactos.org");
+	define("ROSLOGIN_MATTERMOST_TOKEN", "YOUR_MATTERMOST_TOKEN_HERE");
