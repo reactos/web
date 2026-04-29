@@ -18,8 +18,9 @@
 		"browsegithub" => "Browse GitHub Repository",
 
 		"legend" => "Legend",
-		"build_bootcd" => "Boot CDs are designed to install ReactOS onto an HDD and enjoy the new features since last release. You will need the ISO only for the installation. This is the recommended variant to install into a VM (VirtualBox, VMWare, QEMU).",
-		"build_livecd" => "Live CDs allow you to use ReactOS without installing it. It can be used to test ReactOS in case your HDD is not detected during installation, or if you have no alternative system/VMs to install it on.",
+		"build_bootcd" => "Boot Media are designed to install ReactOS onto an HDD and enjoy the new features since the last release. You will need the ISO only for the installation. This is the recommended variant to install into a VM (VirtualBox, VMWare, QEMU). Alternatively, you can choose to give ReactOS a try without installing it, for example in case your HDD is not detected during installation, or if you have no alternative system/VMs to install it on.",
+		"build_livecd" => "Live CDs (deprecated) were the former way to test ReactOS without installing it. These have been replaced by the Boot Media since ReactOS 0.4.16 release.",
 		"build_dbg" => "Debug versions include debugging information, use these versions to test, produce logs and report bugs. This is the recommended variant to install to report bugs.",
 		"build_rel" => "Release versions include no debugging information. These versions are smaller, but cannot be used to produce logs.",
 	);
+?>

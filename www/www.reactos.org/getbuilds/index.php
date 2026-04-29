@@ -116,8 +116,8 @@
 		<h3><?php echo $getbuilds_langres["legend"]; ?></h3>
 
 		<ul class="list-unstyled">
-			<li><strong>Boot CD</strong> - <?php echo $getbuilds_langres["build_bootcd"]; ?></li>
-			<li><strong>Live CD</strong> - <?php echo $getbuilds_langres["build_livecd"]; ?></li>
+			<li><strong>Boot Media</strong> - <?php echo $getbuilds_langres["build_bootcd"]; ?></li>
+			<li><strong>Live CD (deprecated)</strong> - <?php echo $getbuilds_langres["build_livecd"]; ?></li>
 			<li><strong>Debug</strong> - <?php echo $getbuilds_langres["build_dbg"]; ?></li>
 			<li><strong>Release</strong> - <?php echo $getbuilds_langres["build_rel"]; ?></li>
 		</ul>

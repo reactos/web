@@ -212,3 +212,4 @@
 	{
 		die("<error>" . $e->getFile() . ":" . $e->getLine() . " - " . $e->getMessage() . "</error>");
 	}
+?>

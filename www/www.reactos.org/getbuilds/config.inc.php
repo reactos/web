@@ -15,8 +15,8 @@
 	$ISO_DOWNLOAD_URL = "https://iso.reactos.org/";
 
 	$PREFIXES = array(
-		"reactos-bootcd-" => "Boot CDs",
-		"reactos-livecd-" => "Live CDs",
+		"reactos-bootcd-" => "Boot Media",
+		"reactos-livecd-" => "Live CDs (deprecated)",
 	);
 
 	$SUFFIXES = array(
@@ -44,3 +44,4 @@
 	// The following values need to be set here and in "ajax-getfiles-provider.php"!
 	$MAX_FILES_PER_PAGE = 100;
 	$REV_RANGE_LIMIT = 3000;
+?>
