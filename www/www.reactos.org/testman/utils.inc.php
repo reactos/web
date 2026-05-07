@@ -52,7 +52,7 @@
 					switch ($minor)
 					{
 						case 0:
-							if ($type = "s")
+							if ($type == "s")
 								$str = "Windows Server 2008";
 							else
 								$str = "Windows Vista";
@@ -60,7 +60,35 @@
 							break;
 
 						case 1:
-							$str = "Windows 7";
+							if ($type == "s")
+								$str = "Windows Server 2008 R2";
+							else
+								$str = "Windows 7";
+
+							break;
+
+						case 3:
+							if ($type == "s")
+								$str = "Windows Server 2012 R2";
+							else
+								$str = "Windows 8.1";
+							break;
+
+						default:
+							return $platform;
+					}
+
+					break;
+
+				case 10:
+					switch ($minor)
+					{
+						case 0:
+							if ($type == "s")
+								$str = "Windows Server 2016";
+							else
+								$str = "Windows 10";
+
 							break;
 
 						default:

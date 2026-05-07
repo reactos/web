@@ -107,6 +107,10 @@
 						<option></option>
 						<option value="reactos">ReactOS</option>
 						<option value="5.2">Windows Server 2003</option>
+						<option value="6.0">Windows Vista</option>
+						<option value="6.1">Windows 7</option>
+						<option value="6.3">Windows 8.1</option>
+						<option value="10.0">Windows 10</option>
 					</select><br>
 				</div>
 			</div>
