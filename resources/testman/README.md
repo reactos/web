@@ -16,11 +16,11 @@ mysql testman < migrate-01-timeline.sql          # maintenance window, see below
 GITHUB_TOKEN=... php backfill-run-anchors.php    # can run while the site is up
 ```
 
-**`migrate-01-timeline.sql`** converts `winetest_runs` and `winetest_results` to InnoDB,
-adds the indexes that date filtering and the run browser need, and adds the columns that
-put a run on master's timeline. One `ALTER` per table, because each change rebuilds the
-table anyway. The tables are MyISAM going in, so that rebuild holds a write lock and
-submitting builders block; the file has the query to size the window first.
+**`migrate-01-timeline.sql`** adds to `winetest_runs` the indexes that date filtering and
+the run browser need, and the columns that put a run on master's timeline. It is a single
+`ALTER`, because each change rebuilds the table anyway. The table is MyISAM, so that
+rebuild holds a write lock and submitting builders block; the file has the query to size
+the window first.
 
 **`backfill-run-anchors.php`** fills those columns for runs that predate them. Resumable
 and re-runnable, and it caches every external answer, so a second run costs almost

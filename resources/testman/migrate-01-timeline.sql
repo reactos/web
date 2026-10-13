@@ -1,27 +1,16 @@
 -- Testman migration 01: put every run on master's timeline
 --
--- One ALTER per table, because each of these changes rebuilds the whole table anyway and
--- doing them separately would rebuild it three times. On MyISAM that rebuild holds a
--- table-level write lock and submitting builders block until it finishes, so run this in
--- a maintenance window and measure first to know how long it has to be:
+-- Only winetest_runs changes. A single ALTER, because each of these changes rebuilds the
+-- whole table anyway and doing them separately would rebuild it several times. On MyISAM
+-- that rebuild holds a table-level write lock and submitting builders block until it
+-- finishes, so run this in a maintenance window and measure first to know how long it has
+-- to be:
 --
 --   SELECT table_name, engine, table_rows,
 --          ROUND(data_length /1024/1024) AS data_mb,
 --          ROUND(index_length/1024/1024) AS index_mb
 --   FROM information_schema.tables
---   WHERE table_schema = 'testman'
---   ORDER BY data_length DESC;
---
--- winetest_logs is deliberately left alone. It is by far the largest table (one mediumblob
--- per suite per run) and is only ever read by primary key, so converting it would dominate
--- the window without buying anything.
---
---
--- InnoDB
--- ------
--- MyISAM means table-level write locks, so a builder submitting results blocks every
--- reader for the duration, and no transactions, so a half-submitted run cannot be rolled
--- back. gitinfo has been InnoDB all along.
+--   WHERE table_schema = 'testman' AND table_name = 'winetest_runs';
 --
 --
 -- Indexes
@@ -67,7 +56,6 @@
 -- Fill these in for existing runs with backfill-run-anchors.php afterwards.
 
 ALTER TABLE `winetest_runs`
-  ENGINE=InnoDB,
   ADD COLUMN `base_revision` char(40) DEFAULT NULL COMMENT 'Master commit this run was built on top of' AFTER `revision`,
   ADD COLUMN `base_order` int(10) unsigned DEFAULT NULL COMMENT 'master_revisions.id of base_revision' AFTER `base_revision`,
   ADD COLUMN `base_exact` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0 if base_order was guessed from the clock' AFTER `base_order`,
@@ -78,6 +66,3 @@ ALTER TABLE `winetest_runs`
   ADD KEY `ix_runs_base` (`base_order`),
   ADD KEY `ix_runs_base_rev` (`base_revision`),
   ADD KEY `ix_runs_pr` (`pr_number`);
-
-ALTER TABLE `winetest_results`
-  ENGINE=InnoDB;

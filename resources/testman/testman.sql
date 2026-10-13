@@ -26,7 +26,7 @@ CREATE TABLE `winetest_results` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `test_and_suite` (`test_id`,`suite_id`),
   KEY `suite_id` (`suite_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_general_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 COLLATE=latin1_general_ci;
 
 CREATE TABLE `winetest_runs` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -57,7 +57,7 @@ CREATE TABLE `winetest_runs` (
   KEY `ix_runs_base` (`base_order`),
   KEY `ix_runs_base_rev` (`base_revision`),
   KEY `ix_runs_pr` (`pr_number`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_general_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 COLLATE=latin1_general_ci;
 
 CREATE TABLE `winetest_suites` (
   `id` int(10) unsigned NOT NULL auto_increment,
