@@ -14,7 +14,6 @@
 	$testman_langres = array(
 		// Index page
 		"index_title" => "Menedżer testów ReactOS",
-		"index_intro" => "Ten interfejs pozwala Tobie znaleźć, zobaczyć i porównać wyniki przeprowadzanych automatycznie testów regresji.",
 		"js_disclaimer" => "Musisz włączyć obsługę JavaScriptu, aby używać tego interfejsu!",
 		
 		"date" => "Data",
@@ -28,6 +27,37 @@
 		"comparefirsttwo_button" => "Porównaj dwa ostatnie wyniki testów",
 		"compareselected_button" => "Porównaj wybrane wyniki",
 		"opennewwindow_checkbox" => "Otwórz w nowym oknie",
+
+		"datefrom" => "From",
+		"dateto" => "To",
+		"minfailures" => "Min. Failures",
+		"revisionhint" => "Start of the commit hash, e.g. %s. Also matches pull request builds based on that commit.",
+		"revisionfrom" => "From revision",
+		"revisionto" => "To revision",
+		"revisionrangehint" => "Position on master, so PR builds based on a commit in the range are included too",
+		"allsources" => "All Sources",
+		"allplatforms" => "All Platforms",
+		"reset_button" => "Reset",
+		"overview_title" => "Latest Result per Source",
+		"showhistory" => "History",
+		"prbuilds" => "Builds",
+		"masteronly" => "master only",
+		"allbuilds" => "master and pull requests",
+		"onepr" => "Pull request %s",
+		"basedon" => "based on %s",
+		"approximate" => "Position estimated from the run time, not from the commit it was built on",
+		"prbaseline" => "Compared against the newest master run of the same builder at or below this position.",
+		"includepr" => "Include pull request builds",
+		"noresults" => "No Results!",
+
+		// Suite History page
+		"suite_title" => "Test Suite History",
+		"teststatus" => "Status",
+		"notrun" => "not run",
+		"newer" => "Newer",
+		"older" => "Older",
+		"showdiff" => "Diff",
+		"suitehistory" => "History of this Test Suite",
 		
 		"foundresults" => "Znaleziono %s wyników!",
 		"noresults" => "Brak wyników wyszukiwania!",		

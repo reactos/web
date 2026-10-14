@@ -62,13 +62,47 @@
 
 			// Get all Suite IDs linked to our Test IDs
 			$stmt = $this->_dbh->query(
-				"SELECT s.id " .
+				"SELECT DISTINCT s.id " .
 				"FROM winetest_suites s " .
 				"JOIN winetest_results e ON e.suite_id = s.id " .
 				"WHERE e.test_id IN (" . $this->_test_id_list . ")"
 			);
 			$suite_id_array = $stmt->fetchAll(PDO::FETCH_COLUMN);
 			$this->_suite_id_list = implode(",", $suite_id_array);
+		}
+
+		/**
+		 * Finds the master run a pull request build should be judged against.
+		 *
+		 * Not the run that happened before it in wall clock time - that could be another
+		 * PR entirely. It is the newest master run of the same builder and platform at or
+		 * below this run's position on master, which is the only comparison that answers
+		 * the question a PR build is asked: did this change break the test, or was it
+		 * already broken?
+		 *
+		 * one indexed range scan within a single source and platform, run once
+		 * per page load. Give it (source_id, platform, base_order) if that stops being
+		 * cheap.
+		 *
+		 * @return
+		 * The Test ID of the baseline, or NULL if this is not a pull request build, is not
+		 * anchored, or has no master run below it.
+		 */
+		public function findMasterBaseline($test_id)
+		{
+			$stmt = $this->_dbh->prepare(
+				"SELECT m.id " .
+				"FROM winetest_runs r " .
+				"JOIN winetest_runs m ON m.source_id = r.source_id AND m.platform = r.platform " .
+				"  AND m.finished = 1 AND m.pr_number IS NULL AND m.base_order IS NOT NULL " .
+				"  AND m.base_order <= r.base_order AND m.id <> r.id " .
+				"WHERE r.id = :id AND r.pr_number IS NOT NULL AND r.base_order IS NOT NULL " .
+				"ORDER BY m.base_order DESC, m.id DESC LIMIT 1"
+			);
+			$stmt->execute(array(":id" => (int)$test_id));
+			$id = $stmt->fetchColumn();
+
+			return ($id === FALSE) ? NULL : (int)$id;
 		}
 
 		/**
@@ -98,7 +132,7 @@
 				throw new RuntimeException("Index $i is out of range!");
 
 			return $this->_dbh->query(
-				"SELECT UNIX_TIMESTAMP(r.timestamp) timestamp, src.name, r.revision, r.platform, r.count, r.failures, r.id, " .
+				"SELECT UNIX_TIMESTAMP(r.timestamp) timestamp, src.name, r.revision, r.base_revision, r.base_exact, r.pr_number, r.platform, r.count, r.failures, r.id, " .
 				" r.boot_cycles, r.context_switches, r.interrupts, r.reboots, r.system_calls, ROUND(r.time/60, 1) as time, ROUND(SUM(wr.time)/60,1) as testing_time, r.comment " .
 				"FROM winetest_runs r " .
 				"JOIN sources src ON r.source_id = src.id " .

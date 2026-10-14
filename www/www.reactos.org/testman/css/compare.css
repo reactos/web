@@ -198,3 +198,20 @@ body {
 #comparetable tr.separator {
 	height: 10px;
 }
+
+/* Pull request build: which commit it was built on top of, beside its own hash. */
+#comparetable .prlink {
+	font-weight: bold;
+}
+
+#comparetable .anchor {
+	font-family: monospace;
+	font-weight: normal;
+}
+
+#comparetable .approx {
+	border: 1px solid #d8c9a3;
+	border-radius: 3px;
+	padding: 0 4px;
+	cursor: help;
+}

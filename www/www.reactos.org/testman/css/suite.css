@@ -1,0 +1,58 @@
+/*
+  PROJECT:    ReactOS Web Test Manager
+  LICENSE:    GNU GPLv2 or any later version as published by the Free Software Foundation
+  PURPOSE:    Stylesheet for the Test Suite History Page
+  COPYRIGHT:  Copyright 2026 Mark Jansen <mark.jansen@reactos.org>
+*/
+
+.pagesbox {
+	margin-bottom: 10px;
+}
+
+/* The rows where the result differs from the run before it. Everything else is the
+   same outcome repeated, which is exactly what you want to skip over. */
+#suitetable tr.changed td {
+	background-color: #fcf8e3;
+	font-weight: bold;
+}
+
+#suitetable td.notrun {
+	color: #999;
+	font-style: italic;
+}
+
+#suitetable .diff {
+	color: #999;
+	font-weight: normal;
+}
+
+/* The date and the links each fit on one line; letting them wrap doubled the height of
+   every row in the table. The comment column has the width to spare. */
+#suitetable td:first-child,
+#suitetable td:last-child {
+	white-space: nowrap;
+}
+
+/* Pull request builds are not part of master's series, so they never look like it. */
+#suitetable tr.prrun > td {
+	background-color: #fbf6e6;
+}
+
+#suitetable .anchor {
+	color: #777;
+	font-family: monospace;
+	font-size: 90%;
+}
+
+#suitetable .approx {
+	color: #8a6d3b;
+	border: 1px solid #d8c9a3;
+	border-radius: 3px;
+	padding: 0 4px;
+	cursor: help;
+}
+
+.pagesbox .includepr {
+	font-weight: normal;
+	margin-right: 12px;
+}

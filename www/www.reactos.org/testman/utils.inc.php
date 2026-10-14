@@ -166,3 +166,23 @@
 		fclose($fp);
 		return $blacklist;
 	}
+
+	/**
+	 * Appends the file's modification time to an asset URL.
+	 *
+	 * Without this, a browser keeps running the JavaScript of the previous deployment
+	 * against the freshly deployed HTML, which fails in whatever way the two versions
+	 * happen to disagree.
+	 *
+	 * @param string $url
+	 * The URL to put into the page.
+	 *
+	 * @param string $file
+	 * The file it is served from, if that is not the same as $url.
+	 */
+	function AssetURL($url, $file = null)
+	{
+		$mtime = @filemtime($file === null ? $url : $file);
+
+		return $url . ($mtime ? "?v=" . $mtime : "");
+	}

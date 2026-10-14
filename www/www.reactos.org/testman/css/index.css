@@ -40,3 +40,51 @@
 .comboedit div input {
 	border-right: 0;
 }
+
+.testman-filters label {
+	margin-bottom: 2px;
+}
+
+.testman-filters .date-range {
+	display: flex;
+	align-items: center;
+}
+
+.testman-filters .date-range input {
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
+.testman-filters .date-range span {
+	padding: 0 6px;
+}
+
+/* Lines the buttons up with the inputs beside them, which each sit under a label. */
+.filter-actions {
+	margin-top: 24px;
+}
+
+.filter-actions .opennewwindow {
+	font-weight: normal;
+	margin-left: 8px;
+}
+
+/* A pull request build. Tinted so it never reads as a point on master's own history. */
+#resulttable tr.prrun > td {
+	background-color: #fbf6e6;
+}
+
+#resulttable .anchor {
+	color: #777;
+	font-family: monospace;
+}
+
+/* Shown when base_order was guessed from the run's clock rather than resolved. */
+#resulttable .approx {
+	color: #8a6d3b;
+	font-size: 90%;
+	border: 1px solid #d8c9a3;
+	border-radius: 3px;
+	padding: 0 4px;
+	cursor: help;
+}

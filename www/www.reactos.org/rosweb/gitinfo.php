@@ -89,6 +89,48 @@
 			return $stmt->fetch(PDO::FETCH_ASSOC);
 		}
 
+		/**
+		 * Returns the position of a master commit on the timeline, which is what
+		 * winetest_runs.base_order stores.
+		 *
+		 * @param string $rev_hash
+		 * The full hash. Deliberately not a prefix match: an old SVN revision number like
+		 * "12345" would otherwise match any commit whose hash happens to start with it.
+		 * Resolve a prefix with getLongHash() first.
+		 *
+		 * @return
+		 * The ordinal, or FALSE if this is not a master commit. A PR merge commit is
+		 * never in this table, which is exactly why runs carry a base separate from
+		 * their own revision.
+		 */
+		public function getRevisionOrder($rev_hash)
+		{
+			$stmt = $this->_dbh->prepare("SELECT id FROM master_revisions WHERE rev_hash = :rev_hash");
+			$stmt->bindParam(":rev_hash", $rev_hash);
+			$stmt->execute();
+			$id = $stmt->fetchColumn();
+
+			return ($id === FALSE) ? FALSE : (int)$id;
+		}
+
+		/**
+		 * Returns the newest master commit that existed at $timestamp, as
+		 * array("id", "rev_hash").
+		 *
+		 * This is the approximate anchor for a run whose base could not be resolved: it
+		 * puts the run in roughly the right place on the timeline instead of nowhere.
+		 * Callers store it with base_exact = 0 so the guess is never mistaken for a fact.
+		 */
+		public function getRevisionAtTime($timestamp)
+		{
+			$stmt = $this->_dbh->prepare("SELECT id, rev_hash FROM master_revisions WHERE commit_timestamp <= FROM_UNIXTIME(:timestamp) ORDER BY id DESC LIMIT 1");
+			$stmt->bindValue(":timestamp", (int)$timestamp, PDO::PARAM_INT);
+			$stmt->execute();
+			$row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+			return ($row === FALSE) ? FALSE : $row;
+		}
+
 		public function getRevisionRange($start_hash, $end_hash)
 		{
 			$stmt = $this->_dbh->prepare("SELECT rev_hash FROM master_revisions WHERE id >= (SELECT id FROM master_revisions WHERE rev_hash = :start_hash) AND id <= (SELECT id FROM master_revisions WHERE rev_hash = :end_hash) LIMIT " . $this->_REV_RANGE_LIMIT);

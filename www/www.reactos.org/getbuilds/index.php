@@ -22,8 +22,8 @@
 	{
 		$gi = new GitInfo();
 		$revisions = $gi->getLatestRevisions(2);
-		$rev = $gi->getShortHash($revisions[0]);
-		$rev_before = $gi->getShortHash($revisions[1]);
+		$rev = isset($revisions[0]) ? $gi->getShortHash($revisions[0]) : "";
+		$rev_before = isset($revisions[1]) ? $gi->getShortHash($revisions[1]) : "";
 	}
 	catch (Exception $e)
 	{

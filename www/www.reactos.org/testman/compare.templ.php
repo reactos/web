@@ -16,9 +16,13 @@
 
 <div>
 	<?php echo $testman_controls ?>
-	<button class="btn btn-default" onclick="window.open('export.php?f=csv&amp;ids=<?php echo $_GET["ids"]; ?>')">CSV</button>
-	<button class="btn btn-default" onclick="window.open('export.php?f=xml&amp;ids=<?php echo $_GET["ids"]; ?>')">XML</button>
+	<button class="btn btn-default" onclick="window.open('export.php?f=csv&amp;ids=<?php echo htmlspecialchars($ids); ?>')">CSV</button>
+	<button class="btn btn-default" onclick="window.open('export.php?f=xml&amp;ids=<?php echo htmlspecialchars($ids); ?>')">XML</button>
 </div><br>
+
+<?php if ($auto_baseline): ?>
+	<div class="alert alert-info" id="autobaseline"><?php echo $testman_langres["prbaseline"]; ?></div>
+<?php endif; ?>
 
 <div id="healthindicator_tooltip">
 	<div class="intro"><?php echo $testman_langres["healthindicator_intro"]; ?></div>

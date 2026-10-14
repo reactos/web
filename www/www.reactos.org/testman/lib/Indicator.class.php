@@ -16,7 +16,7 @@
 
 		// Member Variables
 		private $_id;
-		private $_image_path;
+		private $_finished = FALSE;
 
 		// Private Functions
 		private function _doColour(&$status, &$tests, &$failures)
@@ -38,10 +38,33 @@
 			return array(255, 255 - $offset, 0);
 		}
 
-		private function _generateImage()
+		// Public Functions
+		public function __construct($id)
+		{
+			if($id <= 0)
+				throw new RuntimeException("Invalid ID");
+
+			$this->_id = $id;
+		}
+
+		/**
+		 * Draws the indicator and returns it as PNG data.
+		 *
+		 * Nothing is written to disk. The strip is cheap to draw and never changes once
+		 * the run is finished, so the caching belongs in the HTTP headers of
+		 * indicator.php rather than in a directory that only ever grew.
+		 */
+		public function render()
 		{
 			$dbh = new PDO("mysql:host=" . TESTMAN_DB_HOST . ";dbname=" . TESTMAN_DB_NAME, TESTMAN_DB_USER, TESTMAN_DB_PASS);
 			$dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+			// Only a finished run may be cached forever; one that is still being
+			// submitted would freeze halfway through.
+			$stmt = $dbh->prepare("SELECT finished FROM winetest_runs WHERE id = :test_id");
+			$stmt->bindParam(":test_id", $this->_id);
+			$stmt->execute();
+			$this->_finished = (bool)$stmt->fetchColumn();
 
 			$i = 0;
 			$image = imagecreatetruecolor($this->_WIDTH, $this->_HEIGHT);
@@ -62,27 +85,18 @@
 				$i++;
 			}
 
-			imagepng($image, $this->_image_path);
+			ob_start();
+			imagepng($image);
 			imagedestroy($image);
+
+			return ob_get_clean();
 		}
 
-		// Public Functions
-		public function __construct($id)
+		/**
+		 * Whether the run was finished. Only meaningful after render().
+		 */
+		public function isFinished()
 		{
-			if($id <= 0)
-				throw new RuntimeException("Invalid ID");
-
-			$this->_id = $id;
-			$this->_image_path = INDICATORS_PATH . "$id.png";
-
-			if (file_exists($this->_image_path))
-				return;
-
-			$this->_generateImage();
-		}
-
-		public function getImagePath()
-		{
-			return $this->_image_path;
+			return $this->_finished;
 		}
 	}

@@ -48,6 +48,12 @@
 		$build = (int)$_GET["build"];
 		$comment = $_GET["comment"];
 
+		// Optional. The BuildBot knows the ref it checked out and can compute the master
+		// commit underneath it; both are passed straight through to the writer, which
+		// falls back to resolving the revision against gitinfo when they are absent.
+		$ref = array_key_exists("branch", $_GET) && $_GET["branch"] !== "" ? $_GET["branch"] : NULL;
+		$baserevision = array_key_exists("baserevision", $_GET) && $_GET["baserevision"] !== "" ? $_GET["baserevision"] : NULL;
+
 		$writer = new WineTest_Writer($sourceid, $password);
 
 		// Connect to the database.
@@ -235,7 +241,7 @@
 
 			// Did we already get a Test ID for this run?
 			if (!$test_id)
-				$test_id = $writer->getTestId($revision, "reactos.$platform", $comment);
+				$test_id = $writer->getTestId($revision, "reactos.$platform", $comment, $baserevision, $ref);
 
 			// Finally submit the log.
 			$writer->submit($test_id, $suite_id, $log);

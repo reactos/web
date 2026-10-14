@@ -34,6 +34,11 @@ CREATE TABLE `winetest_runs` (
   `finished` tinyint(1) NOT NULL DEFAULT '0',
   `source_id` int(10) unsigned NOT NULL,
   `revision` varchar(40) NOT NULL,
+  `base_revision` char(40) DEFAULT NULL COMMENT 'Master commit this run was built on top of',
+  `base_order` int(10) unsigned DEFAULT NULL COMMENT 'master_revisions.id of base_revision',
+  `base_exact` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0 if base_order was guessed from the clock',
+  `ref` varchar(64) DEFAULT NULL COMMENT 'What the builder checked out, verbatim',
+  `pr_number` int(10) unsigned DEFAULT NULL COMMENT 'Pull request number, parsed from ref',
   `platform` varchar(24) COLLATE latin1_general_ci NOT NULL,
   `comment` varchar(255) COLLATE latin1_general_ci DEFAULT NULL,
   `count` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'Sum of all executed tests',
@@ -46,7 +51,12 @@ CREATE TABLE `winetest_runs` (
   `time` float unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `revision` (`revision`),
-  KEY `platform` (`platform`)
+  KEY `platform` (`platform`),
+  KEY `ix_runs_ts` (`finished`,`timestamp`,`id`),
+  KEY `ix_runs_src_plat` (`source_id`,`platform`,`timestamp`),
+  KEY `ix_runs_base` (`base_order`),
+  KEY `ix_runs_base_rev` (`base_revision`),
+  KEY `ix_runs_pr` (`pr_number`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1 COLLATE=latin1_general_ci;
 
 CREATE TABLE `winetest_suites` (

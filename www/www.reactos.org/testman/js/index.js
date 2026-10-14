@@ -1,27 +1,51 @@
 /*
  * PROJECT:     ReactOS Testman
- * LICENSE:     GPL-2.0+ (https://spdx.org/licenses/GPL-2.0+)
+ * LICENSE:     GPL-2.0-or-later (https://spdx.org/licenses/GPL-2.0-or-later)
  * PURPOSE:     JavaScript file for the Testman Front Page
  * COPYRIGHT:   Copyright 2008-2017 Colin Finck (colin@reactos.org)
  *              Copyright 2014 Kamil Hornicek (kamil.hornicek@reactos.org)
+ *              Copyright 2026 Mark Jansen (mark.jansen@reactos.org)
  */
 
-var CurrentPage;
-var data;
-var RevisionRangeStart;
-var RevisionRangeEnd;
-var PageCount;
-var ResultCount;
+// The filters of api/runs.php, mapped to the form fields that hold them. The whole
+// search state lives in the query string, so every search is a shareable URL.
+var FILTER_FIELDS = {
+	from: "search_from",
+	to: "search_to",
+	rev: "search_revision",
+	rev_from: "search_rev_from",
+	rev_to: "search_rev_to",
+	pr: "search_pr",
+	source: "search_source",
+	platform: "search_platform",
+	min_failures: "search_min_failures"
+};
+
+// What a field shows when the query string does not mention it. The form starts on
+// master-only, but a URL that leaves "pr" out really does mean every build, so the
+// dropdown has to say so rather than silently disagreeing with the results below it.
+var FILTER_DEFAULTS = {
+	pr: "all"
+};
+
+// The response of the page that is currently shown, for the Newer/Older buttons.
+var CurrentQuery = null;
+var CurrentResponse = null;
+
 var SelectedResults = new Object();
 var SelectedResultCount = 0;
-
-var REQUESTTYPE_FULLLOAD = 1;
-var REQUESTTYPE_ADDPAGE = 2;
-var REQUESTTYPE_PAGESWITCH = 3;
 
 function SetLoading(value)
 {
 	document.getElementById("ajax_loading_search").style.visibility = (value ? "visible" : "hidden");
+}
+
+function Escape(value)
+{
+	if (value === null || value === undefined)
+		return "";
+
+	return String(value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 }
 
 /**
@@ -74,67 +98,298 @@ function ResultCell_OnClick(elem)
 	OpenComparePage(IDArray);
 }
 
-function GetRevisions()
+/**
+ * Collects the filters from the form, leaving out the ones that were not filled in.
+ */
+function ReadFilters()
 {
-	var revisions = document.getElementById("search_revision").value;
+	var filters = new Object();
 
-	// If the user didn't enter any revision number at all, he doesn't want to search for a specific revision
-	if (!revisions)
+	for (var name in FILTER_FIELDS)
 	{
-		RevisionRangeStart = "";
-		RevisionRangeEnd = "";
-		return true;
+		var value = document.getElementById(FILTER_FIELDS[name]).value.trim();
+
+		if (value)
+			filters[name] = value;
 	}
 
-	var hyphen = revisions.indexOf("-");
-	if (hyphen > 0)
+	return filters;
+}
+
+function WriteFilters(query)
+{
+	// "pr" can also be a single pull request number, which is not one of the two options
+	// the dropdown ships with. Give it one, or pressing Search would quietly widen the
+	// view back to every build.
+	var select = document.getElementById(FILTER_FIELDS["pr"]);
+	var pr = query["pr"];
+
+	for (var i = select.options.length - 1; i >= 0; i--)
 	{
-		RevisionRangeStart = revisions.substr(0, hyphen);
-		RevisionRangeEnd = revisions.substr(hyphen + 1);
+		if (select.options[i].dataset.onepr)
+			select.remove(i);
+	}
+
+	if (pr && /^[0-9]+$/.test(pr))
+	{
+		var option = document.createElement("option");
+
+		option.value = pr;
+		option.text = testman_langres["pullrequest"].replace(/\{1\}/, pr);
+		option.dataset.onepr = "1";
+		select.add(option);
+	}
+
+	for (var name in FILTER_FIELDS)
+	{
+		var fallback = (name in FILTER_DEFAULTS) ? FILTER_DEFAULTS[name] : "";
+		document.getElementById(FILTER_FIELDS[name]).value = (name in query) ? query[name] : fallback;
+	}
+}
+
+function BuildQueryString(query)
+{
+	var parts = new Array();
+
+	for (var name in query)
+	{
+		if (query[name] !== null && query[name] !== "")
+			parts.push(encodeURIComponent(name) + "=" + encodeURIComponent(query[name]));
+	}
+
+	return parts.join("&");
+}
+
+function ParseQueryString(search)
+{
+	var query = new Object();
+	var parts = search.replace(/^\?/, "").split("&");
+
+	for (var i = 0; i < parts.length; i++)
+	{
+		if (!parts[i])
+			continue;
+
+		var pair = parts[i].split("=");
+		query[decodeURIComponent(pair[0])] = decodeURIComponent((pair[1] || "").replace(/\+/g, " "));
+	}
+
+	return query;
+}
+
+/**
+ * Runs the query against api/runs.php and renders the result.
+ *
+ * @param query
+ * The filters plus the optional "cursor" and "dir" of the page to show.
+ *
+ * @param push
+ * Whether to add the query to the browser history. False when the query came from the
+ * history in the first place, i.e. on page load and when going back.
+ */
+function Search(query, push)
+{
+	var querystring = BuildQueryString(query);
+
+	CurrentQuery = query;
+	SetLoading(true);
+
+	// Paging is a seek on the run id, so there is exactly one request per page and no
+	// total count. Nothing walks the result set any more.
+	fetch("api/runs.php?" + querystring)
+		.then(function(response) { return response.json(); })
+		.then(function(data)
+		{
+			SetLoading(false);
+
+			if (data.error)
+			{
+				alert(data.error);
+				return;
+			}
+
+			CurrentResponse = data;
+			RenderResults(data);
+
+			document.getElementById("overview").style.display = "none";
+
+			if (push)
+				history.pushState(query, "", querystring ? "?" + querystring : location.pathname);
+		})
+		.catch(function(error)
+		{
+			SetLoading(false);
+			alert(testman_langres["loadfailed"] + "\n\n" + error);
+		});
+}
+
+/**
+ * What the run was built on top of, which for a pull request build is not the commit it
+ * built. A master run is its own base, so saying so again in its own column would be
+ * noise; it gets an empty cell.
+ */
+function RenderAnchor(run)
+{
+	var html = "";
+
+	if (run.pr_number !== null)
+	{
+		html += '<a href="' + GITHUB_PR_URL + run.pr_number + '" target="_blank" rel="noopener">';
+		html += Escape(testman_langres["pullrequest"].replace(/\{1\}/, run.pr_number)) + '<\/a>';
+		html += ' <a href="?pr=' + run.pr_number + '" title="' + Escape(testman_langres["allrunsforpr"]) + '">&#9776;<\/a>';
+	}
+
+	if (run.base_revision !== null && run.base_revision !== run.revision)
+		html += ' <span class="anchor">' + Escape(run.base_revision_short) + '<\/span>';
+
+	if (!run.base_exact && run.base_order !== null)
+		html += ' <span class="approx" title="' + Escape(testman_langres["approximatehint"]) + '">' + Escape(testman_langres["approximate"]) + '<\/span>';
+
+	if (run.base_order === null && run.pr_number !== null)
+		html += ' <span class="approx">' + Escape(testman_langres["unanchored"]) + '<\/span>';
+
+	return html;
+}
+
+function RenderResults(data)
+{
+	// has_more only speaks about the direction that was asked for. In the other one we
+	// either came from a page (so it exists) or we are at the newest run (so it does not).
+	var newer = (CurrentQuery["dir"] == "newer");
+	var HasOlder = newer ? true : data.has_more;
+	var HasNewer = newer ? data.has_more : !!CurrentQuery["cursor"];
+
+	var html = "";
+
+	html += '<div class="row"><div id="infobox" class="col-sm-3">';
+	html += testman_langres["showingresults"].replace(/\{1\}/, data.runs.length);
+	html += '<\/div>';
+
+	html += '<div class="col-sm-4">';
+	html += testman_langres["status"].replace(/\{1\}/, '<span id="selectedresultcount">' + SelectedResultCount + '<\/span>');
+	html += ' <button class="btn btn-default" onclick="ClearSelected_OnClick()">' + testman_langres["clearselected"] + '<\/button>';
+	html += '<\/div>';
+
+	html += '<div id="pagesbox" class="form-inline pull-right">';
+	html += '<button class="btn btn-default" ' + (HasNewer ? 'onclick="NewerPage_OnClick()"' : 'disabled="disabled"') + '><i class="fa fa-angle-left"><\/i> ' + testman_langres["newer"] + '<\/button> ';
+	html += '<button class="btn btn-default" ' + (HasOlder ? 'onclick="OlderPage_OnClick()"' : 'disabled="disabled"') + '>' + testman_langres["older"] + ' <i class="fa fa-angle-right"><\/i><\/button>';
+	html += '<\/div>';
+
+	html += '<\/div>';
+
+	html += '<table class="table table-hover" id="resulttable">';
+
+	html += '<thead><tr class="head">';
+	html += '<th class="TestCheckbox"><\/th>';
+	html += '<th>' + shared_langres["revision"] + '<\/th>';
+	html += '<th>' + testman_langres["anchor"] + '<\/th>';
+	html += '<th>' + shared_langres["date"] + '<\/th>';
+	html += '<th>' + testman_langres["totaltests"] + '<\/th>';
+	html += '<th>' + testman_langres["failedtests"] + '<\/th>';
+	html += '<th>' + testman_langres["source"] + '<\/th>';
+	html += '<th>' + testman_langres["platform"] + '<\/th>';
+	html += '<th>' + testman_langres["comment"] + '<\/th>';
+	html += '<\/tr><\/thead>';
+	html += '<tbody>';
+
+	if (!data.runs.length)
+	{
+		html += '<tr><td colspan="9">' + testman_langres["noresults"] + '<\/td><\/tr>';
 	}
 	else
 	{
-		RevisionRangeStart = revisions;
-		RevisionRangeEnd = revisions;
+		for (var i = 0; i < data.runs.length; i++)
+		{
+			var run = data.runs[i];
+
+			html += '<tr' + (run.pr_number !== null ? ' class="prrun"' : '') + '>';
+			html += '<td><input onclick="ResultCheckbox_OnClick(this)" type="checkbox" id="test_' + run.id + '" \/><\/td>';
+			html += '<td onclick="ResultCell_OnClick(this)">' + Escape(run.revision_short) + '<\/td>';
+			html += '<td>' + RenderAnchor(run) + '<\/td>';
+			html += '<td onclick="ResultCell_OnClick(this)">' + Escape(run.date) + '<\/td>';
+			html += '<td onclick="ResultCell_OnClick(this)">' + run.count + '<\/td>';
+			html += '<td onclick="ResultCell_OnClick(this)">' + run.failures + '<\/td>';
+			html += '<td onclick="ResultCell_OnClick(this)">' + Escape(run.source) + '<\/td>';
+			html += '<td onclick="ResultCell_OnClick(this)">' + Escape(run.platform_name) + '<\/td>';
+			html += '<td onclick="ResultCell_OnClick(this)">' + Escape(run.comment) + '<\/td>';
+			html += '<\/tr>';
+		}
 	}
 
-	return (RevisionRangeStart && RevisionRangeEnd);
-}
+	html += '<\/tbody><\/table>';
 
-function SearchCall()
-{
-	SetLoading(true);
-	AjaxGet("ajax-search.php", "SearchCallback", data);
+	document.getElementById("searchtable").innerHTML = html;
+	UpdateAllCheckboxes();
 }
 
 function SearchButton_OnClick()
 {
-	if (!GetRevisions())
-	{
-		alert(shared_langres["invalidrev"]);
-		return;
-	}
-
-	CurrentPage = 1;
-	data = new Array();
-	data["startrev"] = RevisionRangeStart;
-	data["endrev"] = RevisionRangeEnd;
-	data["source"] = document.getElementById("search_source").value;
-	data["platform"] = document.getElementById("search_platform").value;
-	data["page"] = CurrentPage;
-	data["resultlist"] = 1;
-	data["requesttype"] = REQUESTTYPE_FULLLOAD;
-
-	if (window.localStorage)
-		localStorage.setItem("testman_source", data["source"]);
-
-	SearchCall();
+	// A new search always starts at the newest matching run, so no cursor.
+	Search(ReadFilters(), true);
 }
 
-function ResizeIFrame()
+function ResetButton_OnClick()
 {
-	var iframe = document.getElementById("comparepage_frame");
-	iframe.height = iframe.contentDocument.body.offsetHeight + 40;
+	location.href = location.pathname;
+}
+
+/**
+ * Continues from the page that is on screen. The filters come from the query that
+ * produced it, not from the form: a cursor only means anything within the result set it
+ * was taken from, so edits made without pressing Search must not leak into it.
+ */
+function PageFrom(cursor, dir)
+{
+	var query = new Object();
+
+	for (var name in FILTER_FIELDS)
+	{
+		if (name in CurrentQuery)
+			query[name] = CurrentQuery[name];
+	}
+
+	query["cursor"] = cursor;
+	query["dir"] = dir;
+	Search(query, true);
+}
+
+function OlderPage_OnClick()
+{
+	PageFrom(CurrentResponse.last_id, "older");
+}
+
+function NewerPage_OnClick()
+{
+	PageFrom(CurrentResponse.first_id, "newer");
+}
+
+/**
+ * Renders whatever the query string asks for. Without one, the server-rendered overview
+ * of the latest run per source is what the visitor gets.
+ */
+function ShowQuery(query, push)
+{
+	WriteFilters(query);
+
+	var filtered = false;
+
+	for (var name in query)
+	{
+		if (query[name] !== "")
+			filtered = true;
+	}
+
+	if (filtered)
+	{
+		Search(query, push);
+	}
+	else
+	{
+		CurrentQuery = null;
+		CurrentResponse = null;
+		document.getElementById("searchtable").innerHTML = "";
+		document.getElementById("overview").style.display = "";
+	}
 }
 
 function Load()
@@ -147,197 +402,19 @@ function Load()
 		if((keyevent && keyevent.which == 13) || (window.event && window.event.keyCode == 13))
 			SearchButton_OnClick();
 	};
-	document.getElementById("search_revision").onkeypress = f;
-	document.getElementById("search_source").onkeypress = f;
-	document.getElementById("search_platform").onkeypress = f;
 
-	// Load the settings.
+	for (var name in FILTER_FIELDS)
+		document.getElementById(FILTER_FIELDS[name]).onkeypress = f;
+
 	if (window.localStorage)
-	{
 		document.getElementById("opennewwindow").checked = parseInt(window.localStorage.getItem("testman_opennewwindow"));
-		document.getElementById("search_source").value = window.localStorage.getItem("testman_source") ? window.localStorage.getItem("testman_source") : DEFAULT_SEARCH_SOURCE;
-	}
 
-	// Search for the 10 last results, sorted with the newest on top.
-	// Descending order and limiting is not doable with the regular Search function, so we have to do the call ourselves.
-	CurrentPage = 1;
-	data = new Array();
-	data["desc"] = 1;
-	data["limit"] = DEFAULT_SEARCH_LIMIT;
-	data["source"] = document.getElementById("search_source").value;
-	data["page"] = CurrentPage;
-	data["resultlist"] = 1;
-	data["requesttype"] = REQUESTTYPE_FULLLOAD;
-
-	SearchCall();
-}
-
-function GetTagData(RootElement, TagName)
-{
-	var Child = RootElement.getElementsByTagName(TagName)[0].firstChild;
-	return Child ? Child.data : "";
-}
-
-function SearchCallback(HttpRequest)
-{
-	// Check for an error
-	if (HttpRequest.responseXML.getElementsByTagName("error").length > 0)
+	window.onpopstate = function(event)
 	{
-		alert(HttpRequest.responseXML.getElementsByTagName("error")[0].firstChild.data)
-		return;
-	}
+		ShowQuery(event.state ? event.state : ParseQueryString(location.search), false);
+	};
 
-	var html = "";
-	var RequestResultCount = parseInt(HttpRequest.responseXML.getElementsByTagName("resultcount")[0].firstChild.data);
-	var MoreResults = (RequestResultCount > RESULTS_PER_PAGE);
-	var FirstRev = "";
-	var LastRev = "";
-
-	if (RequestResultCount > 0)
-	{
-		FirstRev = HttpRequest.responseXML.getElementsByTagName("firstrev")[0].firstChild.data;
-		LastRev = HttpRequest.responseXML.getElementsByTagName("lastrev")[0].firstChild.data;
-	}
-
-	if (data["requesttype"] == REQUESTTYPE_FULLLOAD || data["requesttype"] == REQUESTTYPE_PAGESWITCH)
-	{
-		// Build a new infobox
-		html += '<div class="row"><div id="infobox" class="col-sm-2">';
-
-		if(data["requesttype"] == REQUESTTYPE_FULLLOAD)
-		{
-			ResultCount = RequestResultCount;
-			PageCount = 1;
-			html += testman_langres["foundresults"].replace(/\{1\}/, ResultCount);
-		}
-		else
-		{
-			html += document.getElementById("infobox").innerHTML;
-		}
-
-		html += '<\/div>';
-
-		html += '<div class="col-sm-4">';
-		html += testman_langres["status"].replace(/\{1\}/, '<span id="selectedresultcount">' + SelectedResultCount + '<\/span>');
-		html += ' <button class="btn btn-default" onclick="ClearSelected_OnClick()">' + testman_langres["clearselected"] + '<\/button>';
-		html += '<\/div>';
-
-		if (PageCount > 1 || MoreResults)
-		{
-			// Page number boxes
-			html += '<div id="pagesbox" class="form-inline pull-right">';
-
-			html += '<button class="btn btn-default" ' + (CurrentPage > 1 ? 'onclick="FirstPage_OnClick()"' : 'disabled="disabled"') + ' title="' + shared_langres["firstpage_title"] + '"><i class="fa fa-angle-double-left"><\/i><\/button> ';
-			html += '<button class="btn btn-default" ' + (CurrentPage > 1 ? 'onclick="PrevPage_OnClick()"' : 'disabled="disabled"') + ' title="' + shared_langres["prevpage_title"] + '"><i class="fa fa-angle-left"><\/i><\/button> ';
-
-			html += '<select class="form-control" id="pagesel" size="1" onchange="PageBox_OnChange(this)">';
-
-			if (data["requesttype"] == REQUESTTYPE_FULLLOAD)
-			{
-				html += '<option value="' + CurrentPage + '">';
-				html += shared_langres["page"] + ' ' + CurrentPage;
-				html += ' - ' + FirstRev + ' ... ' + LastRev;
-				html += '<\/option>';
-			}
-			else
-			{
-				html += document.getElementById("pagesel").innerHTML;
-			}
-
-			html += '<\/select> ';
-
-			html += '<button class="btn btn-default" ' + (MoreResults ? 'onclick="NextPage_OnClick()"' : 'disabled="disabled"') + ' title="' + shared_langres["nextpage_title"] + '"><i class="fa fa-angle-right"><\/i><\/button> ';
-			html += '<button class="btn btn-default" ' + (MoreResults ? 'onclick="LastPage_OnClick()"' : 'disabled="disabled"') + ' title="' + shared_langres["lastpage_title"] + '"><i class="fa fa-angle-double-right"><\/i><\/button>';
-
-			html += '<\/div>';
-		}
-
-		html += '<\/div><\/div>';
-
-		// File table
-		html += '<table class="table table-hover" id="resulttable">';
-
-		html += '<thead><tr class="head">';
-		html += '<th class="TestCheckbox"><\/th>';
-		html += '<th>' + shared_langres["revision"] + '<\/th>';
-		html += '<th>' + shared_langres["date"] + '<\/th>';
-		html += '<th>' + testman_langres["totaltests"] + '<\/th>';
-		html += '<th>' + testman_langres["failedtests"] + '<\/th>';
-		html += '<th>' + testman_langres["source"] + '<\/th>';
-		html += '<th>' + testman_langres["platform"] + '<\/th>';
-		html += '<th>' + testman_langres["comment"] + '<\/th>';
-		html += '<\/tr><\/thead>';
-		html += '<tbody>';
-
-		var results = HttpRequest.responseXML.getElementsByTagName("result");
-
-		if (!results.length)
-		{
-			html += '<tr><td colspan="8">' + testman_langres["noresults"] + '<\/td><\/tr>';
-		}
-		else
-		{
-			for (var i = 0; i < results.length; i++)
-			{
-				html += '<tr>';
-				html += '<td><input onclick="ResultCheckbox_OnClick(this)" type="checkbox" id="test_' + GetTagData(results[i], "id") + '" \/><\/td>';
-				html += '<td onclick="ResultCell_OnClick(this)">' + GetTagData(results[i], "revision") + '<\/td>';
-				html += '<td onclick="ResultCell_OnClick(this)">' + GetTagData(results[i], "date") + '<\/td>';
-				html += '<td onclick="ResultCell_OnClick(this)">' + GetTagData(results[i], "count") + '<\/td>';
-				html += '<td onclick="ResultCell_OnClick(this)">' + GetTagData(results[i], "failures") + '<\/td>';
-				html += '<td onclick="ResultCell_OnClick(this)">' + GetTagData(results[i], "source") + '<\/td>';
-				html += '<td onclick="ResultCell_OnClick(this)">' + GetTagData(results[i], "platform") + '<\/td>';
-				html += '<td onclick="ResultCell_OnClick(this)">' + GetTagData(results[i], "comment") + '<\/td>';
-				html += '<\/tr>';
-			}
-		}
-
-		html += '<\/tbody><\/table>';
-
-		document.getElementById("searchtable").innerHTML = html;
-
-		if(data["requesttype"] == REQUESTTYPE_PAGESWITCH)
-		{
-			// Switch the selected page in the Page ComboBox
-			document.getElementById("pagesel").getElementsByTagName("option")[CurrentPage - 1].selected = true;
-		}
-
-		UpdateAllCheckboxes();
-	}
-	else
-	{
-		// Just add a new page to the Page combo box and the information for it
-		PageCount++;
-
-		// As always, we have to work around an IE bug
-		// If I use "innerHTML" here, the first <OPTION> start tag gets dropped in the IE...
-		// Therefore I have to use the DOM functions in this case.
-		var OptionElem = document.createElement("option");
-		var OptionText = document.createTextNode(shared_langres["page"] + ' ' + PageCount + ' - ' + FirstRev + ' ... ' + LastRev);
-
-		OptionElem.value = PageCount;
-		OptionElem.appendChild(OptionText);
-
-		document.getElementById("pagesel").appendChild(OptionElem);
-	}
-
-	if (MoreResults && (data["requesttype"] == REQUESTTYPE_FULLLOAD || data["requesttype"] == REQUESTTYPE_ADDPAGE))
-	{
-		// There are more results available in the full range. Therefore we have to start another request and add a new page.
-		data["resultlist"] = 0;
-		data["page"] = PageCount + 1;
-		data["requesttype"] = REQUESTTYPE_ADDPAGE;
-		SearchCall();
-	}
-	else
-	{
-		// If data["desc"] is set, this is the initial search performed in Load().
-		// In this case, set the search_revision field to the range we got.
-		if (data["desc"] && FirstRev && LastRev)
-			document.getElementById("search_revision").value = LastRev + "-" + FirstRev;
-
-		SetLoading(false);
-	}
+	ShowQuery(ParseQueryString(location.search), false);
 }
 
 /**
@@ -377,10 +454,21 @@ function OpenComparePage(ResultArray)
 	}
 }
 
+function ResizeIFrame()
+{
+	var iframe = document.getElementById("comparepage_frame");
+	iframe.height = iframe.contentDocument.body.offsetHeight + 40;
+}
+
 function CompareFirstTwoButton_OnClick()
 {
 	var IDArray;
-	var trs = document.getElementById("resulttable").getElementsByTagName("tbody")[0].getElementsByTagName("tr");
+	var table = document.getElementById("resulttable");
+
+	if (!table)
+		return;
+
+	var trs = table.getElementsByTagName("tbody")[0].getElementsByTagName("tr");
 
 	if (trs[0].firstChild.firstChild.nodeName != "INPUT")
 		return;
@@ -393,41 +481,6 @@ function CompareFirstTwoButton_OnClick()
 		IDArray.push(parseInt(trs[1].firstChild.firstChild.id.substr(5)));
 
 	OpenComparePage(IDArray);
-}
-
-function PageSwitch(NewPage)
-{
-	CurrentPage = NewPage;
-	data["page"] = NewPage;
-	data["resultlist"] = 1;
-	data["requesttype"] = REQUESTTYPE_PAGESWITCH;
-
-	SearchCall();
-}
-
-function FirstPage_OnClick()
-{
-	PageSwitch(document.getElementById("pagesel").getElementsByTagName("option")[0].value);
-}
-
-function PrevPage_OnClick()
-{
-	PageSwitch(document.getElementById("pagesel").getElementsByTagName("option")[CurrentPage - 2].value);
-}
-
-function PageBox_OnChange(elem)
-{
-	PageSwitch(elem.value);
-}
-
-function NextPage_OnClick()
-{
-	PageSwitch(document.getElementById("pagesel").getElementsByTagName("option")[CurrentPage].value);
-}
-
-function LastPage_OnClick()
-{
-	PageSwitch(document.getElementById("pagesel").getElementsByTagName("option")[PageCount - 1].value);
 }
 
 function NumericComparison(a, b)

@@ -1,0 +1,32 @@
+/*
+  PROJECT:    ReactOS Web Test Manager
+  LICENSE:    GNU GPLv2 or any later version as published by the Free Software Foundation
+  PURPOSE:    Chrome shared by the Testman tool pages
+  COPYRIGHT:  Copyright 2026 Mark Jansen <mark.jansen@reactos.org>
+*/
+
+/* The page header band is decoration. On a tool page it pushed the first result most of
+   a screen down, so it gets the space it needs and no more. */
+#heading-breadcrumbs {
+	padding-top: 8px;
+	padding-bottom: 8px;
+	margin-bottom: 15px;
+}
+
+#heading-breadcrumbs h1 {
+	margin: 8px 0;
+}
+
+/* The shared header ends with an empty container that the site layout grows to push the
+   footer down. Testman renders its content in the siblings after it, so on a page short
+   enough to leave slack, all of that slack piles up above the breadcrumb band as blank
+   space. Let the content area take the slack instead, which is where it was meant to go. */
+body > .container-fluid {
+	/* !important because the winning declaration is in the shared stylesheet served from
+	   reactos.org, which testman does not control and cannot reorder. */
+	flex-grow: 0 !important;
+}
+
+#content {
+	flex-grow: 1;
+}

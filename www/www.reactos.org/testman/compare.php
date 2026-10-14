@@ -29,7 +29,26 @@
 
 		$gi = new GitInfo();
 		$reader = new WineTest_Reader();
-		$result = $reader->setTestIDList($_GET["ids"]);
+
+		// A pull request build on its own is not a useful page: the interesting question
+		// is what it changed, and the answer is the newest master run of the same builder
+		// at or below its position. Put that in front of it instead of making the visitor
+		// hunt for it in the search results.
+		$ids = $_GET["ids"];
+		$auto_baseline = FALSE;
+
+		if (is_numeric($ids))
+		{
+			$baseline = $reader->findMasterBaseline($ids);
+
+			if ($baseline !== NULL)
+			{
+				$ids = $baseline . "," . (int)$ids;
+				$auto_baseline = TRUE;
+			}
+		}
+
+		$result = $reader->setTestIDList($ids);
 
 		// Hide the filter to show only changed results if just one Test ID was passed.
 		// We can't simply leave out the option entirely, because this would break the cookies storing the selected filters.
@@ -61,16 +80,31 @@
 			$stmt = $reader->getTestRunInfoStatement($i);
 			$row = $stmt->fetch(PDO::FETCH_ASSOC);
 
-			$indicator = new Indicator($row["id"]);
-
 			$table_summary .= '<th>';
 			$table_summary .= sprintf($testman_langres["resulthead"], $gi->getShortHash($row["revision"]), htmlspecialchars($row["comment"]), GetDateString($row["timestamp"]), $row["name"], GetPlatformString($row["platform"]));
+
+			// A pull request build did not build the commit it is anchored to, so say
+			// which one it sits on top of. Without it the revision above reads as a point
+			// on master's history, which it is not.
+			if ($row["pr_number"] !== null)
+			{
+				$table_summary .= sprintf('<br /><a class="prlink" href="%s" target="_blank" rel="noopener">%s</a>',
+					htmlspecialchars(sprintf(GITHUB_PR_URL, (int)$row["pr_number"])),
+					htmlspecialchars(sprintf($testman_langres["onepr"], (int)$row["pr_number"])));
+
+				if ($row["base_revision"] !== null)
+					$table_summary .= ' <span class="anchor">' . htmlspecialchars(sprintf($testman_langres["basedon"], $gi->getShortHash($row["base_revision"]))) . '</span>';
+
+				if (!$row["base_exact"])
+					$table_summary .= sprintf(' <span class="approx" title="%s">?</span>', htmlspecialchars($testman_langres["approximate"]));
+			}
+
 			$table_summary .= '</th>';
 
 			$table_totals .= '<td>';
 			$table_totals .= sprintf('<div title="%s" class="testmanbox totaltests totals">%s <span class="diff">%s</span></div>', $testman_langres["totaltests"], $row["count"], GetDifference($row, $prev_row, "count"));
 			$table_totals .= sprintf('<div title="%s" class="testmanbox %s_failedtests totals">%d <span class="diff">%s</span></div>', $testman_langres["failedtests"], ($row["failures"] > 0 ? 'real' : 'zero'), $row["failures"], GetDifference($row, $prev_row, "failures"));
-			$table_totals .= sprintf('<div class="healthindicator" onmouseover="HealthIndicator_OnMouseOver()" onmouseout="HealthIndicator_OnMouseOut()"><img src="%s" alt="healthindicator"/></div>', $indicator->getImagePath());
+			$table_totals .= sprintf('<div class="healthindicator" onmouseover="HealthIndicator_OnMouseOver()" onmouseout="HealthIndicator_OnMouseOut()"><img src="indicator.php?id=%u" alt="healthindicator"/></div>', $row["id"]);
 			$table_totals .= '</td>';
 
 			$table_separator .= "<td>&nbsp;</td>";

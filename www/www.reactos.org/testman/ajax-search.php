@@ -35,35 +35,17 @@
 		// Check all other parameters and prepare the WHERE clause.
 		$query = "FROM winetest_runs r JOIN sources src ON r.source_id = src.id WHERE r.finished = 1";
 
-		if (array_key_exists("startrev", $_GET) && array_key_exists("endrev", $_GET))
-		{
-			$startrev = $_GET["startrev"];
-			$endrev = $_GET["endrev"];
-
-			if (preg_match($SVN_PATTERN, $startrev) && preg_match($SVN_PATTERN, $endrev))
-			{
-				// The user wants to find old SVN test results.
-				$range = range((int)$startrev, (int)$endrev);
-			}
-			else
-			{
-				// The user wants to find GIT test results.
-
-				// Get the long hashes for searching.
-				$start_hash = $gi->getLongHash($startrev);
-				$end_hash = $gi->getLongHash($endrev);
-				if (!$start_hash || !$end_hash)
-					throw new RuntimeException($shared_langres["invalidinput"]);
-
-				// Get all revisions between $start_hash and $end_hash.
-				$range = $gi->getRevisionRange($start_hash, $end_hash);
-			}
-
-			if (count($range) > REV_RANGE_LIMIT)
-				throw new RuntimeException(sprintf($shared_langres["rangelimitexceeded"], REV_RANGE_LIMIT));
-
-			$query .= " AND r.revision IN ('" . implode("','", $range) . "')";
-		}
+		// "startrev" and "endrev" are gone. They used to expand into every hash between
+		// the two endpoints and splice the lot into this query, which capped a search at
+		// 3000 commits and silently dropped every PR run, because a PR merge commit is
+		// not a hash the range could ever contain. Runs now carry their position on
+		// master as a number, so api/runs.php answers the same question with
+		// "base_order BETWEEN a AND b" and no cap.
+		//
+		// Say so rather than ignoring them: answering a request for a narrow range with
+		// the whole archive would look like a working search.
+		if (array_key_exists("startrev", $_GET) || array_key_exists("endrev", $_GET))
+			throw new ErrorMessageException("Revision ranges have moved to api/runs.php, as the rev_from and rev_to parameters.");
 
 		if (array_key_exists("source", $_GET) && $_GET["source"])
 		{

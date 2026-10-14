@@ -33,7 +33,15 @@
 				$revision = $_POST["revision"];
 				$platform = $_POST["platform"];
 				$comment = $_POST["comment"];
-				die((string)$writer->getTestId($revision, $platform, $comment));
+
+				// Optional, and only the CI job can supply them: "ref" is what it checked
+				// out, "baserevision" the master commit that ref sits on top of. Without
+				// them the writer falls back to resolving the revision against gitinfo,
+				// which is what every existing submitter relies on.
+				$baserevision = array_key_exists("baserevision", $_POST) && $_POST["baserevision"] !== "" ? $_POST["baserevision"] : NULL;
+				$ref = array_key_exists("ref", $_POST) && $_POST["ref"] !== "" ? $_POST["ref"] : NULL;
+
+				die((string)$writer->getTestId($revision, $platform, $comment, $baserevision, $ref));
 
 			case "getsuiteid":
 				if (!array_key_exists("module", $_POST) || !array_key_exists("test", $_POST))

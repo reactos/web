@@ -34,7 +34,7 @@
 
 		// Get information about this result.
 		$stmt = $dbh->prepare(
-			"SELECT UNCOMPRESS(l.log) AS log, e.status, e.count, e.failures, e.skipped, e.todo, e.time, s.module, s.test, UNIX_TIMESTAMP(r.timestamp) AS timestamp, r.revision, r.platform, src.name, r.comment " .
+			"SELECT UNCOMPRESS(l.log) AS log, e.status, e.count, e.failures, e.skipped, e.todo, e.time, s.module, s.test, UNIX_TIMESTAMP(r.timestamp) AS timestamp, r.revision, r.platform, src.name, r.comment, e.suite_id, r.source_id " .
 			"FROM winetest_results e " .
 			"JOIN winetest_logs l ON e.id = l.id " .
 			"JOIN winetest_suites s ON e.suite_id = s.id " .
@@ -45,6 +45,9 @@
 		$stmt->bindParam(":id", $id);
 		$stmt->execute();
 		$row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+		if (!$row)
+			throw new ErrorMessageException("No result with this ID");
 
 		// Post-process the log for convenience.
 		$module_urls = array();
@@ -142,6 +145,10 @@
 				echo '</tr>';
 			}
 		?>
+		<tr>
+			<td><?php echo $testman_langres["suitehistory"]; ?></td>
+			<td><a class="btn btn-default" href="suite.php?suite=<?php echo (int)$row["suite_id"]; ?>&amp;source=<?php echo (int)$row["source_id"]; ?>&amp;platform=<?php echo urlencode($row["platform"]); ?>"><?php echo $testman_langres["suite_title"]; ?></a></td>
+		</tr>
 		<tr>
 			<td><?php echo $testman_langres["log"]; ?>:</td>
 			<td><pre><?php echo $log; ?></pre></td>

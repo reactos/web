@@ -12,7 +12,6 @@
 	$testman_langres = array(
 		// Index page
 		"index_title" => "ReactOS Web Test Manager",
-		"index_intro" => "Mit dieser Oberfläche können Sie die Ergebnisse automatisch ausgeführter Regression-Tests suchen, anzeigen und vergleichen.",
 		"js_disclaimer" => "Sie müssen JavaScript aktivieren, um die Oberfläche zu benutzen!",
 		
 		"date" => "Datum",
@@ -26,6 +25,37 @@
 		"comparefirsttwo_button" => "Erste zwei Ergebnisse vergleichen",
 		"compareselected_button" => "Gewählte Ergebnisse vergleichen",
 		"opennewwindow_checkbox" => "In neuem Fenster öffnen",
+
+		"datefrom" => "From",
+		"dateto" => "To",
+		"minfailures" => "Min. Failures",
+		"revisionhint" => "Anfang des Commit-Hashes, z.B. %s. Findet auch PR-Builds, die auf diesem Commit basieren.",
+"revisionfrom" => "Von Revision",
+"revisionto" => "Bis Revision",
+"revisionrangehint" => "Position auf master, daher sind auch PR-Builds auf Basis eines Commits im Bereich enthalten",
+		"allsources" => "All Sources",
+		"allplatforms" => "All Platforms",
+		"reset_button" => "Reset",
+		"overview_title" => "Latest Result per Source",
+		"showhistory" => "History",
+"prbuilds" => "Builds",
+"masteronly" => "nur master",
+"allbuilds" => "master und Pull Requests",
+"onepr" => "Pull Request %s",
+"basedon" => "basiert auf %s",
+"approximate" => "Position anhand der Laufzeit geschätzt, nicht anhand des Commits, auf dem gebaut wurde",
+"prbaseline" => "Verglichen mit dem neuesten master-Lauf desselben Builders an oder unter dieser Position.",
+"includepr" => "Pull-Request-Builds einbeziehen",
+		"noresults" => "No Results!",
+
+		// Suite History page
+		"suite_title" => "Test Suite History",
+		"teststatus" => "Status",
+		"notrun" => "not run",
+		"newer" => "Newer",
+		"older" => "Older",
+		"showdiff" => "Diff",
+		"suitehistory" => "History of this Test Suite",
 		
 		"foundresults" => "%s Ergebnisse gefunden!",
 		"noresults" => "Keine Suchergebnisse!",
